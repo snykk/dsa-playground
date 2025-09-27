@@ -46,13 +46,13 @@ DSA/
 
 #### 🔹 Linear Data Structures
 
-- [ ] **Array**
-  - [ ] Static Array
-  - [ ] Dynamic Array
-  - [ ] Multi-dimensional Arrays
-- [ ] **String**
-  - [ ] String manipulation
-  - [ ] Pattern matching
+- [x] **Array**
+  - [x] Static Array
+  - [x] Dynamic Array
+  - [x] Multi-dimensional Arrays
+- [x] **String**
+  - [x] String manipulation
+  - [x] Pattern matching
 - [ ] **Linked List**
   - [ ] Singly Linked List
   - [ ] Doubly Linked List
