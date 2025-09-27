@@ -1,7 +1,7 @@
 # 📚 Data Structures & Algorithms (DSA)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%7C%20Java%20%7C%20Go-blue.svg)]()
+[![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
 [![Progress](https://img.shields.io/badge/Progress-0%25-red.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
@@ -265,7 +265,6 @@ DSA/
 
 - [ ] **Templates**
   - [ ] C++ Boilerplate
-  - [ ] Java Boilerplate
   - [ ] Python Boilerplate
 - [ ] **Optimization Techniques**
   - [ ] Fast I/O
@@ -283,7 +282,7 @@ DSA/
 
 ### Prerequisites
 
-- Basic programming knowledge in at least one language (Python/C++/Java/Go)
+- Basic programming knowledge in at least one language (Python/C++/Go)
 - Understanding of basic mathematical concepts
 - Familiarity with computer science fundamentals
 
@@ -317,7 +316,6 @@ Each algorithm and data structure is implemented in:
 
 - 🐍 **Python** - Readable and beginner-friendly
 - ⚡ **C++** - High performance, competitive programming
-- ☕ **Java** - Object-oriented approach
 - 🚀 **Go** - Modern, efficient, and concurrent programming
 
 ---
