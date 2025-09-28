@@ -53,14 +53,14 @@ DSA/
 - [x] **String**
   - [x] String manipulation
   - [x] Pattern matching
-- [ ] **Linked List**
-  - [ ] Singly Linked List
-  - [ ] Doubly Linked List
-  - [ ] Circular Linked List
-- [ ] **Stack**
-  - [ ] Array-based implementation
-  - [ ] Linked List implementation
-  - [ ] Applications (Expression evaluation, etc.)
+- [x] **Linked List**
+  - [x] Singly Linked List
+  - [x] Doubly Linked List
+  - [x] Circular Linked List
+- [x] **Stack**
+  - [x] Array-based implementation
+  - [x] Linked List implementation
+  - [x] Applications (Expression evaluation, etc.)
 - [ ] **Queue**
   - [ ] Simple Queue
   - [ ] Circular Queue
