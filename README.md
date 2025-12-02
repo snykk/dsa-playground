@@ -71,7 +71,7 @@ DSA/
 
 - [ ] **Trees**
   - [x] Binary Tree
-  - [ ] Binary Search Tree (BST)
+  - [x] Binary Search Tree (BST)
   - [ ] AVL Tree
   - [ ] Red-Black Tree
   - [ ] Segment Tree
@@ -416,12 +416,12 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 17/138 topics completed (13%)**
+**Overall Progress: 18/138 topics completed (13%)**
 
-- Data Structures: 17/40 (43%) ✅
+- Data Structures: 18/40 (45%) ✅
   - Linear Data Structures: 16/16 (100%) ✅
-  - Non-Linear Data Structures: 1/18 (6%)
-    - Trees: 1/10 (Binary Tree ✅)
+  - Non-Linear Data Structures: 2/18 (11%)
+    - Trees: 2/10 (Binary Tree ✅, Binary Search Tree ✅)
     - Heaps: 0/3
     - Graph: 0/5
   - Hashing & Advanced: 0/6 (0%)
