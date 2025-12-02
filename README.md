@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-12%25-yellow.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-13%25-yellow.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -70,7 +70,7 @@ DSA/
 #### 🔹 Non-Linear Data Structures
 
 - [ ] **Trees**
-  - [ ] Binary Tree
+  - [x] Binary Tree
   - [ ] Binary Search Tree (BST)
   - [ ] AVL Tree
   - [ ] Red-Black Tree
@@ -416,11 +416,14 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 16/138 topics completed (12%)**
+**Overall Progress: 17/138 topics completed (13%)**
 
-- Data Structures: 16/40 (40%) ✅
+- Data Structures: 17/40 (43%) ✅
   - Linear Data Structures: 16/16 (100%) ✅
-  - Non-Linear Data Structures: 0/18 (0%)
+  - Non-Linear Data Structures: 1/18 (6%)
+    - Trees: 1/10 (Binary Tree ✅)
+    - Heaps: 0/3
+    - Graph: 0/5
   - Hashing & Advanced: 0/6 (0%)
 - Algorithms: 0/80 (0%)
 - Problem Patterns: 0/9 (0%)
