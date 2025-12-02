@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-0%25-red.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-12%25-yellow.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -65,7 +65,7 @@ DSA/
   - [x] Simple Queue
   - [x] Circular Queue
   - [x] Deque (Double-Ended Queue)
-  - [ ] Priority Queue
+  - [x] Priority Queue
 
 #### 🔹 Non-Linear Data Structures
 
@@ -416,12 +416,15 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 0/200+ topics completed**
+**Overall Progress: 16/138 topics completed (12%)**
 
-- Data Structures: 0/50 ✅
-- Algorithms: 0/100 ✅
-- Problem Patterns: 0/15 ✅
-- Utilities: 0/35 ✅
+- Data Structures: 16/40 (40%) ✅
+  - Linear Data Structures: 16/16 (100%) ✅
+  - Non-Linear Data Structures: 0/18 (0%)
+  - Hashing & Advanced: 0/6 (0%)
+- Algorithms: 0/80 (0%)
+- Problem Patterns: 0/9 (0%)
+- Utilities: 0/9 (0%)
 
 ---
 
@@ -431,5 +434,5 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ---
 
-_Last Updated: 16 Sep 2025_
+_Last Updated: 16 Dec 2025_
 _Contributors: Najib Fikri_
