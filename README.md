@@ -61,10 +61,10 @@ DSA/
   - [x] Array-based implementation
   - [x] Linked List implementation
   - [x] Applications (Expression evaluation, etc.)
-- [ ] **Queue**
-  - [ ] Simple Queue
-  - [ ] Circular Queue
-  - [ ] Deque (Double-Ended Queue)
+- [x] **Queue**
+  - [x] Simple Queue
+  - [x] Circular Queue
+  - [x] Deque (Double-Ended Queue)
   - [ ] Priority Queue
 
 #### 🔹 Non-Linear Data Structures
