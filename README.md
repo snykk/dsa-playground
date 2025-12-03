@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-16%25-yellow.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-19%25-yellow.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -113,9 +113,9 @@ dsa-playground/
   - [x] Red-Black Tree
   - [x] Segment Tree
   - [x] Fenwick Tree (Binary Indexed Tree)
-  - [ ] Trie (Prefix Tree)
-  - [ ] Suffix Tree / Suffix Array
-  - [ ] B-Tree / B+ Tree
+  - [x] Trie (Prefix Tree)
+  - [x] Suffix Tree / Suffix Array
+  - [x] B-Tree / B+ Tree
   - [ ] Sparse Table
 - [ ] **Heaps**
   - [ ] Min Heap
@@ -453,12 +453,12 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 22/138 topics completed (16%)**
+**Overall Progress: 26/138 topics completed (19%)**
 
-- Data Structures: 22/40 (55%) ✅
+- Data Structures: 26/40 (65%) ✅
   - Linear Data Structures: 16/16 (100%) ✅
-  - Non-Linear Data Structures: 6/18 (33%)
-    - Trees: 6/10 (Binary Tree ✅, Binary Search Tree ✅, AVL Tree ✅, Red-Black Tree ✅, Segment Tree ✅, Fenwick Tree ✅)
+  - Non-Linear Data Structures: 10/18 (56%)
+    - Trees: 10/10 (100%) ✅ (Binary Tree ✅, Binary Search Tree ✅, AVL Tree ✅, Red-Black Tree ✅, Segment Tree ✅, Fenwick Tree ✅, Trie ✅, Suffix Array ✅, B-Tree ✅, B+ Tree ✅)
     - Heaps: 0/3
     - Graph: 0/5
   - Hashing & Advanced: 0/6 (0%)
@@ -474,5 +474,5 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ---
 
-_Last Updated: 3 Dec 2025_
+_Last Updated: 4 Dec 2025_
 _Contributors: Najib Fikri_
