@@ -40,18 +40,96 @@ AVL Tree uses 4 types of rotations to maintain balance:
 ### 1. Right Rotation (Left-Left Case)
 When left subtree is too tall and left child's left subtree is taller.
 
+**Before (Unbalanced):**
+```
+        z (BF = +2)
+       /
+      y (BF = +1)
+     /
+    x
+```
+
+**After (Right Rotate):**
+```
+      y
+     / \
+    x   z
+```
+
 ### 2. Left Rotation (Right-Right Case)
 When right subtree is too tall and right child's right subtree is taller.
 
+**Before (Unbalanced):**
+```
+    z (BF = -2)
+     \
+      y (BF = -1)
+       \
+        x
+```
+
+**After (Left Rotate):**
+```
+      y
+     / \
+    z   x
+```
+
 ### 3. Left-Right Rotation (Left-Right Case)
 When left subtree is too tall but left child's right subtree is taller.
-- First: Left rotate the left child
-- Then: Right rotate the root
+
+**Before (Unbalanced):**
+```
+        z (BF = +2)
+       /
+      y (BF = -1)
+       \
+        x
+```
+
+**Step 1: Left Rotate y**
+```
+        z
+       /
+      x
+     /
+    y
+```
+
+**Step 2: Right Rotate z**
+```
+      x
+     / \
+    y   z
+```
 
 ### 4. Right-Left Rotation (Right-Left Case)
 When right subtree is too tall but right child's left subtree is taller.
-- First: Right rotate the right child
-- Then: Left rotate the root
+
+**Before (Unbalanced):**
+```
+    z (BF = -2)
+     \
+      y (BF = +1)
+     /
+    x
+```
+
+**Step 1: Right Rotate y**
+```
+    z
+     \
+      x
+       \
+        y
+```
+
+**Step 2: Left Rotate z**
+```
+      x
+     / \
+    z   y
+```
 
 ---
 

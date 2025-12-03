@@ -20,6 +20,37 @@ Red-Black Trees are widely used in practice (e.g., C++ STL `std::map`, Java `Tre
 
 ---
 
+## Structure Example
+
+**Valid Red-Black Tree:**
+```
+            ● (BLACK)
+           / \
+      ● (RED)   ● (BLACK)
+     / \       / \
+    ●   ●     ●   ●
+  (BLACK)   (BLACK)
+```
+
+**Properties Verification:**
+- ✅ Root is BLACK
+- ✅ No two RED nodes adjacent (Red Property)
+- ✅ All paths have same black height (2 in this example)
+- ✅ All leaves (NIL) are BLACK
+
+**Invalid (violates Red Property):**
+```
+            ● (BLACK)
+           / \
+      ● (RED)   ● (BLACK)
+     / \
+● (RED) ● (BLACK)  ❌ Two RED nodes adjacent!
+```
+
+**Note:** Red-Black Tree is more relaxed than AVL Tree (allows some imbalance), resulting in fewer rotations during insertions/deletions.
+
+---
+
 ## Operations
 
 | Operation      | Description                    | Time Complexity |
