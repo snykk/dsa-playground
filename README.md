@@ -22,21 +22,58 @@ This repository serves as:
 ## 📂 Repository Structure
 
 ```
-DSA/
-├── 📁 Data_Structures/
-│   ├── Linear/
-│   ├── Non_Linear/
-│   └── Hashing/
+dsa-playground/
+├── 📁 Data Structures/
+│   ├── 📁 Linear/
+│   │   ├── Array/
+│   │   ├── String/
+│   │   ├── Linked List/
+│   │   ├── Stack/
+│   │   ├── Queue/
+│   │   └── ...
+│   │
+│   ├── 📁 Non_Linear/
+│   │   ├── Trees/
+│   │   │   ├── Binary Tree/
+│   │   │   ├── Binary Search Tree/
+│   │   │   ├── AVL Tree/
+│   │   │   ├── Red-Black Tree/
+│   │   │   ├── Segment Tree/
+│   │   │   ├── Fenwick Tree/
+│   │   │   └── ...
+│   │   ├── Heaps/
+│   │   ├── Graph/
+│   │   └── ...
+│   │
+│   └── 📁 Hashing/
+│       └── ...
+│
 ├── 📁 Algorithms/
 │   ├── Sorting/
 │   ├── Searching/
 │   ├── Graph/
 │   ├── Dynamic_Programming/
 │   └── ...
+│
 ├── 📁 Problem_Patterns/
-├── 📁 Competitive_Programming/
-└── 📁 Examples_and_Tests/
+│   └── ...
+│
+├── 📁 Complexity_Analysis/
+│   ├── Time Complexity/
+│   ├── Space Complexity/
+│   └── Amortized Analysis/
+│
+└── 📁 Competitive_Programming/
+    ├── Templates/
+    ├── Optimization Techniques/
+    └── Problem Types/
 ```
+
+**Note:** Each data structure implementation includes:
+- 📁 Python/ (implementation, tests, README)
+- 📁 C++/ (implementation, tests, README)
+- 📁 Go/ (implementation, tests, README, go.mod)
+- 📄 README.md (overview and concepts)
 
 ---
 
