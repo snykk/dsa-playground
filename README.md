@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-20%25-yellow.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-22%25-yellow.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -106,7 +106,7 @@ dsa-playground/
 
 #### 🔹 Non-Linear Data Structures
 
-- [ ] **Trees**
+- [x] **Trees**
   - [x] Binary Tree
   - [x] Binary Search Tree (BST)
   - [x] AVL Tree
@@ -117,10 +117,10 @@ dsa-playground/
   - [x] Suffix Tree / Suffix Array
   - [x] B-Tree / B+ Tree
   - [x] Sparse Table
-- [ ] **Heaps**
-  - [ ] Min Heap
-  - [ ] Max Heap
-  - [ ] Fibonacci Heap
+- [x] **Heaps**
+  - [x] Min Heap
+  - [x] Max Heap
+  - [x] Fibonacci Heap
 - [ ] **Graph**
   - [ ] Adjacency Matrix
   - [ ] Adjacency List
@@ -453,13 +453,13 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 27/138 topics completed (20%)**
+**Overall Progress: 30/138 topics completed (22%)**
 
-- Data Structures: 27/40 (68%) ✅
+- Data Structures: 30/40 (75%) ✅
   - Linear Data Structures: 16/16 (100%) ✅
-  - Non-Linear Data Structures: 11/18 (61%)
+  - Non-Linear Data Structures: 14/18 (78%)
     - Trees: 11/11 (100%) ✅ (Binary Tree ✅, Binary Search Tree ✅, AVL Tree ✅, Red-Black Tree ✅, Segment Tree ✅, Fenwick Tree ✅, Trie ✅, Suffix Array ✅, B-Tree ✅, B+ Tree ✅, Sparse Table ✅)
-    - Heaps: 0/3
+    - Heaps: 3/3 (100%) ✅ (Min Heap ✅, Max Heap ✅, Fibonacci Heap ✅)
     - Graph: 0/5
   - Hashing & Advanced: 0/6 (0%)
 - Algorithms: 0/80 (0%)
