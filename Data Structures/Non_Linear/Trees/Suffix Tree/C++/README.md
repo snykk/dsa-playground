@@ -30,3 +30,4 @@ vector<int> result = st.search("ana");
 - More complex implementation than Suffix Array
 - Faster for pattern matching operations
 
+

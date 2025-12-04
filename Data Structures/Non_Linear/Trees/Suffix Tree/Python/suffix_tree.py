@@ -174,3 +174,4 @@ class SuffixTree:
         traverse(self.root, "")
         return sorted(suffixes)
 
+

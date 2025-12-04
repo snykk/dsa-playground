@@ -27,3 +27,4 @@ fmt.Println(result)  // [1, 3]
 - O(m) pattern search complexity
 - More complex than Suffix Array but faster
 
+
