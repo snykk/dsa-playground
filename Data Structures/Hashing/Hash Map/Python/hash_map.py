@@ -6,24 +6,30 @@ additional features like iteration and better integration
 with language features.
 """
 
-"""
-Hash Map Implementation
+# Import HashTable from parent Hash Table folder
+import sys
+import os
 
-A Hash Map is similar to a Hash Table but typically provides
-additional features like iteration and better integration
-with language features.
-"""
+# Get the path to Hash Table Python folder
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Go up: Hash Map/Python -> Hash Map -> Hashing -> Hash Table -> Python
+hash_table_dir = os.path.join(
+    os.path.dirname(os.path.dirname(current_dir)),  # Go to Hashing folder
+    'Hash Table',
+    'Python'
+)
 
-# Import HashTable - adjust path as needed
+# Add to path if not already there
+if hash_table_dir not in sys.path:
+    sys.path.insert(0, hash_table_dir)
+
 try:
-    from hash_table import HashTable
+    from hash_table import HashTable  # noqa: E402
 except ImportError:
-    # If direct import fails, try relative import
-    import sys
-    import os
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(0, os.path.join(parent_dir, 'Hash Table', 'Python'))
-    from hash_table import HashTable
+    raise ImportError(
+        f"Could not import HashTable. Tried path: {hash_table_dir}. "
+        "Please ensure Hash Table implementation exists."
+    )
 
 
 class HashMap(HashTable):
@@ -94,4 +100,3 @@ class HashMap(HashTable):
         for key, value in self.items():
             new_map.put(key, value)
         return new_map
-
