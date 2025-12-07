@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-27%25-yellow.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-30%25-yellow.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -135,11 +135,11 @@ dsa-playground/
 
 #### 🔹 Hashing
 
-- [ ] **Hash Table**
-- [ ] **Hash Map**
-- [ ] **Hash Set**
-- [ ] **Collision Handling** (Chaining, Open Addressing)
-- [ ] **Bloom Filter**
+- [x] **Hash Table**
+- [x] **Hash Map**
+- [x] **Hash Set**
+- [x] **Collision Handling** (Chaining, Open Addressing)
+- [x] **Bloom Filter**
 
 #### 🔹 Advanced Structures
 
@@ -461,15 +461,15 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 38/143 topics completed (27%)**
+**Overall Progress: 43/143 topics completed (30%)**
 
-- Data Structures: 38/45 (84%)
+- Data Structures: 43/45 (96%)
   - Linear Data Structures: 16/18 (89%)
   - Non-Linear Data Structures: 21/21 (100%)
     - Trees: 14/14 (100%)
     - Heaps: 3/3 (100%)
     - Graph: 5/5 (100%)
-  - Hashing: 0/5 (0%)
+  - Hashing: 5/5 (100%)
   - Advanced Structures: 0/1 (0%)
 - Algorithms: 0/80 (0%)
 - Problem Patterns: 0/9 (0%)
