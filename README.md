@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-25%25-yellow.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-27%25-yellow.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -90,10 +90,12 @@ dsa-playground/
 - [x] **String**
   - [x] String manipulation
   - [x] Pattern matching
+  - [ ] **Rope** (Efficient String Data Structure)
 - [x] **Linked List**
   - [x] Singly Linked List
   - [x] Doubly Linked List
   - [x] Circular Linked List
+  - [ ] **Skip List** (Advanced Linked List)
 - [x] **Stack**
   - [x] Array-based implementation
   - [x] Linked List implementation
@@ -117,6 +119,9 @@ dsa-playground/
   - [x] Suffix Tree / Suffix Array
   - [x] B-Tree / B+ Tree
   - [x] Sparse Table
+  - [x] Splay Tree (Self-Adjusting BST)
+  - [x] Cartesian Tree
+  - [x] Interval Tree
 - [x] **Heaps**
   - [x] Min Heap
   - [x] Max Heap
@@ -128,13 +133,16 @@ dsa-playground/
   - [x] Weighted & Unweighted
   - [x] Directed & Undirected
 
-#### 🔹 Hashing & Advanced Structures
+#### 🔹 Hashing
 
 - [ ] **Hash Table**
 - [ ] **Hash Map**
 - [ ] **Hash Set**
 - [ ] **Collision Handling** (Chaining, Open Addressing)
 - [ ] **Bloom Filter**
+
+#### 🔹 Advanced Structures
+
 - [ ] **Disjoint Set Union (DSU)**
 
 ---
@@ -453,15 +461,16 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 35/138 topics completed (25%)**
+**Overall Progress: 38/143 topics completed (27%)**
 
-- Data Structures: 35/40 (88%) ✅
-  - Linear Data Structures: 16/16 (100%) ✅
-  - Non-Linear Data Structures: 18/18 (100%) ✅
-    - Trees: 11/11 (100%) ✅ (Binary Tree ✅, Binary Search Tree ✅, AVL Tree ✅, Red-Black Tree ✅, Segment Tree ✅, Fenwick Tree ✅, Trie ✅, Suffix Array ✅, B-Tree ✅, B+ Tree ✅, Sparse Table ✅)
-    - Heaps: 3/3 (100%) ✅ (Min Heap ✅, Max Heap ✅, Fibonacci Heap ✅)
-    - Graph: 5/5 (100%) ✅ (Edge List ✅, Directed & Undirected ✅, Weighted & Unweighted ✅, Adjacency Matrix ✅, Adjacency List ✅)
-  - Hashing & Advanced: 0/6 (0%)
+- Data Structures: 38/45 (84%)
+  - Linear Data Structures: 16/18 (89%)
+  - Non-Linear Data Structures: 21/21 (100%)
+    - Trees: 14/14 (100%)
+    - Heaps: 3/3 (100%)
+    - Graph: 5/5 (100%)
+  - Hashing: 0/5 (0%)
+  - Advanced Structures: 0/1 (0%)
 - Algorithms: 0/80 (0%)
 - Problem Patterns: 0/9 (0%)
 - Utilities: 0/9 (0%)
@@ -474,5 +483,5 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ---
 
-_Last Updated: 4 Dec 2025_
+_Last Updated: 7 Dec 2025_
 _Contributors: Najib Fikri_
