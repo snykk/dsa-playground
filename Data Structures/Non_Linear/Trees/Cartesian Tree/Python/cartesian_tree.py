@@ -75,7 +75,7 @@ class CartesianTree:
         
         Time Complexity: O(log n) average
         """
-        if self.root is None:
+        if self.root is None or left < 0 or right >= len(self.original_array):
             return -1
         
         return self._find_min_in_range(self.root, left, right)

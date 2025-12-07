@@ -136,6 +136,32 @@ class TestCartesianTree(unittest.TestCase):
         # Find minimum in subrange
         min_idx = tree.get_min_index(0, 4)
         self.assertEqual(array[min_idx], min(array[0:5]))
+    
+    def test_boundary_validation(self):
+        """Test boundary validation for get_min_index"""
+        array = [9, 3, 7, 1, 8, 12, 10]
+        tree = CartesianTree(array)
+        
+        # Test negative left boundary
+        result = tree.get_min_index(-1, 3)
+        self.assertEqual(result, -1)
+        
+        # Test right boundary >= array length
+        result = tree.get_min_index(0, len(array))
+        self.assertEqual(result, -1)
+        
+        # Test right boundary > array length
+        result = tree.get_min_index(0, len(array) + 1)
+        self.assertEqual(result, -1)
+        
+        # Test valid boundaries (edge cases)
+        result = tree.get_min_index(0, len(array) - 1)
+        self.assertNotEqual(result, -1)
+        
+        # Test empty tree
+        empty_tree = CartesianTree([])
+        result = empty_tree.get_min_index(0, 0)
+        self.assertEqual(result, -1)
 
 
 if __name__ == '__main__':
