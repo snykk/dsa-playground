@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-30%25-yellow.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-33%25-yellow.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -163,10 +163,10 @@ dsa-playground/
 
 #### 🔹 Searching Algorithms
 
-- [ ] **Linear Search** - O(n)
-- [ ] **Binary Search** - O(log n)
-- [ ] **Ternary Search** - O(log₃ n)
-- [ ] **Interpolation Search** - O(log log n)
+- [x] **Linear Search** - O(n)
+- [x] **Binary Search** - O(log n)
+- [x] **Ternary Search** - O(log₃ n)
+- [x] **Interpolation Search** - O(log log n)
 
 #### 🔹 Divide and Conquer
 
@@ -461,7 +461,7 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 43/143 topics completed (30%)**
+**Overall Progress: 47/143 topics completed (33%)**
 
 - Data Structures: 43/45 (96%)
   - Linear Data Structures: 16/18 (89%)
@@ -471,7 +471,9 @@ If you find this repository helpful, please consider giving it a star! It helps 
     - Graph: 5/5 (100%)
   - Hashing: 5/5 (100%)
   - Advanced Structures: 0/1 (0%)
-- Algorithms: 9/80 (6%)
+- Algorithms: 13/80 (16%)
+  - Sorting Algorithms: 9/9 (100%)
+  - Searching Algorithms: 4/4 (100%)
 - Problem Patterns: 0/9 (0%)
 - Utilities: 0/9 (0%)
 
