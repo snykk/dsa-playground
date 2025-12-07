@@ -151,15 +151,15 @@ dsa-playground/
 
 #### 🔹 Sorting Algorithms
 
-- [ ] **Bubble Sort** - O(n²)
-- [ ] **Insertion Sort** - O(n²)
-- [ ] **Selection Sort** - O(n²)
-- [ ] **Merge Sort** - O(n log n)
-- [ ] **Quick Sort** - O(n log n) average
-- [ ] **Heap Sort** - O(n log n)
-- [ ] **Counting Sort** - O(n + k)
-- [ ] **Radix Sort** - O(d × (n + k))
-- [ ] **Bucket Sort** - O(n + k)
+- [x] **Bubble Sort** - O(n²)
+- [x] **Insertion Sort** - O(n²)
+- [x] **Selection Sort** - O(n²)
+- [x] **Merge Sort** - O(n log n)
+- [x] **Quick Sort** - O(n log n) average
+- [x] **Heap Sort** - O(n log n)
+- [x] **Counting Sort** - O(n + k)
+- [x] **Radix Sort** - O(d × (n + k))
+- [x] **Bucket Sort** - O(n + k)
 
 #### 🔹 Searching Algorithms
 
@@ -471,7 +471,7 @@ If you find this repository helpful, please consider giving it a star! It helps 
     - Graph: 5/5 (100%)
   - Hashing: 5/5 (100%)
   - Advanced Structures: 0/1 (0%)
-- Algorithms: 0/80 (0%)
+- Algorithms: 9/80 (6%)
 - Problem Patterns: 0/9 (0%)
 - Utilities: 0/9 (0%)
 
