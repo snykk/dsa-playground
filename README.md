@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-36%25-yellow.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-50%25-green.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -178,33 +178,33 @@ dsa-playground/
 
 #### 🔹 Greedy Algorithms
 
-- [ ] **Activity Selection**
-- [ ] **Huffman Coding**
-- [ ] **Fractional Knapsack**
-- [ ] **Job Scheduling**
-- [ ] **Minimum Spanning Tree**
-  - [ ] Kruskal's Algorithm
-  - [ ] Prim's Algorithm
+- [x] **Activity Selection**
+- [x] **Huffman Coding**
+- [x] **Fractional Knapsack**
+- [x] **Job Scheduling**
+- [x] **Minimum Spanning Tree**
+  - [x] Kruskal's Algorithm
+  - [x] Prim's Algorithm
 
 #### 🔹 Dynamic Programming
 
-- [ ] **Basic DP**
-  - [ ] Fibonacci Numbers
-  - [ ] Climbing Stairs
-- [ ] **Linear DP**
-  - [ ] Longest Increasing Subsequence (LIS)
-  - [ ] Maximum Subarray (Kadane's Algorithm)
-  - [ ] Coin Change
-- [ ] **2D DP**
-  - [ ] Longest Common Subsequence (LCS)
-  - [ ] 0/1 Knapsack
-  - [ ] Edit Distance
-  - [ ] Matrix Chain Multiplication
-- [ ] **Advanced DP**
-  - [ ] DP on Trees
-  - [ ] DP on Graphs
-  - [ ] Bitmask DP
-  - [ ] Digit DP
+- [x] **Basic DP**
+  - [x] Fibonacci Numbers
+  - [x] Climbing Stairs
+- [x] **Linear DP**
+  - [x] Longest Increasing Subsequence (LIS)
+  - [x] Maximum Subarray (Kadane's Algorithm)
+  - [x] Coin Change
+- [x] **2D DP**
+  - [x] Longest Common Subsequence (LCS)
+  - [x] 0/1 Knapsack
+  - [x] Edit Distance
+  - [x] Matrix Chain Multiplication
+- [x] **Advanced DP**
+  - [x] DP on Trees
+  - [x] DP on Graphs
+  - [x] Bitmask DP
+  - [x] Digit DP
 
 #### 🔹 Graph Algorithms
 
@@ -461,7 +461,7 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 52/143 topics completed (36%)**
+**Overall Progress: 72/143 topics completed (50%)**
 
 - Data Structures: 43/45 (96%)
   - Linear Data Structures: 16/18 (89%)
@@ -471,10 +471,12 @@ If you find this repository helpful, please consider giving it a star! It helps 
     - Graph: 5/5 (100%)
   - Hashing: 5/5 (100%)
   - Advanced Structures: 0/1 (0%)
-- Algorithms: 18/80 (23%)
+- Algorithms: 38/80 (48%)
   - Sorting Algorithms: 9/9 (100%)
   - Searching Algorithms: 4/4 (100%)
   - Divide and Conquer: 5/5 (100%)
+  - Greedy Algorithms: 7/7 (100%)
+  - Dynamic Programming: 13/13 (100%)
 - Problem Patterns: 0/9 (0%)
 - Utilities: 0/9 (0%)
 
