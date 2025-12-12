@@ -71,6 +71,38 @@ This folder contains implementations of fundamental graph algorithms in Python, 
 
 ---
 
+### 🔹 Advanced Graph Algorithms
+
+- **[Topological Sort](./Advanced_Graph/Topological_Sort/)**
+  - Linear ordering of vertices in DAG
+  - Task scheduling, dependency resolution
+  - Time: O(V + E), Space: O(V)
+
+- **[Strongly Connected Components](./Advanced_Graph/Strongly_Connected_Components/)**
+  - **[Kosaraju's Algorithm](./Advanced_Graph/Strongly_Connected_Components/Kosaraju's_Algorithm/)**
+    - Two DFS passes
+    - Intuitive approach
+    - Time: O(V + E), Space: O(V)
+  - **[Tarjan's Algorithm](./Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm/)**
+    - Single DFS pass
+    - More efficient
+    - Time: O(V + E), Space: O(V)
+
+- **[Union-Find / DSU](./Advanced_Graph/Union-Find_DSU/)**
+  - Disjoint set operations
+  - Cycle detection, MST
+  - Time: O(α(n)) per operation, Space: O(n)
+
+- **[Network Flow](./Advanced_Graph/Network_Flow/)**
+  - **[Ford-Fulkerson](./Advanced_Graph/Network_Flow/Ford-Fulkerson/)**
+    - DFS-based maximum flow
+    - Time: O(E × max_flow), Space: O(V + E)
+  - **[Edmonds-Karp](./Advanced_Graph/Network_Flow/Edmonds-Karp/)**
+    - BFS-based maximum flow
+    - Polynomial time: O(V × E²), Space: O(V + E)
+
+---
+
 ## Algorithm Comparison
 
 ### Shortest Path Algorithms
