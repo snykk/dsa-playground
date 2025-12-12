@@ -208,26 +208,26 @@ dsa-playground/
 
 #### 🔹 Graph Algorithms
 
-- [ ] **Traversal**
-  - [ ] BFS (Breadth-First Search)
-  - [ ] DFS (Depth-First Search)
-- [ ] **Shortest Path**
-  - [ ] Dijkstra's Algorithm
-  - [ ] Bellman-Ford Algorithm
-  - [ ] Floyd-Warshall Algorithm
-  - [ ] A\* Search Algorithm
-- [ ] **Minimum Spanning Tree**
-  - [ ] Kruskal's Algorithm
-  - [ ] Prim's Algorithm
-- [ ] **Advanced Graph**
-  - [ ] Topological Sort
-  - [ ] Strongly Connected Components
-    - [ ] Kosaraju's Algorithm
-    - [ ] Tarjan's Algorithm
-  - [ ] Union-Find / DSU
-  - [ ] Network Flow
-    - [ ] Ford-Fulkerson
-    - [ ] Edmonds-Karp
+- [x] **Traversal**
+  - [x] BFS (Breadth-First Search)
+  - [x] DFS (Depth-First Search)
+- [x] **Shortest Path**
+  - [x] Dijkstra's Algorithm
+  - [x] Bellman-Ford Algorithm
+  - [x] Floyd-Warshall Algorithm
+  - [x] A\* Search Algorithm
+- [x] **Minimum Spanning Tree**
+  - [x] Kruskal's Algorithm
+  - [x] Prim's Algorithm@dsa
+- [x] **Advanced Graph**
+  - [x] Topological Sort
+  - [x] Strongly Connected Components
+    - [x] Kosaraju's Algorithm
+    - [x] Tarjan's Algorithm
+  - [x] Union-Find / DSU
+  - [x] Network Flow
+    - [x] Ford-Fulkerson
+    - [x] Edmonds-Karp
 
 #### 🔹 String Algorithms
 
@@ -461,7 +461,7 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 72/143 topics completed (50%)**
+**Overall Progress: 80/143 topics completed (56%)**
 
 - Data Structures: 43/45 (96%)
   - Linear Data Structures: 16/18 (89%)
@@ -471,12 +471,13 @@ If you find this repository helpful, please consider giving it a star! It helps 
     - Graph: 5/5 (100%)
   - Hashing: 5/5 (100%)
   - Advanced Structures: 0/1 (0%)
-- Algorithms: 38/80 (48%)
+- Algorithms: 46/80 (58%)
   - Sorting Algorithms: 9/9 (100%)
   - Searching Algorithms: 4/4 (100%)
   - Divide and Conquer: 5/5 (100%)
   - Greedy Algorithms: 7/7 (100%)
   - Dynamic Programming: 13/13 (100%)
+  - Graph Algorithms: 8/8 (100%)
 - Problem Patterns: 0/9 (0%)
 - Utilities: 0/9 (0%)
 
