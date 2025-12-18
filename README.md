@@ -231,16 +231,16 @@ dsa-playground/
 
 #### 🔹 String Algorithms
 
-- [ ] **Pattern Matching**
-  - [ ] Naive Pattern Search
-  - [ ] KMP Algorithm
-  - [ ] Rabin-Karp Algorithm
-  - [ ] Boyer-Moore Algorithm
-- [ ] **Advanced String**
-  - [ ] Z-Algorithm
-  - [ ] Suffix Array / Tree
-  - [ ] Longest Common Substring
-  - [ ] Longest Palindromic Substring (Manacher's)
+- [x] **Pattern Matching**
+  - [x] Naive Pattern Search
+  - [x] KMP Algorithm
+  - [x] Rabin-Karp Algorithm
+  - [x] Boyer-Moore Algorithm
+- [x] **Advanced String**
+  - [x] Z-Algorithm
+  - [x] Suffix Array / Tree
+  - [x] Longest Common Substring
+  - [x] Longest Palindromic Substring (Manacher's)
 
 #### 🔹 Mathematical Algorithms
 
