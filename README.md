@@ -244,26 +244,26 @@ dsa-playground/
 
 #### 🔹 Mathematical Algorithms
 
-- [ ] **Number Theory**
-  - [ ] Euclidean Algorithm (GCD, LCM)
-  - [ ] Modular Arithmetic
-  - [ ] Modular Exponentiation
-  - [ ] Sieve of Eratosthenes
-  - [ ] Miller-Rabin Primality Test
-  - [ ] Chinese Remainder Theorem
-- [ ] **Advanced Math**
-  - [ ] Fast Fourier Transform (FFT)
-  - [ ] Matrix Exponentiation
+- [x] **Number Theory**
+  - [x] Euclidean Algorithm (GCD, LCM)
+  - [x] Modular Arithmetic
+  - [x] Modular Exponentiation
+  - [x] Sieve of Eratosthenes
+  - [x] Miller-Rabin Primality Test
+  - [x] Chinese Remainder Theorem
+- [x] **Advanced Math**
+  - [x] Fast Fourier Transform (FFT)
+  - [x] Matrix Exponentiation
 
 #### 🔹 Computational Geometry
 
-- [ ] **Basic Geometry**
-  - [ ] Point, Line, Circle operations
-  - [ ] Line Intersection
-- [ ] **Advanced Geometry**
-  - [ ] Convex Hull (Graham's Scan, Jarvis March)
-  - [ ] Closest Pair of Points
-  - [ ] Rotating Calipers
+- [x] **Basic Geometry**
+  - [x] Point, Line, Circle operations
+  - [x] Line Intersection
+- [x] **Advanced Geometry**
+  - [x] Convex Hull (Graham's Scan, Jarvis March)
+  - [x] Closest Pair of Points
+  - [x] Rotating Calipers
 
 #### 🔹 Advanced Algorithms
 
