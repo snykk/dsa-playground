@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-50%25-green.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-63%25-green.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -267,31 +267,31 @@ dsa-playground/
 
 #### 🔹 Advanced Algorithms
 
-- [ ] **Backtracking**
-  - [ ] N-Queens Problem
-  - [ ] Sudoku Solver
-  - [ ] Rat in a Maze
-  - [ ] Graph Coloring
-- [ ] **Specialized Techniques**
-  - [ ] Mo's Algorithm
-  - [ ] Heavy-Light Decomposition
-  - [ ] Centroid Decomposition
-  - [ ] Square Root Decomposition
+- [x] **Backtracking**
+  - [x] N-Queens Problem
+  - [x] Sudoku Solver
+  - [x] Rat in a Maze
+  - [x] Graph Coloring
+- [x] **Specialized Techniques**
+  - [x] Mo's Algorithm
+  - [x] Heavy-Light Decomposition
+  - [x] Centroid Decomposition
+  - [x] Square Root Decomposition
 
 ---
 
 ### 3. Problem Solving Patterns
 
-- [ ] **Sliding Window**
-- [ ] **Two Pointers**
-- [ ] **Binary Search on Answer**
-- [ ] **Prefix Sum / Difference Array**
-- [ ] **Union-Find Applications**
-- [ ] **Graph Traversal Problems**
-- [ ] **DP Problem Patterns**
-- [ ] **Meet in the Middle**
-- [ ] **Coordinate Compression**
-- [ ] **Inclusion-Exclusion Principle**
+- [x] **Sliding Window**
+- [x] **Two Pointers**
+- [x] **Binary Search on Answer**
+- [x] **Prefix Sum / Difference Array**
+- [x] **Union-Find Applications**
+- [x] **Graph Traversal Problems**
+- [x] **DP Problem Patterns**
+- [x] **Meet in the Middle**
+- [x] **Coordinate Compression**
+- [x] **Inclusion-Exclusion Principle**
 
 ---
 
@@ -461,7 +461,7 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 80/143 topics completed (56%)**
+**Overall Progress: 90/144 topics completed (63%)**
 
 - Data Structures: 43/45 (96%)
   - Linear Data Structures: 16/18 (89%)
@@ -478,7 +478,7 @@ If you find this repository helpful, please consider giving it a star! It helps 
   - Greedy Algorithms: 7/7 (100%)
   - Dynamic Programming: 13/13 (100%)
   - Graph Algorithms: 8/8 (100%)
-- Problem Patterns: 0/9 (0%)
+- Problem Patterns: 10/10 (100%)
 - Utilities: 0/9 (0%)
 
 ---
@@ -489,5 +489,5 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ---
 
-_Last Updated: 7 Dec 2025_
+_Last Updated: 2 Jan 2026_
 _Contributors: Najib Fikri_
