@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-63%25-green.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-64%25-green.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -297,12 +297,12 @@ dsa-playground/
 
 ### 4. Complexity Analysis
 
-- [ ] **Time Complexity**
-  - [ ] Big-O Notation
-  - [ ] Big-Theta (Θ)
-  - [ ] Big-Omega (Ω)
-- [ ] **Space Complexity**
-- [ ] **Amortized Analysis**
+- [x] **Time Complexity**
+  - [x] Big-O Notation
+  - [x] Big-Theta (Θ)
+  - [x] Big-Omega (Ω)
+- [x] **Space Complexity**
+- [x] **Amortized Analysis**
 
 ---
 
@@ -461,7 +461,7 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 90/144 topics completed (63%)**
+**Overall Progress: 95/149 topics completed (64%)**
 
 - Data Structures: 43/45 (96%)
   - Linear Data Structures: 16/18 (89%)
@@ -479,6 +479,10 @@ If you find this repository helpful, please consider giving it a star! It helps 
   - Dynamic Programming: 13/13 (100%)
   - Graph Algorithms: 8/8 (100%)
 - Problem Patterns: 10/10 (100%)
+- Complexity Analysis: 5/5 (100%)
+  - Time Complexity: 3/3 (100%)
+  - Space Complexity: 1/1 (100%)
+  - Amortized Analysis: 1/1 (100%)
 - Utilities: 0/9 (0%)
 
 ---
