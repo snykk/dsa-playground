@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-64%25-green.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-70%25-green.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -308,18 +308,19 @@ dsa-playground/
 
 ### 5. Competitive Programming Utilities
 
-- [ ] **Templates**
-  - [ ] C++ Boilerplate
-  - [ ] Python Boilerplate
-- [ ] **Optimization Techniques**
-  - [ ] Fast I/O
-  - [ ] Modular Arithmetic Tricks
-  - [ ] Bitmasking
-  - [ ] Precomputation
-- [ ] **Problem Types**
-  - [ ] Interactive Problems
-  - [ ] Constructive Algorithms
-  - [ ] Game Theory Basics
+- [x] **Templates**
+  - [x] C++ Boilerplate
+  - [x] Python Boilerplate
+  - [x] Go Boilerplate
+- [x] **Optimization Techniques**
+  - [x] Fast I/O
+  - [x] Modular Arithmetic Tricks
+  - [x] Bitmasking
+  - [x] Precomputation
+- [x] **Problem Types**
+  - [x] Interactive Problems
+  - [x] Constructive Algorithms
+  - [x] Game Theory Basics
 
 ---
 
@@ -461,7 +462,7 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 95/149 topics completed (64%)**
+**Overall Progress: 105/149 topics completed (70%)**
 
 - Data Structures: 43/45 (96%)
   - Linear Data Structures: 16/18 (89%)
@@ -483,7 +484,10 @@ If you find this repository helpful, please consider giving it a star! It helps 
   - Time Complexity: 3/3 (100%)
   - Space Complexity: 1/1 (100%)
   - Amortized Analysis: 1/1 (100%)
-- Utilities: 0/9 (0%)
+- Utilities: 10/10 (100%)
+  - Templates: 3/3 (100%)
+  - Optimization Techniques: 4/4 (100%)
+  - Problem Types: 3/3 (100%)
 
 ---
 
@@ -493,5 +497,5 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ---
 
-_Last Updated: 2 Jan 2026_
+_Last Updated: 6 Jan 2026_
 _Contributors: Najib Fikri_
