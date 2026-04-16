@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "introduction.cpp"
+#include "main.cpp"
 
 int main(){
     assert(access_char("hello",1)=='e');

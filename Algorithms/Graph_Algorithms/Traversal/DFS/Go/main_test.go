@@ -193,9 +193,9 @@ func TestDFSDetectCycle(t *testing.T) {
 // TestDFSDetectCycleUndirected tests cycle detection in undirected graph.
 func TestDFSDetectCycleUndirected(t *testing.T) {
 	cyclicGraph := map[int][]int{
-		1: {2},
+		1: {2, 3},
 		2: {1, 3},
-		3: {2},
+		3: {2, 1},
 	}
 
 	hasCycle := DFSDetectCycle(cyclicGraph, false)

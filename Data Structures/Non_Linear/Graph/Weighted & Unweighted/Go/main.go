@@ -40,7 +40,6 @@ func (g *WeightedGraph) AddEdge(fromVertex, toVertex int, weight float64) {
 	g.adjacencyList[fromVertex] = append(g.adjacencyList[fromVertex], Edge{To: toVertex, Weight: weight})
 
 	if !g.directed {
-		g.RemoveEdge(toVertex, fromVertex)
 		g.adjacencyList[toVertex] = append(g.adjacencyList[toVertex], Edge{To: fromVertex, Weight: weight})
 	}
 }

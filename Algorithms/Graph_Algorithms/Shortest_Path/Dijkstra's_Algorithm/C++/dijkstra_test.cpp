@@ -59,7 +59,7 @@ void testDijkstraWithPath() {
     auto [distance, path] = dijkstraWithPath(graph, 1, 4);
     
     assert(distance == 3);
-    assert(path == vector<int>{1, 3, 4});
+    assert((path == vector<int>{1, 3, 4}));
     assert(path[0] == 1);
     assert(path.back() == 4);
     

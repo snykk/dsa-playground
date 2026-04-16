@@ -23,8 +23,8 @@ private:
     
 public:
     BloomFilter(size_t cap, double error_rate = 0.01) : capacity(cap) {
-        num_bits = static_cast<size_t>(-cap * log(error_rate) / (log(2) * log(2)));
-        num_hashes = static_cast<size_t>(num_bits * log(2) / cap);
+        num_bits = static_cast<size_t>(-(double)cap * log(error_rate) / (log(2) * log(2)));
+        num_hashes = static_cast<size_t>((double)num_bits * log(2) / (double)cap);
         bits.resize(num_bits, false);
     }
     

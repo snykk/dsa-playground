@@ -40,7 +40,7 @@ func LinearSearchRecursive(arr []int, target int, index int) int {
 // Time Complexity: O(n)
 // Space Complexity: O(k) where k is number of occurrences
 func LinearSearchAllOccurrences(arr []int, target int) []int {
-	var indices []int
+	indices := []int{}
 	for i, v := range arr {
 		if v == target {
 			indices = append(indices, i)

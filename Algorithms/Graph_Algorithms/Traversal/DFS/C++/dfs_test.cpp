@@ -128,21 +128,23 @@ void testDfsDetectCycle() {
 
 void testDfsDetectCycleUndirected() {
     /**Test cycle detection in undirected graph.*/
+    // Triangle: 1-2, 2-3, 3-1 (has cycle)
     unordered_map<int, vector<int>> cyclicGraph = {
+        {1, {2, 3}},
+        {2, {1, 3}},
+        {3, {2, 1}}
+    };
+
+    bool hasCycle = dfsDetectCycle(cyclicGraph, false);
+    assert(hasCycle);
+
+    // Simple path: 1-2-3 (no cycle)
+    unordered_map<int, vector<int>> acyclicGraph = {
         {1, {2}},
         {2, {1, 3}},
         {3, {2}}
     };
-    
-    bool hasCycle = dfsDetectCycle(cyclicGraph, false);
-    assert(hasCycle);
-    
-    unordered_map<int, vector<int>> acyclicGraph = {
-        {1, {2}},
-        {2, {1}},
-        {3, {}}
-    };
-    
+
     hasCycle = dfsDetectCycle(acyclicGraph, false);
     assert(!hasCycle);
     

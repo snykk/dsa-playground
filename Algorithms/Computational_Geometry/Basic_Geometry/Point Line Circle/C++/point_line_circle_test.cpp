@@ -1,8 +1,11 @@
 #include <cassert>
 #include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 #include "point_line_circle.cpp"
 
-const double EPS = 1e-5;
+// EPS is already defined in point_line_circle.cpp
 
 void testPoint() {
     Point p(1, 2);

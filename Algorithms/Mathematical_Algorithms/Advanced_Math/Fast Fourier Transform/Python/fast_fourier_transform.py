@@ -9,26 +9,52 @@ import math
 import cmath
 
 
+def _fft_recursive(a, inverse=False):
+    """
+    Internal recursive FFT (no normalization).
+    """
+    n = len(a)
+
+    # Base case
+    if n == 1:
+        return a
+
+    # Divide: split into even and odd indices
+    even = _fft_recursive([a[i] for i in range(0, n, 2)], inverse)
+    odd = _fft_recursive([a[i] for i in range(1, n, 2)], inverse)
+
+    # Combine
+    result = [0] * n
+    sign = -1 if inverse else 1
+
+    for k in range(n // 2):
+        t = cmath.exp(sign * 2j * cmath.pi * k / n) * odd[k]
+        result[k] = even[k] + t
+        result[k + n // 2] = even[k] - t
+
+    return result
+
+
 def fft(a, inverse=False):
     """
     Compute Fast Fourier Transform using Cooley-Tukey algorithm
-    
+
     Args:
         a: List of complex numbers (will be padded to power of 2 if needed)
         inverse: If True, compute inverse FFT
-        
+
     Returns:
         List of complex numbers (FFT result)
-        
+
     Time Complexity: O(n log n)
     Space Complexity: O(n)
     """
     n = len(a)
-    
+
     # Base case
     if n == 1:
         return a
-    
+
     # Ensure n is power of 2 (pad with zeros if needed)
     original_n = n
     if n & (n - 1) != 0:
@@ -38,26 +64,15 @@ def fft(a, inverse=False):
             next_power <<= 1
         a = a + [0] * (next_power - n)
         n = next_power
-    
-    # Divide: split into even and odd indices
-    even = fft([a[i] for i in range(0, n, 2)], inverse)
-    odd = fft([a[i] for i in range(1, n, 2)], inverse)
-    
-    # Combine
-    result = [0] * n
-    sign = -1 if inverse else 1
-    
-    for k in range(n // 2):
-        t = cmath.exp(sign * 2j * cmath.pi * k / n) * odd[k]
-        result[k] = even[k] + t
-        result[k + n // 2] = even[k] - t
-    
+
+    result = _fft_recursive(a, inverse)
+
     if inverse:
         result = [x / n for x in result]
         # Return only original length if padded
         if original_n < n:
             return result[:original_n]
-    
+
     return result
 
 

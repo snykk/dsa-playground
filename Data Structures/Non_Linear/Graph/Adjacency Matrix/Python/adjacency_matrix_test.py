@@ -113,6 +113,8 @@ class TestAdjacencyMatrix(unittest.TestCase):
         """Test checking if graph is connected."""
         self.unweighted_undirected.add_edge(0, 1)
         self.unweighted_undirected.add_edge(1, 2)
+        self.unweighted_undirected.add_edge(2, 3)
+        self.unweighted_undirected.add_edge(3, 4)
         self.assertTrue(self.unweighted_undirected.is_connected())
         
         disconnected = AdjacencyMatrix(4, directed=False, weighted=False)

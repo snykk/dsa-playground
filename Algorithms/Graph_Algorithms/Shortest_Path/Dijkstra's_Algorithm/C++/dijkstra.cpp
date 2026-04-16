@@ -19,7 +19,11 @@ unordered_map<int, int> dijkstra(
      * graph: vertex -> [(neighbor, weight), ...]
      */
     unordered_map<int, int> distances;
-    
+
+    if (graph.empty()) {
+        return distances;
+    }
+
     // Initialize distances
     for (const auto& [vertex, _] : graph) {
         distances[vertex] = INT_MAX;

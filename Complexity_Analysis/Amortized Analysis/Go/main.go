@@ -84,7 +84,8 @@ func (bc *BinaryCounter) GetValue() int {
 }
 
 func DemonstrateAmortizedAnalysis() {
-	fmt.Println("=== Amortized Analysis Examples ===\n")
+	fmt.Println("=== Amortized Analysis Examples ===")
+	fmt.Println()
 
 	// Dynamic Array
 	fmt.Println("Dynamic Array (Amortized O(1) append):")
@@ -93,7 +94,9 @@ func DemonstrateAmortizedAnalysis() {
 		arr.Append(i)
 		fmt.Printf("  Append %d: size=%d, capacity=%d\n", i, arr.size, arr.capacity)
 	}
-	fmt.Println("\nAmortized cost: O(1) per append\n")
+	fmt.Println()
+	fmt.Println("Amortized cost: O(1) per append")
+	fmt.Println()
 
 	// Binary Counter
 	fmt.Println("Binary Counter (Amortized O(1) increment):")
@@ -102,9 +105,11 @@ func DemonstrateAmortizedAnalysis() {
 		counter.Increment()
 		fmt.Printf("  Increment %d: value=%d\n", i+1, counter.GetValue())
 	}
-	fmt.Println("\nAmortized cost: O(1) per increment\n")
+	fmt.Println()
+	fmt.Println("Amortized cost: O(1) per increment")
+	fmt.Println()
 
-	fmt.Println("Key Insight: Expensive operations are 'paid for' by cheap ones\n")
+	fmt.Println("Key Insight: Expensive operations are 'paid for' by cheap ones")
 }
 
 func main() {

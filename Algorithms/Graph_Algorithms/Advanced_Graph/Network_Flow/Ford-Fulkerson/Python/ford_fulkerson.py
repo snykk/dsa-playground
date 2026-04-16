@@ -221,8 +221,12 @@ def min_cut(graph: Dict[int, Dict[int, int]], source: int, sink: int) -> Tuple[i
     dfs_reachable(source, reachable)
     
     source_side = reachable
-    sink_side = set(graph.keys()) - reachable
-    
+    all_vertices = set(graph.keys())
+    for u in graph:
+        for v in graph[u]:
+            all_vertices.add(v)
+    sink_side = all_vertices - reachable
+
     return max_flow, source_side, sink_side
 
 

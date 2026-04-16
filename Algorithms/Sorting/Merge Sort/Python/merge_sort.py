@@ -70,36 +70,58 @@ def merge(arr, left, right):
         k += 1
 
 
+def _merge_into(arr, left_start, left, right):
+    """Merge two sorted subarrays back into arr starting at left_start."""
+    i = j = 0
+    k = left_start
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            arr[k] = left[i]
+            i += 1
+        else:
+            arr[k] = right[j]
+            j += 1
+        k += 1
+    while i < len(left):
+        arr[k] = left[i]
+        i += 1
+        k += 1
+    while j < len(right):
+        arr[k] = right[j]
+        j += 1
+        k += 1
+
+
 def merge_sort_iterative(arr):
     """
     Iterative implementation of Merge Sort
-    
+
     Args:
         arr: List of comparable elements to sort (modified in-place)
-        
+
     Returns:
         The sorted array
-        
+
     Time Complexity: O(n log n)
     Space Complexity: O(n)
     """
     n = len(arr)
     if n <= 1:
         return arr
-    
+
     # Start with subarrays of size 1, then double the size
     size = 1
     while size < n:
         for left_start in range(0, n, 2 * size):
             mid = min(left_start + size, n)
             right_end = min(left_start + 2 * size, n)
-            
+
             left = arr[left_start:mid]
             right = arr[mid:right_end]
-            
-            merge(arr[left_start:right_end], left, right)
-        
+
+            _merge_into(arr, left_start, left, right)
+
         size *= 2
-    
+
     return arr
 

@@ -45,7 +45,7 @@ class WeightedGraph:
     
     def add_edge(self, from_vertex: int, to_vertex: int, weight: float = 1.0) -> None:
         """Add a weighted edge between two vertices.
-        
+
         Args:
             from_vertex: Source vertex
             to_vertex: Destination vertex
@@ -54,18 +54,30 @@ class WeightedGraph:
         # Add vertices if they don't exist
         self.add_vertex(from_vertex)
         self.add_vertex(to_vertex)
-        
-        # Remove existing edge if present
-        self.remove_edge(from_vertex, to_vertex)
-        
+
+        # Remove existing edge in one direction only
+        self._remove_single_direction(from_vertex, to_vertex)
+
         # Add edge with weight
         self.adjacency_list[from_vertex].append((to_vertex, weight))
-        
+
         # For undirected graph, add reverse edge
         if not self.directed:
-            self.remove_edge(to_vertex, from_vertex)
+            self._remove_single_direction(to_vertex, from_vertex)
             self.adjacency_list[to_vertex].append((from_vertex, weight))
     
+    def _remove_single_direction(self, from_vertex: int, to_vertex: int) -> None:
+        """Remove edge in one direction only (helper for add_edge).
+
+        Args:
+            from_vertex: Source vertex
+            to_vertex: Destination vertex
+        """
+        if from_vertex in self.adjacency_list:
+            self.adjacency_list[from_vertex] = [
+                (v, w) for v, w in self.adjacency_list[from_vertex] if v != to_vertex
+            ]
+
     def remove_edge(self, from_vertex: int, to_vertex: int) -> None:
         """Remove an edge between two vertices.
         

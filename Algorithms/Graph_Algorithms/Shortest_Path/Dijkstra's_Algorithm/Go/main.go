@@ -51,13 +51,17 @@ func Dijkstra(graph map[int][]struct {
 	Weight   int
 }, start int) map[int]int {
 	distances := make(map[int]int)
-	
+
+	if len(graph) == 0 {
+		return distances
+	}
+
 	// Initialize distances
 	for vertex := range graph {
-		distances[vertex] = math.MaxInt32
+		distances[vertex] = math.MaxInt
 	}
 	distances[start] = 0
-	
+
 	pq := make(PriorityQueue, 0)
 	heap.Push(&pq, &Item{vertex: start, distance: 0})
 	visited := make(map[int]bool)
@@ -103,7 +107,7 @@ func DijkstraWithPath(graph map[int][]struct {
 	previous := make(map[int]int)
 	
 	for vertex := range graph {
-		distances[vertex] = math.MaxInt32
+		distances[vertex] = math.MaxInt
 		previous[vertex] = -1
 	}
 	distances[start] = 0

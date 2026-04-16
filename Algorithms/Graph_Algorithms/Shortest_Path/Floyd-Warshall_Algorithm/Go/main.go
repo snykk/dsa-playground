@@ -15,7 +15,7 @@ func FloydWarshall(graph map[int][]struct {
 			if i == j {
 				dist[i][j] = 0
 			} else {
-				dist[i][j] = math.MaxInt32
+				dist[i][j] = math.MaxInt
 			}
 		}
 	}
@@ -31,7 +31,7 @@ func FloydWarshall(graph map[int][]struct {
 	for k := 0; k < numVertices; k++ {
 		for i := 0; i < numVertices; i++ {
 			for j := 0; j < numVertices; j++ {
-				if dist[i][k] != math.MaxInt32 && dist[k][j] != math.MaxInt32 {
+				if dist[i][k] != math.MaxInt && dist[k][j] != math.MaxInt {
 					if dist[i][j] > dist[i][k]+dist[k][j] {
 						dist[i][j] = dist[i][k] + dist[k][j]
 					}

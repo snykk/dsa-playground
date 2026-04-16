@@ -21,7 +21,11 @@ unordered_map<int, int> bellmanFord(
      * Returns empty map if negative cycle exists
      */
     unordered_map<int, int> distances;
-    
+
+    if (numVertices == 0) {
+        return distances;
+    }
+
     // Initialize distances
     for (int i = 0; i < numVertices; ++i) {
         distances[i] = INT_MAX;

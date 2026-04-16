@@ -12,17 +12,21 @@ type Edge struct {
 // Time Complexity: O(V * E), Space Complexity: O(V)
 func BellmanFord(edges []Edge, numVertices, start int) map[int]int {
 	distances := make(map[int]int)
-	
+
+	if numVertices == 0 {
+		return distances
+	}
+
 	// Initialize distances
 	for i := 0; i < numVertices; i++ {
-		distances[i] = math.MaxInt32
+		distances[i] = math.MaxInt
 	}
 	distances[start] = 0
 	
 	// Relax edges V-1 times
 	for i := 0; i < numVertices-1; i++ {
 		for _, edge := range edges {
-			if distances[edge.U] != math.MaxInt32 &&
+			if distances[edge.U] != math.MaxInt &&
 				distances[edge.U]+edge.Weight < distances[edge.V] {
 				distances[edge.V] = distances[edge.U] + edge.Weight
 			}
@@ -31,7 +35,7 @@ func BellmanFord(edges []Edge, numVertices, start int) map[int]int {
 	
 	// Check for negative cycles
 	for _, edge := range edges {
-		if distances[edge.U] != math.MaxInt32 &&
+		if distances[edge.U] != math.MaxInt &&
 			distances[edge.U]+edge.Weight < distances[edge.V] {
 			return nil // Negative cycle detected
 		}

@@ -20,8 +20,9 @@ class TestCentroidDecomposition(unittest.TestCase):
         cd.build(0)
         # All nodes should have been processed
         self.assertTrue(all(cd.removed))
-        # Root should have parent -1
-        self.assertEqual(cd.parent[0], -1)
+        # The centroid of the whole tree should have parent -1
+        root_count = sum(1 for p in cd.parent if p == -1)
+        self.assertEqual(root_count, 1)
 
 
 if __name__ == "__main__":

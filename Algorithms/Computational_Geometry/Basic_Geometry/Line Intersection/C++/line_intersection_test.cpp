@@ -2,7 +2,7 @@
 #include <cmath>
 #include "line_intersection.cpp"
 
-const double EPS = 1e-5;
+// EPS is already defined in line_intersection.cpp
 
 void testLineIntersection() {
     Line l1(Point(0, 0), Point(4, 4));

@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-const eps = 1e-5
-
 func TestLineIntersection(t *testing.T) {
 	l1 := Line{Point{0, 0}, Point{4, 4}}
 	l2 := Line{Point{0, 4}, Point{4, 0}}

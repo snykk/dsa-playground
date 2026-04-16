@@ -4,6 +4,7 @@
 #include <stack>
 #include <tuple>
 #include <string>
+#include <algorithm>
 using namespace std;
 
 class EdgeList {
@@ -51,7 +52,7 @@ public:
         }
 
         if (!directed) {
-            remove_edge(to_vertex, from_vertex);
+            remove_edge_from_list(to_vertex, from_vertex);
             if (weighted) {
                 edges.push_back({to_vertex, from_vertex, weight});
             } else {

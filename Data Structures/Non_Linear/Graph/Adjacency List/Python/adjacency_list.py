@@ -54,7 +54,7 @@ class AdjacencyList:
     
     def add_edge(self, from_vertex: int, to_vertex: int, weight: float = 1.0) -> None:
         """Add an edge to the graph.
-        
+
         Args:
             from_vertex: Source vertex
             to_vertex: Destination vertex
@@ -63,26 +63,45 @@ class AdjacencyList:
         # Add vertices if they don't exist
         self.add_vertex(from_vertex)
         self.add_vertex(to_vertex)
-        
-        # Remove existing edge if present
-        self.remove_edge(from_vertex, to_vertex)
-        
+
+        # Remove existing edge if present (only the forward direction)
+        self._remove_single_direction(from_vertex, to_vertex)
+
         # Add edge
         if self.weighted:
             self.adjacency_list[from_vertex].append((to_vertex, weight))
         else:
             if to_vertex not in self.adjacency_list[from_vertex]:
                 self.adjacency_list[from_vertex].append(to_vertex)
-        
+
         # For undirected graph, add reverse edge
         if not self.directed:
-            self.remove_edge(to_vertex, from_vertex)
+            self._remove_single_direction(to_vertex, from_vertex)
             if self.weighted:
                 self.adjacency_list[to_vertex].append((from_vertex, weight))
             else:
                 if from_vertex not in self.adjacency_list[to_vertex]:
                     self.adjacency_list[to_vertex].append(from_vertex)
     
+    def _remove_single_direction(self, from_vertex: int, to_vertex: int) -> None:
+        """Remove edge in one direction only (helper for add_edge).
+
+        Args:
+            from_vertex: Source vertex
+            to_vertex: Destination vertex
+        """
+        if from_vertex not in self.adjacency_list:
+            return
+
+        if self.weighted:
+            self.adjacency_list[from_vertex] = [
+                item for item in self.adjacency_list[from_vertex]
+                if not (isinstance(item, tuple) and item[0] == to_vertex)
+            ]
+        else:
+            if to_vertex in self.adjacency_list[from_vertex]:
+                self.adjacency_list[from_vertex].remove(to_vertex)
+
     def remove_edge(self, from_vertex: int, to_vertex: int) -> None:
         """Remove an edge from the graph.
         

@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-const eps = 1e-5
-
 func TestPoint(t *testing.T) {
 	p := NewPoint(1, 2)
 	if math.Abs(p.X-1) > eps || math.Abs(p.Y-2) > eps {

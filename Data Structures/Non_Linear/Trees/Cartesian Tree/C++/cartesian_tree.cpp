@@ -23,8 +23,9 @@ public:
 };
 
 class CartesianTree {
-private:
+public:
     CartesianNode* root;
+private:
     std::vector<int> originalArray;
     
     void inorderRecursive(CartesianNode* node, std::vector<int>& result) {

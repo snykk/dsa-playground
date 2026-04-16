@@ -51,7 +51,6 @@ class HashTableOpenAddressing {
 private:
     std::vector<std::pair<K, V>*> buckets;
     size_t capacity;
-    static constexpr K DELETED_KEY = K{};
     
 public:
     HashTableOpenAddressing(size_t cap = 16) : capacity(cap) {

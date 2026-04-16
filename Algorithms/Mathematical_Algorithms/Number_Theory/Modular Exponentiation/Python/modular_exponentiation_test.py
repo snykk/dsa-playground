@@ -12,7 +12,7 @@ class TestModularExponentiation(unittest.TestCase):
         """Test basic modular exponentiation"""
         self.assertEqual(mod_pow(2, 10, 1000), 24)
         self.assertEqual(mod_pow(3, 5, 7), 5)
-        self.assertEqual(mod_pow(5, 13, 11), 3)
+        self.assertEqual(mod_pow(5, 13, 11), 4)
     
     def test_mod_pow_exponent_zero(self):
         """Test with exponent zero"""

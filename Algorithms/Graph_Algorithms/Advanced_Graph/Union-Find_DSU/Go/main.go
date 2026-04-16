@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // UnionFind represents a Union-Find (Disjoint Set Union) data structure
 type UnionFind struct {
 	parent []int
@@ -69,33 +71,6 @@ func UnionFindCycleDetection(edges [][]int, n int) bool {
 	}
 
 	return false
-}
-
-func main() {
-	// Example usage
-	fmt.Println("Union-Find Example:")
-
-	uf := NewUnionFind(5)
-	fmt.Printf("Initial count: %d\n", uf.GetCount()) // 5
-
-	uf.Union(0, 1)
-	fmt.Printf("After union(0,1): count=%d, connected(0,1)=%v\n", uf.GetCount(), uf.Connected(0, 1))
-
-	uf.Union(2, 3)
-	fmt.Printf("After union(2,3): count=%d, connected(2,3)=%v\n", uf.GetCount(), uf.Connected(2, 3))
-
-	uf.Union(1, 2)
-	fmt.Printf("After union(1,2): count=%d, connected(0,3)=%v\n", uf.GetCount(), uf.Connected(0, 3))
-
-	// Cycle detection
-	fmt.Println("\nCycle Detection Example:")
-	edges := [][]int{{0, 1}, {1, 2}, {2, 0}} // Triangle
-	hasCycle := UnionFindCycleDetection(edges, 3)
-	fmt.Printf("Graph with cycle: %v\n", hasCycle) // true
-
-	edgesNoCycle := [][]int{{0, 1}, {1, 2}}
-	hasCycle = UnionFindCycleDetection(edgesNoCycle, 3)
-	fmt.Printf("Graph without cycle: %v\n", hasCycle) // false
 }
 
 func main() {

@@ -27,10 +27,10 @@ void testAStarBasic() {
     auto [distance, path] = astar(graph, 0, 3, heuristic);
     
     assert(distance == 3);
-    assert(path == vector<int>{0, 2, 3});
+    assert((path == vector<int>{0, 2, 3}));
     assert(path[0] == 0);
     assert(path.back() == 3);
-    
+
     cout << "✓ testAStarBasic passed" << endl;
 }
 
@@ -114,8 +114,8 @@ void testAStarZeroHeuristic() {
     auto [distance, path] = astar(graph, 0, 3, heuristic);
     
     assert(distance == 3);
-    assert(path == vector<int>{0, 2, 3});
-    
+    assert((path == vector<int>{0, 2, 3}));
+
     cout << "✓ testAStarZeroHeuristic passed" << endl;
 }
 

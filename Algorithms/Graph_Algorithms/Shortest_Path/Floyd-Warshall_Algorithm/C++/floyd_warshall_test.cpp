@@ -77,7 +77,7 @@ void testFloydWarshallCompleteGraph() {
 
 void testFloydWarshallSingleVertex() {
     /**Test Floyd-Warshall on graph with single vertex.*/
-    vector<vector<pair<int, int>>> graph = {{}}};
+    vector<vector<pair<int, int>>> graph = {{}};
     vector<vector<int>> dist = floydWarshall(graph, 1);
     
     assert(dist[0][0] == 0);

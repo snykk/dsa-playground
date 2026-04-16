@@ -3,7 +3,7 @@
 #include <vector>
 #include "rotating_calipers.cpp"
 
-const double EPS = 1e-5;
+// EPS is already defined in rotating_calipers.cpp
 
 void testDiameter() {
     std::vector<Point> hull = {{0, 0}, {4, 0}, {4, 3}, {0, 3}};

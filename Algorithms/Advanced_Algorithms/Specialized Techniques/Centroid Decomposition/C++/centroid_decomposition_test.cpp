@@ -14,7 +14,12 @@ void testBuild() {
     CentroidDecomposition cd(n, adj);
     cd.build(0);
     vector<int> parent = cd.getParent();
-    assert(parent[0] == -1);  // Root should have parent -1
+    // Find the centroid tree root (the node with parent == -1)
+    int rootCount = 0;
+    for (int i = 0; i < n; i++) {
+        if (parent[i] == -1) rootCount++;
+    }
+    assert(rootCount == 1);  // Exactly one root in centroid tree
 }
 
 int main() {

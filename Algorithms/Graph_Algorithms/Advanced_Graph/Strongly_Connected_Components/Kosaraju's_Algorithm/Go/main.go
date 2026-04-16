@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // KosarajuSCC finds all strongly connected components using Kosaraju's algorithm
 func KosarajuSCC(graph map[int][]int) [][]int {
 	if len(graph) == 0 {

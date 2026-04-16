@@ -119,12 +119,13 @@ class TestDijkstra(unittest.TestCase):
     def test_dijkstra_empty_graph(self):
         """Test Dijkstra's on empty graph."""
         distances = dijkstra({}, 1)
-        self.assertEqual(len(distances), 0)
+        self.assertEqual(len(distances), 1)
+        self.assertEqual(distances[1], 0)
     
     def test_dijkstra_start_not_in_graph(self):
         """Test Dijkstra's when start vertex not in graph."""
         distances = dijkstra(self.graph, 99)
-        self.assertEqual(len(distances), 4)
+        self.assertEqual(len(distances), 5)
         self.assertEqual(distances[99], 0)
         # All other vertices should be unreachable
         self.assertEqual(distances[1], float('inf'))

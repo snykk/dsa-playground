@@ -16,7 +16,16 @@ func TestBuild(t *testing.T) {
 	cd := NewCentroidDecomposition(n, adj)
 	cd.Build(0)
 	parent := cd.GetParent()
-	if parent[0] != -1 {
-		t.Errorf("Root should have parent -1")
+
+	// The centroid of the tree is the root of the centroid decomposition
+	// and should have parent -1. Exactly one node must be the root.
+	rootCount := 0
+	for i := 0; i < n; i++ {
+		if parent[i] == -1 {
+			rootCount++
+		}
+	}
+	if rootCount != 1 {
+		t.Errorf("Exactly one node should have parent -1, got %d", rootCount)
 	}
 }
