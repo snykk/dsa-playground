@@ -90,12 +90,12 @@ dsa-playground/
 - [x] **String**
   - [x] String manipulation
   - [x] Pattern matching
-  - [ ] **Rope** (Efficient String Data Structure)
+  - [x] **Rope** (Efficient String Data Structure)
 - [x] **Linked List**
   - [x] Singly Linked List
   - [x] Doubly Linked List
   - [x] Circular Linked List
-  - [ ] **Skip List** (Advanced Linked List)
+  - [x] **Skip List** (Advanced Linked List)
 - [x] **Stack**
   - [x] Array-based implementation
   - [x] Linked List implementation
@@ -114,6 +114,7 @@ dsa-playground/
   - [x] AVL Tree
   - [x] Red-Black Tree
   - [x] Segment Tree
+  - [x] Segment Tree (Lazy Propagation)
   - [x] Fenwick Tree (Binary Indexed Tree)
   - [x] Trie (Prefix Tree)
   - [x] Suffix Tree / Suffix Array
@@ -143,7 +144,8 @@ dsa-playground/
 
 #### 🔹 Advanced Structures
 
-- [ ] **Disjoint Set Union (DSU)**
+- [x] **Disjoint Set Union (DSU)**
+- [x] **LRU Cache**
 
 ---
 
@@ -292,6 +294,8 @@ dsa-playground/
 - [x] **Meet in the Middle**
 - [x] **Coordinate Compression**
 - [x] **Inclusion-Exclusion Principle**
+- [x] **Monotonic Stack**
+- [x] **Bit Manipulation**
 
 ---
 
@@ -462,16 +466,16 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 105/149 topics completed (70%)**
+**Overall Progress: 114/153 topics completed (75%)**
 
-- Data Structures: 43/45 (96%)
-  - Linear Data Structures: 16/18 (89%)
-  - Non-Linear Data Structures: 21/21 (100%)
-    - Trees: 14/14 (100%)
+- Data Structures: 49/49 (100%)
+  - Linear Data Structures: 18/18 (100%)
+  - Non-Linear Data Structures: 22/22 (100%)
+    - Trees: 15/15 (100%)
     - Heaps: 3/3 (100%)
     - Graph: 5/5 (100%)
   - Hashing: 5/5 (100%)
-  - Advanced Structures: 0/1 (0%)
+  - Advanced Structures: 3/3 (100%)
 - Algorithms: 46/80 (58%)
   - Sorting Algorithms: 9/9 (100%)
   - Searching Algorithms: 4/4 (100%)
@@ -479,7 +483,7 @@ If you find this repository helpful, please consider giving it a star! It helps 
   - Greedy Algorithms: 7/7 (100%)
   - Dynamic Programming: 13/13 (100%)
   - Graph Algorithms: 8/8 (100%)
-- Problem Patterns: 10/10 (100%)
+- Problem Patterns: 12/12 (100%)
 - Complexity Analysis: 5/5 (100%)
   - Time Complexity: 3/3 (100%)
   - Space Complexity: 1/1 (100%)
@@ -491,11 +495,26 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ---
 
+## 📋 Planned / Future Topics
+
+The following topics are planned for future implementation:
+
+- **LFU Cache** — Least Frequently Used cache eviction strategy
+- **Aho-Corasick Algorithm** — Multi-pattern string matching
+- **Randomized Algorithms** — Reservoir sampling, randomized quickselect
+- **Approximation Algorithms** — Vertex Cover, TSP approximation
+- **Advanced DP Optimizations** — Convex Hull Trick, Knuth-Yao, Divide & Conquer optimization
+- **Persistent Data Structures** — Persistent Segment Tree, Persistent Array
+- **Online Algorithms** — Ski Rental, Online Matching, Paging
+- **Monotonic Queue** — Sliding window maximum/minimum with deque
+
+---
+
 **Happy Coding! 🚀**
 
 > "The best way to learn algorithms is to implement them yourself." - Unknown
 
 ---
 
-_Last Updated: 6 Jan 2026_
+_Last Updated: 16 Apr 2026_
 _Contributors: Najib Fikri_
