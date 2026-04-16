@@ -37,6 +37,7 @@ pair<map<int, int>, map<int, int>> compress2DCoordinates(const vector<pair<int, 
     return {compressCoordinates(xCoords), compressCoordinates(yCoords)};
 }
 
+#ifndef TESTING
 int main() {
     vector<int> coords = {1000, 5, 200, 1000, 5, 50};
     auto mapping = compressCoordinates(coords);
@@ -48,4 +49,5 @@ int main() {
     cout << endl;
     return 0;
 }
+#endif
 

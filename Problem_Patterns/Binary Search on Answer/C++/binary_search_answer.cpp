@@ -83,6 +83,7 @@ int splitArrayLargestSum(const vector<int>& nums, int m) {
     return binarySearchAnswer(left, right, canSplit);
 }
 
+#ifndef TESTING
 int main() {
     vector<int> weights = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     int days = 5;
@@ -100,4 +101,5 @@ int main() {
     cout << "Split array largest sum: " << result << endl;
     return 0;
 }
+#endif
 

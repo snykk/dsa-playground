@@ -138,6 +138,7 @@ double rotatingCalipersArea(const std::vector<Point>& hull) {
     return std::abs(area) / 2.0;
 }
 
+#ifndef TESTING
 int main() {
     std::cout << "Rotating Calipers Examples:" << std::endl;
     std::cout << std::endl;
@@ -172,3 +173,4 @@ int main() {
 
     return 0;
 }
+#endif

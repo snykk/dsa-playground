@@ -67,6 +67,7 @@ std::vector<int> rabinKarpSearch(const std::string& text, const std::string& pat
 // Example usage (uncomment to use)
 /*
 #include <iostream>
+#ifndef TESTING
 int main() {
     std::string text = "ABABDABACDABABCABC";
     std::string pattern = "ABABCABC";
@@ -77,5 +78,6 @@ int main() {
     std::cout << std::endl;
     return 0;
 }
+#endif
 */
 

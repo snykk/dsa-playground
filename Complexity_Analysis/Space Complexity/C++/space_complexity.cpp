@@ -75,8 +75,10 @@ void demonstrateSpaceComplexity() {
     cout << "\n\n";
 }
 
+#ifndef TESTING
 int main() {
     demonstrateSpaceComplexity();
     return 0;
 }
+#endif
 

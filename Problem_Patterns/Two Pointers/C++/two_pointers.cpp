@@ -129,6 +129,7 @@ int containerWithMostWater(const vector<int>& heights) {
     return maxArea;
 }
 
+#ifndef TESTING
 int main() {
     cout << "Two Pointers Examples:" << endl;
     cout << endl;
@@ -162,4 +163,5 @@ int main() {
     
     return 0;
 }
+#endif
 

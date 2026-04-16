@@ -84,6 +84,7 @@ void printBoard(const vector<vector<int>>& board) {
     }
 }
 
+#ifndef TESTING
 int main() {
     cout << "Sudoku Solver Examples:" << endl;
     cout << endl;
@@ -113,3 +114,4 @@ int main() {
     
     return 0;
 }
+#endif

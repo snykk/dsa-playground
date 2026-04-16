@@ -69,6 +69,7 @@ bool unionFindCycleDetection(const std::vector<std::pair<int, int>>& edges, int 
 // Example usage (uncomment to use)
 /*
 #include <iostream>
+#ifndef TESTING
 int main() {
     std::cout << "Union-Find Example:" << std::endl;
     
@@ -94,5 +95,6 @@ int main() {
     
     return 0;
 }
+#endif
 */
 

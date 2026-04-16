@@ -72,8 +72,10 @@ void demonstrateBigTheta() {
     cout << "\n\n";
 }
 
+#ifndef TESTING
 int main() {
     demonstrateBigTheta();
     return 0;
 }
+#endif
 

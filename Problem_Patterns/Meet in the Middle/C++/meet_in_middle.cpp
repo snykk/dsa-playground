@@ -36,9 +36,11 @@ bool subsetSumMeetInMiddle(const vector<int>& arr, int target) {
     return false;
 }
 
+#ifndef TESTING
 int main() {
     vector<int> arr = {1, 2, 3, 4, 5, 6};
     cout << "Subset sum 10: " << subsetSumMeetInMiddle(arr, 10) << endl;
     return 0;
 }
+#endif
 

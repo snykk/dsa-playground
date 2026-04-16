@@ -98,6 +98,7 @@ vector<int> countDistinctInRanges(const vector<int>& arr, const vector<pair<int,
     return mo.processQueries(queries);
 }
 
+#ifndef TESTING
 int main() {
     cout << "Mo's Algorithm Examples:" << endl;
     cout << endl;
@@ -126,3 +127,4 @@ int main() {
     
     return 0;
 }
+#endif

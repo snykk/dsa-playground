@@ -78,6 +78,7 @@ public:
     }
 };
 
+#ifndef TESTING
 int main() {
     cout << "Heavy-Light Decomposition Examples:" << endl;
     cout << endl;
@@ -100,3 +101,4 @@ int main() {
     
     return 0;
 }
+#endif

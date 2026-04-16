@@ -110,8 +110,10 @@ void demonstrateAmortizedAnalysis() {
     cout << "Key Insight: Expensive operations are 'paid for' by cheap ones\n";
 }
 
+#ifndef TESTING
 int main() {
     demonstrateAmortizedAnalysis();
     return 0;
 }
+#endif
 

@@ -61,6 +61,7 @@ public:
     }
 };
 
+#ifndef TESTING
 int main() {
     cout << "Centroid Decomposition Examples:" << endl;
     cout << endl;
@@ -87,3 +88,4 @@ int main() {
     
     return 0;
 }
+#endif

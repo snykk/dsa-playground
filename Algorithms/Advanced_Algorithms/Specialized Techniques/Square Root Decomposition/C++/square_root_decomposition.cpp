@@ -63,6 +63,7 @@ public:
     }
 };
 
+#ifndef TESTING
 int main() {
     cout << "Square Root Decomposition Examples:" << endl;
     cout << endl;
@@ -85,3 +86,4 @@ int main() {
     
     return 0;
 }
+#endif

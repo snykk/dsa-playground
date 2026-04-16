@@ -93,6 +93,7 @@ ExtendedGCD extendedGcd(long long a, long long b) {
 // Example usage (uncomment to use)
 /*
 #include <iostream>
+#ifndef TESTING
 int main() {
     std::cout << "Euclidean Algorithm Examples:" << std::endl;
     std::cout << "GCD(48, 18) = " << gcd(48, 18) << std::endl;
@@ -104,4 +105,5 @@ int main() {
     
     return 0;
 }
+#endif
 */

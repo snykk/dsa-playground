@@ -121,6 +121,7 @@ void printVector(const std::vector<int>& vec) {
     std::cout << "]" << std::endl;
 }
 
+#ifndef TESTING
 int main() {
     // 1. BFS
     Graph graph = {
@@ -147,3 +148,4 @@ int main() {
 
     return 0;
 }
+#endif

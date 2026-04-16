@@ -44,10 +44,12 @@ public:
     }
 };
 
+#ifndef TESTING
 int main() {
     vector<int> arr = {1, 2, 3, 4, 5};
     PrefixSum ps(arr);
     cout << "Sum[0, 4]: " << ps.query(0, 4) << endl;
     return 0;
 }
+#endif
 

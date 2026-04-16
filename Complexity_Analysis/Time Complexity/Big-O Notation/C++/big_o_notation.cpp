@@ -192,8 +192,10 @@ void demonstrateBigO() {
     cout << "\n";
 }
 
+#ifndef TESTING
 int main() {
     demonstrateBigO();
     return 0;
 }
+#endif
 

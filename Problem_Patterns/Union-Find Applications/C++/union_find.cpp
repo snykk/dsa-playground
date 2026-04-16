@@ -75,6 +75,7 @@ public:
     }
 };
 
+#ifndef TESTING
 int main() {
     std::cout << "=== Union-Find Example ===" << std::endl;
     
@@ -97,3 +98,4 @@ int main() {
 
     return 0;
 }
+#endif

@@ -63,6 +63,7 @@ void printSolution(const vector<vector<int>>& solution) {
     }
 }
 
+#ifndef TESTING
 int main() {
     cout << "Rat in a Maze Examples:" << endl;
     cout << endl;
@@ -93,3 +94,4 @@ int main() {
     
     return 0;
 }
+#endif

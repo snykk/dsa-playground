@@ -2,6 +2,9 @@
 #include <cmath>
 #include <vector>
 #include <iomanip>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 const double EPS = 1e-9;
 
@@ -128,6 +131,7 @@ bool pointInTriangle(const Point& p, const Point& a, const Point& b, const Point
     return !(has_neg && has_pos);
 }
 
+#ifndef TESTING
 int main() {
     std::cout << "Point, Line, and Circle Operations Examples:" << std::endl;
     std::cout << std::endl;
@@ -165,3 +169,4 @@ int main() {
 
     return 0;
 }
+#endif

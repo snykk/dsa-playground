@@ -111,6 +111,7 @@ long long modPower(long long base, long long exponent, long long m) {
 // Example usage (uncomment to use)
 /*
 #include <iostream>
+#ifndef TESTING
 int main() {
     long long m = 11;
     
@@ -123,5 +124,6 @@ int main() {
     
     return 0;
 }
+#endif
 */
 

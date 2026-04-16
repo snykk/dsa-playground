@@ -67,8 +67,10 @@ void demonstrateBigOmega() {
          << matrixTraversalLowerBound(matrix) << "\n\n";
 }
 
+#ifndef TESTING
 int main() {
     demonstrateBigOmega();
     return 0;
 }
+#endif
 

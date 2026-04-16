@@ -57,6 +57,7 @@ int chromaticNumber(const vector<vector<int>>& graph) {
     return n;
 }
 
+#ifndef TESTING
 int main() {
     cout << "Graph Coloring Examples:" << endl;
     cout << endl;
@@ -94,3 +95,4 @@ int main() {
     
     return 0;
 }
+#endif

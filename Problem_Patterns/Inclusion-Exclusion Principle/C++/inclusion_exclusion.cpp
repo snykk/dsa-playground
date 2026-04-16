@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <set>
 
 using namespace std;
 
@@ -70,6 +71,7 @@ int countUnionSets(const vector<vector<int>>& sets) {
     return result;
 }
 
+#ifndef TESTING
 int main() {
     vector<int> divisors = {2, 3, 5};
     int result = countDivisible(100, divisors);
@@ -80,4 +82,5 @@ int main() {
     cout << "Count union sets: " << result << endl;
     return 0;
 }
+#endif
 

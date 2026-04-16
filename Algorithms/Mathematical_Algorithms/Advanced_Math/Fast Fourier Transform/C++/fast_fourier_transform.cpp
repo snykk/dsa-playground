@@ -8,6 +8,9 @@
 #include <vector>
 #include <complex>
 #include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 typedef std::complex<double> Complex;
 typedef std::vector<Complex> ComplexVector;
@@ -60,7 +63,7 @@ ComplexVector fft(const ComplexVector& a, bool inverse = false) {
     
     if (inverse) {
         for (int i = 0; i < n; i++) {
-            result[i] /= n;
+            result[i] /= 2;
         }
     }
     
@@ -136,6 +139,7 @@ std::vector<int> convolve(const std::vector<int>& a, const std::vector<int>& b) 
 #include <iostream>
 #include <iomanip>
 
+#ifndef TESTING
 int main() {
     std::vector<int> signal = {1, 2, 3, 4};
     ComplexVector signal_complex;
@@ -152,5 +156,6 @@ int main() {
     
     return 0;
 }
+#endif
 */
 

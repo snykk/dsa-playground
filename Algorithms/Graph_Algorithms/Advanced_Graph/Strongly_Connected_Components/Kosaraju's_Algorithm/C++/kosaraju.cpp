@@ -102,6 +102,7 @@ bool isStronglyConnected(const std::unordered_map<int, std::vector<int>>& graph)
 // Example usage (uncomment to use)
 /*
 #include <iostream>
+#ifndef TESTING
 int main() {
     std::unordered_map<int, std::vector<int>> graph = {
         {1, {2}},
@@ -120,5 +121,6 @@ int main() {
     
     return 0;
 }
+#endif
 */
 

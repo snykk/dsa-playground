@@ -77,6 +77,7 @@ bool pointOnSegment(const Point& p, const Line& line) {
            min_y - EPS <= p.y && p.y <= max_y + EPS;
 }
 
+#ifndef TESTING
 int main() {
     std::cout << "Line Intersection Examples:" << std::endl;
     std::cout << std::endl;
@@ -96,3 +97,4 @@ int main() {
 
     return 0;
 }
+#endif

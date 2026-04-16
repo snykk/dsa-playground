@@ -145,6 +145,7 @@ int longestSubstringNoRepeat(const string& s) {
     return maxLen;
 }
 
+#ifndef TESTING
 int main() {
     cout << "Sliding Window Examples:" << endl;
     cout << endl;
@@ -177,4 +178,5 @@ int main() {
     
     return 0;
 }
+#endif
 

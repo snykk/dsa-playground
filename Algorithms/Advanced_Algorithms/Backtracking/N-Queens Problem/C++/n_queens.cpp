@@ -70,6 +70,7 @@ void printSolution(const vector<vector<int>>& board) {
     }
 }
 
+#ifndef TESTING
 int main() {
     cout << "N-Queens Problem Examples:" << endl;
     cout << endl;
@@ -86,3 +87,4 @@ int main() {
     
     return 0;
 }
+#endif

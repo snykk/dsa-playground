@@ -146,6 +146,7 @@ bool verifyCrtSolution(long long x, const std::vector<long long>& remainders,
 // Example usage (uncomment to use)
 /*
 #include <iostream>
+#ifndef TESTING
 int main() {
     std::vector<long long> remainders = {2, 3, 2};
     std::vector<long long> moduli = {3, 5, 7};
@@ -154,5 +155,6 @@ int main() {
     
     return 0;
 }
+#endif
 */
 
