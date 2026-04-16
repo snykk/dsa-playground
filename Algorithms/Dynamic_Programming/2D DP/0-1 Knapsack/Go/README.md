@@ -1,8 +1,40 @@
 # 0/1 Knapsack (Go)
 
-See Python implementation for detailed documentation.
+Go implementation of the 0/1 Knapsack problem using a 2D dynamic programming table to maximize total value without exceeding a given weight capacity.
+
+## Files
+
+| File | Description |
+|------|-------------|
+| `main.go` | Main implementation with DP table approach |
+| `main_test.go` | Test cases for knapsack solver |
+| `go.mod` | Go module definition (`knapsack01`) |
+
+## How to Run
+
+```bash
+go test ./...
+```
+
+## Key Functions
+
+| Function | Description | Time Complexity |
+|----------|-------------|-----------------|
+| `Knapsack01(weights, values []int, capacity int) int` | Solves 0/1 knapsack using bottom-up DP over items and capacities | O(n * W) |
+
+## Complexity
+
+| Aspect | Complexity |
+|--------|-----------|
+| Time | O(n * W) where n = number of items, W = capacity |
+| Space | O(n * W) for the 2D DP table |
+
+## Notes
+
+- Each item can be either taken or skipped (0/1 choice).
+- The DP table `dp[i][w]` stores the maximum value achievable using the first `i` items with capacity `w`.
+- Uses Go slices (`[][]int`) for the DP table.
 
 ---
 
-_Last Updated: December 2025_
-
+_Last Updated: April 2026_
