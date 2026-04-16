@@ -1,5 +1,19 @@
+"""
+Multi-Dimensional Array implementation using nested Python lists.
+
+Demonstrates a 2D matrix represented as a list of lists. Covers
+creation, element access by row and column indices, and flattening
+a matrix into a one-dimensional list.
+"""
+
 # Python/Linear/Array/multi_dimensional_array.py
 def main():
+    """
+    Demonstrate multi-dimensional array operations.
+
+    Creates a 3x3 matrix, accesses an element by (row, col) indices,
+    and flattens the matrix into a one-dimensional list.
+    """
     # 2D array (3x3 matrix)
     matrix = [
         [1, 2, 3],

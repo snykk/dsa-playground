@@ -1,5 +1,30 @@
+"""
+String Pattern Matching algorithms in Python.
+
+Implements four classic pattern matching algorithms:
+    - Naive Search: brute-force comparison at every position.
+    - KMP (Knuth-Morris-Pratt): uses a longest-prefix-suffix table to skip
+      redundant comparisons.
+    - Rabin-Karp: uses rolling hash values for fast average-case matching.
+    - Boyer-Moore (bad character heuristic): scans the pattern right-to-left
+      and shifts using a bad character table.
+"""
+
+
 # Naive pattern search
 def naive_search(text: str, pattern: str) -> list:
+    """
+    Find all occurrences of a pattern in text using brute-force comparison.
+
+    Args:
+        text: The text to search in.
+        pattern: The pattern to search for.
+
+    Returns:
+        A list of starting indices where the pattern occurs in the text.
+
+    Time Complexity: O(n * m) where n is len(text) and m is len(pattern).
+    """
     n, m = len(text), len(pattern)
     indices = []
     for i in range(n - m + 1):
@@ -9,6 +34,21 @@ def naive_search(text: str, pattern: str) -> list:
 
 # KMP algorithm
 def compute_lps(pattern: str) -> list:
+    """
+    Compute the Longest Proper Prefix which is also Suffix (LPS) array.
+
+    The LPS array is used by the KMP algorithm to determine how far to
+    shift the pattern when a mismatch occurs.
+
+    Args:
+        pattern: The pattern to preprocess.
+
+    Returns:
+        A list where lps[i] is the length of the longest proper prefix
+        of pattern[0..i] that is also a suffix.
+
+    Time Complexity: O(m) where m is len(pattern).
+    """
     lps = [0]*len(pattern)
     length = 0
     i = 1
@@ -26,6 +66,21 @@ def compute_lps(pattern: str) -> list:
     return lps
 
 def kmp_search(text: str, pattern: str) -> list:
+    """
+    Find all occurrences of a pattern in text using the KMP algorithm.
+
+    Uses the LPS (longest prefix suffix) array to avoid re-examining
+    characters that have already been matched.
+
+    Args:
+        text: The text to search in.
+        pattern: The pattern to search for.
+
+    Returns:
+        A list of starting indices where the pattern occurs in the text.
+
+    Time Complexity: O(n + m) where n is len(text) and m is len(pattern).
+    """
     n, m = len(text), len(pattern)
     lps = compute_lps(pattern)
     indices = []
@@ -46,6 +101,23 @@ def kmp_search(text: str, pattern: str) -> list:
 
 # Rabin-Karp algorithm
 def rabin_karp_search(text: str, pattern: str, q=101) -> list:
+    """
+    Find all occurrences of a pattern in text using the Rabin-Karp algorithm.
+
+    Uses a rolling hash function to compare the hash of the pattern with
+    the hash of each substring of the text. Only performs character-by-character
+    comparison when hash values match (to handle collisions).
+
+    Args:
+        text: The text to search in.
+        pattern: The pattern to search for.
+        q: A prime number used as the modulus for hashing (default 101).
+
+    Returns:
+        A list of starting indices where the pattern occurs in the text.
+
+    Time Complexity: O(n * m) worst case, O(n + m) average case.
+    """
     d = 256
     n, m = len(text), len(pattern)
     h = pow(d, m-1, q)
@@ -63,6 +135,19 @@ def rabin_karp_search(text: str, pattern: str, q=101) -> list:
 
 # Simple Boyer-Moore (bad character only)
 def bad_char_table(pattern: str) -> dict:
+    """
+    Build the bad character table for the Boyer-Moore algorithm.
+
+    Maps each character in the pattern to its rightmost occurrence index.
+
+    Args:
+        pattern: The pattern to preprocess.
+
+    Returns:
+        A dictionary mapping each character to its last index in the pattern.
+
+    Time Complexity: O(m) where m is len(pattern).
+    """
     table = {}
     m = len(pattern)
     for i in range(m):
@@ -70,6 +155,21 @@ def bad_char_table(pattern: str) -> dict:
     return table
 
 def boyer_moore_search(text: str, pattern: str) -> list:
+    """
+    Find all occurrences of a pattern in text using the Boyer-Moore algorithm.
+
+    Uses the bad character heuristic to skip alignments. The pattern is
+    compared right-to-left at each alignment position.
+
+    Args:
+        text: The text to search in.
+        pattern: The pattern to search for.
+
+    Returns:
+        A list of starting indices where the pattern occurs in the text.
+
+    Time Complexity: O(n * m) worst case, O(n / m) best case.
+    """
     n, m = len(text), len(pattern)
     indices = []
     if m == 0: return indices
