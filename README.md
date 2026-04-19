@@ -126,6 +126,7 @@ dsa-playground/
   - [x] Cartesian Tree
   - [x] Interval Tree
   - [x] Treap (Randomized BST)
+  - [x] K-D Tree (k-dimensional BST)
 - [x] **Heaps**
   - [x] Min Heap
   - [x] Max Heap
@@ -288,6 +289,11 @@ dsa-playground/
   - [x] Heavy-Light Decomposition
   - [x] Centroid Decomposition
   - [x] Square Root Decomposition
+
+#### 🔹 Randomized Algorithms
+
+- [x] **Reservoir Sampling** — uniform sampling from a stream of unknown length
+- [x] **Randomized Quickselect** — O(n) expected k-th smallest
 
 ---
 
@@ -476,18 +482,18 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 159/163 core topics completed (98%)**
+**Overall Progress: 165/168 core topics completed (98%)**
 _All currently scoped topics are implemented across Python, C++, and Go. Remaining items are in "Longer-Term Backlog" below._
 
-- Data Structures: 51/51 (100%)
+- Data Structures: 52/52 (100%)
   - Linear Data Structures: 18/18 (100%)
-  - Non-Linear Data Structures: 23/23 (100%)
-    - Trees: 16/16 (100%) _(incl. Treap)_
+  - Non-Linear Data Structures: 24/24 (100%)
+    - Trees: 17/17 (100%) _(incl. Treap, K-D Tree)_
     - Heaps: 3/3 (100%)
     - Graph: 5/5 (100%)
   - Hashing: 5/5 (100%)
   - Advanced Structures: 4/4 (100%) _(DSU, LRU Cache, LFU Cache)_
-- Algorithms: 80/80 core algorithms (100%)
+- Algorithms: 82/82 core algorithms (100%)
   - Sorting Algorithms: 9/9 (100%)
   - Searching Algorithms: 4/4 (100%)
   - Divide and Conquer: 5/5 (100%)
@@ -498,6 +504,7 @@ _All currently scoped topics are implemented across Python, C++, and Go. Remaini
   - Mathematical Algorithms: 8/8 (100%) _(incl. FFT, Matrix Exponentiation)_
   - Computational Geometry: 5/5 (100%)
   - Advanced Algorithms: 8/8 (100%) _(Backtracking + Specialized Techniques incl. HLD)_
+  - Randomized Algorithms: 2/2 (100%) _(Reservoir Sampling, Randomized Quickselect)_
 - Problem Patterns: 13/13 (100%) _(incl. Monotonic Queue)_
 - Complexity Analysis: 5/5 (100%)
   - Time Complexity: 3/3 (100%)
@@ -526,15 +533,16 @@ Previously-planned HIGH-priority topics now shipped with Python + C++ + Go imple
 - [x] **Convex Hull Trick (CHT) & Li Chao Tree** — DP optimization
 - [x] **Treap** — Randomized self-balancing BST
 - [x] **Tarjan's Bridges & Articulation Points** — Graph criticality
+- [x] **Reservoir Sampling & Randomized Quickselect** — randomized algorithms category
+- [x] **K-D Tree** — k-dimensional spatial search
 
 ### 📌 Longer-Term Backlog (MEDIUM / LOW priority)
 
-- **Randomized Algorithms** — Reservoir sampling, randomized quickselect
 - **Approximation Algorithms** — Vertex Cover, TSP approximation
 - **Advanced DP Optimizations** — Knuth-Yao, Divide & Conquer DP
 - **Persistent Data Structures** — Persistent Segment Tree, Persistent Array
 - **Online Algorithms** — Ski Rental, Online Matching, Paging
-- **Link-Cut Tree**, **K-D Tree**, **Segment Tree Beats** — advanced specialized structures
+- **Link-Cut Tree**, **Segment Tree Beats** — advanced specialized structures
 
 ---
 
@@ -544,5 +552,5 @@ Previously-planned HIGH-priority topics now shipped with Python + C++ + Go imple
 
 ---
 
-_Last Updated: 19 Apr 2026_
+_Last Updated: 20 Apr 2026_
 _Contributors: Najib Fikri_
