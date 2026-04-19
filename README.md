@@ -6,6 +6,8 @@
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
+> **New to DSA?** Follow the structured curriculum in **[STUDY_GUIDE.md](STUDY_GUIDE.md)** — it sequences every topic in this repo into a week-by-week learning path, from foundations through competitive-programming techniques.
+
 ---
 
 ## 🎯 Purpose
