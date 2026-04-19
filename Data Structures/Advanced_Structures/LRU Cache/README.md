@@ -61,4 +61,12 @@ get(2)    ->  -1                                (2 was evicted)
 
 ---
 
+## Related
+
+- **[LFU Cache](../LFU%20Cache/README.md)** — evicts the _least frequently_ used entry (with LRU as tiebreak) instead of the least recently used. Better when your workload has a stable popularity distribution; LRU suffers from "cache pollution" on sequential scans.
+- **[Doubly Linked List](../../Linear/Linked%20List/Doubly/README.md)** — the O(1)-splice backbone this structure depends on.
+- **[Hash Map](../../Hashing/Hash%20Map/README.md)** — for O(1) key → node lookup.
+
+---
+
 _Last Updated: April 2026_

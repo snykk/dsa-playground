@@ -123,3 +123,11 @@ This folder contains implementations in three languages:
 | Space           | O(n)       | O(ALPHABET × N × M) |
 | Use Case        | Exact match | Prefix match |
 
+---
+
+## Related Algorithms
+
+- **[Aho-Corasick Algorithm](../../../../Algorithms/String_Algorithms/Advanced_String/Aho-Corasick/README.md)** — extends the trie with _failure links_ (a la KMP) to match _multiple_ patterns in a text in O(n + m + z). If you're building a spam filter, profanity detector, or multi-keyword search, reach for Aho-Corasick instead of running a trie lookup per position.
+- **Suffix Trie / Suffix Tree** — a trie over all suffixes of a string, used for substring search and longest-common-substring queries.
+- **[KMP Algorithm](../../../Linear/String/Pattern%20Matching/README.md)** — the single-pattern matcher whose failure function directly inspired Aho-Corasick.
+

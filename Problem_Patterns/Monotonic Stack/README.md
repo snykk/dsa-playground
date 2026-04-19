@@ -85,6 +85,7 @@ Each implementation includes:
 
 ## Related Patterns
 
+- **[Monotonic Queue](../Monotonic%20Queue/README.md)**: the two-ended sibling — same "maintain monotonic order" idea, but supports _window expiration_ from the front. Use it when the answer depends on the max/min within a sliding window rather than prefix/suffix.
 - **Stack**: Monotonic stack is a specialized use of the stack data structure
 - **Two Pointers**: Sometimes combined for range-based problems
 - **Sliding Window**: Can be enhanced with monotonic structures (monotonic deque)

@@ -77,3 +77,12 @@ This folder contains implementations in three languages:
 - **C++** (`C++/`)
 - **Go** (`Go/`)
 
+---
+
+## Related
+
+- **Segment Tree (Lazy Propagation)** — variant in the sibling folder that supports O(log n) _range updates_ (not just range queries).
+- **[Fenwick Tree (BIT)](../Fenwick%20Tree/README.md)** — simpler alternative for sum-only queries with smaller constant factors.
+- **[Li Chao Tree](../../../../Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick/README.md)** — specialized segment tree where each node stores a _line_ rather than an aggregate. Used for DP optimization when the transition has the form `dp[i] = min(m_j · x_i + b_j)`.
+- **Persistent Segment Tree** — roadmap; gives O(log n) access to historical versions of the tree for offline queries.
+

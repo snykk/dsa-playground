@@ -228,5 +228,13 @@ Each implementation includes:
 
 ---
 
+## Related
+
+- **[Red-Black Tree](../Red-Black%20Tree/README.md)** — different balance invariant; fewer rotations per update, favored by `std::map` and the Linux kernel.
+- **[Treap](../Treap/README.md)** — _randomized_ balanced BST via split/merge. Gives O(log n) _in expectation_ instead of AVL's worst-case guarantee, but trades rotation complexity for a `random.random()` call — much simpler to implement correctly, and uniquely good at range operations (split/merge in O(log n)).
+- **[Binary Search Tree](../Binary%20Search%20Tree/README.md)** — the unbalanced starting point this structure improves upon.
+
+---
+
 **Note**: AVL Tree is ideal when you need guaranteed O(log n) performance and can tolerate more rotations. For write-heavy workloads, Red-Black Tree might be better due to fewer rotations.
 
