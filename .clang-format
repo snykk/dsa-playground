@@ -1,0 +1,18 @@
+# clang-format configuration for the C++ code in this project.
+# Based on Google style with a 100-column line limit for readability
+# of algorithm walk-throughs (instead of the 80-col Google default).
+
+BasedOnStyle: Google
+ColumnLimit: 100
+IndentWidth: 4
+UseTab: Never
+AccessModifierOffset: -1
+AlignAfterOpenBracket: Align
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+BreakBeforeBraces: Attach
+DerivePointerAlignment: false
+PointerAlignment: Left
+SortIncludes: true
+SpacesBeforeTrailingComments: 2

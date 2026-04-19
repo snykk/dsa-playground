@@ -1,0 +1,32 @@
+# Python tooling configuration for DSA Playground.
+# Primary use: ruff (linter + formatter) via pre-commit.
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [
+    ".venv",
+    "__pycache__",
+    ".build",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear (catches common real bugs)
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line length — already handled by formatter
+    "B008",  # function call in default argument (mutable defaults handled case-by-case)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*_test.py" = ["B011"]  # `assert False` is fine in tests
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
