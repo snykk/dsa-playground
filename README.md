@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B%20%20%7C%20Go-blue.svg)]()
-[![Progress](https://img.shields.io/badge/Progress-70%25-green.svg)]()
+[![Progress](https://img.shields.io/badge/Progress-98%25-brightgreen.svg)]()
 
 > A comprehensive collection of **Data Structures** and **Algorithms** implementations, explanations, and problem-solving patterns for interview preparation and competitive programming.
 
@@ -123,6 +123,7 @@ dsa-playground/
   - [x] Splay Tree (Self-Adjusting BST)
   - [x] Cartesian Tree
   - [x] Interval Tree
+  - [x] Treap (Randomized BST)
 - [x] **Heaps**
   - [x] Min Heap
   - [x] Max Heap
@@ -146,6 +147,7 @@ dsa-playground/
 
 - [x] **Disjoint Set Union (DSU)**
 - [x] **LRU Cache**
+- [x] **LFU Cache** (Least Frequently Used)
 
 ---
 
@@ -207,6 +209,8 @@ dsa-playground/
   - [x] DP on Graphs
   - [x] Bitmask DP
   - [x] Digit DP
+- [x] **DP Optimizations**
+  - [x] Convex Hull Trick (CHT) & Li Chao Tree
 
 #### 🔹 Graph Algorithms
 
@@ -220,7 +224,7 @@ dsa-playground/
   - [x] A\* Search Algorithm
 - [x] **Minimum Spanning Tree**
   - [x] Kruskal's Algorithm
-  - [x] Prim's Algorithm@dsa
+  - [x] Prim's Algorithm
 - [x] **Advanced Graph**
   - [x] Topological Sort
   - [x] Strongly Connected Components
@@ -230,6 +234,8 @@ dsa-playground/
   - [x] Network Flow
     - [x] Ford-Fulkerson
     - [x] Edmonds-Karp
+  - [x] Tarjan's Bridges & Articulation Points
+  - [x] 2-SAT Solver
 
 #### 🔹 String Algorithms
 
@@ -243,6 +249,7 @@ dsa-playground/
   - [x] Suffix Array / Tree
   - [x] Longest Common Substring
   - [x] Longest Palindromic Substring (Manacher's)
+  - [x] Aho-Corasick Algorithm (multi-pattern matching)
 
 #### 🔹 Mathematical Algorithms
 
@@ -295,6 +302,7 @@ dsa-playground/
 - [x] **Coordinate Compression**
 - [x] **Inclusion-Exclusion Principle**
 - [x] **Monotonic Stack**
+- [x] **Monotonic Queue**
 - [x] **Bit Manipulation**
 
 ---
@@ -466,24 +474,29 @@ If you find this repository helpful, please consider giving it a star! It helps 
 
 ## 📈 Progress Tracking
 
-**Overall Progress: 114/153 topics completed (75%)**
+**Overall Progress: 159/163 core topics completed (98%)**
+_All currently scoped topics are implemented across Python, C++, and Go. Remaining items are in "Longer-Term Backlog" below._
 
-- Data Structures: 49/49 (100%)
+- Data Structures: 51/51 (100%)
   - Linear Data Structures: 18/18 (100%)
-  - Non-Linear Data Structures: 22/22 (100%)
-    - Trees: 15/15 (100%)
+  - Non-Linear Data Structures: 23/23 (100%)
+    - Trees: 16/16 (100%) _(incl. Treap)_
     - Heaps: 3/3 (100%)
     - Graph: 5/5 (100%)
   - Hashing: 5/5 (100%)
-  - Advanced Structures: 3/3 (100%)
-- Algorithms: 46/80 (58%)
+  - Advanced Structures: 4/4 (100%) _(DSU, LRU Cache, LFU Cache)_
+- Algorithms: 80/80 core algorithms (100%)
   - Sorting Algorithms: 9/9 (100%)
   - Searching Algorithms: 4/4 (100%)
   - Divide and Conquer: 5/5 (100%)
   - Greedy Algorithms: 7/7 (100%)
-  - Dynamic Programming: 13/13 (100%)
-  - Graph Algorithms: 8/8 (100%)
-- Problem Patterns: 12/12 (100%)
+  - Dynamic Programming: 14/14 (100%) _(incl. Convex Hull Trick optimization)_
+  - Graph Algorithms: 16/16 (100%) _(incl. MST, SCC, DSU, Network Flow, Tarjan Bridges, 2-SAT)_
+  - String Algorithms: 9/9 (100%) _(Pattern Matching + Advanced: Z, Suffix, LCS, Manacher, Aho-Corasick)_
+  - Mathematical Algorithms: 8/8 (100%) _(incl. FFT, Matrix Exponentiation)_
+  - Computational Geometry: 5/5 (100%)
+  - Advanced Algorithms: 8/8 (100%) _(Backtracking + Specialized Techniques incl. HLD)_
+- Problem Patterns: 13/13 (100%) _(incl. Monotonic Queue)_
 - Complexity Analysis: 5/5 (100%)
   - Time Complexity: 3/3 (100%)
   - Space Complexity: 1/1 (100%)
@@ -493,20 +506,33 @@ If you find this repository helpful, please consider giving it a star! It helps 
   - Optimization Techniques: 4/4 (100%)
   - Problem Types: 3/3 (100%)
 
+> **Note on directory layout:** The `Data Structures/Linear/Array/Go/` folder uses sub-modules (`static_array/`, `dynamic_array/`, `multi_dimensional_array/`) — each with its own `go.mod`. They are fully implemented, just nested one level deeper than the Python/C++ counterparts.
+
 ---
 
 ## 📋 Planned / Future Topics
 
-The following topics are planned for future implementation:
+### ✅ Recently Completed (April 2026)
 
-- **LFU Cache** — Least Frequently Used cache eviction strategy
-- **Aho-Corasick Algorithm** — Multi-pattern string matching
+Previously-planned HIGH-priority topics now shipped with Python + C++ + Go implementations, tests, and beginner-friendly READMEs:
+
+- [x] **LFU Cache** — Least Frequently Used cache eviction
+- [x] **Aho-Corasick Algorithm** — Multi-pattern string matching
+- [x] **Heavy-Light Decomposition (HLD)** — Efficient tree path queries
+- [x] **2-SAT Solver** — Boolean satisfiability via SCC
+- [x] **Monotonic Queue** — Sliding window max/min
+- [x] **Convex Hull Trick (CHT) & Li Chao Tree** — DP optimization
+- [x] **Treap** — Randomized self-balancing BST
+- [x] **Tarjan's Bridges & Articulation Points** — Graph criticality
+
+### 📌 Longer-Term Backlog (MEDIUM / LOW priority)
+
 - **Randomized Algorithms** — Reservoir sampling, randomized quickselect
 - **Approximation Algorithms** — Vertex Cover, TSP approximation
-- **Advanced DP Optimizations** — Convex Hull Trick, Knuth-Yao, Divide & Conquer optimization
+- **Advanced DP Optimizations** — Knuth-Yao, Divide & Conquer DP
 - **Persistent Data Structures** — Persistent Segment Tree, Persistent Array
 - **Online Algorithms** — Ski Rental, Online Matching, Paging
-- **Monotonic Queue** — Sliding window maximum/minimum with deque
+- **Link-Cut Tree**, **K-D Tree**, **Segment Tree Beats** — advanced specialized structures
 
 ---
 
@@ -516,5 +542,5 @@ The following topics are planned for future implementation:
 
 ---
 
-_Last Updated: 16 Apr 2026_
+_Last Updated: 19 Apr 2026_
 _Contributors: Najib Fikri_
