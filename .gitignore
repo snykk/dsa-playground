@@ -1,3 +1,36 @@
-**__pycache__*/
+# IDE / editor
 .vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Python
+**__pycache__*/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# C++ build artifacts
+*.o
+*.obj
+*.exe
+*.out
+*.dSYM/
+*_test
+*_test_bin
+# Keep source and headers; never commit compiled binaries.
+# (Tests are compiled into /tmp by Makefile; any stray output here
+# should be ignored.)
+
+# Go
+*.test
+*.prof
+coverage.out
+
+# Project-specific
 playground
