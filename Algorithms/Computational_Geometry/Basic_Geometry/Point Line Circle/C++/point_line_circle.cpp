@@ -132,6 +132,7 @@ bool pointInTriangle(const Point& p, const Point& a, const Point& b, const Point
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::cout << "Point, Line, and Circle Operations Examples:" << std::endl;
     std::cout << std::endl;
@@ -170,3 +171,4 @@ int main() {
     return 0;
 }
 #endif
+#endif  // !IS_TEST_BUILD

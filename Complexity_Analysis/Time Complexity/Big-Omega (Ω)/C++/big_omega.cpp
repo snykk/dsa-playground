@@ -68,9 +68,10 @@ void demonstrateBigOmega() {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     demonstrateBigOmega();
     return 0;
 }
 #endif
-
+#endif  // !IS_TEST_BUILD

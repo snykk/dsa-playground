@@ -71,6 +71,7 @@ void printSolution(const vector<vector<int>>& board) {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     cout << "N-Queens Problem Examples:" << endl;
     cout << endl;
@@ -88,3 +89,4 @@ int main() {
     return 0;
 }
 #endif
+#endif  // !IS_TEST_BUILD

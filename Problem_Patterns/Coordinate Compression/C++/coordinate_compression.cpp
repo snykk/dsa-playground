@@ -38,6 +38,7 @@ pair<map<int, int>, map<int, int>> compress2DCoordinates(const vector<pair<int, 
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     vector<int> coords = {1000, 5, 200, 1000, 5, 50};
     auto mapping = compressCoordinates(coords);
@@ -50,4 +51,4 @@ int main() {
     return 0;
 }
 #endif
-
+#endif  // !IS_TEST_BUILD

@@ -143,7 +143,9 @@ vector<vector<int>> subsetGeneration(int n) {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     return 0;
 }
 #endif
+#endif  // !IS_TEST_BUILD

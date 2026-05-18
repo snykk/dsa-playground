@@ -137,6 +137,7 @@ long long fibonacciMatrix(long long n, long long mod = -1) {
 /*
 #include <iostream>
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     Matrix A = {{1, 1}, {1, 0}};
     Matrix A_5 = matrixPower(A, 5);
@@ -151,5 +152,5 @@ int main() {
     return 0;
 }
 #endif
+#endif
 */
-

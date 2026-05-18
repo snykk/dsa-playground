@@ -139,6 +139,7 @@ double rotatingCalipersArea(const std::vector<Point>& hull) {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::cout << "Rotating Calipers Examples:" << std::endl;
     std::cout << std::endl;
@@ -174,3 +175,4 @@ int main() {
     return 0;
 }
 #endif
+#endif  // !IS_TEST_BUILD

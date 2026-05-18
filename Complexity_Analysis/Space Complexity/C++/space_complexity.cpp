@@ -76,9 +76,10 @@ void demonstrateSpaceComplexity() {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     demonstrateSpaceComplexity();
     return 0;
 }
 #endif
-
+#endif  // !IS_TEST_BUILD

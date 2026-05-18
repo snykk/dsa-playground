@@ -52,6 +52,7 @@ int naivePatternSearchFirst(const std::string& text, const std::string& pattern)
 /*
 #include <iostream>
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::string text = "ABABDABACDABABCABC";
     std::string pattern = "ABABCABC";
@@ -76,5 +77,5 @@ int main() {
     return 0;
 }
 #endif
+#endif
 */
-

@@ -146,6 +146,7 @@ int longestSubstringNoRepeat(const string& s) {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     cout << "Sliding Window Examples:" << endl;
     cout << endl;
@@ -179,4 +180,4 @@ int main() {
     return 0;
 }
 #endif
-
+#endif  // !IS_TEST_BUILD

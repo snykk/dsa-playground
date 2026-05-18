@@ -72,6 +72,7 @@ int countUnionSets(const vector<vector<int>>& sets) {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     vector<int> divisors = {2, 3, 5};
     int result = countDivisible(100, divisors);
@@ -83,4 +84,4 @@ int main() {
     return 0;
 }
 #endif
-
+#endif  // !IS_TEST_BUILD

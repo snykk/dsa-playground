@@ -86,6 +86,7 @@ int fordFulkerson(const std::unordered_map<int, std::unordered_map<int, int>>& g
 /*
 #include <iostream>
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::unordered_map<int, std::unordered_map<int, int>> graph = {
         {0, {{1, 16}, {2, 13}}},
@@ -102,5 +103,5 @@ int main() {
     return 0;
 }
 #endif
+#endif
 */
-

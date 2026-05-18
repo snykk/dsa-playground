@@ -140,6 +140,7 @@ std::vector<int> convolve(const std::vector<int>& a, const std::vector<int>& b) 
 #include <iomanip>
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::vector<int> signal = {1, 2, 3, 4};
     ComplexVector signal_complex;
@@ -157,5 +158,5 @@ int main() {
     return 0;
 }
 #endif
+#endif
 */
-

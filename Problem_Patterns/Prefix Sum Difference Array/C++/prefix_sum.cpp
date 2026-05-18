@@ -45,6 +45,7 @@ public:
 };
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     vector<int> arr = {1, 2, 3, 4, 5};
     PrefixSum ps(arr);
@@ -52,4 +53,4 @@ int main() {
     return 0;
 }
 #endif
-
+#endif  // !IS_TEST_BUILD

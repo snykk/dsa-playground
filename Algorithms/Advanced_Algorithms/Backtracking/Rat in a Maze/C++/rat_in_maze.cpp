@@ -64,6 +64,7 @@ void printSolution(const vector<vector<int>>& solution) {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     cout << "Rat in a Maze Examples:" << endl;
     cout << endl;
@@ -95,3 +96,4 @@ int main() {
     return 0;
 }
 #endif
+#endif  // !IS_TEST_BUILD

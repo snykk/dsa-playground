@@ -130,6 +130,7 @@ std::vector<Point> jarvisMarch(std::vector<Point> points) {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::cout << "Convex Hull Examples:" << std::endl;
     std::cout << std::endl;
@@ -163,3 +164,4 @@ int main() {
     return 0;
 }
 #endif
+#endif  // !IS_TEST_BUILD

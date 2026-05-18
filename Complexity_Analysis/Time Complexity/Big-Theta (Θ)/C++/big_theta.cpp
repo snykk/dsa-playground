@@ -73,9 +73,10 @@ void demonstrateBigTheta() {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     demonstrateBigTheta();
     return 0;
 }
 #endif
-
+#endif  // !IS_TEST_BUILD

@@ -86,10 +86,11 @@ int kmpSearchFirst(const std::string& text, const std::string& pattern) {
 /*
 #include <iostream>
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::string text = "ABABDABACDABABCABC";
     std::string pattern = "ABABCABC";
-    
+
     std::cout << "KMP Algorithm Example:" << std::endl;
     std::vector<int> lps = buildLPS(pattern);
     std::cout << "LPS array: ";
@@ -97,16 +98,16 @@ int main() {
         std::cout << val << " ";
     }
     std::cout << std::endl;
-    
+
     std::vector<int> occurrences = kmpSearch(text, pattern);
     std::cout << "Occurrences at indices: ";
     for (int idx : occurrences) {
         std::cout << idx << " ";
     }
     std::cout << std::endl;
-    
+
     return 0;
 }
 #endif
+#endif
 */
-

@@ -193,9 +193,10 @@ void demonstrateBigO() {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     demonstrateBigO();
     return 0;
 }
 #endif
-
+#endif  // !IS_TEST_BUILD

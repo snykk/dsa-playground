@@ -85,6 +85,7 @@ bool isPrimeSieve(int n, const std::vector<bool>& sieve) {
 /*
 #include <iostream>
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::vector<int> primes = sieveOfEratosthenes(30);
     std::cout << "Primes up to 30: ";
@@ -96,5 +97,5 @@ int main() {
     return 0;
 }
 #endif
+#endif
 */
-

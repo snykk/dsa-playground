@@ -171,6 +171,7 @@ vector<int> stockSpan(const vector<int>& prices) {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     cout << "Monotonic Stack Examples:" << endl;
     cout << endl;
@@ -205,3 +206,4 @@ int main() {
     return 0;
 }
 #endif
+#endif  // !IS_TEST_BUILD

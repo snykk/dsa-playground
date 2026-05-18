@@ -77,6 +77,7 @@ public:
 };
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     // 0/1 Knapsack
     std::cout << "Knapsack: " << DPPatterns::knapsack01({10, 20, 30}, {60, 100, 120}, 50) << std::endl;
@@ -90,3 +91,4 @@ int main() {
     return 0;
 }
 #endif
+#endif  // !IS_TEST_BUILD

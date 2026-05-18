@@ -155,6 +155,7 @@ bool millerRabinDeterministic(long long n) {
 /*
 #include <iostream>
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     srand(time(NULL));
     
@@ -169,5 +170,5 @@ int main() {
     return 0;
 }
 #endif
+#endif
 */
-

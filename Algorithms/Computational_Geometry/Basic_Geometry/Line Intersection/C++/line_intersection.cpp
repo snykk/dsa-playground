@@ -78,6 +78,7 @@ bool pointOnSegment(const Point& p, const Line& line) {
 }
 
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::cout << "Line Intersection Examples:" << std::endl;
     std::cout << std::endl;
@@ -98,3 +99,4 @@ int main() {
     return 0;
 }
 #endif
+#endif  // !IS_TEST_BUILD

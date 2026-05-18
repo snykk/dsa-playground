@@ -73,6 +73,7 @@ long long modInverse(long long a, long long m) {
 /*
 #include <iostream>
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::cout << "Modular Exponentiation Examples:" << std::endl;
     std::cout << "2^10 mod 1000 = " << modPow(2, 10, 1000) << std::endl;
@@ -84,5 +85,5 @@ int main() {
     return 0;
 }
 #endif
+#endif
 */
-

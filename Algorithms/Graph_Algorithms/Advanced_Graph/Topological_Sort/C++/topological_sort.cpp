@@ -73,6 +73,7 @@ bool isDAG(const std::unordered_map<int, std::vector<int>>& graph) {
 /*
 #include <iostream>
 #ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     std::unordered_map<int, std::vector<int>> graph = {
         {1, {2, 4}},
@@ -95,5 +96,5 @@ int main() {
     return 0;
 }
 #endif
+#endif
 */
-
