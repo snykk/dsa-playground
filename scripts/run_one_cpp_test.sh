@@ -12,7 +12,8 @@ bin="$repo_root/$build_dir/$safe"
 
 mkdir -p "$build_dir"
 CXX=${CXX:-g++}
-CXXFLAGS=${CXXFLAGS:--std=c++17 -O2 -Wall}
+# IS_TEST_BUILD silences demo main() in impl .cpp files that include themselves.
+CXXFLAGS=${CXXFLAGS:--std=c++17 -O2 -Wall -DIS_TEST_BUILD}
 
 if ! ( cd "$dir" && $CXX $CXXFLAGS "$(basename "$testfile")" -o "$bin" ) 2>/dev/null; then
     echo "COMPILE FAIL: $testfile"
