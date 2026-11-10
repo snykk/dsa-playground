@@ -17,3 +17,21 @@
     animation: none !important;
   }
 }
+
+/* Shared motion: a short pop when something becomes current, marching dashes for "being examined". */
+@keyframes viz-pop {
+  0% {
+    transform: scale(0.82);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes viz-march {
+  to {
+    stroke-dashoffset: -30;
+  }
+}

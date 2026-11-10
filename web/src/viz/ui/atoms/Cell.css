@@ -65,3 +65,8 @@
   border-color: var(--text);
   border-width: 2px;
 }
+.cell.role-active,
+.cell.role-good,
+.cell.role-bad {
+  animation: viz-pop 0.3s ease;
+}

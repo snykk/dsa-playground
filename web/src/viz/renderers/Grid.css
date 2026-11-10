@@ -40,3 +40,6 @@
   color: var(--viz-ink-on-fill);
   font-weight: 700;
 }
+.dp-table td.role-active {
+  animation: viz-pop 0.3s ease;
+}

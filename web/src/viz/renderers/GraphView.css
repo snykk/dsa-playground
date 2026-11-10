@@ -30,3 +30,8 @@
 .graph .arrow {
   fill: var(--axis);
 }
+.graph .edge.role-compare line,
+.graph .edge.role-compare path {
+  stroke-dasharray: 9 6;
+  animation: viz-march 0.8s linear infinite;
+}

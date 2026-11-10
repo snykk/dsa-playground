@@ -1,5 +1,4 @@
 /* CellRow molecule: a labelled row of cells, stacked into a grid. */
-/* ---------- cell rows (strings, bytes) ---------- */
 
 .cells {
   display: grid;
@@ -21,4 +20,14 @@
 }
 .cells-gap {
   height: 8px;
+}
+.cells-track {
+  --cell-step: 33px; /* cell width 30 + gap 3 */
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: transform 0.35s ease;
+}
+.cells-track.wide {
+  --cell-step: 43px; /* wide cell 40 + gap 3 */
 }

@@ -35,3 +35,10 @@
   stroke-width: 2.5;
   stroke-dasharray: 4 3;
 }
+.node.role-active circle,
+.node.role-good circle,
+.node.role-bad circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.4s ease;
+}

@@ -29,7 +29,7 @@ const show = (ch: string) => (ch === ' ' ? SYM.openBox : ch);
 export function StringMatch({ state }: { state: StringMatchState }) {
   const { text, pattern, lps } = state;
   const lpsRow = (offset: number, highlight?: number) => (
-    <CellRow label="lps" offset={offset}>
+    <CellRow label="lps" shift={offset}>
       {lps.map((v, k) => (
         <Cell key={k} value={v === null ? '' : v} role={k === highlight ? 'done' : undefined} />
       ))}
@@ -49,7 +49,7 @@ export function StringMatch({ state }: { state: StringMatchState }) {
           ))}
         </CellRow>
         {i >= 0 && i < pattern.length && (
-          <CellRow label="prefix" offset={i - len}>
+          <CellRow label="prefix" shift={i - len}>
             {pattern.slice(0, len + 1).map((ch, k) => (
               <Cell key={k} value={show(ch)} role={k === len ? cmpRole : 'compare'} />
             ))}
@@ -79,7 +79,7 @@ export function StringMatch({ state }: { state: StringMatchState }) {
       </CellRow>
       {!state.done && (
         <>
-          <CellRow label="pattern" offset={state.shift}>
+          <CellRow label="pattern" shift={state.shift}>
             {pattern.map((ch, k) => (
               <Cell key={k} value={show(ch)} role={k === state.j && cmpRole ? cmpRole : k < (state.j ?? 0) ? 'compare' : undefined} pointer={k === state.j} />
             ))}
