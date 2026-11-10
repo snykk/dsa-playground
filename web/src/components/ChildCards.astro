@@ -1,0 +1,29 @@
+---
+import { joinBase, topicsUnder, type DocNode } from '../lib/repo';
+import { hasViz } from '../viz/catalog';
+
+interface Props {
+  nodes: DocNode[];
+}
+
+const { nodes } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<div class="card-grid">
+  {
+    nodes.map((n) => {
+      const topicCount = n.kind === 'topic' ? 0 : topicsUnder(n).length;
+      return (
+        <a class="card" href={joinBase(base, n.slug)}>
+          <h3>{n.title}</h3>
+          {n.description && <p>{n.description}</p>}
+          <div class="card-meta">
+            {n.kind === 'topic' ? <span>{n.languages.map((l) => l.label).join(' \u00b7 ')}</span> : <span>{topicCount} topics</span>}
+            {hasViz(n.rel) && <span>&#x25cf; visualized</span>}
+          </div>
+        </a>
+      );
+    })
+  }
+</div>

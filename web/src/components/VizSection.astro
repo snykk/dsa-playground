@@ -1,0 +1,18 @@
+---
+import VizMount from '../viz/VizMount';
+import type { VizInfo } from '../viz/catalog';
+
+interface Props {
+  vizzes: VizInfo[];
+}
+
+const { vizzes } = Astro.props;
+---
+
+<section id="visualize" class="viz-section" aria-labelledby="visualize-title">
+  <h2 id="visualize-title" class="viz-section-title">
+    <span aria-hidden="true">&#x25b6;</span> Interactive visualization
+  </h2>
+  <VizMount client:visible ids={vizzes.map((v) => v.id)} />
+  <noscript><p>The visualization needs JavaScript; the explanation below works without it.</p></noscript>
+</section>
