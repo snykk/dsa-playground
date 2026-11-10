@@ -298,7 +298,7 @@ dsa-playground/
 #### 🔹 Coding Theory (Error Correction)
 
 - [x] **Galois Field GF(2^8)** — finite field arithmetic for AES/Reed-Solomon
-- [x] **Reed-Solomon** — encode + Berlekamp-Massey decode + Forney + Chien (e.g., RS(255, 223) Voyager code)
+- [x] **Reed-Solomon** — encode + Berlekamp-Massey decode + Forney + Chien, with combined error + erasure decoding and configurable fcr (e.g., RS(255, 223) Voyager code)
 
 ---
 

@@ -234,11 +234,11 @@ Reed-Solomon's sweet spot is **byte-oriented, hardware-friendly, well-understood
 
 | Language | Folder | Notes |
 |----------|--------|-------|
-| Python | [Python/](Python/) | Encode; errors-and-erasures decode (BM seeded with the erasure locator) + Forney + Chien; configurable `fcr`. |
-| C++ | [C++/](C++/) | Header-only; reuses `gf256::shared()` from [Galois_Field/C++](../Galois_Field/C++/). Errors-only decoding. |
-| Go | [Go/](Go/) | Self-contained: a minimal GF(2⁸) lives in `main.go` and agrees byte-for-byte with [Galois_Field/Go](../Galois_Field/Go/). Errors-only decoding. |
+| Python | [Python/](Python/) | `decode(received, erasures=None)`; Berlekamp-Massey in the swap-and-scale form (Wikiversity style). |
+| C++ | [C++/](C++/) | Header-only; reuses `gf256::shared()` from [Galois_Field/C++](../Galois_Field/C++/). `decode(received, erasures = {})`; classical L-tracking Berlekamp-Massey. |
+| Go | [Go/](Go/) | Self-contained: a minimal GF(2⁸) lives in `main.go` and agrees byte-for-byte with [Galois_Field/Go](../Galois_Field/Go/). `Decode` / `DecodeWithErasures`, `NewReedSolomonWithFCR`. |
 
-All three are tested against the same fixture: encode → inject up to `t` random byte errors → decode → assert the original message is returned.
+All three support errors + erasures and a configurable `fcr`, and share the same test fixtures: the RS(7, 5) codeword `[87, 95, 2, 3, 5, 7, 11]` from the trace above, random errors up to `t`, random errors + erasures within `e + 2v ≤ n − k`, several `fcr` values, and beyond-budget detection.
 
 ---
 

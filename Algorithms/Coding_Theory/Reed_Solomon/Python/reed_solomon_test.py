@@ -32,6 +32,12 @@ class TestEncodeBasics(unittest.TestCase):
         with self.assertRaises(ValueError):
             rs.encode([1, 2, 3])
 
+    def test_known_codeword_rs7_5(self):
+        # Shared cross-language fixture (same bytes in the C++ and Go tests and
+        # in the topic README's step-by-step trace).
+        rs = ReedSolomon(n=7, k=5)
+        self.assertEqual(rs.encode([2, 3, 5, 7, 11]), [87, 95, 2, 3, 5, 7, 11])
+
 
 class TestRoundTripNoErrors(unittest.TestCase):
     def test_no_error_decode(self):
