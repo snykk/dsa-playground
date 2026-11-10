@@ -17,7 +17,7 @@ Surprising fact from abstract algebra: **yes**, but the operations don't look li
 - Treat each byte as a polynomial of degree ≤ 7 over GF(2) (the two-element field `{0, 1}` with XOR as addition and AND as multiplication).
   - `0x53` = binary `0101 0011` = `x⁶ + x⁴ + x + 1`.
 - **Addition** = polynomial addition with GF(2) coefficients = **bitwise XOR**.
-- **Multiplication** = polynomial multiplication, then take the remainder modulo a fixed irreducible polynomial. Rijndael / AES / Reed-Solomon use **`x⁸ + x⁴ + x³ + x + 1`** (`0x11B`).
+- **Multiplication** = polynomial multiplication, then take the remainder modulo a fixed irreducible polynomial. Rijndael / AES use **`x⁸ + x⁴ + x³ + x + 1`** (`0x11B`), and this repo's Reed-Solomon reuses it. QR codes and most storage Reed-Solomon codes use `x⁸ + x⁴ + x³ + x² + 1` (`0x11D`) instead; both are valid, but encoder and decoder must agree.
 
 This gives 256 distinct elements (the 256 polynomials of degree < 8), every nonzero one has a unique inverse, and arithmetic stays inside the byte.
 

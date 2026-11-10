@@ -11,7 +11,7 @@ Where Cryptography hides data from adversaries, Coding Theory protects it from _
 | Topic | Purpose | Pairs with |
 |-------|---------|------------|
 | **[Galois Field GF(2⁸)](Galois_Field/)** | Arithmetic over finite fields — add, multiply, divide, polynomial ops. The foundation. | Number theory, modular arithmetic |
-| **[Reed-Solomon](Reed_Solomon/)** | Encode/decode a codeword that tolerates `t` byte errors. Built on top of GF(2⁸). | The world's most-deployed error-correcting code |
+| **[Reed-Solomon](Reed_Solomon/)** | Encode/decode a codeword that tolerates `t` byte errors at unknown positions, or up to `n - k` erasures (known-bad positions). Built on top of GF(2⁸). | The world's most-deployed error-correcting code |
 
 ---
 
@@ -65,7 +65,7 @@ You don't need to derive this from scratch — the implementations and READMEs w
 |----------|------|------------------|
 | QR Code (Level L) | RS(26, 19) over GF(256) | 2 bytes |
 | QR Code (Level H, max) | RS(26, 9) over GF(256) | 8 bytes |
-| CD audio (CIRC inner) | RS(28, 24) over GF(256) | 2 bytes |
+| CD audio (CIRC) | C1 = RS(32, 28) inner, C2 = RS(28, 24) outer | 2 bytes each; C1 flags what it can't fix as erasures, so C2 can then repair up to 4 |
 | DVD | RS(208, 192) + RS(182, 172) | Heavy redundancy |
 | RAID-6 (P+Q parity) | RS(n, n-2) per stripe | 2 disk failures |
 | Voyager 2 deep space | RS(255, 223) over GF(256) | 16 bytes |
