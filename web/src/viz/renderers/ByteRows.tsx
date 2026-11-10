@@ -1,4 +1,9 @@
 import type { Role } from '../core/types';
+import { Cell } from '../ui/atoms/Cell';
+import { Token } from '../ui/atoms/Token';
+import { CellGrid, CellRow, IndexRow } from '../ui/molecules/CellRow';
+import '../ui/molecules/Strip.css';
+import './ByteRows.css';
 
 export interface RsState {
   n: number;
@@ -15,63 +20,47 @@ export interface RsState {
   failed?: boolean;
 }
 
-function Row({
-  label,
-  values,
-  roles = {},
-  state,
-  erased = [],
-}: {
-  label: string;
-  values: Array<number | null>;
-  roles?: Record<number, Role>;
-  state: RsState;
-  erased?: number[];
-}) {
+function ByteRow({ label, values, roles = {}, state, erased = [], scanned = false }: { label: string; values: Array<number | null>; roles?: Record<number, Role>; state: RsState; erased?: number[]; scanned?: boolean }) {
   const nsym = state.n - state.k;
   return (
-    <div className="cells-row">
-      <span className="cells-label">{label}</span>
+    <CellRow label={label} wide>
       {values.map((v, i) => {
-        const role = roles[i];
         const isErased = erased.includes(i);
-        const classes = ['cell', 'wide', role ? `role-${role}` : '', i < nsym ? 'region-parity' : '', isErased ? 'erased' : '', state.pointer === i ? 'pointer' : '']
-          .filter(Boolean)
-          .join(' ');
         return (
-          <span key={i} className={classes} title={isErased ? 'erased: value unknown (received as 0)' : undefined}>
-            {isErased ? '?' : (v ?? '')}
-          </span>
+          <Cell
+            key={i}
+            wide
+            value={isErased ? '?' : v}
+            role={roles[i]}
+            parity={i < nsym}
+            erased={isErased}
+            pointer={scanned && state.pointer === i}
+            title={isErased ? 'erased: value unknown (received as 0)' : undefined}
+          />
         );
       })}
-    </div>
+    </CellRow>
   );
 }
 
+/** Organism for Reed-Solomon: sent / received / corrected codewords plus the decoder's polynomials. */
 export function ByteRows({ state }: { state: RsState }) {
   const nsym = state.n - state.k;
   return (
     <div>
       <p className="viz-strip">
         <strong>Stage:</strong>
-        <span className={`viz-token ${state.failed ? 'role-active' : 'role-compare'}`}>{state.stage}</span>
+        <Token text={state.stage} role={state.failed ? 'active' : 'compare'} />
         <span>
           RS({state.n}, {state.k}): {nsym} parity bytes (underlined), message = last {state.k}
         </span>
       </p>
-      <div className="cells" role="img" aria-label={`Reed-Solomon ${state.stage}`}>
-        <div className="cells-row">
-          <span className="cells-label">position</span>
-          {Array.from({ length: state.n }, (_, i) => (
-            <span key={i} className="cell wide index">
-              {i}
-            </span>
-          ))}
-        </div>
-        {state.sent && <Row label="sent" values={state.sent} roles={state.roles.sent} state={state} />}
-        {state.received && <Row label="received" values={state.received} roles={state.roles.received} state={state} erased={state.erased} />}
-        {state.corrected && <Row label="corrected" values={state.corrected} roles={state.roles.corrected} state={state} />}
-      </div>
+      <CellGrid label={`Reed-Solomon ${state.stage}`}>
+        <IndexRow count={state.n} wide label="position" />
+        {state.sent && <ByteRow label="sent" values={state.sent} roles={state.roles.sent} state={state} />}
+        {state.received && <ByteRow label="received" values={state.received} roles={state.roles.received} state={state} erased={state.erased} scanned />}
+        {state.corrected && <ByteRow label="corrected" values={state.corrected} roles={state.roles.corrected} state={state} />}
+      </CellGrid>
       {state.math.map((m) => (
         <p key={m.label} className="viz-math">
           <span className="label">{m.label} =</span>

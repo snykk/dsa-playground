@@ -1,0 +1,35 @@
+/* ---------- array bars ---------- */
+
+.bars .bar {
+  transition: transform 0.35s ease;
+}
+.bars .bar path {
+  fill: var(--role);
+  transition: fill 0.2s ease;
+}
+.bars .bar.outlined path {
+  stroke: var(--text);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.bars .bar-value {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.bars .bar-pointer {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+.bars .baseline {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+.bars .range {
+  fill: var(--surface-3);
+}
+.bars .range-label {
+  fill: var(--text-3);
+  font-size: 11px;
+}

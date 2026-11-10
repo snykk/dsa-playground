@@ -1,6 +1,6 @@
 ---
-import VizMount from '../viz/VizMount';
-import type { VizInfo } from '../viz/catalog';
+import VizMount from '../../viz/VizMount';
+import type { VizInfo } from '../../viz/catalog';
 
 interface Props {
   vizzes: VizInfo[];
@@ -16,3 +16,20 @@ const { vizzes } = Astro.props;
   <VizMount client:visible ids={vizzes.map((v) => v.id)} />
   <noscript><p>The visualization needs JavaScript; the explanation below works without it.</p></noscript>
 </section>
+
+<style>
+  .viz-section {
+    margin: 8px 0 36px;
+  }
+  .viz-section-title {
+    font-size: 18px;
+    margin: 0 0 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .viz-section-title span {
+    color: var(--viz-done);
+    font-size: 14px;
+  }
+</style>

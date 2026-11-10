@@ -5,7 +5,8 @@
  *   U-V   undirected edge, U->V directed edge, optional integer weight (default 1).
  */
 import { InputError, type Frame, type Role } from '../core/types';
-import type { GraphState, StripItem } from '../renderers/GraphView';
+import type { GraphState } from '../renderers/GraphView';
+import type { StripItem } from '../ui/molecules/Strip';
 
 export interface Edge {
   from: string;

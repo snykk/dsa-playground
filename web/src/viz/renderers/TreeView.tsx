@@ -1,5 +1,8 @@
 import type { Role } from '../core/types';
-import { useTween, type Pt } from '../core/useTween';
+import { NodeGlyph } from '../ui/atoms/NodeGlyph';
+import { useTween, type Pt } from '../ui/hooks/useTween';
+import '../ui/roles.css';
+import './TreeView.css';
 
 export interface TreeNodeView {
   id: number;
@@ -23,6 +26,7 @@ const DY = 68;
 const PAD = 28;
 const R = 18;
 
+/** Organism: a binary tree laid out by in-order position; nodes glide when the shape changes. */
 export function TreeView({ state }: { state: TreeState }) {
   const byId = new Map(state.nodes.map((n) => [n.id, n]));
   const target = new Map<number, Pt>();
@@ -79,25 +83,7 @@ export function TreeView({ state }: { state: TreeState }) {
         .filter((n) => target.has(n.id))
         .map((n) => {
           const p = at(n.id);
-          const glyph = n.role === 'good' ? '\u2713' : n.role === 'bad' ? '\u2715' : null;
-          return (
-            <g key={n.id} className={`node role-${n.role}${n.outlined ? ' outlined' : ''}`}>
-              <circle cx={p.x} cy={p.y} r={R} />
-              <text className="node-label" x={p.x} y={p.y}>
-                {n.key}
-              </text>
-              {n.badge !== undefined && (
-                <text className="node-badge" x={p.x + R + 2} y={p.y - R + 2} style={{ textAnchor: 'start' }}>
-                  {n.badge}
-                </text>
-              )}
-              {glyph && (
-                <text className="node-badge" x={p.x - R - 4} y={p.y - R + 2} style={{ textAnchor: 'end' }}>
-                  {glyph}
-                </text>
-              )}
-            </g>
-          );
+          return <NodeGlyph key={n.id} x={p.x} y={p.y} r={R} label={n.key} role={n.role} badge={n.badge} badgePlacement="corner" outlined={n.outlined} />;
         })}
     </svg>
   );

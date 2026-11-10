@@ -1,0 +1,67 @@
+/* Cell atom: one character / number / byte square with an optional status glyph. */
+.cell {
+  flex: none;
+  width: 30px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 1px solid var(--grid);
+  background: var(--viz-surface);
+  color: var(--text);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  position: relative;
+}
+.cell.wide {
+  width: 40px;
+}
+.cell.blank {
+  border-color: transparent;
+  background: transparent;
+}
+.cell.index {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 11px;
+  height: 18px;
+}
+.cell.role-compare,
+.cell.role-active,
+.cell.role-done,
+.cell.role-good,
+.cell.role-bad {
+  background: var(--role);
+  border-color: var(--role);
+  color: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+/* Status glyph (check / cross) rendered by the Cell atom: color never carries the meaning alone. */
+.cell-glyph {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 700 10px var(--font-sans);
+  background: var(--viz-surface);
+  border: 1.5px solid var(--role);
+  color: var(--role);
+}
+.cell.role-muted {
+  opacity: 0.4;
+}
+.cell.region-parity {
+  box-shadow: inset 0 -3px 0 var(--viz-compare);
+}
+.cell.erased {
+  background-image: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in srgb, var(--text) 18%, transparent) 4px 5px);
+}
+.cell.pointer {
+  border-color: var(--text);
+  border-width: 2px;
+}

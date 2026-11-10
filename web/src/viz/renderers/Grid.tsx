@@ -1,6 +1,8 @@
 import type { Role } from '../core/types';
-import { Strips } from './GraphView';
-import type { StripItem } from './GraphView';
+import { Strips, type StripData } from '../ui/molecules/Strip';
+import '../ui/roles.css';
+import { SYM } from '../ui/symbols';
+import './Grid.css';
 
 export interface GridState {
   corner?: string;
@@ -9,9 +11,10 @@ export interface GridState {
   cells: Array<Array<number | string | null>>;
   /** Roles keyed by "row,col". */
   roles: Record<string, Role>;
-  strips?: Array<{ label: string; items: StripItem[] }>;
+  strips?: StripData[];
 }
 
+/** Organism: a table of values (DP tables, distance matrices) with role-highlighted cells. */
 export function Grid({ state }: { state: GridState }) {
   return (
     <div>
@@ -35,7 +38,7 @@ export function Grid({ state }: { state: GridState }) {
                   const role = state.roles[`${r},${c}`];
                   return (
                     <td key={c} className={`${role ? `role-${role}` : ''}${v === null ? ' empty' : ''}`}>
-                      {v ?? '\u00b7'}
+                      {v ?? SYM.middot}
                     </td>
                   );
                 })}

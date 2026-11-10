@@ -1,6 +1,11 @@
 ---
-import ChildCards from '../components/ChildCards.astro';
-import Base from '../layouts/Base.astro';
+import SectionTitle from '../components/atoms/SectionTitle.astro';
+import Card from '../components/molecules/Card.astro';
+import CardGrid from '../components/molecules/CardGrid.astro';
+import StatTile from '../components/molecules/StatTile.astro';
+import Hero from '../components/organisms/Hero.astro';
+import TopicCards from '../components/organisms/TopicCards.astro';
+import BaseLayout from '../components/templates/BaseLayout.astro';
 import { getContent, joinBase, slugOfRel } from '../lib/repo';
 import { VIZ_CATALOG, VIZ_GROUP_ORDER } from '../viz/catalog';
 
@@ -9,51 +14,47 @@ const base = import.meta.env.BASE_URL;
 const topics = content.nodes.filter((n) => n.kind === 'topic');
 const implementations = topics.reduce((sum, t) => sum + t.languages.length, 0);
 const featured = VIZ_GROUP_ORDER.map((g) => VIZ_CATALOG.find((v) => v.group === g)).filter((v) => v !== undefined);
+const DOT = String.fromCodePoint(0xb7);
+const steps = [
+  { title: `1 ${DOT} Read the intuition`, text: 'Each page starts from the README: the idea, a picture, and why it works.' },
+  { title: `2 ${DOT} Step through it`, text: 'Run the visualization on your own input. Pause, rewind, and read the caption for every step.' },
+  { title: `3 ${DOT} Compare the code`, text: 'Open the Python, C++ and Go tabs to see the same algorithm in three languages, with tests.' },
+];
 ---
 
-<Base title="DSA Playground" currentSlug="">
-  <section class="hero">
-    <h1>Learn data structures &amp; algorithms by watching them run.</h1>
-    <p>
-      Every topic pairs a written explanation with a step-by-step visualization you can drive yourself, and with
-      tested implementations in Python, C++ and Go.
-    </p>
-    <div class="hero-actions">
-      <a class="button primary" href={joinBase(base, 'visualizations')}>Browse visualizations</a>
-      <a class="button" href={joinBase(base, 'study-guide')}>Follow the study guide</a>
-      <a class="button" href={joinBase(base, 'overview')}>Repository overview</a>
-    </div>
-  </section>
+<BaseLayout title="DSA Playground" currentSlug="">
+  <Hero />
 
   <div class="stats">
-    <div class="stat"><strong>{topics.length}</strong><span>topics</span></div>
-    <div class="stat"><strong>{implementations}</strong><span>implementations</span></div>
-    <div class="stat"><strong>3</strong><span>languages: Python, C++, Go</span></div>
-    <div class="stat"><strong>{VIZ_CATALOG.length}</strong><span>interactive visualizations</span></div>
+    <StatTile value={topics.length} label="topics" />
+    <StatTile value={implementations} label="implementations" />
+    <StatTile value={3} label="languages: Python, C++, Go" />
+    <StatTile value={VIZ_CATALOG.length} label="interactive visualizations" />
   </div>
 
-  <h2 class="section-title">How to study a topic</h2>
-  <div class="steps">
-    <div class="card"><h3>1 &#xb7; Read the intuition</h3><p>Each page starts from the README: the idea, a picture, and why it works.</p></div>
-    <div class="card"><h3>2 &#xb7; Step through it</h3><p>Run the visualization on your own input. Pause, rewind, and read the caption for every step.</p></div>
-    <div class="card"><h3>3 &#xb7; Compare the code</h3><p>Open the Python, C++ and Go tabs to see the same algorithm in three languages, with tests.</p></div>
-  </div>
+  <SectionTitle>How to study a topic</SectionTitle>
+  <CardGrid min={220}>
+    {steps.map((s) => <Card title={s.title} text={s.text} />)}
+  </CardGrid>
 
-  <h2 class="section-title">Start with a visualization</h2>
-  <div class="card-grid">
+  <SectionTitle>Start with a visualization</SectionTitle>
+  <CardGrid>
     {
       featured.map((v) => (
-        <a class="card" href={`${joinBase(base, slugOfRel(content, v.topics[0]))}#visualize`}>
-          <h3>{v.title}</h3>
-          <p>{v.blurb}</p>
-          <div class="card-meta">
-            <span>{v.group}</span>
-          </div>
-        </a>
+        <Card href={`${joinBase(base, slugOfRel(content, v.topics[0]))}#visualize`} title={v.title} text={v.blurb} meta={[v.group]} />
       ))
     }
-  </div>
+  </CardGrid>
 
-  <h2 class="section-title">Explore the repository</h2>
-  <ChildCards nodes={content.root.children} />
-</Base>
+  <SectionTitle>Explore the repository</SectionTitle>
+  <TopicCards nodes={content.root.children} />
+</BaseLayout>
+
+<style>
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 32px 0 8px;
+  }
+</style>

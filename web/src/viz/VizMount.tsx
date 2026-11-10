@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Player } from './core/Player';
 import type { AnyVizSpec } from './core/types';
 import { VIZ_LOADERS } from './loaders';
+import { Player, type PlayerProps } from './ui/organisms/Player';
+
+interface Props extends Omit<PlayerProps, 'specs'> {
+  ids: string[];
+}
 
 /** Client island: loads the requested visualization specs, then hands them to the Player. */
-export default function VizMount({ ids }: { ids: string[] }) {
+export default function VizMount({ ids, ...playerProps }: Props) {
   const [specs, setSpecs] = useState<AnyVizSpec[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const key = ids.join(',');
@@ -27,5 +31,5 @@ export default function VizMount({ ids }: { ids: string[] }) {
 
   if (error) return <p className="viz-load-error">{error}</p>;
   if (!specs) return <div className="viz-loading">Loading visualization&#x2026;</div>;
-  return <Player specs={specs} />;
+  return <Player specs={specs} {...playerProps} />;
 }

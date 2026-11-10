@@ -1,4 +1,7 @@
 import type { Role } from '../core/types';
+import { Cell } from '../ui/atoms/Cell';
+import { CellGap, CellGrid, CellRow, IndexRow } from '../ui/molecules/CellRow';
+import { SYM } from '../ui/symbols';
 
 export interface StringMatchState {
   phase: 'lps' | 'search';
@@ -20,109 +23,70 @@ export interface StringMatchState {
   lpsSet?: number;
 }
 
-function Cell({ ch, role, extra }: { ch: string; role?: Role; extra?: string }) {
-  return (
-    <span className={`cell${role ? ` role-${role}` : ''}${extra ? ` ${extra}` : ''}`}>{ch === ' ' ? '\u2423' : ch}</span>
-  );
-}
+const show = (ch: string) => (ch === ' ' ? SYM.openBox : ch);
 
-function IndexRow({ count, offset = 0, label = '' }: { count: number; offset?: number; label?: string }) {
-  return (
-    <div className="cells-row">
-      <span className="cells-label">{label}</span>
-      {Array.from({ length: offset }, (_, k) => (
-        <span key={`o${k}`} className="cell blank" />
-      ))}
-      {Array.from({ length: count }, (_, k) => (
-        <span key={k} className="cell index">
-          {k}
-        </span>
-      ))}
-    </div>
-  );
-}
-
+/** Organism for KMP: builds the LPS table, then slides the pattern along the text. */
 export function StringMatch({ state }: { state: StringMatchState }) {
   const { text, pattern, lps } = state;
   const lpsRow = (offset: number, highlight?: number) => (
-    <div className="cells-row">
-      <span className="cells-label">lps</span>
-      {Array.from({ length: offset }, (_, k) => (
-        <span key={`o${k}`} className="cell blank" />
-      ))}
+    <CellRow label="lps" offset={offset}>
       {lps.map((v, k) => (
-        <Cell key={k} ch={v === null ? '' : String(v)} role={k === highlight ? 'done' : undefined} />
+        <Cell key={k} value={v === null ? '' : v} role={k === highlight ? 'done' : undefined} />
       ))}
-    </div>
+    </CellRow>
   );
 
   if (state.phase === 'lps') {
     const i = state.lpsI ?? -1;
     const len = state.lpsLen ?? 0;
-    const cmpRole: Role | undefined = state.lpsEqual === undefined ? 'compare' : state.lpsEqual ? 'good' : 'bad';
-    const offset = i >= 0 ? i - len : 0;
+    const cmpRole: Role = state.lpsEqual === undefined ? 'compare' : state.lpsEqual ? 'good' : 'bad';
     return (
-      <div className="cells" role="img" aria-label="Building the LPS table">
-        <IndexRow count={pattern.length} label="index" />
-        <div className="cells-row">
-          <span className="cells-label">pattern</span>
+      <CellGrid label="Building the LPS table">
+        <IndexRow count={pattern.length} />
+        <CellRow label="pattern">
           {pattern.map((ch, k) => (
-            <Cell key={k} ch={ch} role={k === i ? cmpRole : k >= i - len && k < i ? 'compare' : undefined} extra={k === i ? 'pointer' : undefined} />
+            <Cell key={k} value={show(ch)} role={k === i ? cmpRole : k >= i - len && k < i ? 'compare' : undefined} pointer={k === i} />
           ))}
-        </div>
+        </CellRow>
         {i >= 0 && i < pattern.length && (
-          <div className="cells-row">
-            <span className="cells-label">prefix</span>
-            {Array.from({ length: offset }, (_, k) => (
-              <span key={`o${k}`} className="cell blank" />
-            ))}
+          <CellRow label="prefix" offset={i - len}>
             {pattern.slice(0, len + 1).map((ch, k) => (
-              <Cell key={k} ch={ch} role={k === len ? cmpRole : 'compare'} />
+              <Cell key={k} value={show(ch)} role={k === len ? cmpRole : 'compare'} />
             ))}
-          </div>
+          </CellRow>
         )}
-        <div className="cells-gap" />
+        <CellGap />
         {lpsRow(0, state.lpsSet)}
-      </div>
+      </CellGrid>
     );
   }
 
-  const shift = state.shift;
   const inMatch = (k: number) => state.matches.some((s) => k >= s && k < s + pattern.length);
   const cmpRole: Role | undefined = state.cmpEqual === undefined ? undefined : state.cmpEqual ? 'good' : 'bad';
+  const textRole = (k: number): Role | undefined => {
+    if (!state.done && k === state.i && cmpRole) return cmpRole;
+    if (inMatch(k)) return 'done';
+    if (!state.done && k < (state.i ?? 0)) return 'muted';
+    return undefined;
+  };
   return (
-    <div className="cells" role="img" aria-label="Scanning the text">
-      <IndexRow count={text.length} label="index" />
-      <div className="cells-row">
-        <span className="cells-label">text</span>
+    <CellGrid label="Scanning the text">
+      <IndexRow count={text.length} />
+      <CellRow label="text">
         {text.map((ch, k) => (
-          <Cell
-            key={k}
-            ch={ch}
-            role={!state.done && k === state.i && cmpRole ? cmpRole : inMatch(k) ? 'done' : k < (state.i ?? 0) && !state.done ? 'muted' : undefined}
-            extra={!state.done && k === state.i ? 'pointer' : undefined}
-          />
+          <Cell key={k} value={show(ch)} role={textRole(k)} pointer={!state.done && k === state.i} />
         ))}
-      </div>
+      </CellRow>
       {!state.done && (
         <>
-          <div className="cells-row">
-            <span className="cells-label">pattern</span>
-            {Array.from({ length: shift }, (_, k) => (
-              <span key={`o${k}`} className="cell blank" />
-            ))}
+          <CellRow label="pattern" offset={state.shift}>
             {pattern.map((ch, k) => (
-              <Cell
-                key={k}
-                ch={ch}
-                role={k === state.j && cmpRole ? cmpRole : k < (state.j ?? 0) ? 'compare' : undefined}
-                extra={k === state.j ? 'pointer' : undefined}
-              />
+              <Cell key={k} value={show(ch)} role={k === state.j && cmpRole ? cmpRole : k < (state.j ?? 0) ? 'compare' : undefined} pointer={k === state.j} />
             ))}
-          </div>
-          {lpsRow(shift)}
+          </CellRow>
+          {lpsRow(state.shift)}
         </>
       )}
-    </div>
+    </CellGrid>
   );
 }

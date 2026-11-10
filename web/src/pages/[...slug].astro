@@ -1,13 +1,9 @@
 ---
-import Breadcrumbs from '../components/Breadcrumbs.astro';
-import ChildCards from '../components/ChildCards.astro';
-import Implementations from '../components/Implementations.astro';
-import VizSection from '../components/VizSection.astro';
-import Base from '../layouts/Base.astro';
+import DocPage from '../components/templates/DocPage.astro';
 import { renderMarkdown } from '../lib/markdown';
-import { getContent, githubUrl, topicsUnder } from '../lib/repo';
-import { vizForTopic } from '../viz/catalog';
+import { getContent } from '../lib/repo';
 
+/** One page per repository folder with a README, plus the root documents. */
 export function getStaticPaths() {
   const content = getContent();
   return [
@@ -23,57 +19,12 @@ interface Props {
 
 const { kind, rel } = Astro.props;
 const content = getContent();
-
-/** Split rendered HTML after its first <h1> so the visualization can sit under the title. */
-function splitTitle(html: string): [string, string] {
-  const end = html.indexOf('</h1>');
-  return end === -1 ? ['', html] : [html.slice(0, end + 5), html.slice(end + 5)];
-}
-
 const node = kind === 'node' ? content.byRel.get(rel) : undefined;
 const doc = kind === 'doc' ? content.standalone.find((d) => d.rel === rel) : undefined;
 if (!node && !doc) throw new Error(`Unknown page ${kind}:${rel}`);
 
 const source = node?.readme ?? (doc ? { rel: doc.rel, source: doc.source } : undefined);
 const rendered = source ? await renderMarkdown(source.source, source.rel) : { html: '', headings: [] };
-const [titleHtml, bodyHtml] = splitTitle(rendered.html);
-
-const title = node?.title ?? doc?.title ?? '';
-const description = node?.description || doc?.description || undefined;
-const vizzes = node ? vizForTopic(node.rel) : [];
-const childTopics = node && node.kind === 'category' ? topicsUnder(node).length : 0;
-const section = doc?.slug === 'overview' ? 'overview' : doc?.slug === 'study-guide' ? 'study-guide' : undefined;
-const sourceLink = node ? githubUrl(node.rel, true) : githubUrl(rel, false);
 ---
 
-<Base title={title} description={description} currentSlug={node?.slug ?? doc?.slug} toc={rendered.headings} section={section}>
-  {node && <Breadcrumbs node={node} />}
-
-  <article class="prose">
-    {titleHtml ? <Fragment set:html={titleHtml} /> : <h1>{title}</h1>}
-  </article>
-
-  <div class="page-meta">
-    {node?.kind === 'topic' && node.languages.map((l) => <a class="chip" href={`#impl-${l.id}`}>{l.label}</a>)}
-    {node?.kind === 'category' && <span class="chip">{childTopics} topics</span>}
-    {vizzes.length > 0 && <a class="chip" href="#visualize">&#x25cf; {vizzes.length === 1 ? 'Visualization' : `${vizzes.length} visualizations`}</a>}
-    <a class="chip" href={sourceLink} target="_blank" rel="noopener noreferrer">View source on GitHub &#x2197;</a>
-  </div>
-
-  {vizzes.length > 0 && <VizSection vizzes={vizzes} />}
-
-  <article class="prose">
-    {bodyHtml ? <Fragment set:html={bodyHtml} /> : node?.description && <p>{node.description}</p>}
-  </article>
-
-  {
-    node?.kind === 'category' && node.children.length > 0 && (
-      <section aria-labelledby="children-title">
-        <h2 id="children-title" class="section-title">In this section</h2>
-        <ChildCards nodes={node.children} />
-      </section>
-    )
-  }
-
-  {node?.kind === 'topic' && node.languages.length > 0 && <Implementations node={node} />}
-</Base>
+<DocPage node={node} doc={doc} rendered={rendered} />

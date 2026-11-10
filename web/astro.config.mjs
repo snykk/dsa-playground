@@ -12,6 +12,8 @@ export default defineConfig({
   base,
   trailingSlash: 'always',
   integrations: [react()],
+  // The floating dev toolbar covers page content while reviewing locally.
+  devToolbar: { enabled: false },
   build: { format: 'directory' },
   vite: {
     // The site reads READMEs and source files from the repository root.

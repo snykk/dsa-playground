@@ -40,6 +40,40 @@ Handy URL parameters on any page with a visualization: `?step=40` opens the run 
 
 ---
 
+## Code structure (atomic design)
+
+```
+src/
+  components/          Astro (server-rendered) site UI
+    atoms/             Button, Chip, Icon, IconButton, SectionTitle
+    molecules/         Breadcrumbs, Card, CardGrid, StatTile, TableOfContents, ThemeToggle
+    organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, TopicCards, Implementations, VizSection
+    templates/         BaseLayout (page shell), DocPage (topic / category / document page)
+  pages/               routes only: load data, pick a template
+  styles/              global CSS only: tokens, base elements, page grid, rendered README prose
+  lib/                 build-time logic: repository scan, slugs, Markdown rendering
+  viz/
+    ui/                React design system for visualizations
+      atoms/           Cell, Token, Swatch, IconButton, NodeGlyph
+      molecules/       CellRow, Strip, Legend, AlgorithmTabs, InputPanel, TransportControls, Panels
+      organisms/       Player
+      hooks/           usePlayback, useTween, useReducedMotion
+      roles.css        role -> color mapping;  symbols.ts  UI symbols as code points
+    renderers/         organisms that draw one frame (ArrayBars, GraphView, TreeView, StringMatch, Grid, ByteRows)
+    algorithms/        tracers: pure TypeScript, unit-tested
+    specs/             glue per visualization: parser + tracer + renderer + pseudocode
+    registry/          catalog entries + loaders, one file per area
+```
+
+Rules that keep it maintainable:
+
+- **Atoms** know nothing about algorithms or repository content. **Molecules** combine atoms into one small job (a legend, the transport bar). **Organisms** are complete sections and may know domain types. **Templates** arrange organisms into a page. **Pages** only load data and choose a template.
+- **Each component owns its styles**: a scoped `<style>` in Astro components, a co-located `.css` file next to React components. Global CSS is limited to design tokens, base elements, the page grid and README prose (which arrives as raw HTML).
+- **Reuse before you create**: a new renderer should be assembled from `viz/ui` atoms and molecules (`Cell`, `CellRow`, `NodeGlyph`, `Strip`, ...). Add a new atom only when no existing one fits, and keep it free of algorithm logic.
+- **Responsive rules live in the component they affect** (Astro's scoped selectors outrank global ones, so a global override would silently lose).
+
+---
+
 ## How the visualizations work
 
 ```
@@ -50,16 +84,16 @@ input text ──parse──▶ input ──trace──▶ Frame[] ──▶ Pla
 
 - A **spec** ([`src/viz/core/types.ts`](src/viz/core/types.ts)) bundles a parser, a **tracer** that records every step as a full snapshot (`Frame`), a renderer, the pseudocode and a legend. Because every frame is a snapshot, stepping backwards and scrubbing are just index changes.
 - **Tracers** live in [`src/viz/algorithms/`](src/viz/algorithms/) and are plain TypeScript, so they are unit-tested without a browser.
-- **Renderers** are shared across topics: `ArrayBars` (sorting), `GraphView` (BFS / DFS / Dijkstra), `TreeView` (BST / AVL, with animated rotations), `StringMatch` (KMP), `Grid` (DP tables), `ByteRows` (Reed-Solomon).
-- [`src/viz/catalog.ts`](src/viz/catalog.ts) says which repository folders show which visualization; [`src/viz/loaders.ts`](src/viz/loaders.ts) code-splits the specs so a page only downloads what it shows.
+- **Renderers** (organisms) are shared across topics and built from `viz/ui` atoms: `ArrayBars` (sorting), `GraphView` (BFS / DFS / Dijkstra), `TreeView` (BST / AVL, with animated rotations), `StringMatch` (KMP), `Grid` (DP tables), `ByteRows` (Reed-Solomon).
+- [`src/viz/registry/`](src/viz/registry/) holds one file per area with its catalog entries (which repository folders show which visualization) and its loaders (code-split, so a page only downloads what it shows). [`catalog.ts`](src/viz/catalog.ts) and [`loaders.ts`](src/viz/loaders.ts) merge them.
 
 ### Adding a visualization
 
 1. Write a tracer in `src/viz/algorithms/<name>.ts` that returns `Frame<State>[]`, with a caption on every frame that says *why* the step happens.
 2. Test it against a brute-force or reference implementation in `<name>.test.ts` (see `graph.test.ts`: Dijkstra vs. Bellman-Ford on random graphs).
-3. Reuse a renderer, or add one in `src/viz/renderers/`.
+3. Reuse a renderer, or add one in `src/viz/renderers/` assembled from `src/viz/ui` atoms and molecules (with a co-located `.css`).
 4. Write the spec in `src/viz/specs/` (pseudocode lines must match the `line` indices your tracer emits).
-5. Register it in `catalog.ts` (with the topic folders) and `loaders.ts`. `catalog.test.ts` then runs every example and 25 random inputs through it.
+5. Register it in the area's file in `src/viz/registry/` (an entry with the topic folders, plus a loader). `catalog.test.ts` then runs every example and 25 random inputs through it.
 
 ---
 
@@ -74,7 +108,7 @@ The visualizations re-implement algorithms in TypeScript, so they are pinned to 
 
 ## Conventions
 
-- **ASCII-only sources** (repository rule): write symbols as escapes in strings (`'\u221e'`), as entities in markup (`&#x2197;`) and as CSS escapes in stylesheets (`'\2713'`).
+- **ASCII-only sources** (repository rule): use `SYM` from `src/viz/ui/symbols.ts` (or `String.fromCodePoint`) for UI symbols; otherwise write them as escapes in strings (`'\u221e'`), as entities in markup (`&#x2197;`) and as CSS escapes in stylesheets (`'\2713'`).
 - **Colors are role tokens** (`--viz-compare`, `--viz-active`, `--viz-done`, ...) defined once in `src/styles/global.css` for light and dark. The three categorical roles were checked for color-vision-deficiency separation in both themes; status colors (match / mismatch) always come with a ✓ / ✕ glyph, and every visualization has a legend, so color never carries meaning alone.
 - **No external requests**: system fonts, no CDN scripts, no analytics.
 

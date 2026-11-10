@@ -1,45 +1,44 @@
 ---
-import Base from '../layouts/Base.astro';
+import SectionTitle from '../components/atoms/SectionTitle.astro';
+import Card from '../components/molecules/Card.astro';
+import CardGrid from '../components/molecules/CardGrid.astro';
+import BaseLayout from '../components/templates/BaseLayout.astro';
 import { getContent, joinBase, slugOfRel } from '../lib/repo';
 import { VIZ_CATALOG, VIZ_GROUP_ORDER } from '../viz/catalog';
 
 const content = getContent();
 const base = import.meta.env.BASE_URL;
-const groups = VIZ_GROUP_ORDER.map((group) => ({ group, items: VIZ_CATALOG.filter((v) => v.group === group) })).filter(
-  (g) => g.items.length > 0,
-);
+const groups = VIZ_GROUP_ORDER.map((group) => ({ group, items: VIZ_CATALOG.filter((v) => v.group === group) })).filter((g) => g.items.length > 0);
 ---
 
-<Base
+<BaseLayout
   title="Visualizations"
-  description="Interactive, step-by-step visualizations of sorting, graph, tree, string, dynamic programming and coding theory algorithms."
+  description="Interactive, step-by-step visualizations of sorting, searching, graph, tree, string, dynamic programming and coding theory algorithms."
   currentSlug="visualizations"
   section="visualizations"
 >
   <article class="prose">
     <h1>Visualizations</h1>
     <p>
-      Each visualization runs on input you choose. Use <kbd>Space</kbd> to play or pause and the arrow keys to step;
-      every step explains what the algorithm just did and why. They live on the topic pages, next to the explanation and
-      the code.
+      Each visualization runs on input you choose. Use <kbd>Space</kbd> to play or pause and the arrow keys to step; every
+      step explains what the algorithm just did and why. They live on the topic pages, next to the explanation and the code.
     </p>
   </article>
   {
     groups.map(({ group, items }) => (
       <section>
-        <h2 class="section-title">{group}</h2>
-        <div class="card-grid">
+        <SectionTitle>{group}</SectionTitle>
+        <CardGrid>
           {items.map((v) => (
-            <a class="card" href={`${joinBase(base, slugOfRel(content, v.topics[0]))}#visualize`}>
-              <h3>{v.title}</h3>
-              <p>{v.blurb}</p>
-              <div class="card-meta">
-                <span>{content.byRel.get(v.topics[0])?.title}</span>
-              </div>
-            </a>
+            <Card
+              href={`${joinBase(base, slugOfRel(content, v.topics[0]))}#visualize`}
+              title={v.title}
+              text={v.blurb}
+              meta={[content.byRel.get(v.topics[0])?.title ?? '']}
+            />
           ))}
-        </div>
+        </CardGrid>
       </section>
     ))
   }
-</Base>
+</BaseLayout>

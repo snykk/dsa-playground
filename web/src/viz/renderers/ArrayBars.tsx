@@ -1,4 +1,6 @@
 import type { Role } from '../core/types';
+import '../ui/roles.css';
+import './ArrayBars.css';
 
 export interface BarItem {
   /** Stable identity: lets a value glide to its new slot when it moves. */

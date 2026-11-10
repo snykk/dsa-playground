@@ -1,7 +1,8 @@
 ---
 import { Code } from 'astro:components';
-import { renderMarkdown } from '../lib/markdown';
-import { githubUrl, type DocNode } from '../lib/repo';
+import { renderMarkdown } from '../../lib/markdown';
+import { githubUrl, type DocNode } from '../../lib/repo';
+import SectionTitle from '../atoms/SectionTitle.astro';
 
 interface Props {
   node: DocNode;
@@ -31,7 +32,7 @@ const lineCount = (code: string) => code.replace(/\n$/, '').split('\n').length;
 ---
 
 <section class="implementations" aria-labelledby="implementations-title">
-  <h2 id="implementations-title" class="section-title">Implementations</h2>
+  <SectionTitle id="implementations-title">Implementations</SectionTitle>
   <div class="impl-tabs" data-impl-tabs>
     <div class="impl-tablist" role="tablist" aria-label="Implementation language">
       {
@@ -109,3 +110,68 @@ const lineCount = (code: string) => code.replace(/\n$/, '').split('\n').length;
     fromHash();
   }
 </script>
+
+<style>
+  .impl-tabs {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .impl-tablist {
+    display: flex;
+    gap: 2px;
+    padding: 6px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .impl-tablist button {
+    font: inherit;
+    font-size: 14px;
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  .impl-tablist button[aria-selected='true'] {
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  .impl-panel {
+    padding: 16px 20px 20px;
+  }
+  .impl-panel[hidden] {
+    display: none;
+  }
+  .code-file {
+    margin: 12px 0 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .code-file > summary {
+    cursor: pointer;
+    padding: 8px 12px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .code-file > summary span {
+    color: var(--text-3);
+    font-family: var(--font-sans);
+  }
+  /* <pre> is rendered by Astro's <Code> component, outside this component's scope. */
+  .code-file :global(pre) {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    max-height: 560px;
+  }
+</style>
