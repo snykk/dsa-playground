@@ -1,6 +1,6 @@
 # Reed-Solomon — Python Implementation
 
-Full Reed-Solomon over GF(2⁸): systematic encoder, Berlekamp-Massey decoder, Forney magnitudes, and Chien search. Verified against Voyager 2's RS(255, 223) code with 16-byte error correction.
+Full Reed-Solomon over GF(2⁸): systematic encoder, Berlekamp-Massey decoder, Forney magnitudes, and Chien search, with **combined error + erasure decoding** and a configurable **first consecutive root (`fcr`)**. Verified against Voyager 2's RS(255, 223) code with 16-byte error correction.
 
 For the conceptual overview, see the parent README: [../README.md](../README.md)
 
@@ -10,31 +10,57 @@ For the conceptual overview, see the parent README: [../README.md](../README.md)
 
 | File | Purpose |
 |------|---------|
-| `reed_solomon.py` | `ReedSolomon` class (encode/decode), `DecodeError` exception |
-| `reed_solomon_test.py` | 14 tests — round trip with 0–t errors, QR-like codes, Voyager RS(255,223), boundary cases |
+| `reed_solomon.py` | `ReedSolomon(n, k, alpha=3, fcr=0)` with `encode()` / `decode(received, erasures=None)`, plus `DecodeError` |
+| `reed_solomon_test.py` | 27 tests: 0..t errors, erasures only (up to `n - k`), mixed errors + erasures, several `fcr` values, beyond-budget detection, Voyager RS(255, 223), boundary cases |
+
+---
+
+## Usage
+
+```python
+from reed_solomon import ReedSolomon, DecodeError
+
+rs = ReedSolomon(n=15, k=11)                 # 4 parity bytes
+codeword = rs.encode(b"Hello DSA!!")         # any iterable of ints 0..255
+
+codeword[3] ^= 0x99                          # 2 errors at unknown positions
+codeword[12] ^= 0xFF
+rs.decode(codeword)                          # -> original 11 bytes
+
+codeword[0] = codeword[1] = 0                # now also 2 bytes known to be bad
+rs.decode(codeword, erasures=[0, 1])         # DecodeError: 2 + 2*2 = 6 > 4 parity bytes
+
+fresh = rs.encode(b"Hello DSA!!")
+fresh[0] = fresh[1] = fresh[2] = fresh[3] = 0
+rs.decode(fresh, erasures=[0, 1, 2, 3])      # -> original: 4 erasures fit 4 parity bytes
+```
 
 ---
 
 ## Python-Specific Notes
 
-- **Re-uses the sibling `Galois_Field/Python/galois_field.py`** via a `sys.path` shim. No duplicate GF code — both modules agree byte-for-byte on every primitive.
-- **Polynomial layout**: low-degree-first throughout (matching the GF module's convention). The systematic codeword is laid out as `[parity_0, parity_1, ..., parity_{n-k-1}, msg_0, msg_1, ..., msg_{k-1}]` — parity at low-degree positions, message at high-degree.
-- **Critical default: `alpha = 3`, not 2.** In GF(2⁸) under polynomial 0x11B (Rijndael), the byte `2` is **not** a primitive element — its multiplicative order is 51, so it generates only a subgroup. Decoding silently breaks past ~3 errors with α=2. The element `3` (= x + 1) is the standard primitive root of order 255.
-- **Berlekamp-Massey** uses the iterative "swap-and-scale" form: track `err_loc` and `old_loc` (the latter being a shifted scratch). When the discrepancy is nonzero and `len(old_loc) > len(err_loc)`, swap roles before adding.
-- **Forney's algorithm** includes the `X_j = α^j` multiplier (since syndromes start at `α^0`, i.e., `fcr = 0`). Skipping this is the #1 way to get wrong magnitudes that pass small tests but fail in production.
+- **Re-uses the sibling `Galois_Field/Python/galois_field.py`** via a `sys.path` shim. No duplicate GF code, so both modules agree byte-for-byte on every primitive.
+- **Polynomial layout**: low-degree-first throughout (matching the GF module's convention). The systematic codeword is `[parity_0, ..., parity_{n-k-1}, msg_0, ..., msg_{k-1}]`: parity at the low-degree positions, message at the high-degree end, so the message is the **last** `k` bytes.
+- **Critical default: `alpha = 3`, not 2.** Under the Rijndael polynomial 0x11B, the byte `2` is **not** primitive: its multiplicative order is 51, so it generates only a subgroup and decoding silently breaks past ~3 errors. The element `3` (= x + 1) has order 255.
+- **Erasures go straight into Berlekamp-Massey.** `decode()` builds the erasure locator `Gamma(x) = prod (1 + alpha^i x)` over the known positions, starts BM from `Gamma` instead of `1`, and skips the first `e` syndromes. BM then returns the combined locator `Phi(x) = Lambda(x) * Gamma(x)` directly; Chien search and Forney need no changes.
+- **Berlekamp-Massey** uses the "swap-and-scale" form (as in the Wikiversity Reed-Solomon tutorial) with high-degree-first storage internally. The C++ and Go versions use the classical L-tracking form; both produce the same locator.
+- **Forney uses `X_j^(1 - fcr)`**: `X_j` for `fcr = 0`, `1` for `fcr = 1`. Skipping or hard-coding this factor is the #1 way to get wrong magnitudes that pass small tests but fail in production.
+- **Inputs are any iterable** (`bytes`, `tuple`, `list`); outputs are `list[int]`.
 
 ---
 
 ## How to Run
 
 ```bash
-python3 -m unittest reed_solomon_test.py
+python3 -m unittest reed_solomon_test      # tests
+python3 reed_solomon.py                    # demo: errors-only and erasure + error decode
 ```
 
 ---
 
 ## Key Takeaways for Learners
 
-1. **The primitive element matters.** Naively picking `α = 2` because "it's the smallest" silently corrupts decoders for codes longer than ~51 bytes. Always verify your α generates the full multiplicative group — for AES/Rijndael GF(2⁸), use α = 3.
-2. **Forney needs the X_j factor when fcr = 0.** The Forney formula `e_j = X_j^(1-fcr) · Ω(X_j⁻¹) / Λ'(X_j⁻¹)` — for `fcr = 0` (syndromes from α⁰), the `X_j` multiplier is required. Easy to omit; small tests still pass; large tests fail.
-3. **Berlekamp-Massey + Forney + Chien is "linear algebra on syndromes."** Once you internalize that syndromes determine Λ uniquely (when ≤ t errors occurred), the rest is mechanical. The hard part is field arithmetic — get the GF(2⁸) operations right and RS just works.
+1. **The primitive element matters.** Picking `alpha = 2` because "it's the smallest" silently corrupts decoders for codes longer than ~51 bytes. Always check that `alpha` generates the full multiplicative group; for the Rijndael field 0x11B, use `alpha = 3`.
+2. **An erasure costs half an error.** For an unknown error the decoder must find two unknowns (where, and by how much); for an erasure only the value is unknown. That is why the budget is `e + 2v <= n - k`, and why RS(7, 5) can repair 2 bytes only when it is told where they are.
+3. **`fcr` is part of the code's identity.** The same message encoded with `fcr = 1` is not a valid codeword for an `fcr = 0` decoder. A real decoder must match the standard's field polynomial, `alpha`, *and* `fcr`.
+4. **Berlekamp-Massey + Forney + Chien is "linear algebra on syndromes."** Once you see that the syndromes pin down the locator uniquely (within the budget), the rest is mechanical. The hard part is the field arithmetic: get GF(2⁸) right and RS just works.
