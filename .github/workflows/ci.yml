@@ -48,3 +48,44 @@ jobs:
 
       - name: Compile and run all C++ test binaries
         run: make test-cpp
+
+  web:
+    name: Web visualizer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci
+
+      # The TypeScript Reed-Solomon port must agree byte-for-byte with the
+      # Python reference; regenerating the fixtures must not change them.
+      - name: Golden fixtures match the Python implementation
+        run: |
+          python3 web/scripts/gen_rs_fixtures.py
+          git diff --exit-code -- web/src/viz/algorithms/__fixtures__
+
+      - name: Unit tests
+        working-directory: web
+        run: npm test
+
+      - name: Type check
+        working-directory: web
+        run: npm run check
+
+      - name: Build
+        working-directory: web
+        run: npm run build

@@ -17,7 +17,7 @@ JOBS  ?= 4
 BUILD_DIR := .build
 CPP_BIN_DIR := $(BUILD_DIR)/cpp
 
-.PHONY: test test-python test-go test-cpp clean help
+.PHONY: test test-python test-go test-cpp test-web web-dev clean help
 
 help:
 	@echo "Available targets:"
@@ -25,6 +25,8 @@ help:
 	@echo "  test-python  run all Python unittest files"
 	@echo "  test-go      run 'go test' in every directory containing a go.mod"
 	@echo "  test-cpp     compile and run every *_test.cpp"
+	@echo "  test-web     visualizer site: unit tests, type check, build (needs Node)"
+	@echo "  web-dev      run the visualizer site locally with live reload"
 	@echo "  clean        remove compiled C++ binaries and caches"
 
 test: test-python test-go test-cpp
@@ -40,6 +42,8 @@ test-python:
 	@find . -type f -name "*_test.py" \
 		-not -path "*/.venv/*" \
 		-not -path "*/__pycache__/*" \
+		-not -path "*/node_modules/*" \
+		-not -path "./docs/*" \
 		-not -path "*/$(BUILD_DIR)/*" \
 		-print0 | \
 	xargs -0 -n1 -P$(JOBS) ./scripts/run_one_python_test.sh || \
@@ -52,6 +56,8 @@ test-go:
 	@echo "=========================================="
 	@find . -type f -name "go.mod" \
 		-not -path "*/.git/*" \
+		-not -path "*/node_modules/*" \
+		-not -path "./docs/*" \
 		-print0 | \
 	xargs -0 -n1 -P$(JOBS) ./scripts/run_one_go_module.sh || \
 		{ echo "    Go tests FAILED"; exit 1; }
@@ -64,11 +70,23 @@ test-cpp:
 	@mkdir -p $(CPP_BIN_DIR)
 	@find . -type f -name "*_test.cpp" \
 		-not -path "*/.git/*" \
+		-not -path "*/node_modules/*" \
+		-not -path "./docs/*" \
 		-not -path "*/$(BUILD_DIR)/*" \
 		-print0 | \
 	xargs -0 -n1 -P$(JOBS) ./scripts/run_one_cpp_test.sh || \
 		{ echo "    C++ tests FAILED"; exit 1; }
 	@echo "    C++ OK"
+
+test-web:
+	@echo "=========================================="
+	@echo "  WEB (vitest + astro check + build)"
+	@echo "=========================================="
+	@cd web && npm test && npm run check && npm run build
+	@echo "    Web OK"
+
+web-dev:
+	@cd web && npm run dev
 
 clean:
 	@echo "Cleaning build artifacts..."
