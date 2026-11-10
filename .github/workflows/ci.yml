@@ -71,11 +71,11 @@ jobs:
         working-directory: web
         run: npm ci
 
-      # The TypeScript Reed-Solomon port must agree byte-for-byte with the
-      # Python reference; regenerating the fixtures must not change them.
-      - name: Golden fixtures match the Python implementation
+      # TypeScript ports must agree with the Python reference implementations;
+      # regenerating every golden fixture must not change any of them.
+      - name: Golden fixtures match the Python implementations
         run: |
-          python3 web/scripts/gen_rs_fixtures.py
+          for script in web/scripts/gen_*_fixtures.py; do python3 "$script"; done
           git diff --exit-code -- web/src/viz/algorithms/__fixtures__
 
       - name: Unit tests
