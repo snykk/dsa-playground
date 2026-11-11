@@ -52,12 +52,6 @@ The naive recursive approach has exponential time complexity because it recalcul
    - Returns F(n)
    - Time: O(n), Space: O(1)
 
-3. **`FibonacciMatrix(n)`**
-   - Matrix exponentiation approach
-   - Fastest for very large n
-   - Returns F(n)
-   - Time: O(log n), Space: O(1)
-
 ---
 
 ## Usage
@@ -75,10 +69,6 @@ func main() {
     // Space-optimized (best for most cases)
     result = FibonacciOptimized(50)
     fmt.Println(result)  // Output: 12586269025
-
-    // Matrix exponentiation (for very large n)
-    result = FibonacciMatrix(100)
-    fmt.Println(result)  // Very fast even for large n
 }
 ```
 
@@ -91,6 +81,7 @@ func main() {
 3. **Space Optimization**: Can reduce space from O(n) to O(1)
 4. **Matrix Method**: Optimal for very large n (n > 10^9)
 5. **Go Types**: Use `int64` for n up to ~90, `big.Int` for larger
+6. **Negative n**: both functions panic for n < 0
 
 ---
 

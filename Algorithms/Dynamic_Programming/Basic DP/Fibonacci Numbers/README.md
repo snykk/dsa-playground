@@ -27,7 +27,7 @@ F(n) = F(n-1) + F(n-2) with F(0) = 0, F(1) = 1.
 | **Naive** | O(2^n) | O(n) |
 | **DP** | O(n) | O(n) |
 | **Optimized** | O(n) | O(1) |
-| **Matrix** | O(log n) | O(1) |
+| **Matrix** | O(log n) | O(log n) recursion stack |
 
 ---
 

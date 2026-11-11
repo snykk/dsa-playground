@@ -1,9 +1,13 @@
 package main
 
-// FibonacciTabulation computes nth Fibonacci using tabulation
+// FibonacciTabulation computes nth Fibonacci using tabulation.
+// It panics if n is negative.
 // Time Complexity: O(n)
 // Space Complexity: O(n)
 func FibonacciTabulation(n int) int64 {
+	if n < 0 {
+		panic("FibonacciTabulation: n must be non-negative")
+	}
 	if n <= 1 {
 		return int64(n)
 	}
@@ -19,10 +23,14 @@ func FibonacciTabulation(n int) int64 {
 	return dp[n]
 }
 
-// FibonacciOptimized computes nth Fibonacci with O(1) space
+// FibonacciOptimized computes nth Fibonacci with O(1) space.
+// It panics if n is negative.
 // Time Complexity: O(n)
 // Space Complexity: O(1)
 func FibonacciOptimized(n int) int64 {
+	if n < 0 {
+		panic("FibonacciOptimized: n must be non-negative")
+	}
 	if n <= 1 {
 		return int64(n)
 	}
