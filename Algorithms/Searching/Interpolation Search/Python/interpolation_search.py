@@ -28,8 +28,10 @@ def interpolation_search(arr, target):
     left, right = 0, len(arr) - 1
     
     while left <= right and arr[left] <= target <= arr[right]:
-        # If search space has only one element
-        if left == right:
+        # If search space has only one element, or all of its values are equal
+        # (a run of duplicates): there is nothing to interpolate, and the
+        # formula below would divide by zero (arr[right] - arr[left] == 0)
+        if left == right or arr[left] == arr[right]:
             if arr[left] == target:
                 return left
             return -1
@@ -76,19 +78,21 @@ def interpolation_search_recursive(arr, target, left=0, right=None):
     if left > right or arr[left] > target or arr[right] < target:
         return -1
     
-    # If search space has only one element
-    if left == right:
+    # If search space has only one element, or all of its values are equal
+    # (a run of duplicates): there is nothing to interpolate, and the
+    # formula below would divide by zero (arr[right] - arr[left] == 0)
+    if left == right or arr[left] == arr[right]:
         if arr[left] == target:
             return left
         return -1
-    
+
     # Calculate position using interpolation formula
     pos = left + int(((target - arr[left]) * (right - left)) / (arr[right] - arr[left]))
-    
+
     # Check if target is at calculated position
     if arr[pos] == target:
         return pos
-    
+
     # If target is smaller, search left
     if arr[pos] > target:
         return interpolation_search_recursive(arr, target, left, pos - 1)

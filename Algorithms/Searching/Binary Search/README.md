@@ -40,7 +40,8 @@ Target: 7
 
 Step 1: mid = 4, arr[4] = 5 < 7, search right [6, 7, 8, 9, 10]
 Step 2: mid = 7, arr[7] = 8 > 7, search left [6, 7]
-Step 3: mid = 6, arr[6] = 7 = 7, found! Return 6
+Step 3: mid = 5, arr[5] = 6 < 7, search right [7]
+Step 4: mid = 6, arr[6] = 7 = 7, found! Return 6
 ```
 
 ---
