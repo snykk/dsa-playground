@@ -19,7 +19,7 @@ For the conceptual overview, visuals, and common problems, see the parent README
 
 - **`collections.deque`** is the canonical backbone. C-implemented, O(1) at both ends, thread-safe for single appends/pops. Using a list would make `pop(0)` O(n) and blow the algorithmic guarantee.
 - **Store indices, not values**: you need indices to check window expiration (`dq[0] <= i - k`). Storing raw values loses that information.
-- **`MonotonicDeque` with a custom comparator**: lets you reuse the same class for max-oriented or min-oriented queues. The comparator answers "should I pop from the back given this new element?"
+- **`MonotonicDeque` with a custom comparator**: lets you reuse the same class for max-oriented or min-oriented queues. The comparator answers "should I pop from the back given this new element?" Entries are `(index, value)` pairs and `pop_front_if` evicts by index (call it once for every value that leaves the window), so repeated values are safe.
 - **`>=` vs `>` for min-deque pop condition**: using `>=` (pop equal-or-larger) keeps the queue smaller by collapsing duplicates. Both are correct; `>=` is slightly faster in practice.
 
 ---
