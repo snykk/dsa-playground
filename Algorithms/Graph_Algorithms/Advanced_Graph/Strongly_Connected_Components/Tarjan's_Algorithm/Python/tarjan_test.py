@@ -89,6 +89,29 @@ class TestTarjan(unittest.TestCase):
         # Vertex 3 is articulation point
         self.assertIn(3, ap)
 
+    def test_tarjan_scc_long_path_and_big_cycle(self):
+        # Regression: the recursive strongconnect raised RecursionError on a
+        # 1500-vertex path
+        path = {i: [i + 1] for i in range(5000)}
+        self.assertEqual(tarjan_scc_count(path), 5001)
+        cycle = {i: [(i + 1) % 5000] for i in range(5000)}
+        sccs = tarjan_scc(cycle)
+        self.assertEqual(len(sccs), 1)
+        self.assertEqual(sorted(sccs[0]), list(range(5000)))
+
+    def test_tarjan_scc_reverse_topological_order(self):
+        # SCCs come out sinks first; vertices that are only neighbors count too
+        sccs = tarjan_scc({1: [2], 2: [1, 3], 3: [4]})
+        self.assertEqual(sccs, [[4], [3], [2, 1]])
+
+    def test_tarjan_bridges_parallel_edges(self):
+        # Regression: skipping every edge back to the parent vertex reported a
+        # doubled edge as a bridge
+        self.assertEqual(tarjan_bridges({0: [1, 1], 1: [0, 0]}), [])
+        graph = {0: [1, 1, 2], 1: [0, 0], 2: [0]}
+        self.assertEqual(tarjan_bridges(graph), [(0, 2)])
+        self.assertEqual(tarjan_articulation_points(graph), {0})
+
 
 if __name__ == '__main__':
     unittest.main()
