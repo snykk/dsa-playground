@@ -18,7 +18,7 @@ def bubble_sort(arr):
     Returns:
         The sorted array (same reference as input)
         
-    Time Complexity: O(n²)
+    Time Complexity: O(n^2)
     Space Complexity: O(1)
     """
     n = len(arr)
@@ -52,7 +52,7 @@ def bubble_sort_optimized(arr):
     Returns:
         The sorted array (same reference as input)
         
-    Time Complexity: O(n²) worst case, O(n) best case (already sorted)
+    Time Complexity: O(n^2) worst case, O(n) best case (already sorted)
     Space Complexity: O(1)
     """
     n = len(arr)
@@ -82,14 +82,14 @@ def bubble_sort_recursive(arr, n=None):
     Returns:
         The sorted array (same reference as input)
         
-    Time Complexity: O(n²)
+    Time Complexity: O(n^2)
     Space Complexity: O(n) due to recursion stack
     """
     if n is None:
         n = len(arr)
     
-    # Base case
-    if n == 1:
+    # Base case: an empty or one-element prefix is already sorted
+    if n <= 1:
         return arr
     
     # One pass of bubble sort. After this pass, the largest element

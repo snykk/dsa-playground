@@ -18,19 +18,27 @@ def quick_sort(arr, low=0, high=None):
     Returns:
         The sorted array (same reference as input)
         
-    Time Complexity: O(n log n) average, O(n²) worst
-    Space Complexity: O(log n) average
+    Time Complexity: O(n log n) average, O(n^2) worst (sorted, reversed or
+        all-equal input, because the pivot is always the last element)
+    Space Complexity: O(log n) recursion depth, also in the worst case
     """
     if high is None:
         high = len(arr) - 1
     
-    if low < high:
+    while low < high:
         # Partition the array and get pivot index
         pi = partition(arr, low, high)
         
-        # Recursively sort elements before and after partition
-        quick_sort(arr, low, pi - 1)
-        quick_sort(arr, pi + 1, high)
+        # Recurse into the smaller side and loop on the larger one. The
+        # partitions are the same as recursing on both sides, but the
+        # recursion depth stays O(log n); otherwise a lopsided split (sorted
+        # or all-equal input) nests n calls and hits the recursion limit.
+        if pi - low < high - pi:
+            quick_sort(arr, low, pi - 1)
+            low = pi + 1
+        else:
+            quick_sort(arr, pi + 1, high)
+            high = pi - 1
     
     return arr
 
@@ -79,10 +87,15 @@ def quick_sort_hoare(arr, low=0, high=None):
     if high is None:
         high = len(arr) - 1
     
-    if low < high:
+    while low < high:
         pi = partition_hoare(arr, low, high)
-        quick_sort_hoare(arr, low, pi)
-        quick_sort_hoare(arr, pi + 1, high)
+        # Same smaller-side-first recursion as quick_sort: O(log n) depth
+        if pi - low < high - pi:
+            quick_sort_hoare(arr, low, pi)
+            low = pi + 1
+        else:
+            quick_sort_hoare(arr, pi + 1, high)
+            high = pi
     
     return arr
 

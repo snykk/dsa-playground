@@ -41,6 +41,21 @@ class TestQuickSort(unittest.TestCase):
         result = quick_sort_hoare(arr.copy())
         self.assertEqual(result, expected)
 
+    def test_large_sorted_and_equal_input(self):
+        """Regression: fixed pivots used to hit RecursionError at n = 2000"""
+        n = 2000
+        cases = [list(range(n)), list(range(n, 0, -1)), [5] * n]
+        for arr in cases:
+            self.assertEqual(quick_sort(arr.copy()), sorted(arr))
+        for arr in cases[:2]:
+            self.assertEqual(quick_sort_hoare(arr.copy()), sorted(arr))
+
+    def test_duplicates_and_negatives(self):
+        """Both partition schemes on duplicate-heavy input with negatives"""
+        arr = [3, -1, 3, 0, -1, 3, 2, -7, 0, 3]
+        self.assertEqual(quick_sort(arr.copy()), sorted(arr))
+        self.assertEqual(quick_sort_hoare(arr.copy()), sorted(arr))
+
 
 if __name__ == '__main__':
     unittest.main()
