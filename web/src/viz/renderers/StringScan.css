@@ -1,0 +1,15 @@
+/* StringScan organism: text, a sliding pattern, aligned rows and an optional lookup table. */
+.scan-slide {
+  display: inline-flex;
+  align-items: center;
+  /* Same spacing as the surrounding CellRow, so the cells stay in their columns. */
+  gap: inherit;
+}
+.scan-table {
+  margin-top: 14px;
+}
+.scan-table-title {
+  margin: 0 0 6px;
+  font: 600 12px var(--font-sans);
+  color: var(--text-2);
+}

@@ -82,6 +82,9 @@ def kmp_search(text: str, pattern: str) -> list:
     Time Complexity: O(n + m) where n is len(text) and m is len(pattern).
     """
     n, m = len(text), len(pattern)
+    if m == 0:
+        # The empty pattern occurs at every position 0..n, as in naive_search.
+        return list(range(n + 1))
     lps = compute_lps(pattern)
     indices = []
     i = j = 0
@@ -120,6 +123,12 @@ def rabin_karp_search(text: str, pattern: str, q=101) -> list:
     """
     d = 256
     n, m = len(text), len(pattern)
+    if m == 0:
+        # The empty pattern occurs at every position 0..n, as in naive_search.
+        return list(range(n + 1))
+    if m > n:
+        # No window of length m fits (hashing the first window would index past the text).
+        return []
     h = pow(d, m-1, q)
     p_hash = sum([ord(pattern[i])*pow(d,m-i-1,q) for i in range(m)]) % q
     t_hash = sum([ord(text[i])*pow(d,m-i-1,q) for i in range(m)]) % q
@@ -172,7 +181,9 @@ def boyer_moore_search(text: str, pattern: str) -> list:
     """
     n, m = len(text), len(pattern)
     indices = []
-    if m == 0: return indices
+    if m == 0:
+        # The empty pattern occurs at every position 0..n, as in naive_search.
+        return list(range(n + 1))
     bad_char = bad_char_table(pattern)
     s = 0
     while s <= n - m:
