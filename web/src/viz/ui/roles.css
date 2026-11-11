@@ -7,8 +7,6 @@
 .viz .role-bad { --role: var(--viz-bad); }
 .viz .role-muted { --role: var(--viz-neutral); }
 
-}
-
 @media (prefers-reduced-motion: reduce) {
   .viz *,
   .viz *::before,

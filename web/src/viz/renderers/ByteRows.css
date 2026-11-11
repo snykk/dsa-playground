@@ -1,5 +1,4 @@
-/* ---------- polynomials / math lines ---------- */
-
+/* ByteRows organism: the decoder's polynomials under the codeword rows. */
 .viz-math {
   font-family: var(--font-mono);
   font-size: 13.5px;
@@ -11,3 +10,4 @@
   font-family: var(--font-sans);
   color: var(--text-3);
   margin-right: 6px;
+}
