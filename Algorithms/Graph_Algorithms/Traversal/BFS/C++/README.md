@@ -90,7 +90,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++17 bfs.cpp bfs_test.cpp -o bfs_test
+g++ -std=c++17 bfs_test.cpp -o bfs_test
 ./bfs_test
 ```
 
@@ -107,7 +107,7 @@ g++ -std=c++17 bfs.cpp bfs_test.cpp -o bfs_test
 ## Testing
 
 ```bash
-g++ -std=c++17 bfs.cpp bfs_test.cpp -o bfs_test && ./bfs_test
+g++ -std=c++17 bfs_test.cpp -o bfs_test && ./bfs_test
 ```
 
 ---

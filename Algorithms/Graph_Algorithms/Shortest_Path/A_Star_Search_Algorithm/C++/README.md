@@ -17,7 +17,7 @@ A* implementation in C++ using:
 
 | Complexity | Time | Space |
 |------------|------|-------|
-| **Best Case** | O(b^d) | O(b^d) |
+| **Worst Case** | O(b^d) | O(b^d) |
 
 ---
 
@@ -65,7 +65,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++17 astar.cpp astar_test.cpp -o astar_test
+g++ -std=c++17 astar_test.cpp -o astar_test
 ./astar_test
 ```
 

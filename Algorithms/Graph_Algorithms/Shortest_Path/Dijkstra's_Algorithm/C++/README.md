@@ -27,12 +27,12 @@ Dijkstra's algorithm implementation in C++ using:
 
 1. **`dijkstra(graph, start)`**
    - Finds shortest distances from start to all vertices
-   - Returns `unordered_map<int, int>` mapping vertex to distance
+   - Returns `unordered_map<int, long long>` mapping vertex to distance
    - Time: O((V + E) log V), Space: O(V)
 
 2. **`dijkstraWithPath(graph, start, target)`**
    - Finds shortest path from start to target
-   - Returns `pair<int, vector<int>>` of (distance, path)
+   - Returns `pair<long long, vector<int>>` of (distance, path), or (-1, {}) if no path exists
    - Time: O((V + E) log V), Space: O(V)
 
 ---
@@ -56,7 +56,7 @@ int main() {
     };
     
     // Find shortest distances
-    unordered_map<int, int> distances = dijkstra(graph, 1);
+    unordered_map<int, long long> distances = dijkstra(graph, 1);
     // distances: {1: 0, 2: 4, 3: 2, 4: 3}
     
     // Find shortest path
@@ -72,7 +72,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++17 dijkstra.cpp dijkstra_test.cpp -o dijkstra_test
+g++ -std=c++17 dijkstra_test.cpp -o dijkstra_test
 ./dijkstra_test
 ```
 
@@ -82,14 +82,14 @@ g++ -std=c++17 dijkstra.cpp dijkstra_test.cpp -o dijkstra_test
 
 1. **C++17 required**: Uses structured bindings
 2. **Priority queue**: Uses `std::priority_queue` with `greater` comparator
-3. **INT_MAX**: Uses `INT_MAX` from `<climits>` for infinity
+3. **LLONG_MAX**: Distances are `long long`; `LLONG_MAX` from `<climits>` means unreachable
 
 ---
 
 ## Testing
 
 ```bash
-g++ -std=c++17 dijkstra.cpp dijkstra_test.cpp -o dijkstra_test && ./dijkstra_test
+g++ -std=c++17 dijkstra_test.cpp -o dijkstra_test && ./dijkstra_test
 ```
 
 ---

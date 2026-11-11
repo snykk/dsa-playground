@@ -60,7 +60,7 @@ BFS is a fundamental graph traversal algorithm that:
    - Time: O(V + E), Space: O(V)
 
 4. **`bfs_connected_components(graph)`**
-   - Finds all connected components
+   - Finds all connected components of an undirected graph (symmetric adjacency list)
    - Returns list of components
    - Time: O(V + E), Space: O(V)
 
@@ -102,7 +102,7 @@ print(levels)  # [[1], [2, 4], [3]]
 
 # Connected components
 components = bfs_connected_components(graph)
-print(components)  # [[1, 2, 3, 4]]
+print(components)  # [[1, 2, 4, 3]]
 
 # Shortest distances
 distances = bfs_shortest_distance(graph, 1)

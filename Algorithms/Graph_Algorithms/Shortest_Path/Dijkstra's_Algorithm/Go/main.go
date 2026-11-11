@@ -44,22 +44,34 @@ func (pq *PriorityQueue) Pop() interface{} {
 	return item
 }
 
+// unreachedDistances maps every vertex to math.MaxInt: the map keys AND the
+// vertices that only appear as neighbors.
+func unreachedDistances(graph map[int][]struct {
+	Neighbor int
+	Weight   int
+}) map[int]int {
+	distances := make(map[int]int)
+	for vertex, edges := range graph {
+		distances[vertex] = math.MaxInt
+		for _, edge := range edges {
+			distances[edge.Neighbor] = math.MaxInt
+		}
+	}
+	return distances
+}
+
 // Dijkstra finds shortest distances from start to all vertices
 // Time Complexity: O((V + E) log V), Space Complexity: O(V)
 func Dijkstra(graph map[int][]struct {
 	Neighbor int
 	Weight   int
 }, start int) map[int]int {
-	distances := make(map[int]int)
-
 	if len(graph) == 0 {
-		return distances
+		return make(map[int]int)
 	}
 
 	// Initialize distances
-	for vertex := range graph {
-		distances[vertex] = math.MaxInt
-	}
+	distances := unreachedDistances(graph)
 	distances[start] = 0
 
 	pq := make(PriorityQueue, 0)
@@ -103,13 +115,8 @@ func DijkstraWithPath(graph map[int][]struct {
 	Neighbor int
 	Weight   int
 }, start, target int) (int, []int) {
-	distances := make(map[int]int)
-	previous := make(map[int]int)
-	
-	for vertex := range graph {
-		distances[vertex] = math.MaxInt
-		previous[vertex] = -1
-	}
+	distances := unreachedDistances(graph)
+	previous := make(map[int]int) // vertex -> predecessor on the best path so far
 	distances[start] = 0
 	
 	pq := make(PriorityQueue, 0)
@@ -122,12 +129,13 @@ func DijkstraWithPath(graph map[int][]struct {
 		currentDist := item.distance
 		
 		if current == target {
-			// Reconstruct path
-			path := []int{}
-			node := target
-			for node != -1 {
-				path = append([]int{node}, path...)
-				node = previous[node]
+			// Reconstruct path: follow predecessors back to the start vertex
+			path := []int{target}
+			for path[len(path)-1] != start {
+				path = append(path, previous[path[len(path)-1]])
+			}
+			for i, j := 0, len(path)-1; i < j; i, j = i+1, j-1 {
+				path[i], path[j] = path[j], path[i]
 			}
 			return currentDist, path
 		}
