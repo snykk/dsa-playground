@@ -22,8 +22,8 @@
 ## Implementations
 
 - **Python** (`Python/`) - Complete
-- **C++** (`C++/`) - Basic
-- **Go** (`Go/`) - Basic
+- **C++** (`C++/`) - Complete (returns the value only)
+- **Go** (`Go/`) - Complete (returns the value only)
 
 ---
 

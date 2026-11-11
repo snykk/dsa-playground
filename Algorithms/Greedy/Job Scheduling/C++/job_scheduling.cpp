@@ -1,6 +1,6 @@
 /**
  * Job Scheduling Implementation (C++)
- * Time Complexity: O(n²) or O(n log n) with optimization
+ * Time Complexity: O(n log n + n * min(D, n)), D = largest deadline
  */
 
 #include <vector>
@@ -27,8 +27,8 @@ std::pair<int, std::vector<int>> jobSchedulingDeadline(
         maxDeadline = std::max(maxDeadline, std::get<1>(job));
     }
     
-    // Time slots: -1 means empty
-    std::vector<int> timeSlots(maxDeadline + 1, -1);
+    // occupied[slot] marks a used time slot (a job id such as -1 cannot double as "empty")
+    std::vector<bool> occupied(maxDeadline + 1, false);
     std::vector<int> scheduled;
     int totalProfit = 0;
     
@@ -39,8 +39,8 @@ std::pair<int, std::vector<int>> jobSchedulingDeadline(
         
         // Find latest available slot before deadline
         for (int slot = deadline; slot > 0; --slot) {
-            if (timeSlots[slot] == -1) {
-                timeSlots[slot] = jobId;
+            if (!occupied[slot]) {
+                occupied[slot] = true;
                 scheduled.push_back(jobId);
                 totalProfit += profit;
                 break;

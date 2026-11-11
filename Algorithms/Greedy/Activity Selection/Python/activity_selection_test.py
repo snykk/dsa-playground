@@ -65,6 +65,15 @@ class TestActivitySelection(unittest.TestCase):
         result = activity_selection_recursive(activities)
         self.assertGreaterEqual(len(result), 3)
 
+    def test_recursive_negative_start_times(self):
+        """Regression: the recursive version used -1 as "nothing selected yet",
+        so activities starting before -1 were skipped."""
+        self.assertEqual(activity_selection_recursive([(-4, -2)]), [0])
+        activities = [(-5, -3), (-4, -1), (-3, 0), (-1, 2), (2, 5)]
+        self.assertEqual(activity_selection_recursive(activities), [0, 2, 4])
+        self.assertEqual(activity_selection_recursive(activities),
+                         activity_selection(activities))
+
 
 if __name__ == '__main__':
     unittest.main()

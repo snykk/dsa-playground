@@ -1,0 +1,71 @@
+/* IntervalTimeline organism: bars on a time axis; lane markers come from the NodeGlyph atom. */
+.timeline .tl-lane {
+  transition: transform 0.35s ease;
+}
+.timeline .tl-bar {
+  fill: var(--role);
+  stroke: var(--role);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease, opacity 0.2s ease;
+}
+.timeline .tl-lane.role-idle .tl-bar {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+}
+.timeline .tl-lane.role-muted .tl-bar {
+  opacity: 0.35;
+}
+.timeline .tl-lane.role-muted .node {
+  opacity: 0.55;
+}
+.timeline .tl-conflict {
+  stroke: var(--viz-ink-on-fill);
+  stroke-width: 2;
+  opacity: 0.85;
+}
+.timeline .tl-text {
+  fill: var(--text-2);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.timeline .tl-text.inside {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 600;
+}
+.timeline .tl-lane.role-idle .tl-text.inside,
+.timeline .tl-lane.role-muted .tl-text.inside {
+  fill: var(--text);
+}
+.timeline .tl-tick line {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.timeline .tl-tick text {
+  fill: var(--text-3);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.timeline .tl-axis {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+.timeline .tl-note {
+  fill: var(--text-3);
+  font-size: 12px;
+}
+.timeline .tl-marker {
+  transition: transform 0.35s ease;
+}
+.timeline .tl-marker line {
+  stroke: var(--text);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.timeline .tl-marker text {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+}

@@ -81,7 +81,8 @@ def prim_mst_adjacency_matrix(matrix, start=0):
     Find MST using Prim's algorithm (adjacency matrix representation)
     
     Args:
-        matrix: 2D list representing adjacency matrix (0 = no edge)
+        matrix: 2D list representing adjacency matrix (0 = no edge; any
+            other value, negative weights included, is an edge weight)
         start: Starting vertex
         
     Returns:
@@ -119,9 +120,10 @@ def prim_mst_adjacency_matrix(matrix, start=0):
             mst.append((parent[u], u, key[u]))
             total_weight += key[u]
         
-        # Update key values of adjacent vertices
+        # Update key values of adjacent vertices (0 = no edge, so a
+        # negative weight is still an edge)
         for v in range(num_vertices):
-            if (not visited[v] and matrix[u][v] > 0 and 
+            if (not visited[v] and matrix[u][v] != 0 and
                 matrix[u][v] < key[v]):
                 key[v] = matrix[u][v]
                 parent[v] = u
