@@ -13,6 +13,18 @@ public:
     Node* head;
     DoublyLinkedList() { head = nullptr; }
 
+    // Owns its nodes: copying would make two lists free the same nodes.
+    DoublyLinkedList(const DoublyLinkedList&) = delete;
+    DoublyLinkedList& operator=(const DoublyLinkedList&) = delete;
+
+    ~DoublyLinkedList() {
+        while(head) {
+            Node* next = head->next;
+            delete head;
+            head = next;
+        }
+    }
+
     void insertAtHead(int data) {
         Node* newNode = new Node(data);
         if(head) head->prev = newNode;

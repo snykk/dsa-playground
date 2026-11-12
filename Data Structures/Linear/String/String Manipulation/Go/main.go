@@ -10,8 +10,16 @@ func ReverseString(s string) string {
 	return string(r)
 }
 
+// IsPalindrome compares code points from both ends with two indexes: O(n) time,
+// no re-encoded copy of the string.
 func IsPalindrome(s string) bool {
-	return s == ReverseString(s)
+	r := []rune(s)
+	for i, j := 0, len(r)-1; i < j; i, j = i+1, j-1 {
+		if r[i] != r[j] {
+			return false
+		}
+	}
+	return true
 }
 
 func CountVowels(s string) int {
@@ -24,8 +32,8 @@ func CountVowels(s string) int {
 	return count
 }
 
-func ReplaceChar(s string, old, new rune) string {
-	return strings.ReplaceAll(s, string(old), string(new))
+func ReplaceChar(s string, oldr, newr rune) string {
+	return strings.ReplaceAll(s, string(oldr), string(newr))
 }
 
 func ToUpper(s string) string {

@@ -82,6 +82,58 @@ class TestSkipList(unittest.TestCase):
         self.assertFalse(self.sl.search(500))
         self.assertEqual(len(self.sl.display()), 999)
 
+    def _levels(self):
+        """The keys on each level, from level 0 up to the highest non-empty level."""
+        rows = []
+        for i in range(self.sl.max_level + 1):
+            row, node = [], self.sl.header.forward[i]
+            while node:
+                row.append(node.key)
+                node = node.forward[i]
+            rows.append(row)
+        return rows
+
+    def _check_invariants(self):
+        rows = self._levels()
+        for i, row in enumerate(rows):
+            self.assertEqual(row, sorted(set(row)))  # sorted, no duplicates
+            if i > 0:
+                self.assertTrue(set(row) <= set(rows[i - 1]))  # subset of the level below
+        top = max((i for i, row in enumerate(rows) if row), default=0)
+        self.assertEqual(self.sl.level, top)
+
+    def test_structure_invariants_after_random_operations(self):
+        import random
+        rng = random.Random(1)
+        model = set()
+        for _ in range(3000):
+            key = rng.randint(-50, 50)  # includes -1, the header placeholder key
+            if rng.random() < 0.6:
+                self.sl.insert(key)
+                model.add(key)
+            else:
+                self.assertEqual(self.sl.delete(key), key in model)
+                model.discard(key)
+            self.assertEqual(self.sl.search(key), key in model)
+        self._check_invariants()
+        self.assertEqual(self.sl.display(), sorted(model))
+
+    def test_level_shrinks_after_deleting_everything(self):
+        for val in range(200):
+            self.sl.insert(val)
+        for val in range(200):
+            self.sl.delete(val)
+        self.assertEqual(self.sl.level, 0)
+        self.assertEqual(self.sl.display(), [])
+
+    def test_negative_keys(self):
+        for val in (-5, -1, 0, -3):
+            self.sl.insert(val)
+        self.assertEqual(self.sl.display(), [-5, -3, -1, 0])
+        self.assertTrue(self.sl.search(-1))
+        self.assertTrue(self.sl.delete(-1))
+        self.assertFalse(self.sl.search(-1))
+
 
 if __name__ == "__main__":
     unittest.main()

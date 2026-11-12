@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 using namespace std;
 
 struct Node {
@@ -11,6 +12,18 @@ class SinglyLinkedList {
     Node* head;
 public:
     SinglyLinkedList() : head(nullptr) {}
+
+    // Owns its nodes: copying would make two lists free the same nodes.
+    SinglyLinkedList(const SinglyLinkedList&) = delete;
+    SinglyLinkedList& operator=(const SinglyLinkedList&) = delete;
+
+    ~SinglyLinkedList() {
+        while(head) {
+            Node* next = head->next;
+            delete head;
+            head = next;
+        }
+    }
 
     void insert_at_head(int val) {
         Node* node = new Node(val);
@@ -34,6 +47,13 @@ public:
         if(prev) prev->next = curr->next;
         else head = curr->next;
         delete curr;
+    }
+
+    // The values from head to tail, so tests can assert on the contents.
+    vector<int> to_vector() const {
+        vector<int> out;
+        for(Node* curr = head; curr; curr = curr->next) out.push_back(curr->data);
+        return out;
     }
 
     void display() {

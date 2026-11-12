@@ -1,58 +1,40 @@
-# Singly Linked List — Python Implementation
-
-A **Singly Linked List** is a chain of nodes where each node holds a value and a single `next` pointer. It's the simplest linked structure and the one every other linked list variant (doubly, circular, skip) builds upon.
-
-For the conceptual overview, visual diagrams, and comparison with arrays, see the parent README: [../README.md](../README.md)
-
----
+# Singly Linked List -- Python Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `singly_linked_list.py` | `Node` + `SinglyLinkedList` classes |
-| `singly_linked_list_test.py` | Unit tests covering empty list, single-node, and walk semantics |
+| File | Contents |
+| --- | --- |
+| `singly_linked_list.py` | `Node` and `SinglyLinkedList` |
+| `singly_linked_list_test.py` | unit tests |
 
----
+## API
 
-## Supported Operations
+- `Node(data)`: fields `data` and `next`.
+- `SinglyLinkedList()`: empty list, `head = None`.
+- `insert_at_head(data)`: O(1).
+- `insert_at_tail(data)`: O(n), walks from the head.
+- `delete(key)`: removes the first node whose `data == key`; no effect if absent. O(n).
+- `display()`: list of values from head to tail. O(n).
 
-| Operation | Complexity | Notes |
-|-----------|------------|-------|
-| `insert_at_head(val)` | O(1) | Pure pointer swap — the fast path |
-| `insert_at_tail(val)` | O(n) | Linear walk unless you cache a tail pointer |
-| `delete_by_value(val)` | O(n) | Walk with "previous" bookkeeping |
-| `traverse()` | O(n) | Standard `while current:` loop |
-| `search(val)` | O(n) | Linear scan |
-
----
+There is no search, size or reverse.
 
 ## Python-Specific Notes
 
-- **Classes, not `struct`.** Python has no struct — we use a thin `Node` class with `__slots__` if memory matters. A plain `class Node` works fine for learning; every instance costs ~56 bytes of overhead compared to C.
-- **`None` is the sentinel.** `node.next is None` marks the end. Use `is None` (identity), not `== None` (equality), for the idiomatic and faster check.
-- **Iterator support**: implement `__iter__` so `for x in llist:` works naturally:
-  ```python
-  def __iter__(self):
-      current = self.head
-      while current:
-          yield current.value
-          current = current.next
-  ```
-- **Reversal in place** is a classic interview question. The trick is three-pointer shuffle: `prev`, `current`, `next_node`. Memorize the pattern — it generalizes to doubly-linked and graph edge reversals.
-
----
+- Removed nodes are reclaimed by the garbage collector once nothing references them.
+- `display()` returns a plain list, so tests compare it with `assertEqual`.
+- For a real queue use `collections.deque`; for a stack use a list.
 
 ## How to Run
 
 ```bash
-python3 -m unittest singly_linked_list_test.py
+cd "Data Structures/Linear/Linked List/Singly/Python"
+python3 -m unittest singly_linked_list_test
 ```
 
----
+The tests cover head and tail insertion, deleting the head, a middle node, the tail and the only node, a missing key, an empty list and duplicates.
 
-## Key Takeaways for Learners
+## Key Takeaways
 
-1. **`insert_at_head` is O(1); `insert_at_tail` is O(n).** This asymmetry is the linked-list signature. Caching a `tail` pointer makes tail insert O(1) at the cost of one extra field to maintain.
-2. **Delete needs the _previous_ node.** Walk with `prev, current = None, self.head`. When `current.value == target`, rewire `prev.next = current.next`. Forgetting `prev` is the most common beginner bug.
-3. **Linked lists lose to arrays in modern hardware.** CPU caches love contiguous memory; pointer-chasing busts the cache. A linked list that _fits in L1_ is fast; one that doesn't is 10–100× slower than an equivalent array walk.
+- Keep a `prev` reference while walking so you can unlink.
+- The head is a special case in delete.
+- `insert_at_tail` is O(n) because there is no tail pointer.

@@ -1,0 +1,231 @@
+---
+topic: Data Structures/Linear/Linked List/Skip List
+title: Skip List
+lead: A skip list is a sorted linked list with extra "express lane" pointers on top. Each key is randomly given a tower height, so a search can skip many nodes at once and runs in expected O(log n) time, with no rotations or rebalancing.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Search, insert, delete
+    value: O(log n)
+    hint: expected, not guaranteed
+  - label: Worst case
+    value: O(n)
+    hint: every tower height is unlucky
+    tone: warn
+  - label: Expected space
+    value: about 2n pointers
+    hint: for p = 0.5
+  - label: Balancing
+    value: Randomized
+    hint: coin flips, no rotations
+properties:
+  - { label: Sorted order, value: true }
+  - { label: Probabilistic, value: true }
+  - { label: Duplicate keys, value: false }
+  - { label: Random access by index, value: false }
+prerequisites:
+  - Data Structures/Linear/Linked List/Singly
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Data Structures/Non_Linear/Trees/Binary Search Tree
+  - Data Structures/Non_Linear/Trees/Treap
+  - Data Structures/Non_Linear/Trees/AVL Tree
+  - Algorithms/Searching/Binary Search
+---
+
+## What a skip list is
+
+A sorted linked list needs O(n) steps to find a key, because it can only move one node at a time. A skip list keeps the bottom list intact (level 0 holds every key, in order) and adds sparser lists above it. Each key appears on level 0 and, with probability `p` (0.5 here), also on level 1; of those, a fraction `p` also appear on level 2, and so on. A key that reaches level `h` is a tower of height `h + 1`, with one forward pointer per level.
+
+A search starts on the sparsest level, moves right while the next key is still smaller than the target, drops one level when it would overshoot, and repeats down to level 0.
+
+<GridDiagram
+  rows={[
+    ['H', '', '', '', '', '', 25],
+    ['H', '', 6, '', '', '', 25],
+    ['H', 3, 6, '', 12, '', 25],
+    ['H', 3, 6, 9, 12, 19, 25],
+  ]}
+  tones={['.......', '.......', '.......', '.......']}
+  rowLabels={['level 3', 'level 2', 'level 1', 'level 0']}
+  legend={{ m: 'no tower this high' }}
+  caption="Six keys with tower heights 2, 3, 1, 2, 1 and 4 (counting levels). H is the header, a sentinel with a pointer on every level. Every key is on level 0."
+/>
+
+<Callout title="Randomness replaces balancing">
+A balanced tree keeps its shape with rotations. A skip list does not keep any shape: it flips a coin for each new key to choose its height. The heights are random but, with overwhelming probability, they are spread like the levels of a balanced tree, so searches are logarithmic. The guarantee is probabilistic: a bad run of coin flips can make the structure slow but cannot make it wrong.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`search(key)`', 'descend from the top level, then check the node after the last stop', 'O(log n) expected'],
+    ['`insert(key)`', 'search while recording the last node on every level (`update`), pick a random height, splice the new tower in; duplicates are ignored', 'O(log n) expected'],
+    ['`delete(key)`', 'search with `update`, unlink the node on every level it appears, lower `level` while the top level is empty; returns true or false', 'O(log n) expected'],
+    ['`display()`', 'walk level 0', 'O(n)'],
+  ]}
+/>
+
+Python and C++ constructors default to `max_level = 16` and `p = 0.5`. Go's `NewSkipList(maxLevel, p)` needs both arguments. C++ calls delete `deleteNode`, Python `delete` and Go `Delete`. The structure behaves as a set: inserting an existing key does nothing.
+
+### Search: right, then down
+
+Searching for `19` in the list above. At each level the walk moves right while the next key is smaller than 19, and drops when the next key is 19 or larger (or missing):
+
+<GridDiagram
+  rows={[
+    ['H', '', '', '', '', '', 25],
+    ['H', '', 6, '', '', '', 25],
+    ['H', 3, 6, '', 12, '', 25],
+    ['H', 3, 6, 9, 12, 19, 25],
+  ]}
+  tones={['l.....c', 'l.l...c', '..l.l.c', '....lf.']}
+  rowLabels={['level 3', 'level 2', 'level 1', 'level 0']}
+  legend={{ l: 'nodes the walk stands on', c: 'next key is 25: too big, so drop', f: 'the key found' }}
+  caption="Level 3: next is 25 > 19, drop. Level 2: move to 6, next is 25, drop. Level 1: move to 12, next is 25, drop. Level 0: next is 19, which is not smaller than 19, so stop. The node after the stop holds 19."
+/>
+
+The walk made 2 moves right (to 6 and to 12) and 3 drops. In a plain list it would have visited 3, 6, 9, 12, 19. With six keys the saving is tiny; the gap becomes large as n grows.
+
+### Insert: coin flips and the update array
+
+While descending, `insert` stores in `update[i]` the last node it stood on at level `i`. It then draws a height: start at 0 and keep adding one while a coin with probability `p` comes up heads (and the height is below `max_level`). Inserting `15` and drawing height 1:
+
+<GridDiagram
+  rows={[
+    ['H', '', '', '', '', '', '', 25],
+    ['H', '', 6, '', '', '', '', 25],
+    ['H', 3, 6, '', 12, 15, '', 25],
+    ['H', 3, 6, 9, 12, 15, 19, 25],
+  ]}
+  tones={['........', '........', '....lp..', '....lp..']}
+  rowLabels={['level 3', 'level 2', 'level 1', 'level 0']}
+  legend={{ l: 'update[1] and update[0]: both are 12', p: 'the new tower, height 2 levels (0 and 1)' }}
+  caption="update = [12, 12, 6, header] for levels 0 to 3. Levels 0 and 1 are spliced: 12 -> 15 -> 19 on level 0 and 12 -> 15 -> 25 on level 1. Levels 2 and 3 are untouched."
+/>
+
+If the drawn height exceeds the current `level`, the header becomes `update[i]` for the new levels and `level` grows.
+
+### Delete: unlink on every level
+
+`delete` finds the same `update` array, checks that the node after `update[0]` holds the key, and then, level by level from 0 up, sets `update[i].forward[i]` to the node's successor. It stops at the first level where the node does not appear. Finally it lowers `level` while the top level has no nodes. Deleting `6` and then `25` from the list above:
+
+<GridDiagram
+  rows={[
+    ['H', '', '', '', '', '', '', 25],
+    ['H', '', '', '', '', '', '', 25],
+    ['H', 3, '', '', 12, 15, '', 25],
+    ['H', 3, '', 9, 12, 15, 19, 25],
+  ]}
+  tones={['.......f', '.......f', '........', '........']}
+  rowLabels={['level 3', 'level 2', 'level 1', 'level 0']}
+  legend={{ f: 'the last tower: deleting 25 empties levels 3 and 2' }}
+  caption="After delete(6): 6 is gone from levels 0 to 2. Then delete(25) removes the only keys on levels 3 and 2, so `level` drops from 3 to 1."
+/>
+
+Without that last loop, searches would still be correct but would start on empty levels.
+
+## Implementation
+
+All three versions share this structure. The C++ class owns its nodes through a destructor, so its copy constructor and assignment are deleted: a shallow copy would free the same nodes twice. Each C++ instance has its own random generator. Python uses `random.random()`, and Go uses the global `math/rand`.
+
+<TopicCode topic="Data Structures/Linear/Linked List/Skip List" />
+
+## Complexity
+
+<DataTable
+  columns={['Quantity', { label: 'Value', kind: 'mono' }, 'Why']}
+  rows={[
+    ['levels in use', 'about log2(n)', 'level k holds about n * p^k keys; it runs out near k = log(n) / log(1/p)'],
+    ['moves per level', '1 / p = 2', 'a node taller than the current level is a coin flip away, so the expected run of same-level moves is geometric'],
+    ['search, insert, delete', 'O(log n) expected', 'about (1 / p) * log2(n) moves in total'],
+    ['expected pointers per node', '1 / (1 - p) = 2', 'height is geometric: P(height >= k) = p^k'],
+    ['space', 'O(n) expected', 'about 2n pointers, plus a header with max_level + 1'],
+    ['worst case', 'O(n)', 'all keys tall or all keys short: vanishingly unlikely'],
+  ]}
+/>
+
+<Equation label="Expected pointers per key (p = 1/2)" expr="1 + p + p^2 + p^3 + ..." result="1 / (1 - p) = 2" />
+
+Because heights are capped at `max_level` (16 by default), the structure stays efficient up to roughly 2<sup>16</sup> = 65,536 keys at `p = 0.5`. Beyond that the top levels fill up and search drifts toward O(n / 2<sup>16</sup>). Choose `max_level` near log<sub>1/p</sub>(n).
+
+## Variants and design choices
+
+<DataTable
+  columns={['Choice', 'Effect']}
+  rows={[
+    ['`p = 0.5`', 'about 2 pointers per key, about 2 moves per level'],
+    ['`p = 0.25`', 'fewer pointers (about 1.33 per key) and fewer levels, but about 4 moves per level'],
+    ['Indexable skip list', 'each pointer stores how many nodes it skips, so the k-th element is found in O(log n)'],
+    ['Concurrent skip list', 'inserts touch only a few nodes, which makes lock-based or lock-free versions easier than for a rebalanced tree'],
+  ]}
+/>
+
+This repository implements the plain set version for integer keys.
+
+## Skip list vs balanced trees
+
+<DataTable
+  columns={['Structure', { label: 'Search', kind: 'mono' }, 'Balancing', 'Notes']}
+  highlight={0}
+  rows={[
+    ['Skip list', 'O(log n) expected', 'random heights', 'ordered iteration is a walk along level 0; easy to implement'],
+    ['AVL or red-black tree', 'O(log n) worst case', 'rotations', 'hard bounds, more intricate code'],
+    ['Treap', 'O(log n) expected', 'random priorities and rotations', 'also randomized, but a tree'],
+    ['Sorted array', 'O(log n) by binary search', 'none', 'inserts shift O(n) elements'],
+    ['Plain sorted linked list', 'O(n)', 'none', 'what the skip list improves on'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Simple to implement and to reason about compared with balanced trees.',
+    'No rotations; an insert touches only the nodes it splices.',
+    'Ordered traversal, range queries and neighbours are cheap (walk level 0).',
+    'Friendly to concurrent updates.',
+  ]}
+  cons={[
+    'The O(log n) bound is expected, not guaranteed.',
+    'Roughly 2 pointers per key plus allocation overhead; poorer cache locality than an array.',
+    'Depends on a good random source, and on `max_level` being large enough.',
+    'Not indexable by position unless extended.',
+  ]}
+/>
+
+## Applications
+
+- **Ordered in-memory maps and sets** where a simple, concurrency-friendly structure is preferred over a balanced tree.
+- **Real systems:** Redis sorted sets, the LevelDB memtable and Java's `ConcurrentSkipListMap` are built on skip lists.
+- **Range and neighbour queries** on a sorted set (find the next larger key by one search).
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forgetting to lower `level` after a delete.** Searches stay correct but waste work on empty levels.
+- **Using `update` from the wrong level.** Each level needs its own predecessor; reusing one node splices the tower into the wrong lists.
+- **Re-seeding the random generator for every list.** Lists created in the same instant then get identical heights, and other users of the global generator are disturbed. The C++ class uses its own generator per instance for this reason.
+- **A `max_level` that is too small** for the data. With 16 levels and `p = 0.5`, efficiency fades beyond about 65 thousand keys.
+- **Treating the header key as a real key.** The header stores a placeholder `-1` that is never compared; negative keys, including `-1`, work normally.
+- **Copying a C++ skip list.** A shallow copy double-frees; the copy operations are deleted.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is a skip list always O(log n)?">
+    No. The bound is expected time over the random choices. In the worst case (all towers unlucky) it degrades to O(n), but the probability of anything far from logarithmic shrinks very quickly as n grows.
+  </FaqItem>
+  <FaqItem question="Why does insert flip coins instead of choosing a height from the data?">
+    Random heights make the structure independent of the insertion order. A sorted input, which ruins an unbalanced binary search tree, does not hurt a skip list.
+  </FaqItem>
+  <FaqItem question="What happens when I insert a key that already exists?">
+    Nothing: the code finds the key during the search and returns. The list stores each key at most once.
+  </FaqItem>
+  <FaqItem question="How do I choose p?">
+    `p = 0.5` is the usual default: about 2 pointers per key and about 2 moves per level. A smaller `p` saves memory and levels but takes more moves per level.
+  </FaqItem>
+</Faq>

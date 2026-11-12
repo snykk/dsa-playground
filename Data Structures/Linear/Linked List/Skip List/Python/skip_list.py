@@ -11,6 +11,7 @@ class SkipList:
     def __init__(self, max_level=16, p=0.5):
         self.max_level = max_level
         self.p = p
+        # Placeholder key: the header is never compared with a real key.
         self.header = Node(-1, self.max_level)
         self.level = 0
 

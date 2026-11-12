@@ -1,6 +1,8 @@
-# Python/Linear/Array/dynamic_array.py
 class DynamicArray:
-    """Custom Dynamic Array (similar to Python list)"""
+    """Growable array: capacity doubles when full and halves when a quarter full.
+
+    Supports len(), a[k] (0 <= k < len, no negative indexes), append() and pop().
+    """
     def __init__(self):
         self._n = 0
         self._capacity = 1
@@ -24,7 +26,10 @@ class DynamicArray:
         if self._n == 0:
             raise IndexError('Pop from empty array')
         val = self._A[self._n - 1]
+        self._A[self._n - 1] = None  # drop the reference so the object can be freed
         self._n -= 1
+        if 0 < self._n <= self._capacity // 4:
+            self._resize(self._capacity // 2)
         return val
 
     def _resize(self, new_capacity):

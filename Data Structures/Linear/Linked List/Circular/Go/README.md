@@ -1,51 +1,39 @@
-# Circular Linked List — Go Implementation
-
-A **Circular Linked List** is a singly linked list where the last node's `next` loops back to the head. Useful for round-robin scheduling, ring buffers, and Josephus-style problems — with the caveat that every traversal needs an explicit stop condition.
-
-For the conceptual overview and comparison with singly / doubly linked lists, see the parent README: [../README.md](../README.md)
-
----
+# Circular Linked List -- Go Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | `Node` struct + `CircularLinkedList` type |
-| `main_test.go` | Table-driven tests for insert / delete / traverse |
-| `go.mod` | Module definition |
+| File | Contents |
+| --- | --- |
+| `main.go` | `Node`, `CircularLinkedList` and a small demo `main()` |
+| `main_test.go` | tests in `package main` |
+| `go.mod` | module definition |
 
----
+## API
 
-## Supported Operations
+- `CircularLinkedList{}`: the zero value is an empty list (`head == nil`).
+- `InsertAtHead(val int)`, `InsertAtTail(val int)`: O(n) each.
+- `DeleteValue(key int)`: removes the first match; the only node leaves `head == nil`.
+- `Traverse(limit int)`: prints values from the head, stopping when back at the head or after `limit` values. The limit is a required argument.
 
-| Operation | Complexity | Notes |
-|-----------|------------|-------|
-| `InsertAtHead(val)` | O(n) | Must update tail's `Next` pointer |
-| `InsertAtTail(val)` | O(n) | Walk to tail, insert, re-link to head |
-| `DeleteByValue(val)` | O(n) | Special cases: single node, head removal |
-| `Traverse(maxSteps)` | O(maxSteps) | Bounded walk |
-
----
+Fields `data`, `next` and `head` are unexported; the tests are in the same package and walk them directly.
 
 ## Go-Specific Notes
 
-- **No manual memory management, but cycles still matter.** Go's GC handles cycles cleanly — unlike C++ where destructors need to unlink the cycle first. You can safely drop the list reference and let GC reclaim it.
-- **Pointer receivers are mandatory for mutating methods.** `func (l *CircularLinkedList) InsertAtHead(...)` — value receivers would operate on a copy and leave the original untouched.
-- **Interface note**: `container/ring` in the stdlib implements a circular doubly-linked list with no size tracking. It's a reference worth studying, but its API is awkward for general use.
-- **Concurrency**: the implementation is not goroutine-safe. For concurrent access, wrap operations with `sync.RWMutex`.
-
----
+- Garbage collection frees unreachable rings, so no destructor is needed.
+- The zero value is usable: methods have pointer receivers and `head` starts `nil`.
+- `Traverse` prints with `fmt.Print`; to assert on the output the tests walk `head` and `next` with a helper instead.
+- The tests are plain sequential tests, not table-driven.
 
 ## How to Run
 
 ```bash
-go test -v ./...
+cd "Data Structures/Linear/Linked List/Circular/Go"
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Head-deletion is the bug-prone case.** Three sub-cases: list becomes empty, deleted node is head of multi-node list, deleted node is not head. Writing them as explicit branches is clearer than trying to unify.
-2. **GC does not excuse cycles from logic bugs.** Go's GC reclaims the memory, but your traversal will still loop forever if you forget the "did I see head again?" check.
-3. **`container/ring` exists.** For production use, `ring.Ring` from the stdlib is often enough. Reading its source is a short lesson in how Go models cyclic structures idiomatically.
+- Handle the one-node list first in delete.
+- Compare node pointers, not values, to detect a full lap.
+- A tail pointer would make both inserts O(1).

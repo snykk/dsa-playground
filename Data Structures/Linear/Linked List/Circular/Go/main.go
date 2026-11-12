@@ -46,15 +46,18 @@ func (cll *CircularLinkedList) DeleteValue(key int) {
 	if cll.head == nil {
 		return
 	}
+	if cll.head.next == cll.head { // a single node: it is also the tail
+		if cll.head.data == key {
+			cll.head = nil
+		}
+		return
+	}
 	curr := cll.head
 	var prev *Node
 	for {
 		if curr.data == key {
 			if prev != nil {
 				prev.next = curr.next
-				if curr == cll.head {
-					cll.head = curr.next
-				}
 			} else {
 				tail := cll.head
 				for tail.next != cll.head {

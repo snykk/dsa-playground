@@ -1,51 +1,38 @@
-# Circular Linked List — C++ Implementation
-
-A **Circular Linked List** is a singly linked list where the last node points back to the head. Great for round-robin scheduling, cyclic buffers, and the Josephus problem — but every traversal needs an explicit stop condition.
-
-For the conceptual overview and comparison with singly / doubly linked lists, see the parent README: [../README.md](../README.md)
-
----
+# Circular Linked List -- C++ Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `circular_linked_list.cpp` | `Node` struct + `CircularLinkedList` class |
-| `circular_linked_list_test.cpp` | Assertion tests for insert / delete / traverse |
+| File | Contents |
+| --- | --- |
+| `circular_linked_list.cpp` | `Node` and `CircularLinkedList` (no `main()`) |
+| `circular_linked_list_test.cpp` | assert-based tests; includes the `.cpp` directly |
 
----
+## API
 
-## Supported Operations
-
-| Operation | Complexity | Notes |
-|-----------|------------|-------|
-| `insertAtHead(val)` | O(n) | Tail's `next` must be updated to the new head |
-| `insertAtTail(val)` | O(n) | Walk to tail, link in, re-point to head |
-| `deleteByValue(val)` | O(n) | Special-case single-node and head-deletion |
-| `traverse(maxSteps)` | O(maxSteps) | Bounded to defend against logic bugs |
-
----
+- `CircularLinkedList()`: empty list; the public member `head` is `nullptr`.
+- `insertAtHead(int)`, `insertAtTail(int)`: O(n) each (walk to the tail).
+- `deleteValue(int key)`: removes the first match; the only-node case frees the node and sets `head = nullptr`.
+- `traverse(int limit = 10)`: prints values from the head, stopping when back at the head or after `limit` values.
+- Copy constructor and copy assignment are deleted.
 
 ## C++-Specific Notes
 
-- **Manual memory management**: every `insert` does `new Node(...)`, every `delete` path does `delete`. Missing the `delete` on head-removal is the most common leak. Consider `std::unique_ptr<Node>` for safety — but note that `unique_ptr` in a cycle will never get destroyed until you manually break the cycle.
-- **Destructor must break the cycle**: naive `~CircularLinkedList()` that walks via `node->next` will loop forever. Save the tail's `next`, set it to `nullptr` first, then delete linearly.
-- **Don't use `std::list`**. The stdlib provides a doubly-linked list but not a circular one — you must hand-roll the structure.
-- **Template `T` instead of hard-coding `int`** if you want reusable code: `template<typename T> class CircularLinkedList { ... }`. Otherwise you lock this structure to one value type.
-
----
+- The class owns its nodes. The destructor finds the tail, sets `tail->next = nullptr` to open the ring, then frees the nodes in a loop. Without opening the ring the loop would never end.
+- Copying is deleted because a shallow copy would make two lists free the same nodes.
+- `traverse` prints and has a default limit of 10, so a longer list is cut short; pass a larger limit. The tests read the ring through `head`.
+- `deleteValue` handles the single-node case before the general loop, because there `head` and the tail are the same node.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall circular_linked_list_test.cpp -o circular_linked_list_test
-./circular_linked_list_test
+cd "Data Structures/Linear/Linked List/Circular/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD circular_linked_list_test.cpp -o /tmp/circ && /tmp/circ
+# with AddressSanitizer (use-after-free and overflow checks):
+g++ -std=c++17 -g -fsanitize=address,undefined -DIS_TEST_BUILD circular_linked_list_test.cpp -o /tmp/circ_asan && /tmp/circ_asan
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Cycle-aware destructor is mandatory.** Forgetting to break the cycle before traversal leads to `double free` or infinite loops during cleanup — both memory-safety nightmares.
-2. **Head-deletion is a state machine.** Case 1: list becomes empty (`head = nullptr`). Case 2: new head is `oldHead->next`, tail's `next` updates. Case 3: deleting a non-head is ordinary. Write them out as explicit branches; don't try to unify.
-3. **Bounded traversal is a defensive-programming habit.** Real-world circular-list bugs manifest as hangs, not crashes. A `maxSteps` parameter turns a hang into a loud failure.
+- Open the ring before freeing it.
+- Never `delete` a node that `head` still points to.
+- Own raw nodes in one place and delete the copy operations.

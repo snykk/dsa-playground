@@ -1,0 +1,214 @@
+---
+topic: Data Structures/Linear/Linked List/Circular
+title: Circular Linked List
+lead: A circular linked list is a singly linked list whose last node points back to the first, so the chain forms a ring with no null end. It suits round-robin work, where you cycle through items forever. Every operation here is O(n) because the code keeps only a head pointer.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Insert at head or tail
+    value: O(n)
+    hint: this code walks to the tail first
+    tone: warn
+  - label: Delete by value
+    value: O(n)
+  - label: Traverse
+    value: O(n)
+    hint: stop when you are back at the head
+  - label: Approach
+    value: Ring of nodes
+    hint: last.next == head
+properties:
+  - { label: Null terminator, value: false }
+  - { label: Random access, value: false }
+  - { label: Tail pointer kept, value: false }
+  - { label: Cycle by design, value: true }
+prerequisites:
+  - Data Structures/Linear/Linked List/Singly
+related:
+  - Data Structures/Linear/Linked List/Doubly
+  - Data Structures/Linear/Queue/Circular Queue
+  - Data Structures/Linear/Array
+---
+
+## What a circular linked list is
+
+Each node stores a value and a `next` reference, exactly as in a singly linked list. The difference is the end of the chain: the last node's `next` is the head, not null. Starting anywhere you can reach every node by following `next`, and you know you have gone all the way round when you see the head again.
+
+<ListDiagram
+  kind="circular"
+  values={[20, 10, 30]}
+  pointers={{ 0: 'head', 2: 'tail' }}
+  tones="f.."
+  legend={{ f: 'the head, where a walk starts and stops' }}
+  caption="The list built by insert_at_head(10), insert_at_head(20), insert_at_tail(30). The tail points back to 20."
+/>
+
+An empty list has `head = None`. A list with one node has `head.next == head`: the node is both head and tail and points at itself. That single-node case is the one to watch in every operation.
+
+<Callout title="Empty, one node, many">
+Most circular-list bugs live in the one-node case. There the head and the tail are the same node, so code that says "move head to head.next" leaves head unchanged. The delete operation here handles it first and sets `head` to `None`.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`insert_at_head(x)`', 'walk to the tail, link the new node in front of the head, point the tail at it', 'O(n)'],
+    ['`insert_at_tail(x)`', 'walk to the tail, link the new node after it, point it at the head', 'O(n)'],
+    ['`delete_value(key)`', 'remove the first node holding `key`; the head and the only node are special cases', 'O(n)'],
+    ['`traverse()`', 'collect values from the head until the walk returns to it', 'O(n)'],
+  ]}
+/>
+
+Names differ by language: `insertAtHead`, `deleteValue`, `traverse` in C++ and `InsertAtHead`, `DeleteValue`, `Traverse` in Go. Python returns the values as a list, while C++ and Go print them. All three accept a limit on how many nodes to visit: optional in Python (default: no limit) and C++ (default 10, so longer lists are cut short), required in Go.
+
+### Insert at head
+
+The new node must go in front of the head, and the tail must point to it, so the code first walks to the tail (the node whose `next` is the head). Inserting `20` into the list `[10, 30]`:
+
+<ListDiagram
+  kind="circular"
+  values={[10, 30]}
+  pointers={{ 0: 'head', 1: 'tail' }}
+  tones=".."
+  caption="Before. Finding the tail takes n steps: that is the O(n)."
+/>
+
+<ListDiagram
+  kind="circular"
+  values={[20, 10, 30]}
+  pointers={{ 0: 'new head', 2: 'tail' }}
+  tones="p.."
+  legend={{ p: 'the new node' }}
+  caption="After three pointer writes: new.next = old head, head = new, tail.next = new."
+/>
+
+Insert at tail is the same walk, then `tail.next = new` and `new.next = head`. The head does not change.
+
+### Delete by value: three cases
+
+The code distinguishes where the match sits. With the list `[1, 2, 3]`:
+
+<DataTable
+  columns={['Case', 'What happens', 'Result']}
+  rows={[
+    ['only node', '`head = None` (C++ frees the node first)', 'empty list'],
+    ['head (list has more nodes)', 'walk to the tail, then `head = head.next` and `tail.next = head`', 'delete 1 gives `[2, 3]`'],
+    ['middle or tail', 'track `prev`; set `prev.next = curr.next`', 'delete 2 gives `[1, 3]`, delete 3 gives `[1, 2]`'],
+    ['not found', 'the walk returns to the head; nothing changes', 'unchanged'],
+  ]}
+/>
+
+Deleting the head needs the tail because the tail's `next` must be redirected, otherwise the ring would still point at a removed node.
+
+<ListDiagram
+  kind="circular"
+  values={[1, 2, 3]}
+  pointers={{ 0: 'head (matched)', 2: 'tail' }}
+  tones="pl."
+  legend={{ p: 'node to delete', l: 'becomes the new head' }}
+  caption="Deleting 1: the tail is found by walking, head moves to the node holding 2, tail.next is rewired to it."
+/>
+
+### Traverse
+
+A walk cannot test for null. It records the head's value, steps forward, and stops when it arrives back at the head (or when the optional limit is reached). Without that stop condition it would loop forever, which is the defining danger of a ring.
+
+## Variant: keep a tail pointer
+
+The code in this repository stores only `head`, so both inserts must walk to the tail. The more common representation stores only `tail`, because `tail.next` is the head:
+
+<DataTable
+  columns={['Representation', { label: 'Insert head', kind: 'mono' }, { label: 'Insert tail', kind: 'mono' }, { label: 'Delete head', kind: 'mono' }]}
+  rows={[
+    ['head only (this repo)', 'O(n)', 'O(n)', 'O(n)'],
+    ['tail only (`tail.next` is head)', 'O(1)', 'O(1)', 'O(1)'],
+  ]}
+/>
+
+Inserting at the head is `new.next = tail.next; tail.next = new`, and inserting at the tail does the same and then moves `tail = new`. Both are O(1).
+
+## Implementation
+
+The three versions follow the same logic. In Python and Go the tests walk the ring through `head` and `next`. The C++ class owns its nodes: it has a destructor that opens the ring and frees every node, and its copy constructor and assignment are deleted, because two lists would free the same nodes.
+
+<TopicCode topic="Data Structures/Linear/Linked List/Circular" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['insert at head / tail', 'O(n)', 'finding the tail means following n - 1 links (O(1) if a tail pointer is stored)'],
+    ['delete by value', 'O(n)', 'a search, plus a walk to the tail when the head is deleted'],
+    ['traverse', 'O(n)', 'visits each node once'],
+    ['search by value', 'O(n)', 'no random access, no ordering'],
+  ]}
+/>
+
+Space is O(n): one node per element and no extra structure. All operations use O(1) additional space.
+
+## Circular vs other structures
+
+<DataTable
+  columns={['Structure', 'End of the chain', 'Good for']}
+  highlight={0}
+  rows={[
+    ['Circular linked list', 'points back to the head', 'cycling through items endlessly, round robin'],
+    ['Singly linked list', 'null', 'plain forward-only sequences'],
+    ['Doubly linked list', 'null both ends, two links per node', 'moving both ways, O(1) delete of a known node'],
+    ['Circular queue (array)', 'indexes wrap with modulo', 'fixed-capacity FIFO buffers'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Every node is reachable from every other node.',
+    'No null checks at the end: cycling through items repeatedly needs no restart.',
+    'With a tail pointer, inserting at the head or tail is O(1).',
+    'Natural fit for round-robin scheduling and turn-taking.',
+  ]}
+  cons={[
+    'A loop with the wrong stop condition never terminates.',
+    'The one-node and empty cases need special handling.',
+    'As implemented here (head only) every insert is O(n).',
+    'No random access, and a node cannot reach its predecessor without a full lap.',
+  ]}
+/>
+
+## Applications
+
+- **Round-robin scheduling:** serve each task for a time slice, then move on; the list never needs resetting.
+- **Turn-based games and the Josephus problem:** repeatedly skip k nodes and remove one, as in LeetCode 1823.
+- **Playlists and carousels** that loop.
+- **The base of other structures:** circular buffers and some queue implementations.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Looping until null.** There is no null: stop when the pointer returns to the head.
+- **Deleting the only node like any other.** The tail is the node itself, so `head = head.next` changes nothing. Set `head` to null (and free the node in C++ before clearing the pointer).
+- **Forgetting to repoint the tail** when the head is inserted or deleted. The ring would still reference the old head.
+- **Walking without a guard** while the ring may be broken. A `limit` argument keeps a debugging traversal finite.
+- **Leaking in C++.** Freeing nodes one by one with a `while(head)` loop never ends on a ring: open the ring first, as the destructor does.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How do I know I have been all the way round?">
+    You are back at the head node. Compare node identity (the pointer or reference), not the stored value, because values may repeat.
+  </FaqItem>
+  <FaqItem question="Why does inserting at the head cost O(n) here?">
+    The tail's `next` must point at the new head, and the list stores no tail pointer, so the code walks the whole ring to find it. Storing a tail pointer (and recovering the head as `tail.next`) makes it O(1).
+  </FaqItem>
+  <FaqItem question="Is a circular linked list the same as a circular queue?">
+    No. A circular queue is usually an array with head and tail indexes that wrap around with modulo. A circular linked list is a ring of separately allocated nodes.
+  </FaqItem>
+  <FaqItem question="Can a circular list be doubly linked?">
+    Yes: make the last node's `next` the head and the head's `prev` the last node. That gives O(1) access to the tail from the head and lets you walk in both directions. This repository's circular list is singly linked.
+  </FaqItem>
+</Faq>
