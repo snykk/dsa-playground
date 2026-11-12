@@ -1,158 +1,92 @@
 # Square Root Decomposition
 
-**Square Root Decomposition** is a technique that divides an array into blocks of size approximately √N to enable efficient range queries and updates. It provides a simpler alternative to segment trees for certain problems.
+Square root decomposition splits an array into blocks of about sqrt(N) elements and keeps one precomputed sum per block. A range-sum query scans two partial blocks and adds whole-block sums, so it costs O(sqrt N); a point update is O(1). Build is O(N).
 
----
+## Intuition
 
-## Overview
+A query range is made of a partial block on the left, some complete blocks, and a partial block on the right. Complete blocks are answered from stored sums. Only the partial blocks are scanned, and each has fewer than one block's worth of elements.
 
-Square Root Decomposition works by:
-1. Dividing array into blocks of size √N
-2. Precomputing block-level information (sum, min, max, etc.)
-3. Answering queries by combining:
-   - Complete blocks (using precomputed values)
-   - Partial blocks (brute force on remaining elements)
+Invariant: `blocks[b]` always equals the sum of the elements of block `b`. A point update changes one element, so it adjusts exactly one block sum, by `new - old`.
 
-This approach achieves:
-- O(√N) per query/update
-- O(N) preprocessing
-- Simpler implementation than segment trees
+## Visual
 
-The technique is particularly useful when:
-- Queries and updates are balanced
-- Simpler code is preferred over optimal complexity
-- Range operations can be decomposed into blocks
+```text
+arr     = [ 1  2  3  4 | 5  6  7  8 | 9 10 ]      block size 4 (ceil(sqrt(10)))
+blocks  = [    10      |     26      |  19  ]
 
----
-
-## Key Characteristics
-
-1. **Block-Based**: Divides array into √N blocks
-2. **Precomputation**: Precomputes block-level aggregates
-3. **Hybrid Approach**: Combines block queries with brute force
-4. **Simple Implementation**: Easier than segment trees
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `update(index, value)` | Update value at index | O(√N) |
-| `query(left, right)` | Query range [left, right] | O(√N) |
-| `update_range(left, right, val)` | Update range [left, right] | O(√N) |
-| `query_range(left, right)` | Query range [left, right] | O(√N) |
-
----
-
-## Implementation Approaches
-
-### 1. Standard Square Root Decomposition
-- **Pros**: Simple, handles range sum queries
-- **Cons**: O(√N) per operation
-- **Use Case**: Range sum, range min/max
-
-### 2. Lazy Propagation
-- **Pros**: Efficient range updates
-- **Cons**: More complex
-- **Use Case**: Range updates with queries
-
-### 3. Mo's Algorithm Variant
-- **Pros**: Optimized for multiple queries
-- **Cons**: Requires offline queries
-- **Use Case**: Multiple offline range queries
-
----
-
-## Applications
-
-1. **Range Sum Queries**: Sum of elements in range
-2. **Range Min/Max**: Minimum/maximum in range
-3. **Range Updates**: Updating ranges efficiently
-4. **Frequency Queries**: Counting frequencies in ranges
-5. **Competitive Programming**: Common in contests
-
----
-
-## Example Use Cases
-
-### Range Sum Query
-```python
-arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-sqrt_dec = SqrtDecomposition(arr)
-result = sqrt_dec.query(2, 7)
-# Returns sum of elements from index 2 to 7
+query(1, 9):   l=1                          r=9
+               [ . 2  3  4 ] [ 5 6 7 8 ] [ 9 10 ]
+                  scan         stored 26     scan
+               (2+3+4) = 9  +    26     +  (9+10) = 19   ->  54
 ```
 
-### Point Update
-```python
-sqrt_dec.update(5, 20)
-# Updates element at index 5 to 20
-```
+## How It Works
 
-### Range Update
-```python
-sqrt_dec.update_range(1, 4, 5)
-# Adds 5 to all elements from index 1 to 4
-```
+1. Block size `B = max(1, ceil(sqrt(N)))`; there are `ceil(N / B)` blocks.
+2. Build: `blocks[i // B] += arr[i]` for every `i`.
+3. `query(l, r)` (inclusive): if `l // B == r // B`, add `arr[l..r]`. Otherwise add the left partial block, the stored sums of the blocks strictly between, and the right partial block.
+4. `update(i, v)`: `blocks[i // B] += v - arr[i]`, then `arr[i] = v`.
 
----
+Only point updates and range-sum queries exist; there are no range updates and no min/max.
 
-## Implementations
+## Step-by-Step Trace
 
-This folder contains implementations in three languages:
+`arr = [1..10]`, `B = 4`, block sums `[10, 26, 19]`.
 
-- **Python** (`Python/`) - List-based implementation
-- **C++** (`C++/`) - Vector-based implementation
-- **Go** (`Go/`) - Slice-based implementation
+| Operation | Work | Result |
+|-----------|------|--------|
+| `query(2, 7)` | left partial indices 2-3 (3 + 4), right partial indices 4-7 (5 + 6 + 7 + 8), no middle blocks | 33 |
+| `update(5, 20)` | block 1 sum changes by 14, block sums become `[10, 40, 19]` | `arr[5] = 20` |
+| `query(2, 7)` | same cells, new value at index 5 | 47 |
+| `query(1, 9)` | 9 (left) + 26 (middle block 1) + 19 (right) | 54 |
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+## Complexity
 
----
+| Operation | Time | Space |
+|-----------|------|-------|
+| Build | O(N) | O(sqrt N) for the block sums, plus a copy of the array |
+| `query` | O(sqrt N) | O(1) |
+| `update` | O(1) | O(1) |
 
-## Complexity Summary
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **Construction** | O(N) | O(√N) |
-| **Point Update** | O(√N) | O(1) |
-| **Range Query** | O(√N) | O(1) |
-| **Range Update** | O(√N) | O(1) |
-
-Where N is array size.
-
----
+Why: a query handles at most `B - 1` elements on each side and at most `N / B` block sums, so the cost is about `2B + N / B`, which is smallest for `B` near sqrt N.
 
 ## When to Use
 
-- **Range Queries**: When need range queries and updates
-- **Simplicity**: When prefer simpler code over optimal complexity
-- **Balanced Operations**: When queries and updates are balanced
-- **Competitive Programming**: When segment tree is overkill
+Use it for range queries with point updates when you want simple code, or when the block summary is easy to keep but hard to merge in a tree. Do not use it when queries are many and updates rare (prefix sums are O(1)), or when O(log N) queries matter (segment tree or Fenwick tree).
 
----
+## Square Root Decomposition vs. Alternatives
 
-## Related Patterns
+| Structure | Build | Query | Point update |
+|-----------|-------|-------|--------------|
+| Square root decomposition | O(N) | O(sqrt N) | O(1) |
+| Segment tree | O(N) | O(log N) | O(log N) |
+| Fenwick tree | O(N) | O(log N) | O(log N) |
+| Prefix sums | O(N) | O(1) | O(N) |
 
-- **Segment Trees**: Alternative with O(log N) operations
-- **Fenwick Trees**: Alternative for range sum
-- **Mo's Algorithm**: Uses square root decomposition
+## Common Pitfalls
 
----
+- Block size 0 on an empty array; the code clamps it to 1.
+- Overwriting `arr[i]` before computing `value - arr[i]` for the block sum.
+- Assuming the last block is full; it may be partial.
+- Off-by-one at block borders (left partial ends at `(left_block + 1) * B - 1`, right starts at `right_block * B`).
+- Forgetting the same-block case.
+- Integer overflow of the sums in C++ and Go.
 
-## Further Reading
+## Implementations
 
-- "Competitive Programming" by Halim & Halim
-- "Algorithm Design Manual" by Steven Skiena
-- Codeforces: Square Root Decomposition tutorials
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `square_root_decomposition.py` | copies the input list |
+| C++ | [C++/](C++/) | `square_root_decomposition.cpp` | copies the input vector; `int` sums |
+| Go | [Go/](Go/) | `main.go` | copies the input slice; `int` sums |
 
----
+## Practice Problems
 
-**Note**: Square Root Decomposition provides O(√N) operations, which is slower than segment trees' O(log N) but simpler to implement. It's a good choice when code simplicity is valued over optimal performance, or when the constant factors of segment trees are too high.
+- [LeetCode 307 - Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
+- [CSES - Dynamic Range Sum Queries](https://cses.fi/problemset/task/1648)
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Mo's Algorithm](../Mo's%20Algorithm/)
+- [Heavy-Light Decomposition](../Heavy-Light%20Decomposition/)
+- [Specialized Techniques overview](../)

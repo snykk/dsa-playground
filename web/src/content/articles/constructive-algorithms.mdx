@@ -1,0 +1,191 @@
+---
+topic: Utilities/Problem_Types/Constructive_Algorithms
+title: Constructive Algorithms
+lead: A constructive problem asks you to build an object (a permutation, an array, a string, a graph) that satisfies a list of constraints, or to say that none exists. You do not search for the answer. You find a pattern that satisfies every constraint by design, and prove that it works.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Typical cost
+    value: O(n) to O(n log n)
+    hint: one pass or one heap
+  - label: Core skill
+    value: Pattern + proof
+    hint: small cases first, then a rule
+  - label: Also required
+    value: Say impossible
+    hint: check feasibility before building
+    tone: warn
+  - label: Repository
+    value: 9 builders
+    hint: Python has all 9, C++ 7, Go 3
+properties:
+  - { label: Needs search or backtracking, value: false }
+  - { label: Any valid answer is accepted, value: true }
+  - { label: Checkable with a small verifier, value: true }
+prerequisites:
+  - Algorithms/Greedy
+related:
+  - Utilities/Problem_Types/Game_Theory
+  - Utilities/Problem_Types/Interactive_Problems
+  - Problem_Patterns/Bit Manipulation
+  - Data Structures/Non_Linear/Heaps/Max Heap
+---
+
+## When to use it
+
+The statement gives away constructive problems:
+
+- "Print **any** array / string / graph such that ..." or "print `-1` if it does not exist".
+- The output is large (size `n`), so the checker, not the contestant, verifies it.
+- Constraints are about **structure**: sums, parities, distinct differences, degrees, no two equal neighbors.
+- Brute force is impossible, yet small cases are easy to do by hand.
+
+## How it works
+
+<Steps>
+  <Step title="Do the small cases by hand">
+    Build solutions for `n = 1, 2, 3, 4, 5`. Write them next to each other and look for the shape: sorted, alternating, zig-zag, powers of two.
+  </Step>
+  <Step title="Find when it is impossible">
+    Look for the cheapest necessary condition: a sum outside `[n*lo, n*hi]`, an odd degree sum, a character that appears more than `ceil(n/2)` times. Return "impossible" for those inputs first.
+  </Step>
+  <Step title="State the rule and build greedily">
+    Turn the pattern into a loop: fill with the minimum and add the remainder, always connect the highest remaining degree, put the more frequent letter in even positions.
+  </Step>
+  <Step title="Prove it, then verify it">
+    Argue that every constraint holds (an invariant per step), and write a checker that you run over all small inputs. Most wrong constructions fail on the first few sizes.
+  </Step>
+</Steps>
+
+<Callout title="The two-sided guarantee">
+A constructive solution must be both **sound** (whatever it returns satisfies the constraints) and **complete** (it only reports "impossible" when no object exists). Checking soundness is easy with a verifier; completeness needs the necessary condition from step 2 to match what the builder can actually produce.
+</Callout>
+
+## Template
+
+```text
+solve(input):
+    if not feasible(input):         # necessary condition, derived on paper
+        return IMPOSSIBLE
+    result = empty
+    while result is not complete:
+        result.append(next piece by the rule)    # greedy / zig-zag / alternate
+    assert check(result, input)     # in tests, run on all small inputs
+    return result
+```
+
+## The builders in this repository
+
+<DataTable
+  columns={['Function', 'Builds', 'Rule', 'Impossible when']}
+  rows={[
+    ['`construct_permutation(n, k)`', 'permutation of 1..n with exactly k distinct adjacent differences', 'zig-zag 1, k+1, 2, k, ... then k+2..n', 'k < 1 or k >= n (n = 1 needs k = 0)'],
+    ['`construct_array_with_sum(n, total, lo, hi)`', 'array in [lo, hi] with the given sum', 'start at lo, add the remainder left to right', 'total < n*lo or total > n*hi'],
+    ['`construct_graph(degrees)`', 'simple graph with the degree sequence', 'Havel-Hakimi: join the largest degree to the next largest', 'the sequence is not graphical'],
+    ['`construct_string(n, a, b)`', 'string with a a-s and b b-s, no equal neighbors', 'put the more frequent letter at even positions', 'n != a + b or the counts differ by more than 1'],
+    ['`greedy_construction(n, constraints)`', 'sequence of distinct values from 1..n', 'smallest unused value >= each constraint', 'no unused value is large enough'],
+    ['`construct_matrix(row_sums, col_sums)`', 'non-negative matrix with given row and column sums', 'north-west corner rule', 'the two totals differ'],
+    ['`construct_by_decomposition(target)`', 'powers of two summing to target', 'one term per set bit', 'target < 1 gives an empty list'],
+    ['`construct_tree(n, parents)`', 'edge list of a tree', 'node i hangs under its required parent, or under i - 1', 'a required parent is not smaller than i'],
+    ['`construct_balanced_string(s)`', 'the characters of s sorted, if all occur equally often', 'sort', 'counts differ'],
+  ]}
+/>
+
+## Worked example: k distinct differences
+
+Build a permutation of `1..n` whose adjacent differences `|p[i+1] - p[i]|` contain **exactly** `k` different values. For `n = 7` and `k = 3` the code returns `[1, 4, 2, 3, 5, 6, 7]`.
+
+<ArrayDiagram
+  legend={{ p: 'zig-zag part (first k + 1 numbers)', l: 'tail k + 2 .. n, a plain ascending run' }}
+  rows={[
+    { label: 'permutation', values: [1, 4, 2, 3, 5, 6, 7], tones: 'pppplll', note: 'Zig-zag 1, 4, 2, 3: the numbers 1..4 taken alternately from the low and the high end.' },
+    { label: 'differences', values: [3, 2, 1, 2, 1, 1], tones: 'ppplll', note: 'The zig-zag gives 3, 2, 1: exactly k = 3 distinct values. The tail adds only 2 and 1, both already present.' },
+  ]}
+/>
+
+Why it works: alternating between the smallest and the largest unused number of `1..k+1` produces differences `k, k-1, ..., 1`, each once. The first tail element `k + 2` differs from the last zig-zag value by between 1 and `k`, and later steps are 1. No new value appears, so there are exactly `k`.
+
+<Callout tone="warning" title="This was a bug in the repository">
+The earlier code only reversed a suffix of `1..n`, which gives 2 distinct differences whatever `k` is: for `(5, 3)` it returned `[1, 5, 4, 3, 2]`. The zig-zag version is checked against every `(n, k)` with `n` up to 12 in all three languages' tests.
+</Callout>
+
+## Worked example: a graph from degrees
+
+`construct_graph([3, 3, 2, 2, 2])` repeats: take the node with the largest remaining degree `d`, connect it to the next `d` largest, reduce those degrees. Result: edges `(0,1) (0,2) (0,3) (1,4) (1,2) (3,4)`.
+
+<GraphDiagram
+  edges="0-1, 0-2, 0-3, 1-4, 1-2, 3-4"
+  tones={{ 0: 'p', 1: 'p' }}
+  positions={{ 0: [10, 50], 1: [45, 10], 2: [45, 90], 3: [80, 90], 4: [80, 10] }}
+  legend={{ p: 'the two nodes with degree 3' }}
+  caption="Degrees: 0 and 1 have 3; 2, 3 and 4 have 2. The sequence [3, 1, 1] returns None: the node with degree 3 would need three neighbors, but only two others exist."
+/>
+
+## Implementation
+
+Python has all nine builders, C++ has seven (everything except `construct_tree` and `construct_balanced_string`), Go has three (`ConstructPermutation`, `ConstructArrayWithSum`, `ConstructGraph`). Impossible input returns `None` in Python, an empty vector in C++ and `nil` in Go. In C++, `constructString` returns an empty string for impossible input, so `n = 0` and "impossible" look the same.
+
+Each language has tests: Python `constructive_test.py`, C++ `constructive_test.cpp`, Go `main_test.go`. They check the permutation builder over all small `n` and `k`, and the graph builder against an Erdos-Gallai test in Python.
+
+<TopicCode topic="Utilities/Problem_Types/Constructive_Algorithms" />
+
+## Complexity
+
+<DataTable
+  columns={['Builder', 'Time', 'Why']}
+  rows={[
+    ['permutation, array with sum, string, decomposition, tree', 'O(n)', 'one pass (decomposition: O(log target))'],
+    ['graph (Havel-Hakimi)', 'O(E log n)', 'each edge is one heap pop and push'],
+    ['matrix', 'O(n * m)', 'one visit per cell'],
+    ['greedy_construction', 'Python O(n^2), C++ O(n log n)', 'Python scans the unused set; C++ uses an ordered set and lower_bound'],
+  ]}
+/>
+
+Space is the output plus small helpers. The verifier is usually as cheap as the builder, which makes randomised testing practical.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['LeetCode 667, Beautiful Arrangement II', 'the zig-zag permutation above'],
+    ['LeetCode 767, Reorganize String', 'place the most frequent letter at even positions first'],
+    ['LeetCode 1054, Distant Barcodes', 'same alternating idea with many symbols'],
+    ['CSES, Permutations', 'put all even numbers, then all odd numbers (impossible for n = 2 and 3)'],
+    ['Graph from a degree sequence', 'Havel-Hakimi, check against Erdos-Gallai']
+  ]}
+/>
+
+## Variants
+
+- **Existence only:** decide whether an object exists (Erdos-Gallai) without building it.
+- **Count or lexicographically smallest:** the same rule with a tie-breaking order, or a counting formula.
+- **Construction from the end:** build in reverse, then flip it.
+- **Randomised verification:** write a brute force for small `n` and compare feasibility and validity with your builder.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Skipping the feasibility check.** `construct_string(5, 1, 1)` used to return `abaaa`, which has equal neighbors, because `n != a + b` was never checked.
+- **Trusting a pattern after one example.** Test every size `n` up to about 10 with a checker. The old permutation passed a test that only compared the length.
+- **Hard-coded bit limits.** Scanning 30 bits silently dropped bit 30 and above in `construct_by_decomposition`.
+- **Ignoring the empty case.** Empty input and `n = 1` are where divisions by zero and off-by-ones hide.
+- **Mutating the caller's input.** The C++ matrix builder now takes its sums by value.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How is a constructive problem different from greedy or DP?">
+    Greedy and DP optimise a value over choices. A constructive problem asks for any object satisfying constraints. Greedy rules are a common way to build it, but the focus is on producing and proving the object, not on optimality.
+  </FaqItem>
+  <FaqItem question="How do I know my construction is complete?">
+    Show that if the input passes your feasibility test, the builder always succeeds, and that every input failing the test truly has no answer. A brute force on small inputs checks both directions.
+  </FaqItem>
+  <FaqItem question="Why is Havel-Hakimi correct?">
+    If a graph with the degree sequence exists, there is one in which the vertex of largest degree is adjacent to the next largest ones. Removing it and lowering their degrees leaves a smaller problem of the same kind. The repository's `construct_graph` is Havel-Hakimi and agreed with an Erdos-Gallai check on thousands of random sequences.
+  </FaqItem>
+  <FaqItem question="What does the matrix builder do with negative sums?">
+    Nothing special: it assumes non-negative row and column sums. With equal totals, the north-west corner rule always fills it.
+  </FaqItem>
+</Faq>

@@ -1,153 +1,91 @@
 # Mo's Algorithm
 
-**Mo's Algorithm** (also known as the Square Root Decomposition for Range Queries) is an offline algorithm for efficiently answering multiple range queries on an array. It uses square root decomposition and query sorting to achieve O((N + Q) × √N) time complexity.
+Mo's algorithm answers many offline range queries by sorting them so that a sliding window [L, R] moves as little as possible from one query to the next. If adding or removing one element is O(1), Q queries on N elements cost O((N + Q) sqrt N) in total.
 
----
+In this repository the maintained answer is fixed to one problem: the number of distinct values in a range.
 
-## Overview
+## Intuition
 
-Mo's Algorithm is designed for offline range query problems where:
-- You have multiple range queries to answer
-- Queries can be processed in any order
-- Each query asks about a range [L, R] in the array
-- You need to answer queries efficiently
+Keep a window and its answer. Moving a window edge by one element is cheap (`add` / `remove`), so the cost of a query is the distance the window edges travel. Sorting the queries by the block of `l` and then by `r` bounds the total travel: inside one block `r` sweeps right once and `l` moves at most one block width per query.
 
-The algorithm works by:
-1. Dividing array into blocks of size √N
-2. Sorting queries by block of left endpoint, then by right endpoint
-3. Processing queries in sorted order, maintaining a sliding window
-4. Answering each query using the current window state
+## Visual
 
-This approach minimizes window movements, leading to efficient query processing.
-
----
-
-## Key Characteristics
-
-1. **Offline Algorithm**: All queries must be known in advance
-2. **Square Root Decomposition**: Uses √N block size
-3. **Query Sorting**: Sorts queries for efficient processing
-4. **Sliding Window**: Maintains current range [L, R]
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `get_block(index)` | Get block number for index | O(1) |
-| `process_queries(arr, queries)` | Process all range queries | O((N + Q) × √N) |
-| `add(index)` | Add element at index to window | O(1) |
-| `remove(index)` | Remove element at index from window | O(1) |
-
-Where N is array size, Q is number of queries.
-
----
-
-## Implementation Approaches
-
-### 1. Standard Mo's Algorithm
-- **Pros**: Simple, works for most range query problems
-- **Cons**: Requires offline queries
-- **Use Case**: Range sum, range count, distinct elements
-
-### 2. Mo's with Updates
-- **Pros**: Handles point updates
-- **Cons**: More complex, O(N^(5/3)) complexity
-- **Use Case**: Range queries with updates
-
-### 3. Mo's on Trees
-- **Pros**: Extends to tree path queries
-- **Cons**: Requires Euler Tour
-- **Use Case**: Tree path queries
-
----
-
-## Applications
-
-1. **Range Sum Queries**: Sum of elements in range
-2. **Distinct Elements**: Count distinct elements in range
-3. **Range Frequency**: Frequency of elements in range
-4. **Inversion Count**: Count inversions in range
-5. **Offline Queries**: Any offline range query problem
-
----
-
-## Example Use Cases
-
-### Range Sum Queries
-```python
-arr = [1, 2, 3, 4, 5, 6, 7, 8]
-queries = [(0, 3), (2, 5), (1, 4)]
-mos = MoSAlgorithm(arr)
-results = mos.process_queries(queries)
-# Returns [10, 18, 14] (sums of ranges)
+```text
+arr   = [1, 1, 2, 1, 3, 4, 3, 3, 4]      block size = 3 (blocks of l: 0-2, 3-5, 6-8)
+query (2, 6):
+index   0  1  2  3  4  5  6  7  8
+value   1  1  2  1  3  4  3  3  4
+              L-----------R            window [2, 6] -> {2, 1, 3, 4} = 4 distinct
 ```
 
-### Distinct Elements
-```python
-arr = [1, 2, 1, 3, 2, 1, 4, 2]
-queries = [(0, 3), (2, 5)]
-# Count distinct elements in each range
-```
+## How It Works
 
----
+1. Block size `B = max(1, floor(sqrt(N)))`.
+2. Sort queries by `(l // B, r)` ascending (no odd-even trick).
+3. Start with an empty window (`cur_l = 0`, `cur_r = -1`).
+4. For each query: expand left, expand right, shrink left, shrink right, calling `add` or `remove` per element.
+5. Store the answer at the query's original index.
 
-## Implementations
+Expanding before shrinking keeps the window valid for every valid query (`l <= r`).
 
-This folder contains implementations in three languages:
+## Step-by-Step Trace
 
-- **Python** (`Python/`) - List-based implementation
-- **C++** (`C++/`) - Vector-based implementation
-- **Go** (`Go/`) - Slice-based implementation
+`arr = [1, 1, 2, 1, 3, 4, 3, 3, 4]`, `B = 3`, queries `(0,4) (6,8) (1,3) (5,7) (2,6)`. Sorted order and pointer moves:
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+| Order | Query | Moves | Running total |
+|-------|-------|-------|---------------|
+| 1 | (1, 3) | 5 | 5 |
+| 2 | (0, 4) | 2 | 7 |
+| 3 | (2, 6) | 4 | 11 |
+| 4 | (5, 7) | 4 | 15 |
+| 5 | (6, 8) | 2 | 17 |
 
----
+In input order the same queries would need 37 moves. Answers in input order: `[3, 2, 2, 2, 4]`.
 
-## Complexity Summary
+## Complexity
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **Construction** | O(N) | O(N) |
-| **Process Queries** | O((N + Q) × √N) | O(N + Q) |
-| **Add/Remove** | O(1) | O(1) |
-| **Answer Query** | O(1) | O(1) |
+| Part | Time | Space |
+|------|------|-------|
+| Sorting | O(Q log Q) | O(Q) |
+| Pointer movement | O((N + Q) sqrt N) | O(N) for the frequency map |
 
-Where N is array size, Q is number of queries.
-
----
+Why: one block's queries have increasing `r`, so `r` moves at most N per block and N * N / B overall; `l` moves at most about B per query, so Q * B overall. With `B = sqrt(N)` this is O((N + Q) sqrt N).
 
 ## When to Use
 
-- **Offline Queries**: When all queries are known in advance
-- **Multiple Queries**: When have many range queries
-- **Range Problems**: Range sum, count, frequency problems
-- **Competitive Programming**: Common in competitive programming
+Use it for offline range queries where the window answer can be updated by adding or removing one element (distinct count, frequency-based statistics). Do not use it when a prefix sum or segment tree answers the query, when queries must be answered online, or when the array changes between queries.
 
----
+## Mo's Algorithm vs. Alternatives
 
-## Related Patterns
+| Approach | Query time | Needs | Online |
+|----------|-----------|-------|--------|
+| Mo's algorithm | about O(sqrt N) amortized | O(1) add and remove | No |
+| Segment tree | O(log N) | an associative merge | Yes |
+| Prefix sums | O(1) | an invertible operation | Yes |
+| Brute force | O(N) | nothing | Yes |
 
-- **Square Root Decomposition**: Similar block-based approach
-- **Segment Trees**: Alternative for online queries
-- **Fenwick Trees**: Alternative for range sum queries
+## Common Pitfalls
 
----
+- Shrinking before expanding: counts can go negative.
+- Not restoring the input order of the answers.
+- Block size 0 on an empty array; the code uses a minimum of 1.
+- Slow `add` / `remove` multiplies the total by their cost.
+- Invalid queries (`l > r`) are not rejected; do not rely on their result.
 
-## Further Reading
+## Implementations
 
-- "Competitive Programming" by Halim & Halim
-- "Algorithm Design Manual" by Steven Skiena
-- Codeforces: Mo's Algorithm tutorials
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `mos_algorithm.py` | `MoSAlgorithm.process_queries`, `count_distinct_in_ranges` |
+| C++ | [C++/](C++/) | `mos_algorithm.cpp` | `countDistinctInRanges`, `unordered_map` frequencies |
+| Go | [Go/](Go/) | `main.go` | `countDistinctInRanges` (unexported), `[][]int` queries |
 
----
+## Practice Problems
 
-**Note**: Mo's Algorithm is most effective when you have many offline range queries. For online queries (queries arrive one by one), consider using segment trees or Fenwick trees instead. The algorithm works best when Q ≈ N.
+- [SPOJ DQUERY - D-query](https://www.spoj.com/problems/DQUERY/)
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Square Root Decomposition](../Square%20Root%20Decomposition/)
+- [Heavy-Light Decomposition](../Heavy-Light%20Decomposition/)
+- [Specialized Techniques overview](../)

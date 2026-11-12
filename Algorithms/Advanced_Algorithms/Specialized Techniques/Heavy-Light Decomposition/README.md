@@ -1,150 +1,96 @@
 # Heavy-Light Decomposition
 
-**Heavy-Light Decomposition (HLD)** is a technique for decomposing a tree into chains to enable efficient path queries and updates. It transforms tree path operations into segment tree operations, achieving O(log² N) per query.
+Heavy-light decomposition (HLD) cuts a rooted tree into vertical chains so that any root-to-node path crosses only O(log N) of them. The chains are laid out as contiguous ranges of an array, so a path between two nodes becomes O(log N) array ranges. Build is O(N); an LCA query is O(log N).
 
----
+In this repository HLD is implemented as the decomposition plus LCA (all languages) and path segments (`query_path`, Python only). There is no segment tree, path sum or path update in any language.
 
-## Overview
+## Intuition
 
-Heavy-Light Decomposition decomposes a tree into a set of disjoint paths (chains) such that:
-- Each node belongs to exactly one chain
-- Paths from root to any node traverse at most O(log N) chains
-- Each chain is a contiguous segment suitable for segment trees
+For every node, call the edge to its child with the largest subtree *heavy* and every other child edge *light*. Heavy edges form chains. Walking from any node up to the root, each light edge leads to a parent whose subtree is more than twice as large, so there are at most log2 N light edges, hence at most floor(log2 N) + 1 chains on any root path.
 
-The decomposition works by:
-1. Identifying "heavy" edges (edges to largest subtree)
-2. Forming chains along heavy edges
-3. Building segment trees on chains
-4. Answering path queries by combining chain queries
+Numbering nodes in pre-order, heavy child first, makes every chain a contiguous range of positions (and every subtree one too). A range structure such as a segment tree over those positions can then answer path queries.
 
-This enables efficient path queries, path updates, and LCA (Lowest Common Ancestor) operations.
+## Visual
 
----
-
-## Key Characteristics
-
-1. **Tree Decomposition**: Breaks tree into chains
-2. **Heavy Edges**: Edges to largest child subtree
-3. **Segment Trees**: Uses segment trees on chains
-4. **Logarithmic Chains**: At most O(log N) chains per path
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `dfs_size(u, p)` | Calculate subtree sizes | O(N) |
-| `decompose(u, h)` | Decompose tree into chains | O(N) |
-| `query_path(u, v)` | Query path from u to v | O(log² N) |
-| `update_path(u, v, val)` | Update path from u to v | O(log² N) |
-| `lca(u, v)` | Find lowest common ancestor | O(log N) |
-
----
-
-## Implementation Approaches
-
-### 1. Standard HLD
-- **Pros**: Handles path queries efficiently
-- **Cons**: O(log² N) per query
-- **Use Case**: Path sum, path maximum, path updates
-
-### 2. HLD with Lazy Propagation
-- **Pros**: Efficient range updates on chains
-- **Cons**: More complex implementation
-- **Use Case**: Range updates on paths
-
-### 3. HLD with Fenwick Trees
-- **Pros**: Simpler than segment trees
-- **Cons**: Limited to range sum queries
-- **Use Case**: Path sum queries only
-
----
-
-## Applications
-
-1. **Path Queries**: Sum, maximum, minimum on paths
-2. **Path Updates**: Updating values on paths
-3. **Tree Problems**: Many tree problems benefit from HLD
-4. **LCA Queries**: Finding lowest common ancestor
-5. **Competitive Programming**: Common in tree problems
-
----
-
-## Example Use Cases
-
-### Path Sum Query
-```python
-tree = [[1, 2], [0, 3, 4], [0], [1], [1]]
-hld = HLD(5, tree)
-hld.decompose(0, 0)
-result = hld.query_path(2, 4)
-# Returns sum of values on path from 2 to 4
+```text
+        0                 heavy edges: 0-1, 1-4, 4-6, 2-5
+       / \                chains: [0 1 4 6] head 0
+      1   2                       [3]       head 3
+     / \   \                      [2 5]     head 2
+    3   4   5
+        |                 pos (array order): 0 1 4 6 3 2 5
+        6                 i.e. pos = [0, 1, 5, 4, 2, 6, 3] by node id
 ```
 
-### Path Update
-```python
-hld.update_path(1, 3, 5)
-# Adds 5 to all nodes on path from 1 to 3
-```
+## How It Works
 
----
+1. `dfs_size`: from the root, compute `parent`, `depth`, `size` and `heavy[u]` (the first child with the largest size; `-1` for a leaf).
+2. `decompose`: pre-order, heavy child first. Set `head[u]` (top of the chain) and `pos[u]`. A heavy child inherits the head; a light child becomes its own head.
+3. `lca(u, v)`: while `head[u] != head[v]`, move the node whose head is deeper to the parent of its head. Then the shallower node is the LCA.
+4. `query_path(u, v)` (Python): the same climb, but it records `(pos[head[u]], pos[u])` for each chain and a final `(pos[shallower], pos[deeper])`.
 
-## Implementations
+`build(root)` resets its working state, so it can be called repeatedly.
 
-This folder contains implementations in three languages:
+## Step-by-Step Trace
 
-- **Python** (`Python/`) - List-based implementation
-- **C++** (`C++/`) - Vector-based implementation
-- **Go** (`Go/`) - Slice-based implementation
+Tree above, `query_path(3, 6)`:
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+| Step | u | v | Action |
+|------|---|---|--------|
+| 1 | 3 | 6 | head[3] = 3, head[6] = 0; chain head 3 is deeper, emit (4, 4), jump to parent[3] = 1 |
+| 2 | 1 | 6 | same chain; node 1 is shallower, emit (1, 3) |
 
----
+Result `[(4, 4), (1, 3)]`: positions 4, 1, 2, 3 are nodes 3, 1, 4, 6. `lca(3, 6)` is 1.
 
-## Complexity Summary
+## Complexity
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **Construction** | O(N) | O(N) |
-| **Path Query** | O(log² N) | O(1) |
-| **Path Update** | O(log² N) | O(1) |
-| **LCA** | O(log N) | O(1) |
+| Operation | Time | Space |
+|-----------|------|-------|
+| Build | O(N) | O(N) |
+| `lca` | O(log N) | O(1) |
+| `query_path` | O(log N) segments | O(log N) |
+| Path sum with a segment tree (not implemented) | O(log^2 N) | O(N) |
 
-Where N is number of nodes.
-
----
+Why: each loop iteration crosses one chain, and a path crosses O(log N) chains; a range structure adds another O(log N) per chain.
 
 ## When to Use
 
-- **Path Queries**: When need to query tree paths
-- **Path Updates**: When need to update tree paths
-- **Tree Problems**: Complex tree problems
-- **Competitive Programming**: Tree problems in contests
+Use it for many online queries or updates on tree paths or subtrees, on a static tree. If you only need LCA, binary lifting or an Euler tour with a sparse table is simpler.
 
----
+## HLD vs. Alternatives
 
-## Related Patterns
+| Technique | LCA | Path query/update | Memory |
+|-----------|-----|-------------------|--------|
+| HLD | O(log N) | O(log^2 N) with a segment tree | O(N) |
+| Binary lifting | O(log N) | static aggregates only | O(N log N) |
+| Euler tour + sparse table | O(1) | no | O(N log N) |
+| Centroid decomposition | no | offline all-pairs | O(N) |
 
-- **Segment Trees**: Used on chains
-- **Tree Traversal**: DFS for decomposition
-- **LCA Algorithms**: Alternative LCA methods
+## Common Pitfalls
 
----
+- Calling `decompose` without `dfs_size` first (no heavy children, broken chains); use `build`.
+- Climbing from the deeper node instead of the node whose chain head is deeper.
+- Off-by-one in the last segment: it is inclusive on both ends.
+- Indexing the segment tree by node id instead of `pos[u]`.
+- Edge-valued paths: the LCA node must be excluded from the final segment.
+- Very deep trees: C++ and Go use recursion in `dfsSize` and `decompose`; Python is iterative.
 
-## Further Reading
+## Implementations
 
-- "Competitive Programming" by Halim & Halim
-- "Algorithm Design Manual" by Steven Skiena
-- Codeforces: Heavy-Light Decomposition tutorials
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `heavy_light_decomposition.py` | `build`, `lca`, `query_path`; iterative passes |
+| C++ | [C++/](C++/) | `heavy_light_decomposition.cpp` | `build`, `lca`; recursive |
+| Go | [Go/](Go/) | `main.go` | `Build`, `LCA`; recursive |
 
----
+## Practice Problems
 
-**Note**: HLD is most effective for path queries and updates. For subtree queries, consider using Euler Tour or DFS order with segment trees. The O(log² N) complexity comes from O(log N) chains × O(log N) segment tree query per chain.
+- [CSES - Path Queries](https://cses.fi/problemset/task/1138)
+- [CSES - Path Queries II](https://cses.fi/problemset/task/2134)
+- [LeetCode 236 - Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Centroid Decomposition](../Centroid%20Decomposition/)
+- [Square Root Decomposition](../Square%20Root%20Decomposition/)
+- [Specialized Techniques overview](../)

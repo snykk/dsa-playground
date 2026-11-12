@@ -1,65 +1,35 @@
-# Heavy-Light Decomposition - C++
+# Heavy-Light Decomposition -- C++ Implementation
 
-This folder contains a C++ implementation of **Heavy-Light Decomposition (HLD)** for efficient tree path queries.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `heavy_light_decomposition.cpp` | the `HLD` class and a demo `main()` (compiled out with `-DIS_TEST_BUILD`) |
+| `heavy_light_decomposition_test.cpp` | assert-based tests (LCA, rebuild) |
 
-## Concept
+## API
 
-Heavy-Light Decomposition decomposes a tree into chains (heavy paths) to enable efficient path queries. Each path query can be answered in O(log² N) time.
+| Member | Description |
+|--------|-------------|
+| `HLD(int n, const vector<vector<int>>& adj)` | copies the adjacency list of a tree on `0..n-1` |
+| `void build(int root = 0)` | resets state and builds the decomposition |
+| `int lca(int u, int v)` | lowest common ancestor, O(log n) |
 
-**Key Features:**
-- Tree decomposition into chains
-- Efficient LCA computation
-- Path query optimization
-- O(log² N) per query
+There is no path-query or segment-tree API in C++; only `lca`.
 
----
+## C++-Specific Notes
 
-## Functions
+- `dfsSize` and `decompose` are recursive; a very deep tree can overflow the stack.
+- The decomposition arrays are private; only `lca` is exposed.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `HLD.build(root)` | Build HLD structure | O(N) |
-| `HLD.lca(u, v)` | Find lowest common ancestor | O(log N) |
-| `HLD.queryPath(u, v)` | Get path segments | O(log N) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Build HLD | O(N) | O(N) |
-| LCA Query | O(log N) | O(1) |
-| Path Query | O(log² N) | O(log N) |
-
----
-
-## Usage
-
-```cpp
-#include "heavy_light_decomposition.cpp"
-
-int n = 7;
-vector<vector<int>> adj(n);
-// ... build adjacency list
-
-HLD hld(n, adj);
-hld.build(0);
-
-int lca = hld.lca(3, 6);
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-g++ -o test heavy_light_decomposition_test.cpp && ./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD heavy_light_decomposition_test.cpp -o test && ./test
+g++ -std=c++17 -O2 heavy_light_decomposition.cpp -o demo && ./demo
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- The C++ version implements the decomposition and LCA only.
+- `build` can be called repeatedly.

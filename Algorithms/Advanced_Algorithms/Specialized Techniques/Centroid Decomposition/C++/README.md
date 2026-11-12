@@ -1,63 +1,34 @@
-# Centroid Decomposition - C++
+# Centroid Decomposition -- C++ Implementation
 
-This folder contains a C++ implementation of **Centroid Decomposition** for tree problems.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `centroid_decomposition.cpp` | the `CentroidDecomposition` class and a demo `main()` (compiled out with `-DIS_TEST_BUILD`) |
+| `centroid_decomposition_test.cpp` | assert-based tests |
 
-## Concept
+## API
 
-Centroid Decomposition recursively decomposes a tree by repeatedly removing centroids. Useful for solving various tree problems efficiently.
+| Member | Description |
+|--------|-------------|
+| `CentroidDecomposition(int n, const vector<vector<int>>& adj)` | copies the adjacency list of a tree on `0..n-1` |
+| `void build(int root = 0)` | resets state and decomposes the component containing `root` |
+| `vector<int> getParent() const` | centroid-tree parent of each node, `-1` for the root |
 
-**Key Features:**
-- Tree decomposition by centroids
-- Divide-and-conquer approach
-- O(N log N) construction
-- Useful for tree problems
+## C++-Specific Notes
 
----
+- Subtree sizes are computed by a recursive DFS, so recursion depth equals the component's depth. A path of hundreds of thousands of nodes can overflow the default stack.
+- The class copies `adj` and stores `removed` as `vector<bool>`.
+- There is no centroid-tree adjacency list; build it from `getParent()`.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `CentroidDecomposition.build(root)` | Build centroid tree | O(N log N) |
-| `getParent()` | Get parent array | O(1) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Build Decomposition | O(N log N) | O(N) |
-| Get Parent | O(1) | O(N) |
-
----
-
-## Usage
-
-```cpp
-#include "centroid_decomposition.cpp"
-
-int n = 7;
-vector<vector<int>> adj(n);
-// ... build adjacency list
-
-CentroidDecomposition cd(n, adj);
-cd.build(0);
-
-vector<int> parent = cd.getParent();
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-g++ -o test centroid_decomposition_test.cpp && ./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD centroid_decomposition_test.cpp -o test && ./test
+g++ -std=c++17 -O2 centroid_decomposition.cpp -o demo && ./demo
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Same algorithm as Python, but with a recursive size DFS.
+- `build` can be called repeatedly; it resets `removed` and `parent`.

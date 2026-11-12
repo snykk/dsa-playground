@@ -1,61 +1,34 @@
-# Square Root Decomposition - C++
+# Square Root Decomposition -- C++ Implementation
 
-This folder contains a C++ implementation of **Square Root Decomposition** for efficient range queries.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `square_root_decomposition.cpp` | the `SqrtDecomposition` class and a demo `main()` (compiled out with `-DIS_TEST_BUILD`) |
+| `square_root_decomposition_test.cpp` | assert-based tests |
 
-## Concept
+## API
 
-Square Root Decomposition divides an array into blocks of size √N to enable efficient range queries and updates. Each query/update takes O(√N) time.
+| Member | Description |
+|--------|-------------|
+| `SqrtDecomposition(const vector<int>& arr)` | copies `arr`, block size `max(1, ceil(sqrt(n)))` |
+| `void update(int index, int value)` | sets `arr[index]`, O(1) |
+| `int query(int left, int right)` | inclusive range sum, O(sqrt n) |
 
-**Key Features:**
-- Array decomposition into blocks
-- Efficient range queries
-- Point updates
-- O(√N) per operation
+## C++-Specific Notes
 
----
+- Sums are `int`; very large totals overflow.
+- Indices are not validated.
+- `using namespace std;` is at file scope because the tests `#include` the `.cpp`.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `SqrtDecomposition.update(index, value)` | Update value at index | O(1) |
-| `SqrtDecomposition.query(left, right)` | Query sum in range | O(√N) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Query | O(√N) | O(1) |
-| Update | O(1) | O(1) |
-| Construction | O(N) | O(√N) |
-
----
-
-## Usage
-
-```cpp
-#include "square_root_decomposition.cpp"
-
-vector<int> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-SqrtDecomposition sd(arr);
-
-int result = sd.query(2, 7);  // Sum of range [2, 7]
-sd.update(5, 20);  // Update index 5 to 20
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-g++ -o test square_root_decomposition_test.cpp && ./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD square_root_decomposition_test.cpp -o test && ./test
+g++ -std=c++17 -O2 square_root_decomposition.cpp -o demo && ./demo
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Same algorithm as Python.
+- Empty input is safe: the block size is clamped to 1.

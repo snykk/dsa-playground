@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iostream>
 #include <vector>
 #include "mos_algorithm.cpp"
 
@@ -19,9 +20,24 @@ void testSingleElement() {
     assert(results[0] == 1);
 }
 
+void testEmptyArrayNoQueries() {
+    vector<int> arr;
+    vector<pair<int, int>> queries;
+    assert(countDistinctInRanges(arr, queries).empty());
+}
+
+void testAnswersFollowInputOrder() {
+    vector<int> arr = {1, 2, 1, 3, 2, 3, 4};
+    vector<pair<int, int>> queries = {{5, 6}, {0, 0}, {2, 4}, {0, 6}, {3, 3}};
+    vector<int> expected = {2, 1, 3, 4, 1};
+    assert(countDistinctInRanges(arr, queries) == expected);
+}
+
 int main() {
     testCountDistinct();
     testSingleElement();
+    testEmptyArrayNoQueries();
+    testAnswersFollowInputOrder();
     std::cout << "All tests passed!" << std::endl;
     return 0;
 }

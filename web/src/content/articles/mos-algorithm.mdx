@@ -1,0 +1,218 @@
+---
+topic: Algorithms/Advanced_Algorithms/Specialized Techniques/Mo's Algorithm
+title: Mo's Algorithm
+lead: Mo's algorithm answers many offline range queries by reordering them so that a sliding window [L, R] moves as little as possible between consecutive queries. When adding or removing one element is cheap, Q queries on an array of N elements cost O((N + Q) sqrt N) in total.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Total time
+    value: O((N + Q) sqrt N)
+    hint: with block size sqrt N
+  - label: Per pointer move
+    value: O(1)
+    hint: add or remove one element
+  - label: Extra space
+    value: O(N + Q)
+    hint: query order and answers, plus the frequency map
+  - label: Requirement
+    value: Offline only
+    hint: all queries must be known up front
+    tone: warn
+properties:
+  - { label: Offline, value: true }
+  - { label: Supports updates between queries, value: false }
+  - { label: Needs add and remove in O(1), value: true }
+prerequisites:
+  - Algorithms/Advanced_Algorithms/Specialized Techniques/Square Root Decomposition
+  - Problem_Patterns/Two Pointers
+related:
+  - Algorithms/Advanced_Algorithms/Specialized Techniques/Square Root Decomposition
+  - Data Structures/Non_Linear/Trees/Segment Tree
+  - Problem_Patterns/Sliding Window
+---
+
+## When to use it
+
+Mo's algorithm fits when all of these hold:
+
+- You get **many range queries** `[l, r]` on a fixed array (no updates between them).
+- You may answer them in **any order**, then report in the original order (offline).
+- The answer for a window can be maintained by **adding or removing one element** in O(1) or O(log n).
+- The answer is not decomposable into a segment tree or prefix sums, for example "number of distinct values in `[l, r]`" or "number of values that occur exactly `k` times".
+
+If a prefix-sum or segment tree answers the query, use that: it is simpler and online.
+
+## How it works
+
+Keep a window `[current_l, current_r]` and its answer. To move to the next query, grow or shrink the window one element at a time. The trick is the order of the queries.
+
+<Steps>
+  <Step title="Choose a block size">
+    Split the indices into blocks of size `B = floor(sqrt(N))`, with a minimum of 1. Index `i` is in block `i // B`.
+  </Step>
+  <Step title="Sort the queries">
+    Sort them by the block of `l`, and inside one block by `r` ascending. This implementation does not use the odd-even `r` trick.
+  </Step>
+  <Step title="Slide the window">
+    For each query in sorted order, move the window pointers to `l` and `r`: first expand (`l` left, `r` right), then shrink. Each step calls `add` or `remove` on one element.
+  </Step>
+  <Step title="Store the answer by original index">
+    Write the answer to `answers[query_index]`, so the output follows the input order.
+  </Step>
+</Steps>
+
+<Callout title="Why expanding first matters">
+The window starts empty (`current_r = -1`). Expanding before shrinking keeps it from ever becoming invalid for valid queries (`l <= r`), so the frequency of every value stays non-negative and the counted answer is correct at every step.
+</Callout>
+
+## Why it is fast
+
+Fix one block of `l` values. Its queries are sorted by `r`, so across them `r` only moves right: at most N moves in total for that block. With N / B blocks, `r` moves at most N * N / B times. The left pointer stays inside one block, so it moves at most B for each query, plus at most B to cross to the next block: about Q * B in total.
+
+<Equation label="Pointer moves" expr="N * (N / B) + Q * B" result="O((N + Q) sqrt N) when B = sqrt N" />
+
+With the right block size the sum is minimised. If Q is much larger or smaller than N, choosing `B = N / sqrt(Q)` gives `O(N sqrt Q)`; the repository always uses `sqrt N`.
+
+## Worked example
+
+Take `arr = [1, 1, 2, 1, 3, 4, 3, 3, 4]` (N = 9, block size 3) and the queries `(0, 4)`, `(6, 8)`, `(1, 3)`, `(5, 7)`, `(2, 6)`, counting distinct values. The blocks of `l` are 0, 2, 0, 1 and 0, so the sorted order is `(1, 3)`, `(0, 4)`, `(2, 6)`, `(5, 7)`, `(6, 8)`.
+
+<DataTable
+  columns={['Order', 'Query', 'Block of l', 'Pointer moves', 'Running total']}
+  rows={[
+    ['1', '(1, 3)', '0', '5', '5'],
+    ['2', '(0, 4)', '0', '2', '7'],
+    ['3', '(2, 6)', '0', '4', '11'],
+    ['4', '(5, 7)', '1', '4', '15'],
+    ['5', '(6, 8)', '2', '2', '17']
+  ]}
+/>
+
+Answering the same five queries in input order would take 5 + 10 + 10 + 8 + 4 = 37 pointer moves. The window for the third query, `(2, 6)`, looks like this:
+
+<ArrayDiagram
+  legend={{ l: 'inside the window [2, 6]', m: 'outside the window' }}
+  rows={[
+    { label: 'arr', values: [1, 1, 2, 1, 3, 4, 3, 3, 4], tones: 'mmlllllmm', marks: { 2: 'L', 6: 'R' }, note: 'Distinct values in the window: 2, 1, 3, 4, so the answer is 4.' },
+  ]}
+/>
+
+The answers, in input order, are `[3, 2, 2, 2, 4]`.
+
+## Pseudocode
+
+```text
+process_queries(arr, queries):
+    B = max(1, floor(sqrt(n)))
+    order = queries with their indices, sorted by (l // B, r)
+    cur_l = 0; cur_r = -1; ans = 0; freq = {}
+    for (idx, (l, r)) in order:
+        while cur_l > l:  cur_l -= 1;  ans = add(ans, arr[cur_l], freq)
+        while cur_r < r:  cur_r += 1;  ans = add(ans, arr[cur_r], freq)
+        while cur_l < l:  ans = remove(ans, arr[cur_l], freq);  cur_l += 1
+        while cur_r > r:  ans = remove(ans, arr[cur_r], freq);  cur_r -= 1
+        answers[idx] = ans
+    return answers
+
+add(ans, value, freq):     freq[value] += 1;  return ans + 1 if freq[value] == 1 else ans
+remove(ans, value, freq):  freq[value] -= 1;  return ans - 1 if freq[value] == 0 else ans
+```
+
+## Implementation
+
+All three languages implement exactly one query type: **the number of distinct values in a range**. `add` and `remove` are hard-wired to that. To solve another problem (sum of squares of frequencies, number of values occurring exactly `k` times), replace those two functions and keep the rest.
+
+- **Python:** `MoSAlgorithm(arr).process_queries(queries)` with `(l, r)` tuples, plus `count_distinct_in_ranges(arr, queries)`.
+- **C++:** the same class, and `countDistinctInRanges(arr, queries)` with a `vector<pair<int, int>>`.
+- **Go:** `NewMoSAlgorithm`, `processQueries` and `countDistinctInRanges` with `[][]int` queries (the package is `main`, so these are not exported).
+
+The frequency map is a hash map in every language. Queries are 0-indexed and inclusive.
+
+<TopicCode topic="Algorithms/Advanced_Algorithms/Specialized Techniques/Mo's Algorithm" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Sorting the queries', time: 'O(Q log Q)', when: 'One comparison sort on (block, r).' },
+    { case: 'Pointer movement', time: 'O((N + Q) sqrt N)', when: 'The bound derived above, with each move costing one hash-map update, O(1) on average.', space: 'O(N + Q)' },
+  ]}
+/>
+
+## Variants and design choices
+
+<DataTable
+  columns={['Variant', 'Idea', 'When']}
+  rows={[
+    ['Odd-even ordering', 'sort r ascending in even blocks, descending in odd blocks', 'reduces the back-and-forth movement of r; not used here'],
+    ['Mo with updates', 'adds a time dimension, block size about n^(2/3)', 'point updates between queries, O(n^(5/3))'],
+    ['Mo on trees', 'run it on an Euler tour of the tree', 'path queries such as distinct values on a path'],
+    ['Rollback Mo', 'only add elements and undo them', 'when remove is hard (for example maximum)']
+  ]}
+/>
+
+## Mo vs alternatives
+
+<DataTable
+  columns={['Approach', 'Query time', 'Needs', 'Online']}
+  highlight={0}
+  rows={[
+    ['Mo\'s algorithm', 'O(sqrt N) amortized', 'O(1) add and remove', 'No'],
+    ['Segment tree', 'O(log N)', 'an associative merge', 'Yes'],
+    ['Prefix sums', 'O(1)', 'an invertible operation', 'Yes'],
+    ['Persistent segment tree', 'O(log N)', 'more code; works for distinct counts', 'Yes'],
+    ['Brute force per query', 'O(N)', 'nothing', 'Yes']
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Solves queries that no segment tree handles directly.',
+    'Tiny amount of code: a sort and four loops.',
+    'Works with any add and remove pair, so the same skeleton fits many problems.',
+    'Small memory: O(N + Q).',
+  ]}
+  cons={[
+    'Offline only: you must know all queries before answering.',
+    'O((N + Q) sqrt N) is slower than the O(log N) of a segment tree when one fits.',
+    'Needs fast add and remove; hard when one of them is not O(1).',
+    'In this repository the aggregate is fixed to distinct counting.',
+  ]}
+/>
+
+## Applications
+
+- Distinct values in a range (SPOJ DQUERY is the classic version).
+- Number of values with a given frequency, or sums of squares of frequencies.
+- Counting inversions or pairs in a range.
+- Path queries on trees via an Euler tour.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Shrinking before expanding.** The window may go temporarily invalid and a count can go negative. Expand first, then shrink.
+- **Forgetting to restore the original order.** Store answers at `answers[query_index]`.
+- **Block size 0.** `floor(sqrt(N))` is 0 for an empty array. The code uses a minimum of 1.
+- **Slow add and remove.** An O(log n) operation turns the total into O((N + Q) sqrt N log N); a TLE is common.
+- **Updating the array between queries.** The algorithm assumes it never changes.
+- **Off-by-one on inclusive ranges.** Both `l` and `r` are inclusive; the empty window is `cur_l = 0, cur_r = -1`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why sort by r inside a block?">
+    Within a block, `l` can only change by at most `B`, while `r` sweeps right once for the whole block. Sorting by `r` makes that sweep monotone, which is where the O(N) per block bound comes from.
+  </FaqItem>
+  <FaqItem question="Can Mo's algorithm handle updates?">
+    Not this version. A variant with a time dimension handles point updates in about O(n^(5/3)); it is not implemented here.
+  </FaqItem>
+  <FaqItem question="What happens with an invalid query where l is greater than r?">
+    The implementations do not reject it. The window moves to an inverted range and the frequency map can hold negative counts temporarily, but later answers stay correct because the counts remain a consistent signed tally. Do not rely on the value returned for the invalid query itself.
+  </FaqItem>
+  <FaqItem question="Is the sorted answer order the same as the input order?">
+    Yes. Queries are processed in sorted order but the answers are returned in the input order.
+  </FaqItem>
+</Faq>
