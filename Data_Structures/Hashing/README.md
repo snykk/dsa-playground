@@ -13,28 +13,24 @@ Hashing is a technique that maps data of arbitrary size to fixed-size values (ha
 ## Data Structures
 
 ### 1. Hash Table
-- Basic hash table with key-value pairs
+- Basic hash table (hash map) with key-value pairs
 - Collision handling using chaining
 - Dynamic resizing
+- Map helpers: get with default, insert if absent, bulk update, copy, iteration
 
-### 2. Hash Map
-- Extended hash table with additional features
-- Iterator support and convenience methods
-- Better language integration
-
-### 3. Hash Set
+### 2. Hash Set
 - Stores unique elements only (no values)
 - Fast membership testing
 - Based on hash table internally
 
-### 4. Collision Handling
+### 3. Collision Handling
 - **Chaining**: Store colliding elements in linked lists
 - **Open Addressing**: Find next available slot using probing
   - Linear Probing
   - Quadratic Probing
   - Double Hashing
 
-### 5. Bloom Filter
+### 4. Bloom Filter
 - Probabilistic data structure for membership testing
 - Space-efficient with configurable error rate
 - No false negatives, possible false positives
@@ -109,7 +105,7 @@ All implementations include:
 
 1. **Hash Table**: Start with basic hash table
 2. **Collision Handling**: Understand chaining and open addressing
-3. **Hash Map/Set**: Learn variations
+3. **Hash Set**: Learn the set variation
 4. **Bloom Filter**: Explore probabilistic structures
 
 ---

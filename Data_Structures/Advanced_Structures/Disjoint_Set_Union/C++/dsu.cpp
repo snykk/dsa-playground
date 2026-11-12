@@ -4,12 +4,14 @@
  * Standalone DSU focused on the data-structure perspective: core operations,
  * path compression, union by rank, component counting and enumeration.
  *
- * For graph-algorithm applications see
- * Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU/.
+ * Also includes the graph-algorithm view: connected components, cycle
+ * detection in an undirected graph and Kruskal's MST.
  */
 
 #include <vector>
 #include <stdexcept>
+#include <algorithm>
+#include <array>
 #include <numeric>
 #include <unordered_map>
 
@@ -95,6 +97,11 @@ public:
         return componentCount;
     }
 
+    /** Alias of getComponentCount. */
+    int getCount() const {
+        return componentCount;
+    }
+
     /**
      * Return a mapping from each root to the list of elements in its set.
      * Time: O(n)
@@ -122,3 +129,44 @@ public:
         return parent[x];
     }
 };
+
+using UnionFind = DSU;
+
+/**
+ * Connected components of an undirected graph on vertices 0..n-1.
+ * Time: O(E alpha(n) + n)
+ */
+std::vector<std::vector<int>> connectedComponents(const std::vector<std::pair<int, int>>& edges, int n) {
+    DSU dsu(n);
+    for (const auto& e : edges) dsu.unite(e.first, e.second);
+    std::vector<std::vector<int>> result;
+    for (auto& kv : dsu.getComponents()) result.push_back(kv.second);
+    return result;
+}
+
+/**
+ * True if the undirected graph has a cycle (self-loops and parallel edges count).
+ * Time: O(E alpha(n))
+ */
+bool hasCycle(const std::vector<std::pair<int, int>>& edges, int n) {
+    DSU dsu(n);
+    for (const auto& e : edges) {
+        if (!dsu.unite(e.first, e.second)) return true;
+    }
+    return false;
+}
+
+/**
+ * Kruskal's minimum spanning forest; edges are {u, v, weight}.
+ * Time: O(E log E + E alpha(n))
+ */
+std::vector<std::array<int, 3>> kruskalMST(std::vector<std::array<int, 3>> edges, int n) {
+    std::sort(edges.begin(), edges.end(),
+              [](const std::array<int, 3>& a, const std::array<int, 3>& b) { return a[2] < b[2]; });
+    DSU dsu(n);
+    std::vector<std::array<int, 3>> mst;
+    for (const auto& e : edges) {
+        if (dsu.unite(e[0], e[1])) mst.push_back(e);
+    }
+    return mst;
+}

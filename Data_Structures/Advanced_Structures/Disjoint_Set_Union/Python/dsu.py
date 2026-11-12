@@ -4,8 +4,10 @@ Disjoint Set Union (DSU) Data Structure
 A standalone DSU focused on the data-structure perspective: core operations,
 path compression, union by rank, component counting and enumeration.
 
-For graph-algorithm applications (cycle detection, Kruskal's MST, etc.),
-see Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU/.
+The module also has the graph-algorithm view of the structure: connected
+components, cycle detection in an undirected graph, Kruskal's MST and the
+largest component. UnionFind is an alias of DSU (with count / get_count) kept
+for the web visualizer's fixture generator.
 """
 
 from typing import Dict, List
@@ -113,6 +115,15 @@ class DSU:
         """
         return self.find(x) == self.find(y)
 
+    @property
+    def count(self) -> int:
+        """Number of disjoint sets (same value as get_component_count)."""
+        return self._count
+
+    def get_count(self) -> int:
+        """Alias of get_component_count."""
+        return self._count
+
     def get_parent(self, x: int) -> int:
         """
         Return the direct parent of x without compressing (useful in tests).
@@ -162,6 +173,64 @@ class DSU:
         Time:  O(alpha(n)) amortized
         """
         return self.size[self.find(x)]
+
+
+# Alias: the union-find name used by the graph-algorithm view and the web fixtures.
+UnionFind = DSU
+
+
+def connected_components(edges: List[tuple], n: int) -> List[List[int]]:
+    """
+    Connected components of an undirected graph on vertices 0..n-1.
+
+    Time:  O(E alpha(n) + n)
+    """
+    dsu = DSU(n)
+    for u, v in edges:
+        dsu.union(u, v)
+    return list(dsu.get_components().values())
+
+
+def has_cycle(edges: List[tuple], n: int) -> bool:
+    """
+    True if the undirected graph contains a cycle (an edge joining two
+    vertices that are already connected). Self-loops and parallel edges count.
+
+    Time:  O(E alpha(n))
+    """
+    dsu = DSU(n)
+    for u, v in edges:
+        if not dsu.union(u, v):
+            return True
+    return False
+
+
+def kruskal_mst(edges: List[tuple], n: int) -> List[tuple]:
+    """
+    Minimum spanning forest by Kruskal's algorithm; edges are (u, v, weight).
+
+    Time:  O(E log E + E alpha(n))
+    """
+    dsu = DSU(n)
+    mst = []
+    for u, v, weight in sorted(edges, key=lambda e: e[2]):
+        if dsu.union(u, v):
+            mst.append((u, v, weight))
+            if len(mst) == n - 1:
+                break
+    return mst
+
+
+def largest_component(edges: List[tuple], n: int) -> List[int]:
+    """
+    Vertices of the largest connected component ([] for an empty graph).
+
+    Time:  O(E alpha(n) + n)
+    """
+    components = connected_components(edges, n)
+    if not components:
+        return []
+    return max(components, key=len)
 
 
 if __name__ == "__main__":

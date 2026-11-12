@@ -39,7 +39,7 @@ export const entries: VizInfo[] = [
     title: 'Union-Find (Disjoint Sets)',
     group: 'Graphs',
     blurb: 'Trees of parent pointers: union by rank keeps them short and path compression flattens them.',
-    topics: [`${ADV}/Union_Find_DSU`, 'Problem_Patterns/Union_Find_Applications', 'Data_Structures/Advanced_Structures/Disjoint_Set_Union'],
+    topics: ['Data_Structures/Advanced_Structures/Disjoint_Set_Union', 'Problem_Patterns/Union_Find_Applications'],
   },
 ];
 

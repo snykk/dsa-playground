@@ -6,6 +6,8 @@
 #include <cassert>
 #include <algorithm>
 #include <stdexcept>
+#include <random>
+#include <vector>
 #include "dsu.cpp"
 
 void testInitialization() {
@@ -178,6 +180,71 @@ void testGetSize() {
     std::cout << "  [PASS] Get size" << std::endl;
 }
 
+// Random union/connected sequences checked against a label array.
+void testAgainstBruteForce() {
+    std::mt19937 rng(7);
+    for (int round = 0; round < 200; round++) {
+        int n = 1 + (int)(rng() % 12);
+        DSU dsu(n);
+        std::vector<int> label(n);
+        for (int i = 0; i < n; i++) label[i] = i;
+        int ops = (int)(rng() % 40);
+        for (int k = 0; k < ops; k++) {
+            int x = (int)(rng() % n), y = (int)(rng() % n);
+            if (rng() % 10 < 6) {
+                bool merged = label[x] != label[y];
+                assert(dsu.unite(x, y) == merged);
+                int oldL = label[y], newL = label[x];
+                for (int& v : label) if (v == oldL) v = newL;
+            } else {
+                assert(dsu.connected(x, y) == (label[x] == label[y]));
+            }
+            std::vector<int> sorted(label);
+            std::sort(sorted.begin(), sorted.end());
+            int distinct = (int)(std::unique(sorted.begin(), sorted.end()) - sorted.begin());
+            assert(dsu.getComponentCount() == distinct);
+            assert(dsu.getSize(x) == (int)std::count(label.begin(), label.end(), label[x]));
+        }
+    }
+    std::cout << "  [PASS] Random sequences against brute force" << std::endl;
+}
+
+// The eight-singleton trace from the README, plus the UnionFind alias.
+void testPairwiseMerges() {
+    UnionFind uf(8);
+    int pairs[7][2] = {{0, 1}, {2, 3}, {0, 2}, {4, 5}, {6, 7}, {4, 6}, {0, 4}};
+    for (auto& p : pairs) assert(uf.unite(p[0], p[1]));
+    assert(uf.getCount() == 1);
+    for (int i = 1; i < 8; i++) assert(uf.connected(0, i));
+    assert(!uf.unite(3, 7));
+    assert(uf.getCount() == 1);
+    std::cout << "  [PASS] Pairwise merges" << std::endl;
+}
+
+// Union by rank keeps trees shallow, so the recursive find is safe on a long chain.
+void testLongChain() {
+    const int n = 1000000;
+    DSU dsu(n);
+    for (int i = 0; i + 1 < n; i++) dsu.unite(i, i + 1);
+    assert(dsu.getComponentCount() == 1);
+    assert(dsu.connected(0, n - 1));
+    std::cout << "  [PASS] Long chain" << std::endl;
+}
+
+void testGraphApplications() {
+    std::vector<std::pair<int, int>> edges = {{0, 1}, {1, 2}, {3, 4}};
+    assert(connectedComponents(edges, 5).size() == 2);
+    assert(!hasCycle(edges, 5));
+    assert(hasCycle({{0, 1}, {1, 2}, {2, 0}}, 3));
+    assert(hasCycle({{0, 0}}, 1));
+    std::vector<std::array<int, 3>> weighted = {{0, 1, 4}, {0, 2, 8}, {1, 2, 2}, {1, 3, 5}, {2, 3, 10}};
+    auto mst = kruskalMST(weighted, 4);
+    int total = 0;
+    for (auto& e : mst) total += e[2];
+    assert(mst.size() == 3 && total == 11);
+    std::cout << "  [PASS] Graph applications" << std::endl;
+}
+
 int main() {
     std::cout << "Running DSU tests..." << std::endl;
     testInitialization();
@@ -193,6 +260,10 @@ int main() {
     testGetComponents();
     testGetComponentsSingleComponent();
     testGetSize();
+    testAgainstBruteForce();
+    testPairwiseMerges();
+    testLongChain();
+    testGraphApplications();
     std::cout << "\nAll tests passed!" << std::endl;
     return 0;
 }

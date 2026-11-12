@@ -113,7 +113,6 @@ Linear probing needs a < 1 and degrades fast near 1, so real tables stay below r
 ## Related
 
 - [Hash Table](../Hash_Table/README.md)
-- [Hash Map](../Hash_Map/README.md)
 - [Hash Set](../Hash_Set/README.md)
 - [Bloom Filter](../Bloom_Filter/README.md)
 - [Hashing overview](../README.md)

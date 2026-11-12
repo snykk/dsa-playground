@@ -2,11 +2,14 @@
 // with path compression and union by rank.
 //
 // This is a standalone data-structure implementation focused on core
-// operations, optimizations, and component enumeration. For graph-algorithm
-// applications see Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU/.
+// operations, optimizations, and component enumeration. It also has the
+// graph-algorithm view: connected components, cycle detection and Kruskal's MST.
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 // DSU represents a Disjoint Set Union data structure.
 type DSU struct {
@@ -78,6 +81,11 @@ func (d *DSU) GetComponentCount() int {
 	return d.count
 }
 
+// GetCount is an alias of GetComponentCount.
+func (d *DSU) GetCount() int {
+	return d.count
+}
+
 // GetComponents returns a mapping from each root to the list of elements
 // in its set.
 // Time: O(n)
@@ -99,6 +107,59 @@ func (d *DSU) GetSize(x int) int {
 // GetParent returns the direct parent of x (useful for testing path compression).
 func (d *DSU) GetParent(x int) int {
 	return d.parent[x]
+}
+
+// UnionFind is the name used by the graph-algorithm view of the structure.
+type UnionFind = DSU
+
+// NewUnionFind is an alias of NewDSU.
+func NewUnionFind(n int) *UnionFind {
+	return NewDSU(n)
+}
+
+// ConnectedComponents returns the connected components of an undirected graph
+// on vertices 0..n-1, each as a list of vertices in increasing order.
+// Time: O(E alpha(n) + n)
+func ConnectedComponents(edges [][]int, n int) [][]int {
+	d := NewDSU(n)
+	for _, e := range edges {
+		d.Union(e[0], e[1])
+	}
+	var result [][]int
+	for _, members := range d.GetComponents() {
+		result = append(result, members)
+	}
+	sort.Slice(result, func(i, j int) bool { return result[i][0] < result[j][0] })
+	return result
+}
+
+// HasCycle reports whether the undirected graph has a cycle (self-loops and
+// parallel edges count).
+// Time: O(E alpha(n))
+func HasCycle(edges [][]int, n int) bool {
+	d := NewDSU(n)
+	for _, e := range edges {
+		if !d.Union(e[0], e[1]) {
+			return true
+		}
+	}
+	return false
+}
+
+// KruskalMST returns a minimum spanning forest; edges are {u, v, weight}.
+// Time: O(E log E + E alpha(n))
+func KruskalMST(edges [][]int, n int) [][]int {
+	sorted := make([][]int, len(edges))
+	copy(sorted, edges)
+	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i][2] < sorted[j][2] })
+	d := NewDSU(n)
+	var mst [][]int
+	for _, e := range sorted {
+		if d.Union(e[0], e[1]) {
+			mst = append(mst, e)
+		}
+	}
+	return mst
 }
 
 func main() {

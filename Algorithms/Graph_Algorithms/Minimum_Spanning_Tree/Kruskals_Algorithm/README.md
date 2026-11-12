@@ -104,6 +104,6 @@ Use Kruskal on sparse graphs, when the graph is already an edge list, or when yo
 ## Related
 
 - [Prim's Algorithm](../Prims_Algorithm/) - the other classic MST algorithm
-- [Union-Find (DSU)](../../Advanced_Graph/Union_Find_DSU/) - the cycle test
+- [Union-Find (DSU)](../../../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/) - the cycle test
 - [Disjoint Set Union](../../../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/)
 - [Activity Selection](../../../Greedy/Activity_Selection/) - another greedy algorithm

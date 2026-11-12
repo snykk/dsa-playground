@@ -2,6 +2,7 @@
 Test cases for Hash Table
 """
 
+import random
 import unittest
 from hash_table import HashTable
 
@@ -186,6 +187,90 @@ class TestHashTable(unittest.TestCase):
             table.put(k, k)
         for k in (-1, -4, -7):
             self.assertEqual(table.get(k), k)
+
+    def test_iteration_yields_pairs(self):
+        self.table.put("apple", 5)
+        self.table.put("banana", 10)
+        items = list(self.table)
+        self.assertEqual(len(items), 2)
+        self.assertIn(("apple", 5), items)
+        self.assertIn(("banana", 10), items)
+
+    def test_repr(self):
+        self.table.put("apple", 5)
+        self.table.put("banana", 10)
+        text = repr(self.table)
+        self.assertIn("'apple': 5", text)
+        self.assertIn("'banana': 10", text)
+
+    def test_get_or_default(self):
+        self.table.put("apple", 5)
+        self.assertEqual(self.table.get_or_default("apple", 0), 5)
+        self.assertEqual(self.table.get_or_default("nonexistent", 0), 0)
+
+    def test_put_if_absent(self):
+        self.assertTrue(self.table.put_if_absent("apple", 5))
+        self.assertEqual(self.table.get("apple"), 5)
+        self.assertFalse(self.table.put_if_absent("apple", 10))
+        self.assertEqual(self.table.get("apple"), 5)
+
+    def test_put_if_absent_with_none_value(self):
+        """A key stored with value None is present; put_if_absent must not overwrite it."""
+        self.assertTrue(self.table.put_if_absent("k", None))
+        self.assertFalse(self.table.put_if_absent("k", 5))
+        self.assertIsNone(self.table.get("k"))
+        self.assertTrue(self.table.contains("k"))
+        self.assertEqual(len(self.table), 1)
+
+    def test_get_or_default_with_none_value(self):
+        self.table.put("k", None)
+        self.assertIsNone(self.table.get_or_default("k", 7))
+        self.assertEqual(self.table.get_or_default("other", 7), 7)
+
+    def test_update(self):
+        self.table.put("apple", 5)
+        self.table.update({"apple": 50, "banana": 10})
+        self.assertEqual(self.table.get("apple"), 50)
+        self.assertEqual(self.table.get("banana"), 10)
+        other = HashTable()
+        other.put("date", 20)
+        self.table.update(other)
+        self.assertEqual(self.table.get("date"), 20)
+        self.assertEqual(len(self.table), 3)
+
+    def test_copy_is_independent(self):
+        self.table.put("apple", 5)
+        self.table.put("banana", 10)
+        copied = self.table.copy()
+        self.assertEqual(copied.get("apple"), 5)
+        self.assertEqual(copied.get("banana"), 10)
+        self.table.put("apple", 20)
+        self.assertEqual(copied.get("apple"), 5)
+
+    def test_random_operations_match_dict(self):
+        rng = random.Random(11)
+        for _ in range(100):
+            table = HashTable(rng.choice([1, 2, 16]))
+            reference = {}
+            for _ in range(80):
+                key = rng.randint(-10, 10)
+                op = rng.randrange(5)
+                if op == 0:
+                    table.put(key, op)
+                    reference[key] = op
+                elif op == 1:
+                    self.assertEqual(table.remove(key), key in reference)
+                    reference.pop(key, None)
+                elif op == 2:
+                    self.assertEqual(table.put_if_absent(key, 99), key not in reference)
+                    reference.setdefault(key, 99)
+                elif op == 3:
+                    self.assertEqual(table.get_or_default(key, -1), reference.get(key, -1))
+                else:
+                    table.update({key: 7, key + 1: 8})
+                    reference.update({key: 7, key + 1: 8})
+                self.assertEqual(len(table), len(reference))
+            self.assertEqual(dict(table.items()), reference)
 
 
 if __name__ == '__main__':

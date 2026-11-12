@@ -18,8 +18,11 @@ A chaining hash table over `interface{}` keys, with a doubling resize. See the [
 | `Remove(key) bool` | true if removed | O(1) average |
 | `Contains(key) bool` | presence | O(1) average |
 | `Size()`, `IsEmpty()`, `Clear()` | bookkeeping | O(1) |
-
-No iteration.
+| `GetOrDefault(key, default)` | value or default | O(1) average |
+| `PutIfAbsent(key, value) bool` | true if inserted | O(1) average |
+| `Update(other)` | put every pair of another `*HashTable` | O(m) |
+| `Items() []KeyValue` | every pair in bucket order | O(capacity + n) |
+| `Copy()` | independent table | O(m) |
 
 ## Go-Specific Notes
 

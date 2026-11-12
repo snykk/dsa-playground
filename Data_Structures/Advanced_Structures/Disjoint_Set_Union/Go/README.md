@@ -20,6 +20,8 @@ Union by rank plus path compression, with a size slice and a component counter.
 | `GetComponentCount()` | number of sets | O(1) |
 | `GetComponents()` | map root to member slice | O(n alpha(n)) |
 | `GetParent(x)` | raw parent, no compression | O(1) |
+| `GetCount()` | alias of `GetComponentCount()`; `UnionFind` and `NewUnionFind` alias `DSU` and `NewDSU` | O(1) |
+| `ConnectedComponents`, `HasCycle`, `KruskalMST` | functions over `[][]int` edge lists | O(E alpha(n)) and up |
 
 ## Go-Specific Notes
 

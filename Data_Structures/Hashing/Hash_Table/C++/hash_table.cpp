@@ -102,6 +102,26 @@ public:
         return false;
     }
     
+    V getOrDefault(const K& key, const V& defaultValue) {
+        V* value = get(key);
+        return value ? *value : defaultValue;
+    }
+
+    /** Store value only if key is absent. Returns true if inserted. */
+    bool putIfAbsent(const K& key, const V& value) {
+        if (contains(key)) return false;
+        put(key, value);
+        return true;
+    }
+
+    /** Copy every pair of a std::map / std::unordered_map, overwriting existing keys. */
+    template<typename Map>
+    void update(const Map& other) {
+        for (const auto& pair : other) {
+            put(pair.first, pair.second);
+        }
+    }
+
     bool contains(const K& key) {
         return get(key) != nullptr;
     }

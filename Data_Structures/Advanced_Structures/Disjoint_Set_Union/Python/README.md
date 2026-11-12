@@ -5,7 +5,7 @@ Union by rank plus path compression, with a `size` array and a component counter
 ## Files
 
 - `dsu.py`: the `DSU` class and a small demo under `__main__`.
-- `dsu_test.py`: unit tests (init, union, find, path compression, connected, components, sizes, bad input).
+- `dsu_test.py`: unit tests (init, union, find, path compression, connected, components, sizes, bad input, random sequences against a brute-force label array, graph helpers).
 
 ## API
 
@@ -19,6 +19,8 @@ Union by rank plus path compression, with a `size` array and a component counter
 | `get_component_count()` | number of sets | O(1) |
 | `get_components()` | dict root to member list | O(n alpha(n)) |
 | `get_parent(x)` | raw parent, no compression | O(1) |
+| `get_count()`, `count` | alias of `get_component_count()`; `UnionFind` is an alias of `DSU` | O(1) |
+| `connected_components`, `has_cycle`, `kruskal_mst`, `largest_component` | graph helpers over `(u, v[, w])` edge lists | O(E alpha(n)) and up |
 
 ## Python-Specific Notes
 

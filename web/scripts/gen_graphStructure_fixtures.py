@@ -3,7 +3,7 @@
 The web visualizer re-implements Kahn's topological sort, Kosaraju's and Tarjan's SCC
 algorithms, Tarjan's bridges / articulation points and union-find in TypeScript
 (web/src/viz/algorithms/graphStructure.ts and unionFind.ts). These fixtures pin each
-port to its reference in Algorithms/Graph_Algorithms/Advanced_Graph: the order Kahn
+port to its reference in Algorithms/Graph_Algorithms/Advanced_Graph (union-find: Data_Structures/Advanced_Structures/Disjoint_Set_Union): the order Kahn
 produces (or None for a cycle), the components in emission order with members in
 discovery order, the bridge / cut-vertex lists, and parent / rank / count after every
 union-find operation. Run from anywhere:
@@ -26,15 +26,15 @@ for folder in (
     "Strongly_Connected_Components/Kosarajus_Algorithm/Python",
     "Strongly_Connected_Components/Tarjans_Algorithm/Python",
     "Tarjan_Bridges_Articulation/Python",
-    "Union_Find_DSU/Python",
 ):
     sys.path.insert(0, str(ADV / folder))
+sys.path.insert(0, str(ROOT / "Data_Structures" / "Advanced_Structures" / "Disjoint_Set_Union" / "Python"))
 
 from kosaraju import kosaraju_scc  # noqa: E402
 from tarjan import tarjan_scc  # noqa: E402
 from tarjan_bridges import find_bridges_and_articulations  # noqa: E402
 from topological_sort import topological_sort_kahn  # noqa: E402
-from union_find import UnionFind  # noqa: E402
+from dsu import UnionFind  # noqa: E402
 
 OUT = ROOT / "web" / "src" / "viz" / "algorithms" / "__fixtures__" / "graphStructure.json"
 
@@ -127,7 +127,7 @@ def main():
     }
     header = {
         "generator": "web/scripts/gen_graphStructure_fixtures.py",
-        "reference": "Algorithms/Graph_Algorithms/Advanced_Graph (topological_sort.py, kosaraju.py, tarjan.py, tarjan_bridges.py, union_find.py)",
+        "reference": "Algorithms/Graph_Algorithms/Advanced_Graph (topological_sort.py, kosaraju.py, tarjan.py, tarjan_bridges.py); Data_Structures/Advanced_Structures/Disjoint_Set_Union (dsu.py)",
     }
     parts = []
     for key, cases in sections.items():

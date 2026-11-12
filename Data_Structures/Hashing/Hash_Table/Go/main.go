@@ -122,6 +122,46 @@ func (ht *HashTable) Contains(key interface{}) bool {
 	return found
 }
 
+// GetOrDefault returns the value for key, or defaultValue if the key is absent.
+func (ht *HashTable) GetOrDefault(key, defaultValue interface{}) interface{} {
+	if value, found := ht.Get(key); found {
+		return value
+	}
+	return defaultValue
+}
+
+// PutIfAbsent stores value only if key is absent and reports whether it did.
+func (ht *HashTable) PutIfAbsent(key, value interface{}) bool {
+	if ht.Contains(key) {
+		return false
+	}
+	ht.Put(key, value)
+	return true
+}
+
+// Items returns every key-value pair in bucket order.
+func (ht *HashTable) Items() []KeyValue {
+	items := make([]KeyValue, 0, ht.size)
+	for _, bucket := range ht.buckets {
+		items = append(items, bucket...)
+	}
+	return items
+}
+
+// Update copies every pair of other into the table, overwriting existing keys.
+func (ht *HashTable) Update(other *HashTable) {
+	for _, kv := range other.Items() {
+		ht.Put(kv.Key, kv.Value)
+	}
+}
+
+// Copy returns an independent table with the same capacity and pairs.
+func (ht *HashTable) Copy() *HashTable {
+	clone := NewHashTable(ht.capacity)
+	clone.Update(ht)
+	return clone
+}
+
 // Size returns the number of key-value pairs
 func (ht *HashTable) Size() int {
 	return ht.size

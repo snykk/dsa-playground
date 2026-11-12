@@ -110,4 +110,4 @@ Use it for contiguous ranges whose validity is monotone: non-negative numbers, o
 - [Two Pointers](../Two_Pointers/)
 - [Monotonic Queue](../Monotonic_Queue/)
 - [Prefix Sum Difference Array](../Prefix_Sum_Difference_Array/)
-- [Hash Map](../../Data_Structures/Hashing/Hash_Map/)
+- [Hash Table](../../Data_Structures/Hashing/Hash_Table/)

@@ -2,7 +2,7 @@
 
 Union-Find (disjoint set union) tracks which items belong to the same group while groups merge. Its `union` call reports whether the two items were already connected, which is all that is needed to count components, detect a cycle while adding edges, or build a minimum spanning tree with Kruskal's algorithm. Operations cost O(alpha(n)) amortized.
 
-This topic is about using the structure. The structure itself is described in [Disjoint Set Union](../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/) and [Union-Find DSU](../../Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU/).
+This topic is about using the structure. The structure itself is described in [Disjoint Set Union](../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/).
 
 ## Intuition
 
@@ -103,6 +103,5 @@ Use it when edges arrive over time, when you need the cycle test or Kruskal, or 
 ## Related
 
 - [Disjoint Set Union](../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/)
-- [Union-Find DSU](../../Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU/)
 - [Kruskal's Algorithm](../../Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/)
 - [Graph Traversal Problems](../Graph_Traversal_Problems/)

@@ -102,5 +102,5 @@ Use Prim's algorithm on dense graphs (array version), when the graph is already 
 
 - [Kruskal's Algorithm](../Kruskals_Algorithm/) - the other classic MST algorithm
 - [Dijkstra's Algorithm](../../Shortest_Path/Dijkstras_Algorithm/) - the same loop with a different priority
-- [Union-Find (DSU)](../../Advanced_Graph/Union_Find_DSU/)
+- [Union-Find (DSU)](../../../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/)
 - [Activity Selection](../../../Greedy/Activity_Selection/) - another greedy algorithm

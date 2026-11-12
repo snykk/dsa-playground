@@ -142,8 +142,7 @@ dsa-playground/
 
 #### 🔹 Hashing
 
-- [x] **Hash Table**
-- [x] **Hash Map**
+- [x] **Hash Table** (also the Hash Map)
 - [x] **Hash Set**
 - [x] **Collision Handling** (Chaining, Open Addressing)
 - [x] **Bloom Filter**

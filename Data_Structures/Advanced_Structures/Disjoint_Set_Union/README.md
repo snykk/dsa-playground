@@ -2,7 +2,7 @@
 
 A disjoint set union, also called union-find, keeps items split into non-overlapping sets. It answers "are x and y in the same set?" and merges two sets, each in O(alpha(n)) amortized time, which is effectively constant.
 
-This topic is the data structure itself. For graph algorithms built on it (cycle detection, Kruskal's MST) see [`Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU`](../../../Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU/), and for problem-solving patterns see [`Problem_Patterns/Union_Find_Applications`](../../../Problem_Patterns/Union_Find_Applications/).
+This topic covers the data structure and its graph-algorithm uses (connected components, cycle detection, Kruskal's MST). For problem-solving patterns see [`Problem_Patterns/Union_Find_Applications`](../../../Problem_Patterns/Union_Find_Applications/).
 
 ## Intuition
 
@@ -36,10 +36,22 @@ parent = [0, 0, 0, 2, 4, 4]      sets {0,1,2,3} and {4,5}
 | `get_size(x)` | size of the set of x | O(alpha(n)) |
 | `get_component_count()` | number of sets (a counter) | O(1) |
 | `get_components()` | root to members map | O(n alpha(n)) |
+| `get_count()` / `count` | alias of `get_component_count()` (also `UnionFind`, an alias of `DSU`) | O(1) |
 
 Union by rank: let `rx = find(x)`, `ry = find(y)`. If equal, return false. If `rank[rx] < rank[ry]` attach `rx` under `ry`; if greater, the other way; on a tie attach `ry` under `rx` and increase `rank[rx]`. Then decrement the component count.
 
 Out-of-range items (negative or `>= n`) and negative `n` are rejected: Python raises `IndexError` / `ValueError`, C++ throws `std::out_of_range` / `std::invalid_argument`, and Go panics.
+
+## Graph Algorithms with DSU
+
+Each language also has helpers that feed a list of edges to a DSU (Python names; C++ `connectedComponents`, `hasCycle`, `kruskalMST`; Go `ConnectedComponents`, `HasCycle`, `KruskalMST`):
+
+| Helper | Idea | Time |
+|--------|------|------|
+| `connected_components(edges, n)` | union every edge, then group by root | O(E alpha(n) + n) |
+| `has_cycle(edges, n)` | an edge whose `union` returns false closes a cycle (self-loops and parallel edges count) | O(E alpha(n)) |
+| `kruskal_mst(edges, n)` | sort edges by weight, keep an edge when `union` merges two sets | O(E log E) |
+| `largest_component(edges, n)` | the biggest group of `connected_components` (Python only) | O(E alpha(n) + n) |
 
 ## Step-by-Step Trace
 
@@ -92,7 +104,7 @@ A root of rank r has at least 2^r nodes (rank grows only when equal-rank trees m
 
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
-| Python | [`Python/`](Python/) | `dsu.py` | recursive `find`; `get_parent` for tests |
+| Python | [`Python/`](Python/) | `dsu.py` | recursive `find`; `get_parent` for tests; graph helpers |
 | C++ | [`C++/`](C++/) | `dsu.cpp` | method is `unite`; `explicit` constructor; throws on bad input |
 | Go | [`Go/`](Go/) | `main.go` | `NewDSU`, `Union`; panics on bad input |
 
@@ -106,7 +118,7 @@ A root of rank r has at least 2^r nodes (rank grows only when equal-rank trees m
 
 ## Related
 
-- [Union-Find DSU (graph algorithm view)](../../../Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU/)
+- [Tarjan's bridges and articulation points](../../../Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/)
 - [Union-Find Applications (patterns)](../../../Problem_Patterns/Union_Find_Applications/)
 - [Kruskal's algorithm](../../../Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/)
 - [Advanced Structures overview](../README.md)

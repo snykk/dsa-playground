@@ -107,6 +107,6 @@ Start with LRU; move to LFU if profiling shows scan pollution.
 
 - [LRU Cache](../LRU_Cache/README.md)
 - [Doubly Linked List](../../Linear/Linked_List/Doubly/README.md)
-- [Hash Map](../../Hashing/Hash_Map/README.md)
+- [Hash Table](../../Hashing/Hash_Table/README.md)
 
 Part of [Advanced Structures](../README.md).

@@ -198,6 +198,43 @@ class HashTable:
             result.extend(bucket)
         return result
     
+    def get_or_default(self, key, default):
+        """
+        Get the value for a key, or default if the key is absent.
+
+        Same lookup as get(key, default); a stored None is returned as None.
+        """
+        return self.get(key, default)
+
+    def put_if_absent(self, key, value):
+        """
+        Store value only if key is absent.
+
+        Returns:
+            True if the pair was inserted, False if the key already exists
+            (even with a stored None value); the old value is kept.
+        """
+        if self.contains(key):
+            return False
+        self.put(key, value)
+        return True
+
+    def update(self, other):
+        """
+        Copy every key-value pair of a dict or another HashTable into this
+        one, overwriting values of keys that already exist.
+        """
+        pairs = other.items()
+        for key, value in list(pairs):
+            self.put(key, value)
+
+    def copy(self):
+        """Return an independent HashTable with the same capacity and pairs."""
+        new_table = HashTable(self.capacity)
+        for key, value in self.items():
+            new_table.put(key, value)
+        return new_table
+
     def clear(self):
         """Clear all entries from the hash table"""
         self.buckets = [[] for _ in range(self.capacity)]
@@ -207,6 +244,14 @@ class HashTable:
         """Check if hash table is empty"""
         return self.size == 0
     
+    def __iter__(self):
+        """Iterate over (key, value) pairs in bucket order."""
+        return iter(self.items())
+
+    def __repr__(self):
+        """Readable form such as {'a': 1, 'b': 2}, in bucket order."""
+        return "{" + ", ".join(f"{k!r}: {v!r}" for k, v in self.items()) + "}"
+
     def __len__(self):
         """Return the number of key-value pairs"""
         return self.size

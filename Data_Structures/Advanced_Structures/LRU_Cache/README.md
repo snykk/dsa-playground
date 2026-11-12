@@ -103,6 +103,6 @@ Python's `OrderedDict.move_to_end` and `functools.lru_cache` do the same job in 
 
 - [LFU Cache](../LFU_Cache/README.md)
 - [Doubly Linked List](../../Linear/Linked_List/Doubly/README.md)
-- [Hash Map](../../Hashing/Hash_Map/README.md)
+- [Hash Table](../../Hashing/Hash_Table/README.md)
 
 Part of [Advanced Structures](../README.md).

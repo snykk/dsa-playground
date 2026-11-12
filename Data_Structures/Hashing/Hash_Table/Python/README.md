@@ -5,7 +5,7 @@ A chaining hash table with a doubling resize and dict-style access. See the [top
 ## Files
 
 - `hash_table.py`: the `HashTable` class.
-- `hash_table_test.py`: unit tests, including forced collisions, resize, None values, invalid capacity and negative keys.
+- `hash_table_test.py`: unit tests, including forced collisions, resize, None values, invalid capacity, negative keys, the map helpers and random operations checked against `dict`.
 
 ## API
 
@@ -19,6 +19,11 @@ A chaining hash table with a doubling resize and dict-style access. See the [top
 | `contains(key)` / `key in table` | presence, even when the stored value is None | O(1) average |
 | `keys()`, `values()`, `items()` | lists in bucket order | O(capacity + n) |
 | `clear()`, `is_empty()`, `len(table)` | bookkeeping | O(1) |
+| `get_or_default(key, default)` | value or default (a stored None is returned as None) | O(1) average |
+| `put_if_absent(key, value)` | True if inserted, False if the key exists (even with None) | O(1) average |
+| `update(other)` | put every pair of a `dict` or `HashTable` | O(m) |
+| `copy()` | independent table, same capacity | O(m) |
+| `for k, v in table`, `repr(table)` | iterate `(key, value)` pairs in bucket order | O(capacity + n) |
 
 ## Python-Specific Notes
 

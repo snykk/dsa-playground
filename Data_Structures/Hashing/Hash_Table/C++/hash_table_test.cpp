@@ -5,6 +5,8 @@
 #include <iostream>
 #include <cassert>
 #include <stdexcept>
+#include <map>
+#include <random>
 #include "hash_table.cpp"
 
 void testPutAndGet() {
@@ -102,6 +104,63 @@ void testInvalidCapacity() {
     std::cout << "[PASS] Invalid capacity rejected" << std::endl;
 }
 
+void testGetOrDefault() {
+    HashTable<std::string, int> table;
+    table.put("apple", 5);
+    assert(table.getOrDefault("apple", 0) == 5);
+    assert(table.getOrDefault("nonexistent", 0) == 0);
+    std::cout << "[PASS] GetOrDefault" << std::endl;
+}
+
+void testPutIfAbsent() {
+    HashTable<std::string, int> table;
+    assert(table.putIfAbsent("apple", 5));
+    assert(table.getOrDefault("apple", 0) == 5);
+    assert(!table.putIfAbsent("apple", 10));
+    assert(table.getOrDefault("apple", 0) == 5);
+    std::cout << "[PASS] PutIfAbsent" << std::endl;
+}
+
+void testUpdateFromMap() {
+    HashTable<std::string, int> table;
+    table.put("apple", 5);
+    std::map<std::string, int> other = {{"apple", 50}, {"banana", 10}};
+    table.update(other);
+    assert(table.getOrDefault("apple", 0) == 50);  // overwritten by the other map
+    assert(table.getOrDefault("banana", 0) == 10);
+    assert(table.getSize() == 2);
+    std::cout << "[PASS] Update" << std::endl;
+}
+
+// Random operations (tiny capacity forces many resizes) against std::map.
+void testRandomAgainstStdMap() {
+    std::mt19937 rng(11);
+    for (int round = 0; round < 100; round++) {
+        size_t caps[3] = {1, 2, 16};
+        HashTable<int, int> table(caps[rng() % 3]);
+        std::map<int, int> reference;
+        for (int step = 0; step < 80; step++) {
+            int key = (int)(rng() % 21) - 10;
+            switch (rng() % 4) {
+                case 0: table.put(key, step); reference[key] = step; break;
+                case 1: assert(table.remove(key) == (reference.erase(key) == 1)); break;
+                case 2: {
+                    bool absent = reference.count(key) == 0;
+                    assert(table.putIfAbsent(key, 99) == absent);
+                    reference.emplace(key, 99);
+                    break;
+                }
+                default: {
+                    auto it = reference.find(key);
+                    assert(table.getOrDefault(key, -1) == (it == reference.end() ? -1 : it->second));
+                }
+            }
+            assert(table.getSize() == reference.size());
+        }
+    }
+    std::cout << "[PASS] Random operations against std::map" << std::endl;
+}
+
 int main() {
     std::cout << "Running Hash Table tests..." << std::endl;
     std::cout << std::endl;
@@ -114,6 +173,10 @@ int main() {
     testChainLongerThanOne();
     testPointerSurvivesResize();
     testInvalidCapacity();
+    testGetOrDefault();
+    testPutIfAbsent();
+    testUpdateFromMap();
+    testRandomAgainstStdMap();
     
     std::cout << std::endl;
     std::cout << "All tests passed!" << std::endl;

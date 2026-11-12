@@ -88,7 +88,7 @@ This folder contains implementations of fundamental graph algorithms in Python, 
     - More efficient
     - Time: O(V + E), Space: O(V)
 
-- **[Union-Find / DSU](Advanced_Graph/Union_Find_DSU/)**
+- **[Union-Find / DSU](../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/)**
   - Disjoint set operations
   - Cycle detection, MST
   - Time: O(α(n)) per operation, Space: O(n)

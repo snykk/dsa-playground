@@ -19,6 +19,8 @@ Union by rank plus path compression, with a size array and a component counter.
 | `getComponentCount()` | number of sets | O(1) |
 | `getComponents()` | `unordered_map` root to members | O(n alpha(n)) |
 | `getParent(x)` | raw parent, no compression, no range check | O(1) |
+| `getCount()` | alias of `getComponentCount()`; `UnionFind` is an alias of `DSU` | O(1) |
+| `connectedComponents`, `hasCycle`, `kruskalMST` | free functions over edge lists | O(E alpha(n)) and up |
 
 ## C++-Specific Notes
 

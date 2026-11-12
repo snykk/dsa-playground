@@ -100,7 +100,6 @@ Resizing doubles the bucket count, so all resizes over n adds cost less than 2n 
 ## Related
 
 - [Hash Table](../Hash_Table/README.md)
-- [Hash Map](../Hash_Map/README.md)
 - [Bloom Filter](../Bloom_Filter/README.md)
 - [Collision Handling](../Collision_Handling/README.md)
 - [Hashing overview](../README.md)

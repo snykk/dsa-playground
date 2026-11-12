@@ -1,6 +1,8 @@
 package main
 
 import (
+	"math/rand"
+	"reflect"
 	"sort"
 	"testing"
 )
@@ -214,5 +216,96 @@ func TestGetSize(t *testing.T) {
 	}
 	if dsu.GetSize(4) != 1 {
 		t.Errorf("Expected size 1 for element 4, got %d", dsu.GetSize(4))
+	}
+}
+
+// Random union/connected sequences checked against a label array.
+func TestAgainstBruteForce(t *testing.T) {
+	rng := rand.New(rand.NewSource(7))
+	for round := 0; round < 200; round++ {
+		n := 1 + rng.Intn(12)
+		dsu := NewDSU(n)
+		label := make([]int, n)
+		for i := range label {
+			label[i] = i
+		}
+		for k := rng.Intn(40); k > 0; k-- {
+			x, y := rng.Intn(n), rng.Intn(n)
+			if rng.Intn(10) < 6 {
+				merged := label[x] != label[y]
+				if dsu.Union(x, y) != merged {
+					t.Fatalf("Union(%d, %d) result mismatch", x, y)
+				}
+				oldL, newL := label[y], label[x]
+				for i := range label {
+					if label[i] == oldL {
+						label[i] = newL
+					}
+				}
+			} else if dsu.Connected(x, y) != (label[x] == label[y]) {
+				t.Fatalf("Connected(%d, %d) mismatch", x, y)
+			}
+			distinct := map[int]int{}
+			for _, v := range label {
+				distinct[v]++
+			}
+			if dsu.GetComponentCount() != len(distinct) || dsu.GetSize(x) != distinct[label[x]] {
+				t.Fatalf("count or size mismatch")
+			}
+		}
+	}
+}
+
+// The trace from the README: eight singletons merged pairwise.
+func TestUnionByRankAndPathCompression(t *testing.T) {
+	uf := NewUnionFind(8)
+	for _, p := range [][2]int{{0, 1}, {2, 3}, {0, 2}, {4, 5}, {6, 7}, {4, 6}, {0, 4}} {
+		if !uf.Union(p[0], p[1]) {
+			t.Fatalf("Union(%d, %d) should merge two sets", p[0], p[1])
+		}
+	}
+	if want := []int{0, 0, 0, 2, 0, 4, 4, 6}; !reflect.DeepEqual(uf.parent, want) {
+		t.Errorf("parent = %v, want %v", uf.parent, want)
+	}
+	if want := []int{3, 0, 1, 0, 2, 0, 1, 0}; !reflect.DeepEqual(uf.rank, want) {
+		t.Errorf("rank = %v, want %v", uf.rank, want)
+	}
+	if uf.GetCount() != 1 || uf.Find(7) != 0 {
+		t.Error("one set rooted at 0 expected")
+	}
+	if want := []int{0, 0, 0, 2, 0, 4, 0, 0}; !reflect.DeepEqual(uf.parent, want) {
+		t.Errorf("parent after Find(7) = %v, want %v", uf.parent, want)
+	}
+}
+
+func TestLongChainOfUnions(t *testing.T) {
+	const n = 1000000
+	uf := NewDSU(n)
+	for i := 0; i+1 < n; i++ {
+		uf.Union(i, i+1)
+	}
+	if uf.GetComponentCount() != 1 || !uf.Connected(0, n-1) {
+		t.Error("all elements should be in one set")
+	}
+}
+
+func TestGraphApplications(t *testing.T) {
+	edges := [][]int{{0, 1}, {1, 2}, {3, 4}}
+	if want := [][]int{{0, 1, 2}, {3, 4}}; !reflect.DeepEqual(ConnectedComponents(edges, 5), want) {
+		t.Errorf("components = %v, want %v", ConnectedComponents(edges, 5), want)
+	}
+	if HasCycle(edges, 5) {
+		t.Error("forest must not have a cycle")
+	}
+	if !HasCycle([][]int{{0, 1}, {1, 2}, {2, 0}}, 3) || !HasCycle([][]int{{0, 0}}, 1) {
+		t.Error("cycle and self-loop must be detected")
+	}
+	mst := KruskalMST([][]int{{0, 1, 4}, {0, 2, 8}, {1, 2, 2}, {1, 3, 5}, {2, 3, 10}}, 4)
+	total := 0
+	for _, e := range mst {
+		total += e[2]
+	}
+	if len(mst) != 3 || total != 11 {
+		t.Errorf("MST = %v, want 3 edges of weight 11", mst)
 	}
 }

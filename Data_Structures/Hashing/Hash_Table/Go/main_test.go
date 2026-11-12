@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"testing"
 )
 
@@ -147,5 +148,88 @@ func TestOtherKeyTypes(t *testing.T) {
 	}
 	if table.Contains(7) {
 		t.Error("int 7 is not int64 7")
+	}
+}
+
+func TestGetOrDefault(t *testing.T) {
+	table := NewHashTable(16)
+	table.Put("apple", 5)
+	if v := table.GetOrDefault("apple", 0); v != 5 {
+		t.Errorf("Expected 5, got %v", v)
+	}
+	if v := table.GetOrDefault("nonexistent", 0); v != 0 {
+		t.Errorf("Expected 0, got %v", v)
+	}
+}
+
+func TestPutIfAbsent(t *testing.T) {
+	table := NewHashTable(16)
+	if !table.PutIfAbsent("apple", 5) {
+		t.Error("Expected put to succeed")
+	}
+	if table.PutIfAbsent("apple", 10) {
+		t.Error("Expected put to fail")
+	}
+	if v, _ := table.Get("apple"); v != 5 {
+		t.Errorf("Expected 5, got %v", v)
+	}
+}
+
+func TestUpdateAndCopy(t *testing.T) {
+	table := NewHashTable(4)
+	table.Put("apple", 5)
+	other := NewHashTable(4)
+	other.Put("apple", 50)
+	other.Put("banana", 10)
+	table.Update(other)
+	if table.Size() != 2 || table.GetOrDefault("apple", 0) != 50 || table.GetOrDefault("banana", 0) != 10 {
+		t.Errorf("Update gave %v", table.Items())
+	}
+	clone := table.Copy()
+	table.Put("apple", 1)
+	if clone.GetOrDefault("apple", 0) != 50 || clone.Size() != 2 {
+		t.Error("Copy must be independent of the original")
+	}
+}
+
+// Random operations (tiny capacity forces many resizes) against a Go map.
+func TestRandomOperationsMatchMap(t *testing.T) {
+	rng := rand.New(rand.NewSource(11))
+	for round := 0; round < 100; round++ {
+		table := NewHashTable([]int{1, 2, 16}[rng.Intn(3)])
+		reference := map[int]int{}
+		for step := 0; step < 80; step++ {
+			key := rng.Intn(21) - 10
+			switch rng.Intn(4) {
+			case 0:
+				table.Put(key, step)
+				reference[key] = step
+			case 1:
+				_, had := reference[key]
+				if table.Remove(key) != had {
+					t.Fatalf("Remove(%d) mismatch", key)
+				}
+				delete(reference, key)
+			case 2:
+				_, had := reference[key]
+				if table.PutIfAbsent(key, 99) == had {
+					t.Fatalf("PutIfAbsent(%d) mismatch", key)
+				}
+				if !had {
+					reference[key] = 99
+				}
+			default:
+				want, ok := reference[key]
+				if !ok {
+					want = -1
+				}
+				if table.GetOrDefault(key, -1) != want {
+					t.Fatalf("GetOrDefault(%d) mismatch", key)
+				}
+			}
+			if table.Size() != len(reference) {
+				t.Fatalf("size %d, want %d", table.Size(), len(reference))
+			}
+		}
 	}
 }

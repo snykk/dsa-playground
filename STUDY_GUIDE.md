@@ -120,7 +120,7 @@ These two patterns appear in 40%+ of array/string problems.
 - [Bellman-Ford](Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm/)
 - [Floyd-Warshall](Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm/)
 - [MST: Kruskal / Prim](Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/)
-- [Union-Find (DSU)](Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU/) — essential
+- [Union-Find (DSU)](Data_Structures/Advanced_Structures/Disjoint_Set_Union/) — essential
 - [Strongly Connected Components](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/)
 - [Tarjan's Bridges & Articulation Points](Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/)
 

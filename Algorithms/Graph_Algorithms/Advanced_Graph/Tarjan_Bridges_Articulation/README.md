@@ -114,4 +114,4 @@ A bridge endpoint that has other edges is an articulation point; a leaf at the e
 - [DFS](../../Traversal/DFS/README.md): the traversal Tarjan builds on
 - [Strongly Connected Components](../Strongly_Connected_Components/README.md): the directed analogue
 - [Tarjan's SCC Algorithm](../Strongly_Connected_Components/Tarjans_Algorithm/README.md): the same low-link idea with a stack
-- [Union-Find](../Union_Find_DSU/README.md): an alternative when edges arrive incrementally
+- [Union-Find](../../../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/README.md): an alternative when edges arrive incrementally
