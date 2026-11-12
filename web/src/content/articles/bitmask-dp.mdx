@@ -44,7 +44,7 @@ The last point is the key. Two different paths that visited the same cities and 
 
 ## How it works
 
-An integer with n bits represents a subset: bit `i` is 1 when item `i` is in the set. A 4-city subset such as {A, C} is `0b0101`, which is the number 5. Because the integer is also an array index, the whole set of subsets becomes one table of size 2<sup>n</sup>.
+An integer with n bits represents a subset: bit `i` is 1 when item `i` is in the set. A 4-city subset such as `{A, C}` is `0b0101`, which is the number 5. Because the integer is also an array index, the whole set of subsets becomes one table of size 2<sup>n</sup>.
 
 <Steps>
   <Step title="Define the state">
@@ -90,7 +90,7 @@ Four cities A, B, C, D (bits 0 to 3) with these distances:
   caption="The distance matrix used by the tests and the examples."
 />
 
-Only masks that contain city A (bit 0) matter, so there are 8 rows. A cell shows `dp[mask][last]`; `inf` means that no path with this exact shape exists (for example `last` is not in `mask`). The mask is written with city D on the left: `0111` means {A, B, C}.
+Only masks that contain city A (bit 0) matter, so there are 8 rows. A cell shows `dp[mask][last]`; `inf` means that no path with this exact shape exists (for example `last` is not in `mask`). The mask is written with city D on the left: `0111` means `{A, B, C}`.
 
 <GridDiagram
   corner="mask \ last"

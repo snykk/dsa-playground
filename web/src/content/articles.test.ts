@@ -9,7 +9,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compile } from '@mdx-js/mdx';
+import { compile, createProcessor } from '@mdx-js/mdx';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { MDX_COMPONENT_NAMES } from '../components/mdxNames';
@@ -49,6 +49,18 @@ describe.each(files)('%s', (file) => {
   it('compiles as MDX and only uses registered components', async () => {
     const { body } = load(file);
     await compile(body);
+    // A brace in prose starts a JavaScript expression: "{A, C}" throws at render time and
+    // "{3, 4, 5}" silently renders "5". Articles never need expressions, so any is a bug.
+    const tree = createProcessor().parse(body);
+    const expressions: string[] = [];
+    const walk = (node: { type: string; value?: string; position?: { start: { line: number } }; children?: unknown[] }) => {
+      if (node.type === 'mdxTextExpression' || node.type === 'mdxFlowExpression') {
+        expressions.push(`line ${node.position?.start.line}: {${node.value}}`);
+      }
+      for (const child of (node.children ?? []) as Array<typeof node>) walk(child);
+    };
+    walk(tree as unknown as Parameters<typeof walk>[0]);
+    expect(expressions, 'braces in prose are JavaScript expressions: put them in backticks or write &#123; &#125;').toEqual([]);
     const used = new Set([...body.matchAll(/<([A-Z][A-Za-z]*)\b/g)].map((m) => m[1]));
     for (const name of used) expect(known.has(name), `unknown component <${name}>`).toBe(true);
   });

@@ -7,11 +7,11 @@ A comprehensive collection of data structure implementations with explanations a
 | Category | Description |
 |----------|-------------|
 | [Linear](Linear/) | Arrays, Linked Lists, Stacks, Queues |
-| [Trees](Trees/) | Binary Trees, BST, AVL, Segment Trees, etc. |
-| [Graphs](Graphs/) | Graph representations and utilities |
-| [Hash-Based](Hash-Based/) | Hash Tables, Hash Maps, Hash Sets |
-| [Heaps](Heaps/) | Min/Max Heaps, Priority Queues |
-| [Advanced](Advanced/) | Trie, Union-Find, Fenwick Tree, etc. |
+| [Trees](Non_Linear/Trees/) | Binary trees, BST, AVL, red-black, segment trees, tries and more |
+| [Graphs](Non_Linear/Graph/) | Graph representations: adjacency list and matrix, edge list |
+| [Hashing](Hashing/) | Hash tables, hash maps, hash sets, collision handling, Bloom filter |
+| [Heaps](Non_Linear/Heaps/) | Min and max heaps, Fibonacci heap |
+| [Advanced structures](Advanced_Structures/) | Disjoint set union, LRU and LFU caches |
 
 ## Complexity Reference
 
