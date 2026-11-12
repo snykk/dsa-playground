@@ -1,40 +1,42 @@
-# K-D Tree — Python Implementation
+# K-D Tree -- Python Implementation
 
-k-dimensional binary search tree supporting build, insert, nearest-neighbor, and range queries. Arbitrary dimensionality via tuple-typed points.
-
-For the conceptual overview, visuals, and comparison with Ball Tree / HNSW / R-Tree, see the parent README: [../README.md](../README.md)
-
----
+A k-dimensional binary search tree with build, insert, nearest-neighbour and range queries, for any dimensionality. See the [topic README](../README.md) for the idea and a trace.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `kd_tree.py` | `KDTree` class: `insert`, `nearest`, `range_search`, build-from-points |
-| `kd_tree_test.py` | 15 tests covering 2D/3D nearest-neighbor, range queries, and adversarial cases |
+| File | Contents |
+| ---- | -------- |
+| `kd_tree.py` | `KDTree` (and the private `_Node` dataclass) plus a small demo under `__main__` |
+| `kd_tree_test.py` | tests for 2D and 3D nearest and range queries against brute force, dimension errors, and a 5000-node chain |
 
----
+## API
+
+| Call | Result |
+| ---- | ------ |
+| `KDTree(points=None)` | balanced build from a list of equal-length tuples; `ValueError` on mixed sizes |
+| `dimensionality` | the number k (0 for an empty tree) |
+| `insert(point)` | adds a point as a leaf; no rebalancing; `ValueError` on a wrong size |
+| `nearest(query)` | the closest stored point, or `None` on an empty tree; `ValueError` on a wrong size |
+| `range_search(lower, upper)` | list of points inside the box, in pre-order; `ValueError` on wrong-sized bounds |
 
 ## Python-Specific Notes
 
-- **`Tuple[float, ...]`** for points: immutable, hashable, usable as dict keys. Python tuple iteration is efficient enough for the per-node distance computation.
-- **Sort + median pivot** during build: O(n log n) total via `pts.sort(key=...)` at every level. For very large n, replace with Quickselect for O(n) per level → O(n log n) total with better constants.
-- **Recursive NN search**: the early-termination pruning `diff * diff < best[1]` is the speed trick. Comparing squared distances avoids `sqrt` in the hot loop.
-- **`dataclass` for `_Node`**: cleaner than a plain class; `__slots__` not used here for readability but worth adding for 100K+ node trees.
-- **Insert doesn't rebalance**: documented behavior. Callers with streaming inserts should rebuild periodically or use a different structure (Ball Tree).
-
----
+- Points are tuples of numbers, so they are immutable and hashable.
+- The build sorts the points at every level (`pts.sort`), which is O(n log^2 n) overall, not O(n log n).
+- `nearest` and `range_search` use an explicit stack instead of recursion, so a chain built by thousands of sorted inserts does not raise `RecursionError`. (The recursive build is only as deep as a balanced tree.)
+- Squared distances are compared everywhere, so there is no `sqrt` in the hot loop.
+- `insert` does not rebalance: for streaming data, rebuild periodically.
 
 ## How to Run
 
 ```bash
-python3 -m unittest kd_tree_test.py
+cd "Data Structures/Non_Linear/Trees/K-D Tree/Python"
+python3 -m unittest kd_tree_test
+python3 kd_tree.py    # demo
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Compare squared distances, not distances.** The inequality `|a-b| < r` holds iff `(a-b)² < r²` for non-negative r. Skipping the square root saves ~5× in the inner loop.
-2. **The "prune far subtree" step is the entire algorithm.** Without it, NN search is O(n). With it, O(log n) expected. Trace through a small example to see _which_ half gets pruned.
-3. **Build order matters for balance.** Building from points via median-at-each-level gives a balanced tree; inserting one-by-one in arbitrary order gives an unbalanced tree. For static point sets, always build from the full list.
+- The far-side test `diff * diff < best` is the whole pruning rule.
+- Build from the full list for balance; sorted inserts make a chain.
+- Compare squared distances.

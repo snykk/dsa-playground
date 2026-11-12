@@ -1,26 +1,35 @@
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 using namespace std;
 
 class FenwickTree {
     int n;
-    vector<int> tree;
+    vector<long long> tree;
 
-    int lsb(int index) {
+    int lsb(int index) const {
         return index & (-index);
     }
 
+    void check(int index) const {
+        if (index < 0 || index >= n) {
+            throw out_of_range("FenwickTree: index out of range");
+        }
+    }
+
 public:
-    FenwickTree(vector<int>& arr) {
-        n = arr.size();
-        tree.resize(n + 1, 0);
-        
+    FenwickTree(const vector<int>& arr) {
+        n = (int)arr.size();
+        tree.assign(n + 1, 0);
+
         for (int i = 0; i < n; i++) {
             update(i, arr[i]);
         }
     }
 
-    void update(int index, int delta) {
+    // Throws std::out_of_range unless 0 <= index < n.
+    void update(int index, long long delta) {
+        check(index);
         index++;
         while (index <= n) {
             tree[index] += delta;
@@ -28,9 +37,10 @@ public:
         }
     }
 
-    int prefixSum(int index) {
+    long long prefixSum(int index) const {
+        check(index);
         index++;
-        int result = 0;
+        long long result = 0;
         while (index > 0) {
             result += tree[index];
             index -= lsb(index);
@@ -38,15 +48,19 @@ public:
         return result;
     }
 
-    int query(int left, int right) {
+    long long query(int left, int right) const {
+        check(left);
+        check(right);
+        if (left > right) {
+            throw out_of_range("FenwickTree: left is greater than right");
+        }
         if (left == 0) {
             return prefixSum(right);
         }
         return prefixSum(right) - prefixSum(left - 1);
     }
 
-    int get(int index) {
+    long long get(int index) const {
         return query(index, index);
     }
 };
-

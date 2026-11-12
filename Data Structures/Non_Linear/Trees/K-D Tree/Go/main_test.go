@@ -153,3 +153,28 @@ func Test3D(t *testing.T) {
 		t.Errorf("3D nearest broken")
 	}
 }
+
+// Regression: a query with the wrong dimensionality used to panic with an
+// index error (or silently read garbage); it now fails with a clear message.
+func TestQueryDimensionMismatchPanics(t *testing.T) {
+	tree := NewKDTree([]Point{{1, 2}, {3, 4}, {5, 6}})
+	calls := map[string]func(){
+		"nearest":      func() { tree.Nearest(Point{1}) },
+		"range lo":     func() { tree.RangeSearch(Point{0}, Point{1, 1}) },
+		"range hi":     func() { tree.RangeSearch(Point{0, 0}, Point{1, 1, 1}) },
+		"insert wrong": func() { tree.Insert(Point{1, 2, 3}) },
+	}
+	for name, call := range calls {
+		func() {
+			defer func() {
+				r := recover()
+				if r == nil {
+					t.Errorf("%s: expected a panic", name)
+				} else if _, ok := r.(string); !ok {
+					t.Errorf("%s: expected a descriptive string panic, got %v", name, r)
+				}
+			}()
+			call()
+		}()
+	}
+}

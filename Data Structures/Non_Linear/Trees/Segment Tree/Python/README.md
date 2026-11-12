@@ -1,76 +1,41 @@
-# Segment Tree - Python
+# Segment Tree -- Python Implementation
 
-This folder contains a Python implementation of a **Segment Tree**.
+A bottom-up segment tree for range sums and point assignment. See the [topic README](../README.md) for the layout and traces.
 
-A **Segment Tree** is a tree data structure used for storing information about intervals (segments). It allows answering range queries efficiently while still being flexible enough to allow point updates.
+## Files
 
----
+| File | Contents |
+| ---- | -------- |
+| `segment_tree.py` | `SegmentTree` |
+| `segment_tree_test.py` | unit tests, index-error tests, negative values and a randomized test against brute force |
 
-## Concept
+## API
 
-- **Range Queries**: Answer queries about ranges in O(log n)
-- **Point Updates**: Update single elements in O(log n)
-- **Binary Tree Structure**: Complete binary tree stored as array
-- **Efficient**: O(log n) for both query and update
+| Call | Result |
+| ---- | ------ |
+| `SegmentTree(arr)` | builds the tree in O(n) |
+| `update(index, value)` | assigns `value` to element `index` |
+| `query(left, right)` | sum of elements `left..right`, inclusive |
+| `get(index)` | one element |
 
----
+Indices outside `0..n-1`, and `left > right`, raise `IndexError`.
 
-## Operations
+## Python-Specific Notes
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------- | ------------------------------------ | --------------- |
-| `query(left, right)`     | Get sum in range [left, right]       | O(log n)        |
-| `update(index, value)`   | Update value at index                | O(log n)        |
-| `get(index)`             | Get value at index                   | O(1)            |
+- Python integers do not overflow, so sums match the other languages only while they fit in 64 bits.
+- Negative indices are rejected instead of wrapping like list indices; they used to read internal nodes silently.
+- The internal list `self.tree` has length `2 * size` with position 0 unused.
+- The class is sum-only; there is no range update.
 
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Build     | O(n)            | O(n)            |
-| Query     | O(log n)        | O(1)            |
-| Update    | O(log n)        | O(1)            |
-| Space     | O(n)            | O(n)            |
-
----
-
-## Usage
-
-```python
-from segment_tree import SegmentTree
-
-# Initialize with array
-arr = [1, 3, 5, 7, 9, 11]
-st = SegmentTree(arr)
-
-# Range sum query
-print(st.query(0, 2))   # 9 (1 + 3 + 5)
-print(st.query(1, 3))   # 15 (3 + 5 + 7)
-
-# Point update
-st.update(2, 10)
-print(st.query(0, 2))   # 14 (1 + 3 + 10)
-
-# Get single value
-print(st.get(0))        # 1
-```
-
----
-
-## Applications
-
-- Range sum queries
-- Range minimum/maximum queries
-- Range update queries (with lazy propagation)
-- Competitive programming problems
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-python -m unittest segment_tree_test.py
+cd "Data Structures/Non_Linear/Trees/Segment Tree/Python"
+python3 -m unittest segment_tree_test
 ```
 
+## Key Takeaways
+
+- `size` is the next power of two; leaves are at `size + i`.
+- A query takes at most two nodes per level.
+- `update` assigns a value.

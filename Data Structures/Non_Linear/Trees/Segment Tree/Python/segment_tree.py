@@ -1,10 +1,15 @@
 class SegmentTree:
-    """Segment Tree for range sum queries and updates.
-    
+    """Segment Tree for range sum queries and point updates.
+
+    Iterative bottom-up layout: the array is padded to a power of two
+    (size), leaves live at tree[size + i], and tree[i] = tree[2i] + tree[2i+1].
+
     Supports:
     - Range sum query: O(log n)
-    - Point update: O(log n)
-    - Range update: O(n log n) - can be optimized with lazy propagation
+    - Point update (assign): O(log n)
+
+    Range updates need lazy propagation (see Segment Tree (Lazy Propagation)).
+    Indices outside [0, n) raise IndexError.
     """
     
     def __init__(self, arr):
@@ -25,6 +30,11 @@ class SegmentTree:
         for i in range(self.size - 1, 0, -1):
             self.tree[i] = self.tree[2 * i] + self.tree[2 * i + 1]
 
+    def _check(self, index):
+        """Raise IndexError unless 0 <= index < n (no negative indexing)."""
+        if not 0 <= index < self.n:
+            raise IndexError("index %d out of range for size %d" % (index, self.n))
+
     def update(self, index, value):
         """Update value at index.
         
@@ -32,6 +42,7 @@ class SegmentTree:
             index: Index to update (0-indexed)
             value: New value
         """
+        self._check(index)
         index += self.size
         self.tree[index] = value
         index //= 2
@@ -48,7 +59,14 @@ class SegmentTree:
             
         Returns:
             Sum of elements in range [left, right]
+
+        Raises:
+            IndexError: unless 0 <= left <= right < n
         """
+        self._check(left)
+        self._check(right)
+        if left > right:
+            raise IndexError("left %d is greater than right %d" % (left, right))
         left += self.size
         right += self.size
         result = 0
@@ -74,5 +92,6 @@ class SegmentTree:
         Returns:
             Value at index
         """
+        self._check(index)
         return self.tree[self.size + index]
 

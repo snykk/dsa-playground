@@ -1,5 +1,3 @@
-import math
-
 class SparseTable:
     """Sparse Table for Range Minimum/Maximum Query (RMQ).
     
@@ -18,13 +16,20 @@ class SparseTable:
         Args:
             arr: Input array
             query_type: 'min' for minimum query, 'max' for maximum query
+
+        Raises:
+            ValueError: if query_type is neither 'min' nor 'max'
+
+        An empty array is allowed; every query on it raises IndexError.
         """
+        if query_type not in ('min', 'max'):
+            raise ValueError("query_type must be 'min' or 'max'")
         self.n = len(arr)
-        self.arr = arr.copy()
+        self.arr = list(arr)
         self.query_type = query_type
         
-        # Calculate log2(n) for table size
-        self.log_n = math.floor(math.log2(self.n)) + 1
+        # Number of levels: floor(log2(n)) + 1, computed with integers (0 for n = 0)
+        self.log_n = self.n.bit_length()
         
         # Build sparse table
         # table[i][j] = min/max of range starting at i with length 2^j
@@ -57,13 +62,19 @@ class SparseTable:
             
         Returns:
             Minimum or maximum value in range [left, right]
+
+        Raises:
+            IndexError: if an index is outside [0, n). Swapped bounds
+                (left > right) are accepted and reordered.
         """
         if left > right:
             left, right = right, left
+        if left < 0 or right >= self.n:
+            raise IndexError("range [%d, %d] out of bounds for size %d" % (left, right, self.n))
         
-        # Find largest power of 2 that fits in range length
+        # Largest k with 2^k <= length
         length = right - left + 1
-        k = math.floor(math.log2(length))
+        k = length.bit_length() - 1
         
         # Query two overlapping ranges of length 2^k
         if self.query_type == 'min':
@@ -86,5 +97,7 @@ class SparseTable:
         Returns:
             Value at index
         """
+        if not 0 <= index < self.n:
+            raise IndexError("index %d out of range for size %d" % (index, self.n))
         return self.arr[index]
 

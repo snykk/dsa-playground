@@ -45,10 +45,13 @@ class IntervalTree:
     """
     Interval Tree - Stores intervals and supports overlap queries
     
-    Based on a balanced BST structure where:
+    An augmented binary search tree (not self-balancing) where:
     - Each node stores an interval
-    - Nodes are sorted by low value
+    - Nodes are sorted by low value (equal lows go to the right)
     - Each node stores max (maximum high value in subtree)
+
+    Costs are O(h) per insert/delete, where h is the tree height: about
+    log n for random input, up to n for sorted input.
     """
     
     def __init__(self):
@@ -57,14 +60,13 @@ class IntervalTree:
     def insert(self, interval):
         """
         Insert an interval into the tree
-        
-        Time Complexity: O(log n) average
+
+        Time Complexity: O(h), h = tree height (O(log n) on random input)
         """
         if not isinstance(interval, Interval):
             interval = Interval(interval[0], interval[1])
         
         self.root = self._insert_recursive(self.root, interval)
-        self._update_max(self.root)
     
     def _insert_recursive(self, node, interval):
         """Recursive helper for insertion"""
@@ -83,25 +85,20 @@ class IntervalTree:
         
         return node
     
-    def _update_max(self, node):
-        """Update max values in the tree"""
-        if node is None:
-            return
-        
-        self._update_max(node.left)
-        self._update_max(node.right)
-        
+    def _recompute_max(self, node):
+        """Recompute node.max from its own interval and its children."""
         node.max = node.interval.high
         if node.left is not None and node.left.max > node.max:
             node.max = node.left.max
         if node.right is not None and node.right.max > node.max:
             node.max = node.right.max
-    
+
     def search_overlapping(self, query_interval):
         """
         Find all intervals that overlap with the query interval
         
-        Time Complexity: O(log n + k) where k is number of results
+        Time Complexity: only subtrees that can overlap are visited; about
+        O(h + k) on typical data (k = number of results), O(n) worst case
         """
         if not isinstance(query_interval, Interval):
             query_interval = Interval(query_interval[0], query_interval[1])
@@ -130,8 +127,8 @@ class IntervalTree:
     def search_containing_point(self, point):
         """
         Find all intervals that contain a point
-        
-        Time Complexity: O(log n + k) where k is number of results
+
+        Time Complexity: same as search_overlapping
         """
         query_interval = Interval(point, point)
         return self.search_overlapping(query_interval)
@@ -139,8 +136,8 @@ class IntervalTree:
     def search_contained_in(self, query_interval):
         """
         Find all intervals that are completely contained in query interval
-        
-        Time Complexity: O(log n + k) where k is number of results
+
+        Time Complexity: same as search_overlapping
         """
         if not isinstance(query_interval, Interval):
             query_interval = Interval(query_interval[0], query_interval[1])
@@ -168,15 +165,14 @@ class IntervalTree:
     
     def delete(self, interval):
         """
-        Delete an interval from the tree
-        
-        Time Complexity: O(log n) average
+        Delete one interval equal to the argument (same low and high)
+
+        Time Complexity: O(h), h = tree height
         """
         if not isinstance(interval, Interval):
             interval = Interval(interval[0], interval[1])
         
         self.root = self._delete_recursive(self.root, interval)
-        self._update_max(self.root)
     
     def _delete_recursive(self, node, interval):
         """Recursive helper for deletion"""
@@ -206,6 +202,8 @@ class IntervalTree:
                     node.interval = successor.interval
                     node.right = self._delete_recursive(node.right, successor.interval)
         
+        # max only changes on the path just walked: recompute while unwinding
+        self._recompute_max(node)
         return node
     
     def _find_min(self, node):

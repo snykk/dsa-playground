@@ -1,15 +1,22 @@
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 using namespace std;
 
 class SegmentTree {
     int n;
     int size;
-    vector<int> tree;
+    vector<long long> tree;
+
+    void check(int index) const {
+        if (index < 0 || index >= n) {
+            throw out_of_range("SegmentTree: index out of range");
+        }
+    }
 
 public:
-    SegmentTree(vector<int>& arr) {
-        n = arr.size();
+    SegmentTree(const vector<int>& arr) {
+        n = (int)arr.size();
         size = 1;
         while (size < n) size *= 2;
         tree.resize(2 * size, 0);
@@ -22,7 +29,9 @@ public:
         }
     }
 
-    void update(int index, int value) {
+    // Assigns value to element index. Throws std::out_of_range unless 0 <= index < n.
+    void update(int index, long long value) {
+        check(index);
         index += size;
         tree[index] = value;
         index /= 2;
@@ -32,10 +41,16 @@ public:
         }
     }
 
-    int query(int left, int right) {
+    // Sum of elements left..right, inclusive. Throws std::out_of_range unless 0 <= left <= right < n.
+    long long query(int left, int right) const {
+        check(left);
+        check(right);
+        if (left > right) {
+            throw out_of_range("SegmentTree: left is greater than right");
+        }
         left += size;
         right += size;
-        int result = 0;
+        long long result = 0;
         
         while (left <= right) {
             if (left % 2 == 1) {
@@ -53,7 +68,8 @@ public:
         return result;
     }
 
-    int get(int index) {
+    long long get(int index) const {
+        check(index);
         return tree[size + index];
     }
 };

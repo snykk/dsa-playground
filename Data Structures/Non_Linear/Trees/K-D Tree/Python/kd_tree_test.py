@@ -39,7 +39,7 @@ class TestKDTreeNearest(unittest.TestCase):
     def test_textbook_2d(self):
         pts = [(7, 2), (5, 4), (9, 6), (2, 3), (4, 7), (8, 1)]
         tree = KDTree(pts)
-        # (6, 5) → nearest is (5, 4) at distance sqrt(1 + 1) = sqrt(2)
+        # (6, 5): nearest is (5, 4) at distance sqrt(1 + 1) = sqrt(2)
         self.assertEqual(tree.nearest((6, 5)), (5, 4))
 
     def test_nearest_is_self(self):
@@ -94,7 +94,7 @@ class TestKDTreeRangeSearch(unittest.TestCase):
         tree = KDTree(pts)
         result = set(tree.range_search((3, 3), (8, 7)))
         expected = {(5, 4), (4, 7), (7, 2)}
-        # (7, 2) has y=2 which is below lower=3 → excluded
+        # (7, 2) has y=2 which is below lower=3, so excluded
         expected = {(5, 4), (4, 7)}
         self.assertEqual(result, expected)
 
@@ -119,6 +119,25 @@ class TestKDTreeRangeSearch(unittest.TestCase):
             tree_result = sorted(tree.range_search(lo, hi))
             brute_result = sorted(brute_range(pts, lo, hi))
             self.assertEqual(tree_result, brute_result)
+
+
+class TestKDTreeDeepChain(unittest.TestCase):
+    def test_monotone_inserts_do_not_hit_recursion_limit(self):
+        # Regression: queries were recursive, so a chain built by sorted
+        # inserts raised RecursionError at about 1000 levels.
+        tree = KDTree()
+        for i in range(5000):
+            tree.insert((float(i), float(i)))
+        self.assertEqual(tree.nearest((4999.0, 4999.0)), (4999.0, 4999.0))
+        self.assertEqual(tree.nearest((-10.0, -10.0)), (0.0, 0.0))
+        found = tree.range_search((100.0, 100.0), (200.0, 200.0))
+        self.assertEqual(len(found), 101)
+
+    def test_range_search_keeps_preorder(self):
+        pts = [(7, 2), (5, 4), (9, 6), (2, 3), (4, 7), (8, 1)]
+        tree = KDTree(pts)
+        self.assertEqual(tree.range_search((0, 0), (10, 10)),
+                         [(7, 2), (5, 4), (2, 3), (4, 7), (9, 6), (8, 1)])
 
 
 if __name__ == "__main__":

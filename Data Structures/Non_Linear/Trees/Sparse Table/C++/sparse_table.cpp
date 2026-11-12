@@ -1,7 +1,8 @@
 #include <iostream>
 #include <vector>
-#include <cmath>
 #include <algorithm>
+#include <stdexcept>
+#include <string>
 using namespace std;
 
 class SparseTable {
@@ -11,14 +12,26 @@ class SparseTable {
     vector<vector<int>> table;
     string query_type;
 
+    // floor(log2(x)) for x >= 1, using integers only.
+    static int floorLog2(int x) {
+        int k = 0;
+        while ((x >>= 1) > 0) k++;
+        return k;
+    }
+
 public:
-    SparseTable(vector<int>& arr, string query_type = "min") {
-        this->n = arr.size();
+    // Throws std::invalid_argument unless query_type is "min" or "max".
+    // An empty array is allowed; every query on it throws std::out_of_range.
+    SparseTable(const vector<int>& arr, string query_type = "min") {
+        if (query_type != "min" && query_type != "max") {
+            throw invalid_argument("query_type must be \"min\" or \"max\"");
+        }
+        this->n = (int)arr.size();
         this->arr = arr;
         this->query_type = query_type;
         
-        // Calculate log2(n) for table size
-        this->log_n = floor(log2(n)) + 1;
+        // Number of levels: floor(log2(n)) + 1 (0 for an empty array)
+        this->log_n = n == 0 ? 0 : floorLog2(n) + 1;
         
         // Build sparse table
         // table[i][j] = min/max of range starting at i with length 2^j
@@ -47,12 +60,17 @@ public:
         }
     }
 
-    int query(int left, int right) {
+    // Swapped bounds (left > right) are reordered. Throws std::out_of_range
+    // if an index is outside [0, n).
+    int query(int left, int right) const {
         if (left > right) swap(left, right);
-        
-        // Find largest power of 2 that fits in range length
+        if (left < 0 || right >= n) {
+            throw out_of_range("SparseTable: range out of bounds");
+        }
+
+        // Largest k with 2^k <= length
         int length = right - left + 1;
-        int k = floor(log2(length));
+        int k = floorLog2(length);
         
         // Query two overlapping ranges of length 2^k
         if (query_type == "min") {
@@ -68,7 +86,10 @@ public:
         }
     }
 
-    int get(int index) {
+    int get(int index) const {
+        if (index < 0 || index >= n) {
+            throw out_of_range("SparseTable: index out of range");
+        }
         return arr[index];
     }
 };

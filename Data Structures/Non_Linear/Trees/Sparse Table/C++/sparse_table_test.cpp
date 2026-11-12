@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <random>
 #include "sparse_table.cpp"
 using namespace std;
 
@@ -70,6 +71,50 @@ void test_get() {
     cout << "Get tests passed!" << endl;
 }
 
+// Regression: an empty input used to abort (log of 0 converted to int).
+void test_empty_input() {
+    SparseTable st(vector<int>{}, "min");
+    bool thrown = false;
+    try { st.query(0, 0); } catch (const out_of_range&) { thrown = true; }
+    assert(thrown);
+    cout << "test_empty_input passed" << endl;
+}
+
+// Regression: any type other than "min" silently meant max.
+void test_invalid_query_type() {
+    bool thrown = false;
+    try { SparseTable st(vector<int>{5, 1, 9}, "sum"); } catch (const invalid_argument&) { thrown = true; }
+    assert(thrown);
+    cout << "test_invalid_query_type passed" << endl;
+}
+
+void test_out_of_range() {
+    SparseTable st(vector<int>{1, 2, 3}, "min");
+    int thrown = 0;
+    try { st.query(-1, 1); } catch (const out_of_range&) { thrown++; }
+    try { st.query(0, 3); } catch (const out_of_range&) { thrown++; }
+    try { st.get(3); } catch (const out_of_range&) { thrown++; }
+    assert(thrown == 3);
+    assert(st.query(2, 0) == st.query(0, 2));
+    cout << "test_out_of_range passed" << endl;
+}
+
+void test_random_against_brute_force() {
+    mt19937 rng(11);
+    for (int n = 1; n < 70; n++) {
+        vector<int> arr(n);
+        for (int& v : arr) v = (int)(rng() % 201) - 100;
+        SparseTable lo(arr, "min"), hi(arr, "max");
+        for (int l = 0; l < n; l++) {
+            for (int r = l; r < n; r++) {
+                assert(lo.query(l, r) == *min_element(arr.begin() + l, arr.begin() + r + 1));
+                assert(hi.query(l, r) == *max_element(arr.begin() + l, arr.begin() + r + 1));
+            }
+        }
+    }
+    cout << "test_random_against_brute_force passed" << endl;
+}
+
 int main() {
     test_min_query();
     test_max_query();
@@ -77,6 +122,10 @@ int main() {
     test_range_queries();
     test_full_range();
     test_get();
+    test_empty_input();
+    test_invalid_query_type();
+    test_out_of_range();
+    test_random_against_brute_force();
     cout << "All tests passed!" << endl;
     return 0;
 }
