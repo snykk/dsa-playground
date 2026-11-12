@@ -32,7 +32,9 @@ def prim_mst_adjacency_list(graph, start=0):
     # Priority queue: (weight, from_vertex, to_vertex)
     heap = [(0, start, start)]
     
-    while heap and len(visited) < len(graph):
+    # No vertex-count guard: a vertex that appears only in neighbor lists is not a
+    # key of graph, so len(graph) would stop the loop before it was added.
+    while heap:
         weight, from_vertex, to_vertex = heapq.heappop(heap)
         
         if to_vertex in visited:

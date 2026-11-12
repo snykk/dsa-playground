@@ -4,7 +4,8 @@ import "slices"
 
 // DFSAdjacencyList performs DFS traversal using adjacency list (iterative)
 // Returns vertices in DFS order
-// Time Complexity: O(V + E), Space Complexity: O(V)
+// Time Complexity: O(V + E), Space Complexity: O(V + E) (a vertex is marked
+// when popped, so the stack can hold one entry per edge)
 func DFSAdjacencyList(graph map[int][]int, start int) []int {
 	if _, exists := graph[start]; !exists {
 		return []int{}
@@ -65,7 +66,8 @@ func DFSRecursive(graph map[int][]int, start int) []int {
 
 // DFSWithPath finds path from start to target using DFS
 // Returns path as slice of vertices
-// Time Complexity: O(V + E), Space Complexity: O(V)
+// Time Complexity: O(V + E), Space Complexity: O(V + E) (the stack can hold
+// one entry per edge)
 func DFSWithPath(graph map[int][]int, start, target int) []int {
 	if start == target {
 		return []int{start}

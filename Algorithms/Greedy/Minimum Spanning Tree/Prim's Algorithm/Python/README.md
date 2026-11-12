@@ -1,197 +1,48 @@
-# Prim's Algorithm (Python)
+# Prim's Algorithm -- Python Implementation
 
-**Prim's Algorithm** finds Minimum Spanning Tree (MST) by growing the tree from a starting vertex, always adding the minimum weight edge that connects the current MST to a new vertex.
+Prim's algorithm in three forms: adjacency list with a heap, edge list, and adjacency matrix.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `prim.py` | `prim_mst_adjacency_list`, `prim_mst_edge_list`, `prim_mst_adjacency_matrix` |
+| `prim_test.py` | 8 unit tests (`unittest`) |
 
-Prim's algorithm is a greedy algorithm that finds MST by:
-1. Starting with any vertex
-2. Maintaining a set of vertices already in MST
-3. At each step, adding the minimum weight edge connecting MST to a vertex outside MST
-4. Repeating until all vertices are included
+## API
 
-**Key Insight**: Always add the minimum weight edge connecting current MST to a new vertex.
+| Function | Returns |
+|----------|---------|
+| `prim_mst_adjacency_list(graph, start=0)` | `(mst_edges, total_weight)` for `{vertex: [(neighbor, weight), ...]}`; `([], 0)` for an empty graph |
+| `prim_mst_edge_list(edges, num_vertices, start=0)` | the same, from `(u, v, weight)` edges (builds the adjacency list, then calls the first function) |
+| `prim_mst_adjacency_matrix(matrix, start=0)` | the same, from a matrix where `0` means no edge; O(V^2) |
 
----
-
-## Algorithm
-
-1. **Initialize**: Start with any vertex, add to MST
-2. **Maintain priority queue**: Store edges from MST vertices to outside vertices
-3. **Greedy selection**:
-   - Extract minimum weight edge from queue
-   - If edge connects to new vertex:
-     - Add edge and vertex to MST
-     - Add all edges from new vertex to queue
-4. **Repeat**: Until all vertices in MST (V-1 edges added)
-
----
-
-## Complexity Analysis
-
-| Representation | Time | Space |
-|----------------|------|-------|
-| **Adjacency List + Heap** | O(E log V) | O(V) |
-| **Adjacency Matrix + Array** | O(V²) | O(V) |
-
-**Note**: 
-- Binary heap gives O(E log V) - better for sparse graphs
-- Array gives O(V²) - better for dense graphs
-- Fibonacci heap can achieve O(E + V log V)
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`prim_mst_adjacency_list(graph, start=0)`**
-   - Uses adjacency list representation
-   - Implements with binary heap (priority queue)
-   - Time: O(E log V), Space: O(V)
-   - Best for sparse graphs
-
-2. **`prim_mst_edge_list(edges, num_vertices, start=0)`**
-   - Converts edge list to adjacency list
-   - Then uses adjacency list implementation
-   - Convenient when edges are given as list
-
-3. **`prim_mst_adjacency_matrix(matrix, start=0)`**
-   - Uses adjacency matrix representation
-   - Implements with array (no heap)
-   - Time: O(V²), Space: O(V)
-   - Best for dense graphs
-
----
-
-## Greedy Choice
-
-**Always add minimum weight edge connecting MST to new vertex** - this greedy choice guarantees MST.
-
-**Why it works**:
-- If an edge is the minimum weight edge connecting current MST to a vertex, it must be in MST
-- This holds at every step, making greedy optimal
-- Similar to Dijkstra's but for MST instead of shortest path
-
----
-
-## Usage
+Each edge is `(from, to, weight)`. The heap versions run in O(E log V); the matrix version in O(V^2).
 
 ```python
-from prim import (
-    prim_mst_adjacency_list,
-    prim_mst_edge_list,
-    prim_mst_adjacency_matrix
-)
+from prim import prim_mst_adjacency_list
 
-# Adjacency list (recommended for sparse graphs)
-graph = {
-    0: [(1, 10), (2, 6), (3, 5)],
-    1: [(0, 10), (3, 15)],
-    2: [(0, 6), (3, 4)],
-    3: [(0, 5), (1, 15), (2, 4)]
-}
-mst, weight = prim_mst_adjacency_list(graph, 0)
-print(f"MST edges: {mst}")  # [(0, 3, 5), (3, 2, 4), (0, 1, 10)]
-print(f"Total weight: {weight}")  # 19
-
-# Edge list
-edges = [(0, 1, 10), (0, 2, 6), (0, 3, 5), (1, 3, 15), (2, 3, 4)]
-mst, weight = prim_mst_edge_list(edges, 4, 0)
-
-# Adjacency matrix (for dense graphs)
-matrix = [
-    [0, 10, 6, 5],
-    [10, 0, 0, 15],
-    [6, 0, 0, 4],
-    [5, 15, 4, 0]
-]
-mst, weight = prim_mst_adjacency_matrix(matrix, 0)
+graph = {0: [(1, 10), (2, 6), (3, 5)], 1: [(0, 10), (3, 15)],
+         2: [(0, 6), (3, 4)], 3: [(0, 5), (1, 15), (2, 4)]}
+print(prim_mst_adjacency_list(graph, 0))   # ([(0, 3, 5), (3, 2, 4), (0, 1, 10)], 19)
 ```
 
----
+## Python-Specific Notes
 
-## Important Notes
+- The heap holds `(weight, from, to)` tuples, so ties are broken by `from`, then `to`.
+- The loop runs until the heap is empty, so a vertex that appears only in a neighbor list is still added.
+- The matrix version treats every non-zero entry as an edge, negative weights included. A weight of exactly 0 cannot be represented there.
+- A disconnected graph returns only the tree of the start vertex.
 
-1. **Starting vertex**: Can start from any vertex (MST is same)
-2. **Priority queue**: Essential for O(E log V) complexity
-3. **Visited tracking**: Must track which vertices are in MST
-4. **Edge representation**: (from, to, weight) in MST result
-
----
-
-## Advantages
-
-1. ✅ **Optimal**: Guarantees minimum spanning tree
-2. ✅ **Efficient**: O(E log V) with heap for sparse graphs
-3. ✅ **Dense graphs**: O(V²) with array is good for dense graphs
-4. ✅ **Flexible**: Works with different graph representations
-
----
-
-## Disadvantages
-
-1. ❌ **Starting vertex**: Requires choosing starting vertex
-2. ❌ **Heap overhead**: Binary heap has constant factor overhead
-3. ❌ **Dense graphs**: O(V²) may be slower than Kruskal's for very dense graphs
-
----
-
-## When to Use
-
-- ✅ Dense graphs (E ≈ V²)
-- ✅ When adjacency list/matrix is natural representation
-- ✅ When starting from specific vertex makes sense
-- ❌ Very sparse graphs (Kruskal's may be simpler)
-- ❌ When edge list is only representation
-
----
-
-## Comparison with Kruskal's
-
-| Aspect | Prim's | Kruskal's |
-|--------|--------|-----------|
-| **Graph Type** | Adjacency list/matrix | Edge list |
-| **Best For** | Dense graphs | Sparse graphs |
-| **Start** | Requires starting vertex | No starting vertex |
-| **Data Structure** | Priority Queue | Union-Find + Sorting |
-
----
-
-## Testing
+## How to Run
 
 ```bash
-python prim_test.py
+cd "Algorithms/Greedy/Minimum Spanning Tree/Prim's Algorithm/Python"
+python3 -m unittest prim_test
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **Kruskal's Algorithm**: Alternative MST algorithm
-- **Dijkstra's Algorithm**: Similar structure, different objective
-- **Borůvka's Algorithm**: Another MST algorithm
-
----
-
-## Applications
-
-1. **Network Design**: Design networks with minimum cost
-2. **Cluster Analysis**: Find clusters in data
-3. **Approximation Algorithms**: Used as subroutine in other algorithms
-4. **Image Processing**: Image segmentation
-
----
-
-## References
-
-- Prim, R. C. (1957). "Shortest connection networks and some generalizations"
-- "Introduction to Algorithms" by CLRS (Chapter 23)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+- Stale heap entries are skipped, not updated.
+- Pick the matrix version for dense graphs, the heap versions otherwise.
+- Check the edge count against V - 1 for connectivity.

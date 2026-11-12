@@ -1,99 +1,41 @@
-# Dijkstra's Algorithm - C++
+# Dijkstra's Algorithm -- C++ Implementation
 
-**Dijkstra's Algorithm** finds shortest paths from a source vertex to all other vertices in a weighted graph with non-negative edge weights.
+Dijkstra's algorithm over `unordered_map<int, vector<pair<int, int>>>` with `std::priority_queue` and `long long` distances.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `dijkstra.cpp` | `dijkstra` and `dijkstraWithPath` |
+| `dijkstra_test.cpp` | 11 test functions using `assert`; it `#include`s `dijkstra.cpp` |
 
-Dijkstra's algorithm implementation in C++ using:
-- `std::priority_queue` for efficient minimum extraction
-- `std::unordered_map` for graph representation
-- `std::unordered_set` for visited tracking
+## API
 
----
+| Function | Returns |
+|----------|---------|
+| `dijkstra(graph, start)` | `unordered_map<int, long long>`; unreachable vertices are `LLONG_MAX`; empty map for an empty graph |
+| `dijkstraWithPath(graph, start, target)` | `pair<long long, vector<int>>`: distance and path, or `(-1, {})` if unreachable; `(0, {start})` when `start == target` |
 
-## Complexity Analysis
+Both run in O((V + E) log V) time and O(V + E) space. There is no all-pairs function in C++.
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Binary Heap** | O((V + E) log V) | O(V) |
+## C++-Specific Notes
 
----
+- Needs C++17. The test file includes `dijkstra.cpp`; compile only the test file, or you get duplicate-symbol errors.
+- Distances are `long long`, so two weights up to the `int` limit cannot overflow. Weights are `int`.
+- Every vertex (map keys and neighbor-only vertices) gets `LLONG_MAX` first, so `operator[]` never inserts a wrong 0.
+- A min-heap `priority_queue` with `greater<>` is used, and stale entries are skipped when popped.
+- Negative weights are not detected.
 
-## Implementation Details
-
-### Functions
-
-1. **`dijkstra(graph, start)`**
-   - Finds shortest distances from start to all vertices
-   - Returns `unordered_map<int, long long>` mapping vertex to distance
-   - Time: O((V + E) log V), Space: O(V)
-
-2. **`dijkstraWithPath(graph, start, target)`**
-   - Finds shortest path from start to target
-   - Returns `pair<long long, vector<int>>` of (distance, path), or (-1, {}) if no path exists
-   - Time: O((V + E) log V), Space: O(V)
-
----
-
-## Usage
-
-```cpp
-#include "dijkstra.cpp"
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-int main() {
-    unordered_map<int, vector<pair<int, int>>> graph = {
-        {1, {{2, 4}, {3, 2}}},
-        {2, {{4, 5}}},
-        {3, {{4, 1}}},
-        {4, {}}
-    };
-    
-    // Find shortest distances
-    unordered_map<int, long long> distances = dijkstra(graph, 1);
-    // distances: {1: 0, 2: 4, 3: 2, 4: 3}
-    
-    // Find shortest path
-    auto [distance, path] = dijkstraWithPath(graph, 1, 4);
-    // distance: 3, path: [1, 3, 4]
-    
-    return 0;
-}
-```
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++17 dijkstra_test.cpp -o dijkstra_test
+cd "Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm/C++"
+g++ -std=c++17 -O2 -Wall dijkstra_test.cpp -o dijkstra_test
 ./dijkstra_test
 ```
 
----
+## Key Takeaways
 
-## Important Notes
-
-1. **C++17 required**: Uses structured bindings
-2. **Priority queue**: Uses `std::priority_queue` with `greater` comparator
-3. **LLONG_MAX**: Distances are `long long`; `LLONG_MAX` from `<climits>` means unreachable
-
----
-
-## Testing
-
-```bash
-g++ -std=c++17 dijkstra_test.cpp -o dijkstra_test && ./dijkstra_test
-```
-
----
-
-_Last Updated: December 2025_
-
-
+- Initialize every vertex, including neighbor-only ones, before relaxing.
+- Use 64-bit distances.
+- Compile only the test file.
