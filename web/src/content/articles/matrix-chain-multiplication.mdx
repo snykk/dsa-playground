@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/2D DP/Matrix Chain Multiplication
+topic: Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication
 title: Matrix Chain Multiplication
 lead: Multiplying a chain of matrices gives the same result for every parenthesization, but the number of scalar multiplications can differ enormously. An interval DP finds the cheapest order in O(n^3) time by trying every split point of every sub-chain.
 level: Advanced
@@ -24,11 +24,11 @@ properties:
   - { label: Multiplies the matrices, value: false }
 prerequisites:
   - Algorithms/Dynamic_Programming
-  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
 related:
-  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
-  - Algorithms/Dynamic_Programming/2D DP/Edit Distance
-  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
+  - Algorithms/Dynamic_Programming/2D_DP/Edit_Distance
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
 ---
 
 ## How Matrix Chain Multiplication works
@@ -114,7 +114,7 @@ matrixChain(dims):
 
 All three languages implement this single bottom-up function and return only the minimum cost. With fewer than two matrices (`len(dims) < 3`) they return 0. The cost is 64-bit in C++ (`long long`) and in Go (`int`, with `math.MaxInt` as the starting value), and arbitrary precision in Python, so a chain such as `[2000, 2000, 2000]` correctly gives 8,000,000,000. The dimensions are `int` in C++. The tests include these regressions.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/2D DP/Matrix Chain Multiplication" />
+<TopicCode topic="Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication" />
 
 ## Complexity analysis
 

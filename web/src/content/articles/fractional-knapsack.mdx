@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Greedy/Fractional Knapsack
+topic: Algorithms/Greedy/Fractional_Knapsack
 title: Fractional Knapsack
 lead: Fill a knapsack of limited capacity with items that each have a value and a weight, taking whole items or any fraction of one. Because items can be cut, taking the best value per unit of weight first is optimal. Sort by that ratio and fill until the bag is full.
 level: Beginner
@@ -25,12 +25,12 @@ properties:
   - { label: Works for the 0/1 knapsack, value: false }
 prerequisites:
   - Algorithms/Greedy
-  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Sorting/Merge_Sort
 related:
-  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
-  - Algorithms/Greedy/Activity Selection
-  - Algorithms/Greedy/Job Scheduling
-  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Algorithms/Greedy/Activity_Selection
+  - Algorithms/Greedy/Job_Scheduling
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
 ---
 
 ## How Fractional Knapsack works
@@ -100,7 +100,7 @@ fractionalKnapsack(items, W):
 
 The Python version has two functions: `fractional_knapsack` returns the total and the list of `(value, weight, fraction)` it took, and `fractional_knapsack_value_only` returns just the total. C++ and Go return only the total. In Python, items are `(value, weight)` tuples; in C++ they are `std::pair<double, double>` and in Go `Item{Value, Weight}`.
 
-<TopicCode topic="Algorithms/Greedy/Fractional Knapsack" />
+<TopicCode topic="Algorithms/Greedy/Fractional_Knapsack" />
 
 **Two differences to know.** Python sorts a copy, so your list keeps its order. The C++ and Go versions sort the vector or slice you pass in, so the caller's order changes. And C++ and Go work in `double` / `float64`, so totals are floating-point values.
 

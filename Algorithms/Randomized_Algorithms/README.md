@@ -46,9 +46,9 @@ Real-world example: the median-of-medians algorithm (deterministic O(n)) is so i
 
 ## 🔗 Related
 
-- [Treap](../../Data%20Structures/Non_Linear/Trees/Treap/README.md) — randomized self-balancing BST (expected O(log n))
-- [Quick Sort](../Sorting/Quick%20Sort/README.md) — randomized pivot gives O(n log n) expected
-- [Bloom Filter](../../Data%20Structures/Hashing/Bloom%20Filter/README.md) — probabilistic membership test
+- [Treap](../../Data_Structures/Non_Linear/Trees/Treap/README.md) — randomized self-balancing BST (expected O(log n))
+- [Quick Sort](../Sorting/Quick_Sort/README.md) — randomized pivot gives O(n log n) expected
+- [Bloom Filter](../../Data_Structures/Hashing/Bloom_Filter/README.md) — probabilistic membership test
 
 ---
 

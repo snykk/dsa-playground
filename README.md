@@ -27,7 +27,7 @@ This repository serves as:
 
 ```
 dsa-playground/
-├── 📁 Data Structures/
+├── 📁 Data_Structures/
 │   ├── 📁 Linear/
 │   │   ├── Array/
 │   │   ├── String/
@@ -522,7 +522,7 @@ _All currently scoped topics are implemented across Python, C++, and Go. Remaini
   - Optimization Techniques: 4/4 (100%)
   - Problem Types: 3/3 (100%)
 
-> **Note on directory layout:** The `Data Structures/Linear/Array/Go/` folder uses sub-modules (`static_array/`, `dynamic_array/`, `multi_dimensional_array/`) — each with its own `go.mod`. They are fully implemented, just nested one level deeper than the Python/C++ counterparts.
+> **Note on directory layout:** The `Data_Structures/Linear/Array/Go/` folder uses sub-modules (`static_array/`, `dynamic_array/`, `multi_dimensional_array/`) — each with its own `go.mod`. They are fully implemented, just nested one level deeper than the Python/C++ counterparts.
 
 ---
 

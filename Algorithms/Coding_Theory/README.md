@@ -78,8 +78,8 @@ The exact parameters change but the **mathematical machinery is the same**: GF(2
 ## 🔗 Related
 
 - [Mathematical Algorithms — Number Theory](../Mathematical_Algorithms/Number_Theory/) — Modular arithmetic is to GF(p) what GF(2⁸) is to bytes
-- [Hashing — Bloom Filter](../../Data%20Structures/Hashing/Bloom%20Filter/) — Probabilistic complement (membership rather than error correction)
-- [Pattern Matching — Rabin-Karp](../../Data%20Structures/Linear/String/Pattern%20Matching/) — Uses modular arithmetic over GF(p)
+- [Hashing — Bloom Filter](../../Data_Structures/Hashing/Bloom_Filter/) — Probabilistic complement (membership rather than error correction)
+- [Pattern Matching — Rabin-Karp](../../Data_Structures/Linear/String/Pattern_Matching/) — Uses modular arithmetic over GF(p)
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/Advanced DP/DP on Graphs
+topic: Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs
 title: DP on Graphs
 lead: On a directed acyclic graph (DAG) every node's best value depends only on its successors, so a memoized DFS or a topological sweep solves longest-path, path-counting and similar problems in O(V + E). A cycle breaks that order, which is why detecting cycles matters.
 level: Advanced
@@ -22,12 +22,12 @@ properties:
   - { label: Detects cycles, value: true }
   - { label: Handles edge weights, value: false }
 prerequisites:
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
   - Algorithms/Graph_Algorithms/Traversal
 related:
-  - Algorithms/Dynamic_Programming/Advanced DP/DP on Trees
-  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
-  - Problem_Patterns/Graph Traversal Problems
+  - Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees
+  - Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
+  - Problem_Patterns/Graph_Traversal_Problems
   - Algorithms/Graph_Algorithms/Shortest_Path
 ---
 
@@ -118,7 +118,7 @@ longestPath(graph, start):
 
 The Python version has one function, `dag_longest_path(graph, start)`. The graph is a dictionary from a node to a list of successor ids; a node missing from the dictionary has no successors. The C++ and Go folders are placeholders: a stub and a test that asserts nothing.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/Advanced DP/DP on Graphs" />
+<TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs" />
 
 The recursion depth is the length of the longest path, so a path graph of more than about 1,000 nodes reaches Python's default recursion limit.
 

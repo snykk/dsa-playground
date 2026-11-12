@@ -100,5 +100,5 @@ The recurrence is T(n) = 2 T(n/2) + O(n): splitting the y-list, building the str
 ## Related
 
 - [Computational Geometry](../../README.md)
-- [Convex Hull](../Convex%20Hull/README.md)
-- [Merge Sort](../../../Sorting/Merge%20Sort/README.md)
+- [Convex Hull](../Convex_Hull/README.md)
+- [Merge Sort](../../../Sorting/Merge_Sort/README.md)

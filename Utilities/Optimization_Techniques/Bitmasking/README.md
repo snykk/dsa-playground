@@ -118,7 +118,7 @@ The function sets overlap but are not identical; see each language README. TSP r
 
 ## Related
 
-- [Bit Manipulation](../../../Problem_Patterns/Bit%20Manipulation/README.md)
-- [Meet in the Middle](../../../Problem_Patterns/Meet%20in%20the%20Middle/README.md)
-- [Bitmask DP](../../../Algorithms/Dynamic_Programming/Advanced%20DP/Bitmask%20DP/README.md)
+- [Bit Manipulation](../../../Problem_Patterns/Bit_Manipulation/README.md)
+- [Meet in the Middle](../../../Problem_Patterns/Meet_in_the_Middle/README.md)
+- [Bitmask DP](../../../Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP/README.md)
 - [Precomputation](../Precomputation/README.md)

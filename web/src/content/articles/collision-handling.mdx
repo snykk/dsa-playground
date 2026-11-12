@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Hashing/Collision Handling
+topic: Data_Structures/Hashing/Collision_Handling
 title: Collision Handling
 lead: Two different keys can hash to the same slot, and every hash table needs a rule for that. Chaining keeps a list per slot; open addressing probes for another free slot. The rule decides how lookups, deletes and a nearly full table behave.
 level: Intermediate
@@ -24,13 +24,13 @@ properties:
   - { label: Quadratic probing implemented, value: true }
   - { label: Double hashing implemented, value: false }
 prerequisites:
-  - Data Structures/Hashing/Hash Table
-  - Data Structures/Linear/Linked List/Singly
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Linear/Linked_List/Singly
 related:
-  - Data Structures/Hashing/Hash Table
-  - Data Structures/Hashing/Hash Map
-  - Data Structures/Hashing/Hash Set
-  - Data Structures/Hashing/Bloom Filter
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Hashing/Hash_Map
+  - Data_Structures/Hashing/Hash_Set
+  - Data_Structures/Hashing/Bloom_Filter
 ---
 
 ## What a collision is
@@ -199,7 +199,7 @@ Of these, this repository implements chaining, linear and quadratic probing.
 
 Python shares one base class between linear and quadratic probing and differs only in the step function. C++ stores open-addressing slots as optional key-value pairs held by value (`std::optional` of `std::pair`), so the table frees itself and copies deeply (an earlier version leaked every pair). Go keeps pointers to key-value structs and hashes any key type through its printed form.
 
-<TopicCode topic="Data Structures/Hashing/Collision Handling" />
+<TopicCode topic="Data_Structures/Hashing/Collision_Handling" />
 
 ## Frequently asked questions
 

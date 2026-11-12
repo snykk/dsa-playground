@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Hashing/Bloom Filter
+topic: Data_Structures/Hashing/Bloom_Filter
 title: Bloom Filter
 lead: A Bloom filter is a bit array plus k hash functions that answers "is this item in the set?" using a fraction of the memory of a real set. It may say "maybe" for an item that was never added, but it never says "no" for one that was.
 level: Intermediate
@@ -23,12 +23,12 @@ properties:
   - { label: Can list its items, value: false }
   - { label: Can grow, value: false }
 prerequisites:
-  - Data Structures/Hashing/Hash Set
-  - Data Structures/Linear/Array
+  - Data_Structures/Hashing/Hash_Set
+  - Data_Structures/Linear/Array
 related:
-  - Data Structures/Hashing/Hash Table
-  - Data Structures/Hashing/Collision Handling
-  - Data Structures/Hashing/Hash Map
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Hashing/Collision_Handling
+  - Data_Structures/Hashing/Hash_Map
 ---
 
 ## What a Bloom filter is
@@ -174,7 +174,7 @@ Each operation also costs the hash time, which grows with the item length. The P
 
 All three keep `m` flags (one byte per bit in Python and Go, a packed `std::vector<bool>` in C++) and differ in their hash family. The hash family in each language is described above. Python is the only one with `get_stats` and `in`.
 
-<TopicCode topic="Data Structures/Hashing/Bloom Filter" />
+<TopicCode topic="Data_Structures/Hashing/Bloom_Filter" />
 
 ## Frequently asked questions
 

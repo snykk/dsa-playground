@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Hashing/Hash Set
+topic: Data_Structures/Hashing/Hash_Set
 title: Hash Set
 lead: A hash set stores each distinct element once and tests membership in O(1) on average. It is a hash table that keeps only keys, which makes it the standard tool for removing duplicates and answering "have I seen this before?".
 level: Beginner
@@ -22,12 +22,12 @@ properties:
   - { label: Insertion order kept, value: false }
   - { label: Resizes automatically, value: true }
 prerequisites:
-  - Data Structures/Hashing/Hash Table
+  - Data_Structures/Hashing/Hash_Table
 related:
-  - Data Structures/Hashing/Hash Table
-  - Data Structures/Hashing/Hash Map
-  - Data Structures/Hashing/Bloom Filter
-  - Data Structures/Hashing/Collision Handling
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Hashing/Hash_Map
+  - Data_Structures/Hashing/Bloom_Filter
+  - Data_Structures/Hashing/Collision_Handling
 ---
 
 ## What a hash set is
@@ -165,7 +165,7 @@ Space is O(n + capacity). Resizing doubles the bucket count, so the cost of all 
 
 All three versions are chaining tables of bare elements with a 0.75 load factor and doubling. Python iterates buckets with `__iter__` and keeps a `_resize` that re-adds elements, C++ is a `HashSet` class template over `std::list` buckets with `std::hash`, and Go uses `[][]interface{}` buckets with its own hash for ints, strings and everything else.
 
-<TopicCode topic="Data Structures/Hashing/Hash Set" />
+<TopicCode topic="Data_Structures/Hashing/Hash_Set" />
 
 ## Frequently asked questions
 

@@ -4,8 +4,8 @@
  *
  * Both mirror the repository's Python code, tie-breaking included, and golden
  * fixtures (scripts/gen_greedy_fixtures.py) pin them to it:
- *   Algorithms/Greedy/Activity Selection/Python/activity_selection.py (activity_selection)
- *   Algorithms/Greedy/Fractional Knapsack/Python/fractional_knapsack.py (fractional_knapsack)
+ *   Algorithms/Greedy/Activity_Selection/Python/activity_selection.py (activity_selection)
+ *   Algorithms/Greedy/Fractional_Knapsack/Python/fractional_knapsack.py (fractional_knapsack)
  */
 import { InputError, type Frame, type Role } from '../core/types';
 import type { IntervalTimelineState, IntervalView } from '../renderers/IntervalTimeline';

@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Treap
+topic: Data_Structures/Non_Linear/Trees/Treap
 title: Treap
 lead: A treap is a binary search tree on keys that is also a max-heap on random priorities. The random priorities give it the shape of a BST built from shuffled input, so every operation is O(log n) in expectation, with very short code built on split and merge.
 level: Advanced
@@ -22,13 +22,13 @@ properties:
   - { label: Sorted iteration, value: true }
   - { label: Duplicates allowed, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
-  - Data Structures/Non_Linear/Heaps/Max Heap
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+  - Data_Structures/Non_Linear/Heaps/Max_Heap
 related:
-  - Data Structures/Non_Linear/Trees/Cartesian Tree
-  - Data Structures/Non_Linear/Trees/AVL Tree
-  - Data Structures/Non_Linear/Trees/Red-Black Tree
-  - Data Structures/Non_Linear/Trees/Splay Tree
+  - Data_Structures/Non_Linear/Trees/Cartesian_Tree
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Red_Black_Tree
+  - Data_Structures/Non_Linear/Trees/Splay_Tree
 ---
 
 ## What a treap is
@@ -124,7 +124,7 @@ All three versions are the split/merge formulation with these API differences:
 
 Delete does not split at `key + 1`. That trick overflows at the largest integer (C++ undefined behavior, Go wraps around and silently leaves the key behind) and means nothing for float keys. Instead the code splits at `key` and drops the minimum node of the right part, which is exactly the key being deleted.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Treap" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Treap" />
 
 ## Complexity
 

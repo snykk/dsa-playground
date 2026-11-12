@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/Graph Traversal Problems
+topic: Problem_Patterns/Graph_Traversal_Problems
 title: Graph Traversal Problems
 lead: Many problems are a graph in disguise, such as a grid of land and water, a set of course prerequisites or a maze. Traversal with BFS, DFS or Kahn's algorithm visits each vertex and edge once and answers reachability, shortest-path, component and ordering questions in O(V + E).
 level: Intermediate
@@ -23,12 +23,12 @@ properties:
   - { label: Handles weights, value: false }
   - { label: Detects cycles (Kahn), value: true }
 prerequisites:
-  - Data Structures/Non_Linear/Graph
+  - Data_Structures/Non_Linear/Graph
 related:
   - Algorithms/Graph_Algorithms/Traversal/BFS
   - Algorithms/Graph_Algorithms/Traversal/DFS
   - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
-  - Problem_Patterns/Union-Find Applications
+  - Problem_Patterns/Union_Find_Applications
 ---
 
 ## When to use it
@@ -158,7 +158,7 @@ Things to know:
 - `num_islands` overwrites visited cells with `'0'` in all three languages: pass a copy if you need the grid afterwards.
 - `topological_sort` returns an empty list on a cycle. In C++ edge endpoints must be below `n`; there is no bounds check.
 
-<TopicCode topic="Problem_Patterns/Graph Traversal Problems" />
+<TopicCode topic="Problem_Patterns/Graph_Traversal_Problems" />
 
 ## Complexity
 

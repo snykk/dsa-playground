@@ -241,4 +241,4 @@ All three support errors + erasures and a configurable `fcr`, and share the same
 
 - [Galois Field GF(2⁸)](../Galois_Field/README.md): the arithmetic foundation
 - [Coding Theory overview](../README.md)
-- [Modular Arithmetic](../../Mathematical_Algorithms/Number_Theory/Modular%20Arithmetic/README.md): analogous structure over prime fields
+- [Modular Arithmetic](../../Mathematical_Algorithms/Number_Theory/Modular_Arithmetic/README.md): analogous structure over prime fields

@@ -18,19 +18,19 @@ Divide and Conquer is a fundamental algorithmic paradigm that works by:
 ### 1. Merge Sort
 - **Time Complexity**: O(n log n)
 - **Space Complexity**: O(n)
-- **Location**: [Algorithms/Sorting/Merge Sort](../Sorting/Merge%20Sort/)
+- **Location**: [Algorithms/Sorting/Merge_Sort](../Sorting/Merge_Sort/)
 - **Description**: Divides array into halves, sorts recursively, then merges
 
 ### 2. Quick Sort
 - **Time Complexity**: O(n log n) average, O(n²) worst
 - **Space Complexity**: O(log n)
-- **Location**: [Algorithms/Sorting/Quick Sort](../Sorting/Quick%20Sort/)
+- **Location**: [Algorithms/Sorting/Quick_Sort](../Sorting/Quick_Sort/)
 - **Description**: Partitions array around pivot, sorts recursively
 
 ### 3. Binary Search
 - **Time Complexity**: O(log n)
 - **Space Complexity**: O(1) iterative, O(log n) recursive
-- **Location**: [Algorithms/Searching/Binary Search](../Searching/Binary%20Search/)
+- **Location**: [Algorithms/Searching/Binary_Search](../Searching/Binary_Search/)
 - **Description**: Divides search space in half repeatedly
 
 ### 4. Strassen's Matrix Multiplication

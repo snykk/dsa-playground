@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Hashing/Hash Table
+topic: Data_Structures/Hashing/Hash_Table
 title: Hash Table
 lead: A hash table stores key-value pairs in an array of buckets and finds a key by hashing it to a bucket index. With separate chaining and a doubling resize, put, get and remove take O(1) on average, which is why hash tables sit behind dictionaries and sets in most languages.
 level: Beginner
@@ -23,13 +23,13 @@ properties:
   - { label: Handles collisions, value: true }
   - { label: Resizes automatically, value: true }
 prerequisites:
-  - Data Structures/Linear/Array
-  - Data Structures/Linear/Linked List/Singly
+  - Data_Structures/Linear/Array
+  - Data_Structures/Linear/Linked_List/Singly
 related:
-  - Data Structures/Hashing/Collision Handling
-  - Data Structures/Hashing/Hash Map
-  - Data Structures/Hashing/Hash Set
-  - Data Structures/Hashing/Bloom Filter
+  - Data_Structures/Hashing/Collision_Handling
+  - Data_Structures/Hashing/Hash_Map
+  - Data_Structures/Hashing/Hash_Set
+  - Data_Structures/Hashing/Bloom_Filter
 ---
 
 ## What a hash table is
@@ -188,7 +188,7 @@ The string hash used here is `h = h * 31 + c`, reduced at each step modulo the c
 
 All three tables use separate chaining and double their capacity when the load factor passes 0.75. They compare keys with the language equality (`==`). Python hashes strings with `h*31 + c`, C++ uses `std::hash` (with an explicit 31-based hash only for `<std::string, std::string>` tables), and Go hashes ints directly and everything else through a string form.
 
-<TopicCode topic="Data Structures/Hashing/Hash Table" />
+<TopicCode topic="Data_Structures/Hashing/Hash_Table" />
 
 ## Frequently asked questions
 

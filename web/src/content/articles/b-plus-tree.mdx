@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/B+ Tree
+topic: Data_Structures/Non_Linear/Trees/B_Plus_Tree
 title: B+ Tree
 lead: A B+ tree is a B-tree variant that keeps every key and value in the leaves and links the leaves into a sorted list. Point lookups cost O(log n), and a range query is one descent plus a walk along the leaf chain, which is why it is the usual shape of a database index.
 level: Advanced
@@ -24,11 +24,11 @@ properties:
   - { label: Linked leaves, value: true }
   - { label: Delete supported, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/B-Tree
+  - Data_Structures/Non_Linear/Trees/B_Tree
 related:
-  - Data Structures/Non_Linear/Trees/B-Tree
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
-  - Data Structures/Non_Linear/Trees/AVL Tree
+  - Data_Structures/Non_Linear/Trees/B_Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
 ---
 
 ## What a B+ tree is
@@ -148,7 +148,7 @@ Find the leaf for `lo`, then read keys while they are `<= hi`, hopping along `ne
 
 The three versions share the same structure: nodes with `keys`, `children` (internal) and `values` plus a `next` pointer (leaf), a proactive `split_child` with the two cases above, and `find_leaf`. The tests insert thousands of random keys and compare `search`, `range_search` and `traverse` with a dictionary or `std::map`, then check fill bounds, separators, equal leaf depth and the leaf chain. The C++ tree frees its nodes in a destructor and cannot be copied.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/B+ Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/B_Plus_Tree" />
 
 ## Complexity
 

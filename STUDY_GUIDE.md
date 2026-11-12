@@ -23,29 +23,29 @@ This is intentionally opinionated — if you're studying DSA for the first time,
 ### 1. Complexity Analysis
 Start here — you'll use Big-O notation for the rest of your career.
 
-- [Big-O Notation](Complexity_Analysis/Time%20Complexity/Big-O%20Notation/)
-- [Big-Theta (Θ)](Complexity_Analysis/Time%20Complexity/Big-Theta%20(Θ)/)
-- [Big-Omega (Ω)](Complexity_Analysis/Time%20Complexity/Big-Omega%20(Ω)/)
-- [Space Complexity](Complexity_Analysis/Space%20Complexity/)
-- [Amortized Analysis](Complexity_Analysis/Amortized%20Analysis/)
+- [Big-O Notation](Complexity_Analysis/Time_Complexity/Big_O_Notation/)
+- [Big-Theta (Θ)](Complexity_Analysis/Time_Complexity/Big_Theta/)
+- [Big-Omega (Ω)](Complexity_Analysis/Time_Complexity/Big_Omega/)
+- [Space Complexity](Complexity_Analysis/Space_Complexity/)
+- [Amortized Analysis](Complexity_Analysis/Amortized_Analysis/)
 
 ### 2. Linear Data Structures
 The primitive building blocks of every other structure.
 
-- [Array](Data%20Structures/Linear/Array/) — static and dynamic
-- [String](Data%20Structures/Linear/String/) — introduction + manipulation
-- [Linked List](Data%20Structures/Linear/Linked%20List/) — singly, doubly, circular
-- [Stack](Data%20Structures/Linear/Stack/)
-- [Queue](Data%20Structures/Linear/Queue/) — simple, circular, deque
+- [Array](Data_Structures/Linear/Array/) — static and dynamic
+- [String](Data_Structures/Linear/String/) — introduction + manipulation
+- [Linked List](Data_Structures/Linear/Linked_List/) — singly, doubly, circular
+- [Stack](Data_Structures/Linear/Stack/)
+- [Queue](Data_Structures/Linear/Queue/) — simple, circular, deque
 
 ### 3. Basic Sorting & Searching
 Classical algorithms; every interview touches them.
 
 - [Bubble / Selection / Insertion Sort](Algorithms/Sorting/) — O(n²), educational
-- [Merge Sort](Algorithms/Sorting/Merge%20Sort/) — divide & conquer introduction
-- [Quick Sort](Algorithms/Sorting/Quick%20Sort/) — pivot strategy matters
-- [Linear Search](Algorithms/Searching/Linear%20Search/)
-- [Binary Search](Algorithms/Searching/Binary%20Search/) — **master this**
+- [Merge Sort](Algorithms/Sorting/Merge_Sort/) — divide & conquer introduction
+- [Quick Sort](Algorithms/Sorting/Quick_Sort/) — pivot strategy matters
+- [Linear Search](Algorithms/Searching/Linear_Search/)
+- [Binary Search](Algorithms/Searching/Binary_Search/) — **master this**
 
 **Milestone:** you can solve LeetCode Easy problems reliably.
 
@@ -56,22 +56,22 @@ Classical algorithms; every interview touches them.
 **Goal:** make hash tables, trees, and heaps feel natural.
 
 ### 4. Hashing
-- [Hash Table / Map / Set](Data%20Structures/Hashing/)
-- [Collision Handling](Data%20Structures/Hashing/Collision%20Handling/) — chaining vs open addressing
-- [Bloom Filter](Data%20Structures/Hashing/Bloom%20Filter/) — probabilistic variant
+- [Hash Table / Map / Set](Data_Structures/Hashing/)
+- [Collision Handling](Data_Structures/Hashing/Collision_Handling/) — chaining vs open addressing
+- [Bloom Filter](Data_Structures/Hashing/Bloom_Filter/) — probabilistic variant
 
 ### 5. Trees — Essentials
-- [Binary Tree](Data%20Structures/Non_Linear/Trees/Binary%20Tree/)
-- [Binary Search Tree (BST)](Data%20Structures/Non_Linear/Trees/Binary%20Search%20Tree/)
-- [AVL Tree](Data%20Structures/Non_Linear/Trees/AVL%20Tree/) — first balanced BST
-- [Trie](Data%20Structures/Non_Linear/Trees/Trie/) — string-keyed tree
+- [Binary Tree](Data_Structures/Non_Linear/Trees/Binary_Tree/)
+- [Binary Search Tree (BST)](Data_Structures/Non_Linear/Trees/Binary_Search_Tree/)
+- [AVL Tree](Data_Structures/Non_Linear/Trees/AVL_Tree/) — first balanced BST
+- [Trie](Data_Structures/Non_Linear/Trees/Trie/) — string-keyed tree
 
 ### 6. Heaps
-- [Min / Max Heap](Data%20Structures/Non_Linear/Heaps/)
-- [Priority Queue](Data%20Structures/Linear/Queue/Priority%20Queue/) — heap in disguise
+- [Min / Max Heap](Data_Structures/Non_Linear/Heaps/)
+- [Priority Queue](Data_Structures/Linear/Queue/Priority_Queue/) — heap in disguise
 
 ### 7. Graph Basics
-- [Adjacency List / Matrix](Data%20Structures/Non_Linear/Graph/)
+- [Adjacency List / Matrix](Data_Structures/Non_Linear/Graph/)
 - [BFS](Algorithms/Graph_Algorithms/Traversal/BFS/)
 - [DFS](Algorithms/Graph_Algorithms/Traversal/DFS/)
 - [Topological Sort](Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort/)
@@ -87,25 +87,25 @@ Classical algorithms; every interview touches them.
 ### 8. Two Pointers & Sliding Window
 These two patterns appear in 40%+ of array/string problems.
 
-- [Two Pointers](Problem_Patterns/Two%20Pointers/)
-- [Sliding Window](Problem_Patterns/Sliding%20Window/)
-- [Binary Search on Answer](Problem_Patterns/Binary%20Search%20on%20Answer/)
+- [Two Pointers](Problem_Patterns/Two_Pointers/)
+- [Sliding Window](Problem_Patterns/Sliding_Window/)
+- [Binary Search on Answer](Problem_Patterns/Binary_Search_on_Answer/)
 
 ### 9. Prefix Sum & Difference Array
-- [Prefix Sum / Difference Array](Problem_Patterns/Prefix%20Sum%20Difference%20Array/)
+- [Prefix Sum / Difference Array](Problem_Patterns/Prefix_Sum_Difference_Array/)
 
 ### 10. Monotonic Structures
-- [Monotonic Stack](Problem_Patterns/Monotonic%20Stack/)
-- [Monotonic Queue](Problem_Patterns/Monotonic%20Queue/) — O(n) sliding window max/min
+- [Monotonic Stack](Problem_Patterns/Monotonic_Stack/)
+- [Monotonic Queue](Problem_Patterns/Monotonic_Queue/) — O(n) sliding window max/min
 
 ### 11. Dynamic Programming (start here!)
-- [Fibonacci / Climbing Stairs](Algorithms/Dynamic_Programming/Basic%20DP/) — 1D DP intro
-- [Maximum Subarray (Kadane's)](Algorithms/Dynamic_Programming/Linear%20DP/Maximum%20Subarray%20%28Kadane's%20Algorithm%29/)
-- [Longest Increasing Subsequence](Algorithms/Dynamic_Programming/Linear%20DP/Longest%20Increasing%20Subsequence/)
-- [Coin Change](Algorithms/Dynamic_Programming/Linear%20DP/Coin%20Change/)
-- [Longest Common Subsequence](Algorithms/Dynamic_Programming/2D%20DP/Longest%20Common%20Subsequence/) — **2D DP gateway**
-- [Edit Distance](Algorithms/Dynamic_Programming/2D%20DP/Edit%20Distance/)
-- [0/1 Knapsack](Algorithms/Dynamic_Programming/2D%20DP/0-1%20Knapsack/)
+- [Fibonacci / Climbing Stairs](Algorithms/Dynamic_Programming/Basic_DP/) — 1D DP intro
+- [Maximum Subarray (Kadane's)](Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray_Kadanes_Algorithm/)
+- [Longest Increasing Subsequence](Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence/)
+- [Coin Change](Algorithms/Dynamic_Programming/Linear_DP/Coin_Change/)
+- [Longest Common Subsequence](Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence/) — **2D DP gateway**
+- [Edit Distance](Algorithms/Dynamic_Programming/2D_DP/Edit_Distance/)
+- [0/1 Knapsack](Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack/)
 
 **Milestone:** you can solve LeetCode Medium DP problems consistently.
 
@@ -116,29 +116,29 @@ These two patterns appear in 40%+ of array/string problems.
 **Goal:** the topics that separate "can pass interviews" from "can tackle ICPC."
 
 ### 12. Advanced Graph
-- [Dijkstra](Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm/)
-- [Bellman-Ford](Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm/)
-- [Floyd-Warshall](Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm/)
+- [Dijkstra](Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm/)
+- [Bellman-Ford](Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm/)
+- [Floyd-Warshall](Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm/)
 - [MST: Kruskal / Prim](Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/)
-- [Union-Find (DSU)](Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU/) — essential
+- [Union-Find (DSU)](Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU/) — essential
 - [Strongly Connected Components](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/)
 - [Tarjan's Bridges & Articulation Points](Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/)
 
 ### 13. Advanced String
-- [KMP / Rabin-Karp / Boyer-Moore](Data%20Structures/Linear/String/Pattern%20Matching/)
-- [Z-Algorithm](Algorithms/String_Algorithms/Advanced_String/Z-Algorithm/)
-- [Manacher's Algorithm](Algorithms/String_Algorithms/Advanced_String/Longest%20Palindromic%20Substring%20(Manacher's)/)
-- [Aho-Corasick](Algorithms/String_Algorithms/Advanced_String/Aho-Corasick/) — multi-pattern
+- [KMP / Rabin-Karp / Boyer-Moore](Data_Structures/Linear/String/Pattern_Matching/)
+- [Z-Algorithm](Algorithms/String_Algorithms/Advanced_String/Z_Algorithm/)
+- [Manacher's Algorithm](Algorithms/String_Algorithms/Advanced_String/Longest_Palindromic_Substring_Manachers/)
+- [Aho-Corasick](Algorithms/String_Algorithms/Advanced_String/Aho_Corasick/) — multi-pattern
 
 ### 14. Advanced Trees
-- [Segment Tree](Data%20Structures/Non_Linear/Trees/Segment%20Tree/)
-- [Fenwick Tree (BIT)](Data%20Structures/Non_Linear/Trees/Fenwick%20Tree/)
-- [Segment Tree with Lazy Propagation](Data%20Structures/Non_Linear/Trees/Segment%20Tree%20(Lazy%20Propagation)/)
-- [Treap](Data%20Structures/Non_Linear/Trees/Treap/) — randomized BST
+- [Segment Tree](Data_Structures/Non_Linear/Trees/Segment_Tree/)
+- [Fenwick Tree (BIT)](Data_Structures/Non_Linear/Trees/Fenwick_Tree/)
+- [Segment Tree with Lazy Propagation](Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation/)
+- [Treap](Data_Structures/Non_Linear/Trees/Treap/) — randomized BST
 
 ### 15. Caches (System Design Interview)
-- [LRU Cache](Data%20Structures/Advanced_Structures/LRU%20Cache/)
-- [LFU Cache](Data%20Structures/Advanced_Structures/LFU%20Cache/)
+- [LRU Cache](Data_Structures/Advanced_Structures/LRU_Cache/)
+- [LFU Cache](Data_Structures/Advanced_Structures/LFU_Cache/)
 
 **Milestone:** you can solve LeetCode Hard problems; interview-ready for senior roles.
 
@@ -149,27 +149,27 @@ These two patterns appear in 40%+ of array/string problems.
 **Goal:** the techniques that win ICPC / Codeforces contests.
 
 ### 16. Advanced DP
-- [DP on Trees](Algorithms/Dynamic_Programming/Advanced%20DP/DP%20on%20Trees/)
-- [Bitmask DP](Algorithms/Dynamic_Programming/Advanced%20DP/Bitmask%20DP/)
-- [Digit DP](Algorithms/Dynamic_Programming/Advanced%20DP/Digit%20DP/)
+- [DP on Trees](Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees/)
+- [Bitmask DP](Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP/)
+- [Digit DP](Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP/)
 - [Convex Hull Trick / Li Chao Tree](Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick/) — linear-function optimization
 
 ### 17. Decomposition Techniques
-- [Square Root Decomposition](Algorithms/Advanced_Algorithms/Specialized%20Techniques/Square%20Root%20Decomposition/)
-- [Heavy-Light Decomposition](Algorithms/Advanced_Algorithms/Specialized%20Techniques/Heavy-Light%20Decomposition/)
-- [Centroid Decomposition](Algorithms/Advanced_Algorithms/Specialized%20Techniques/Centroid%20Decomposition/)
-- [Mo's Algorithm](Algorithms/Advanced_Algorithms/Specialized%20Techniques/Mo's%20Algorithm/)
+- [Square Root Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition/)
+- [Heavy-Light Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Heavy_Light_Decomposition/)
+- [Centroid Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposition/)
+- [Mo's Algorithm](Algorithms/Advanced_Algorithms/Specialized_Techniques/Mos_Algorithm/)
 
 ### 18. Special Techniques
-- [2-SAT Solver](Algorithms/Graph_Algorithms/Advanced_Graph/2-SAT/) — SAT via SCC
+- [2-SAT Solver](Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT/) — SAT via SCC
 - [Network Flow](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/) — Ford-Fulkerson / Edmonds-Karp
-- [FFT](Algorithms/Mathematical_Algorithms/Advanced_Math/Fast%20Fourier%20Transform/)
-- [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix%20Exponentiation/)
+- [FFT](Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/)
+- [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation/)
 
 ### 19. Specialized Patterns
-- [Meet in the Middle](Problem_Patterns/Meet%20in%20the%20Middle/) — 2^n → 2^(n/2)
-- [Coordinate Compression](Problem_Patterns/Coordinate%20Compression/)
-- [Inclusion-Exclusion Principle](Problem_Patterns/Inclusion-Exclusion%20Principle/)
+- [Meet in the Middle](Problem_Patterns/Meet_in_the_Middle/) — 2^n → 2^(n/2)
+- [Coordinate Compression](Problem_Patterns/Coordinate_Compression/)
+- [Inclusion-Exclusion Principle](Problem_Patterns/Inclusion_Exclusion_Principle/)
 
 **Milestone:** Codeforces Div 2 A-D reliably; eligible for ICPC regionals.
 

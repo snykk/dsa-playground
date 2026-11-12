@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
 title: Euclidean Algorithm
 lead: The Euclidean algorithm finds the greatest common divisor of two integers by replacing the pair (a, b) with (b, a mod b) until the second number is zero. It needs only O(log min(a, b)) steps, and its extended form yields the Bezout coefficients behind modular inverses.
 level: Beginner
@@ -23,11 +23,11 @@ properties:
   - { label: Handles negative input, value: true }
   - { label: Finds prime factors, value: false }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese Remainder Theorem
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
 ---
 
 ## Definition
@@ -120,7 +120,7 @@ extendedGcdNonNegative(a, b):
 
 Each language provides a recursive and an iterative `gcd`, `lcm` and `extended_gcd`. The C++ and Go versions use 64-bit integers: `lcm` divides before it multiplies, and Go takes absolute values in integer arithmetic (an older version went through `float64` and returned wrong answers above 2^53). Python integers have no limit. The minimum 64-bit integer is not supported in C++ and Go, since its absolute value does not fit.
 
-<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm" />
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm" />
 
 ## Complexity
 

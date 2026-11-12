@@ -61,8 +61,8 @@ A strongly connected component is a maximal set of vertices in a directed graph 
 
 ## Implementations
 
-- **[Kosaraju's Algorithm](./Kosaraju's_Algorithm/)** - Two-pass algorithm
-- **[Tarjan's Algorithm](./Tarjan's_Algorithm/)** - Single-pass algorithm
+- **[Kosaraju's Algorithm](Kosarajus_Algorithm/)** - Two-pass algorithm
+- **[Tarjan's Algorithm](Tarjans_Algorithm/)** - Single-pass algorithm
 
 Each implementation includes:
 - Python, C++, and Go versions
@@ -76,7 +76,7 @@ Each implementation includes:
 - **Topological Sort**: Works on DAG (condensation graph of SCCs)
 - **DFS**: Core traversal algorithm
 - **Graph Reversal**: Used in Kosaraju's algorithm
-- **[2-SAT Solver](../2-SAT/README.md)**: The flagship application of SCC — each 2-SAT clause becomes two implications, and satisfiability reduces to "does any variable share an SCC with its negation?" Linear-time SAT decision procedure built directly on top of this module.
+- **[2-SAT Solver](../2_SAT/README.md)**: The flagship application of SCC — each 2-SAT clause becomes two implications, and satisfiability reduces to "does any variable share an SCC with its negation?" Linear-time SAT decision procedure built directly on top of this module.
 - **[Tarjan's Bridges & Articulation Points](../Tarjan_Bridges_Articulation/README.md)**: The _undirected_-graph cousin — same `disc[]` / `low[]` timestamp machinery, different edge rules. Both descend from Tarjan's original DFS framework.
 
 ---

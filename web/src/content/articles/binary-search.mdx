@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Searching/Binary Search
+topic: Algorithms/Searching/Binary_Search
 title: Binary Search
 lead: Binary Search finds a value in a sorted array by comparing it with the middle element and discarding the half that cannot contain it. Each probe halves the range, so a billion sorted items take at most 30 comparisons.
 level: Beginner
@@ -24,12 +24,12 @@ properties:
   - { label: In-place, value: true }
   - { label: Divide and conquer, value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Searching/Linear Search
-  - Algorithms/Searching/Interpolation Search
-  - Algorithms/Searching/Ternary Search
-  - Problem_Patterns/Binary Search on Answer
+  - Algorithms/Searching/Linear_Search
+  - Algorithms/Searching/Interpolation_Search
+  - Algorithms/Searching/Ternary_Search
+  - Problem_Patterns/Binary_Search_on_Answer
   - Algorithms/Divide_and_Conquer
 ---
 
@@ -104,7 +104,7 @@ firstOccurrence(arr, target):             # last occurrence: mirror it
 
 The Python, C++ and Go files all contain the iterative search, a recursive search and the first and last occurrence searches. Python also has `binary_search_closest`, which returns the index of the element nearest to the target (the larger one on a tie, `-1` for an empty list). C++ is a template with instances for `int` (and `double` for the basic and recursive forms); Go works on `[]int`. Python's `binary_search_recursive` defaults `right` to the end of the list; the C++ and Go recursive functions take `left` and `right` explicitly.
 
-<TopicCode topic="Algorithms/Searching/Binary Search" />
+<TopicCode topic="Algorithms/Searching/Binary_Search" />
 
 ## Complexity analysis
 

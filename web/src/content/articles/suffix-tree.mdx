@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Suffix Tree
+topic: Data_Structures/Non_Linear/Trees/Suffix_Tree
 title: Suffix Tree
 lead: A suffix tree is a compressed trie of every suffix of a string. After one build you can find all occurrences of any pattern of length m in O(m + occ) time, independent of the text length, which makes it a classic index for substring queries.
 level: Advanced
@@ -24,13 +24,13 @@ properties:
   - { label: Linear-time build here, value: false }
   - { label: Needs a unique terminator, value: true }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Trie
+  - Data_Structures/Non_Linear/Trees/Trie
 related:
-  - Data Structures/Non_Linear/Trees/Suffix Array
-  - Data Structures/Non_Linear/Trees/Trie
-  - Algorithms/String_Algorithms/Pattern_Matching/KMP Algorithm
-  - Algorithms/String_Algorithms/Advanced_String/Longest Common Substring
-  - Algorithms/String_Algorithms/Advanced_String/Aho-Corasick
+  - Data_Structures/Non_Linear/Trees/Suffix_Array
+  - Data_Structures/Non_Linear/Trees/Trie
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring
+  - Algorithms/String_Algorithms/Advanced_String/Aho_Corasick
 ---
 
 ## What a suffix tree is
@@ -231,7 +231,7 @@ The deep case matters. On `aaaa...a` (n copies) the tree degenerates into a chai
 
 All three versions share the same plan: append the NUL terminator, insert every suffix with edge splitting, then answer searches by walking down and collecting the leaves below the match with an explicit stack. Python keeps nodes in dictionaries, C++ keeps every node in one list and frees it in the destructor (the class is not copyable), and Go keys children by byte.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Suffix Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Suffix_Tree" />
 
 ## Frequently asked questions
 

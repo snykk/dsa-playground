@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/Monotonic Queue
+topic: Problem_Patterns/Monotonic_Queue
 title: Monotonic Queue
 lead: A monotonic queue is a deque whose values are kept in sorted order from front to back, so the maximum (or minimum) of a sliding window is always at the front. It turns the sliding window maximum from O(n * k) into O(n), because every element enters and leaves the deque at most once.
 level: Intermediate
@@ -23,12 +23,12 @@ properties:
   - { label: Online, value: true }
   - { label: Needs sorted input, value: false }
 prerequisites:
-  - Data Structures/Linear/Queue/Deque
+  - Data_Structures/Linear/Queue/Deque
 related:
-  - Problem_Patterns/Monotonic Stack
-  - Problem_Patterns/Sliding Window
-  - Problem_Patterns/Two Pointers
-  - Data Structures/Non_Linear/Heaps/Max Heap
+  - Problem_Patterns/Monotonic_Stack
+  - Problem_Patterns/Sliding_Window
+  - Problem_Patterns/Two_Pointers
+  - Data_Structures/Non_Linear/Heaps/Max_Heap
 ---
 
 ## When to use it
@@ -112,7 +112,7 @@ For the minimum, flip the back comparison to `arr[dq.back] >= arr[i]`.
 
 Python also has `MonotonicDeque(should_pop)`, a reusable class: `push(value)`, `pop_front_if(value)`, `front()`. It stores `(index, value)` pairs and evicts by index, so equal values are handled correctly. With values only, the rule `existing <= new` collapses equal values and evicting the outgoing copy would remove the newer one still inside the window: for `[5, 5, 1]` with `k = 2` the answer must be `[5, 5]`, not `[5, 1]`. The Go deque is a slice; popping the front reslices `dq[1:]`.
 
-<TopicCode topic="Problem_Patterns/Monotonic Queue" />
+<TopicCode topic="Problem_Patterns/Monotonic_Queue" />
 
 ## Complexity
 

@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Interval Tree
+topic: Data_Structures/Non_Linear/Trees/Interval_Tree
 title: Interval Tree
 lead: An interval tree stores intervals in a binary search tree ordered by their left end, and keeps in every node the largest right end found below it. That one extra number lets an overlap query skip whole subtrees that cannot contain a match.
 level: Advanced
@@ -24,11 +24,11 @@ properties:
   - { label: Delete supported, value: true }
   - { label: Closed intervals, value: true }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
 related:
-  - Data Structures/Non_Linear/Trees/Segment Tree
-  - Data Structures/Non_Linear/Trees/AVL Tree
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
 ---
 
 ## What an interval tree is
@@ -150,7 +150,7 @@ Delete finds the node by `low` (equal lows lie to the right, so it keeps going r
 
 The three versions share the same structure: an `Interval`, a node with `max`, and recursive insert, delete and search. Insert only raises `max` along its path; delete recomputes it on the way back up. Tests compare overlap and containment queries and deletes with a brute-force list on hundreds of random runs and check every `max`. The C++ tree frees its nodes and cannot be copied.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Interval Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Interval_Tree" />
 
 ## Complexity
 

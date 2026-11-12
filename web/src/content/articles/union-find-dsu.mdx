@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU
 title: Union-Find in Graph Algorithms
 lead: Union-Find (disjoint set union) keeps a forest of parent pointers so that "are these two vertices connected?" and "merge their groups" both take almost constant time. In graph algorithms it counts connected components, spots the edge that closes a cycle and drives Kruskal's minimum spanning tree.
 level: Intermediate
@@ -23,10 +23,10 @@ properties:
   - { label: Supports deleting an edge, value: false }
   - { label: Needs vertices numbered 0..n-1, value: true }
 prerequisites:
-  - Data Structures/Advanced_Structures/Disjoint Set Union
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
 related:
-  - Data Structures/Advanced_Structures/Disjoint Set Union
-  - Problem_Patterns/Union-Find Applications
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
+  - Problem_Patterns/Union_Find_Applications
   - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
   - Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation
 ---
@@ -114,7 +114,7 @@ Python adds graph helpers on top: `union_find_connected_components(edges, n)`, `
 
 `find` is recursive in all three languages. That is safe here: union by rank keeps every tree at most log<sub>2</sub>(n) high, and the tests merge a chain of 10<sup>5</sup> (Python) or 10<sup>6</sup> (C++, Go) vertices without trouble. Nothing checks that an element is in `0 .. n-1`: in Python a negative id silently wraps around (so `union(-1, 0)` merges the last element), an id of `n` or more raises `IndexError`, C++ has undefined behaviour and Go panics.
 
-<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU" />
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU" />
 
 ## Complexity analysis
 

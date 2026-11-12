@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/Prefix Sum Difference Array
+topic: Problem_Patterns/Prefix_Sum_Difference_Array
 title: Prefix Sum and Difference Array
 lead: A prefix sum array answers "what is the sum of a[l..r]?" in O(1) after one O(n) pass. Its inverse, the difference array, applies "add v to a[l..r]" in O(1) and rebuilds the final array with one pass. Together they remove the inner loop from range queries and range updates.
 level: Beginner
@@ -23,12 +23,12 @@ properties:
   - { label: Online (updates between queries), value: false }
   - { label: Needs sorted input, value: false }
 prerequisites:
-  - Data Structures/Linear/Array
+  - Data_Structures/Linear/Array
 related:
   - Utilities/Optimization_Techniques/Precomputation
-  - Data Structures/Non_Linear/Trees/Fenwick Tree
-  - Data Structures/Non_Linear/Trees/Segment Tree
-  - Problem_Patterns/Sliding Window
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Problem_Patterns/Sliding_Window
 ---
 
 ## When to use it
@@ -121,7 +121,7 @@ All three languages have `PrefixSum` (constructor, `query(left, right)` inclusiv
 
 None of the classes validates indices: `query(l, r)` with `r >= n` or a negative index is an error (an exception in Python, undefined behaviour in C++, a panic in Go, except that a negative Python index silently wraps). Values are `int`, so sums above 2<sup>31</sup> overflow in C++.
 
-<TopicCode topic="Problem_Patterns/Prefix Sum Difference Array" />
+<TopicCode topic="Problem_Patterns/Prefix_Sum_Difference_Array" />
 
 ## Complexity
 

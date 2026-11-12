@@ -105,7 +105,7 @@ export function parseTwoPointers(text: string): TwoPointersInput {
   return { values, target, sortedByUs: values.some((v, i) => v !== raw[i]) };
 }
 
-/** Mirrors two_sum_sorted (Problem_Patterns/Two Pointers/Python/two_pointers.py). */
+/** Mirrors two_sum_sorted (Problem_Patterns/Two_Pointers/Python/two_pointers.py). */
 export function twoPointersTrace({ values: a, target: t, sortedByUs }: TwoPointersInput): PatternFrame[] {
   const n = a.length;
   const frames: PatternFrame[] = [];
@@ -217,7 +217,7 @@ export function parseKDistinct(text: string): KDistinctInput {
   return { s: main, k };
 }
 
-/** Mirrors longest_substring_k_distinct (Problem_Patterns/Sliding Window/Python/sliding_window.py). */
+/** Mirrors longest_substring_k_distinct (Problem_Patterns/Sliding_Window/Python/sliding_window.py). */
 export function kDistinctTrace({ s, k }: KDistinctInput): PatternFrame[] {
   const chars = [...s];
   const n = chars.length;
@@ -334,7 +334,7 @@ export function parseRangeQueries(text: string): RangeQueryInput {
   return { values, queries };
 }
 
-/** Mirrors PrefixSum and range_sum_queries (Problem_Patterns/Prefix Sum Difference Array/Python/prefix_sum.py). */
+/** Mirrors PrefixSum and range_sum_queries (Problem_Patterns/Prefix_Sum_Difference_Array/Python/prefix_sum.py). */
 export function prefixSumTrace({ values: a, queries }: RangeQueryInput): PatternFrame[] {
   const n = a.length;
   const P: Array<number | null> = [0, ...a.map(() => null)];
@@ -447,7 +447,7 @@ export function parseRangeUpdates(text: string): RangeUpdateInput {
   return { values, updates };
 }
 
-/** Mirrors DifferenceArray and range_updates (Problem_Patterns/Prefix Sum Difference Array/Python/prefix_sum.py). */
+/** Mirrors DifferenceArray and range_updates (Problem_Patterns/Prefix_Sum_Difference_Array/Python/prefix_sum.py). */
 export function differenceArrayTrace({ values: a, updates }: RangeUpdateInput): PatternFrame[] {
   const n = a.length;
   const D = new Array<number>(n + 1).fill(0);
@@ -549,7 +549,7 @@ export function parseValues(text: string): number[] {
   return parseIntList(text, { min: 1, max: 16, lo: -99, hi: 99 });
 }
 
-/** Mirrors next_greater_element (Problem_Patterns/Monotonic Stack/Python/monotonic_stack.py); -1 is drawn as an empty set. */
+/** Mirrors next_greater_element (Problem_Patterns/Monotonic_Stack/Python/monotonic_stack.py); -1 is drawn as an empty set. */
 export function nextGreaterTrace(a: number[]): PatternFrame[] {
   const n = a.length;
   const answer: Array<number | null> = a.map(() => null);
@@ -653,7 +653,7 @@ export function parseWindow(text: string): WindowInput {
   return { values, k };
 }
 
-/** Mirrors sliding_window_max (Problem_Patterns/Monotonic Queue/Python/monotonic_queue.py). */
+/** Mirrors sliding_window_max (Problem_Patterns/Monotonic_Queue/Python/monotonic_queue.py). */
 export function windowMaxTrace({ values: a, k }: WindowInput): PatternFrame[] {
   const n = a.length;
   const dq: number[] = [];
@@ -775,7 +775,7 @@ function capacityAxis(lo: number, hi: number, keys: number[]): Array<number | nu
   return axis;
 }
 
-/** Mirrors find_min_capacity and binary_search_answer (Problem_Patterns/Binary Search on Answer/Python). */
+/** Mirrors find_min_capacity and binary_search_answer (Problem_Patterns/Binary_Search_on_Answer/Python). */
 export function shipCapacityTrace({ weights: w, days: D }: ShipInput): PatternFrame[] {
   const n = w.length;
   const lo0 = Math.max(...w);

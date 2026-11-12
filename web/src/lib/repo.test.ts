@@ -55,7 +55,7 @@ describe('repository content', () => {
       href: '/b/algorithms/coding-theory/reed-solomon/#impl-python',
     });
     expect(
-      resolveLink(content, rs, '../../Mathematical_Algorithms/Number_Theory/Modular%20Arithmetic/README.md', base).href,
+      resolveLink(content, rs, '../../Mathematical_Algorithms/Number_Theory/Modular_Arithmetic/README.md', base).href,
     ).toBe('/b/algorithms/mathematical-algorithms/number-theory/modular-arithmetic/');
     expect(resolveLink(content, rs, '#-the-fcr-parameter', base).kind).toBe('anchor');
     expect(resolveLink(content, rs, 'https://example.com', base).kind).toBe('external');
@@ -64,8 +64,8 @@ describe('repository content', () => {
   });
 
   it('reports links to folders that do not exist', () => {
-    // Known broken link from the 2026-11-10 audit (folder is "Maximum Subarray (Kadane's Algorithm)").
-    const link = resolveLink(content, 'STUDY_GUIDE.md', 'Algorithms/Dynamic_Programming/Linear%20DP/Maximum%20Subarray/', base);
+    // The folder is Maximum_Subarray_Kadanes_Algorithm, so this link must be reported.
+    const link = resolveLink(content, 'STUDY_GUIDE.md', 'Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray/', base);
     expect(link.kind).toBe('broken');
   });
 });

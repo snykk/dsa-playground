@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/Bit Manipulation
+topic: Problem_Patterns/Bit_Manipulation
 title: Bit Manipulation
 lead: Bit manipulation works directly on the binary digits of an integer. A handful of identities, such as n & (n - 1) and x ^ x = 0, replace loops and extra memory, and a bitmask lets one integer stand for a whole subset.
 level: Intermediate
@@ -22,12 +22,12 @@ properties:
   - { label: Needs sorted input, value: false }
   - { label: Width-dependent (overflow, shifts), value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
   - Utilities/Optimization_Techniques/Bitmasking
-  - Problem_Patterns/Inclusion-Exclusion Principle
-  - Algorithms/Dynamic_Programming/Advanced DP
-  - Data Structures/Non_Linear/Trees/Fenwick Tree
+  - Problem_Patterns/Inclusion_Exclusion_Principle
+  - Algorithms/Dynamic_Programming/Advanced_DP
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
 ---
 
 ## When to use it
@@ -112,7 +112,7 @@ Each language provides `is_power_of_two`, `count_set_bits`, `get_bit`, `set_bit`
 
 Negative inputs to the bit counters are treated as 64-bit two's complement values in all three languages, so `count_set_bits(-1)` is 64. The Python version masks to 64 bits first, because without it the loop would run forever: a Python `int` has infinitely many sign bits.
 
-<TopicCode topic="Problem_Patterns/Bit Manipulation" />
+<TopicCode topic="Problem_Patterns/Bit_Manipulation" />
 
 ## Complexity
 

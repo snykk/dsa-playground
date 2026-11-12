@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle
+topic: Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle
 title: Point, Line and Circle
 lead: The basic 2D toolkit behind computational geometry. It covers distance between points, the cross product as a signed area that tells left from right, the dot product, the angle between two directions, point-in-triangle and point-in-circle tests. Every test here is exact, so the answers do not depend on the coordinate scale.
 level: Beginner
@@ -22,11 +22,11 @@ properties:
   - { label: Independent of coordinate scale, value: true }
   - { label: Handles degenerate shapes, value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Computational_Geometry/Basic_Geometry/Line Intersection
-  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex Hull
-  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating Calipers
+  - Algorithms/Computational_Geometry/Basic_Geometry/Line_Intersection
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating_Calipers
 ---
 
 ## What the toolkit contains
@@ -148,7 +148,7 @@ Behaviors worth knowing:
 - A negative radius is rejected: `ValueError` in Python, `std::invalid_argument` in C++, a panic in Go (`NewCircle`).
 - `angle_between_points` returns 0 when A or B coincides with O, where the angle is undefined.
 
-<TopicCode topic="Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle" />
+<TopicCode topic="Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle" />
 
 ## Complexity analysis
 

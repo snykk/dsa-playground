@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
+topic: Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
 title: Dijkstra's Algorithm
 lead: Dijkstra's algorithm finds the cheapest path from one source to every other vertex in a graph whose edge weights are non-negative. It repeatedly settles the closest unsettled vertex, using a priority queue, and runs in O((V + E) log V) time.
 level: Intermediate
@@ -24,11 +24,11 @@ properties:
   - { label: Works on directed graphs, value: true }
 prerequisites:
   - Algorithms/Graph_Algorithms/Traversal/BFS
-  - Data Structures/Non_Linear/Heaps
+  - Data_Structures/Non_Linear/Heaps
 related:
-  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
   - Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm
-  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm
   - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm
 ---
 
@@ -129,7 +129,7 @@ All three languages take an adjacency list of `(neighbor, weight)` pairs and ret
   ]}
 />
 
-<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm" />
+<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm" />
 
 The C++ version uses 64-bit distances, so two large weights cannot overflow a 32-bit sum. Python integers are unbounded. Go's `int` is 64-bit on common platforms.
 

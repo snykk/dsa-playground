@@ -114,4 +114,4 @@ Do not use it when:
 - [DFS](../../Traversal/DFS/README.md): the traversal behind the finish-order version
 - [BFS](../../Traversal/BFS/README.md): the queue pattern behind Kahn
 - [Strongly Connected Components](../Strongly_Connected_Components/README.md): contract cycles to get a DAG
-- [2-SAT](../2-SAT/README.md): orders implication-graph components
+- [2-SAT](../2_SAT/README.md): orders implication-graph components

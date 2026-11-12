@@ -58,7 +58,7 @@ Use these whenever a statement says "modulo 10^9 + 7" or similar, or an exact co
 | inverse, prime modulus | Fermat | extended Euclid (also works for composites) |
 | binomials, `n` below the prime | factorial tables | Pascal's triangle (O(n^2)) |
 | binomials, `n` above the prime | Lucas | not available with plain tables |
-| n-th term of a recurrence | [Matrix Exponentiation](../../../Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix%20Exponentiation/README.md) | a loop, if n is small |
+| n-th term of a recurrence | [Matrix Exponentiation](../../../Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation/README.md) | a loop, if n is small |
 
 ## Common Pitfalls
 
@@ -90,8 +90,8 @@ Use these whenever a statement says "modulo 10^9 + 7" or similar, or an exact co
 
 ## Related
 
-- [Modular Arithmetic](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Modular%20Arithmetic/README.md)
-- [Modular Exponentiation](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Modular%20Exponentiation/README.md)
-- [Chinese Remainder Theorem](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Chinese%20Remainder%20Theorem/README.md)
-- [Euclidean Algorithm](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean%20Algorithm/README.md)
+- [Modular Arithmetic](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic/README.md)
+- [Modular Exponentiation](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation/README.md)
+- [Chinese Remainder Theorem](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem/README.md)
+- [Euclidean Algorithm](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm/README.md)
 - [Precomputation](../Precomputation/README.md)

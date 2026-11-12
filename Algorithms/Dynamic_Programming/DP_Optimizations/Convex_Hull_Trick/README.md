@@ -106,6 +106,6 @@ Each line is pushed once and popped at most once, so n operations on the deque c
 ## Related
 
 - [Dynamic Programming](../../README.md)
-- [DP on Trees](../../Advanced%20DP/DP%20on%20Trees/)
-- [Monotonic Queue](../../../../Problem_Patterns/Monotonic%20Queue/)
-- [DP Problem Patterns](../../../../Problem_Patterns/DP%20Problem%20Patterns/)
+- [DP on Trees](../../Advanced_DP/DP_on_Trees/)
+- [Monotonic Queue](../../../../Problem_Patterns/Monotonic_Queue/)
+- [DP Problem Patterns](../../../../Problem_Patterns/DP_Problem_Patterns/)

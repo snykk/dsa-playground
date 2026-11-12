@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence
+topic: Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence
 title: Longest Increasing Subsequence
 lead: The Longest Increasing Subsequence (LIS) of an array is the longest subsequence whose elements are strictly increasing. A simple DP finds its length in O(n^2). Keeping only the smallest possible tail for each length and using binary search brings it down to O(n log n).
 level: Intermediate
@@ -24,11 +24,11 @@ properties:
   - { label: The tails array is an LIS, value: false }
 prerequisites:
   - Algorithms/Dynamic_Programming
-  - Algorithms/Searching/Binary Search
+  - Algorithms/Searching/Binary_Search
 related:
-  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
-  - Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)
-  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
+  - Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray_Kadanes_Algorithm
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
 ---
 
 ## How LIS works
@@ -132,7 +132,7 @@ lisWithSequence(arr):                    # O(n^2), Python
 
 Python has four functions: `lis_naive` (exponential recursion), `lis_dp`, `lis_binary_search` and `lis_with_sequence`. C++ and Go have only the O(n<sup>2</sup>) length (`lisDP`, `LISDP`). The binary-search version uses `bisect_left`, which makes the subsequence **strictly** increasing: equal values replace each other instead of extending. Empty input gives 0 everywhere.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence" />
+<TopicCode topic="Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence" />
 
 ## Complexity analysis
 

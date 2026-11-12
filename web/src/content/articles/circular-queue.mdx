@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/Queue/Circular Queue
+topic: Data_Structures/Linear/Queue/Circular_Queue
 title: Circular Queue
 lead: A circular queue (ring buffer) stores a bounded FIFO queue in a fixed array and lets the front and rear indices wrap around the end. Enqueue and dequeue are both O(1) with no shifting, and the memory never grows.
 level: Beginner
@@ -21,13 +21,13 @@ properties:
   - { label: FIFO order, value: true }
   - { label: Grows when full, value: false }
 prerequisites:
-  - Data Structures/Linear/Queue/Simple Queue
-  - Data Structures/Linear/Array
+  - Data_Structures/Linear/Queue/Simple_Queue
+  - Data_Structures/Linear/Array
 related:
-  - Data Structures/Linear/Queue/Deque
-  - Data Structures/Linear/Queue/Priority Queue
-  - Data Structures/Linear/Queue/Simple Queue
-  - Problem_Patterns/Monotonic Queue
+  - Data_Structures/Linear/Queue/Deque
+  - Data_Structures/Linear/Queue/Priority_Queue
+  - Data_Structures/Linear/Queue/Simple_Queue
+  - Problem_Patterns/Monotonic_Queue
 ---
 
 ## What a circular queue is
@@ -129,7 +129,7 @@ This is the Python and C++ scheme. Go replaces the `-1` bookkeeping with `size++
 
 All three versions allocate the array once. The capacity must be at least 1: Python raises `ValueError` and C++ throws `std::invalid_argument` for a smaller value, while Go's constructor has no error return, so a capacity of 0 gives a queue that is always full and a negative capacity panics in `make`. The C++ class owns a raw array, so copying is deleted. Python clears a slot on dequeue so the removed object can be garbage collected.
 
-<TopicCode topic="Data Structures/Linear/Queue/Circular Queue" />
+<TopicCode topic="Data_Structures/Linear/Queue/Circular_Queue" />
 
 ## Complexity
 

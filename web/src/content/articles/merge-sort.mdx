@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Sorting/Merge Sort
+topic: Algorithms/Sorting/Merge_Sort
 title: Merge Sort
 lead: Merge Sort splits the array in half, sorts each half recursively, and merges the two sorted halves into one. It always takes O(n log n) time and is stable, at the price of O(n) extra memory.
 level: Intermediate
@@ -22,13 +22,13 @@ properties:
   - { label: Comparison sort, value: true }
   - { label: Adaptive, value: false }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
   - Algorithms/Divide_and_Conquer
 related:
-  - Algorithms/Sorting/Quick Sort
-  - Algorithms/Sorting/Heap Sort
-  - Algorithms/Sorting/Insertion Sort
-  - Algorithms/Sorting/Counting Sort
+  - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Sorting/Heap_Sort
+  - Algorithms/Sorting/Insertion_Sort
+  - Algorithms/Sorting/Counting_Sort
 ---
 
 ## How Merge Sort works
@@ -123,7 +123,7 @@ merge(arr, left, right):                  # writes into arr
 
 The Python and Go versions follow the pseudocode: they copy the two halves, sort the copies, and merge back into the original. The C++ version works on index ranges `[left, right]` of one vector and builds two temporary vectors `L` and `R` inside every `merge`. Python also has `merge_sort_iterative`, a bottom-up version that merges runs of size 1, 2, 4, ... with no recursion; C++ and Go have no iterative variant.
 
-<TopicCode topic="Algorithms/Sorting/Merge Sort" />
+<TopicCode topic="Algorithms/Sorting/Merge_Sort" />
 
 ## Complexity analysis
 

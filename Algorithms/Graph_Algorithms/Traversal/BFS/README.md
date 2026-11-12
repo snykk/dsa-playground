@@ -107,6 +107,6 @@ Do not use it for weighted shortest paths (use Dijkstra's algorithm), or when yo
 ## Related
 
 - [DFS](../DFS/) - the stack-based counterpart
-- [Dijkstra's Algorithm](../../Shortest_Path/Dijkstra's_Algorithm/) - weighted shortest paths
+- [Dijkstra's Algorithm](../../Shortest_Path/Dijkstras_Algorithm/) - weighted shortest paths
 - [A* Search](../../Shortest_Path/A_Star_Search_Algorithm/) - BFS guided by a heuristic
-- [Queue](../../../../Data%20Structures/Linear/Queue/) - the data structure BFS relies on
+- [Queue](../../../../Data_Structures/Linear/Queue/) - the data structure BFS relies on

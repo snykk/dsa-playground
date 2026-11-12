@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Greedy/Activity Selection
+topic: Algorithms/Greedy/Activity_Selection
 title: Activity Selection
 lead: Given activities with a start and a finish time, pick as many as possible so that no two overlap. Sort by finish time and always take the next activity that fits; this simple greedy rule is provably optimal, and it is the model example of a greedy proof.
 level: Beginner
@@ -25,11 +25,11 @@ properties:
   - { label: Needs sorted input, value: false }
 prerequisites:
   - Algorithms/Greedy
-  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Sorting/Merge_Sort
 related:
-  - Algorithms/Greedy/Job Scheduling
-  - Algorithms/Greedy/Fractional Knapsack
-  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+  - Algorithms/Greedy/Job_Scheduling
+  - Algorithms/Greedy/Fractional_Knapsack
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
 ---
 
 ## How Activity Selection works
@@ -97,7 +97,7 @@ The result lists indices into the original input, in order of finish time.
 
 All three languages use the same algorithm. The Python version also has the weighted variant (`activity_selection_with_weights`, a dynamic program that returns the best total weight) and a recursive version (`activity_selection_recursive`). The C++ and Go versions only have the greedy function.
 
-<TopicCode topic="Algorithms/Greedy/Activity Selection" />
+<TopicCode topic="Algorithms/Greedy/Activity_Selection" />
 
 **Tie-breaking.** When two activities finish at the same time, which one is picked depends on the sort. Python's `sorted` is stable, so the one that comes first in the input wins. C++ `std::sort` and Go `sort.Slice` are not stable, so the chosen index among ties is not specified. The number of activities selected is the same in all cases.
 

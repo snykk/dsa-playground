@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Mathematical_Algorithms/Number_Theory/Chinese Remainder Theorem
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem
 title: Chinese Remainder Theorem
 lead: The Chinese Remainder Theorem (CRT) combines congruences x = r (mod m) with different moduli into a single one. With pairwise coprime moduli the answer always exists and is unique modulo the product, and it is found with one extended Euclid per congruence.
 level: Intermediate
@@ -22,12 +22,12 @@ properties:
   - { label: Detects contradictions, value: true }
   - { label: Exact integer arithmetic, value: true }
 prerequisites:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
 related:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller-Rabin Primality Test
-  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast Fourier Transform
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform
 ---
 
 ## Definition
@@ -117,7 +117,7 @@ crt(remainders, moduli):
 
 All three versions use this merge. `verify_crt_solution` reduces the remainders before comparing, so `8` modulo `3` counts as `2`. `chinese_remainder_theorem_pairwise` keeps the classic contract and accepts only coprime moduli. In C++ and Go the product of two residues is computed in 128 bits (`__int128`, `math/bits`), and the combined modulus must fit in a signed 64-bit integer, otherwise they return `-1`. Python has no such limit.
 
-<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Chinese Remainder Theorem" />
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem" />
 
 ## Complexity
 

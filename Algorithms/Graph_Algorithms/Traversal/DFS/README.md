@@ -105,5 +105,5 @@ Do not use it when you need the fewest edges between two vertices (use BFS) or l
 
 - [BFS](../BFS/) - the queue-based counterpart
 - [Topological Sort](../../Advanced_Graph/Topological_Sort/)
-- [Tarjan's Algorithm](../../Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm/) - strongly connected components built on DFS
-- [Stack](../../../../Data%20Structures/Linear/Stack/)
+- [Tarjan's Algorithm](../../Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm/) - strongly connected components built on DFS
+- [Stack](../../../../Data_Structures/Linear/Stack/)

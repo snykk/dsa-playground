@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds-Karp
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp
 title: Edmonds-Karp Algorithm
 lead: Edmonds-Karp computes the maximum flow of a network by repeatedly pushing flow along the shortest augmenting path, found with BFS. Choosing the shortest path is the one change from Ford-Fulkerson that makes the running time polynomial, whatever the capacities are.
 level: Advanced
@@ -23,9 +23,9 @@ properties:
   - { label: Returns per-edge flow, value: false }
 prerequisites:
   - Algorithms/Graph_Algorithms/Traversal/BFS
-  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford-Fulkerson
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson
 related:
-  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford-Fulkerson
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson
   - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow
   - Algorithms/Graph_Algorithms/Traversal/BFS
 ---
@@ -105,7 +105,7 @@ Each language takes a map `u -> {v: capacity}` and returns **only the flow value
 
 The three versions differ in numeric range. Python integers never overflow. Go's `int` is 64-bit. In C++ the capacities are `int`, but the residual graph and the returned total are `long long`, so two paths of `INT_MAX` correctly give 4294967294. Go iterates maps in random order, so among several shortest paths it may choose a different one than the table above, but the final value is the same.
 
-<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds-Karp" />
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp" />
 
 ## Complexity analysis
 

@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Heaps/Fibonacci Heap
+topic: Data_Structures/Non_Linear/Heaps/Fibonacci_Heap
 title: Fibonacci Heap
 lead: A Fibonacci heap is a lazy forest of heap-ordered trees. Insert only drops a node into a circular list, and the real work is postponed to extract-min. Its selling point is O(1) amortized decrease-key, which this repository's version does not implement yet.
 level: Advanced
@@ -22,12 +22,12 @@ properties:
   - { label: Array-backed, value: false }
   - { label: Decrease-key implemented here, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Heaps/Min Heap
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Data Structures/Non_Linear/Heaps/Min Heap
-  - Data Structures/Linear/Queue/Priority Queue
-  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
+  - Data_Structures/Linear/Queue/Priority_Queue
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
   - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm
 ---
 
@@ -201,7 +201,7 @@ Extra space is O(n): each node carries four pointers plus `key`, `degree` and `m
 
 All three versions keep `min_node`, the circular root list, a degree table for consolidation and a `count`. Python and Go hold the degree table in a map, C++ in a `std::map`.
 
-<TopicCode topic="Data Structures/Non_Linear/Heaps/Fibonacci Heap" />
+<TopicCode topic="Data_Structures/Non_Linear/Heaps/Fibonacci_Heap" />
 
 ## Frequently asked questions
 

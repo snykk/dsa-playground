@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+topic: Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs
 title: Climbing Stairs
 lead: Count the distinct ways to climb n stairs when each move is 1 or 2 steps. The last move was either a 1-step or a 2-step, so ways(n) = ways(n-1) + ways(n-2), the Fibonacci recurrence. The same idea counts paths for any set of allowed step sizes in O(n k) time.
 level: Beginner
@@ -25,11 +25,11 @@ properties:
   - { label: Overflow-safe in C++ and Go, value: false }
 prerequisites:
   - Algorithms/Dynamic_Programming
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
 related:
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
-  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
-  - Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
+  - Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray_Kadanes_Algorithm
 ---
 
 ## How Climbing Stairs works
@@ -116,7 +116,7 @@ waysWithSteps(n, steps):                # Python: climbing_stairs_variable_steps
 
 Python has five functions: naive recursion, memoization, tabulation, the two-variable loop and the version with arbitrary step sizes. C++ and Go have only the two-variable loop for steps 1 and 2. A negative `n` is an error in all three languages (Python `ValueError`, C++ `std::invalid_argument`, Go panic), and `ways(0)` is 1 everywhere.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs" />
+<TopicCode topic="Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs" />
 
 ## Complexity analysis
 

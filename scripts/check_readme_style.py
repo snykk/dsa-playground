@@ -4,7 +4,7 @@ Check topic and language READMEs against the house template (CONTRIBUTING.md,
 "README.md Structure").
 
 Usage:
-    python3 scripts/check_readme_style.py "Algorithms/Sorting/Quick Sort" [more folders...]
+    python3 scripts/check_readme_style.py "Algorithms/Sorting/Quick_Sort" [more folders...]
     python3 scripts/check_readme_style.py --all
 
 A topic folder is a folder with a Python/, C++/ or Go/ subfolder. For each topic the

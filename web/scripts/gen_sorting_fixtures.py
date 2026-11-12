@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-for topic in ("Counting Sort", "Radix Sort", "Bucket Sort"):
+for topic in ("Counting_Sort", "Radix_Sort", "Bucket_Sort"):
     sys.path.insert(0, str(ROOT / "Algorithms" / "Sorting" / topic / "Python"))
 
 from bucket_sort import bucket_sort  # noqa: E402

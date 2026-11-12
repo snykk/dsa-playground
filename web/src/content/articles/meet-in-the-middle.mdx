@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/Meet in the Middle
+topic: Problem_Patterns/Meet_in_the_Middle
 title: Meet in the Middle
 lead: Meet in the middle splits a search over 2^n possibilities into two halves of 2^(n/2), enumerates each half separately and combines them with sorting or hashing. It makes subset-style problems with n around 40 solvable, where brute force is hopeless and DP over the values is too large.
 level: Advanced
@@ -22,13 +22,13 @@ properties:
   - { label: Polynomial time, value: false }
   - { label: Needs small n, value: true }
 prerequisites:
-  - Algorithms/Searching/Binary Search
-  - Data Structures/Hashing/Hash Set
+  - Algorithms/Searching/Binary_Search
+  - Data_Structures/Hashing/Hash_Set
 related:
-  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
-  - Problem_Patterns/Two Pointers
-  - Problem_Patterns/Bit Manipulation
-  - Problem_Patterns/Coordinate Compression
+  - Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
+  - Problem_Patterns/Two_Pointers
+  - Problem_Patterns/Bit_Manipulation
+  - Problem_Patterns/Coordinate_Compression
 ---
 
 ## When to use it
@@ -110,7 +110,7 @@ The Python version solves the **closest sum** problem, `closest_subset_sum(nums,
 
 The C++ and Go versions solve a different question, **exact sum**: `subsetSumMeetInMiddle(arr, target)` answers whether some subset sums to exactly the target, using hash sets. They accept negative values. The languages do not implement the same problem.
 
-<TopicCode topic="Problem_Patterns/Meet in the Middle" />
+<TopicCode topic="Problem_Patterns/Meet_in_the_Middle" />
 
 ## Complexity analysis
 

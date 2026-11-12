@@ -18,12 +18,12 @@ This folder contains implementations of fundamental computational geometry algor
 
 ### 🔹 Basic Geometry
 
-- **[Point, Line, Circle Operations](./Basic_Geometry/Point%20Line%20Circle/)**
+- **[Point, Line, Circle Operations](Basic_Geometry/Point_Line_Circle/)**
   - Fundamental geometric primitives
   - Time: O(1) for most operations
   - Foundation for advanced algorithms
 
-- **[Line Intersection](./Basic_Geometry/Line%20Intersection/)**
+- **[Line Intersection](Basic_Geometry/Line_Intersection/)**
   - Find intersections between lines and segments
   - Time: O(1) for intersection checks
   - Essential for geometric queries
@@ -32,7 +32,7 @@ This folder contains implementations of fundamental computational geometry algor
 
 ### 🔹 Advanced Geometry
 
-- **[Convex Hull](./Advanced_Geometry/Convex%20Hull/)**
+- **[Convex Hull](Advanced_Geometry/Convex_Hull/)**
   - Graham's Scan and Jarvis March algorithms
   - Time: O(n log n) for Graham's Scan, O(nh) for Jarvis March
   - Finds smallest convex polygon containing all points
@@ -42,7 +42,7 @@ This folder contains implementations of fundamental computational geometry algor
   - Time: O(n log n)
   - Finds closest pair in 2D plane
 
-- **[Rotating Calipers](./Advanced_Geometry/Rotating%20Calipers/)**
+- **[Rotating Calipers](Advanced_Geometry/Rotating_Calipers/)**
   - Algorithm for various geometric problems
   - Time: O(n) after convex hull
   - Finds diameter, width, and other properties

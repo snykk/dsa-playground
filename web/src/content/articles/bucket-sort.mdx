@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Sorting/Bucket Sort
+topic: Algorithms/Sorting/Bucket_Sort
 title: Bucket Sort
 lead: Bucket Sort spreads values over a row of buckets by their magnitude, sorts each small bucket, and reads the buckets out in order. When the input is spread evenly it runs in O(n) time, but a crowded bucket drags it towards O(n^2).
 level: Intermediate
@@ -21,13 +21,13 @@ properties:
   - { label: Stable, value: false }
   - { label: Comparison sort, value: false }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
-  - Algorithms/Sorting/Insertion Sort
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+  - Algorithms/Sorting/Insertion_Sort
 related:
-  - Algorithms/Sorting/Counting Sort
-  - Algorithms/Sorting/Radix Sort
-  - Algorithms/Sorting/Insertion Sort
-  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Sorting/Counting_Sort
+  - Algorithms/Sorting/Radix_Sort
+  - Algorithms/Sorting/Insertion_Sort
+  - Algorithms/Sorting/Quick_Sort
 ---
 
 ## How Bucket Sort works
@@ -109,7 +109,7 @@ The three versions follow the pseudocode. Differences worth knowing:
 - Python takes an optional `num_buckets` (default `len(arr)`), sorts each bucket with insertion sort and returns a new list (for an empty list it returns the same object). C++ and Go always use `n` buckets and sort in place.
 - Python also has `bucket_sort_integers`, which uses one bucket per integer value, from the minimum to the maximum. That is Counting Sort written with lists: it accepts negatives, but needs memory proportional to `max - min + 1`.
 
-<TopicCode topic="Algorithms/Sorting/Bucket Sort" />
+<TopicCode topic="Algorithms/Sorting/Bucket_Sort" />
 
 ## Complexity analysis
 

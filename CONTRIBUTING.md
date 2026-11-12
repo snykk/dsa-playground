@@ -117,7 +117,7 @@ git push origin feature/your-feature-name
 
 ```
 dsa-playground/
-├── Data Structures/
+├── Data_Structures/
 │   ├── Linear/
 │   │   ├── Array/
 │   │   │   ├── Python/
@@ -140,6 +140,12 @@ dsa-playground/
 └── Algorithms/
     └── ...
 ```
+
+### Folder Names
+
+Every content folder is named in `Title_Case_With_Underscores`, ASCII only: no spaces, apostrophes, parentheses, `&`, `+` or other symbols. Examples: `Binary_Search_Tree`, `Dijkstras_Algorithm`, `B_Plus_Tree`, `Divide_and_Conquer`. The language folders are always `Python/`, `C++/` and `Go/`.
+
+Each topic has exactly one folder. When a topic belongs to two areas (for example Kruskal's algorithm, which is both greedy and a graph algorithm), it lives in the area where readers look for it first, and the other area's overview links to it.
 
 ### Required Files for Each Implementation
 
@@ -364,7 +370,7 @@ Before submitting, ensure:
 
 ---
 
-## 📚 Adding New Data Structures/Algorithms
+## 📚 Adding New Data_Structures/Algorithms
 
 ### Step-by-Step Guide
 
@@ -374,7 +380,7 @@ Before submitting, ensure:
 
 2. **Create the folder structure**
    ```
-   Data Structures/Non_Linear/Trees/Your Data Structure/
+   Data_Structures/Non_Linear/Trees/Your Data Structure/
    ├── Python/
    ├── C++/
    ├── Go/

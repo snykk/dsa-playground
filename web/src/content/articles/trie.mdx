@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Trie
+topic: Data_Structures/Non_Linear/Trees/Trie
 title: Trie
 lead: A trie (prefix tree) stores strings one character per edge, so words with a common prefix share a path. Insert, search and prefix search cost O(L) for a word of length L, independent of how many words are stored.
 level: Intermediate
@@ -23,12 +23,12 @@ properties:
   - { label: Sorted iteration, value: false }
   - { label: Compact for few long words, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
 related:
-  - Data Structures/Non_Linear/Trees/Suffix Tree
-  - Data Structures/Non_Linear/Trees/Suffix Array
-  - Algorithms/String_Algorithms/Advanced_String/Aho-Corasick
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
+  - Data_Structures/Non_Linear/Trees/Suffix_Tree
+  - Data_Structures/Non_Linear/Trees/Suffix_Array
+  - Algorithms/String_Algorithms/Advanced_String/Aho_Corasick
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
 ---
 
 ## What a trie is
@@ -216,7 +216,7 @@ The repository tries store children in hash maps keyed by character, so a node c
 
 All three versions have a node with a map of children and an end flag. Python and Go walk code points and runes, while C++ walks bytes. `delete` is iterative in all three: it records the path on the way down, clears the flag, then prunes back up. In C++ the destructor frees every node with an explicit stack. `get_all_words` returns insertion order in Python and map order (unspecified) in C++ and Go.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Trie" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Trie" />
 
 ## Frequently asked questions
 

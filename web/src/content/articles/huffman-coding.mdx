@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Greedy/Huffman Coding
+topic: Algorithms/Greedy/Huffman_Coding
 title: Huffman Coding
 lead: Huffman coding gives every symbol a binary code whose length depends on how often the symbol occurs, so frequent symbols get short codes and rare ones long codes. It builds the tree by repeatedly merging the two least frequent nodes, and the result is the shortest possible prefix-free code.
 level: Intermediate
@@ -25,12 +25,12 @@ properties:
   - { label: Optimal per symbol, value: true }
 prerequisites:
   - Algorithms/Greedy
-  - Data Structures/Non_Linear/Heaps/Min Heap
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
 related:
-  - Algorithms/Greedy/Activity Selection
-  - Algorithms/Greedy/Fractional Knapsack
-  - Algorithms/Greedy/Job Scheduling
-  - Data Structures/Non_Linear/Heaps/Min Heap
+  - Algorithms/Greedy/Activity_Selection
+  - Algorithms/Greedy/Fractional_Knapsack
+  - Algorithms/Greedy/Job_Scheduling
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
 ---
 
 ## How Huffman coding works
@@ -148,7 +148,7 @@ A text with one distinct symbol gives a single leaf, so its code would be empty;
 The Python file has the full algorithm: `build_huffman_tree`, `build_codes`, `huffman_encode`, `huffman_decode` and `calculate_compression_ratio`. The C++ and Go files are placeholders. `huffmanEncode` (C++) and `HuffmanEncode` (Go) return an empty map, and their tests only check that the call runs. Ports with a heap, a tree, a code table, encode and decode are still to be written.
 </Callout>
 
-<TopicCode topic="Algorithms/Greedy/Huffman Coding" />
+<TopicCode topic="Algorithms/Greedy/Huffman_Coding" />
 
 **Notes on the Python code.**
 

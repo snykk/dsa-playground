@@ -21,7 +21,7 @@ export function slugifySegment(name: string): string {
     .toLowerCase();
 }
 
-/** Slug for a repo-relative directory path ("Algorithms/Sorting/Bubble Sort"). */
+/** Slug for a repo-relative directory path ("Algorithms/Sorting/Bubble_Sort"). */
 export function slugifyPath(relDir: string): string {
   return relDir
     .split('/')

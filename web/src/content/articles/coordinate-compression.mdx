@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/Coordinate Compression
+topic: Problem_Patterns/Coordinate_Compression
 title: Coordinate Compression
 lead: Coordinate compression replaces each value by its rank among the distinct values, so numbers up to 10^9 become indices 0..k-1 that fit an array, a Fenwick tree or a segment tree. Only the order of the values is kept, which is all that many algorithms need.
 level: Intermediate
@@ -23,13 +23,13 @@ properties:
   - { label: Reversible, value: true }
   - { label: Keeps distances, value: false }
 prerequisites:
-  - Algorithms/Sorting/Merge Sort
-  - Algorithms/Searching/Binary Search
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Searching/Binary_Search
 related:
-  - Problem_Patterns/Prefix Sum Difference Array
-  - Problem_Patterns/Sliding Window
-  - Problem_Patterns/Monotonic Stack
-  - Problem_Patterns/DP Problem Patterns
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+  - Problem_Patterns/Sliding_Window
+  - Problem_Patterns/Monotonic_Stack
+  - Problem_Patterns/DP_Problem_Patterns
 ---
 
 ## When to use it
@@ -99,7 +99,7 @@ for x in values:
 
 All three languages provide `compress_coordinates` (a value-to-rank mapping), `decompress_coordinates` (the values in rank order) and a 2D version that compresses x and y separately. Python uses a dictionary, C++ uses `std::map`, so lookups there are O(log k), and Go uses a `map`. The functions work on integers and keep ranks `0..k-1`, in sorted order.
 
-<TopicCode topic="Problem_Patterns/Coordinate Compression" />
+<TopicCode topic="Problem_Patterns/Coordinate_Compression" />
 
 ## Complexity
 

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/2D DP/Edit Distance
+topic: Algorithms/Dynamic_Programming/2D_DP/Edit_Distance
 title: Edit Distance
 lead: Edit distance (Levenshtein distance) is the fewest single-character insertions, deletions and replacements that turn one string into another. A table over prefixes of both strings computes it in O(m n) time. It powers spell checking, fuzzy search and sequence alignment.
 level: Intermediate
@@ -23,10 +23,10 @@ properties:
   - { label: Compares characters (Unicode-aware), value: false }
 prerequisites:
   - Algorithms/Dynamic_Programming
-  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
 related:
-  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
-  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
   - Algorithms/String_Algorithms
 ---
 
@@ -118,7 +118,7 @@ editDistance(s1, s2):
 
 All three languages have the same single function over a 2D table, returning only the distance. Python compares Unicode code points. C++ and Go compare **bytes**, so a non-ASCII character that takes several bytes in UTF-8 costs several edits. An accented e takes two bytes, so comparing it with a plain e costs 1 edit in Python but 2 in C++ and Go. Normalize or convert to code points first if that matters.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/2D DP/Edit Distance" />
+<TopicCode topic="Algorithms/Dynamic_Programming/2D_DP/Edit_Distance" />
 
 ## Complexity analysis
 

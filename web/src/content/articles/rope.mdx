@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/String/Rope
+topic: Data_Structures/Linear/String/Rope
 title: Rope
 lead: A rope stores a long string as a balanced binary tree of short fragments. Because edits only rebuild a path through the tree, concatenating, splitting, inserting and deleting cost O(log n) instead of copying the whole text, in exchange for O(log n) indexing.
 level: Advanced
@@ -23,13 +23,13 @@ properties:
   - { label: Random access in O(1), value: false }
   - { label: Cache-friendly, value: false }
 prerequisites:
-  - Data Structures/Linear/String/String_Basics
-  - Data Structures/Non_Linear/Trees/Binary Tree
+  - Data_Structures/Linear/String/String_Basics
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
 related:
-  - Data Structures/Non_Linear/Trees/AVL Tree
-  - Data Structures/Non_Linear/Trees/Treap
-  - Data Structures/Linear/String/String Manipulation
-  - Data Structures/Linear/Linked List/Doubly
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Treap
+  - Data_Structures/Linear/String/String_Manipulation
+  - Data_Structures/Linear/Linked_List/Doubly
 ---
 
 ## What a rope is
@@ -170,7 +170,7 @@ Inserting `,` at position 5 of `Hello World!` (12 characters, a root with leaves
 
 All three versions follow the same design: leaves hold at most 10 characters when built from a string, internal nodes cache `weight`, `length` and `height`, and `split` and `concat` go through the AVL join. The tests include a randomized comparison with a plain string and a check of the tree invariants. A traversal such as `to_string` or `index` recurses to a depth of O(log n), which is safe.
 
-<TopicCode topic="Data Structures/Linear/String/Rope" />
+<TopicCode topic="Data_Structures/Linear/String/Rope" />
 
 ## Complexity
 

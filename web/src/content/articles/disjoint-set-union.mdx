@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Advanced_Structures/Disjoint Set Union
+topic: Data_Structures/Advanced_Structures/Disjoint_Set_Union
 title: Disjoint Set Union
 lead: A disjoint set union (union-find) keeps a collection of items split into non-overlapping groups. It answers "are these two in the same group?" and merges two groups in nearly constant amortized time, using a forest of parent pointers stored in a plain array.
 level: Intermediate
@@ -22,11 +22,11 @@ properties:
   - { label: Online (unions arrive one at a time), value: true }
   - { label: Supports splitting a set, value: false }
 prerequisites:
-  - Data Structures/Linear/Array
-  - Data Structures/Non_Linear/Trees/Binary Tree
+  - Data_Structures/Linear/Array
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
 related:
-  - Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU
-  - Problem_Patterns/Union-Find Applications
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU
+  - Problem_Patterns/Union_Find_Applications
   - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
 ---
 
@@ -205,7 +205,7 @@ Problems: LeetCode 547 (Number of Provinces), 684 (Redundant Connection), 721 (A
 
 All three versions use path compression, union by rank, a `size` array and a component counter. The tests include a path-compression check that inspects the parent before and after `find`.
 
-<TopicCode topic="Data Structures/Advanced_Structures/Disjoint Set Union" />
+<TopicCode topic="Data_Structures/Advanced_Structures/Disjoint_Set_Union" />
 
 ## Frequently asked questions
 

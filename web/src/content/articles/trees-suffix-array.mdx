@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Suffix Array
+topic: Data_Structures/Non_Linear/Trees/Suffix_Array
 title: Suffix Array
 lead: A suffix array lists the start positions of all suffixes of a string in sorted order. Because equal prefixes sit next to each other, binary search finds every occurrence of a pattern, and the LCP array between neighbours answers repeat questions.
 level: Advanced
@@ -24,12 +24,12 @@ properties:
   - { label: Finds all occurrences of a pattern, value: true }
   - { label: Handles an empty pattern, value: true }
 prerequisites:
-  - Data Structures/Linear/String/Pattern Matching
+  - Data_Structures/Linear/String/Pattern_Matching
 related:
-  - Data Structures/Non_Linear/Trees/Suffix Tree
-  - Algorithms/String_Algorithms/Advanced_String/Suffix Array
-  - Data Structures/Non_Linear/Trees/Trie
-  - Algorithms/String_Algorithms/Advanced_String/Longest Common Substring
+  - Data_Structures/Non_Linear/Trees/Suffix_Tree
+  - Algorithms/String_Algorithms/Advanced_String/Suffix_Array
+  - Data_Structures/Non_Linear/Trees/Trie
+  - Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring
 ---
 
 ## What a suffix array is
@@ -117,7 +117,7 @@ The repository has no LCP array. `longest_common_prefix(i, j)` in Python compute
 
 All three languages sort materialized suffixes and expose `search`. Python adds `get_suffixes` and `longest_common_prefix`. Indices are code points in Python and bytes in C++ and Go.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Suffix Array" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Suffix_Array" />
 
 ## Complexity
 

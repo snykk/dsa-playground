@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Segment Tree
+topic: Data_Structures/Non_Linear/Trees/Segment_Tree
 title: Segment Tree
 lead: A segment tree stores the sum of every dyadic block of an array in a complete binary tree, so any range sum is assembled from O(log n) precomputed blocks. The repository version is the compact bottom-up layout with point assignment.
 level: Intermediate
@@ -21,11 +21,11 @@ properties:
   - { label: Range update, value: false }
   - { label: Needs power-of-two padding, value: true }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
 related:
-  - Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)
-  - Data Structures/Non_Linear/Trees/Fenwick Tree
-  - Data Structures/Non_Linear/Trees/Sparse Table
+  - Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
 ---
 
 ## What a segment tree is
@@ -104,7 +104,7 @@ Query `[1, 4]` on the tree above (the answer is 3 + 5 + 7 + 9 = 24):
 
 The three versions are the same: pad to a power of two, build parents bottom-up, and use the two loops above. Tests cover the examples here, negative values, non-power-of-two sizes, index errors and a random differential run against brute force.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Segment Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Segment_Tree" />
 
 ## Complexity
 

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+topic: Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
 title: Fibonacci Numbers
 lead: Each Fibonacci number is the sum of the two before it. Computing it by direct recursion repeats the same work exponentially often, so it is the standard first example of dynamic programming. Memoization or a bottom-up loop brings it to O(n), and matrix powers to O(log n).
 level: Beginner
@@ -24,11 +24,11 @@ properties:
   - { label: Fits in 64 bits up to n = 92, value: true }
   - { label: Python has no overflow, value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
-  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
-  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix Exponentiation
+  - Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
 ---
 
 ## How Fibonacci numbers work
@@ -140,7 +140,7 @@ Every function rejects a negative `n`: Python raises `ValueError`, C++ throws `s
 
 Python has all the approaches (`fibonacci_naive`, `fibonacci_memoization`, `fibonacci_tabulation`, `fibonacci_optimized`, `fibonacci_matrix`) plus `fibonacci_sequence`. C++ has tabulation, the optimized loop and memoization. Go has tabulation and the optimized loop. C++ and Go return 64-bit integers, so they are exact only up to `F(92)`; Python integers are unbounded.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers" />
+<TopicCode topic="Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers" />
 
 ## Complexity analysis
 

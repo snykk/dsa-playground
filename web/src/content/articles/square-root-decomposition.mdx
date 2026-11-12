@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Advanced_Algorithms/Specialized Techniques/Square Root Decomposition
+topic: Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition
 title: Square Root Decomposition
 lead: Square root decomposition splits an array into blocks of about sqrt(n) elements and keeps one precomputed summary per block. A range query then scans two partial blocks and combines whole-block summaries, so it costs O(sqrt n) while a point update stays O(1).
 level: Intermediate
@@ -23,12 +23,12 @@ properties:
   - { label: Supports range updates, value: false }
   - { label: Online (answers queries as they come), value: true }
 prerequisites:
-  - Problem_Patterns/Prefix Sum Difference Array
+  - Problem_Patterns/Prefix_Sum_Difference_Array
 related:
-  - Algorithms/Advanced_Algorithms/Specialized Techniques/Mo's Algorithm
-  - Data Structures/Non_Linear/Trees/Segment Tree
-  - Data Structures/Non_Linear/Trees/Fenwick Tree
-  - Data Structures/Non_Linear/Trees/Sparse Table
+  - Algorithms/Advanced_Algorithms/Specialized_Techniques/Mos_Algorithm
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
 ---
 
 ## When to use it
@@ -123,7 +123,7 @@ The three languages implement the same class with the same three operations: bui
 - Queries and updates assume valid indices; an out-of-range index is not checked.
 - Sums use the language's integer: Python integers are unbounded, C++ `int` and Go `int` can overflow on huge totals.
 
-<TopicCode topic="Algorithms/Advanced_Algorithms/Specialized Techniques/Square Root Decomposition" />
+<TopicCode topic="Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition" />
 
 ## Complexity analysis
 

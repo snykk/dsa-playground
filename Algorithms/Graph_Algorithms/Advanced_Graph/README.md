@@ -9,9 +9,9 @@ Advanced algorithms for complex graph problems.
 | [Topological Sort](Topological_Sort/) | Linear ordering of DAG vertices |
 | [Strongly Connected Components](Strongly_Connected_Components/) | Kosaraju's and Tarjan's algorithms |
 | [Bridges and Articulation Points](Tarjan_Bridges_Articulation/) | Critical edges and vertices |
-| [2-SAT](2-SAT/) | Boolean satisfiability with two literals per clause |
+| [2-SAT](2_SAT/) | Boolean satisfiability with two literals per clause |
 | [Network Flow](Network_Flow/) | Maximum flow: Ford-Fulkerson and Edmonds-Karp |
-| [Union-Find (DSU)](Union-Find_DSU/) | Disjoint sets with union by rank and path compression |
+| [Union-Find (DSU)](Union_Find_DSU/) | Disjoint sets with union by rank and path compression |
 
 ## Complexity
 

@@ -18,14 +18,14 @@ export const entries: VizInfo[] = [
     title: "Kosaraju's SCC Algorithm",
     group: 'Graphs',
     blurb: 'Two DFS passes: record finish order on G, then flood the transpose in reverse finish order.',
-    topics: [`${SCC}/Kosaraju's_Algorithm`, SCC],
+    topics: [`${SCC}/Kosarajus_Algorithm`, SCC],
   },
   {
     id: 'tarjan-scc',
     title: "Tarjan's SCC Algorithm",
     group: 'Graphs',
     blurb: 'One DFS with disc / low values and a stack; when low equals disc, the stack pops one component.',
-    topics: [`${SCC}/Tarjan's_Algorithm`, SCC],
+    topics: [`${SCC}/Tarjans_Algorithm`, SCC],
   },
   {
     id: 'bridges-articulation',
@@ -39,7 +39,7 @@ export const entries: VizInfo[] = [
     title: 'Union-Find (Disjoint Sets)',
     group: 'Graphs',
     blurb: 'Trees of parent pointers: union by rank keeps them short and path compression flattens them.',
-    topics: [`${ADV}/Union-Find_DSU`, 'Problem_Patterns/Union-Find Applications', 'Data Structures/Advanced_Structures/Disjoint Set Union'],
+    topics: [`${ADV}/Union_Find_DSU`, 'Problem_Patterns/Union_Find_Applications', 'Data_Structures/Advanced_Structures/Disjoint_Set_Union'],
   },
 ];
 

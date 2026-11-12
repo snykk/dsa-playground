@@ -23,10 +23,10 @@ ROOT = Path(__file__).resolve().parents[2]
 ADV = ROOT / "Algorithms" / "Graph_Algorithms" / "Advanced_Graph"
 for folder in (
     "Topological_Sort/Python",
-    "Strongly_Connected_Components/Kosaraju's_Algorithm/Python",
-    "Strongly_Connected_Components/Tarjan's_Algorithm/Python",
+    "Strongly_Connected_Components/Kosarajus_Algorithm/Python",
+    "Strongly_Connected_Components/Tarjans_Algorithm/Python",
     "Tarjan_Bridges_Articulation/Python",
-    "Union-Find_DSU/Python",
+    "Union_Find_DSU/Python",
 ):
     sys.path.insert(0, str(ADV / folder))
 

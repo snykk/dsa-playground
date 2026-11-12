@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Computational_Geometry/Advanced_Geometry/Convex Hull
+topic: Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull
 title: Convex Hull
 lead: The convex hull of a set of points is the smallest convex polygon that contains all of them, like a rubber band stretched around nails. This repository computes it two ways, Graham's scan in O(n log n) and Jarvis march in O(nh), using exact cross-product comparisons.
 level: Intermediate
@@ -23,11 +23,11 @@ properties:
   - { label: Output sensitive (Jarvis), value: true }
   - { label: Handles duplicates and collinear points, value: true }
 prerequisites:
-  - Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle
-  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle
+  - Algorithms/Sorting/Quick_Sort
 related:
-  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating Calipers
-  - Algorithms/Computational_Geometry/Basic_Geometry/Line Intersection
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating_Calipers
+  - Algorithms/Computational_Geometry/Basic_Geometry/Line_Intersection
   - Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points
 ---
 
@@ -140,7 +140,7 @@ Both functions take a list of points and return a new list: the hull vertices in
 
 All decisions use exact comparisons, with no tolerance. For integer coordinates this is exact in Python, and exact in C++ and Go as long as the cross products stay below 2<sup>53</sup>, which holds when coordinate differences are below about 6.7 &times; 10<sup>7</sup>. For non-integer coordinates the result can still differ in near-collinear cases, because of rounding.
 
-<TopicCode topic="Algorithms/Computational_Geometry/Advanced_Geometry/Convex Hull" />
+<TopicCode topic="Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull" />
 
 ## Complexity analysis
 

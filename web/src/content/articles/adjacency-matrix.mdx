@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Graph/Adjacency Matrix
+topic: Data_Structures/Non_Linear/Graph/Adjacency_Matrix
 title: Adjacency Matrix
 lead: An adjacency matrix stores a graph as a V-by-V table where cell (i, j) says whether an edge from i to j exists. Edge lookup is O(1), but the table always takes O(V^2) space and listing neighbors costs O(V).
 level: Beginner
@@ -22,13 +22,13 @@ properties:
   - { label: Good for sparse graphs, value: false }
   - { label: Fixed vertex count, value: true }
 prerequisites:
-  - Data Structures/Non_Linear/Graph/Adjacency List
+  - Data_Structures/Non_Linear/Graph/Adjacency_List
 related:
-  - Data Structures/Non_Linear/Graph/Edge List
-  - Data Structures/Non_Linear/Graph/Directed & Undirected
-  - Data Structures/Non_Linear/Graph/Weighted & Unweighted
-  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
-  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm
+  - Data_Structures/Non_Linear/Graph/Edge_List
+  - Data_Structures/Non_Linear/Graph/Directed_and_Undirected
+  - Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted
+  - Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
+  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm
 ---
 
 ## What an adjacency matrix is
@@ -200,7 +200,7 @@ The table is the cost: 10<sup>4</sup> vertices already mean 10<sup>8</sup> cells
 
 All three versions allocate a V &times; V table of numbers. Python stores 0/1 for unweighted graphs and weights (infinity for absent) for weighted graphs. C++ and Go store `double` values in both cases. Each version also keeps the boolean presence table described above.
 
-<TopicCode topic="Data Structures/Non_Linear/Graph/Adjacency Matrix" />
+<TopicCode topic="Data_Structures/Non_Linear/Graph/Adjacency_Matrix" />
 
 ## Frequently asked questions
 

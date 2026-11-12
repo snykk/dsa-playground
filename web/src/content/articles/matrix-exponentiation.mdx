@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix Exponentiation
+topic: Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
 title: Matrix Exponentiation
 lead: Matrix exponentiation computes A^k for a square matrix A with O(log k) matrix multiplications by repeated squaring. It turns any linear recurrence, such as Fibonacci, into a matrix power, so the k-th term costs O(d^3 log k) instead of O(k).
 level: Intermediate
@@ -23,12 +23,12 @@ properties:
   - { label: Works modulo m, value: true }
   - { label: Exact for any size without a modulus, value: false }
 prerequisites:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
 related:
-  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast Fourier Transform
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
 ---
 
 ## How it works
@@ -123,7 +123,7 @@ The Python version has `matrix_multiply`, `matrix_identity`, a recursive `matrix
 - With modulus 1 everything is 0, including A<sup>0</sup>.
 - Without a modulus `fibonacci_matrix` accepts n up to 92 in C++ and Go (F(92) is the largest value that fits in 64 bits) and throws or panics beyond that; Python returns the exact big integer.
 
-<TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix Exponentiation" />
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation" />
 
 ## Complexity analysis
 

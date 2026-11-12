@@ -6,8 +6,8 @@ Fundamental geometric algorithms and primitives.
 
 | Algorithm | Description |
 |-----------|-------------|
-| [Point Line Circle](Point%20Line%20Circle/) | Basic geometric primitives |
-| [Line Intersection](Line%20Intersection/) | Finding intersection points |
+| [Point Line Circle](Point_Line_Circle/) | Basic geometric primitives |
+| [Line Intersection](Line_Intersection/) | Finding intersection points |
 
 ## Key Concepts
 

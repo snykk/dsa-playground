@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Computational_Geometry/Basic_Geometry/Line Intersection
+topic: Algorithms/Computational_Geometry/Basic_Geometry/Line_Intersection
 title: Line Intersection
 lead: Two lines meet in one point unless they are parallel. Two segments may cross, touch at an endpoint, form a T, overlap along a line, or miss each other. This topic finds the intersection point and decides whether segments intersect using exact orientation tests, so every one of those cases is handled correctly.
 level: Intermediate
@@ -22,11 +22,11 @@ properties:
   - { label: Handles collinear segments, value: true }
   - { label: Independent of coordinate scale, value: true }
 prerequisites:
-  - Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle
+  - Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle
 related:
-  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex Hull
-  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating Calipers
-  - Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating_Calipers
+  - Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle
 ---
 
 ## How line intersection works
@@ -133,7 +133,7 @@ The four functions are `line_intersection` (infinite lines, a point or nothing),
 
 When segments overlap along a line there are infinitely many common points. `segment_intersection` then returns the first one in (x, y) order, and returns an endpoint exactly in the touching cases. `line_intersection` returns nothing for coincident lines, because they have no single intersection point, and for a `Line` whose two endpoints are equal.
 
-<TopicCode topic="Algorithms/Computational_Geometry/Basic_Geometry/Line Intersection" />
+<TopicCode topic="Algorithms/Computational_Geometry/Basic_Geometry/Line_Intersection" />
 
 ## Complexity analysis
 

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Mathematical_Algorithms/Advanced_Math/Fast Fourier Transform
+topic: Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform
 title: Fast Fourier Transform
 lead: The Fast Fourier Transform computes the discrete Fourier transform of n values in O(n log n) instead of O(n^2). Its best-known use in programming is multiplying two polynomials, or convolving two sequences, in O(n log n) instead of O(n^2).
 level: Advanced
@@ -23,11 +23,11 @@ properties:
   - { label: Recursive, value: true }
 prerequisites:
   - Algorithms/Divide_and_Conquer
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix Exponentiation
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
   - Algorithms/Coding_Theory/Galois_Field
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
 ---
 
 ## Definition
@@ -140,7 +140,7 @@ All three versions are recursive and compute each twiddle factor directly with a
 - Python and Go return integer lists from `multiply_polynomials`; Python integers are unbounded and Go `int` is 64 bits. The C++ version returns `std::vector<long long>`, because a product of two `int` values can overflow `int`.
 - The C++ version divides by 2 at each level of the inverse recursion, which adds up to a division by n; Python and Go divide once at the top.
 
-<TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Fast Fourier Transform" />
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform" />
 
 ## Complexity analysis
 

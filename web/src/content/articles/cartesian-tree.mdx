@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Cartesian Tree
+topic: Data_Structures/Non_Linear/Trees/Cartesian_Tree
 title: Cartesian Tree
 lead: A Cartesian tree turns an array into a binary tree that is a min heap by value and reads back as the original array in in-order. It is built in O(n) with a stack, and the minimum of any range is the lowest common ancestor of its two ends.
 level: Advanced
@@ -23,13 +23,13 @@ properties:
   - { label: Balanced, value: false }
   - { label: Duplicates allowed, value: true }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Tree
-  - Data Structures/Non_Linear/Heaps/Min Heap
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
 related:
-  - Data Structures/Non_Linear/Trees/Treap
-  - Data Structures/Non_Linear/Trees/Sparse Table
-  - Data Structures/Non_Linear/Trees/Segment Tree
-  - Problem_Patterns/Monotonic Stack
+  - Data_Structures/Non_Linear/Trees/Treap
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Problem_Patterns/Monotonic_Stack
 ---
 
 ## What a Cartesian tree is
@@ -150,7 +150,7 @@ The three languages build the tree the same way and keep the original array for 
 - `GetRootValue` exists in C++ (`INT_MIN` when empty) and Go (`-1` when empty); Python has no such method, use `tree.root.value`.
 - The Go package has a small `main`, so `go run .` works.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Cartesian Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Cartesian_Tree" />
 
 ## Complexity
 

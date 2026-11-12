@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/Queue/Deque
+topic: Data_Structures/Linear/Queue/Deque
 title: Deque
 lead: A deque (double-ended queue, said "deck") lets you add and remove items at both the front and the back. It works as a stack, a queue or both. The versions in this repository are array-backed, so the back is O(1) and the front is the costly end.
 level: Beginner
@@ -23,13 +23,13 @@ properties:
   - { label: Works as a queue, value: true }
   - { label: O(1) at both ends, value: false }
 prerequisites:
-  - Data Structures/Linear/Queue/Simple Queue
-  - Data Structures/Linear/Array
+  - Data_Structures/Linear/Queue/Simple_Queue
+  - Data_Structures/Linear/Array
 related:
-  - Data Structures/Linear/Queue/Circular Queue
-  - Data Structures/Linear/Linked List/Doubly
-  - Data Structures/Linear/Stack/Dynamic_Array_Stack
-  - Problem_Patterns/Monotonic Queue
+  - Data_Structures/Linear/Queue/Circular_Queue
+  - Data_Structures/Linear/Linked_List/Doubly
+  - Data_Structures/Linear/Stack/Dynamic_Array_Stack
+  - Problem_Patterns/Monotonic_Queue
 ---
 
 ## What a deque is
@@ -114,7 +114,7 @@ A growable ring buffer keeps `front` and `size`, pushes at the front by moving `
 
 All three versions share the same API. Because they wrap a plain array, they are honest about the cost: the front operations really do shift items.
 
-<TopicCode topic="Data Structures/Linear/Queue/Deque" />
+<TopicCode topic="Data_Structures/Linear/Queue/Deque" />
 
 ## Complexity
 

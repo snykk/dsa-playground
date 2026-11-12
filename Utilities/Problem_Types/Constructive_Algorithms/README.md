@@ -100,4 +100,4 @@ Use these patterns when the statement says "print any ... such that ..." or "pri
 
 - [Game Theory](../Game_Theory/)
 - [Interactive Problems](../Interactive_Problems/)
-- [Bit Manipulation](../../../Problem_Patterns/Bit%20Manipulation/)
+- [Bit Manipulation](../../../Problem_Patterns/Bit_Manipulation/)

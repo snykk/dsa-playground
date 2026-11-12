@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/DP Problem Patterns
+topic: Problem_Patterns/DP_Problem_Patterns
 title: DP Problem Patterns
 lead: Most dynamic programming problems fall into a handful of families (linear, knapsack, subsequence, grid, interval, bitmask, digit and tree). This page gives the recipe for writing any DP (state, transition, order, base case) and works through knapsack, LCS and LIS with the repository code.
 level: Intermediate
@@ -21,13 +21,13 @@ properties:
   - { label: Overlapping subproblems needed, value: true }
   - { label: Polynomial time, value: true }
 prerequisites:
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
-  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
+  - Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs
 related:
-  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
-  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
-  - Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence
-  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
+  - Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence
+  - Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
 ---
 
 ## When to use DP
@@ -142,7 +142,7 @@ The `tails` array is not an actual subsequence (here `[2, 3, 7, 18]` happens to 
 
 The Python, C++ and Go versions each have `knapsack_01`, `lcs` and `lis`, with the rolling-array optimizations used above (one row for knapsack, two rows for LCS, `tails` for LIS).
 
-<TopicCode topic="Problem_Patterns/DP Problem Patterns" />
+<TopicCode topic="Problem_Patterns/DP_Problem_Patterns" />
 
 ## Complexity analysis
 

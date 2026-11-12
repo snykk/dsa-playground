@@ -34,7 +34,7 @@ Handy URL parameters on any page with a visualization: `?step=40` opens the run 
 ## How the content works
 
 - [`src/lib/repo.ts`](src/lib/repo.ts) walks the repository at build time. A folder with `Python/`, `C++/` or `Go/` subfolders is a **topic**; any other folder with a README (or with topics below it) is a **category**. Root `README.md`, `STUDY_GUIDE.md` and `CONTRIBUTING.md` become `/overview/`, `/study-guide/` and `/contributing/`.
-- Folder names become URL slugs (`Dijkstra's_Algorithm` → `dijkstras-algorithm`, `B+ Tree` → `b-plus-tree`); the build fails on a slug collision.
+- Folder names become URL slugs (`Dijkstras_Algorithm` → `dijkstras-algorithm`, `B_Plus_Tree` → `b-plus-tree`); the build fails on a slug collision.
 - [`src/lib/markdown.ts`](src/lib/markdown.ts) renders READMEs with Astro's Markdown pipeline (GFM, Shiki, GitHub-compatible heading ids) and rewrites links: README → page, `Python/` → that language tab, other repo files → GitHub, missing targets → a dashed red "broken link" plus a build warning.
 - A topic page shows its README unless the topic has a hand-written **article** (next section).
 

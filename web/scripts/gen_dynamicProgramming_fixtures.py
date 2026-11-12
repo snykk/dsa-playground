@@ -18,13 +18,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DP = ROOT / "Algorithms" / "Dynamic_Programming"
 for folder in (
-    "Basic DP/Fibonacci Numbers",
-    "Basic DP/Climbing Stairs",
-    "Linear DP/Coin Change",
-    "Linear DP/Longest Increasing Subsequence",
-    "Linear DP/Maximum Subarray (Kadane's Algorithm)",
-    "2D DP/Edit Distance",
-    "2D DP/Matrix Chain Multiplication",
+    "Basic_DP/Fibonacci_Numbers",
+    "Basic_DP/Climbing_Stairs",
+    "Linear_DP/Coin_Change",
+    "Linear_DP/Longest_Increasing_Subsequence",
+    "Linear_DP/Maximum_Subarray_Kadanes_Algorithm",
+    "2D_DP/Edit_Distance",
+    "2D_DP/Matrix_Chain_Multiplication",
 ):
     sys.path.insert(0, str(DP / folder / "Python"))
 

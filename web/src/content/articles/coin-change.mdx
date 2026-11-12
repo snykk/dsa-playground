@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/Linear DP/Coin Change
+topic: Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
 title: Coin Change
 lead: Given coin values and an amount, Coin Change finds the fewest coins that add up to it, or counts the ways to make it. A one-dimensional table over amounts solves both in O(n amount) time, where the greedy "largest coin first" rule fails for some coin systems.
 level: Intermediate
@@ -24,11 +24,11 @@ properties:
   - { label: Polynomial in input size, value: false }
 prerequisites:
   - Algorithms/Dynamic_Programming
-  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+  - Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs
 related:
-  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
-  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
 ---
 
 ## How Coin Change works
@@ -116,7 +116,7 @@ coinChange01(coins, amount):            # Python only: each coin at most once
 
 Python has three functions: minimum coins, number of ways, and the minimum with each coin used at most once. C++ and Go have only the minimum (`coinChangeMinCoins`, `CoinChangeMinCoins`). A negative amount raises an error in all three languages (`ValueError`, `std::invalid_argument`, panic), amount 0 needs 0 coins, and an unreachable amount gives `-1`. C++ and Go use a sentinel (`INT_MAX`, `amount + 1`) and skip unreachable entries, so there is no overflow.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/Linear DP/Coin Change" />
+<TopicCode topic="Algorithms/Dynamic_Programming/Linear_DP/Coin_Change" />
 
 ## Complexity analysis
 

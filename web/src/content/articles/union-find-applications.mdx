@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/Union-Find Applications
+topic: Problem_Patterns/Union_Find_Applications
 title: Union-Find Applications
 lead: Union-Find tracks which items belong to the same group while groups merge over time. Its union call reports whether two items were already connected, which is all you need to count components, detect a cycle while adding edges, or build a minimum spanning tree with Kruskal's algorithm.
 level: Intermediate
@@ -22,12 +22,12 @@ properties:
   - { label: Supports deleting edges, value: false }
   - { label: Needs sorted input, value: false }
 prerequisites:
-  - Data Structures/Advanced_Structures/Disjoint Set Union
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
 related:
-  - Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Union_Find_DSU
   - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
-  - Problem_Patterns/Graph Traversal Problems
-  - Data Structures/Non_Linear/Graph
+  - Problem_Patterns/Graph_Traversal_Problems
+  - Data_Structures/Non_Linear/Graph
 ---
 
 ## When to use it
@@ -145,7 +145,7 @@ All three languages provide the DSU with path compression and union by rank: Pyt
 
 Invalid indices behave differently: Python raises `ValueError`, C++ throws `std::out_of_range`, and Go does no bounds check, so an out-of-range index panics (and a negative size panics in the constructor). The `find` function is recursive; union by rank keeps the trees shallow (height at most log n), so the recursion stays short.
 
-<TopicCode topic="Problem_Patterns/Union-Find Applications" />
+<TopicCode topic="Problem_Patterns/Union_Find_Applications" />
 
 ## Complexity
 

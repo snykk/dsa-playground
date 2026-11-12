@@ -21,8 +21,8 @@ MST = ROOT / "Algorithms" / "Graph_Algorithms" / "Minimum_Spanning_Tree"
 for folder in (
     MST / "Kruskals_Algorithm" / "Python",
     MST / "Prims_Algorithm" / "Python",
-    GREEDY / "Activity Selection" / "Python",
-    GREEDY / "Fractional Knapsack" / "Python",
+    GREEDY / "Activity_Selection" / "Python",
+    GREEDY / "Fractional_Knapsack" / "Python",
 ):
     sys.path.insert(0, str(folder))
 

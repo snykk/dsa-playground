@@ -146,7 +146,7 @@ export function linearProbeCount(values: number[], target: number): number {
   return i < 0 ? values.length : i + 1;
 }
 
-/** Mirrors linear_search in Algorithms/Searching/Linear Search/Python/linear_search.py. */
+/** Mirrors linear_search in Algorithms/Searching/Linear_Search/Python/linear_search.py. */
 export function linearSearch({ values, target }: SearchInput): Array<Frame<SearchState>> {
   const r = new Recorder(values, target, 'comparisons', false);
   const n = values.length;
@@ -182,7 +182,7 @@ export function linearSearch({ values, target }: SearchInput): Array<Frame<Searc
   return r.frames;
 }
 
-/** Mirrors binary_search in Algorithms/Searching/Binary Search/Python/binary_search.py. */
+/** Mirrors binary_search in Algorithms/Searching/Binary_Search/Python/binary_search.py. */
 export function binarySearch({ values, target }: SearchInput): Array<Frame<SearchState>> {
   const r = new Recorder(values, target, 'probes', true);
   const n = values.length;
@@ -241,7 +241,7 @@ export function binarySearch({ values, target }: SearchInput): Array<Frame<Searc
   return r.frames;
 }
 
-/** Mirrors ternary_search in Algorithms/Searching/Ternary Search/Python/ternary_search.py. */
+/** Mirrors ternary_search in Algorithms/Searching/Ternary_Search/Python/ternary_search.py. */
 export function ternarySearch({ values, target }: SearchInput): Array<Frame<SearchState>> {
   const r = new Recorder(values, target, 'probes', true);
   const n = values.length;
@@ -329,7 +329,7 @@ export function ternarySearch({ values, target }: SearchInput): Array<Frame<Sear
   return r.frames;
 }
 
-/** Mirrors interpolation_search in Algorithms/Searching/Interpolation Search/Python/interpolation_search.py. */
+/** Mirrors interpolation_search in Algorithms/Searching/Interpolation_Search/Python/interpolation_search.py. */
 export function interpolationSearch({ values, target }: SearchInput): Array<Frame<SearchState>> {
   const r = new Recorder(values, target, 'probes', true);
   const n = values.length;

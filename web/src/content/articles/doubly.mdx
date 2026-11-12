@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/Linked List/Doubly
+topic: Data_Structures/Linear/Linked_List/Doubly
 title: Doubly Linked List
 lead: A doubly linked list gives every node two links, one to the next node and one to the previous, so you can walk in both directions and unlink a node without finding its predecessor first. This repository keeps only a head pointer, so only insertion at the head is O(1).
 level: Intermediate
@@ -23,12 +23,12 @@ properties:
   - { label: Tail pointer kept, value: false }
   - { label: Contiguous memory, value: false }
 prerequisites:
-  - Data Structures/Linear/Linked List/Singly
+  - Data_Structures/Linear/Linked_List/Singly
 related:
-  - Data Structures/Linear/Linked List/Circular
-  - Data Structures/Linear/Queue/Deque
-  - Data Structures/Advanced_Structures/LRU Cache
-  - Data Structures/Linear/Array
+  - Data_Structures/Linear/Linked_List/Circular
+  - Data_Structures/Linear/Queue/Deque
+  - Data_Structures/Advanced_Structures/LRU_Cache
+  - Data_Structures/Linear/Array
 ---
 
 ## What a doubly linked list is
@@ -136,7 +136,7 @@ This repository implements the plain version: head only, no sentinel, no tail po
 
 The C++ class owns its nodes. It has a destructor that frees the chain, and its copy constructor and assignment are deleted because two lists must not free the same nodes. The public `head` field is what the tests walk.
 
-<TopicCode topic="Data Structures/Linear/Linked List/Doubly" />
+<TopicCode topic="Data_Structures/Linear/Linked_List/Doubly" />
 
 ## Complexity
 

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm
+topic: Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm
 title: Floyd-Warshall Algorithm
 lead: Floyd-Warshall computes the shortest distance between every pair of vertices with three nested loops and a distance matrix. It allows negative edge weights, detects negative cycles, and takes O(V^3) time and O(V^2) space.
 level: Intermediate
@@ -23,10 +23,10 @@ properties:
   - { label: Detects negative cycles, value: true }
   - { label: In-place, value: true }
 prerequisites:
-  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
 related:
-  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
-  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
   - Algorithms/Graph_Algorithms/Traversal/BFS
   - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
 ---
@@ -152,7 +152,7 @@ Input is an adjacency list (`graph[u]` is a list of `(v, weight)` pairs) and the
   ]}
 />
 
-<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm" />
+<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm" />
 
 C++ and Go check the diagonal after every round, so distances in a negative cycle cannot keep shrinking toward an overflow. Python integers do not overflow, so one check at the end is enough there. The C++ version accepts fewer adjacency rows than `numVertices`; the missing rows have no edges. In Python, `floyd_warshall_path` also returns `None` on a negative cycle, and `reconstruct_path` gives up after V vertices instead of looping.
 

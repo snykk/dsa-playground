@@ -6,10 +6,10 @@ Advanced algorithms for string processing and analysis.
 
 | Algorithm | Description |
 |-----------|-------------|
-| [Z-Algorithm](Z-Algorithm/) | Z-array for pattern matching |
-| [Suffix Array](Suffix%20Array/) | Sorted array of all suffixes |
-| [Longest Common Substring](Longest%20Common%20Substring/) | Finding common substrings |
-| [Longest Palindromic Substring](Longest%20Palindromic%20Substring%20(Manacher's)/) | Manacher's algorithm |
+| [Z-Algorithm](Z_Algorithm/) | Z-array for pattern matching |
+| [Suffix Array](Suffix_Array/) | Sorted array of all suffixes |
+| [Longest Common Substring](Longest_Common_Substring/) | Finding common substrings |
+| [Longest Palindromic Substring](Longest_Palindromic_Substring_Manachers/) | Manacher's algorithm |
 
 ## Complexity
 

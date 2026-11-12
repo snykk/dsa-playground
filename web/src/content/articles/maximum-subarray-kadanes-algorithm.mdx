@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)
+topic: Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray_Kadanes_Algorithm
 title: Maximum Subarray (Kadane's Algorithm)
 lead: The maximum subarray problem asks for the contiguous run of an array with the largest sum. Kadane's algorithm solves it in one left-to-right pass, O(n) time and O(1) space, by tracking the best sum of a run that ends at the current element.
 level: Intermediate
@@ -24,10 +24,10 @@ properties:
   - { label: Empty input returns 0, value: true }
 prerequisites:
   - Algorithms/Dynamic_Programming
-  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+  - Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs
 related:
-  - Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence
-  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
+  - Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
   - Algorithms/Divide_and_Conquer
 ---
 
@@ -119,7 +119,7 @@ The two forms are equivalent: `max(arr[i], cur + arr[i])` restarts exactly when 
 
 Python has three functions: `kadane_algorithm` (the sum), `kadane_with_indices` (sum and window) and `kadane_dp` (the same with an explicit O(n) table). C++ and Go implement only the sum. Every version treats an empty array as sum 0 (an empty-sum convention) while a non-empty array always yields a non-empty subarray, so an all-negative array returns its largest element. The C++ version sums in `int`, so a large input can overflow; Python integers are unbounded and Go's `int` is 64-bit.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)" />
+<TopicCode topic="Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray_Kadanes_Algorithm" />
 
 ## Complexity analysis
 

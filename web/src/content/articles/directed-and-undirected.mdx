@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Graph/Directed & Undirected
+topic: Data_Structures/Non_Linear/Graph/Directed_and_Undirected
 title: Directed and Undirected Graphs
 lead: In a directed graph every edge has a direction and u to v says nothing about v to u. In an undirected graph an edge works both ways. The choice changes what reachability, degree and connectivity mean, and how an edge is stored.
 level: Beginner
@@ -23,11 +23,11 @@ properties:
   - { label: Weights, value: false }
   - { label: Parallel edges, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Graph/Adjacency List
+  - Data_Structures/Non_Linear/Graph/Adjacency_List
 related:
-  - Data Structures/Non_Linear/Graph/Weighted & Unweighted
-  - Data Structures/Non_Linear/Graph/Adjacency Matrix
-  - Data Structures/Non_Linear/Graph/Edge List
+  - Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted
+  - Data_Structures/Non_Linear/Graph/Adjacency_Matrix
+  - Data_Structures/Non_Linear/Graph/Edge_List
   - Algorithms/Graph_Algorithms/Traversal/BFS
   - Algorithms/Graph_Algorithms/Traversal/DFS
   - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
@@ -210,7 +210,7 @@ That is why `is_connected()` refuses a directed graph (`ValueError` in Python, `
 
 All three versions are an adjacency list in a map. Python and Go return a copy from `get_neighbors`, so editing the result never corrupts the graph. `get_edges` skips the mirrored copy of an undirected edge.
 
-<TopicCode topic="Data Structures/Non_Linear/Graph/Directed & Undirected" />
+<TopicCode topic="Data_Structures/Non_Linear/Graph/Directed_and_Undirected" />
 
 ## Frequently asked questions
 

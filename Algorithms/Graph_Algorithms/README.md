@@ -32,18 +32,18 @@ This folder contains implementations of fundamental graph algorithms in Python, 
 
 ### 🔹 Shortest Path Algorithms
 
-- **[Dijkstra's Algorithm](./Shortest_Path/Dijkstra's_Algorithm/)**
+- **[Dijkstra's Algorithm](Shortest_Path/Dijkstras_Algorithm/)**
   - Single-source shortest path
   - Non-negative edge weights
   - Time: O((V + E) log V), Space: O(V)
 
-- **[Bellman-Ford Algorithm](./Shortest_Path/Bellman-Ford_Algorithm/)**
+- **[Bellman-Ford Algorithm](Shortest_Path/Bellman_Ford_Algorithm/)**
   - Single-source shortest path
   - Works with negative weights
   - Detects negative cycles
   - Time: O(V * E), Space: O(V)
 
-- **[Floyd-Warshall Algorithm](./Shortest_Path/Floyd-Warshall_Algorithm/)**
+- **[Floyd-Warshall Algorithm](Shortest_Path/Floyd_Warshall_Algorithm/)**
   - All pairs shortest paths
   - Works with negative weights
   - Time: O(V³), Space: O(V²)
@@ -79,25 +79,25 @@ This folder contains implementations of fundamental graph algorithms in Python, 
   - Time: O(V + E), Space: O(V)
 
 - **[Strongly Connected Components](./Advanced_Graph/Strongly_Connected_Components/)**
-  - **[Kosaraju's Algorithm](./Advanced_Graph/Strongly_Connected_Components/Kosaraju's_Algorithm/)**
+  - **[Kosaraju's Algorithm](Advanced_Graph/Strongly_Connected_Components/Kosarajus_Algorithm/)**
     - Two DFS passes
     - Intuitive approach
     - Time: O(V + E), Space: O(V)
-  - **[Tarjan's Algorithm](./Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm/)**
+  - **[Tarjan's Algorithm](Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm/)**
     - Single DFS pass
     - More efficient
     - Time: O(V + E), Space: O(V)
 
-- **[Union-Find / DSU](./Advanced_Graph/Union-Find_DSU/)**
+- **[Union-Find / DSU](Advanced_Graph/Union_Find_DSU/)**
   - Disjoint set operations
   - Cycle detection, MST
   - Time: O(α(n)) per operation, Space: O(n)
 
 - **[Network Flow](./Advanced_Graph/Network_Flow/)**
-  - **[Ford-Fulkerson](./Advanced_Graph/Network_Flow/Ford-Fulkerson/)**
+  - **[Ford-Fulkerson](Advanced_Graph/Network_Flow/Ford_Fulkerson/)**
     - DFS-based maximum flow
     - Time: O(E × max_flow), Space: O(V + E)
-  - **[Edmonds-Karp](./Advanced_Graph/Network_Flow/Edmonds-Karp/)**
+  - **[Edmonds-Karp](Advanced_Graph/Network_Flow/Edmonds_Karp/)**
     - BFS-based maximum flow
     - Polynomial time: O(V × E²), Space: O(V + E)
 
@@ -167,9 +167,9 @@ Each algorithm includes:
 
 ## Related Topics
 
-- **Data Structures**: [Graph Data Structures](../../Data%20Structures/Non_Linear/Graph/)
+- **Data Structures**: [Graph Data Structures](../../Data_Structures/Non_Linear/Graph/)
 - **Greedy Algorithms**: [Greedy Algorithms](../Greedy/)
-- **Dynamic Programming**: [DP on Graphs](../Dynamic_Programming/Advanced%20DP/DP%20on%20Graphs/)
+- **Dynamic Programming**: [DP on Graphs](../Dynamic_Programming/Advanced_DP/DP_on_Graphs/)
 
 ---
 

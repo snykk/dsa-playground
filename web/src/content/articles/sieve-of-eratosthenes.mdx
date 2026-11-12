@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Mathematical_Algorithms/Number_Theory/Sieve of Eratosthenes
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes
 title: Sieve of Eratosthenes
 lead: The Sieve of Eratosthenes finds every prime up to n by crossing out the multiples of each prime, starting at its square. It runs in O(n log log n) time, close to linear, and leaves a table that answers "is k prime?" in constant time.
 level: Beginner
@@ -22,11 +22,11 @@ properties:
   - { label: Tests one huge number, value: false }
   - { label: Needs division, value: false }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller-Rabin Primality Test
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
 ---
 
 ## Definition
@@ -106,7 +106,7 @@ isPrimeSieve(k, sieve):
 
 All three languages have the same three functions: the list of primes, the flag array and a lookup. The lookup returns false for a negative number, which would otherwise wrap around to the end of a Python list or read out of bounds in C++, and false beyond the end of the sieve. A negative limit gives an empty result instead of an exception or a panic. The C++ version uses `long long` loop counters because `i * i` and `j += i` overflow an `int` for `n` near 2^31 - 1.
 
-<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Sieve of Eratosthenes" />
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes" />
 
 ## Complexity
 
