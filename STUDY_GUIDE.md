@@ -100,7 +100,7 @@ These two patterns appear in 40%+ of array/string problems.
 
 ### 11. Dynamic Programming (start here!)
 - [Fibonacci / Climbing Stairs](Algorithms/Dynamic_Programming/Basic%20DP/) — 1D DP intro
-- [Maximum Subarray (Kadane's)](Algorithms/Dynamic_Programming/Linear%20DP/Maximum%20Subarray/)
+- [Maximum Subarray (Kadane's)](Algorithms/Dynamic_Programming/Linear%20DP/Maximum%20Subarray%20%28Kadane's%20Algorithm%29/)
 - [Longest Increasing Subsequence](Algorithms/Dynamic_Programming/Linear%20DP/Longest%20Increasing%20Subsequence/)
 - [Coin Change](Algorithms/Dynamic_Programming/Linear%20DP/Coin%20Change/)
 - [Longest Common Subsequence](Algorithms/Dynamic_Programming/2D%20DP/Longest%20Common%20Subsequence/) — **2D DP gateway**
@@ -163,8 +163,8 @@ These two patterns appear in 40%+ of array/string problems.
 ### 18. Special Techniques
 - [2-SAT Solver](Algorithms/Graph_Algorithms/Advanced_Graph/2-SAT/) — SAT via SCC
 - [Network Flow](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/) — Ford-Fulkerson / Edmonds-Karp
-- [FFT](Algorithms/Mathematical_Algorithms/Advanced%20Math/Fast%20Fourier%20Transform%20(FFT)/)
-- [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced%20Math/Matrix%20Exponentiation/)
+- [FFT](Algorithms/Mathematical_Algorithms/Advanced_Math/Fast%20Fourier%20Transform/)
+- [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix%20Exponentiation/)
 
 ### 19. Specialized Patterns
 - [Meet in the Middle](Problem_Patterns/Meet%20in%20the%20Middle/) — 2^n → 2^(n/2)
