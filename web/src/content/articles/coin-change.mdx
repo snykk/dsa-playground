@@ -1,0 +1,210 @@
+---
+topic: Algorithms/Dynamic_Programming/Linear DP/Coin Change
+title: Coin Change
+lead: Given coin values and an amount, Coin Change finds the fewest coins that add up to it, or counts the ways to make it. A one-dimensional table over amounts solves both in O(n amount) time, where the greedy "largest coin first" rule fails for some coin systems.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n A)
+    hint: n coins, amount A
+  - label: Space
+    value: O(A)
+    hint: one array over the amounts 0..A
+  - label: Greedy
+    value: not always optimal
+    hint: coins {1, 3, 4}, amount 6
+    tone: warn
+  - label: Approach
+    value: Unbounded knapsack DP
+properties:
+  - { label: Each coin reusable, value: true }
+  - { label: Greedy works, value: false }
+  - { label: Optimal substructure, value: true }
+  - { label: Polynomial in input size, value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+related:
+  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+---
+
+## How Coin Change works
+
+Let `dp[a]` be the fewest coins that make the amount `a`. The last coin of an optimal solution has some value `c`, and the coins before it make `a - c` optimally. So `dp[a]` is one more than the best `dp[a - c]` over all coins `c <= a`.
+
+<Steps>
+  <Step title="Set the base case">
+    `dp[0] = 0`: the empty set of coins makes amount 0. Every other entry starts at infinity, meaning "not reachable yet".
+  </Step>
+  <Step title="Relax with each coin">
+    For every coin `c` and every amount `a` from `c` up to the target: `dp[a] = min(dp[a], dp[a - c] + 1)`. Going upward lets the same coin be used again, because `dp[a - c]` may already include `c`.
+  </Step>
+  <Step title="Read the answer">
+    `dp[amount]` is the minimum number of coins, or infinity if no combination works; the code reports that as `-1`.
+  </Step>
+</Steps>
+
+<Callout title="Why the sweep goes upward">
+The unbounded problem lets a coin be reused, so `dp[a - c]` must be allowed to contain `c` already: iterate `a` from small to large. For the 0/1 variant (each coin at most once) the sweep goes from large to small, so `dp[a - c]` still reflects the state before this coin, exactly as in the 0/1 knapsack.
+</Callout>
+
+## See it in action
+
+Enter an amount and coin values like `11 | 1, 2, 5`. Press play to see each `dp[a]` look at `dp[a - c]` for every coin. The amount being solved and the smaller amounts it reads are highlighted, unreachable amounts are faded, and at the end the coins used are marked. Try `6 | 1, 3, 4` to see why greedy fails.
+
+<ArticleViz ids={['coin-change']} />
+
+## Worked example
+
+Coins `{1, 2, 5}`, amount 11. The table is what `coin_change_min_coins` computes; it answers 3 (5 + 5 + 1).
+
+<ArrayDiagram
+  legend={{ f: 'amounts on the path back from 11', l: 'other filled amounts' }}
+  rows={[
+    { label: 'amount a', values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], tones: '............' },
+    { label: 'dp[a]', values: [0, 1, 1, 2, 2, 1, 2, 2, 3, 3, 2, 3], tones: 'ffllllfllllf', note: 'dp[11] = min(dp[10], dp[9], dp[6]) + 1 = min(2, 3, 2) + 1 = 3.' },
+  ]}
+/>
+
+To recover the coins, walk back from 11: pick a coin `c` with `dp[a - c] + 1 == dp[a]`. Here `dp[11] = 3`, and coin 5 works because `dp[6] = 2`; then `dp[6] = 2` with coin 5 gives `dp[1] = 1`; then `dp[1] = 1` with coin 1 gives `dp[0] = 0`. The coins are 5, 5, 1. The repository functions return only the count, so this walk is a technique, not a function.
+
+**Greedy fails.** For coins `{1, 3, 4}` and amount 6, taking the largest coin first gives 4 + 1 + 1 (three coins), but 3 + 3 uses two. `coin_change_min_coins([1, 3, 4], 6)` returns 2. Greedy is correct only for special coin systems, such as the common currency denominations.
+
+## Counting ways
+
+`coin_change_ways` answers a different question: how many combinations of coins make the amount. With coins `{1, 2, 5}` and amount 5 there are 4: 5; 2+2+1; 2+1+1+1; 1+1+1+1+1. The code starts with `dp[0] = 1` and adds `dp[a] += dp[a - c]`, with the **coin loop outside** and the amount loop inside:
+
+<DataTable
+  columns={['After coin', 'dp[0..5]', 'Meaning']}
+  rows={[
+    ['none', '1, 0, 0, 0, 0, 0', 'one way to make 0'],
+    ['1', '1, 1, 1, 1, 1, 1', 'only 1-coins'],
+    ['2', '1, 1, 2, 2, 3, 3', 'using 1s and 2s'],
+    ['5', '1, 1, 2, 2, 3, 4', 'using 1s, 2s and 5s; dp[5] = 4'],
+  ]}
+/>
+
+The outer loop over coins makes each combination count once, in a fixed coin order. Swapping the loops (amounts outside) would count ordered sequences instead: for amount 5 that is 9, not 4.
+
+## Pseudocode
+
+```text
+coinChangeMinCoins(coins, amount):
+    if amount < 0: error
+    if amount == 0: return 0
+    dp = array of infinity, size amount + 1; dp[0] = 0
+    for coin in coins:
+        for a = coin to amount:
+            dp[a] = min(dp[a], dp[a - coin] + 1)
+    return dp[amount], or -1 if it is infinity
+
+coinChangeWays(coins, amount):          # Python only
+    dp = zeros, size amount + 1; dp[0] = 1
+    for coin in coins:
+        for a = coin to amount:
+            dp[a] = dp[a] + dp[a - coin]
+    return dp[amount]
+
+coinChange01(coins, amount):            # Python only: each coin at most once
+    same as the minimum version, but a runs from amount down to coin
+```
+
+## Implementation
+
+Python has three functions: minimum coins, number of ways, and the minimum with each coin used at most once. C++ and Go have only the minimum (`coinChangeMinCoins`, `CoinChangeMinCoins`). A negative amount raises an error in all three languages (`ValueError`, `std::invalid_argument`, panic), amount 0 needs 0 coins, and an unreachable amount gives `-1`. C++ and Go use a sentinel (`INT_MAX`, `amount + 1`) and skip unreachable entries, so there is no overflow.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Linear DP/Coin Change" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(n A)', when: 'For each of the n coins, one pass over the A + 1 amounts with a constant-time update.' },
+    { case: 'Space', time: 'O(A)', space: 'O(A)', when: 'A single array over the amounts. The coins are not sorted or copied.' },
+    { case: 'Brute force', time: 'exponential', when: 'Trying every coin at every step branches n ways per coin used, so the number of sequences grows exponentially with the amount.' },
+  ]}
+/>
+
+<Callout tone="warning" title="Pseudo-polynomial again">
+As in the knapsack, the running time depends on the value of `A`, not on the number of bits needed to write it. An amount of 10<sup>9</sup> makes the table infeasible even with three coins.
+</Callout>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Table value', 'Update', 'Sweep over amounts']}
+  rows={[
+    ['Minimum coins (unbounded)', 'fewest coins', 'min(dp[a], dp[a - c] + 1)', 'upward'],
+    ['Number of combinations', 'count', 'dp[a] += dp[a - c]; coins outer loop', 'upward'],
+    ['Number of ordered sequences', 'count', 'dp[a] += dp[a - c]; amounts outer loop', 'upward'],
+    ['Minimum coins, each coin once', 'fewest coins', 'min(dp[a], dp[a - c] + 1)', 'downward'],
+    ['Can the amount be made at all', 'true or false', 'dp[a] = dp[a] or dp[a - c]', 'upward'],
+  ]}
+/>
+
+## Coin Change vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, { label: 'Optimal', kind: 'yesno' }, 'Note']}
+  highlight={0}
+  rows={[
+    ['DP over amounts (this code)', 'O(n A)', 'Yes', 'works for any coin set'],
+    ['Greedy, largest coin first', 'O(n log n)', 'No', 'only for canonical coin systems'],
+    ['Plain recursion', 'exponential', 'Yes', 'recomputes subproblems'],
+    ['Breadth-first search over amounts', 'O(n A)', 'Yes', 'the same states, explored by distance'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Correct for any set of coin values, unlike greedy.',
+    'A short loop over a single array.',
+    'The same table answers several questions with small changes: minimum, count, reachability.',
+    'O(A) memory.',
+  ]}
+  cons={[
+    'Pseudo-polynomial: huge amounts are infeasible.',
+    'The count variants overflow fixed-width integers quickly.',
+    'The code returns only the count, not the coins used.',
+    'The amount must be a non-negative integer, and coin values must be positive integers.',
+  ]}
+/>
+
+## Applications
+
+- **Making change** with a given set of denominations, using the fewest coins.
+- **Counting combinations**, for example the number of ways to pay an amount.
+- **Reachability** problems such as "can these weights add up to exactly this total", which is the subset-sum family.
+- **Teaching** the difference between the unbounded and the 0/1 knapsack sweep.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using greedy.** Largest-first fails for `{1, 3, 4}` and amount 6.
+- **Wrong loop nesting for counting.** Coins outside counts combinations; amounts outside counts ordered sequences.
+- **Wrong sweep direction.** Upward lets coins repeat; downward uses each coin at most once. The 0/1 variant on `{1, 2, 5}` and amount 11 returns -1, since all coins together make only 8.
+- **Adding to infinity.** In C++ and Go, `INT_MAX + 1` overflows: check that `dp[a - c]` is reachable first, as the code does.
+- **Forgetting amount 0.** It needs 0 coins and has exactly 1 way.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the order of the two loops matter for counting?">
+    With coins in the outer loop, a combination is built in coin order, so each multiset of coins is counted once. With amounts in the outer loop, every order of the same coins is a different sequence, so the count is higher: 9 instead of 4 for `{1, 2, 5}` and amount 5.
+  </FaqItem>
+  <FaqItem question="When does greedy work?">
+    For canonical coin systems, such as most real currencies, largest-first is optimal. It is not safe in general: with `{1, 3, 4}` and amount 6 it uses three coins instead of two.
+  </FaqItem>
+  <FaqItem question="What does the function return when the amount cannot be made?">
+    `-1`. For example `coin_change_min_coins([2], 3)` is `-1`, as is any amount when the coin list is empty and the amount is positive.
+  </FaqItem>
+  <FaqItem question="How is this related to the 0/1 knapsack?">
+    It is the unbounded knapsack with every item of value 1 and the weight equal to the coin value, minimizing instead of maximizing. The only structural difference from the 0/1 version is the sweep direction.
+  </FaqItem>
+</Faq>

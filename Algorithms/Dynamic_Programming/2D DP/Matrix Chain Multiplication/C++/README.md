@@ -1,42 +1,37 @@
-# Matrix Chain Multiplication (C++)
+# Matrix Chain Multiplication -- C++ Implementation
 
-C++ implementation of the Matrix Chain Multiplication problem using 2D interval DP to find the minimum total number of scalar multiplications (the cost only; the optimal parenthesization itself is not returned).
+Bottom-up interval DP for the cheapest matrix chain order.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `matrix_chain.cpp` | Main implementation with interval DP approach |
-| `matrix_chain_test.cpp` | Test cases for matrix chain solver |
+| File | Contents |
+|------|----------|
+| `matrix_chain.cpp` | `matrixChainMultiplication` |
+| `matrix_chain_test.cpp` | `assert`-based tests; it `#include`s `matrix_chain.cpp` |
+
+## API
+
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `long long matrixChainMultiplication(const std::vector<int>& dims)` | minimum number of scalar multiplications; returns 0 for fewer than two matrices | O(n^3) | O(n^2) |
+
+It returns only the cost, not the parenthesization.
+
+## C++-Specific Notes
+
+- The table and the return type are `long long`; the product of three `int` dimensions is widened before it is multiplied (`static_cast<long long>(dims[i - 1]) * dims[k] * dims[j]`). A previous `int` version overflowed for `[2000, 2000, 2000]`.
+- `LLONG_MAX` is the starting value of each cell and is always replaced before use.
+- The test file includes the `.cpp`, so compile only the test file.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -DTESTING -o test matrix_chain_test.cpp
-./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD matrix_chain_test.cpp -o matrix_chain_test
+./matrix_chain_test
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `matrixChainMultiplication(dims)` | Finds the minimum scalar multiplications needed for a chain of matrices | O(n^3) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n^3) where n = number of matrices |
-| Space | O(n^2) for the 2D DP table |
-
-## Notes
-
-- Input `dims` is a vector of length n+1 where matrix i has dimensions `dims[i-1] x dims[i]`.
-- Uses interval DP: iterates over chain lengths, then starting positions, then split points.
-- `dp[i][j]` stores the minimum scalar multiplications to compute matrices i through j.
-- Costs are `long long` and start at `LLONG_MAX` before searching for optimal splits, so totals above `INT_MAX` (e.g. `{2000, 2000, 2000}` = 8,000,000,000) are exact.
-- Returns 0 when there are fewer than two matrices (`dims.size() < 3`).
-
----
-
-_Last Updated: April 2026_
+- Use 64-bit costs: three dimensions of 2000 already exceed `INT_MAX`.
+- `n` matrices need `n + 1` dimensions, and fewer than two matrices cost 0.
+- Fill by chain length.

@@ -1,41 +1,37 @@
-# Maximum Subarray - Kadane's Algorithm (C++)
+# Maximum Subarray (Kadane's Algorithm) -- C++ Implementation
 
-C++ implementation of Kadane's Algorithm to find the maximum sum of a contiguous subarray in linear time.
+The one-pass sum.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `kadane.cpp` | Main implementation of Kadane's Algorithm |
-| `kadane_test.cpp` | Test cases for maximum subarray computation |
+| File | Contents |
+|------|----------|
+| `kadane.cpp` | `kadaneAlgorithm` |
+| `kadane_test.cpp` | `assert`-based tests; it `#include`s `kadane.cpp` |
+
+## API
+
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `int kadaneAlgorithm(const std::vector<int>& arr)` | maximum subarray sum; 0 for an empty vector | O(n) | O(1) |
+
+There is no window (index) version here; the Python folder has one.
+
+## C++-Specific Notes
+
+- Sums are `int`. A sum above `INT_MAX` overflows (undefined behaviour for signed integers); widen to `long long` for large inputs.
+- The loop index is `size_t`, starting at 1 after the empty check.
+- The test file includes the `.cpp`, so compile only the test file.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -DTESTING -o test kadane_test.cpp
-./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD kadane_test.cpp -o kadane_test
+./kadane_test
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `kadaneAlgorithm(arr)` | Finds the maximum sum of any contiguous subarray | O(n) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n) single pass through the array |
-| Space | O(1) only two tracking variables used |
-
-## Notes
-
-- Maintains `currentSum` (best sum ending at current position) and `maxSum` (global best).
-- At each step, decides whether to extend the current subarray or start fresh: `max(arr[i], currentSum + arr[i])`.
-- Handles all-negative arrays correctly by initializing both sums to `arr[0]`.
-- Returns 0 for empty arrays as an edge case.
-
----
-
-_Last Updated: April 2026_
+- Start from `arr[0]` so all-negative input works.
+- Watch the `int` range.
+- Empty input returns 0 by convention.

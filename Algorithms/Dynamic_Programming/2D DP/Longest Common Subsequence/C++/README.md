@@ -1,40 +1,37 @@
-# Longest Common Subsequence (C++)
+# Longest Common Subsequence -- C++ Implementation
 
-C++ implementation of the Longest Common Subsequence (LCS) algorithm using 2D dynamic programming to find the length of the longest subsequence common to two strings.
+Bottom-up LCS length over a 2D table.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `lcs.cpp` | Main implementation with DP table approach |
-| `lcs_test.cpp` | Test cases for LCS computation |
+| File | Contents |
+|------|----------|
+| `lcs.cpp` | `lcsLength` |
+| `lcs_test.cpp` | `assert`-based tests; it `#include`s `lcs.cpp` |
+
+## API
+
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `int lcsLength(const std::string& s1, const std::string& s2)` | length of the LCS | O(m * n) | O(m * n) |
+
+There is no sequence reconstruction and no two-row version here; the Python folder has both.
+
+## C++-Specific Notes
+
+- `std::string` holds bytes, so a multi-byte UTF-8 character is compared byte by byte. Python compares code points.
+- The table is a `vector<vector<int>>`, `(m + 1) x (n + 1)`.
+- The test file includes the `.cpp`, so compile only the test file.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -DTESTING -o test lcs_test.cpp
-./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD lcs_test.cpp -o lcs_test
+./lcs_test
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `lcsLength(s1, s2)` | Computes the length of the longest common subsequence of two strings | O(m * n) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(m * n) where m, n are the lengths of the input strings |
-| Space | O(m * n) for the 2D DP table |
-
-## Notes
-
-- A subsequence is derived by deleting zero or more elements without changing order.
-- The DP table `dp[i][j]` stores the LCS length of `s1[0..i-1]` and `s2[0..j-1]`.
-- When characters match, extend the diagonal value; otherwise, take the max of left and top neighbors.
-
----
-
-_Last Updated: April 2026_
+- Cell `dp[i][j]` compares `s1[i - 1]` and `s2[j - 1]`.
+- A match adds 1 to the diagonal; a mismatch takes the larger of up and left.
+- It works on bytes, not characters.

@@ -1,0 +1,231 @@
+---
+topic: Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence
+title: Longest Increasing Subsequence
+lead: The Longest Increasing Subsequence (LIS) of an array is the longest subsequence whose elements are strictly increasing. A simple DP finds its length in O(n^2). Keeping only the smallest possible tail for each length and using binary search brings it down to O(n log n).
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: DP table
+    value: O(n^2)
+    hint: dp[i] = LIS length ending at i
+  - label: Tails + binary search
+    value: O(n log n)
+    hint: lis_binary_search in Python
+  - label: Strictly increasing
+    value: equal values do not count
+    hint: 'the array [7, 7, 7] has LIS length 1'
+    tone: warn
+  - label: Approach
+    value: Linear DP
+properties:
+  - { label: Optimal substructure, value: true }
+  - { label: Unique answer, value: false }
+  - { label: Sequence recovery in Python, value: true }
+  - { label: The tails array is an LIS, value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Searching/Binary Search
+related:
+  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
+  - Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)
+  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
+---
+
+## How LIS works
+
+A subsequence keeps the original order but may skip elements. The LIS asks for the longest one whose values strictly increase. There are 2<sup>n</sup> subsequences, so we need structure.
+
+### The O(n<sup>2</sup>) table
+
+Let `dp[i]` be the length of the longest increasing subsequence that **ends at** index `i`.
+
+<Steps>
+  <Step title="Start every entry at 1">
+    Each element alone is an increasing subsequence of length 1.
+  </Step>
+  <Step title="Look at every earlier element">
+    For each `j < i` with `arr[j] < arr[i]`, the element `arr[i]` can extend a run that ends at `j`: `dp[i] = max(dp[i], dp[j] + 1)`.
+  </Step>
+  <Step title="Take the best end">
+    The answer is the largest `dp[i]`, because an LIS has to end somewhere.
+  </Step>
+  <Step title="Recover the sequence">
+    Store the predecessor `parent[i] = j` whenever `dp[i]` improves, then follow the parents back from the best end. `lis_with_sequence` does this.
+  </Step>
+</Steps>
+
+<Callout title="Why the answer is the maximum, not dp[n-1]">
+`dp[i]` only counts runs that end exactly at `i`. The last element is not always part of the best run, so the answer is the maximum over all `i`.
+</Callout>
+
+### The O(n log n) tails array
+
+Keep an array `tails` where `tails[k]` is the **smallest possible last value** of an increasing subsequence of length `k + 1` among the elements seen so far. It is always sorted, so a new element `x` can be placed by binary search: find the first position with `tails[pos] >= x`. If there is none, `x` extends the longest run (append). Otherwise `x` becomes a smaller tail for that length (replace). The final length of `tails` is the LIS length.
+
+## See it in action
+
+The first visualization is the quadratic table with the predecessor links; the second is the tails array with its binary-search probes. In both, the element being placed is highlighted, the earlier element or tail being compared is marked, and the elements of the answer are marked at the end. Type your own numbers.
+
+<ArticleViz ids={['lis', 'lis-tails']} />
+
+## Worked example
+
+Array `[10, 9, 2, 5, 3, 7, 101, 18]`. The LIS length is 4 (`lis_dp`, `lis_binary_search` and `lis_naive` all agree), and `lis_with_sequence` returns `[2, 5, 7, 101]`.
+
+**The table.** `parent` is the index that `dp[i]` extended.
+
+<ArrayDiagram
+  legend={{ f: 'elements of the returned LIS 2, 5, 7, 101' }}
+  rows={[
+    { label: 'arr', values: [10, 9, 2, 5, 3, 7, 101, 18], tones: '..ff.ff.', marks: { 0: 'i = 0', 7: 'i = 7' } },
+    { label: 'dp', values: [1, 1, 1, 2, 2, 3, 4, 4], tones: '..ff.ff.', note: 'dp[i] = length of the best run ending at i.' },
+    { label: 'parent', values: ['-', '-', '-', 2, 2, 3, 5, 5], tones: '..ff.ff.', note: 'The chain from index 6: 6, 5, 3, 2, which spells 101, 7, 5, 2.' },
+  ]}
+/>
+
+For `i = 5` (value 7) the earlier smaller elements are 2 (`dp = 1`), 5 (`dp = 2`) and 3 (`dp = 2`). The first best one found is 5, so `dp[5] = 3` with parent index 3; the later 3 only ties. `101` and `18` both end runs of length 4, and the code picks the first index with the maximum, so it follows 101.
+
+**The tails array.** Each row shows `tails` after reading one element; the orange slot is the one this element wrote.
+
+<ArrayDiagram
+  legend={{ p: 'the slot written by this element' }}
+  rows={[
+    { label: 'x = 10', values: [10], tones: 'p', note: 'Empty: append.' },
+    { label: 'x = 9', values: [9], tones: 'p', note: '9 replaces 10: a smaller tail for length 1.' },
+    { label: 'x = 2', values: [2], tones: 'p', note: '2 replaces 9.' },
+    { label: 'x = 5', values: [2, 5], tones: '.p', note: '5 is larger than every tail: append, length 2.' },
+    { label: 'x = 3', values: [2, 3], tones: '.p', note: '3 replaces 5: a smaller tail for length 2.' },
+    { label: 'x = 7', values: [2, 3, 7], tones: '..p', note: 'Append, length 3.' },
+    { label: 'x = 101', values: [2, 3, 7, 101], tones: '...p', note: 'Append, length 4.' },
+    { label: 'x = 18', values: [2, 3, 7, 18], tones: '...p', note: '18 replaces 101. The length stays 4.' },
+  ]}
+/>
+
+The final `tails` is `[2, 3, 7, 18]`, which happens to be increasing but is **not** guaranteed to be a real subsequence of the input (3 comes after 5 in the array, but 5 was replaced). Only its length is the answer.
+
+## Pseudocode
+
+```text
+lisDP(arr):                              # O(n^2)
+    if arr is empty: return 0
+    dp = [1] * n
+    for i = 1 to n - 1:
+        for j = 0 to i - 1:
+            if arr[j] < arr[i]: dp[i] = max(dp[i], dp[j] + 1)
+    return max(dp)
+
+lisBinarySearch(arr):                    # O(n log n), Python
+    tails = []
+    for x in arr:
+        pos = first index with tails[pos] >= x      # bisect_left
+        if pos == length(tails): append x to tails
+        else: tails[pos] = x
+    return length(tails)
+
+lisWithSequence(arr):                    # O(n^2), Python
+    like lisDP, plus parent[i] = j when dp[i] improves
+    end = first index with the largest dp
+    follow parent back from end and reverse
+```
+
+## Implementation
+
+Python has four functions: `lis_naive` (exponential recursion), `lis_dp`, `lis_binary_search` and `lis_with_sequence`. C++ and Go have only the O(n<sup>2</sup>) length (`lisDP`, `LISDP`). The binary-search version uses `bisect_left`, which makes the subsequence **strictly** increasing: equal values replace each other instead of extending. Empty input gives 0 everywhere.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence" />
+
+## Complexity analysis
+
+<DataTable
+  columns={['Version', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Why']}
+  rows={[
+    ['lis_naive', 'O(2^n)', 'O(n)', 'take or skip every element'],
+    ['lis_dp / lisDP / LISDP', 'O(n^2)', 'O(n)', 'a double loop over pairs (j < i)'],
+    ['lis_with_sequence', 'O(n^2)', 'O(n)', 'the same, with a parent array'],
+    ['lis_binary_search', 'O(n log n)', 'O(n)', 'one binary search of the tails array per element'],
+  ]}
+/>
+
+<Equation label="Tails version" expr="T(n) = n * O(log n)" result="O(n log n)" />
+
+The tails array stays sorted, which is why binary search is valid: replacing the first tail that is `>= x` with `x` keeps it increasing.
+
+## Why the tails trick works
+
+The invariant is that `tails[k]` is the smallest last value over all increasing subsequences of length `k + 1` seen so far. A smaller tail is always at least as good: anything that can extend a larger tail can extend a smaller one as well. A new `x` either beats every tail (a longer subsequence exists) or improves the first tail that is `>= x`. The tails are increasing in `k`, because the last value of a run of length `k + 1` is larger than the last value of a run of length `k` inside it. Recovering the actual sequence in O(n log n) is possible by also storing, for each element, the index of the previous tail, but this repository does not do that.
+
+## Variants and relatives
+
+<DataTable
+  columns={['Variant', 'Change']}
+  rows={[
+    ['Non-decreasing LIS', 'use `bisect_right` (or `<=` in the table) so equal values may repeat'],
+    ['Count the LIS', 'keep a second array with the number of runs of each length (LeetCode 673)'],
+    ['Longest decreasing subsequence', 'negate the values, or reverse the comparison'],
+    ['Russian doll envelopes', 'sort by width, then take the LIS of the heights'],
+    ['LIS as LCS', 'LCS of the array and its sorted, deduplicated copy: O(n^2) as well'],
+  ]}
+/>
+
+## LIS vs alternatives
+
+<DataTable
+  columns={['Problem', 'Subject', { label: 'Time', kind: 'mono' }, 'Note']}
+  highlight={0}
+  rows={[
+    ['LIS', 'one sequence, ordered by value', 'O(n log n)', 'tails plus binary search'],
+    ['Longest Common Subsequence', 'two sequences', 'O(m n)', 'two-dimensional table'],
+    ['Maximum Subarray', 'contiguous block, maximum sum', 'O(n)', 'one-pass Kadane'],
+    ['Longest increasing substring', 'contiguous run', 'O(n)', 'one pass, no DP table'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'The quadratic DP is short and recovers the sequence with a parent array.',
+    'The tails version is fast: O(n log n) with a single binary search per element.',
+    'Both extend to many related problems: envelopes, chains, counting.',
+    'The answer length does not depend on how ties between equal LIS are broken.',
+  ]}
+  cons={[
+    'The quadratic version is too slow beyond about 10^4 elements.',
+    'The tails array alone is not a valid subsequence.',
+    'Strict versus non-strict is easy to get wrong.',
+    'C++ and Go here have only the quadratic length.',
+  ]}
+/>
+
+## Applications
+
+- **Patience sorting.** The tails array is the top row of a deck of piles dealt by the patience sorting game; its number of piles is the LIS length.
+- **Chains and nesting.** Russian doll envelopes and pair chains reduce to an LIS after sorting.
+- **Measuring order.** The LIS length tells how close a sequence is to being sorted: `n - LIS` elements must move out of the way.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Returning dp[n-1].** The answer is the maximum over all `dp[i]`.
+- **Strict versus non-strict.** `arr[j] < arr[i]` and `bisect_left` give strictly increasing runs. `[7, 7, 7]` is 1, `[1, 3, 3, 5]` is 3. With `<=` or `bisect_right` it would be 4 for the second.
+- **Reading `tails` as the answer.** Only its length is meaningful.
+- **Using `bisect_right` with a strict LIS.** It would let equal values extend a run.
+- **Starting the table at 0.** Every `dp[i]` starts at 1 (the element alone).
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the tails array have the right length but the wrong contents?">
+    Each replacement lowers a tail to keep future options open, even when the replaced value is no longer part of any single run. The count of lengths stays correct, but the entries may come from different subsequences.
+  </FaqItem>
+  <FaqItem question="Can O(n log n) also give the sequence?">
+    Yes. Store, for every element, which tail was before it when it was placed, and follow those links back from the last tail. This repository returns the sequence only from the O(n<sup>2</sup>) version.
+  </FaqItem>
+  <FaqItem question="Does the LIS have to be unique?">
+    No. `[1, 3, 2, 4]` has two LISs of length 3, `[1, 3, 4]` and `[1, 2, 4]`. The code returns the one found first by its tie rule.
+  </FaqItem>
+  <FaqItem question="What if equal values are allowed?">
+    Then you want the longest non-decreasing subsequence: replace `<` with `<=` in the table, or `bisect_left` with `bisect_right`.
+  </FaqItem>
+</Faq>

@@ -20,14 +20,14 @@ func EditDistance(s1, s2 string) int {
 			if s1[i-1] == s2[j-1] {
 				dp[i][j] = dp[i-1][j-1]
 			} else {
-				min := dp[i-1][j]
-				if dp[i][j-1] < min {
-					min = dp[i][j-1]
+				best := dp[i-1][j]
+				if dp[i][j-1] < best {
+					best = dp[i][j-1]
 				}
-				if dp[i-1][j-1] < min {
-					min = dp[i-1][j-1]
+				if dp[i-1][j-1] < best {
+					best = dp[i-1][j-1]
 				}
-				dp[i][j] = 1 + min
+				dp[i][j] = 1 + best
 			}
 		}
 	}
