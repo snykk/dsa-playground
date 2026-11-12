@@ -1,95 +1,109 @@
-# Monotonic Stack Pattern
+# Monotonic Stack
 
-A **Monotonic Stack** is a stack that maintains its elements in either strictly increasing or strictly decreasing order. It is a powerful technique for solving problems that require finding the next or previous greater/smaller element in an array, achieving O(n) time complexity instead of the brute-force O(n^2).
+A monotonic stack keeps its elements in sorted order, popping everything that breaks the order before each push. Every pop gives the popped element its answer, so "next greater element", "days until warmer" and "largest rectangle in a histogram" run in O(n) instead of O(n^2).
 
----
+## Intuition
 
-## Overview
+Scan left to right and keep only the elements that are still waiting for an answer. For the next greater element those waiting elements are in decreasing order, because a bigger newcomer immediately answers every smaller element above it. When the newcomer arrives it pops everything it beats, hands each popped element its answer, and then waits itself.
 
-The monotonic stack pattern processes elements one by one, maintaining an invariant on the stack: elements are always in monotonic (non-increasing or non-decreasing) order. When a new element violates this invariant, we pop elements from the stack until the invariant is restored, and each popped element gets its answer from the current element.
+Invariant: the stack holds exactly the indices whose answer has not been found yet, and their values are monotone from bottom to top. Each index is pushed once and popped at most once.
 
-There are two main types:
-- **Monotonic Increasing Stack**: Elements from bottom to top are in increasing order (used to find next smaller elements)
-- **Monotonic Decreasing Stack**: Elements from bottom to top are in decreasing order (used to find next greater elements)
+Signals: "next / previous greater / smaller", "days until", "span", "nearest shorter bar", "largest rectangle".
 
----
+## Visual
+
+```text
+arr = [4, 5, 2, 10, 8]        stack holds indices; values shown
+
+i=0  push 4                    stack: [4]
+i=1  5 beats 4 -> NGE(4)=5     stack: [5]
+i=2  2 < 5, push               stack: [5, 2]
+i=3  10 beats 2 and 5          stack: [10]      NGE(2)=10, NGE(5)=10
+i=4  8 < 10, push              stack: [10, 8]
+end  10 and 8 have no answer   NGE = -1
+
+result: [5, 10, 10, -1, -1]
+```
 
 ## How It Works
 
-### Visual Example: Next Greater Element
+1. For each index `i`, while the stack is not empty and the top breaks the order (for next greater: `arr[top] < arr[i]`), pop it and record `arr[i]` as its answer.
+2. Push `i`.
+3. Whatever remains on the stack at the end has no answer.
 
-```
-Array: [4, 5, 2, 10, 8]
+| Question | Stack (bottom to top) | Pop while | Answer found |
+|----------|-----------------------|-----------|--------------|
+| Next greater | decreasing | top < new | when popped |
+| Next smaller | increasing | top > new | when popped |
+| Previous greater | decreasing | top <= new | top after popping |
+| Previous smaller | increasing | top >= new | top after popping |
+| Largest rectangle | increasing | top >= new | width from new top to i |
 
-Step 1: Push 4         Stack: [4]
-Step 2: 5 > 4, pop 4   -> NGE(4) = 5,  Push 5.  Stack: [5]
-Step 3: 2 < 5, push 2  Stack: [5, 2]
-Step 4: 10 > 2, pop 2  -> NGE(2) = 10
-        10 > 5, pop 5  -> NGE(5) = 10, Push 10. Stack: [10]
-Step 5: 8 < 10, push 8 Stack: [10, 8]
-End:    pop remaining   -> NGE(10) = -1, NGE(8) = -1
+Duplicates: next-greater pops on `<` and previous-greater pops on `<=`, so both answer with a strictly greater value. For `[3, 3, 3, 5]` the next greater is `[5, 5, 5, -1]` and the previous greater is `[-1, -1, -1, -1]`. The histogram pops on `>=`; the last of several equal bars covers the full width.
 
-Result: [5, 10, 10, -1, -1]
-```
+## Step-by-Step Trace
 
-Each element is pushed and popped at most once, giving O(n) total time.
+Largest rectangle for `heights = [2, 1, 5, 6, 2, 3]` (stack of indices, increasing heights):
 
----
+| i | Action | Area candidate | Stack after |
+|---|--------|----------------|-------------|
+| 0 | push 0 | | [0] |
+| 1 | height 1 pops 2 (width 1) | 2 | [1] |
+| 2, 3 | push | | [1, 2, 3] |
+| 4 | height 2 pops 6 (width 1), then 5 (width 2) | 6, 10 | [1, 4] |
+| 5 | push | | [1, 4, 5] |
+| end | pop 3 (width 1), 2 (width 4), 1 (width 6) | 3, 8, 6 | [] |
 
-## Common Problem Types
-
-| Problem | Description | Stack Type |
-|---------|-------------|------------|
-| Next Greater Element | Find next element to the right that is greater | Decreasing |
-| Next Smaller Element | Find next element to the right that is smaller | Increasing |
-| Previous Greater Element | Find previous element to the left that is greater | Decreasing |
-| Previous Smaller Element | Find previous element to the left that is smaller | Increasing |
-| Largest Rectangle in Histogram | Find the largest rectangular area | Increasing |
-| Daily Temperatures | Days until a warmer temperature | Decreasing |
-| Stock Span Problem | Consecutive days with price <= current day | Decreasing |
-
----
+The answer is 10 (bars 2 and 3, height 5).
 
 ## Complexity
 
-| Aspect | Complexity |
-|--------|-----------|
-| **Time** | O(n) -- each element is pushed and popped at most once |
-| **Space** | O(n) -- stack can hold up to n elements |
-
----
-
-## Implementations
-
-This folder contains implementations in three languages:
-
-- **Python** (`Python/`) - List-based stack implementation
-- **C++** (`C++/`) - Vector-based stack implementation
-- **Go** (`Go/`) - Slice-based stack implementation
-
-Each implementation includes:
-- Complete source code with all seven functions
-- Comprehensive test suite
-- Detailed README with usage examples
-
----
+| Quantity | Value | Why |
+|----------|-------|-----|
+| Time | O(n) | at most n pushes and n pops |
+| Space | O(n) | a strictly decreasing array never pops |
 
 ## When to Use
 
-- **Next/Previous Greater or Smaller**: Classic monotonic stack problems
-- **Histogram Problems**: Finding largest rectangle areas
-- **Span/Temperature Problems**: Finding distances to next significant element
-- **Optimization**: Reducing O(n^2) brute-force to O(n)
+Use it when each element needs its nearest greater or smaller neighbour, or a width bounded by the nearest shorter bar. Do not use it when the window slides and elements must expire from the front (use a monotonic queue), or for arbitrary range queries (use a segment tree or sparse table).
 
----
+## Monotonic Stack vs. Alternatives
 
-## Related Patterns
+| Approach | Time | Notes |
+|----------|------|-------|
+| Monotonic stack | O(n) | one pass, answers by popping |
+| Brute force scan | O(n^2) | rescans from each index |
+| Monotonic queue | O(n) | adds expiry from the front for sliding windows |
+| Segment tree / sparse table | O(n log n) build | arbitrary range min or max |
 
-- **[Monotonic Queue](../Monotonic%20Queue/README.md)**: the two-ended sibling — same "maintain monotonic order" idea, but supports _window expiration_ from the front. Use it when the answer depends on the max/min within a sliding window rather than prefix/suffix.
-- **Stack**: Monotonic stack is a specialized use of the stack data structure
-- **Two Pointers**: Sometimes combined for range-based problems
-- **Sliding Window**: Can be enhanced with monotonic structures (monotonic deque)
+## Common Pitfalls
 
----
+- Storing values instead of indices: distances and widths need indices.
+- Mixing strict and non-strict comparisons: decide whether equal values count and keep it consistent.
+- Forgetting the leftovers: the histogram must also pop the remaining stack with width n.
+- `-1` means "no answer", which is ambiguous when the array contains -1 (all three languages); return indices if that matters.
+- `largestRectangleHistogram` uses `int` in C++ and Go; `height * width` can overflow for very large inputs.
+- Using a stack for a sliding window.
 
-_Last Updated: April 2026_
+## Implementations
+
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `monotonic_stack.py` | list as stack of indices |
+| C++ | [C++/](C++/) | `monotonic_stack.cpp` | `std::stack<int>` of indices; `int` area |
+| Go | [Go/](Go/) | `main.go` | slice as stack; exported names |
+
+## Practice Problems
+
+- [LeetCode 496. Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/)
+- [LeetCode 739. Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
+- [LeetCode 901. Online Stock Span](https://leetcode.com/problems/online-stock-span/)
+- [LeetCode 84. Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
+- [LeetCode 42. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
+
+## Related
+
+- [Monotonic Queue](../Monotonic%20Queue/)
+- [Sliding Window](../Sliding%20Window/)
+- [Two Pointers](../Two%20Pointers/)
+- [Stack](../../Data%20Structures/Linear/Stack/)

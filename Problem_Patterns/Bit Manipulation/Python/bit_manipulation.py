@@ -30,14 +30,20 @@ def count_set_bits(n: int) -> int:
 
     Repeatedly clears the lowest set bit until n becomes 0.
 
+    A negative n is counted as a 64-bit two's complement value (so -1 has 64
+    set bits), the same as the C++ and Go versions. Python ints have infinitely
+    many sign bits, so without this mask the loop would never end.
+
     Args:
-        n: Non-negative integer
+        n: Integer
 
     Returns:
         Number of set bits (1-bits)
 
     Time Complexity: O(k) where k is the number of set bits
     """
+    if n < 0:
+        n &= (1 << 64) - 1
     count = 0
     while n:
         n &= (n - 1)

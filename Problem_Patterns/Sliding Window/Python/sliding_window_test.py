@@ -21,6 +21,13 @@ class TestSlidingWindow(unittest.TestCase):
         
         arr = [1, 2, 3]
         self.assertEqual(max_sum_subarray(arr, 5), 0)
+
+    def test_max_sum_subarray_non_positive_k(self):
+        # Regression: k <= 0 used to raise IndexError (Go panicked too).
+        self.assertEqual(max_sum_subarray([1, 2, 3], 0), 0)
+        self.assertEqual(max_sum_subarray([1, 2, 3], -1), 0)
+        self.assertEqual(max_sum_subarray([], 1), 0)
+        self.assertEqual(max_sum_subarray([-5, -2, -9], 2), -7)
     
     def test_longest_substring_k_distinct(self):
         self.assertEqual(longest_substring_k_distinct("eceba", 2), 3)

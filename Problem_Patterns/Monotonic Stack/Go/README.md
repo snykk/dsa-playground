@@ -1,61 +1,37 @@
-# Monotonic Stack - Go
+# Monotonic Stack -- Go Implementation
 
-This folder contains a Go implementation of the **Monotonic Stack** technique for solving next/previous greater/smaller element problems.
+Next and previous greater or smaller element, histogram, temperatures and stock span. See the [topic README](../README.md) for the idea.
 
----
+## Files
 
-## Concept
+| File | Contents |
+|------|----------|
+| `main.go` | Seven exported functions and a demo `main` |
+| `main_test.go` | One test function per algorithm |
+| `go.mod` | Module definition |
 
-A monotonic stack maintains elements in either increasing or decreasing order. When processing a new element that violates the invariant, elements are popped until order is restored. Each popped element receives its answer from the current element.
+## API
 
-**Key Features:**
-- O(n) time complexity (each element pushed/popped at most once)
-- O(n) space complexity
-- Solves next/previous greater/smaller element problems efficiently
-- Useful for histogram and span problems
+- `NextGreaterElement(arr []int) []int`, `NextSmallerElement`, `PreviousGreaterElement`, `PreviousSmallerElement`: values, `-1` if none.
+- `LargestRectangleHistogram(heights []int) int`
+- `DailyTemperatures(temperatures []int) []int`: days to wait, `0` if none.
+- `StockSpan(prices []int) []int`
 
----
+## Go-Specific Notes
 
-## Functions
+- The stack is a slice of indices (`append` to push, reslice to pop).
+- `int` is 64 bits on common platforms, so histogram areas rarely overflow.
+- `-1` is the "no answer" value, so an input containing -1 is ambiguous.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `NextGreaterElement(arr)` | Next greater element to the right | O(n) |
-| `NextSmallerElement(arr)` | Next smaller element to the right | O(n) |
-| `PreviousGreaterElement(arr)` | Previous greater element to the left | O(n) |
-| `PreviousSmallerElement(arr)` | Previous smaller element to the left | O(n) |
-| `LargestRectangleHistogram(heights)` | Largest rectangle area in histogram | O(n) |
-| `DailyTemperatures(temperatures)` | Days until warmer temperature | O(n) |
-| `StockSpan(prices)` | Stock price span for each day | O(n) |
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // Next Greater Element
-    arr := []int{4, 5, 2, 10, 8}
-    result := NextGreaterElement(arr)  // Returns [5, 10, 10, -1, -1]
-
-    // Largest Rectangle in Histogram
-    heights := []int{2, 1, 5, 6, 2, 3}
-    area := LargestRectangleHistogram(heights)  // Returns 10
-}
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
 go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-_Last Updated: April 2026_
+- A slice is all the stack you need.
+- Each index is pushed and popped at most once.
+- Return indices instead of values if -1 can appear in the input.

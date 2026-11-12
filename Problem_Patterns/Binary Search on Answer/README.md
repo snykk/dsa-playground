@@ -1,148 +1,107 @@
-# Binary Search on Answer Pattern
+# Binary Search on Answer
 
-A **Binary Search on Answer** is a technique where we binary search on the answer space rather than the input array. This pattern is useful when we need to find the minimum or maximum value that satisfies a certain condition, and the condition function is monotonic.
+Binary search on the *range of possible answers* instead of on an array. When a yes/no check "is X big enough?" is monotone, the smallest X that passes is found in O(log R) checks, so "minimize the maximum" problems cost O(C log R), where C is the cost of one check and R the size of the answer range.
 
----
+## Intuition
 
-## Overview
+Finding the best answer directly is hard; deciding whether a given answer is good enough is usually easy. If feasibility flips from False to True exactly once as X grows, the feasible values form a suffix of the range, and binary search finds its first element.
 
-Unlike traditional binary search that searches for a target value in a sorted array, binary search on answer searches for the optimal answer value in a continuous or discrete answer space. The key requirement is that the condition function must be monotonic - if a value satisfies the condition, all values greater (or smaller) than it also satisfy the condition.
+The invariant: every value below `left` is infeasible, `result` is the smallest feasible value seen so far, and each probe halves the range without losing the boundary.
 
-This pattern is particularly powerful for optimization problems where:
-- We need to find minimum/maximum value satisfying constraints
-- The answer space is continuous or discrete
-- We can efficiently check if a candidate answer is valid
-- The validity function is monotonic
+Signals in a problem statement: "minimize the maximum", "maximize the minimum", "the least capacity / speed that finishes in D days", "the k-th smallest among many candidates", and a checker that is a single greedy pass.
 
----
+## Visual
 
-## Key Characteristics
-
-1. **Answer Space**: The range of possible answers (e.g., [min, max] or [0, n])
-2. **Monotonic Condition**: If `condition(x)` is true, then `condition(x+1)` is also true (or vice versa)
-3. **Efficient Check**: The condition function should be efficiently computable
-4. **Optimization**: Reduces search space from O(n) to O(log(n))
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `binary_search_answer(left, right, condition)` | Find minimum value satisfying condition | O(log(n) × f(n)) |
-| `find_min_capacity(weights, days)` | Find minimum ship capacity | O(n × log(sum(weights))) |
-| `find_kth_smallest_distance(nums, k)` | Find k-th smallest distance | O(n × log(max_distance)) |
-| `split_array_largest_sum(nums, m)` | Split array with minimum largest sum | O(n × log(sum(nums))) |
-
-Where `f(n)` is the time complexity of the condition function.
-
----
-
-## Implementation Approaches
-
-### 1. Standard Binary Search on Answer
-- **Pros**: Simple, intuitive, O(log(n)) iterations
-- **Cons**: Requires monotonic condition
-- **Use Case**: Most optimization problems with monotonic constraints
-
-### 2. Binary Search with Custom Condition
-- **Pros**: Flexible, can handle complex conditions
-- **Cons**: Condition function must be carefully designed
-- **Use Case**: Problems with non-trivial validity checks
-
----
-
-## Applications
-
-1. **Capacity Problems**: Finding minimum capacity to ship packages, allocate resources
-2. **Distance Problems**: Finding k-th smallest distance, maximum minimum distance
-3. **Splitting Problems**: Splitting arrays/strings optimally
-4. **Threshold Problems**: Finding minimum threshold satisfying constraints
-5. **Optimization Problems**: Minimizing maximum or maximizing minimum values
-
----
-
-## Example Use Cases
-
-### Finding Minimum Capacity
-```python
-weights = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-days = 5
-result = find_min_capacity(weights, days)
-# Returns minimum ship capacity needed
+```text
+answer:       10 11 12 13 14 15 16 17 18 19 ...  55
+check(x):      F  F  F  F  F  T  T  T  T  T  ...  T
+                               ^
+                               first True = answer (15)
+days needed:   7  6  6  6  6  5  5  4  4  4        (limit: 5 days)
 ```
 
-### Finding K-th Smallest Distance
-```python
-nums = [1, 3, 1]
-k = 1
-result = find_kth_smallest_distance(nums, k)
-# Returns k-th smallest distance between pairs
+## How It Works
+
+1. Choose `left` and `right` so the answer is inside (ship capacity: `max(weights)` to `sum(weights)`).
+2. Write `check(x)`: a greedy pass that says whether x works.
+3. Probe `mid = left + (right - left) / 2`. If `check(mid)` is True, remember it and set `right = mid - 1`; otherwise set `left = mid + 1`.
+4. When `left > right`, return the remembered value, or `-1` if no value worked.
+
+```text
+result = -1
+while left <= right:
+    mid = left + (right - left) / 2
+    if check(mid): result = mid; right = mid - 1
+    else:          left = mid + 1
+return result
 ```
 
-### Splitting Array
-```python
-nums = [7, 2, 5, 10, 8]
-m = 2
-result = split_array_largest_sum(nums, m)
-# Returns minimum largest sum when splitting into m subarrays
-```
+For "largest feasible x", keep `mid` and move `left = mid + 1` on True.
 
----
+## Step-by-Step Trace
 
-## Implementations
+Ship `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]` in at most 5 days. The range is `[10, 55]`.
 
-This folder contains implementations in three languages:
+| left | right | mid | days needed | check(mid) |
+|------|-------|-----|-------------|------------|
+| 10 | 55 | 32 | 2 | True, keep 32 |
+| 10 | 31 | 20 | 4 | True, keep 20 |
+| 10 | 19 | 14 | 6 | False |
+| 15 | 19 | 17 | 4 | True, keep 17 |
+| 15 | 16 | 15 | 5 | True, keep 15 |
+| 15 | 14 | stop | | answer 15 |
 
-- **Python** (`Python/`) - List and function-based implementation
-- **C++** (`C++/`) - Vector and lambda-based implementation
-- **Go** (`Go/`) - Slice and function-based implementation
+## Complexity
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+| Part | Time | Space |
+|------|------|-------|
+| Search loop | O(log R) probes | O(1) |
+| Whole algorithm | O(C log R) | O(1) plus the check |
+| Capacity / split problems | O(n log(sum)) | O(1) |
+| k-th pair distance | O(n log n + n log D) | O(1) |
 
----
-
-## Complexity Summary
-
-| Problem Type | Time Complexity | Space Complexity | Condition Check |
-|--------------|----------------|-------------------|-----------------|
-| **Standard** | O(log(n) × f(n)) | O(1) | O(f(n)) |
-| **Capacity** | O(n × log(sum)) | O(1) | O(n) |
-| **Distance** | O(n × log(max)) | O(1) | O(n) |
-| **Splitting** | O(n × log(sum)) | O(1) | O(n) |
-
----
+Each probe halves the range, so 10^9 candidates need about 30 probes.
 
 ## When to Use
 
-- **Optimization Problems**: Finding minimum/maximum value satisfying constraints
-- **Monotonic Conditions**: When validity function is monotonic
-- **Large Answer Space**: When brute force is too slow
-- **Efficient Validation**: When we can quickly check if answer is valid
+Use it when the answer is a number in a known range, a candidate is cheap to verify, and feasibility is monotone in the candidate. Do not use it when increasing the candidate can make a feasible answer infeasible again, or when there is a direct formula.
 
----
+## Binary Search on Answer vs. Alternatives
 
-## Related Patterns
+| Approach | Searches | Needs | Typical cost |
+|----------|----------|-------|--------------|
+| Binary search on answer | answer range | monotone check | O(C log R) |
+| Binary search on array | sorted array | sorted input | O(log n) |
+| Dynamic programming | all splits | optimal substructure | often O(n^2) or worse |
+| Linear scan of answers | answer range | a check | O(C * R) |
 
-- **Binary Search**: Searching in sorted arrays
-- **Two Pointers**: Often used in condition checking
-- **Greedy Algorithms**: Sometimes combined with binary search on answer
+## Common Pitfalls
 
----
+- A non-monotone check gives silently wrong answers; verify the property on small cases.
+- `left` above or `right` below the true answer skips it.
+- Mixing `right = mid - 1` with `left < right` (or `right = mid` with `left <= right`) loops forever.
+- Returning an end of the range when nothing is feasible; the code here returns `-1`.
+- 32-bit overflow when summing weights; use 64-bit bounds when sums are large.
+- `find_kth_smallest_distance` sorts the caller's list in Python and C++ (Go sorts a copy). Empty input raises in Python, is undefined in C++ and returns 0 in Go.
 
-## Further Reading
+## Implementations
 
-- "Algorithm Design Manual" by Steven Skiena
-- "Competitive Programming" by Halim & Halim
-- LeetCode problems: Capacity to Ship Packages, Split Array Largest Sum
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `binary_search_on_answer.py` | k-th distance runs its own loop; raises on empty input |
+| C++ | [C++/](C++/) | `binary_search_answer.cpp` | `std::function` check; no empty-input guard |
+| Go | [Go/](Go/) | `main.go` | copies before sorting; closures as checks |
 
----
+## Practice Problems
 
-**Note**: The condition function must be monotonic for binary search on answer to work correctly. Always verify the monotonicity property before applying this pattern.
+- LeetCode 1011, Capacity to Ship Packages Within D Days
+- LeetCode 410, Split Array Largest Sum
+- LeetCode 875, Koko Eating Bananas
+- LeetCode 719, Find K-th Smallest Pair Distance
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Binary Search](../../Algorithms/Searching/Binary%20Search/)
+- [Greedy Algorithms](../../Algorithms/Greedy/)
+- [Two Pointers](../Two%20Pointers/)
+- [Sliding Window](../Sliding%20Window/)

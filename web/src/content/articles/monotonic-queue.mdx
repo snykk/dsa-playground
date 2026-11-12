@@ -1,0 +1,180 @@
+---
+topic: Problem_Patterns/Monotonic Queue
+title: Monotonic Queue
+lead: A monotonic queue is a deque whose values are kept in sorted order from front to back, so the maximum (or minimum) of a sliding window is always at the front. It turns the sliding window maximum from O(n * k) into O(n), because every element enters and leaves the deque at most once.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n)
+    hint: amortized; each index is pushed and popped once
+  - label: Extra space
+    value: O(k)
+    hint: the deque holds at most k indices
+  - label: Window maximum
+    value: O(1)
+    hint: always the front of the deque
+  - label: Duplicates
+    value: Store indices
+    hint: evicting by value breaks on equal elements
+    tone: warn
+properties:
+  - { label: In-place, value: false }
+  - { label: Online, value: true }
+  - { label: Needs sorted input, value: false }
+prerequisites:
+  - Data Structures/Linear/Queue/Deque
+related:
+  - Problem_Patterns/Monotonic Stack
+  - Problem_Patterns/Sliding Window
+  - Problem_Patterns/Two Pointers
+  - Data Structures/Non_Linear/Heaps/Max Heap
+---
+
+## When to use it
+
+Signals in a problem statement:
+
+- "maximum (or minimum) of every window of size k";
+- a window that **slides** over an array: elements enter on the right and leave on the left;
+- a DP transition `dp[i] = best(dp[j]) + cost` over a bounded range of j (`i - k <= j < i`);
+- "longest subarray whose max minus min is at most k" (two monotonic queues together);
+- you only need the extreme of the window, not its median or k-th element.
+
+## How it works
+
+The deque holds **indices**, and the array values at those indices are in decreasing order (for a maximum) from front to back.
+
+<Steps>
+  <Step title="Evict from the front">
+    If the front index is no longer inside the window (`front <= i - k`), pop it.
+  </Step>
+  <Step title="Pop from the back while dominated">
+    While the value at the back is `<=` the new value, pop it. An older value that is not bigger than a newer one can never be the window maximum again: it leaves the window earlier.
+  </Step>
+  <Step title="Push the new index">
+    The deque is again decreasing from front to back.
+  </Step>
+  <Step title="Read the answer">
+    Once the first window is complete (`i >= k - 1`), the front of the deque is the maximum of the window.
+  </Step>
+</Steps>
+
+<Callout title="The invariants">
+All indices in the deque lie in the current window, their values decrease from front to back, and the front is the window maximum. Every index is pushed once and popped at most once, so the inner `while` loops do O(n) work in total.
+</Callout>
+
+## See it in action
+
+Type an array and a window size and press Apply. Each step brings in one index: watch the deque pop smaller values from the back, expire the front when it leaves the window, and stream the window maxima. The preset with repeated values shows why indices matter.
+
+<ArticleViz ids={['monotonic-queue']} />
+
+## Template
+
+```text
+sliding_window_max(arr, k):
+    if k <= 0 or arr is empty or k > len(arr): return []
+    dq = empty deque of indices
+    result = []
+    for i in 0 .. n - 1:
+        while dq and dq.front <= i - k:        # left the window
+            dq.pop_front()
+        while dq and arr[dq.back] <= arr[i]:   # dominated by the newcomer
+            dq.pop_back()
+        dq.push_back(i)
+        if i >= k - 1:
+            result.append(arr[dq.front])
+    return result
+```
+
+For the minimum, flip the back comparison to `arr[dq.back] >= arr[i]`.
+
+## Worked example
+
+`sliding_window_max([1, 3, -1, -3, 5, 3, 6, 7], 3)` returns `[3, 3, 5, 5, 6, 7]`. Each row below is one full window; the deque (indices, with values in brackets) is in the note:
+
+<ArrayDiagram
+  legend={{ l: 'inside the window', f: 'the window maximum (front of the deque)' }}
+  rows={[
+    { label: 'i = 2', values: [1, 3, -1, -3, 5, 3, 6, 7], tones: 'lfl.....', marks: { 1: 'max' }, note: 'Deque `[1, 2]` = values (3, -1). Index 0 (value 1) was popped when 3 arrived.' },
+    { label: 'i = 3', values: [1, 3, -1, -3, 5, 3, 6, 7], tones: '.fll....', marks: { 1: 'max' }, note: 'Deque `[1, 2, 3]` = (3, -1, -3). Nothing is popped: the values are already decreasing.' },
+    { label: 'i = 4', values: [1, 3, -1, -3, 5, 3, 6, 7], tones: '..llf...', marks: { 4: 'max' }, note: 'Index 1 expires from the front; 5 pops -3 and -1 from the back. Deque `[4]` = (5).' },
+    { label: 'i = 5', values: [1, 3, -1, -3, 5, 3, 6, 7], tones: '...lfl..', marks: { 4: 'max' }, note: 'Deque `[4, 5]` = (5, 3).' },
+    { label: 'i = 6', values: [1, 3, -1, -3, 5, 3, 6, 7], tones: '....llf.', marks: { 6: 'max' }, note: '6 pops 3 and 5. Deque `[6]` = (6).' },
+    { label: 'i = 7', values: [1, 3, -1, -3, 5, 3, 6, 7], tones: '.....llf', marks: { 7: 'max' }, note: '7 pops 6. Deque `[7]` = (7).' },
+  ]}
+/>
+
+## Implementation
+
+`sliding_window_max` and `sliding_window_min` exist in Python, C++ (header `monotonic_queue.h`) and Go (`SlidingWindowMax`, `SlidingWindowMin`). All return an empty list for `k <= 0`, an empty array, or `k > len(arr)`.
+
+Python also has `MonotonicDeque(should_pop)`, a reusable class: `push(value)`, `pop_front_if(value)`, `front()`. It stores `(index, value)` pairs and evicts by index, so equal values are handled correctly. With values only, the rule `existing <= new` collapses equal values and evicting the outgoing copy would remove the newer one still inside the window: for `[5, 5, 1]` with `k = 2` the answer must be `[5, 5]`, not `[5, 1]`. The Go deque is a slice; popping the front reslices `dq[1:]`.
+
+<TopicCode topic="Problem_Patterns/Monotonic Queue" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(n)', when: 'Every index is appended once and removed at most once, from either end. The nested while loops do not multiply.' },
+    { case: 'Per window query', time: 'O(1)', when: 'The maximum is the front of the deque.' },
+    { case: 'Space', time: 'O(k)', when: 'Only indices of the current window are kept.' },
+  ]}
+/>
+
+Brute force recomputes each window in <BigO of="k" />, giving <BigO of="n * k" />. A heap with lazy deletion is <BigO of="n log n" />. The deque is the fastest of the three.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Sliding Window Maximum (LeetCode 239)', 'the template above'],
+    ['Shortest Subarray with Sum at Least K (LeetCode 862)', 'monotonic deque of prefix-sum indices'],
+    ['Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit (LeetCode 1438)', 'a max deque and a min deque over a variable window'],
+    ['Max Value of Equation (LeetCode 1499)', 'sliding maximum of y - x over a bounded distance'],
+    ['Constrained Subsequence Sum (LeetCode 1425)', 'DP whose transition is a sliding maximum'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Back-pop rule', 'Front holds']}
+  rows={[
+    ['Window maximum', 'pop while back `<=` new', 'the maximum'],
+    ['Window minimum', 'pop while back `>=` new', 'the minimum'],
+    ['Strict rule (`<` / `>`)', 'keeps equal values in the deque', 'same answer; the deque is longer'],
+    ['Monotonic stack', 'no front eviction', 'next greater or smaller element'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Storing values instead of indices.** You cannot tell when the front has left the window, and equal values get evicted wrongly.
+- **Evicting after reading the answer.** The expiry check must run before you read the front.
+- **Emitting answers too early.** The first k - 1 steps produce no output.
+- **Wrong comparison direction.** Max needs a decreasing deque, min an increasing one.
+- **Using it for rank queries.** The deque only knows the extreme; for the median or k-th element use a balanced tree or two heaps.
+- **Skipping the guards.** `k <= 0` and `k > n` return an empty result here; without the guard the loops misbehave.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is it O(n) when there are nested loops?">
+    The inner loops only remove elements that were pushed by the outer loop. Each of the n indices is pushed once and popped at most once, so the total number of pops is at most n.
+  </FaqItem>
+  <FaqItem question="How is it different from a monotonic stack?">
+    A stack only changes at the top. A monotonic queue also removes from the front when an element leaves the window, so it needs a deque.
+  </FaqItem>
+  <FaqItem question="Should I pop on equal values?">
+    Either rule gives correct answers when the deque stores indices. Popping on equality keeps the deque shorter. With value-based eviction only the strict rule is safe.
+  </FaqItem>
+  <FaqItem question="Can I get the maximum and the minimum at once?">
+    Yes: run two deques over the same window, one decreasing and one increasing. That solves problems such as the longest subarray whose range is at most a limit.
+  </FaqItem>
+</Faq>

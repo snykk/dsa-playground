@@ -1,150 +1,113 @@
-# Sliding Window Pattern
+# Sliding Window
 
-A **Sliding Window** is a technique for solving problems involving subarrays or substrings by maintaining a window that slides through the array/string. It's particularly useful for problems with constraints on contiguous subarrays, allowing us to optimize from O(n²) or O(n³) to O(n) time complexity.
+A sliding window keeps a contiguous range of an array or string and moves its two ends forward, updating the answer incrementally instead of recomputing it. Many "best subarray or substring" problems drop from O(n^2) or worse to a single O(n) pass.
 
----
+## Intuition
 
-## Overview
+When the window moves one step, almost all of its content is unchanged: one element enters and, sometimes, others leave. Keep a running state (a sum or a frequency map) and adjust it by those few elements instead of rebuilding it.
 
-The sliding window pattern uses two pointers (left and right) to maintain a window of elements that satisfy certain conditions. The window "slides" through the data structure by moving the pointers, efficiently processing all valid subarrays or substrings.
+For a variable window: expand `right` to take in the next element, then shrink `left` while the window is invalid. Both ends only move forward, so each moves at most n times in total, which is why the nested loops are still O(n). The method needs monotone validity: removing elements from a valid window must keep it valid.
 
-There are two main types of sliding windows:
-- **Fixed Window**: Window size remains constant (e.g., maximum sum of subarray of size k)
-- **Variable Window**: Window size changes based on conditions (e.g., longest substring without repeating)
+Signals: "longest / shortest contiguous subarray or substring with a condition", "every window of size k", "at most k distinct", "no repeating characters", "smallest window containing".
 
-This pattern is fundamental in competitive programming and interview problems, providing elegant solutions to many substring/subarray problems.
+## Visual
 
----
+```text
+s = "eceba", k = 2 (at most 2 distinct)
 
-## Key Characteristics
-
-1. **Two Pointers**: Uses left and right pointers to maintain window boundaries
-2. **Efficient**: Reduces time complexity from O(n²) to O(n) for many problems
-3. **Contiguous**: Works with contiguous subarrays/substrings
-4. **Adaptive**: Window size can be fixed or variable based on problem
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `max_sum_subarray(arr, k)` | Maximum sum of subarray of size k | O(n) |
-| `longest_substring_without_repeating(s)` | Longest substring without repeating chars | O(n) |
-| `min_window_substring(s, t)` | Minimum window containing all chars of t | O(|s| + |t|) |
-| `count_anagrams(s, p)` | Count anagram occurrences of p in s | O(|s| + |p|) |
-| `max_consecutive_ones(arr, k)` | Max consecutive 1s after flipping k zeros | O(n) |
-
----
-
-## Implementation Approaches
-
-### 1. Fixed Window Size
-- **Pros**: Simple, straightforward logic
-- **Cons**: Window size must be known
-- **Use Case**: Problems with fixed window size (e.g., maximum sum of size k)
-
-### 2. Variable Window Size
-- **Pros**: Flexible, adapts to conditions
-- **Cons**: More complex boundary management
-- **Use Case**: Problems with dynamic constraints (e.g., longest substring)
-
-### 3. Two Pointers Technique
-- **Pros**: Efficient, single pass
-- **Cons**: Requires careful pointer management
-- **Use Case**: Most sliding window problems
-
----
-
-## Applications
-
-1. **Maximum/Minimum Subarray**: Finding optimal subarray with constraints
-2. **Longest Substring**: Finding longest substring satisfying conditions
-3. **Anagram Problems**: Pattern matching with character frequency
-4. **Binary Array Problems**: Flipping zeros, consecutive elements
-5. **String Matching**: Minimum window, substring problems
-6. **Frequency Counting**: Problems requiring frequency tracking within window
-
----
-
-## Example Use Cases
-
-### Maximum Sum Subarray (Fixed Window)
-```python
-arr = [1, 4, 2, 10, 23, 3, 1, 0, 20]
-k = 4
-result = max_sum_subarray(arr, k)  # Returns 39
+e c e b a
+[e]            right=0  distinct 1   best 1
+[e c]          right=1  distinct 2   best 2
+[e c e]        right=2  distinct 2   best 3
+[e c e b]      right=3  distinct 3 -> too many, shrink:
+    [c e b]                           still 3
+      [e b]                           2 -> valid, length 2
+      [e b a]  right=4  distinct 3 -> shrink:
+        [b a]                         length 2        best stays 3
 ```
 
-### Longest Substring Without Repeating (Variable Window)
-```python
-s = "abcabcbb"
-result = longest_substring_without_repeating(s)  # Returns 3
+## How It Works
+
+1. Expand: move `right` and add `arr[right]` to the state.
+2. Shrink while invalid: remove `arr[left]` from the state and advance `left`.
+3. Record: the window `[left, right]` has `right - left + 1` elements; update the best answer.
+
+A fixed window of size k skips the shrink loop: add `arr[i]` and subtract `arr[i - k]` in one step. For the shortest valid window (`min_window_substring`) the shrink loop runs while the window is valid, and the answer is recorded inside it.
+
+```text
+for right in range(n):
+    add(arr[right])
+    while invalid():
+        remove(arr[left]); left += 1
+    best = max(best, right - left + 1)
 ```
 
-### Minimum Window Substring
-```python
-s = "ADOBECODEBANC"
-t = "ABC"
-result = min_window_substring(s, t)  # Returns "BANC"
-```
+## Step-by-Step Trace
 
----
+`max_sum_subarray([1, 4, 2, 10, 23, 3, 1, 0, 20], 4)`:
 
-## Implementations
+| Window | Elements | Sum |
+|--------|----------|-----|
+| 0..3 | 1, 4, 2, 10 | 17 |
+| 1..4 | 4, 2, 10, 23 | 39 |
+| 2..5 | 2, 10, 23, 3 | 38 |
+| 3..6 | 10, 23, 3, 1 | 37 |
+| 4..7 | 23, 3, 1, 0 | 27 |
+| 5..8 | 3, 1, 0, 20 | 24 |
 
-This folder contains implementations in three languages:
+The maximum is 39.
 
-- **Python** (`Python/`) - List and dictionary-based implementation
-- **C++** (`C++/`) - Vector and unordered_map-based implementation
-- **Go** (`Go/`) - Slice and map-based implementation
+## Complexity
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+| Variant | Time | Space |
+|---------|------|-------|
+| Fixed window | O(n) | O(1) |
+| Variable window (count map) | O(n) | O(k) or O(alphabet) |
+| Minimum window substring | O(\|s\| + \|t\|) | O(\|s\| + \|t\|) in the worst case |
 
----
-
-## Complexity Summary
-
-| Problem Type | Time Complexity | Space Complexity |
-|--------------|----------------|------------------|
-| **Fixed Window** | O(n) | O(1) |
-| **Variable Window** | O(n) | O(min(n, m)) |
-| **String Matching** | O(|s| + |t|) | O(|s| + |t|) |
-| **Frequency Based** | O(n) | O(k) where k is charset size |
-
----
+Both pointers advance at most n steps, so the total is at most 2n pointer moves.
 
 ## When to Use
 
-- **Contiguous Subarrays/Substrings**: Problems involving contiguous elements
-- **Optimization Needed**: When need to optimize from O(n²) to O(n)
-- **Window Constraints**: Problems with constraints on window size or content
-- **Frequency Counting**: When need to track frequencies within a window
-- **Maximum/Minimum**: Problems finding optimal subarray/substring
+Use it for contiguous ranges whose validity is monotone: non-negative numbers, or strings with a count condition. Do not use it when negative numbers make the sum condition non-monotone (use prefix sums with a hash map) or when the subsequence need not be contiguous (use DP).
 
----
+## Sliding Window vs. Alternatives
 
-## Related Patterns
+| Approach | Time | Use when |
+|----------|------|----------|
+| Sliding window | O(n) | contiguous range with monotone validity |
+| Prefix sums plus hash map | O(n) | sums with negative numbers |
+| Brute force over all ranges | O(n^2) or O(n^3) | tiny inputs |
+| Monotonic queue | O(n) | the maximum or minimum of each window |
 
-- **Two Pointers**: Often used together with sliding window
-- **Hash Maps**: Used for frequency counting in windows
-- **Prefix Sum**: Sometimes combined with sliding window
+## Common Pitfalls
 
----
+- Recording the shortest window outside the shrink loop.
+- Leaving zero-count entries in the map, so `len(map)` over-counts distinct characters.
+- Using it with negative numbers in a sum condition.
+- Off-by-one: the window `[left, right]` has `right - left + 1` elements.
+- Invalid `k`: `max_sum_subarray` returns 0 for `k <= 0` or `k > len(arr)` in all three languages.
+- Strings are bytes in C++ and Go and code points in Python, so non-ASCII input can differ.
 
-## Further Reading
+## Implementations
 
-- "Algorithm Design Manual" by Steven Skiena
-- "Cracking the Coding Interview" by Gayle Laakmann McDowell
-- LeetCode sliding window problems
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `sliding_window.py` | dict counters; code points |
+| C++ | [C++/](C++/) | `sliding_window.cpp` | `unordered_map<char, int>`; `int` sums |
+| Go | [Go/](Go/) | `main.go` | `map[byte]int`; unexported functions |
 
----
+## Practice Problems
 
-**Note**: The sliding window pattern is most effective when the problem involves contiguous subarrays or substrings. Always verify that the problem constraints allow for a sliding window approach.
+- [LeetCode 643. Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/)
+- [LeetCode 3. Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
+- [LeetCode 340. Longest Substring with At Most K Distinct Characters](https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/)
+- [LeetCode 76. Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
+- [LeetCode 567. Permutation in String](https://leetcode.com/problems/permutation-in-string/)
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Two Pointers](../Two%20Pointers/)
+- [Monotonic Queue](../Monotonic%20Queue/)
+- [Prefix Sum Difference Array](../Prefix%20Sum%20Difference%20Array/)
+- [Hash Map](../../Data%20Structures/Hashing/Hash%20Map/)

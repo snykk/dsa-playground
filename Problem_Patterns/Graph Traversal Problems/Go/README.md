@@ -1,28 +1,36 @@
-# Graph Traversal in Go
+# Graph Traversal Problems -- Go Implementation
 
-Implementation of BFS, DFS, Flood Fill, and Topological Sort in Go.
+BFS shortest path, flood fill and Kahn's topological sort. See the [topic README](../README.md) for the ideas. There is no standalone DFS traversal in Go; flood fill uses a recursive closure.
 
-## Usage
+## Files
 
-```go
-// BFS
-graph := map[int][]int{0: {1}, 1: {2}, 2: {}}
-dist := BFSShortestPath(graph, 0, 2)
+| File | Contents |
+|------|----------|
+| `main.go` | The three functions and a demo `main` |
+| `main_test.go` | One test per function |
+| `go.mod` | Module definition |
 
-// Number of Islands
-grid := [][]byte{{'1', '0'}, {'0', '1'}}
-count := NumIslands(grid)
+## API
 
-// Topological Sort
-edges := [][]int{{1, 0}}
-// Returns [1, 0]
-topo := TopologicalSort(2, edges)
-```
+- `BFSShortestPath(graph map[int][]int, start, target int) int`: -1 if `start` is missing or the target is unreachable.
+- `NumIslands(grid [][]byte) int`: modifies `grid`.
+- `TopologicalSort(n int, edges [][]int) []int`: empty slice on a cycle.
 
-## Testing
+## Go-Specific Notes
 
-Run the tests:
+- The queue is a slice that is re-sliced from the front (`queue[1:]`).
+- Goroutine stacks grow dynamically, so the recursive flood fill handles large grids better than C++.
+- `NumIslands` writes `'0'` into the grid; pass a copy.
+
+## How to Run
 
 ```bash
-go test -v
+go test ./...
+go run main.go
 ```
+
+## Key Takeaways
+
+- Maps make a convenient adjacency list.
+- Mark visited on push, not on pop.
+- Copy the grid before counting islands if you still need it.

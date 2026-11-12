@@ -1,48 +1,35 @@
-# Inclusion-Exclusion Principle (C++)
+# Inclusion-Exclusion Principle -- C++ Implementation
 
-Count elements in the union of multiple sets by alternately adding and subtracting intersection sizes, avoiding double-counting.
+Union counting over divisors and over explicit sets. See the [topic README](../README.md) for the idea.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `inclusion_exclusion.cpp` | Main implementation with divisibility counting and set union |
-| `inclusion_exclusion_test.cpp` | Test cases for GCD and divisibility counting |
+| File | Contents |
+|------|----------|
+| `inclusion_exclusion.cpp` | `gcd`, `countDivisible`, `countUnionSets` and a demo `main` |
+| `inclusion_exclusion_test.cpp` | Assert-based tests (includes the `.cpp`) |
+
+## API
+
+- `long long gcd(long long a, long long b)`
+- `int countDivisible(int n, const vector<int>& divisors)`: numbers in `1..n` divisible by at least one divisor (divisors at least 1).
+- `int countUnionSets(const vector<vector<int>>& sets)`: size of the union.
+
+## C++-Specific Notes
+
+- The lcm is a `long long` and a subset is skipped once the lcm exceeds `n`, so the product cannot overflow; the running total is also `long long`.
+- `1 << k` is an `int` shift, so at most 30 divisors or sets.
+- `countUnionSets` uses `std::set` for intersections.
 
 ## How to Run
 
 ```bash
-# Run the demo
-g++ -std=c++17 -o ie inclusion_exclusion.cpp
-./ie
-
-# Run tests
-g++ -std=c++17 -DTESTING -o test inclusion_exclusion_test.cpp
-./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD inclusion_exclusion_test.cpp -o ie_test && ./ie_test
+g++ -std=c++17 -O2 -Wall inclusion_exclusion.cpp -o ie_demo && ./ie_demo
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `gcd` | Computes greatest common divisor of two integers | O(log min(a,b)) |
-| `countDivisible` | Counts integers in [1..n] divisible by at least one divisor using inclusion-exclusion over bitmasks | O(2^k) |
-| `countUnionSets` | Counts the size of the union of k sets via inclusion-exclusion with set intersection | O(2^k * m) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(2^k) where k is the number of divisors/sets |
-| Space | O(m) for intermediate set intersections |
-
-## Notes
-
-- Both functions enumerate all non-empty subsets using bitmask iteration (1 to 2^k - 1).
-- Odd-sized subsets are added; even-sized subsets are subtracted.
-- `countDivisible` computes LCM on-the-fly to handle divisibility by multiple values.
-- Practical only for small k (typically k <= 20) due to exponential enumeration.
-
----
-
-_Last Updated: April 2026_
+- Widen before multiplying, and prune when the lcm passes `n`.
+- Compare with a brute-force count in tests.
+- Keep k small: the work is 2^k.
