@@ -1,91 +1,38 @@
-# Longest Common Substring (C++)
+# Longest Common Substring -- C++ Implementation
 
-**Longest Common Substring** finds the longest substring that appears in both strings using dynamic programming.
+Dynamic-programming search for the longest run of characters shared by two strings.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `longest_common_substring.cpp` | `longestCommonSubstring` |
+| `longest_common_substring_test.cpp` | `assert`-based tests: the basic case, no common substring, identical strings, one shared character, empty inputs, tie-breaking and overlapping candidates |
 
-The longest common substring problem finds the longest contiguous substring that appears in both input strings. This implementation uses dynamic programming with a 2D table to track matching substrings.
+## API
 
-**Key Characteristics:**
-- Finds longest common substring between two strings
-- Time: O(m × n) time complexity
-- Space: O(m × n)
-- Uses dynamic programming
-
----
-
-## Complexity Analysis
-
-| Aspect | Complexity |
-|--------|------------|
-| **Time** | O(m × n) |
-| **Space** | O(m × n) |
-
-Where:
-- m = length of first string
-- n = length of second string
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`longestCommonSubstring(s1, s2)`**
-   - Find longest common substring between two strings
-   - Returns the longest common substring as a string
-   - Time: O(m × n), Space: O(m × n)
-
----
-
-## Usage
+- `std::string longestCommonSubstring(const std::string& s1, const std::string& s2)`: the longest common substring, or an empty string if there is none. Among equally long answers, the one that ends first in `s1` wins.
 
 ```cpp
-#include <string>
-#include <iostream>
-#include "longest_common_substring.cpp"
-
-int main() {
-    std::string s1 = "ABABC";
-    std::string s2 = "BABCA";
-    
-    std::string result = longestCommonSubstring(s1, s2);
-    // result = "BABC" or "ABCA"
-    
-    return 0;
-}
+longestCommonSubstring("ABABC", "BABCA");   // "BABC"
 ```
 
----
+## C++-Specific Notes
 
-## Testing
+- Uses a `vector<vector<int>>` of `(m+1) x (n+1)` ints: O(m*n) time and space.
+- Indices are byte offsets; `std::string` does not decode UTF-8.
+- Only the substring is returned, not its position (Python also returns the start indices).
+- `int` sizes are fine for strings up to a few thousand characters; the table would be too large long before `int` overflows.
 
-Run tests with:
+## How to Run
 
 ```bash
-# Compile
-g++ -o longest_common_substring_test longest_common_substring_test.cpp
-
-# Run
-./longest_common_substring_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD longest_common_substring_test.cpp -o lcs_test
+./lcs_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ longest_common_substring_test.cpp -o longest_common_substring_test && ./longest_common_substring_test
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. A mismatch resets the cell to 0.
+2. Keep the maximum over all cells.
+3. Only a strictly longer run replaces the best, which decides ties.

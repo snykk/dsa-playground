@@ -3,6 +3,7 @@
  */
 #include <vector>
 #include <string>
+#include <algorithm>
 
 std::vector<int> buildZArray(const std::string& s) {
     int n = s.length();

@@ -1,94 +1,33 @@
-# Suffix Array (Go)
+# Suffix Array -- Go Implementation
 
-**Suffix Array** is a sorted array of all suffixes of a string, useful for efficient pattern matching and string processing.
+Suffix array construction by sorting, with binary-search pattern lookup.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | package `main`: `BuildSuffixArray`, `SearchPattern`, and a demo `main` |
+| `main_test.go` | tests: all indices present, search counts and indices, no match, a single character, an empty text, the exact order of `banana`, exact results, the empty pattern, overlaps |
+| `go.mod` | module `suffix_array` |
 
-A suffix array is a sorted array of all suffixes of a string. It enables efficient pattern matching using binary search, making it powerful for multiple pattern queries and string analysis.
+## API
 
-**Key Characteristics:**
-- Sorted array of all suffixes
-- Time: O(n log n) construction, O(m log n) search
-- Space: O(n)
-- Powerful for string processing
+- `BuildSuffixArray(s string) []int`: the start indices of the suffixes in sorted order.
+- `SearchPattern(suffixArray []int, text, pattern string) []int`: all start indices, in increasing order; `nil` when absent. An empty pattern returns `0..n-1` on a non-empty text.
 
----
+## Go-Specific Notes
 
-## Complexity Analysis
+- Suffixes are slices (`s[i:]`) that share the string's memory, so the list takes O(n) memory. The sort still compares long shared prefixes: O(n^2 log n) worst-case time.
+- Search uses `strings.HasPrefix` on a slice, with no copying: O(m log n).
+- Indices are byte offsets.
 
-| Aspect | Complexity |
-|--------|------------|
-| **Construction Time** | O(n log n) |
-| **Search Time** | O(m log n) |
-| **Space** | O(n) |
-
-Where:
-- n = length of text
-- m = length of pattern
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`BuildSuffixArray(s)`**
-   - Build suffix array for a given string
-   - Returns slice of indices sorted by suffix
-   - Time: O(n log n), Space: O(n)
-
-2. **`SearchPattern(suffixArray, text, pattern)`**
-   - Search for pattern in text using suffix array
-   - Returns slice of starting indices where pattern is found
-   - Time: O(m log n), Space: O(1)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    text := "banana"
-    
-    // Build suffix array
-    sa := BuildSuffixArray(text)
-    fmt.Printf("Suffix array: %v\n", sa)
-    
-    // Search for pattern
-    pattern := "ana"
-    occurrences := SearchPattern(sa, text, pattern)
-    fmt.Printf("Pattern '%s' found at: %v\n", pattern, occurrences)
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. Go's string slices avoid the memory cost that Python and C++ pay.
+2. Two binary searches return every occurrence.

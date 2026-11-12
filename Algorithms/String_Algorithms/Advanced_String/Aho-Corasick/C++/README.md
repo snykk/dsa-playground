@@ -1,41 +1,36 @@
-# Aho-Corasick — C++ Implementation
+# Aho-Corasick -- C++ Implementation
 
-An O(n + m + z) multi-pattern string-matching automaton.
-
-For the conceptual overview, visuals, and comparison with alternatives, see the parent README: [../README.md](../README.md)
-
----
+A header-only multi-pattern matcher: trie, failure links and output links.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `aho_corasick.h` | Header-only `AhoCorasick` class |
-| `aho_corasick_test.cpp` | Assertion-based tests (classic example + overlaps + edge cases) |
+| File | Contents |
+|------|----------|
+| `aho_corasick.h` | the `AhoCorasick` class |
+| `aho_corasick_test.cpp` | 9 `assert`-based tests: single pattern, no match, empty text, empty patterns, `ushers`, overlaps, prefix patterns, single characters, a long pattern |
 
----
+## API
+
+- `explicit AhoCorasick(const std::vector<std::string>& patterns)`: builds the automaton; empty patterns are skipped.
+- `std::vector<std::pair<int, int>> search(const std::string& text) const`: every match as `(end_index, pattern_id)`; the id is the pattern's position in the input vector.
+- `const std::string& pattern(int id) const`: the pattern text for an id.
 
 ## C++-Specific Notes
 
-- **Node storage via `std::vector<Node>`** with integer indices (not pointers). This gives cache locality (contiguous memory), avoids per-node heap allocation, and survives `push_back` reallocation because we never hold raw pointers into the vector.
-- **`std::unordered_map<char, int>` for children**: byte-level alphabet support with linear space. For ASCII-fixed use cases, swap to `std::array<int, 256>` for a 2–3× speedup.
-- **BFS via `std::queue<int>`**: same structural role as `collections.deque` in Python. O(1) push/pop.
-- **`int` indices, not `Node*`**: the vector may reallocate during construction, invalidating pointers. Indices are always valid.
-- **Structured bindings** (`auto& [c, v] : node.children`) for cleaner iteration — C++17 feature.
-
----
+- Nodes live in a `std::vector<Node>` and refer to each other by index, so growing the vector never invalidates links.
+- Children are `std::unordered_map<char, int>` (not an array of 26): any byte alphabet, O(m) space. An array per node would be faster for a fixed small alphabet.
+- `search` is `const`, so a built automaton can be shared for read-only matching.
+- Indices are byte offsets.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall aho_corasick_test.cpp -o aho_corasick_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD aho_corasick_test.cpp -o aho_corasick_test
 ./aho_corasick_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Indices beat pointers when backing storage grows.** Every production trie / automaton in C++ uses integer node IDs for exactly this reason.
-2. **Separate the structure from the search.** The class builds the automaton in the constructor; `search()` is `const` and stateless. This pattern makes the automaton safely shareable across threads for read-only matching.
-3. **ASCII-fixed arrays vs. hash maps is a knob.** Hash maps keep space O(m); arrays keep constant-factor speed. For `σ ≤ 26` or `σ ≤ 256`, arrays are usually worth the trade.
+1. Use indices rather than pointers for nodes stored in a growing vector.
+2. Build links by BFS; the scan then needs only the current node.
+3. A table instead of a hash map trades memory for constant-factor speed.

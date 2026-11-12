@@ -83,6 +83,12 @@ void testLookupOfAbsentCharDoesNotInsert() {
     }
 }
 
+void testTextbookAndOverlaps() {
+    assert((boyerMooreSearch("HERE IS A SIMPLE EXAMPLE", "EXAMPLE") == std::vector<int>{17}));
+    assert((boyerMooreSearch("aaaa", "aa") == std::vector<int>{0, 1, 2}));
+    assert((boyerMooreSearch("xxabc", "abc") == std::vector<int>{2}));
+}
+
 int main() {
     testBasicSearch();
     testMultipleOccurrences();
@@ -91,6 +97,7 @@ int main() {
     testEmptyText();
     testPatternLongerThanText();
     testBadCharTable();
+    testTextbookAndOverlaps();
     testLookupOfAbsentCharDoesNotInsert();
     
     std::cout << "All tests passed!" << std::endl;
