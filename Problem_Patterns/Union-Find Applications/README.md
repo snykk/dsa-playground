@@ -104,5 +104,5 @@ Use it when edges arrive over time, when you need the cycle test or Kruskal, or 
 
 - [Disjoint Set Union](../../Data%20Structures/Advanced_Structures/Disjoint%20Set%20Union/)
 - [Union-Find DSU](../../Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU/)
-- [Kruskal's Algorithm](../../Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm/)
+- [Kruskal's Algorithm](../../Algorithms/Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/)
 - [Graph Traversal Problems](../Graph%20Traversal%20Problems/)

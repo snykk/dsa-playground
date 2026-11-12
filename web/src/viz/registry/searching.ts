@@ -15,7 +15,7 @@ export const entries: VizInfo[] = [
     title: 'Binary Search',
     group: 'Searching',
     blurb: 'Probe the middle of a sorted range and drop the half that cannot hold the target, until one value is left.',
-    topics: ['Algorithms/Searching/Binary Search', 'Algorithms/Divide_and_Conquer/Binary Search', 'Algorithms/Searching'],
+    topics: ['Algorithms/Searching/Binary Search', 'Algorithms/Searching'],
   },
   {
     id: 'ternary-search',

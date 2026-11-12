@@ -42,8 +42,8 @@ A Minimum Spanning Tree of a connected, undirected graph is a tree that:
 ## Implementation
 
 Complete implementations are available in:
-- **[Kruskal's Algorithm](./Kruskal's_Algorithm/)** - Links to [Greedy implementations](../../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/)
-- **[Prim's Algorithm](./Prim's_Algorithm/)** - Links to [Greedy implementations](../../Greedy/Minimum%20Spanning%20Tree/Prim's%20Algorithm/)
+- **[Kruskal's Algorithm](../../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/)** - Links to [Greedy implementations](../../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/)
+- **[Prim's Algorithm](../../Greedy/Minimum%20Spanning%20Tree/Prim's%20Algorithm/)** - Links to [Greedy implementations](../../Greedy/Minimum%20Spanning%20Tree/Prim's%20Algorithm/)
 
 Both implementations include:
 - Python, C++, and Go versions

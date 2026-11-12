@@ -29,14 +29,14 @@ export const entries: VizInfo[] = [
     title: 'Merge Sort',
     group: 'Sorting',
     blurb: 'Split in half, sort each half, then merge two sorted runs by repeatedly taking the smaller head.',
-    topics: ['Algorithms/Sorting/Merge Sort', 'Algorithms/Divide_and_Conquer/Merge Sort', 'Algorithms/Sorting'],
+    topics: ['Algorithms/Sorting/Merge Sort', 'Algorithms/Sorting'],
   },
   {
     id: 'quick-sort',
     title: 'Quick Sort',
     group: 'Sorting',
     blurb: 'Lomuto partition puts the pivot in its final place, then recurses on both sides.',
-    topics: ['Algorithms/Sorting/Quick Sort', 'Algorithms/Divide_and_Conquer/Quick Sort', 'Algorithms/Sorting'],
+    topics: ['Algorithms/Sorting/Quick Sort', 'Algorithms/Sorting'],
   },
   {
     id: 'heap-sort',

@@ -10,14 +10,14 @@ export const entries: VizInfo[] = [
     title: "Kruskal's Algorithm",
     group: 'Greedy',
     blurb: 'Try edges from lightest to heaviest and keep each one that joins two different trees; union-find spots cycles.',
-    topics: [`${MST}/Kruskal's Algorithm`, "Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm", MST],
+    topics: [`${MST}/Kruskal's Algorithm`, MST],
   },
   {
     id: 'prim',
     title: "Prim's Algorithm",
     group: 'Greedy',
     blurb: 'Grow one tree from a start vertex, always adding the cheapest edge that crosses from the tree to the rest.',
-    topics: [`${MST}/Prim's Algorithm`, "Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prim's_Algorithm", MST],
+    topics: [`${MST}/Prim's Algorithm`, MST],
   },
   {
     id: 'activity-selection',

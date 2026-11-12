@@ -107,5 +107,5 @@ For Kruskal, sort one entry per edge by weight: 0-2 (1), 1-2 (2), 0-1 (4), 2-3 (
 - [Adjacency List](../Adjacency%20List)
 - [Adjacency Matrix](../Adjacency%20Matrix)
 - [Weighted and Unweighted graphs](../Weighted%20%26%20Unweighted)
-- [Kruskal's Algorithm](../../../../Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm)
+- [Kruskal's Algorithm](../../../../Algorithms/Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm)
 - [Bellman-Ford](../../../../Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm)
