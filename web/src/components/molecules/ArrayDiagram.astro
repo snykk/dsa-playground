@@ -63,9 +63,11 @@ const { rows, legend, caption } = Astro.props;
     display: grid;
     gap: 8px;
   }
+  /* Label, cells and note side by side; the note drops below the cells when the
+     array is too wide to leave it a readable column. */
   .row {
-    display: grid;
-    grid-template-columns: 96px minmax(0, max-content) minmax(0, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 6px 18px;
     padding: 10px 16px;
@@ -74,6 +76,7 @@ const { rows, legend, caption } = Astro.props;
     background: var(--surface);
   }
   .row-label {
+    flex: 0 0 96px;
     margin: 0;
     font-size: 13.5px;
     font-weight: 650;
@@ -81,8 +84,10 @@ const { rows, legend, caption } = Astro.props;
     font-family: var(--font-mono);
   }
   .cells-scroll {
+    flex: 0 1 auto;
     overflow-x: auto;
     min-width: 0;
+    max-width: 100%;
   }
   .cells {
     display: flex;
@@ -122,6 +127,7 @@ const { rows, legend, caption } = Astro.props;
     font-weight: 600;
   }
   .row-note {
+    flex: 1 1 260px;
     margin: 0;
     font-size: 14.5px;
     line-height: 1.55;
@@ -132,8 +138,8 @@ const { rows, legend, caption } = Astro.props;
     font-size: 0.9em;
   }
   @media (max-width: 759px) {
-    .row {
-      grid-template-columns: minmax(0, 1fr);
+    .row-label {
+      flex-basis: 100%;
     }
   }
 </style>
