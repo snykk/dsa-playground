@@ -3,231 +3,149 @@ Ford-Fulkerson Algorithm Implementation
 
 Ford-Fulkerson algorithm finds the maximum flow in a flow network.
 It uses DFS to find augmenting paths and updates flow along these paths.
+
+The DFS is iterative (explicit stack with a parent map), so long chains of
+vertices do not hit Python's recursion limit.
 """
 
-from typing import Dict, List, Tuple, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
+
+Graph = Dict[int, Dict[int, int]]
 
 
-def ford_fulkerson(graph: Dict[int, Dict[int, int]], source: int, sink: int) -> int:
+def _build_residual(graph: Graph) -> Graph:
+    """Copy the capacities and add a 0-capacity reverse entry for every edge."""
+    residual: Graph = {u: dict(neighbors) for u, neighbors in graph.items()}
+    for u in graph:
+        for v in graph[u]:
+            residual.setdefault(v, {})
+            residual[v].setdefault(u, 0)
+    return residual
+
+
+def _find_path(residual: Graph, source: int, sink: int) -> Optional[List[int]]:
+    """Iterative DFS for an augmenting path. Returns the vertex list or None."""
+    parent: Dict[int, Optional[int]] = {source: None}
+    stack = [(source, iter(residual.get(source, {}).items()))]
+    while stack:
+        u, neighbors = stack[-1]
+        for v, capacity in neighbors:
+            if v not in parent and capacity > 0:
+                parent[v] = u
+                if v == sink:
+                    path = [sink]
+                    while parent[path[-1]] is not None:
+                        path.append(parent[path[-1]])
+                    path.reverse()
+                    return path
+                stack.append((v, iter(residual.get(v, {}).items())))
+                break
+        else:
+            stack.pop()
+    return None
+
+
+def _augment(residual: Graph, path: List[int]) -> int:
+    """Push the bottleneck capacity along the path and return it."""
+    bottleneck = min(residual[path[i]][path[i + 1]] for i in range(len(path) - 1))
+    for i in range(len(path) - 1):
+        u, v = path[i], path[i + 1]
+        residual[u][v] -= bottleneck
+        residual[v][u] += bottleneck
+    return bottleneck
+
+
+def _run(graph: Graph, source: int, sink: int) -> Tuple[int, List[Tuple[List[int], int]], Graph]:
+    """Run Ford-Fulkerson. Returns (max flow, augmenting paths with bottlenecks, final residual graph)."""
+    residual = _build_residual(graph)
+    max_flow = 0
+    paths: List[Tuple[List[int], int]] = []
+    while True:
+        path = _find_path(residual, source, sink)
+        if path is None:
+            break
+        bottleneck = _augment(residual, path)
+        max_flow += bottleneck
+        paths.append((path, bottleneck))
+    return max_flow, paths, residual
+
+
+def ford_fulkerson(graph: Graph, source: int, sink: int) -> int:
     """
     Find maximum flow using Ford-Fulkerson algorithm with DFS
-    
+
     Args:
         graph: Dictionary mapping vertex to dictionary of (neighbor, capacity) pairs
         source: Source vertex
         sink: Sink vertex
-        
+
     Returns:
         Maximum flow value
-        
-    Time Complexity: O(E × max_flow) in worst case
+
+    Time Complexity: O(E * max_flow) for integer capacities
     Space Complexity: O(V + E)
     """
     if source == sink:
         return 0
-    
-    # Create residual graph (copy of original graph)
-    residual = {u: {v: cap for v, cap in neighbors.items()} 
-                for u, neighbors in graph.items()}
-    
-    # Add reverse edges with capacity 0
-    for u in graph:
-        for v in graph[u]:
-            if v not in residual:
-                residual[v] = {}
-            if u not in residual[v]:
-                residual[v][u] = 0
-    
-    max_flow = 0
-    
-    def dfs_find_path(u: int, visited: Set[int], path: List[int]) -> Optional[List[int]]:
-        """DFS to find augmenting path"""
-        if u == sink:
-            return path
-        
-        visited.add(u)
-        
-        for v, capacity in residual.get(u, {}).items():
-            if v not in visited and capacity > 0:
-                result = dfs_find_path(v, visited, path + [v])
-                if result:
-                    return result
-        
-        return None
-    
-    # Find augmenting paths until no more exist
-    while True:
-        visited = set()
-        path = dfs_find_path(source, visited, [source])
-        
-        if not path:
-            break
-        
-        # Find minimum capacity along path
-        min_capacity = float('inf')
-        for i in range(len(path) - 1):
-            u, v = path[i], path[i + 1]
-            min_capacity = min(min_capacity, residual[u][v])
-        
-        # Update residual graph
-        for i in range(len(path) - 1):
-            u, v = path[i], path[i + 1]
-            residual[u][v] -= min_capacity
-            residual[v][u] += min_capacity
-        
-        max_flow += min_capacity
-    
-    return max_flow
+    return _run(graph, source, sink)[0]
 
 
-def ford_fulkerson_with_path(graph: Dict[int, Dict[int, int]], 
-                             source: int, sink: int) -> Tuple[int, List[List[int]]]:
+def ford_fulkerson_with_path(graph: Graph, source: int,
+                             sink: int) -> Tuple[int, List[Tuple[List[int], int]]]:
     """
-    Find maximum flow and return augmenting paths used
-    
+    Find maximum flow and return the augmenting paths used
+
     Args:
         graph: Dictionary mapping vertex to dictionary of (neighbor, capacity) pairs
         source: Source vertex
         sink: Sink vertex
-        
+
     Returns:
-        Tuple of (max_flow, list of augmenting paths)
-        
-    Time Complexity: O(E × max_flow)
+        Tuple of (max_flow, list of (path, bottleneck) pairs)
+
+    Time Complexity: O(E * max_flow) for integer capacities
     Space Complexity: O(V + E)
     """
     if source == sink:
         return 0, []
-    
-    residual = {u: {v: cap for v, cap in neighbors.items()} 
-                for u, neighbors in graph.items()}
-    
-    for u in graph:
-        for v in graph[u]:
-            if v not in residual:
-                residual[v] = {}
-            if u not in residual[v]:
-                residual[v][u] = 0
-    
-    max_flow = 0
-    paths = []
-    
-    def dfs_find_path(u: int, visited: Set[int], path: List[int]) -> Optional[Tuple[List[int], int]]:
-        """DFS to find augmenting path with capacity"""
-        if u == sink:
-            return (path, float('inf'))
-        
-        visited.add(u)
-        
-        for v, capacity in residual.get(u, {}).items():
-            if v not in visited and capacity > 0:
-                result = dfs_find_path(v, visited, path + [v])
-                if result:
-                    path_result, min_cap = result
-                    return (path_result, min(min_cap, capacity))
-        
-        return None
-    
-    while True:
-        visited = set()
-        result = dfs_find_path(source, visited, [source])
-        
-        if not result:
-            break
-        
-        path, min_capacity = result
-        
-        # Update residual graph
-        for i in range(len(path) - 1):
-            u, v = path[i], path[i + 1]
-            residual[u][v] -= min_capacity
-            residual[v][u] += min_capacity
-        
-        max_flow += min_capacity
-        paths.append((path, min_capacity))
-    
+    max_flow, paths, _ = _run(graph, source, sink)
     return max_flow, paths
 
 
-def min_cut(graph: Dict[int, Dict[int, int]], source: int, sink: int) -> Tuple[int, Set[int], Set[int]]:
+def min_cut(graph: Graph, source: int, sink: int) -> Tuple[int, Set[int], Set[int]]:
     """
     Find minimum cut (max-flow min-cut theorem)
-    
+
     Args:
         graph: Dictionary mapping vertex to dictionary of (neighbor, capacity) pairs
         source: Source vertex
         sink: Sink vertex
-        
+
     Returns:
         Tuple of (min_cut_value, source_side, sink_side)
-        
-    Time Complexity: O(E × max_flow)
+
+    Time Complexity: O(E * max_flow) for integer capacities
     Space Complexity: O(V + E)
     """
-    # Find max flow and get residual graph
     if source == sink:
         return 0, {source}, set()
-    
-    residual = {u: {v: cap for v, cap in neighbors.items()} 
-                for u, neighbors in graph.items()}
-    
-    for u in graph:
-        for v in graph[u]:
-            if v not in residual:
-                residual[v] = {}
-            if u not in residual[v]:
-                residual[v][u] = 0
-    
-    max_flow = 0
-    
-    def dfs_find_path(u: int, visited: Set[int], path: List[int]) -> Optional[List[int]]:
-        if u == sink:
-            return path
-        visited.add(u)
+
+    max_flow, _, residual = _run(graph, source, sink)
+
+    # Vertices still reachable from the source in the final residual graph.
+    reachable = {source}
+    stack = [source]
+    while stack:
+        u = stack.pop()
         for v, capacity in residual.get(u, {}).items():
-            if v not in visited and capacity > 0:
-                result = dfs_find_path(v, visited, path + [v])
-                if result:
-                    return result
-        return None
-    
-    # Find max flow
-    while True:
-        visited = set()
-        path = dfs_find_path(source, visited, [source])
-        if not path:
-            break
-        
-        min_capacity = float('inf')
-        for i in range(len(path) - 1):
-            u, v = path[i], path[i + 1]
-            min_capacity = min(min_capacity, residual[u][v])
-        
-        for i in range(len(path) - 1):
-            u, v = path[i], path[i + 1]
-            residual[u][v] -= min_capacity
-            residual[v][u] += min_capacity
-        
-        max_flow += min_capacity
-    
-    # Find reachable vertices from source in residual graph
-    def dfs_reachable(u: int, visited: Set[int]):
-        visited.add(u)
-        for v, capacity in residual.get(u, {}).items():
-            if v not in visited and capacity > 0:
-                dfs_reachable(v, visited)
-    
-    reachable = set()
-    dfs_reachable(source, reachable)
-    
-    source_side = reachable
+            if v not in reachable and capacity > 0:
+                reachable.add(v)
+                stack.append(v)
+
     all_vertices = set(graph.keys())
     for u in graph:
-        for v in graph[u]:
-            all_vertices.add(v)
-    sink_side = all_vertices - reachable
-
-    return max_flow, source_side, sink_side
+        all_vertices.update(graph[u])
+    return max_flow, reachable, all_vertices - reachable
 
 
 if __name__ == "__main__":
@@ -239,17 +157,16 @@ if __name__ == "__main__":
         3: {2: 9, 5: 20},
         4: {3: 7, 5: 4}
     }
-    
+
     print("Ford-Fulkerson Algorithm Example:")
     print(f"Graph: {graph}")
-    
+
     # Find maximum flow
     max_flow = ford_fulkerson(graph, 0, 5)
     print(f"Maximum flow: {max_flow}")  # 23
-    
+
     # Find minimum cut
     cut_value, source_side, sink_side = min_cut(graph, 0, 5)
     print(f"Minimum cut value: {cut_value}")
     print(f"Source side: {source_side}")
     print(f"Sink side: {sink_side}")
-

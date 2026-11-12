@@ -99,4 +99,3 @@ func main() {
 	hasCycle = UnionFindCycleDetection(edgesNoCycle, 3)
 	fmt.Printf("Graph without cycle: %v\n", hasCycle) // false
 }
-

@@ -1,0 +1,187 @@
+---
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds-Karp
+title: Edmonds-Karp Algorithm
+lead: Edmonds-Karp computes the maximum flow of a network by repeatedly pushing flow along the shortest augmenting path, found with BFS. Choosing the shortest path is the one change from Ford-Fulkerson that makes the running time polynomial, whatever the capacities are.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V E^2)
+    hint: O(V E) augmentations, one BFS each
+  - label: Extra space
+    value: O(V + E)
+    hint: residual graph and BFS parent map
+  - label: Augmenting path
+    value: Shortest by edge count
+    hint: found with BFS
+  - label: Capacities
+    value: Any size
+    hint: the bound does not depend on their values
+properties:
+  - { label: Polynomial bound, value: true }
+  - { label: Needs integer capacities to terminate, value: false }
+  - { label: Returns per-edge flow, value: false }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford-Fulkerson
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford-Fulkerson
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+---
+
+## How Edmonds-Karp works
+
+A flow network is a directed graph with a capacity on every edge, a source `s` and a sink `t`. A flow assigns each edge an amount no larger than its capacity so that at every other vertex, what comes in equals what goes out. The goal is the largest possible flow out of `s`.
+
+Edmonds-Karp keeps a **residual graph**. For an edge `u -> v` with capacity `c` and current flow `f`, the residual graph has a forward edge `u -> v` with `c - f` left, and a backward edge `v -> u` with `f`, which allows the flow to be undone later.
+
+<Steps>
+  <Step title="Build the residual graph">
+    Copy every capacity, and add a reverse edge of capacity 0 for every edge that has none. The code stores this as a map of maps, so vertices can be any integers.
+  </Step>
+  <Step title="Find the shortest augmenting path">
+    Run BFS from `s` over edges whose residual capacity is positive, recording each vertex's parent. If `t` is never reached, stop.
+  </Step>
+  <Step title="Push the bottleneck">
+    The bottleneck is the smallest residual capacity on the path. Subtract it from every forward edge on the path and add it to every reverse edge. The flow value grows by the bottleneck.
+  </Step>
+  <Step title="Repeat">
+    Go back to the BFS. When no augmenting path exists, the accumulated value is the maximum flow.
+  </Step>
+</Steps>
+
+<Callout title="The max-flow min-cut theorem">
+When BFS can no longer reach `t`, let `S` be the vertices it did reach. Every edge from `S` to the rest is saturated, and every edge back into `S` carries no flow, so the flow equals the capacity of the cut `(S, rest)`. No flow can exceed the capacity of any cut, so this flow is maximum and this cut is minimum.
+</Callout>
+
+## A worked example
+
+The classic network with source 0 and sink 5. These augmentations are the ones the Python implementation makes, in order:
+
+<DataTable
+  columns={['Round', 'Shortest path', 'Bottleneck', 'Total flow']}
+  rows={[
+    ['1', '0 -> 1 -> 3 -> 5', '12', '12'],
+    ['2', '0 -> 2 -> 4 -> 5', '4', '16'],
+    ['3', '0 -> 2 -> 4 -> 3 -> 5', '7', '23'],
+    ['4', 'none: BFS cannot reach 5', '-', '23'],
+  ]}
+/>
+
+<GraphDiagram
+  edges="0->1 16, 0->2 13, 1->2 10, 1->3 12, 2->1 4, 2->4 14, 3->2 9, 3->5 20, 4->3 7, 4->5 4"
+  positions={{ 0: [4, 50], 1: [32, 12], 2: [32, 88], 3: [68, 12], 4: [68, 88], 5: [96, 50] }}
+  tones={{ 0: 'l', 1: 'l', 2: 'l', 4: 'l', 3: 'f', 5: 'f' }}
+  edgeTones={{ '1->3': 'p', '4->3': 'p', '4->5': 'p' }}
+  legend={{ l: 'S: vertices BFS can still reach in the last round', f: 'the other side of the cut', p: 'edges crossing the cut, all saturated' }}
+  caption="After round 3, BFS reaches {0, 1, 2, 4}. The three edges leaving that set, 1 -> 3 (12), 4 -> 3 (7) and 4 -> 5 (4), have total capacity 12 + 7 + 4 = 23: the minimum cut matches the flow."
+  label="Flow network with its minimum cut"
+/>
+
+Round 3 takes a 4-edge path because every shorter path is already saturated. Backward edges matter when the best flow needs an earlier choice undone, which is what the residual graph makes possible.
+
+## Pseudocode
+
+```text
+edmondsKarp(graph, s, t):
+    if s == t: return 0
+    residual = copy of graph
+    for each edge u -> v: residual[v][u] = residual[v][u] or 0   # reverse edges
+    maxFlow = 0
+    loop:
+        parent = BFS from s over edges with residual[u][v] > 0
+        if t not in parent: return maxFlow
+        bottleneck = min residual[parent[v]][v] along the path to t
+        for each edge (u, v) on the path:
+            residual[u][v] -= bottleneck
+            residual[v][u] += bottleneck
+        maxFlow += bottleneck
+```
+
+## Implementation
+
+Each language takes a map `u -> {v: capacity}` and returns **only the flow value**, not the flow on each edge and not the cut. The two vertices may be missing as keys of the map (a sink with no outgoing edges is fine). `source == sink` returns 0, and a sink that cannot be reached returns 0.
+
+The three versions differ in numeric range. Python integers never overflow. Go's `int` is 64-bit. In C++ the capacities are `int`, but the residual graph and the returned total are `long long`, so two paths of `INT_MAX` correctly give 4294967294. Go iterates maps in random order, so among several shortest paths it may choose a different one than the table above, but the final value is the same.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds-Karp" />
+
+## Complexity analysis
+
+Let `V` be the number of vertices and `E` the number of edges. One BFS costs <BigO of="V + E" />, which is <BigO of="E" /> when every vertex has an edge. The question is how many augmentations there can be.
+
+<ComplexityTable
+  rows={[
+    { case: 'Augmentations', time: 'O(V E)', when: 'The shortest-path distance from s to any vertex never decreases. Each augmentation saturates at least one critical edge, and an edge can be critical at most V/2 times.' },
+    { case: 'Per augmentation', time: 'O(E)', space: 'O(V + E)', when: 'One BFS plus the update along a path of at most V - 1 edges.' },
+    { case: 'Total', time: 'O(V E^2)', space: 'O(V + E)', when: 'O(V E) augmentations times O(E) each.' },
+  ]}
+/>
+
+<Equation label="Total work" expr="O(V E) augmentations x O(E) per BFS" result="O(V E^2)" />
+
+The bound counts augmentations and not the flow value, so it holds for huge capacities and also for non-integers.
+
+## Edmonds-Karp vs Ford-Fulkerson and others
+
+<DataTable
+  columns={['Algorithm', 'Augmenting path', { label: 'Time', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Edmonds-Karp', 'shortest, BFS', 'O(V E^2)', 'independent of capacity values'],
+    ['Ford-Fulkerson', 'any, DFS here', 'O(E f) for integer capacities', 'f is the max-flow value; can be very slow'],
+    ['Dinic', 'blocking flow on BFS levels', 'O(V^2 E)', 'faster in practice; not in this repository'],
+    ['Push-relabel', 'local pushes', 'O(V^3) for FIFO', 'no augmenting paths; not in this repository'],
+  ]}
+/>
+
+On the 1000/1 diamond (edges `0->1`, `0->2`, `1->3`, `2->3` of capacity 1000 and a cross edge `1->2` of capacity 1), Edmonds-Karp finishes in 2 augmentations, 0-1-3 and 0-2-3. A DFS that keeps choosing the cross edge needs up to 2000.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'A polynomial bound that does not depend on the capacity values.',
+    'The bound does not need integer capacities (the C++ and Go code here takes integers, the Python code also accepts floats).',
+    'Short to implement: BFS, bottleneck, update.',
+  ]}
+  cons={[
+    'O(V E^2) is much slower than Dinic or push-relabel on large graphs.',
+    'Every round rescans the graph from the source.',
+    'The implementations return only the flow value, not the flow on each edge.',
+  ]}
+/>
+
+## Applications
+
+- **Maximum flow and minimum cut.** Network capacity, and the cheapest set of edges whose removal disconnects `t` from `s`.
+- **Bipartite matching.** Connect a super source to the left side, the right side to a super sink, and give every edge capacity 1. The maximum flow is the size of a maximum matching.
+- **Edge-disjoint paths.** With unit capacities, the flow value is the number of edge-disjoint paths from `s` to `t`.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **No reverse edges.** Without the 0-capacity backward edges, flow can never be undone and the result can be below the maximum.
+- **Overflow in C++.** An `int` total overflows once two large paths add up beyond about 2.1 billion. Keep the residual graph and the sum in `long long`.
+- **Using DFS.** Replacing BFS with DFS gives Ford-Fulkerson and loses the O(V E^2) guarantee.
+- **Treating the result as a flow assignment.** These functions return the value only. To get the cut, rerun the BFS on the final residual graph.
+- **Self-loops and zero-capacity edges.** They never help an augmenting path, so they are harmless but can still appear in the input.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the shortest path make the algorithm polynomial?">
+    In the residual graph, the distance from `s` to every vertex never shrinks. Each augmentation removes at least one edge from the shortest paths (the bottleneck), and an edge can only reappear after the distance to its endpoint has grown. Distances are at most V, so the number of augmentations is bounded by O(V E).
+  </FaqItem>
+  <FaqItem question="How do I get the minimum cut?">
+    After the last BFS, take the set of vertices it reached. The edges of the original graph from that set to the rest form a minimum cut. The code here returns only the value, so you would keep the final `parent` map or run one more BFS yourself.
+  </FaqItem>
+  <FaqItem question="Does it work on undirected graphs?">
+    Yes, if each undirected edge is replaced by two directed edges with the same capacity. The map-of-maps input handles this naturally, because anti-parallel edges are supported.
+  </FaqItem>
+  <FaqItem question="When should I use Dinic instead?">
+    When the graph has thousands of edges or more, or when you need many flow computations. Dinic runs BFS once to build levels and then pushes many paths per phase.
+  </FaqItem>
+</Faq>

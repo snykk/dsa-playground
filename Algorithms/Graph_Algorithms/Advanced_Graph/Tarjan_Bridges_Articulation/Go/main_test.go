@@ -87,3 +87,37 @@ func TestDisconnectedComponents(t *testing.T) {
 			r.Bridges, r.Articulations)
 	}
 }
+
+func TestCycleWithExtraBridge(t *testing.T) {
+	// 4-cycle 0-1-2-3-0, plus the tail 2-4
+	r := FindBridgesAndArticulations(5, []Edge{{0, 1}, {1, 2}, {2, 3}, {3, 0}, {2, 4}})
+	if !reflect.DeepEqual(r.Bridges, []Edge{{2, 4}}) {
+		t.Errorf("bridges = %v, want [{2 4}]", r.Bridges)
+	}
+	if !reflect.DeepEqual(r.Articulations, []int{2}) {
+		t.Errorf("articulations = %v, want [2]", r.Articulations)
+	}
+}
+
+func TestSelfLoop(t *testing.T) {
+	// A self-loop is a back edge to the vertex itself and changes nothing.
+	r := FindBridgesAndArticulations(3, []Edge{{0, 1}, {1, 1}, {1, 2}})
+	if !reflect.DeepEqual(r.Bridges, []Edge{{0, 1}, {1, 2}}) {
+		t.Errorf("bridges = %v, want [{0 1} {1 2}]", r.Bridges)
+	}
+	if !reflect.DeepEqual(r.Articulations, []int{1}) {
+		t.Errorf("articulations = %v, want [1]", r.Articulations)
+	}
+}
+
+func TestLongPath(t *testing.T) {
+	const n = 200000
+	edges := make([]Edge, 0, n-1)
+	for i := 0; i+1 < n; i++ {
+		edges = append(edges, Edge{i, i + 1})
+	}
+	r := FindBridgesAndArticulations(n, edges)
+	if len(r.Bridges) != n-1 || len(r.Articulations) != n-2 {
+		t.Errorf("got %d bridges and %d articulation points", len(r.Bridges), len(r.Articulations))
+	}
+}

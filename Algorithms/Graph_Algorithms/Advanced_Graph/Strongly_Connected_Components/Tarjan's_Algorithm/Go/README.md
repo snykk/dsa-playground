@@ -1,201 +1,37 @@
-# Tarjan's Algorithm (Go)
+# Tarjan's SCC Algorithm -- Go Implementation
 
-**Tarjan's Algorithm** finds all strongly connected components (SCCs) in a directed graph using a single DFS pass. It's more efficient than Kosaraju's in terms of number of passes.
+SCCs in one DFS pass. For the idea, the trace and the complexity, see the topic README: [../README.md](../README.md).
 
----
+## Files
 
-## Overview
+| File | Purpose |
+|------|---------|
+| `main.go` | `TarjanSCC`, `TarjanSCCCount`, `IsStronglyConnected` and a demo `main` |
+| `main_test.go` | 6 tests: basic count, strongly connected, component contents and order, neighbour-only vertex, self-loop and empty graph, a 200000-vertex cycle |
+| `go.mod` | Module definition (`go 1.21`) |
 
-Tarjan's algorithm uses DFS with low-link values to identify strongly connected components in a single pass. It maintains a stack of vertices in the current DFS path and identifies SCC roots when low-link equals discovery time.
+## API
 
-**Example**:
-- Graph: 1 → 2 → 3 → 1 (cycle), 4 → 5 → 6 → 4 (cycle)
-- SCCs: {1, 2, 3} and {4, 5, 6}
-- Each cycle forms a strongly connected component
+- `TarjanSCC(graph map[int][]int) [][]int`: components, sinks first (an empty graph returns an empty slice).
+- `TarjanSCCCount(graph map[int][]int) int`: number of components.
+- `IsStronglyConnected(graph map[int][]int) bool`: exactly one component.
 
----
+## Go-Specific Notes
 
-## Algorithm
+- **Recursive closure** `strongConnect`. Goroutine stacks start at about 2 KB and grow on demand, so a 200000-vertex cycle is fine.
+- **Maps.** `indices`, `lowLink` and `onStack` are maps, so any `int` is a vertex id, and vertices that only appear as neighbours are handled.
+- **Random iteration order.** Map iteration is randomised, so the order of unrelated components can change between runs; sink-before-source order always holds.
+- **Bridges** are not in the Go version; see `Tarjan_Bridges_Articulation`.
 
-1. **DFS with tracking**: Perform DFS, maintaining:
-   - `indices`: Discovery time for each vertex
-   - `low_link`: Lowest discovery time reachable from vertex
-   - `stack`: Stack of vertices in current DFS path
-2. **Update low-link**: For each edge (u, v):
-   - If v not visited: recurse, then `low_link[u] = min(low_link[u], low_link[v])`
-   - If v in stack: `low_link[u] = min(low_link[u], indices[v])`
-3. **Identify SCC root**: When `low_link[vertex] == indices[vertex]`:
-   - Vertex is root of SCC
-   - Pop stack until vertex, all popped vertices form one SCC
-
-**Key Insight**: Low-link value tracks the earliest vertex in the same SCC that can be reached.
-
----
-
-## Complexity Analysis
-
-| Operation | Time | Space |
-|-----------|------|-------|
-| **Find All SCCs** | O(V + E) | O(V) |
-| **Count SCCs** | O(V + E) | O(V) |
-| **Check Strongly Connected** | O(V + E) | O(V) |
-
-Where:
-- V = number of vertices
-- E = number of edges
-
-**Note**: Single DFS pass makes it more efficient than Kosaraju's in practice.
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`TarjanSCC(graph)`**
-   - Finds all strongly connected components
-   - Returns slice of slices, each inner slice is an SCC
-   - Time: O(V + E), Space: O(V)
-
-2. **`TarjanSCCCount(graph)`**
-   - Counts number of strongly connected components
-   - Returns integer count
-   - Time: O(V + E), Space: O(V)
-
-3. **`IsStronglyConnected(graph)`**
-   - Checks if graph is strongly connected (one SCC)
-   - Returns true if strongly connected, false otherwise
-   - Time: O(V + E), Space: O(V)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    graph := map[int][]int{
-        1: {2},
-        2: {3},
-        3: {1},  // Cycle: 1 -> 2 -> 3 -> 1
-        4: {5},
-        5: {6},
-        6: {4},  // Cycle: 4 -> 5 -> 6 -> 4
-    }
-    
-    sccs := TarjanSCC(graph)
-    fmt.Printf("Number of SCCs: %d\n", len(sccs))  // 2
-    
-    // Check if strongly connected
-    is_sc := IsStronglyConnected(graph)
-    fmt.Printf("Is strongly connected: %v\n", is_sc)  // false
-}
-```
-
----
-
-## Important Notes
-
-1. **Single pass**: Only requires one DFS pass (more efficient than Kosaraju's)
-2. **Low-link tracking**: Critical concept for identifying SCC roots
-3. **Stack maintenance**: Must maintain stack of vertices in current path
-4. **Directed graphs**: For SCCs, works on directed graphs
-5. **Go slices**: Uses slices for stack implementation
-
----
-
-## Advantages
-
-1. ✅ **Single pass**: Only one DFS pass needed
-2. ✅ **Efficient**: O(V + E) time complexity
-3. ✅ **Complete**: Finds all strongly connected components
-4. ✅ **No graph reversal**: Doesn't need to reverse graph
-
----
-
-## Disadvantages
-
-1. ❌ **More complex**: More complex than Kosaraju's algorithm
-2. ❌ **Low-link concept**: Requires understanding of low-link values
-3. ❌ **Stack management**: Must carefully manage stack
-
----
-
-## When to Use
-
-- ✅ Finding strongly connected components (preferred over Kosaraju's)
-- ✅ Checking if graph is strongly connected
-- ✅ When single pass is important
-- ❌ When simplicity is more important (use Kosaraju's)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    graph := map[int][]int{
-        1: {2},
-        2: {3},
-        3: {1},  // Cycle: 1 -> 2 -> 3 -> 1
-        4: {5},
-        5: {6},
-        6: {4},  // Cycle: 4 -> 5 -> 6 -> 4
-    }
-    
-    sccs := TarjanSCC(graph)
-    fmt.Printf("Number of SCCs: %d\n", len(sccs))  // 2
-    
-    is_sc := IsStronglyConnected(graph)
-    fmt.Printf("Is strongly connected: %v\n", is_sc)  // false
-}
-```
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test ./...
+go run main.go      # demo
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **Kosaraju's Algorithm**: Alternative SCC algorithm (two passes)
-- **DFS**: Core traversal algorithm
-- **Low-link values**: Key concept for SCC identification
-
----
-
-## Applications
-
-1. **Compiler Design**: Finding loops and dependencies
-2. **Social Networks**: Finding communities
-3. **Web Analysis**: Finding related web pages
-4. **Network Analysis**: Finding critical edges and vertices
-
----
-
-## References
-
-- Tarjan, R. E. (1972). "Depth-first search and linear graph algorithms"
-- "Introduction to Algorithms" by CLRS (Chapter 22)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. The stack slice and the `onStack` map are the heart of the algorithm.
+2. Compare components after sorting: vertex order inside and between unrelated components varies.
+3. Reverse topological output is what 2-SAT needs.

@@ -4,70 +4,62 @@
 #include <climits>
 #include <algorithm>
 
-int edmondsKarp(const std::unordered_map<int, std::unordered_map<int, int>>& graph,
-                int source, int sink) {
+// Maximum flow with Edmonds-Karp (Ford-Fulkerson with BFS augmenting paths).
+// Capacities are int, but the residual graph and the flow total are long long,
+// so the sum of several large paths cannot overflow.
+long long edmondsKarp(const std::unordered_map<int, std::unordered_map<int, int>>& graph,
+                      int source, int sink) {
     if (source == sink) return 0;
-    
-    auto residual = graph;
+
+    // Residual graph: forward capacities plus a 0-capacity reverse entry per edge.
+    std::unordered_map<int, std::unordered_map<int, long long>> residual;
     for (const auto& u_pair : graph) {
+        residual[u_pair.first];  // keep vertices without outgoing edges
         for (const auto& v_pair : u_pair.second) {
-            if (residual.find(v_pair.first) == residual.end() ||
-                residual[v_pair.first].find(u_pair.first) == residual[v_pair.first].end()) {
-                residual[v_pair.first][u_pair.first] = 0;
-            }
+            residual[u_pair.first][v_pair.first] += v_pair.second;
+            residual[v_pair.first][u_pair.first] += 0;
         }
     }
-    
-    int maxFlow = 0;
-    
+
+    long long maxFlow = 0;
+
     while (true) {
+        // BFS from the source over edges with positive residual capacity.
         std::unordered_map<int, int> parent;
         std::queue<int> q;
         q.push(source);
-        parent[source] = -1;
-        
-        while (!q.empty()) {
+        parent[source] = source;
+
+        while (!q.empty() && parent.find(sink) == parent.end()) {
             int u = q.front();
             q.pop();
-            
-            auto it = residual.find(u);
-            if (it != residual.end()) {
-                for (const auto& edge : it->second) {
-                    int v = edge.first;
-                    int cap = edge.second;
-                    if (parent.find(v) == parent.end() && cap > 0) {
-                        parent[v] = u;
-                        if (v == sink) {
-                            int pathFlow = INT_MAX;
-                            for (int v = sink; v != source; v = parent[v]) {
-                                int u = parent[v];
-                                pathFlow = std::min(pathFlow, residual[u][v]);
-                            }
-                            for (int v = sink; v != source; v = parent[v]) {
-                                int u = parent[v];
-                                residual[u][v] -= pathFlow;
-                                residual[v][u] += pathFlow;
-                            }
-                            maxFlow += pathFlow;
-                            goto next_iteration;
-                        }
-                        q.push(v);
-                    }
+            for (const auto& edge : residual[u]) {
+                int v = edge.first;
+                if (edge.second > 0 && parent.find(v) == parent.end()) {
+                    parent[v] = u;
+                    q.push(v);
                 }
             }
         }
-        break;
-        next_iteration:;
+        if (parent.find(sink) == parent.end()) break;  // no augmenting path left
+
+        // Bottleneck of the path, then push it.
+        long long pathFlow = LLONG_MAX;
+        for (int v = sink; v != source; v = parent[v]) {
+            pathFlow = std::min(pathFlow, residual[parent[v]][v]);
+        }
+        for (int v = sink; v != source; v = parent[v]) {
+            residual[parent[v]][v] -= pathFlow;
+            residual[v][parent[v]] += pathFlow;
+        }
+        maxFlow += pathFlow;
     }
-    
+
     return maxFlow;
 }
 
-// Example usage (uncomment to use)
-/*
-#include <iostream>
-#ifndef TESTING
 #ifndef IS_TEST_BUILD
+#include <iostream>
 int main() {
     std::unordered_map<int, std::unordered_map<int, int>> graph = {
         {0, {{1, 16}, {2, 13}}},
@@ -76,13 +68,9 @@ int main() {
         {3, {{2, 9}, {5, 20}}},
         {4, {{3, 7}, {5, 4}}}
     };
-    
+
     std::cout << "Edmonds-Karp Algorithm Example:" << std::endl;
-    int maxFlow = edmondsKarp(graph, 0, 5);
-    std::cout << "Maximum flow: " << maxFlow << std::endl;  // 23
-    
+    std::cout << "Maximum flow: " << edmondsKarp(graph, 0, 5) << std::endl;  // 23
     return 0;
 }
-#endif
-#endif
-*/
+#endif  // !IS_TEST_BUILD

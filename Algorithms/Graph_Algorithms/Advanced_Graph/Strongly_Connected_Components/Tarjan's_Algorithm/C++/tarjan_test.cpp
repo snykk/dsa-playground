@@ -24,6 +24,24 @@ void testBasicTarjan() {
     std::cout << "Basic Tarjan test passed" << std::endl;
 }
 
+// Components come out sinks first: {5}, then {3,4}, then {0,1,2}. The order of the
+// vertices inside one component is the stack pop order, so compare them sorted.
+void testComponentContentsAndOrder() {
+    std::unordered_map<int, std::vector<int>> graph = {
+        {0, {1}}, {1, {2}}, {2, {0, 3}}, {3, {4}}, {4, {3, 5}}, {5, {}}
+    };
+    auto sccs = tarjanSCC(graph);
+    assert(sccs.size() == 3);
+    for (auto& c : sccs) std::sort(c.begin(), c.end());
+    std::vector<std::vector<int>> expected = {{5}, {3, 4}, {0, 1, 2}};
+    assert(sccs == expected);
+
+    std::unordered_map<int, std::vector<int>> selfLoop = {{7, {7}}};
+    assert(tarjanSCCCount(selfLoop) == 1);
+
+    std::cout << "Component contents and order test passed" << std::endl;
+}
+
 void testStronglyConnected() {
     std::unordered_map<int, std::vector<int>> graph = {
         {1, {2}},
@@ -53,7 +71,7 @@ void testNegativeIdsAndNeighborOnlyVertices() {
 }
 
 // Regression: the recursive strongConnect overflowed the call stack on a
-// 10^5-vertex cycle.
+// 10^6-vertex cycle.
 void testDeepGraphs() {
     const int n = 1000000;
     std::unordered_map<int, std::vector<int>> cycle;
@@ -71,6 +89,7 @@ void testDeepGraphs() {
 int main() {
     std::cout << "Running Tarjan's Algorithm tests..." << std::endl;
     testBasicTarjan();
+    testComponentContentsAndOrder();
     testStronglyConnected();
     testNegativeIdsAndNeighborOnlyVertices();
     testDeepGraphs();
