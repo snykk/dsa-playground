@@ -39,7 +39,7 @@ mst, total := PrimMST(graph, 0) // three edges, total 19
 ## How to Run
 
 ```bash
-cd "Algorithms/Greedy/Minimum Spanning Tree/Prim's Algorithm/Go"
+cd "Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm/Go"
 go test ./...
 ```
 

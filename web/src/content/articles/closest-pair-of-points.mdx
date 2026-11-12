@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Divide_and_Conquer/Closest Pair of Points
+topic: Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points
 title: Closest Pair of Points
 lead: Given n points in the plane, find the two that are closest together. Checking all pairs takes O(n^2); divide and conquer does it in O(n log n) by splitting the points at a vertical line, solving each half, and then checking only a narrow strip around the split line, where each point needs just a handful of comparisons.
 level: Advanced
@@ -119,7 +119,7 @@ All three versions follow the pseudocode. Python takes a list of `(x, y)` tuples
 
 Python splits the y-list by counting coordinates, so duplicates and equal x values go to the same side as in the x-sorted list. C++ and Go tag every point with its rank in the x order and split by rank. Python also has `closest_pair_optimized`, which sorts ties by the other coordinate and caps the strip scan at 6 following points; C++ and Go have a single variant.
 
-<TopicCode topic="Algorithms/Divide_and_Conquer/Closest Pair of Points" />
+<TopicCode topic="Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points" />
 
 ## Complexity analysis
 

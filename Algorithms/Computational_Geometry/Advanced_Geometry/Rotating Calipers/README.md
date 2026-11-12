@@ -95,4 +95,4 @@ The edge index goes once around the polygon and the pointer `j` moves forward at
 - [Convex Hull](../Convex%20Hull/README.md)
 - [Line Intersection](../../Basic_Geometry/Line%20Intersection/README.md)
 - [Point Line Circle](../../Basic_Geometry/Point%20Line%20Circle/README.md)
-- [Closest Pair of Points](../../../Divide_and_Conquer/Closest%20Pair%20of%20Points/README.md)
+- [Closest Pair of Points](../Closest_Pair_of_Points/README.md)

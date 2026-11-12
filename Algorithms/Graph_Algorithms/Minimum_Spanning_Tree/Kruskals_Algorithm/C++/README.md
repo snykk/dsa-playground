@@ -33,7 +33,7 @@ auto mst = kruskalMST(edges, 4);   // (2,3,4) (0,3,5) (0,1,10)
 ## How to Run
 
 ```bash
-cd "Algorithms/Greedy/Minimum Spanning Tree/Kruskal's Algorithm/C++"
+cd "Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/C++"
 g++ -std=c++17 -O2 -Wall kruskal_test.cpp -o kruskal_test
 ./kruskal_test
 ```

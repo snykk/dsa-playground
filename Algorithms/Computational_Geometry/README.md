@@ -37,7 +37,7 @@ This folder contains implementations of fundamental computational geometry algor
   - Time: O(n log n) for Graham's Scan, O(nh) for Jarvis March
   - Finds smallest convex polygon containing all points
 
-- **[Closest Pair of Points](../Divide_and_Conquer/Closest%20Pair%20of%20Points/)**
+- **[Closest Pair of Points](Advanced_Geometry/Closest_Pair_of_Points/)**
   - Divide and conquer algorithm
   - Time: O(n log n)
   - Finds closest pair in 2D plane

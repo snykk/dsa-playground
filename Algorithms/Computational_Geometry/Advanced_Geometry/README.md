@@ -7,7 +7,7 @@ Advanced geometric algorithms for computational geometry.
 | Algorithm | Description |
 |-----------|-------------|
 | [Convex Hull](Convex%20Hull/) | Finding convex hull of points |
-| [Closest Pair of Points](../../Divide_and_Conquer/Closest%20Pair%20of%20Points/) | Finding nearest point pair |
+| [Closest Pair of Points](Closest_Pair_of_Points/) | Finding nearest point pair |
 | [Rotating Calipers](Rotating%20Calipers/) | Diameter and width of point set |
 
 ## Complexity

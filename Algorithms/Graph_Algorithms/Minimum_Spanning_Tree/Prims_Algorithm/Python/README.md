@@ -37,7 +37,7 @@ print(prim_mst_adjacency_list(graph, 0))   # ([(0, 3, 5), (3, 2, 4), (0, 1, 10)]
 ## How to Run
 
 ```bash
-cd "Algorithms/Greedy/Minimum Spanning Tree/Prim's Algorithm/Python"
+cd "Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm/Python"
 python3 -m unittest prim_test
 ```
 

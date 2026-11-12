@@ -36,7 +36,7 @@ print(kruskal_mst(edges, 4))   # ([(2, 3, 4), (0, 3, 5), (0, 1, 10)], 19)
 ## How to Run
 
 ```bash
-cd "Algorithms/Greedy/Minimum Spanning Tree/Kruskal's Algorithm/Python"
+cd "Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/Python"
 python3 -m unittest kruskal_test
 ```
 

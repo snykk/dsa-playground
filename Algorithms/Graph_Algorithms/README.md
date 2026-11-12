@@ -57,17 +57,17 @@ This folder contains implementations of fundamental graph algorithms in Python, 
 
 ### 🔹 Minimum Spanning Tree Algorithms
 
-- **[Kruskal's Algorithm](../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/)**
+- **[Kruskal's Algorithm](Minimum_Spanning_Tree/)**
   - Edge-based approach
   - Best for sparse graphs
   - Time: O(E log E), Space: O(V)
-  - _See full implementation: [Greedy Algorithms](../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/)_
+  - _See full implementation: [Greedy Algorithms](Minimum_Spanning_Tree/)_
 
-- **[Prim's Algorithm](../Greedy/Minimum%20Spanning%20Tree/Prim's%20Algorithm/)**
+- **[Prim's Algorithm](Minimum_Spanning_Tree/)**
   - Vertex-based approach
   - Best for dense graphs
   - Time: O((V + E) log V), Space: O(V)
-  - _See full implementation: [Greedy Algorithms](../Greedy/Minimum%20Spanning%20Tree/Prim's%20Algorithm/)_
+  - _See full implementation: [Greedy Algorithms](Minimum_Spanning_Tree/)_
 
 ---
 

@@ -112,7 +112,7 @@ Do not use it for small matrices, sparse matrices, or floating-point work where 
 
 ## Related
 
-- [Closest Pair of Points](../Closest%20Pair%20of%20Points/) - another divide and conquer algorithm with a non-trivial combine step.
+- [Closest Pair of Points](../../Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points/) - another divide and conquer algorithm with a non-trivial combine step.
 - [Merge Sort](../../Sorting/Merge%20Sort/) - the standard T(n) = 2 T(n/2) + O(n) divide and conquer.
 - [Quick Sort](../../Sorting/Quick%20Sort/) - divide and conquer with the work done before the recursion.
 

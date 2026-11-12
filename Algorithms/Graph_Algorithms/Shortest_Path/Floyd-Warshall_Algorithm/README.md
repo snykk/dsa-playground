@@ -98,4 +98,4 @@ Use it for all-pairs shortest paths on small or dense graphs, with negative edge
 - [Dijkstra's Algorithm](../Dijkstra's_Algorithm/) - single source, non-negative weights
 - [Bellman-Ford](../Bellman-Ford_Algorithm/) - single source, negative weights
 - [A* Search](../A_Star_Search_Algorithm/)
-- [Kruskal's Algorithm](../../../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/) - another graph algorithm over edge weights
+- [Kruskal's Algorithm](../../Minimum_Spanning_Tree/) - another graph algorithm over edge weights

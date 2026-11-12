@@ -128,4 +128,4 @@ The curse of dimensionality: with many dimensions the plane test prunes little a
 
 - [Binary Search Tree](../Binary%20Search%20Tree/README.md)
 - [Segment Tree](../Segment%20Tree/README.md)
-- [Closest Pair of Points](../../../../Algorithms/Divide_and_Conquer/Closest%20Pair%20of%20Points)
+- [Closest Pair of Points](../../../../Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points)

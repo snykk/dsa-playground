@@ -1,4 +1,4 @@
-{"generator": "web/scripts/gen_greedy_fixtures.py", "reference": "Algorithms/Greedy (kruskal.py, prim.py, activity_selection.py, fractional_knapsack.py)",
+{"generator": "web/scripts/gen_greedy_fixtures.py", "reference": "Algorithms/Greedy (activity_selection.py, fractional_knapsack.py) and Algorithms/Graph_Algorithms/Minimum_Spanning_Tree (kruskal.py, prim.py)",
 "mst": [
 {"n":5,"edges":[[0,3,10],[1,0,5],[2,3,-1],[1,4,9],[4,2,2]],"start":4,"kruskal":[[2,3,-1],[4,2,2],[1,0,5],[1,4,9]],"kruskal_total":15,"prim":[[4,2,2],[2,3,-1],[4,1,9],[1,0,5]],"prim_total":15},
 {"n":3,"edges":[[1,0,-3],[1,2,-4]],"start":0,"kruskal":[[1,2,-4],[1,0,-3]],"kruskal_total":-7,"prim":[[0,1,-3],[1,2,-4]],"prim_total":-7},

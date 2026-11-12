@@ -120,6 +120,6 @@ Do not use it when:
 
 - [Disjoint Set Union (data structure)](../../../../Data%20Structures/Advanced_Structures/Disjoint%20Set%20Union/README.md): the structure in depth
 - [Union-Find Applications](../../../../Problem_Patterns/Union-Find%20Applications/README.md): problem patterns
-- [Kruskal's Algorithm](../../../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/README.md): the main client
+- [Kruskal's Algorithm](../../Minimum_Spanning_Tree): the main client
 - [Tarjan Bridges and Articulation Points](../Tarjan_Bridges_Articulation/README.md): another way to study connectivity
 - [DFS](../../Traversal/DFS/README.md): components without union-find

@@ -34,7 +34,7 @@ mst, total := KruskalMST(edges, 4) // three edges, total 19
 ## How to Run
 
 ```bash
-cd "Algorithms/Greedy/Minimum Spanning Tree/Kruskal's Algorithm/Go"
+cd "Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/Go"
 go test ./...
 ```
 

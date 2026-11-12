@@ -103,4 +103,4 @@ Use it for single-source shortest paths with non-negative weights: routes, weigh
 - [A* Search](../A_Star_Search_Algorithm/) - Dijkstra with a heuristic
 - [Floyd-Warshall](../Floyd-Warshall_Algorithm/) - all pairs
 - [BFS](../../Traversal/BFS/) - the unweighted case
-- [Prim's Algorithm](../../../Greedy/Minimum%20Spanning%20Tree/Prim's%20Algorithm/) - a similar greedy growth
+- [Prim's Algorithm](../../Minimum_Spanning_Tree/) - a similar greedy growth
