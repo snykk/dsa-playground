@@ -132,7 +132,7 @@ z_algorithm_search(text, pattern):
 
 Python exposes `build_z_array` and `z_algorithm_search`; C++ has `buildZArray` and `zAlgorithmSearch`; Go has `ZAlgorithmSearch` (its `buildZArray` is not exported). All three use the separator `$` and the `>=` test. Python indices are code points; C++ and Go indices are bytes.
 
-An **empty pattern** returns `[]` here, unlike the naive, KMP and Rabin-Karp functions in the Pattern Matching topic, which return every position `0..n`. An empty text or a pattern longer than the text also returns `[]`.
+An **empty pattern** returns `[]` here, as in the naive, KMP, Rabin-Karp and Boyer-Moore searches. An empty text or a pattern longer than the text also returns `[]`.
 
 <TopicCode topic="Algorithms/String_Algorithms/Advanced_String/Z_Algorithm" />
 

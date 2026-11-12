@@ -26,7 +26,7 @@ EXAMPLE                     s = 0: S vs E, S absent  -> shift 7
 3. On a mismatch at `j`, shift by `max(1, j - last[text[s + j]])`.
 4. On a full match (`j < 0`), report `s`. If `s + m < n`, shift by `m - last[text[s + m]]`; otherwise shift by 1.
 
-An empty pattern, an empty text, or a pattern longer than the text returns `[]` (the naive and KMP topics return every position for an empty pattern).
+An empty pattern, an empty text, or a pattern longer than the text returns `[]` in all three languages, like the naive, KMP and Rabin-Karp searches.
 
 ## Step-by-Step Trace
 

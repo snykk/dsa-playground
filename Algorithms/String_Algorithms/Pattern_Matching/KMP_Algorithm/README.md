@@ -77,7 +77,7 @@ In the search, `i` only increases, `j` grows at most `n` times in total and each
 - Using `lps[j]` instead of `lps[j - 1]` when falling back.
 - Advancing `i` on a mismatch when `j > 0`.
 - Stopping at the first match, which loses overlapping matches.
-- Mixing empty-pattern conventions: here `[]`, in the Pattern Matching overview every position.
+- Mixing empty-pattern conventions: here `[]`, while library searches (`str.find`, `std::string::find`, `strings.Index`) report an empty pattern at index 0.
 - Python indices are code points; C++ and Go are bytes.
 
 ## Implementations
