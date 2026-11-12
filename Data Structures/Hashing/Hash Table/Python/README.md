@@ -1,163 +1,40 @@
-# Hash Table (Python)
+# Hash Table -- Python Implementation
 
-A **Hash Table** is a data structure that implements an associative array, mapping keys to values using a hash function.
+A chaining hash table with a doubling resize and dict-style access. See the [topic README](../README.md).
 
----
+## Files
 
-## Overview
+- `hash_table.py`: the `HashTable` class.
+- `hash_table_test.py`: unit tests, including forced collisions, resize, None values, invalid capacity and negative keys.
 
-Hash Tables provide fast average-case performance for insertion, deletion, and lookup operations. They use a hash function to compute an index into an array of buckets, where the desired value can be found.
+## API
 
----
+| Member | Description | Time |
+|--------|-------------|------|
+| `HashTable(capacity=16)` | `ValueError` if capacity is not positive | O(capacity) |
+| `put(key, value)` / `table[key] = value` | insert or update; resize at load > 0.75 | O(1) amortized |
+| `get(key, default=None)` | value or default | O(1) average |
+| `table[key]` | value, `KeyError` if absent | O(1) average |
+| `remove(key)` / `del table[key]` | True if removed (`del` raises `KeyError`) | O(1) average |
+| `contains(key)` / `key in table` | presence, even when the stored value is None | O(1) average |
+| `keys()`, `values()`, `items()` | lists in bucket order | O(capacity + n) |
+| `clear()`, `is_empty()`, `len(table)` | bookkeeping | O(1) |
 
-## Key Features
+## Python-Specific Notes
 
-- **Fast Operations**: O(1) average case for insert, delete, and lookup
-- **Collision Handling**: Uses chaining (linked lists) to handle collisions
-- **Dynamic Resizing**: Automatically resizes when load factor exceeds threshold
-- **Flexible Keys**: Supports various key types (strings, integers, etc.)
+- Integers hash as `key mod capacity` (always non-negative in Python), strings as `h*31 + c` reduced at each step, other keys with the built-in `hash()`.
+- A private sentinel (`_MISSING`) separates "absent" from a stored None, so `in` and `table[key]` are correct for None values.
+- Iteration order follows the buckets and changes after a resize.
+- For real code use `dict`: it is implemented in C and handles collisions differently.
 
----
-
-## Operations
-
-### 1. Put (Insert/Update)
-
-Insert or update a key-value pair.
-
-```python
-table = HashTable()
-table.put("apple", 5)
-table.put("banana", 10)
-table["cherry"] = 15  # Dictionary-style
-```
-
-**Time Complexity**: O(1) average, O(n) worst case
-
-### 2. Get
-
-Retrieve value for a key.
-
-```python
-value = table.get("apple")  # Returns 5
-value = table.get("nonexistent", default=0)  # Returns 0
-value = table["apple"]  # Dictionary-style
-```
-
-**Time Complexity**: O(1) average, O(n) worst case
-
-### 3. Remove
-
-Remove a key-value pair.
-
-```python
-table.remove("apple")
-del table["banana"]  # Dictionary-style
-```
-
-**Time Complexity**: O(1) average, O(n) worst case
-
-### 4. Contains
-
-Check if key exists.
-
-```python
-if table.contains("apple"):
-    print("Found!")
-if "apple" in table:  # Using 'in' operator
-    print("Found!")
-```
-
-**Time Complexity**: O(1) average, O(n) worst case
-
----
-
-## Complexity Analysis
-
-| Operation | Average Case | Worst Case | Space Complexity |
-|-----------|-------------|------------|------------------|
-| Put       | O(1)        | O(n)       | O(n)             |
-| Get       | O(1)        | O(n)       | O(n)             |
-| Remove    | O(1)        | O(n)       | O(n)             |
-| Contains  | O(1)        | O(n)       | O(n)             |
-| Keys      | O(n)        | O(n)       | O(n)             |
-| Values    | O(n)        | O(n)       | O(n)             |
-
----
-
-## Hash Function
-
-The implementation uses different hash functions based on key type:
-
-- **Integers**: Modulo operation
-- **Strings**: Polynomial rolling hash
-- **Other types**: Built-in `hash()` function
-
----
-
-## Collision Handling
-
-This implementation uses **chaining** to handle collisions:
-- Each bucket contains a list of key-value pairs
-- When multiple keys hash to the same bucket, they are stored in a list
-- Lookup requires searching the list in the bucket
-
----
-
-## Resizing
-
-The hash table automatically resizes when the load factor (size/capacity) exceeds 0.75:
-- Capacity doubles
-- All existing key-value pairs are rehashed
-- Maintains O(1) average performance
-
----
-
-## Example Usage
-
-```python
-from hash_table import HashTable
-
-# Create hash table
-table = HashTable()
-
-# Insert values
-table.put("apple", 5)
-table.put("banana", 10)
-table.put("cherry", 15)
-
-# Access values
-print(table.get("apple"))  # 5
-print(table["banana"])     # 10
-
-# Check existence
-if "apple" in table:
-    print("Apple found!")
-
-# Remove
-table.remove("apple")
-del table["banana"]
-
-# Iterate
-for key in table.keys():
-    print(f"{key}: {table[key]}")
-```
-
----
-
-## Testing
-
-Run the test suite:
+## How to Run
 
 ```bash
-python hash_table_test.py
+python3 -m unittest hash_table_test
 ```
 
----
+## Key Takeaways
 
-## Related Data Structures
-
-- **Hash Map**: Similar structure with additional features
-- **Hash Set**: Stores only keys (no values)
-- **Dictionary**: Python's built-in hash table implementation
-
+- One bucket lookup plus a short walk gives O(1) on average.
+- Doubling makes resizing cheap on average.
+- Never test membership through the value.

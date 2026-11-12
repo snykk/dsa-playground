@@ -141,6 +141,52 @@ class TestHashTable(unittest.TestCase):
         self.assertEqual(small_table.get("b"), 2)
         self.assertEqual(small_table.get("c"), 3)
 
+    def test_chain_longer_than_one(self):
+        """Keys that are multiples of the capacity share one bucket (no resize yet)"""
+        table = HashTable(capacity=16)
+        for k in (0, 16, 32, 48):
+            table.put(k, k * 10)
+        self.assertEqual(len(table.buckets[0]), 4)
+        self.assertEqual(table.get(32), 320)
+        self.assertTrue(table.remove(16))
+        self.assertIsNone(table.get(16))
+        self.assertEqual(table.get(48), 480)
+        table.put(48, -1)
+        self.assertEqual(len(table.buckets[0]), 3)
+        self.assertEqual(table.get(48), -1)
+
+    def test_resize_splits_a_chain(self):
+        table = HashTable(capacity=4)
+        for k in (0, 4, 8, 12):  # one chain of 4 at capacity 4; the 4th put resizes
+            table.put(k, k)
+        self.assertEqual(table.capacity, 8)
+        self.assertEqual(sorted(table.keys()), [0, 4, 8, 12])
+        self.assertLessEqual(max(len(b) for b in table.buckets), 2)
+
+    def test_none_value_is_a_present_key(self):
+        """contains used to be get(key) is not None, so a stored None looked absent"""
+        table = HashTable()
+        table.put("k", None)
+        self.assertIn("k", table)
+        self.assertTrue(table.contains("k"))
+        self.assertEqual(len(table), 1)
+        self.assertIsNone(table["k"])
+        self.assertNotIn("missing", table)
+        with self.assertRaises(KeyError):
+            table["missing"]
+
+    def test_invalid_capacity(self):
+        for capacity in (0, -3):
+            with self.assertRaises(ValueError):
+                HashTable(capacity)
+
+    def test_negative_int_keys(self):
+        table = HashTable(capacity=4)
+        for k in (-1, -4, -7):
+            table.put(k, k)
+        for k in (-1, -4, -7):
+            self.assertEqual(table.get(k), k)
+
 
 if __name__ == '__main__':
     unittest.main()

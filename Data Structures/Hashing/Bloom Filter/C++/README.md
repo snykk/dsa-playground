@@ -1,40 +1,35 @@
-# Bloom Filter — C++ Implementation
+# Bloom Filter -- C++ Implementation
 
-A **Bloom Filter** is a space-efficient probabilistic data structure used to test set membership with **no false negatives**, but small false-positive probability. Great when you need to check "is this item _possibly_ in the set?" before touching an expensive source (database, disk, network).
-
-For the conceptual overview, visuals, and comparison with alternatives, see the parent README: [../README.md](../README.md)
-
----
+A Bloom filter over strings. See the [topic README](../README.md).
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `bloom_filter.cpp` | Core implementation: bit array, hash family, `add` / `contains` |
-| `bloom_filter_test.cpp` | Assertion-based unit tests |
+- `bloom_filter.cpp`: the `BloomFilter` class (included directly by the test).
+- `bloom_filter_test.cpp`: assert-based tests for add/contains, sizing, invalid arguments, tiny filters and the measured false positive rate.
 
----
+## API
+
+| Member | Description | Time |
+|--------|-------------|------|
+| `BloomFilter(size_t capacity, double error_rate = 0.01)` | throws `std::invalid_argument` if capacity is 0 or error_rate not in (0, 1) | O(m) |
+| `void add(const std::string&)` | set k bits | O(k) |
+| `bool contains(const std::string&) const` | maybe present or definitely not | O(k) |
+| `numBits()`, `numHashes()` | the chosen `m` and `k` | O(1) |
 
 ## C++-Specific Notes
 
-- **`std::vector<bool>`** is used as a packed bit array (1 bit per element in most stdlib implementations). This is exactly what a bloom filter needs — do not replace it with `std::vector<int>`, which wastes 32–64× memory.
-- **Hash family via double hashing**: combine two independent hash values `h1, h2` and derive the k-th hash as `h1 + k * h2`. This avoids computing `k` separate hash functions while preserving the false-positive guarantees (Kirsch & Mitzenmacher, 2006).
-- **`std::hash<std::string>`** from `<functional>` is the base hash. It's fast and reasonably well-distributed; for adversarial inputs you would swap in a keyed hash (e.g. SipHash).
-- **No erase operation** — a standard bloom filter cannot delete items without introducing false negatives. If deletion is required, use a _counting_ bloom filter.
-
----
+- Position i is `(h(item) + i * h(item + to_string(i))) mod m` with `std::hash<std::string>`. That is two string hashes (and one string allocation) per index, so it is not the cheap Kirsch-Mitzenmacher scheme of computing two hashes once.
+- `std::hash` is implementation-defined, so exact bit positions differ between libstdc++ and libc++. The tests therefore check a rate, not specific positions.
+- Bits are a `std::vector<bool>`, which is bit-packed.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall bloom_filter_test.cpp -o bloom_filter_test
-./bloom_filter_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD bloom_filter_test.cpp -o bloom_filter_test && ./bloom_filter_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **False positives are the price of compactness.** Sizing the bit array and picking `k` (number of hash functions) are the two knobs that trade memory for accuracy — the classic formula is `m = -(n * ln p) / (ln 2)²` and `k = (m / n) * ln 2`.
-2. **Double hashing is a real engineering shortcut.** Computing `k` hashes naively is slow; the `h1 + i * h2` trick gives you `k` cheap hashes with essentially the same properties.
-3. **Understand what bloom filters can't do.** They cannot enumerate their contents, cannot give a false-negative-free "not present" after deletions, and cannot give you counts. They answer _one_ question: "definitely absent, or possibly present?"
+- Round `m` up and keep `k >= 1`.
+- Test the false positive rate, not one specific miss.
+- `std::vector<bool>` gives the space saving for free.

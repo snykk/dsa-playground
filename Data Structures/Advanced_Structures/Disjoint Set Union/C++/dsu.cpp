@@ -9,6 +9,7 @@
  */
 
 #include <vector>
+#include <stdexcept>
 #include <numeric>
 #include <unordered_map>
 
@@ -19,13 +20,18 @@ private:
     std::vector<int> sz;
     int componentCount;
 
+    static int checkedSize(int n) {
+        if (n < 0) throw std::invalid_argument("n must be non-negative");
+        return n;
+    }
+
 public:
     /**
      * Initialize n singleton sets {0}, {1}, ..., {n-1}.
      * Time:  O(n)
      * Space: O(n)
      */
-    DSU(int n) : parent(n), rnk(n, 0), sz(n, 1), componentCount(n) {
+    explicit DSU(int n) : parent(checkedSize(n)), rnk(n, 0), sz(n, 1), componentCount(n) {
         std::iota(parent.begin(), parent.end(), 0);
     }
 
@@ -35,6 +41,9 @@ public:
      * Time: O(alpha(n)) amortized
      */
     int find(int x) {
+        if (x < 0 || x >= (int)parent.size()) {
+            throw std::out_of_range("element out of range");
+        }
         if (parent[x] != x) {
             parent[x] = find(parent[x]);
         }

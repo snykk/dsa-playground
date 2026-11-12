@@ -108,18 +108,18 @@ func TestAllInOneSet(t *testing.T) {
 
 func TestPathCompression(t *testing.T) {
 	dsu := NewDSU(5)
+	// union by rank: {0,1} and {2,3}, then roots 0 and 2 -> 2 hangs under 0
 	dsu.Union(0, 1)
-	dsu.Union(1, 2)
 	dsu.Union(2, 3)
-
-	root := dsu.Find(3)
-	if dsu.GetParent(3) != root {
-		t.Error("After find, 3 should point directly to root")
+	dsu.Union(0, 2)
+	if dsu.GetParent(3) != 2 {
+		t.Errorf("Before find, parent of 3 should be 2, got %d", dsu.GetParent(3))
 	}
-	for i := 0; i < 4; i++ {
-		if dsu.Find(i) != root {
-			t.Errorf("Expected find(%d) == %d", i, root)
-		}
+	if dsu.Find(3) != 0 {
+		t.Error("Find(3) should return the root 0")
+	}
+	if dsu.GetParent(3) != 0 {
+		t.Error("After find, 3 should point directly to the root")
 	}
 }
 

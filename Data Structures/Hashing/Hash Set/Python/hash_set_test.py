@@ -53,6 +53,31 @@ class TestHashSet(unittest.TestCase):
         self.assertTrue(self.set.is_empty())
         self.assertEqual(len(self.set), 0)
 
+    def test_chain_longer_than_one(self):
+        """Ints that are multiples of the capacity share bucket 0"""
+        s = HashSet(16)
+        for k in (0, 16, 32, 48):
+            self.assertTrue(s.add(k))
+        self.assertEqual(len(s.buckets[0]), 4)
+        self.assertFalse(s.add(32))
+        self.assertTrue(s.remove(16))
+        self.assertFalse(s.contains(16))
+        self.assertTrue(s.contains(48))
+        self.assertEqual(len(s), 3)
+
+    def test_resize_keeps_elements(self):
+        s = HashSet(4)
+        for k in range(100):
+            s.add(k)
+        self.assertGreater(s.capacity, 4)
+        self.assertEqual(sorted(s), list(range(100)))
+        self.assertLessEqual(s.size / s.capacity, 0.75)
+
+    def test_invalid_capacity(self):
+        for capacity in (0, -2):
+            with self.assertRaises(ValueError):
+                HashSet(capacity)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,126 +1,102 @@
 # Hash Table
 
-A **Hash Table** is a data structure that implements an associative array, mapping keys to values using a hash function.
+A hash table stores key-value pairs in an array of buckets and finds a key by hashing it to a bucket. With separate chaining and a doubling resize, put, get and remove take O(1) on average and O(n) in the worst case.
 
----
+## Intuition
 
-## Overview
+A hash table is a filing cabinet with `c` drawers. A function turns any key into a drawer number, so you open one drawer instead of searching the cabinet. Two keys can share a drawer (a collision), so each drawer holds a short list. When the cabinet gets crowded (more than 0.75 pairs per drawer on average) you buy one twice as large and refile everything.
 
-Hash Tables provide fast average-case performance for insertion, deletion, and lookup operations. They use a hash function to compute an index into an array of buckets, where the desired value can be found.
+Invariant: a pair lives in the bucket `hash(key) mod capacity`, so a lookup only ever examines that bucket.
 
----
+## Visual
 
-## Key Characteristics
+```text
+capacity 4, keys 5, 9, 13 (all give key mod 4 = 1)
 
-- **Fast Operations**: O(1) average case for insert, delete, and lookup
-- **Collision Handling**: Uses chaining (linked lists) to handle collisions
-- **Dynamic Resizing**: Automatically resizes when load factor exceeds threshold
-- **Flexible Keys**: Supports various key types (strings, integers, etc.)
-
----
+  bucket 0: (empty)
+  bucket 1: [5] -> [9] -> [13]
+  bucket 2: (empty)
+  bucket 3: (empty)
+```
 
 ## Operations
 
-| Operation | Description | Time Complexity (Average) |
-|-----------|-------------|---------------------------|
-| **Put** | Insert or update key-value pair | O(1) |
-| **Get** | Retrieve value for key | O(1) |
-| **Remove** | Delete key-value pair | O(1) |
-| **Contains** | Check if key exists | O(1) |
+| Operation | Description | Time |
+|-----------|-------------|------|
+| `put(key, value)` | update if present, else append; resize if load > 0.75 | O(1) average, amortized |
+| `get(key)` | walk the key's bucket | O(1) average |
+| `remove(key)` | unlink from the bucket | O(1) average |
+| `contains(key)` | presence test | O(1) average |
+| size, is empty, clear | bookkeeping | O(1) |
 
----
+Per language: Python has `put`, `get(key, default)`, `remove`, `contains`, `keys`, `values`, `items`, `clear`, `is_empty`, and dict-style `in`, `len`, `[]`, `del`. C++ has `put`, `get` (pointer or `nullptr`), `remove`, `contains`, `getSize`, `isEmpty`, `clear`. Go has the same without iteration, using `interface{}` keys. Only Python offers iteration.
 
-## Complexity Analysis
+Capacity must be positive: Python raises `ValueError`, C++ throws `std::invalid_argument`, and Go uses 16 instead.
 
-| Operation | Average Case | Worst Case | Space Complexity |
-|-----------|-------------|------------|------------------|
-| Put       | O(1)        | O(n)       | O(n)             |
-| Get       | O(1)        | O(n)       | O(n)             |
-| Remove    | O(1)        | O(n)       | O(n)             |
-| Contains  | O(1)        | O(n)       | O(n)             |
+## Step-by-Step Trace
 
----
+Capacity 4, keys 5, 9, 13, 2, 7, 12 (real run of the Python code):
 
-## Hash Function
+| Step | Capacity | Buckets (non-empty) | Note |
+|------|----------|---------------------|------|
+| `put` 5, 9, 13 | 4 | 1: [5, 9, 13] | load 3/4 = 0.75, not above the threshold |
+| `put` 2 | 4 then 8 | 1: [9], 2: [2], 5: [5, 13] | load 4/4 > 0.75: double and rehash with mod 8 |
+| `put` 7 | 8 | 1: [9], 2: [2], 5: [5, 13], 7: [7] | |
+| `put` 12 | 8 | 1: [9], 2: [2], 4: [12], 5: [5, 13], 7: [7] | load 6/8, no resize |
+| `get(13)` | 8 | bucket 5 | compare 5 (no), 13 (yes) |
 
-The implementation uses different hash functions based on key type:
+## Complexity
 
-- **Integers**: Modulo operation
-- **Strings**: Polynomial rolling hash
-- **Other types**: Type-specific hash functions
+| Operation | Average | Worst | Why |
+|-----------|---------|-------|-----|
+| get, contains, remove | O(1) | O(n) | worst case: every key in one bucket |
+| put | O(1) amortized | O(n) | a resize costs O(n) |
+| iterate | O(capacity + n) | same | visits every bucket |
 
----
+Why O(1): with an even hash, a chain has `n / capacity` pairs on average, and resizing keeps that at most 0.75. Why amortized: resizes happen when the size doubles, so their cost over n inserts is n/2 + n/4 + ... < n. Space is O(n + capacity).
 
-## Collision Handling
+## When to Use
 
-This implementation uses **chaining** to handle collisions:
-- Each bucket contains a list of key-value pairs
-- When multiple keys hash to the same bucket, they are stored in a list
-- Lookup requires searching the list in the bucket
+- You need fast lookup, insert and delete by key and do not need sorted order.
+- Counting, grouping, deduplicating, caching, two-sum style lookups.
+- Not when you need ordered iteration, ranges or the minimum (use a balanced tree or a heap).
 
----
+## Hash Table vs. Alternatives
 
-## Resizing
+| Structure | Lookup | Insert | Ordered iteration |
+|-----------|--------|--------|-------------------|
+| Hash table | O(1) average | O(1) amortized | no |
+| Balanced BST | O(log n) | O(log n) | yes |
+| Sorted array | O(log n) | O(n) | yes |
+| Unsorted list | O(n) | O(1) | no |
 
-The hash table automatically resizes when the load factor (size/capacity) exceeds 0.75:
-- Capacity doubles
-- All existing key-value pairs are rehashed
-- Maintains O(1) average performance
+## Common Pitfalls
 
----
-
-## Advantages
-
-1. ✅ **Fast Operations**: O(1) average case
-2. ✅ **Flexible Keys**: Supports various key types
-3. ✅ **Dynamic**: Automatically resizes
-4. ✅ **Simple**: Easy to understand and implement
-
----
-
-## Disadvantages
-
-1. ❌ **Worst Case O(n)**: Can degrade with many collisions
-2. ❌ **Memory Overhead**: Extra space for buckets and chains
-3. ❌ **No Ordering**: Keys are not stored in sorted order
-
----
-
-## Applications
-
-1. **Database Indexing**: Fast key lookups
-2. **Caching**: LRU cache, memoization
-3. **Symbol Tables**: Compiler implementations
-4. **Associative Arrays**: Key-value storage
-5. **Set Operations**: When combined with values
-
----
+- A weak hash. The string hash `h*31 + c` mod a power-of-two capacity sends `abcd` and `cdab` to the same bucket at every capacity up to 64. For the 4096 four-letter words over a to h, capacity 32 uses 29 buckets with a longest chain of 344 (ideal 128).
+- Testing membership with `get(key) is not None`: a key stored with None looks absent. The `contains`/`in` of the Python code checks the key itself.
+- Capacity 0 (divide by zero) and negative remainders (a negative index in Go).
+- Holding a C++ pointer from `get` across a `put`: the resize splices nodes, so the pointer stays valid, but not after `remove`.
+- Mutating a key after inserting it.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [`Python/`](Python/) | `hash_table.py` | list of tuples per bucket; dict-style access; iteration |
+| C++ | [`C++/`](C++/) | `hash_table.cpp` | template with `std::list` buckets; resize splices nodes |
+| Go | [`Go/`](Go/) | `main.go` | `interface{}` keys; any key type; no iteration |
 
-- **Python** (`Python/`) - Object-oriented implementation with dictionary-style access
-- **C++** (`C++/`) - Template-based implementation with type safety
-- **Go** (`Go/`) - Clean implementation with Go idioms
+## Practice Problems
 
-Each implementation includes:
-- Complete source code with all operations
-- Comprehensive test suite
-- Detailed README with usage examples
+- [LeetCode 1 - Two Sum](https://leetcode.com/problems/two-sum/)
+- [LeetCode 706 - Design HashMap](https://leetcode.com/problems/design-hashmap/)
+- [LeetCode 49 - Group Anagrams](https://leetcode.com/problems/group-anagrams/)
+- [LeetCode 217 - Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 
----
+## Related
 
-## Related Data Structures
-
-- **Hash Map**: Similar structure with additional features
-- **Hash Set**: Stores only keys (no values)
-- **Dictionary**: Language-specific hash table implementations
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 11)
-- "Data Structures and Algorithms" by Aho, Hopcroft, Ullman
-
+- [Collision Handling](../Collision%20Handling/README.md)
+- [Hash Map](../Hash%20Map/README.md)
+- [Hash Set](../Hash%20Set/README.md)
+- [Bloom Filter](../Bloom%20Filter/README.md)
+- [Hashing overview](../README.md)

@@ -6,6 +6,9 @@ mapping keys to values using a hash function.
 """
 
 
+_MISSING = object()  # distinguishes "no such key" from a stored None
+
+
 class HashTable:
     """
     Hash Table - Basic hash table implementation with chaining
@@ -20,7 +23,12 @@ class HashTable:
         
         Args:
             capacity: Initial capacity of the hash table (default: 16)
+
+        Raises:
+            ValueError: If capacity is not positive.
         """
+        if capacity <= 0:
+            raise ValueError("capacity must be positive")
         self.capacity = capacity
         self.size = 0
         self.buckets = [[] for _ in range(capacity)]
@@ -144,7 +152,7 @@ class HashTable:
             
         Time Complexity: O(1) average, O(n) worst case
         """
-        return self.get(key) is not None
+        return self.get(key, _MISSING) is not _MISSING
     
     def keys(self):
         """
@@ -209,8 +217,8 @@ class HashTable:
     
     def __getitem__(self, key):
         """Support dictionary-style access"""
-        value = self.get(key)
-        if value is None:
+        value = self.get(key, _MISSING)
+        if value is _MISSING:
             raise KeyError(f"Key '{key}' not found")
         return value
     

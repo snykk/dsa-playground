@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // KeyValue represents a key-value pair
 type KeyValue struct {
 	Key   interface{}
@@ -43,7 +45,14 @@ func (ht *HashTable) hash(key interface{}) int {
 		}
 		return hashValue
 	default:
-		return 0
+		// Any other key type (int64, float64, bool, ...) is hashed through its
+		// printed form: type name plus value. It used to return 0 for all of
+		// them, which put every such key in bucket 0.
+		hashValue := 0
+		for _, char := range fmt.Sprintf("%T:%v", key, key) {
+			hashValue = (hashValue*31 + int(char)) % ht.capacity
+		}
+		return hashValue
 	}
 }
 

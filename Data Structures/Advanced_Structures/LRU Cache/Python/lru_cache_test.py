@@ -152,6 +152,13 @@ class TestSizeProperty(unittest.TestCase):
         cache.put(3, 30)
         self.assertEqual(cache.size, 2)
 
+    def test_capacity_zero_and_negative_store_nothing(self):
+        for cap in (0, -1):
+            cache = LRUCache(cap)
+            cache.put(1, 10)
+            self.assertEqual(cache.size, 0)
+            self.assertEqual(cache.get(1), -1)
+
 
 if __name__ == "__main__":
     unittest.main()

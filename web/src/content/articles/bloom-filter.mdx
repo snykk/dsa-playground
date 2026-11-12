@@ -1,0 +1,194 @@
+---
+topic: Data Structures/Hashing/Bloom Filter
+title: Bloom Filter
+lead: A Bloom filter is a bit array plus k hash functions that answers "is this item in the set?" using a fraction of the memory of a real set. It may say "maybe" for an item that was never added, but it never says "no" for one that was.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: add / contains
+    value: O(k)
+    hint: k hash computations, independent of how many items are stored
+  - label: Space
+    value: about 9.6 bits per item
+    hint: at a 1% false positive rate
+  - label: False negatives
+    value: Never
+  - label: False positives
+    value: Possible
+    hint: tunable, grows as the filter fills
+    tone: warn
+properties:
+  - { label: Exact membership, value: false }
+  - { label: Supports delete, value: false }
+  - { label: Can list its items, value: false }
+  - { label: Can grow, value: false }
+prerequisites:
+  - Data Structures/Hashing/Hash Set
+  - Data Structures/Linear/Array
+related:
+  - Data Structures/Hashing/Hash Table
+  - Data Structures/Hashing/Collision Handling
+  - Data Structures/Hashing/Hash Map
+---
+
+## What a Bloom filter is
+
+The filter is an array of `m` bits, all 0, and `k` hash functions that each map an item to a position in `0 ... m-1`.
+
+- **add(x):** compute the k positions of `x` and set those bits to 1.
+- **contains(x):** compute the k positions. If **any** bit is 0, `x` was never added: answer "definitely not". If **all** are 1, answer "possibly yes".
+
+A bit set by one item can be set by others too, so all k bits of a never-added item can happen to be set already. That is a **false positive**. A bit never goes back to 0, so an item that was added always finds its k bits set: there are **no false negatives**.
+
+Here is a tiny filter, `m = 24` and `k = 3`, after adding `cat` and `dog` (the code's own hash positions for these words):
+
+<ArrayDiagram
+  legend={{ f: 'bit set to 1', p: 'bit set by both cat and dog' }}
+  rows={[
+    { label: 'bits 0..11', values: [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0], tones: '..f....p....', marks: { 2: '2', 7: '7' } },
+    { label: 'bits 12..23', values: [0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0], tones: '...f.f..f...', marks: { 3: '15', 5: '17', 8: '20' } },
+  ]}
+  caption="`cat` sets bits 20, 7, 2 and `dog` sets bits 17, 7, 15. Bit 7 is shared, so five distinct bits are set."
+/>
+
+<Callout title="One-sided error">
+"No" is always correct. "Yes" only means "maybe". The filter is useful when a "no" lets you skip expensive work (a disk read, a network call) and an occasional wasted lookup on a "maybe" is acceptable.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`BloomFilter(capacity, error_rate)`', 'choose `m` and `k` from the expected item count and the target false positive rate', 'O(m)'],
+    ['`add(item)`', 'set k bits', 'O(k)'],
+    ['`contains(item)`', 'check k bits, stop at the first 0', 'O(k)'],
+    ['`get_stats()` (Python only)', 'bit count, hash count, set bits, load', 'O(m)'],
+  ]}
+/>
+
+The default `error_rate` is 0.01. Python also supports `item in bf` and hashes `str(item)`, so adding the number 1 also makes the string "1" test as present. C++ and Go take strings. There is no remove: clearing a bit could erase other items.
+
+### Query: definite no and a false positive
+
+On the filter above:
+
+<DataTable
+  columns={['Query', 'Positions', 'Bits', 'Answer']}
+  rows={[
+    ['`cat`', '20, 7, 2', '1, 1, 1', 'maybe (true: it was added)'],
+    ['`owl`', '21, 1, 2', '0, 0, 1', 'definitely not (first bit is 0)'],
+    ['`aoo`', '17, 2, 20', '1, 1, 1', 'maybe, but `aoo` was never added: a false positive'],
+  ]}
+/>
+
+`aoo` hits bit 17 (from `dog`) and bits 2 and 20 (from `cat`), each set by a different item.
+
+## Choosing m and k
+
+For `n` expected items and target false positive rate `p`, the optimum is:
+
+<Equation label="Bits" expr="m = ceil( -n * ln(p) / (ln 2)^2 )" result="about 9.6 n bits for p = 1%" />
+
+<Equation label="Hashes" expr="k = max(1, round( (m / n) * ln 2 ))" result="7 for p = 1%" />
+
+The false positive rate of a filter holding `n` items is approximately `(1 - e^(-k n / m))^k`. It is smallest when about half the bits are set, which is what the formulas for `m` and `k` aim for. Doubling `m` for the same `n` makes the rate drop sharply, and adding more than `n` items makes it rise.
+
+Measured with the repository code on 1000 items at `p = 1%` (`m = 9586`, `k = 7`), probing 20000 strings that were never added: Python 1.05%, C++ 0.98%, Go 1.14%. About half the bits are set (4987 of 9586 in Python).
+
+Sizing is validated: a capacity of 0 or less, or an error rate outside (0, 1), raises `ValueError` in Python, throws `std::invalid_argument` in C++ and panics in Go. The bit count is rounded up and `k` is at least 1. An earlier version truncated both and `BloomFilter(2, 0.5)` got `k = 0`, so `contains` was true for everything.
+
+## Complexity
+
+<DataTable
+  columns={['Quantity', { label: 'Cost', kind: 'mono' }, 'Why']}
+  rows={[
+    ['add', 'O(k)', 'k bit writes; k depends on the error rate, not on n'],
+    ['contains', 'O(k)', 'k bit reads, early exit on the first 0'],
+    ['space', 'O(m) = O(n log(1/p))', 'about 1.44 log2(1/p) bits per item'],
+    ['false positive rate', 'about p at n items', 'rises above p if more than n items are added'],
+  ]}
+/>
+
+Each operation also costs the hash time, which grows with the item length. The Python version does one MD5 per hash, the C++ version two `std::hash` calls per index (`h(item) + i * h(item + i)`), and the Go version two 64-bit values from FNV-1a and a mixer (double hashing: `h1 + i * h2 mod m`, with `h2` odd).
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Trade-off']}
+  rows={[
+    ['Counting Bloom filter', 'counters instead of bits', 'supports delete, uses several times the memory'],
+    ['Scalable Bloom filter', 'chain of filters that grows', 'handles an unknown n, slightly worse rate'],
+    ['Cuckoo filter', 'stores fingerprints in a cuckoo table', 'supports delete, often smaller at low error rates'],
+    ['Partitioned Bloom filter', 'each hash has its own bit range', 'easier to parallelise'],
+  ]}
+/>
+
+## Bloom filter vs hash set
+
+<DataTable
+  columns={['Structure', 'Space per item', 'Lookup', 'Error', 'Delete']}
+  highlight={0}
+  rows={[
+    ['Bloom filter', 'about 10 bits at 1%', 'O(k)', 'false positives', 'no'],
+    ['Hash set', 'the full item plus overhead', 'O(1) average', 'none', 'yes'],
+    ['Sorted array + binary search', 'the full item', 'O(log n)', 'none', 'slow'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Tiny: around 10 bits per item for a 1% error rate, regardless of item size.',
+    'Constant-time add and query that do not slow down as the set grows.',
+    'No false negatives, so a "no" can be trusted to skip work.',
+    'Two filters with the same size and hash functions can be merged with a bitwise OR.',
+  ]}
+  cons={[
+    'False positives; the answer is never certain for "yes".',
+    'Cannot delete items or list them.',
+    'Must be sized for the expected item count in advance.',
+    'The false positive rate degrades once the filter is overfilled.',
+  ]}
+/>
+
+## Applications
+
+- **Skip a slow lookup:** check the filter before reading a disk page, SSTable or remote cache; only a "maybe" costs the real lookup.
+- **Spell checkers and blocklists:** a small filter in memory in front of a large list.
+- **Duplicate suppression:** have I probably seen this URL or event already?
+- **Distributed systems:** exchange a filter instead of a whole key set to reduce network traffic.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Treating "yes" as certain.** Verify against the real store when correctness matters.
+- **Truncating m and k.** `int(...)` can give `k = 0` for small filters, and then every query returns true. Round `m` up and use at least one hash.
+- **Correlated hashes.** Appending the index byte to the item before one 32-bit hash made the k positions follow a single arithmetic progression. The measured error rate was 10-19% at a configured 1%. Use two independent hashes and combine them as `h1 + i * h2`.
+- **Overfilling.** Adding far more than `capacity` items sets most bits, and nearly every query then answers "maybe".
+- **Expecting delete.** Clearing bits corrupts other items; use a counting filter instead.
+</Callout>
+
+## Implementation
+
+All three keep `m` flags (one byte per bit in Python and Go, a packed `std::vector<bool>` in C++) and differ in their hash family. The hash family in each language is described above. Python is the only one with `get_stats` and `in`.
+
+<TopicCode topic="Data Structures/Hashing/Bloom Filter" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why are there no false negatives?">
+    Adding an item sets its k bits and no operation ever clears a bit. A later query computes the same k positions, so all of them are still 1.
+  </FaqItem>
+  <FaqItem question="Why does the optimal filter have half its bits set?">
+    With too few bits set, you wasted space; with too many, random items hit all-ones too easily. The false positive rate is minimised when each bit is set with probability one half, which is what the formulas for `m` and `k` give at `n` items.
+  </FaqItem>
+  <FaqItem question="Can I remove an item?">
+    Not safely. A bit may belong to several items. A counting Bloom filter keeps a small counter per position so that removal is a decrement.
+  </FaqItem>
+  <FaqItem question="How many hash functions do I really need?">
+    Two. Computing `h1` and `h2` once and using `h1 + i * h2 mod m` for i = 0 to k-1 behaves like k independent hashes, as long as `h2` is not tied to `h1`.
+  </FaqItem>
+</Faq>

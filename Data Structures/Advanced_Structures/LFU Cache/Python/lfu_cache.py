@@ -1,9 +1,9 @@
-"""LFU (Least Frequently Used) Cache — O(1) get and put.
+"""LFU (Least Frequently Used) Cache - O(1) get and put.
 
 The structure:
-    key_to_node  : dict[key] -> Node            (O(1) key lookup)
-    freq_to_list : defaultdict[freq] -> ordered dict acting as DLL
-                   (head = MRU, tail = LRU within this frequency bucket)
+    key_to_val   : dict[key] -> (value, freq)   (O(1) key lookup)
+    freq_to_keys : defaultdict[freq] -> OrderedDict[key -> value]
+                   (head = LRU, tail = MRU within this frequency bucket)
     min_freq     : the smallest frequency currently present
 
 Every operation is O(1) because all work is either a dict lookup
@@ -47,6 +47,8 @@ class LFUCache:
         if self.size >= self.capacity:
             evict_key, _ = self.freq_to_keys[self.min_freq].popitem(last=False)
             del self.key_to_val[evict_key]
+            if not self.freq_to_keys[self.min_freq]:
+                del self.freq_to_keys[self.min_freq]
             self.size -= 1
 
         # Insert new entry with freq = 1.

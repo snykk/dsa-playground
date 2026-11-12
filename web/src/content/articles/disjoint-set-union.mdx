@@ -1,0 +1,225 @@
+---
+topic: Data Structures/Advanced_Structures/Disjoint Set Union
+title: Disjoint Set Union
+lead: A disjoint set union (union-find) keeps a collection of items split into non-overlapping groups. It answers "are these two in the same group?" and merges two groups in nearly constant amortized time, using a forest of parent pointers stored in a plain array.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: find / union
+    value: O(alpha(n))
+    hint: amortized, with path compression and union by rank
+  - label: Build
+    value: O(n)
+  - label: Extra space
+    value: O(n)
+    hint: parent, rank and size arrays
+  - label: Limitation
+    value: Merges only
+    hint: no split, no delete
+    tone: warn
+properties:
+  - { label: Array-backed, value: true }
+  - { label: Online (unions arrive one at a time), value: true }
+  - { label: Supports splitting a set, value: false }
+prerequisites:
+  - Data Structures/Linear/Array
+  - Data Structures/Non_Linear/Trees/Binary Tree
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU
+  - Problem_Patterns/Union-Find Applications
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm
+---
+
+## What a disjoint set union is
+
+You start with n items `0 ... n-1`, each alone in its own set. Two operations are allowed:
+
+- **find(x):** return the *representative* (root) of the set that contains `x`. Two items are in the same set exactly when their representatives are equal.
+- **union(x, y):** merge the sets of `x` and `y`.
+
+Each set is stored as a tree. `parent[x]` is the parent of `x`, and a root is its own parent. The whole structure is one array, so there are no node objects or pointers.
+
+<TreeDiagram
+  label="Two sets drawn as trees"
+  root={{ label: 'forest', tone: 'm', children: [
+    { label: 0, tone: 'f', children: [
+      { label: 1 },
+      { label: 2, children: [{ label: 3 }] },
+    ] },
+    { label: 4, tone: 'f', children: [{ label: 5 }] },
+  ] }}
+  legend={{ f: 'root = set representative', m: 'only a grouping label, not a stored node' }}
+  caption="The sets {0, 1, 2, 3} and {4, 5} stored as `parent = [0, 0, 0, 2, 4, 4]`. Following parents from 3 gives 3, 2, 0: the root is 0."
+/>
+
+<ArrayDiagram
+  rows={[
+    { label: 'parent', values: [0, 0, 0, 2, 4, 4], tones: 'f...f.', marks: { 0: 'root', 4: 'root' } },
+  ]}
+/>
+
+<Callout title="Invariant">
+`parent` always describes a forest: following parent pointers from any item reaches a root in finitely many steps, and no pointer ever leaves its set. The implementations keep a `rank` array (an upper bound on tree height) and a `size` array (set sizes, valid at roots) next to `parent`.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`DSU(n)`', 'create n singleton sets', 'O(n)'],
+    ['`find(x)`', 'climb to the root, re-pointing every visited node at it (path compression)', 'O(alpha(n))'],
+    ['`union(x, y)`', 'find both roots; if different, hang the lower-rank root under the other; returns whether a merge happened', 'O(alpha(n))'],
+    ['`connected(x, y)`', '`find(x) == find(y)`', 'O(alpha(n))'],
+    ['`get_size(x)`', 'size of the set of `x`, read at its root', 'O(alpha(n))'],
+    ['`get_component_count()`', 'number of sets, kept as a counter', 'O(1)'],
+    ['`get_components()`', 'group every item under its root', 'O(n alpha(n))'],
+  ]}
+/>
+
+Names differ slightly per language: C++ calls union `unite` (union is a keyword) and uses `getComponentCount`, `getComponents`, `getSize`. Go uses `NewDSU`, `Find`, `Union`, `Connected`, `GetComponentCount`, `GetComponents`, `GetSize`. Python also has `get_parent(x)`, and C++ and Go have `getParent` and `GetParent`, which read the raw parent without compressing; the tests use them.
+
+### Find with path compression
+
+`find` climbs to the root, and on the way back every visited node is re-pointed straight at the root. The next find from any of them takes one step. Starting from the forest after `union(0,1), union(2,3), ..., union(0,4)` on 8 items, `find(7)` climbs 7, 6, 4, 0:
+
+<ArrayDiagram
+  legend={{ p: 'item being found', l: 'on the path to the root', f: 'root' }}
+  rows={[
+    { label: 'before', values: [0, 0, 0, 2, 0, 4, 4, 6], tones: 'f...l.lp', marks: { 7: 'x', 6: '', 4: '' }, note: '7 &rarr; 6 &rarr; 4 &rarr; 0: three hops to reach the root 0.' },
+    { label: 'after', values: [0, 0, 0, 2, 0, 4, 0, 0], tones: 'f.....lp', marks: { 7: 'x' }, note: 'Nodes 7 and 6 now point directly at 0 (4 already did). Item 5 is untouched: it was not on the path.' },
+  ]}
+/>
+
+### Union by rank
+
+Hanging a big tree under a small one makes the path to the root longer. Union by rank avoids that: the root with the **smaller rank** goes under the other. Only a tie increases a rank, by one. Trace for 8 items (arrays after each union):
+
+<DataTable
+  columns={['Call', { label: 'parent', kind: 'mono' }, { label: 'rank (roots)', kind: 'mono' }, 'Note']}
+  rows={[
+    ['`union(0,1)`', '[0,0,2,3,4,5,6,7]', '0:1', 'tie, 1 under 0, rank 0 becomes 1'],
+    ['`union(2,3)`', '[0,0,2,2,4,5,6,7]', '0:1, 2:1', 'tie, 3 under 2'],
+    ['`union(0,2)`', '[0,0,0,2,4,5,6,7]', '0:2', 'tie of rank 1, 2 under 0, rank 2'],
+    ['`union(4,5)`, `union(6,7)`', '[0,0,0,2,4,4,6,6]', '0:2, 4:1, 6:1', 'two more pairs'],
+    ['`union(4,6)`', '[0,0,0,2,4,4,4,6]', '0:2, 4:2', 'tie, 6 under 4'],
+    ['`union(0,4)`', '[0,0,0,2,0,4,4,6]', '0:3', 'tie of rank 2, one set of 8, height 3'],
+  ]}
+/>
+
+Eight items ended up in a tree of height 3 = log<sub>2</sub>(8). That is the worst case that union by rank allows.
+
+## See it in action
+
+<ArticleViz ids={['union-find']} />
+
+Use the **Merge pairs, then halves** example to repeat the trace above, then **Path compression** to watch `find` flatten a path. Apply runs your operation list, Random makes one, and the transport buttons step through the run.
+
+## Complexity
+
+<DataTable
+  columns={['Variant', { label: 'find / union', kind: 'mono' }, 'Why']}
+  rows={[
+    ['Naive linking, no compression', 'O(n)', 'a chain of unions can build a path of length n'],
+    ['Union by rank only', 'O(log n)', 'a root of rank r has at least 2^r nodes, so rank &le; log2(n)'],
+    ['Path compression only', 'O(log n) amortized', 'flattening pays for itself, but the bound is weaker'],
+    ['Both (this code)', 'O(alpha(n)) amortized', 'Tarjan: m operations on n items cost O(m alpha(n)) in total'],
+  ]}
+/>
+
+Why union by rank gives height at most log<sub>2</sub>(n): a rank only grows when two trees of equal rank merge, so by induction a root of rank r has at least 2<sup>r</sup> nodes. Hence r &le; log<sub>2</sub>(n).
+
+<Equation label="Rank bound" expr="size(root of rank r) >= 2^r" result="rank <= log2(n)" />
+
+alpha(n) is the inverse Ackermann function. It grows so slowly that it is at most 4 for any n that fits in a computer, so treat it as a constant. It is amortized: one `find` can still walk O(log n) nodes, but it pays for flattening the path.
+
+Extra space is three arrays of n integers. The `find` here is recursive, so its call stack is as deep as the path; union by rank caps that at O(log n), which is why Python's recursion limit is never a problem for this version.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Notes']}
+  rows={[
+    ['Union by size', 'attach the smaller set under the larger', 'same O(log n) height bound, and the size array answers `get_size` anyway'],
+    ['Path halving / splitting', 'one-pass iterative compression', 'no recursion, nearly the same bound'],
+    ['Weighted DSU', 'store a value on each edge to the parent', 'answers "difference between x and y" queries'],
+    ['Rollback DSU', 'union by rank, no compression, keep a stack of changes', 'supports undoing unions, for offline dynamic connectivity'],
+  ]}
+/>
+
+This repository implements union by rank with full path compression, and also stores `size`.
+
+## DSU vs other ways to find components
+
+<DataTable
+  columns={['Approach', 'Build', 'Same-set query', 'Add an edge', 'Notes']}
+  highlight={0}
+  rows={[
+    ['DSU', 'O(n)', 'O(alpha(n))', 'O(alpha(n))', 'online; cannot remove an edge'],
+    ['BFS/DFS labelling', 'O(n + m)', 'O(1)', 'recompute, O(n + m)', 'best for a static graph, gives paths too'],
+    ['Adjacency list + search per query', 'O(1)', 'O(n + m)', 'O(1)', 'only for very few queries'],
+    ['Link-cut tree', 'O(n)', 'O(log n)', 'O(log n)', 'also supports cutting edges; much more complex'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Almost constant time per operation, even with millions of items.',
+    'Tiny: one integer array per field, about 20 lines of code.',
+    'Online: answers queries between unions, unlike a one-shot BFS.',
+    'Tracks sizes and counts for free.',
+  ]}
+  cons={[
+    'Items must be integers in `[0, n)`; map other keys to indices first.',
+    'No split or delete. Removing an edge needs offline tricks or a different structure.',
+    'Remembers only which set an item is in, not how it is connected (no paths).',
+    'Enumerating one set needs a scan of all n items.',
+  ]}
+/>
+
+## Applications
+
+This topic is the data structure. For using it on problems, see the Union-Find DSU algorithm topic and the Union-Find Applications pattern (linked above). Typical uses:
+
+- **Kruskal's minimum spanning tree:** add an edge only if `union` returns true.
+- **Cycle detection** in an undirected graph while edges arrive.
+- **Connected components** counting, with `get_component_count`.
+- **Percolation and grid regions,** and image-region labelling.
+- **Equivalence classes,** such as accounts that share an e-mail.
+
+Problems: LeetCode 547 (Number of Provinces), 684 (Redundant Connection), 721 (Accounts Merge), 1971 (Find if Path Exists in Graph).
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Linking non-roots.** `union` must link `find(x)` to `find(y)`, not `x` to `y`; otherwise a tree is split and the sets break.
+- **Out-of-range items.** Python raises `IndexError` for an item outside `[0, n)` (a negative one would otherwise alias item n-1) and `ValueError` for negative `n`. C++ throws `std::out_of_range` and `std::invalid_argument`. Go panics.
+- **Reading `parent` as the set id.** After unions `parent[x]` is only a parent; use `find(x)`.
+- **Expecting split.** There is no `delete` or `split`. If edges are removed, process the queries offline in reverse, or use a rollback DSU.
+- **Updating rank wrongly.** Rank increases only when two roots of equal rank merge. It is not the exact height after path compression, only an upper bound.
+</Callout>
+
+## Implementation
+
+All three versions use path compression, union by rank, a `size` array and a component counter. The tests include a path-compression check that inspects the parent before and after `find`.
+
+<TopicCode topic="Data Structures/Advanced_Structures/Disjoint Set Union" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does find re-point nodes at the root?">
+    Every node on the path will be asked about again with the same root. Pointing them straight at it costs nothing extra (the climb already visited them) and makes later finds from those nodes one hop.
+  </FaqItem>
+  <FaqItem question="Is the amortized bound really constant?">
+    In practice yes. alpha(n) is below 5 for any realistic n. Formally it is not constant, only extremely slowly growing, and the bound is amortized: single operations can be slower.
+  </FaqItem>
+  <FaqItem question="Do I need both rank and path compression?">
+    Either alone gives O(log n). Together they give O(alpha(n)). Union by size gives the same guarantee as rank, and this code keeps `size` too because `get_size` needs it.
+  </FaqItem>
+  <FaqItem question="How do I handle string or tuple keys?">
+    Assign each distinct key an integer index (a dictionary does it) and run the DSU on the indices.
+  </FaqItem>
+</Faq>

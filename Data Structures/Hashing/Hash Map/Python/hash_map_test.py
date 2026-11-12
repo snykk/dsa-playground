@@ -79,6 +79,19 @@ class TestHashMap(unittest.TestCase):
         self.map.put("apple", 20)
         self.assertEqual(copied.get("apple"), 5)
 
+    def test_put_if_absent_with_none_value(self):
+        """A key stored with value None is present; put_if_absent must not overwrite it"""
+        self.assertTrue(self.map.put_if_absent("k", None))
+        self.assertFalse(self.map.put_if_absent("k", 5))
+        self.assertIsNone(self.map.get("k"))
+        self.assertTrue(self.map.contains("k"))
+        self.assertEqual(len(self.map), 1)
+
+    def test_get_or_default_with_none_value(self):
+        self.map.put("k", None)
+        self.assertIsNone(self.map.get_or_default("k", 7))
+        self.assertEqual(self.map.get_or_default("other", 7), 7)
+
 
 if __name__ == '__main__':
     unittest.main()

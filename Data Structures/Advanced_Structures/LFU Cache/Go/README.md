@@ -1,41 +1,36 @@
-# LFU Cache — Go Implementation
+# LFU Cache -- Go Implementation
 
-An O(1) **Least Frequently Used** cache. Evicts the least-frequently-accessed entry first; ties broken by LRU.
-
-For the full conceptual overview, visuals, and LFU vs. LRU comparison, see the parent README: [../README.md](../README.md)
-
----
+An O(1) least frequently used cache. Ties are broken by evicting the least recently used key. See the [topic README](../README.md) for the idea.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | `LFUCache` type with `Get` / `Put` methods |
-| `main_test.go` | Table-driven tests for basic, eviction, ties, updates, and LeetCode trace |
-| `go.mod` | Module definition |
+- `main.go`: the `LFUCache` type and a small demo `main`.
+- `main_test.go`: plain unit tests (basic, eviction, ties, updates, capacity 0 and 1, LeetCode 460 trace).
+- `go.mod`: module file.
 
----
+## API
+
+| Function | Description | Time |
+|----------|-------------|------|
+| `NewLFUCache(capacity)` | a negative capacity is treated as 0 | O(1) |
+| `(*LFUCache).Get(key)` | value, or -1 on a miss; promotes the key | O(1) |
+| `(*LFUCache).Put(key, value)` | insert or update; evicts the LFU key when full | O(1) |
 
 ## Go-Specific Notes
 
-- **`container/list` is Go's doubly linked list** in the stdlib. Perfect for this: insert/remove in O(1), stable element handles via `*list.Element`.
-- **`*list.Element` pointers in the map**: we store `Element` pointers alongside each entry so we can remove from the DLL in O(1) on promotion. No search, no iteration.
-- **`interface{}` assertion cost**: `back.Value.(*entry)` has a tiny runtime cost. For hot paths, hand-rolling a typed DLL avoids the boxing — but at this scale it's invisible.
-- **No concurrency**: this implementation is not goroutine-safe. For concurrent workloads, wrap `Get`/`Put` with a `sync.Mutex`. For higher throughput, consider a sharded LFU (partition keys by hash).
-- **Capacity-zero contract**: rather than panic, `NewLFUCache(0)` returns a valid no-op cache. Matches the LeetCode contract.
-
----
+- Buckets are `container/list` lists with the MRU at the front. Each entry stores its `*list.Element`, so removal is O(1).
+- `minFreq` changes in `promote` (when the left bucket empties) and in `Put` (reset to 1), not in `evict`.
+- Not goroutine-safe; wrap calls in a `sync.Mutex` for concurrent use.
+- Unlike Python and C++, a negative capacity does not fail; it becomes a no-op cache.
 
 ## How to Run
 
 ```bash
-go test -v ./...
+go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **`container/list` is worth knowing.** It's rare to reach for in application code (slices win almost always), but for stable-element, O(1) splice scenarios like this one, it's the correct tool.
-2. **`*list.Element` as a handle**: the pattern "hash map → element pointer → DLL node" is the workhorse of every O(1) cache. Implementing LFU cements it.
-3. **Keep the `minFreq` invariant small and local.** It only changes in two places: `evict` (implicitly, after `Get` leaves a bucket empty) and `Put` of a new key (reset to 1). Resist the urge to add more "fixups".
+- A map from key to `*list.Element` is the standard handle for O(1) caches.
+- Keep the `minFreq` rule small: reset on insert, bump on an emptied bucket.

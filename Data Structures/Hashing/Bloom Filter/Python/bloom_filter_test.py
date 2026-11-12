@@ -48,6 +48,33 @@ class TestBloomFilter(unittest.TestCase):
         self.assertIn('num_hashes', stats)
         self.assertGreater(stats['set_bits'], 0)
 
+    def test_tiny_filter_still_rejects(self):
+        """BloomFilter(2, 0.5) used to get 0 hashes and answer True for everything"""
+        bf = BloomFilter(2, error_rate=0.5)
+        self.assertGreaterEqual(bf.num_hashes, 1)
+        self.assertFalse(bf.contains("never"))
+
+    def test_sizing_for_one_percent(self):
+        """100 items at 1%: ceil(958.5) = 959 bits and k = round(6.65) = 7"""
+        stats = BloomFilter(100, error_rate=0.01).get_stats()
+        self.assertEqual(stats['num_bits'], 959)
+        self.assertEqual(stats['num_hashes'], 7)
+
+    def test_invalid_arguments(self):
+        for capacity, rate in [(0, 0.01), (-5, 0.01), (10, 0.0), (10, 1.0), (10, 1.5)]:
+            with self.assertRaises(ValueError):
+                BloomFilter(capacity, rate)
+
+    def test_measured_false_positive_rate(self):
+        """The measured rate must be near the configured 1% (well under 3%)"""
+        bf = BloomFilter(1000, error_rate=0.01)
+        for i in range(1000):
+            bf.add("member-%d" % i)
+        for i in range(1000):
+            self.assertTrue(bf.contains("member-%d" % i))
+        false_positives = sum(1 for j in range(20000) if bf.contains("other-%d" % j))
+        self.assertLess(false_positives / 20000.0, 0.03)
+
 
 if __name__ == '__main__':
     unittest.main()

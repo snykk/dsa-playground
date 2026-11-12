@@ -1,10 +1,13 @@
 package main
 
+import "fmt"
+
 // HashSet represents a hash set
 type HashSet struct {
-	buckets [][]interface{}
-	capacity int
-	size     int
+	buckets             [][]interface{}
+	capacity            int
+	size                int
+	loadFactorThreshold float64
 }
 
 // NewHashSet creates a new hash set
@@ -13,24 +16,44 @@ func NewHashSet(capacity int) *HashSet {
 		capacity = 16
 	}
 	return &HashSet{
-		buckets:  make([][]interface{}, capacity),
-		capacity: capacity,
-		size:     0,
+		buckets:             make([][]interface{}, capacity),
+		capacity:            capacity,
+		size:                0,
+		loadFactorThreshold: 0.75,
 	}
 }
 
+// hash computes the bucket index. Negative ints are folded into range, and
+// every other key type is hashed through its printed form (type name plus value).
 func (hs *HashSet) hash(key interface{}) int {
 	switch k := key.(type) {
 	case int:
-		return k % hs.capacity
+		return ((k % hs.capacity) + hs.capacity) % hs.capacity
 	case string:
-		hashValue := 0
-		for _, char := range k {
-			hashValue = (hashValue*31 + int(char)) % hs.capacity
-		}
-		return hashValue
+		return hashString(k, hs.capacity)
 	default:
-		return int(uintptr(interface{}(key).(uintptr))) % hs.capacity
+		return hashString(fmt.Sprintf("%T:%v", key, key), hs.capacity)
+	}
+}
+
+func hashString(s string, capacity int) int {
+	hashValue := 0
+	for _, char := range s {
+		hashValue = (hashValue*31 + int(char)) % capacity
+	}
+	return hashValue
+}
+
+// resize doubles the number of buckets and moves every element to its new bucket.
+func (hs *HashSet) resize() {
+	old := hs.buckets
+	hs.capacity *= 2
+	hs.buckets = make([][]interface{}, hs.capacity)
+	for _, bucket := range old {
+		for _, k := range bucket {
+			index := hs.hash(k)
+			hs.buckets[index] = append(hs.buckets[index], k)
+		}
 	}
 }
 
@@ -47,6 +70,11 @@ func (hs *HashSet) Add(key interface{}) bool {
 
 	hs.buckets[index] = append(bucket, key)
 	hs.size++
+
+	// Rehash into twice as many buckets when the load factor passes the threshold.
+	if float64(hs.size)/float64(hs.capacity) > hs.loadFactorThreshold {
+		hs.resize()
+	}
 	return true
 }
 
@@ -88,3 +116,8 @@ func (hs *HashSet) IsEmpty() bool {
 	return hs.size == 0
 }
 
+// Clear removes all elements
+func (hs *HashSet) Clear() {
+	hs.buckets = make([][]interface{}, hs.capacity)
+	hs.size = 0
+}

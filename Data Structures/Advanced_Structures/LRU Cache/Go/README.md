@@ -1,48 +1,37 @@
-# LRU Cache -- Go
+# LRU Cache -- Go Implementation
 
-Go implementation of the LRU Cache using a built-in map for O(1) lookup and a manual doubly linked list with sentinel nodes for O(1) reordering.
+An O(1) least recently used cache. See the [topic README](../README.md) for the idea.
 
----
+## Files
+
+- `main.go`: the `LRUCache` type, an internal list node and a demo `main`.
+- `main_test.go`: plain unit tests (hits, misses, eviction order, updates, capacity 1, capacity 0 and negative).
+- `go.mod`: module file.
 
 ## API
 
-| Method | Description | Time |
-|--------|-------------|------|
-| `NewLRUCache(capacity)` | Create cache with given capacity | O(1) |
-| `Get(key)` | Return value or -1; marks key as most recently used | O(1) |
-| `Put(key, value)` | Insert or update; evicts LRU entry if at capacity | O(1) |
-| `Size()` | Return current number of entries | O(1) |
+| Function | Description | Time |
+|----------|-------------|------|
+| `NewLRUCache(capacity)` | capacity 0 or less stores nothing | O(1) |
+| `(*LRUCache).Get(key)` | value, or -1; moves the key to the front | O(1) |
+| `(*LRUCache).Put(key, value)` | insert or update; evicts the back entry when over capacity | O(1) |
+| `(*LRUCache).Size()` | number of entries | O(1) |
 
----
+## Go-Specific Notes
 
-## Usage
+- A hand-written doubly linked list with sentinel head and tail. The standard `container/list` would also work.
+- `Put` inserts first and evicts afterwards, so with capacity 0 or less the new entry is removed immediately.
+- Not goroutine-safe: even `Get` changes the list, so guard calls with a `sync.Mutex`.
 
-```go
-package main
-
-import "fmt"
-
-func main() {
-    cache := NewLRUCache(3)
-    cache.Put(1, 10)
-    cache.Put(2, 20)
-    cache.Put(3, 30)
-
-    fmt.Println(cache.Get(1))    // 10
-    cache.Put(4, 40)              // evicts key 2
-    fmt.Println(cache.Get(2))    // -1
-    fmt.Println(cache.Size())    // 3
-}
-```
-
----
-
-## Testing
+## How to Run
 
 ```bash
-go test -v ./...
+go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-_Last Updated: April 2026_
+- A map from key to node pointer plus a doubly linked list is the whole design.
+- Sentinels remove the empty-list special cases.
+- Use a mutex for concurrent callers.

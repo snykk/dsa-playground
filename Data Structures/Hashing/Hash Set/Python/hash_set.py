@@ -14,7 +14,9 @@ class HashSet:
     """
     
     def __init__(self, capacity=16):
-        """Initialize hash set with given capacity"""
+        """Initialize hash set with given capacity (must be positive)"""
+        if capacity <= 0:
+            raise ValueError("capacity must be positive")
         self.capacity = capacity
         self.size = 0
         self.buckets = [[] for _ in range(capacity)]

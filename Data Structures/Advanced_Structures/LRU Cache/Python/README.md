@@ -1,44 +1,36 @@
-# LRU Cache -- Python
+# LRU Cache -- Python Implementation
 
-Python implementation of the LRU Cache using a hash map and a doubly linked list with sentinel nodes.
+An O(1) least recently used cache. See the [topic README](../README.md) for the idea.
 
----
+## Files
+
+- `lru_cache.py`: `Node` and `LRUCache`, plus a small demo.
+- `lru_cache_test.py`: unit tests (hits, misses, eviction order, updates, capacity 1, capacity 0 and negative).
 
 ## API
 
-| Method | Description | Time |
+| Member | Description | Time |
 |--------|-------------|------|
-| `LRUCache(capacity)` | Create cache with given capacity | O(1) |
-| `get(key)` | Return value or -1; marks key as most recently used | O(1) |
-| `put(key, value)` | Insert or update; evicts LRU entry if at capacity | O(1) |
-| `size` | Property returning current number of entries | O(1) |
+| `LRUCache(capacity)` | capacity 0 or less stores nothing | O(1) |
+| `get(key)` | value, or -1; moves the key to the front | O(1) |
+| `put(key, value)` | insert or update; evicts the back entry when over capacity | O(1) |
+| `size` | property: number of entries | O(1) |
 
----
+## Python-Specific Notes
 
-## Usage
+- Nodes use `__slots__` to save memory. Sentinel head and tail nodes remove empty-list special cases.
+- `put` inserts first and evicts afterwards, so with capacity 0 or less the new entry is removed immediately and `size` stays 0.
+- `collections.OrderedDict` would shorten this to a few lines; the hand-written list shows the mechanism.
 
-```python
-from lru_cache import LRUCache
-
-cache = LRUCache(3)
-cache.put(1, 10)
-cache.put(2, 20)
-cache.put(3, 30)
-
-print(cache.get(1))    # 10
-cache.put(4, 40)        # evicts key 2
-print(cache.get(2))    # -1
-print(cache.size)       # 3
-```
-
----
-
-## Testing
+## How to Run
 
 ```bash
-python lru_cache_test.py
+python3 -m unittest lru_cache_test
+python3 lru_cache.py
 ```
 
----
+## Key Takeaways
 
-_Last Updated: April 2026_
+- Hash map plus doubly linked list gives O(1) get and put.
+- `get` must reorder the list.
+- Nodes store their key so eviction can clean the map.
