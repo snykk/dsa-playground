@@ -1,44 +1,40 @@
-# 🚀 Linked List-Based Stack (Go)
+# Linked List Stack -- Go Implementation
 
-This folder contains the **Go implementation** of a stack using a **singly linked list**.
+A LIFO stack of `int` on a singly linked list. See the [topic README](../README.md) for the concept.
 
----
+## Files
 
-## 📌 Files
+| File | Contents |
+| --- | --- |
+| `main.go` | the `Node` and `LinkedListStack` types and a small `main` demo |
+| `main_test.go` | tests for basic behaviour, empty-stack errors and LIFO order over 100 items |
+| `go.mod` | module definition (`stack_linked_list`), so `go test ./...` and CI run this folder |
 
-- `main.go` → Implementation
-- `main_test.go` → Unit tests using Go’s `testing` package
+## API
 
----
+| Function | Description | Time |
+| --- | --- | --- |
+| `NewStack() *LinkedListStack` | create an empty stack | O(1) |
+| `Push(value int)` | new node becomes the top | O(1) |
+| `Pop() (int, error)` | remove and return the top; error if empty | O(1) |
+| `Peek() (int, error)` | return the top; error if empty | O(1) |
+| `IsEmpty()`, `Size()` | state queries | O(1) |
 
-## ⚡ Example Usage
+## Go-Specific Notes
 
-```go
-stack := NewStack()
-stack.Push(10)
-stack.Push(20)
-fmt.Println(stack.Peek()) // 20
-fmt.Println(stack.Pop())  // 20
-fmt.Println(stack.Size()) // 1
+- Nodes are plain structs referenced by pointer; the garbage collector reclaims popped nodes.
+- `Pop` and `Peek` return `(int, error)`: `fmt.Println(s.Peek())` prints the value followed by `<nil>`, so the demo in `main.go` ignores the error explicitly.
+- The `Size()` method reads a counter field, so it does not walk the list.
 
-```
-
----
-
-## 🧪 Run Tests
+## How to Run
 
 ```bash
-go test
+cd "Data Structures/Linear/Stack/Linked List Based/Go"
+go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-## ⏱️ Complexity
-
-| Operation | Time Complexity |
-| --------- | --------------- |
-| Push      | O(1)            |
-| Pop       | O(1)            |
-| Peek      | O(1)            |
-| isEmpty   | O(1)            |
-| Size      | O(1)            |
+- A pointer to the head node is the whole stack.
+- Check the error from `Pop` and `Peek`.

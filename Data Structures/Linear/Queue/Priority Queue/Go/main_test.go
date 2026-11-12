@@ -118,4 +118,3 @@ func TestPeekEmpty(t *testing.T) {
 		t.Error("Expected error when peeking empty queue")
 	}
 }
-

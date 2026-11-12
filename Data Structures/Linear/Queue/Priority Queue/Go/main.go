@@ -47,8 +47,8 @@ func (pq *PriorityQueue) Pop() interface{} {
 }
 
 type PriorityQueueWrapper struct {
-	pq     *PriorityQueue
-	count  int
+	pq    *PriorityQueue
+	count int
 }
 
 func NewPriorityQueueWrapper() *PriorityQueueWrapper {
@@ -109,4 +109,3 @@ func main() {
 	val1, _ := pq.Dequeue()
 	println("Dequeue:", val1) // 10
 }
-

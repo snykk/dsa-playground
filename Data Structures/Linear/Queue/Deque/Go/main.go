@@ -70,8 +70,7 @@ func main() {
 
 	front, _ := dq.PeekFront()
 	back, _ := dq.PeekBack()
-	println("Front:", front) // 3
-	println("Back:", back)   // 4
+	println("Front:", front)    // 3
+	println("Back:", back)      // 4
 	println("Size:", dq.Size()) // 4
 }
-

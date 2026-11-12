@@ -2,16 +2,36 @@ package main
 
 import "fmt"
 
+// DefaultCapacity is the capacity NewStack uses.
+const DefaultCapacity = 100
+
+// ArrayStack is a stack with a fixed capacity: the backing array is allocated once.
 type ArrayStack struct {
-	data []int
+	data     []int
+	capacity int
 }
 
+// NewStack returns a stack with DefaultCapacity.
 func NewStack() *ArrayStack {
-	return &ArrayStack{data: []int{}}
+	s, _ := NewArrayStack(DefaultCapacity)
+	return s
 }
 
-func (s *ArrayStack) Push(value int) {
+// NewArrayStack returns a stack that holds at most capacity items.
+func NewArrayStack(capacity int) (*ArrayStack, error) {
+	if capacity < 1 {
+		return nil, fmt.Errorf("capacity must be at least 1")
+	}
+	return &ArrayStack{data: make([]int, 0, capacity), capacity: capacity}, nil
+}
+
+// Push adds value on top, or returns an error if the stack is full.
+func (s *ArrayStack) Push(value int) error {
+	if len(s.data) == s.capacity {
+		return fmt.Errorf("stack overflow")
+	}
 	s.data = append(s.data, value)
+	return nil
 }
 
 func (s *ArrayStack) Pop() (int, error) {
@@ -42,6 +62,7 @@ func main() {
 	stack := NewStack()
 	stack.Push(10)
 	stack.Push(20)
-	fmt.Println(stack.Peek()) // 20
+	top, _ := stack.Peek()
+	fmt.Println(top)          // 20
 	fmt.Println(stack.Size()) // 2
 }

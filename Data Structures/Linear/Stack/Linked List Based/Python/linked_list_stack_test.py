@@ -23,5 +23,21 @@ class TestLinkedListStack(unittest.TestCase):
         self.assertFalse(s.is_empty())
         self.assertEqual(s.size(), 1)
 
+    def test_empty_pop_and_peek(self):
+        s = LinkedListStack()
+        with self.assertRaises(IndexError):
+            s.pop()
+        with self.assertRaises(IndexError):
+            s.peek()
+
+    def test_lifo_order_and_size(self):
+        s = LinkedListStack()
+        for i in range(100):
+            s.push(i)
+        self.assertEqual(s.size(), 100)
+        self.assertEqual([s.pop() for _ in range(100)], list(range(99, -1, -1)))
+        self.assertEqual(s.size(), 0)
+        self.assertTrue(s.is_empty())
+
 if __name__ == "__main__":
     unittest.main()

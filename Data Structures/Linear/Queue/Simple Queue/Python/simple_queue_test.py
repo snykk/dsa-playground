@@ -26,5 +26,15 @@ class TestSimpleQueue(unittest.TestCase):
         with self.assertRaises(IndexError):
             self.q.dequeue()
 
+    def test_peek_empty(self):
+        with self.assertRaises(IndexError):
+            self.q.peek()
+
+    def test_fifo_order(self):
+        for i in range(50):
+            self.q.enqueue(i)
+        self.assertEqual([self.q.dequeue() for _ in range(50)], list(range(50)))
+        self.assertTrue(self.q.is_empty())
+
 if __name__ == "__main__":
     unittest.main()

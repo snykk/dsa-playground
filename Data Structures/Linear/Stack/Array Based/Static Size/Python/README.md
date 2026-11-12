@@ -1,44 +1,39 @@
-# 🐍 Python - Static Array-Based Stack (Fixed Size)
+# Static Size Array Stack -- Python Implementation
 
-This folder contains a **Python implementation of a static (fixed-size) array-based stack** using a preallocated list.
+A LIFO stack over a preallocated list of fixed capacity. See the [topic README](../README.md) for the concept.
 
----
+## Files
 
-## ⚙️ Features
+| File | Contents |
+| --- | --- |
+| `array_stack.py` | the `ArrayStack` class |
+| `array_stack_test.py` | unit tests (`unittest`) |
 
-- Core operations:
-  - `push(value)` → add element to top (raises `OverflowError` if full)
-  - `pop()` → remove and return top element (raises `IndexError` if empty)
-  - `peek()` → view top element (raises `IndexError` if empty)
-  - `is_empty()` → check if stack is empty
-  - `size()` → get current number of elements
-- Fixed capacity defined at initialization
-- Prevents adding elements beyond capacity
+## API
 
----
+| Method | Description | Time |
+| --- | --- | --- |
+| `ArrayStack(capacity=100)` | create a stack; raises `ValueError` if `capacity < 1` | O(capacity) |
+| `push(value)` | add on top; raises `OverflowError` when full | O(1) |
+| `pop()` | remove and return the top; raises `IndexError` if empty | O(1) |
+| `peek()` | return the top; raises `IndexError` if empty | O(1) |
+| `is_empty()`, `size()` | length checks | O(1) |
 
-## 📝 Example Usage
+## Python-Specific Notes
 
-```python
-from array_stack import ArrayStack
+- The list `[None] * capacity` is created once and never resized; an integer `top` marks the last used slot.
+- `pop` sets the vacated slot back to `None` so the removed object can be garbage collected.
+- Any Python object can be pushed.
+- A plain `list` would grow without limit; the bound is the point of this class.
 
-stack = ArrayStack(3)  # max size 3
-stack.push(10)
-stack.push(20)
-stack.push(30)
-
-print(stack.peek())    # 30
-print(stack.pop())     # 30
-print(stack.pop())     # 20
-print(stack.is_empty())# False
-print(stack.pop())     # 10
-print(stack.is_empty())# True
-
-# stack.push(40)  # Would raise OverflowError if stack is full
-```
-
-## ▶️ Running Tests
+## How to Run
 
 ```bash
-python -m unittest array_stack_test.py
+cd "Data Structures/Linear/Stack/Array Based/Static Size/Python"
+python3 -m unittest array_stack_test
 ```
+
+## Key Takeaways
+
+- Fixed capacity needs an explicit overflow check.
+- `top == -1` is empty and `top == capacity - 1` is full.

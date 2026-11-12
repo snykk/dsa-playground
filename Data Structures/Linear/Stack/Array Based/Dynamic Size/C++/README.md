@@ -1,47 +1,39 @@
-# ⚡ C++ - Dynamic Array-Based Stack (Dynamic Size)
+# Dynamic Size Array Stack -- C++ Implementation
 
-This folder contains a **C++ implementation of a dynamic array-based stack** using `std::vector`.
+A LIFO stack of `int` backed by `std::vector<int>`. See the [topic README](../README.md) for the concept.
 
----
+## Files
 
-## ⚙️ Features
+| File | Contents |
+| --- | --- |
+| `array_stack.cpp` | the `ArrayStack` class |
+| `array_stack_test.cpp` | assert-based tests, built with `-DIS_TEST_BUILD` |
 
-- Core operations:
-  - `push(int value)` → add element to top
-  - `pop()` → remove and return top element (throws `out_of_range` if empty)
-  - `peek()` → view top element (throws `out_of_range` if empty)
-  - `is_empty()` → check if stack is empty
-  - `size()` → current number of elements
-- Dynamic resizing handled automatically by `std::vector`
-- Efficient amortized O(1) push/pop
+## API
 
----
+| Member | Description | Time |
+| --- | --- | --- |
+| `void push(int value)` | `push_back` | O(1) amortized |
+| `int pop()` | remove and return the top; throws `std::out_of_range` if empty | O(1) |
+| `int peek()` | return the top by value; throws `std::out_of_range` if empty | O(1) |
+| `bool is_empty()`, `int size()` | length checks | O(1) |
 
-## 📝 Example Usage
+## C++-Specific Notes
 
-```cpp
-#include "array_stack.cpp"
-#include <iostream>
+- The vector manages its own memory, so the class is safe to copy and destroy.
+- A `vector` reallocation invalidates references and iterators, which is why `peek()` returns a value.
+- `std::stack<int>` from `<stack>` is the standard adapter with the same behaviour.
+- Note the sibling topics: the Static Size and Linked List stacks name the method `isEmpty()`, while this class uses `is_empty()`.
 
-int main() {
-    ArrayStack stack;
-    stack.push(10);
-    stack.push(20);
-    stack.push(30);
-
-    std::cout << stack.peek() << std::endl; // 30
-    std::cout << stack.pop() << std::endl;  // 30
-    std::cout << stack.pop() << std::endl;  // 20
-    std::cout << stack.is_empty() << std::endl; // 0 (false)
-    std::cout << stack.pop() << std::endl;  // 10
-    std::cout << stack.is_empty() << std::endl; // 1 (true)
-}
-```
-
----
-
-## ▶️ Running Tests
+## How to Run
 
 ```bash
-g++ array_stack_test.cpp -o test && ./test
+cd "Data Structures/Linear/Stack/Array Based/Dynamic Size/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD array_stack_test.cpp -o array_stack_test
+./array_stack_test
 ```
+
+## Key Takeaways
+
+- `std::vector` already provides amortized O(1) `push_back`.
+- Check emptiness before `pop()` or `peek()`, or catch `std::out_of_range`.

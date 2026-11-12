@@ -32,3 +32,34 @@ func TestArrayStack(t *testing.T) {
 		t.Errorf("Stack should be empty")
 	}
 }
+
+func mustPanic(t *testing.T, name string, f func()) {
+	t.Helper()
+	defer func() {
+		if recover() == nil {
+			t.Errorf("%s on an empty stack should panic", name)
+		}
+	}()
+	f()
+}
+
+func TestEmptyPopAndPeekPanic(t *testing.T) {
+	stack := ArrayStack{}
+	mustPanic(t, "Pop", func() { stack.Pop() })
+	mustPanic(t, "Peek", func() { stack.Peek() })
+}
+
+func TestGrowthAndLIFOOrder(t *testing.T) {
+	stack := ArrayStack{}
+	for i := 0; i < 1000; i++ {
+		stack.Push(i)
+	}
+	if stack.Size() != 1000 {
+		t.Errorf("Expected size 1000, got %d", stack.Size())
+	}
+	for i := 999; i >= 0; i-- {
+		if v := stack.Pop(); v != i {
+			t.Errorf("Expected %d, got %d", i, v)
+		}
+	}
+}

@@ -1,157 +1,105 @@
-# Deque (Double-Ended Queue)
+# Deque
 
-A **Deque** (pronounced "deck") is a linear data structure that allows insertion and deletion of elements from both ends (front and back). It combines the functionality of both stacks (LIFO) and queues (FIFO), making it a versatile data structure.
+A **deque** (double-ended queue, said "deck") supports adding and removing items at both the front and the back, so it can act as a stack, a queue, or both. The implementations in this folder are array-backed: the back is O(1) and the front costs O(n).
 
----
+## Intuition
 
-## Overview
+A queue adds at one end and removes at the other, a stack uses one end only. A deque allows all four moves. Using just the back gives a stack; pushing at the back and popping at the front gives a queue.
 
-Unlike a regular queue where elements can only be added at the rear and removed from the front, a deque allows operations on both ends:
+The items live in a growable array (Python `list`, C++ `std::vector<int>`, Go slice) with the front at index 0 and the back at the last index. Growable arrays are cheap to change at the end and expensive to change at index 0, because the other items must shift. That is the whole cost story of this implementation.
 
-- **Front operations**: Add/remove from the beginning
-- **Back operations**: Add/remove from the end
+## Visual
 
-This dual-ended nature makes deques useful in various scenarios:
-- Implementing both stacks and queues
-- Sliding window problems
-- Palindrome checking
-- Undo/redo functionality
-- Task scheduling algorithms
-
----
-
-## Key Characteristics
-
-1. **Double-Ended Access**: Elements can be inserted or removed from either end
-2. **Flexible Usage**: Can function as a stack, queue, or both
-3. **Dynamic Size**: Can grow and shrink as needed (in dynamic implementations)
-4. **Efficient Operations**: O(1) operations on both ends (with proper implementation)
-
----
+```text
+front                       back
+  |                           |
+  v                           v
++---+---+---+---+
+| 3 | 1 | 2 | 4 |   push_front / pop_front   push_back / pop_back
++---+---+---+---+   (shifts items)            (no shifting)
+  index 0 ...  3
+```
 
 ## Operations
 
-| Operation      | Description                                    | Time Complexity* |
-| -------------- | ---------------------------------------------- | ---------------- |
-| `push_front()` | Add element to the front                       | O(1) or O(n)     |
-| `push_back()`  | Add element to the back                        | O(1)             |
-| `pop_front()`  | Remove and return element from the front        | O(1) or O(n)     |
-| `pop_back()`   | Remove and return element from the back         | O(1)             |
-| `peek_front()` | View the front element without removing it      | O(1)             |
-| `peek_back()`  | View the back element without removing it       | O(1)             |
-| `is_empty()`   | Check if the deque is empty                     | O(1)             |
-| `size()`       | Get the number of elements in the deque         | O(1)             |
+| Operation | Description | Time here |
+| --- | --- | --- |
+| `push_back(x)` | append at the back | O(1) amortized |
+| `pop_back()` | remove and return the back item | O(1) |
+| `push_front(x)` | insert at index 0 | O(n) |
+| `pop_front()` | remove and return index 0 | O(n) in Python and C++, O(1) in Go |
+| `peek_front()` / `peek_back()` | read an end | O(1) |
+| `is_empty()` / `size()` | length checks | O(1) |
 
-\* *Time complexity depends on the underlying implementation. Array/slice-based implementations may have O(n) for front operations, while doubly-linked list implementations achieve O(1) for all operations.*
+Go uses `PushFront`, `PopBack` and so on. Popping or peeking an empty deque raises `IndexError` (Python), throws `std::runtime_error` (C++) or returns an error (Go). Python also offers `display()`, a copy of the items as a list.
 
----
+Go's `PopFront` reslices (`dq.deque[1:]`), which moves nothing; its `PushFront` builds a new slice and copies every item.
 
-## Implementation Approaches
+## Step-by-Step Trace
 
-### 1. Array/Slice-Based (Current Implementation)
-- **Pros**: Simple, cache-friendly, easy to understand
-- **Cons**: O(n) operations on front (insert/delete at index 0)
-- **Use Case**: When back operations are more frequent
+Python run: `push_back(1)`, `push_back(2)`, `push_front(3)`, `push_back(4)`, `pop_front()`, `pop_back()`.
 
-### 2. Doubly-Linked List
-- **Pros**: O(1) operations on both ends
-- **Cons**: More memory overhead, less cache-friendly
-- **Use Case**: When both ends are frequently accessed
+| Step | Deque (front to back) | Items moved |
+| --- | --- | --- |
+| `push_back(1)` | `[1]` | 0 |
+| `push_back(2)` | `[1, 2]` | 0 |
+| `push_front(3)` | `[3, 1, 2]` | 2 (everything shifts right) |
+| `push_back(4)` | `[3, 1, 2, 4]` | 0 |
+| `pop_front()` returns 3 | `[1, 2, 4]` | 3 (everything shifts left) |
+| `pop_back()` returns 4 | `[1, 2]` | 0 |
 
-### 3. Circular Buffer
-- **Pros**: Fixed size, efficient memory usage
-- **Cons**: Limited capacity, requires size management
-- **Use Case**: When maximum size is known
+## Complexity
 
----
+| Operation | Array-backed (this folder) | Ring buffer | Doubly linked list |
+| --- | --- | --- | --- |
+| push_back | O(1) amortized | O(1) amortized | O(1) |
+| pop_back | O(1) | O(1) | O(1) |
+| push_front | O(n) | O(1) amortized | O(1) |
+| pop_front | O(n) (O(1) in Go) | O(1) | O(1) |
+| peek | O(1) | O(1) | O(1) |
+| Space | O(n) | O(n) | O(n) plus two pointers per item |
 
-## Applications
+The back is amortized because an append occasionally reallocates; doubling the capacity keeps the average constant. A ring buffer moves a `front` index (with wrap-around, see [Circular Queue](../Circular%20Queue)) instead of shifting items, and grows by copying into a larger array when full.
 
-1. **Sliding Window Problems**: Efficiently maintain window boundaries
-2. **Palindrome Checking**: Compare characters from both ends
-3. **Undo/Redo Operations**: Maintain history stack
-4. **Task Scheduling**: Priority-based task management
-5. **Expression Evaluation**: Infix to postfix conversion
-6. **BFS Variants**: Some graph traversal algorithms
+## When to Use
 
----
+Use a deque when you need both ends: sliding-window maximum with a monotonic queue, palindrome checks, bounded undo history, 0-1 BFS. For real code prefer `collections.deque` (Python) or `std::deque` (C++), which give O(1) at both ends. Use a plain queue or stack when only one end is needed.
 
-## Example Use Cases
+## Deque vs. Other Structures
 
-### As a Stack (LIFO)
-```python
-dq = Deque()
-dq.push_back(1)  # Push
-dq.push_back(2)
-dq.pop_back()    # Pop (returns 2)
-```
+| Structure | Add / remove | Use it when |
+| --- | --- | --- |
+| [Stack](../../Stack) | one end | LIFO is enough |
+| [Simple Queue](../Simple%20Queue) | add back, remove front | FIFO is enough |
+| [Circular Queue](../Circular%20Queue) | queue with a hard size limit | bounded buffers |
+| Deque | both ends | you need both ends |
+| [Priority Queue](../Priority%20Queue) | by priority | order is not arrival order |
 
-### As a Queue (FIFO)
-```python
-dq = Deque()
-dq.push_back(1)  # Enqueue
-dq.push_back(2)
-dq.pop_front()   # Dequeue (returns 1)
-```
+## Common Pitfalls
 
-### Mixed Operations
-```python
-dq = Deque()
-dq.push_front(1)  # Add to front
-dq.push_back(2)   # Add to back
-dq.push_front(3)  # Add to front
-# Deque: [3, 1, 2]
-```
-
----
+- Assuming both ends are O(1): here `push_front` in a loop makes the whole loop O(n^2).
+- Popping or peeking an empty deque without checking `is_empty()`.
+- Mixing up the ends: the front is index 0, the back is the last index.
+- Using a deque where a stack or queue would be clearer.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+| Language | Folder | Main file | Notes |
+| --- | --- | --- | --- |
+| Python | [Python](Python) | `deque.py` | `list`; `insert(0, x)` and `pop(0)` shift items |
+| C++ | [C++](C++) | `deque.cpp` | `std::vector<int>`; no `display()` |
+| Go | [Go](Go) | `main.go` | slice; `PopFront` reslices (O(1)), `PushFront` copies (O(n)) |
 
-- **Python** (`Python/`) - List-based implementation
-- **C++** (`C++/`) - Vector-based implementation
-- **Go** (`Go/`) - Slice-based implementation
+## Practice Problems
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+- LeetCode 641: Design Circular Deque.
+- LeetCode 239: Sliding Window Maximum.
+- LeetCode 1438: Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit.
+- LeetCode 1368: Minimum Cost to Make at Least One Valid Path in a Grid (0-1 BFS).
 
----
+## Related
 
-## Complexity Summary
-
-| Operation    | Array/Slice | Doubly-Linked List |
-| ------------ | ----------- | ------------------ |
-| push_front   | O(n)        | O(1)               |
-| push_back    | O(1)        | O(1)               |
-| pop_front    | O(n)        | O(1)               |
-| pop_back     | O(1)        | O(1)               |
-| peek_front   | O(1)        | O(1)               |
-| peek_back    | O(1)        | O(1)               |
-| Space        | O(n)        | O(n)               |
-
----
-
-## Related Data Structures
-
-- **Queue**: Single-ended (FIFO)
-- **Stack**: Single-ended (LIFO)
-- **Circular Queue**: Fixed-size queue with wraparound
-- **Priority Queue**: Queue with priority ordering
-
----
-
-## Further Reading
-
-- [Deque on Wikipedia](https://en.wikipedia.org/wiki/Double-ended_queue)
-- Standard library implementations:
-  - Python: `collections.deque`
-  - C++: `std::deque`
-  - Java: `java.util.ArrayDeque`
-
----
-
-**Note**: The implementations in this folder use array/slice-based approaches for simplicity. For production use, consider using standard library implementations or doubly-linked list structures for optimal O(1) performance on both ends.
-
+- [Circular Queue](../Circular%20Queue)
+- [Simple Queue](../Simple%20Queue)
+- [Doubly Linked List](../../Linked%20List/Doubly)
+- [Queue overview](../README.md)
