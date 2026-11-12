@@ -6,4 +6,3 @@ func HuffmanEncode(text string) map[rune]string {
 	// Placeholder - see Python for full implementation
 	return make(map[rune]string)
 }
-

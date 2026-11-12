@@ -25,6 +25,21 @@ void testAllItemsFit() {
     std::cout << "All items fit test passed" << std::endl;
 }
 
+void testNoItemFitsWhole() {
+    std::vector<std::pair<double, double>> items = {{10, 20}, {20, 30}};
+    double result = fractionalKnapsack(items, 5);
+    assert(std::abs(result - 20.0 * 5 / 30) < 1e-9);
+    std::cout << "No item fits whole test passed" << std::endl;
+}
+
+void testEmptyAndZeroCapacity() {
+    std::vector<std::pair<double, double>> none;
+    assert(fractionalKnapsack(none, 10) == 0);
+    std::vector<std::pair<double, double>> items = {{10, 5}};
+    assert(fractionalKnapsack(items, 0) == 0);
+    std::cout << "Empty and zero capacity test passed" << std::endl;
+}
+
 // Regression: a zero-weight item made the total NaN (0 * (0 / 0)).
 // It uses no capacity, so it is always taken whole.
 void testZeroWeightItem() {
@@ -44,6 +59,8 @@ int main() {
     std::cout << std::fixed << std::setprecision(2);
     testBasicKnapsack();
     testAllItemsFit();
+    testNoItemFitsWhole();
+    testEmptyAndZeroCapacity();
     testZeroWeightItem();
     std::cout << "\nAll tests passed!" << std::endl;
     return 0;

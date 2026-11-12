@@ -1,159 +1,44 @@
-# Fractional Knapsack (Python)
+# Fractional Knapsack -- Python Implementation
 
-**Fractional Knapsack** maximizes value in a knapsack by allowing fractions of items, making it solvable with a greedy approach.
+Greedy fractional knapsack: items are `(value, weight)` tuples.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `fractional_knapsack.py` | `fractional_knapsack` and `fractional_knapsack_value_only` |
+| `fractional_knapsack_test.py` | 9 `unittest` tests (classic case with exact fractions, all items fit, no item fits whole, empty, zero capacity, input untouched, greedy vs 0/1, zero-weight items) |
 
-Unlike 0/1 knapsack where items must be taken whole, fractional knapsack allows taking fractions of items. This key difference makes the greedy approach optimal: always take items with the highest value/weight ratio first.
+## API
 
-**Example**:
-- Items: (value, weight) = [(60, 10), (100, 20), (120, 30)]
-- Capacity: 50
-- Ratios: 6.0, 5.0, 4.0
-- Solution: Take all of item 1 (60), all of item 2 (100), and 2/3 of item 3 (80)
-- Total value: 240
-
----
-
-## Algorithm
-
-1. **Calculate ratio**: For each item, compute value/weight ratio
-2. **Sort**: Sort items by ratio in descending order
-3. **Greedy selection**: 
-   - Take items in sorted order
-   - If item fits completely, take it all
-   - If item doesn't fit, take fraction to fill remaining capacity
-4. **Stop**: When capacity is filled
-
----
-
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(n log n) | O(n) |
-
-**Note**: O(n log n) is for sorting. Selection itself is O(n).
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`fractional_knapsack(items, capacity)`**
-   - Returns maximum value and list of selected items with fractions
-   - Each selected item is (value, weight, fraction)
-   - Time: O(n log n), Space: O(n)
-
-2. **`fractional_knapsack_value_only(items, capacity)`**
-   - Returns only maximum value (more efficient)
-   - Doesn't track which items were selected
-   - Time: O(n log n), Space: O(1) excluding sorting
-
----
-
-## Greedy Choice
-
-**Always select item with highest value/weight ratio** - this greedy choice guarantees optimal solution.
-
-**Why it works**:
-- If we have capacity for item A (ratio 6) or item B (ratio 5), taking A gives more value per unit capacity
-- This holds true at every step, making greedy optimal
-
----
-
-## Usage
+| Function | Returns |
+|----------|---------|
+| `fractional_knapsack(items, capacity)` | `(max_value, selected)` where `selected` is a list of `(value, weight, fraction)` in the order taken; `(0, [])` for no items or capacity <= 0 |
+| `fractional_knapsack_value_only(items, capacity)` | only the maximum value; 0 for no items or capacity <= 0 |
 
 ```python
-from fractional_knapsack import (
-    fractional_knapsack,
-    fractional_knapsack_value_only
-)
+from fractional_knapsack import fractional_knapsack
 
-# Standard approach (returns value and selected items)
-items = [(60, 10), (100, 20), (120, 30)]  # (value, weight)
-capacity = 50
-max_value, selected = fractional_knapsack(items, capacity)
-print(f"Max value: {max_value}")  # 240.0
-print(f"Selected: {selected}")  # [(60, 10, 1.0), (100, 20, 1.0), (120, 30, 0.67)]
-
-# Value only (more efficient)
-max_value = fractional_knapsack_value_only(items, capacity)
-print(f"Max value: {max_value}")  # 240.0
+fractional_knapsack([(60, 10), (100, 20), (120, 30)], 50)
+# (240.0, [(60, 10, 1.0), (100, 20, 1.0), (120, 30, 0.6666666666666666)])
 ```
 
----
+## Python-Specific Notes
 
-## Important Notes
+- Both functions sort a copy, so the caller's list keeps its order.
+- A zero-weight item gets the ratio `float('inf')` and is taken whole first (it used to raise `ZeroDivisionError`).
+- Totals mix `int` and `float`, so the result can be an `int` or a `float`; compare with `assertAlmostEqual`.
+- Only the Python version returns the fractions taken.
 
-1. **Fractions allowed**: Unlike 0/1 knapsack, can take partial items
-2. **Greedy optimal**: Greedy approach gives optimal solution
-3. **Sorting required**: Must sort by value/weight ratio
-4. **Edge cases**: Handle empty items, zero capacity, zero weights
-
----
-
-## Advantages
-
-1. ✅ **Optimal**: Greedy gives optimal solution
-2. ✅ **Efficient**: O(n log n) time complexity
-3. ✅ **Simple**: Easy to understand and implement
-4. ✅ **Practical**: Models real-world scenarios (e.g., loading cargo)
-
----
-
-## Disadvantages
-
-1. ❌ **Not always applicable**: Many problems don't allow fractions
-2. ❌ **Sorting overhead**: Requires sorting step
-3. ❌ **Precision**: Fractional values may have precision issues
-
----
-
-## When to Use
-
-- ✅ When fractions of items are allowed
-- ✅ Need optimal solution efficiently
-- ✅ Value/weight ratio matters
-- ❌ When items must be taken whole (use 0/1 knapsack DP)
-- ❌ When items can be taken multiple times (use unbounded knapsack)
-
----
-
-## Testing
+## How to Run
 
 ```bash
-python fractional_knapsack_test.py
+cd "Algorithms/Greedy/Fractional Knapsack/Python"
+python3 -m unittest fractional_knapsack_test
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **0/1 Knapsack**: DP problem, items must be taken whole
-- **Unbounded Knapsack**: Can take multiple of same item (DP)
-- **Greedy Algorithms**: Similar greedy choice patterns
-
----
-
-## Applications
-
-1. **Resource Allocation**: Allocate resources with fractional units
-2. **Cargo Loading**: Load cargo with divisible items
-3. **Investment**: Invest in projects with fractional investments
-4. **Time Management**: Allocate time to tasks with fractional time
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 16)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+- Sort by value / weight, take whole items, cut the last one.
+- The value-only function is the lighter choice when the fractions are not needed.
+- Use dynamic programming, not this, when items cannot be split.
