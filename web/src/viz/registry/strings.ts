@@ -8,7 +8,7 @@ export const entries: VizInfo[] = [
     title: 'Knuth-Morris-Pratt',
     group: 'Strings',
     blurb: 'Build the failure (LPS) table, then reuse it so the text pointer never moves backwards.',
-    topics: ['Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm', 'Data_Structures/Linear/String/Pattern_Matching'],
+    topics: ['Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm'],
   },
   {
     id: 'naive-search',

@@ -1,6 +1,8 @@
 """Unit tests for Suffix Array"""
 import unittest
-from suffix_array import build_suffix_array, search_pattern
+import random
+from suffix_array import (SuffixArray, build_suffix_array, get_suffixes,
+                          longest_common_prefix, search_pattern)
 
 class TestSuffixArray(unittest.TestCase):
     def test_build(self):
@@ -35,6 +37,38 @@ class TestSuffixArray(unittest.TestCase):
         self.assertEqual(search_pattern(sa, "banana", ""), [0, 1, 2, 3, 4, 5])
         self.assertEqual(build_suffix_array(""), [])
         self.assertEqual(search_pattern([], "", "a"), [])
+
+    def test_get_suffixes(self):
+        sa = build_suffix_array("banana")
+        self.assertEqual(get_suffixes(sa, "banana"),
+                         ["a", "ana", "anana", "banana", "na", "nana"])
+
+    def test_longest_common_prefix(self):
+        self.assertEqual(longest_common_prefix("banana", 0, 3), 0)
+        self.assertEqual(longest_common_prefix("banana", 1, 1), 5)
+        self.assertEqual(longest_common_prefix("banana", 3, 1), 3)
+
+    def test_class_view(self):
+        sa = SuffixArray("banana")
+        self.assertEqual(sa.suffix_array, [5, 3, 1, 0, 4, 2])
+        self.assertEqual(sa.search("ana"), [1, 3])
+        self.assertEqual(sa.search("a"), [1, 3, 5])
+        self.assertEqual(sa.search("nan"), [2])
+        self.assertEqual(sa.search(""), [0, 1, 2, 3, 4, 5])
+        self.assertEqual(sa.get_suffixes()[0], "a")
+        self.assertEqual(sa.longest_common_prefix(3, 1), 3)
+        self.assertEqual(SuffixArray("").search("a"), [])
+
+    def test_random_against_brute_force(self):
+        rng = random.Random(7)
+        for _ in range(300):
+            text = "".join(rng.choice("ab") for _ in range(rng.randint(0, 12)))
+            sa = build_suffix_array(text)
+            self.assertEqual(sa, sorted(range(len(text)), key=lambda i: text[i:]))
+            for _ in range(8):
+                pat = "".join(rng.choice("abc") for _ in range(rng.randint(0, 4)))
+                want = [i for i in range(len(text)) if text.startswith(pat, i)]
+                self.assertEqual(search_pattern(sa, text, pat), want)
 
 if __name__ == '__main__':
     unittest.main()

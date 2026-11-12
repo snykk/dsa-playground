@@ -103,4 +103,4 @@ In the search, `i` only increases, `j` grows at most `n` times in total and each
 - [Rabin-Karp Algorithm](../Rabin_Karp_Algorithm/)
 - [Z-Algorithm](../../Advanced_String/Z_Algorithm/)
 - [Aho-Corasick](../../Advanced_String/Aho_Corasick/)
-- [String Pattern Matching (overview)](../../../../Data_Structures/Linear/String/Pattern_Matching/)
+- [Pattern Matching (all four algorithms)](../)

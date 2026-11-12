@@ -101,4 +101,4 @@ The `count` and `first` helpers run the full search and then take its length or 
 - [KMP Algorithm](../KMP_Algorithm/)
 - [Rabin-Karp Algorithm](../Rabin_Karp_Algorithm/)
 - [Boyer-Moore Algorithm](../Boyer_Moore_Algorithm/)
-- [String Pattern Matching (overview)](../../../../Data_Structures/Linear/String/Pattern_Matching/)
+- [Pattern Matching (all four algorithms)](../)

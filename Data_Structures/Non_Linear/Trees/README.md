@@ -28,7 +28,7 @@ Trees are fundamental non-linear data structures that organize data hierarchical
 ### 4. String Trees
 - **Trie**: Prefix tree for string operations
 - **Suffix Tree**: Compressed trie of all suffixes
-- **Suffix Array**: Sorted array of all suffixes
+- **[Suffix Array](../../../Algorithms/String_Algorithms/Advanced_String/Suffix_Array/)**: Sorted array of all suffixes (lives with the string algorithms)
 
 ### 5. Database Trees
 - **B-Tree**: Multi-way tree for database indexing

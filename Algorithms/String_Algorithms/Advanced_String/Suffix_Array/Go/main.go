@@ -86,3 +86,46 @@ func main() {
 	occurrences := SearchPattern(sa, text, pattern)
 	fmt.Printf("Pattern '%s' found at: %v\n", pattern, occurrences)
 }
+
+// GetSuffixes returns the suffixes of text in sorted order.
+func GetSuffixes(suffixArray []int, text string) []string {
+	result := make([]string, len(suffixArray))
+	for i, idx := range suffixArray {
+		result[i] = text[idx:]
+	}
+	return result
+}
+
+// LongestCommonPrefix is the length of the common prefix of the suffixes
+// starting at i and j.
+func LongestCommonPrefix(text string, i, j int) int {
+	n := len(text)
+	k := 0
+	for i+k < n && j+k < n && text[i+k] == text[j+k] {
+		k++
+	}
+	return k
+}
+
+// SuffixArray keeps the text and its suffix array together (the
+// data-structure view).
+type SuffixArray struct {
+	text        string
+	suffixArray []int
+}
+
+func NewSuffixArray(text string) *SuffixArray {
+	return &SuffixArray{text: text, suffixArray: BuildSuffixArray(text)}
+}
+
+func (sa *SuffixArray) Search(pattern string) []int {
+	return SearchPattern(sa.suffixArray, sa.text, pattern)
+}
+
+func (sa *SuffixArray) Suffixes() []string {
+	return GetSuffixes(sa.suffixArray, sa.text)
+}
+
+func (sa *SuffixArray) LongestCommonPrefix(i, j int) int {
+	return LongestCommonPrefix(sa.text, i, j)
+}

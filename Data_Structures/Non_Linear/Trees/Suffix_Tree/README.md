@@ -110,6 +110,6 @@ A text such as `aaaa...a` makes the tree a chain of depth n. Searches and leaf c
 ## Related
 
 - [Trie](../Trie)
-- [Suffix Array](../Suffix_Array)
+- [Suffix Array](../../../../Algorithms/String_Algorithms/Advanced_String/Suffix_Array/)
 - [KMP Algorithm](../../../../Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm)
 - [Longest Common Substring](../../../../Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring)

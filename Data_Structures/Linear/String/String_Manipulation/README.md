@@ -130,6 +130,6 @@ Use these functions for per-character transformations, input cleaning and parsin
 ## Related
 
 - [Introduction to Strings](../String_Basics)
-- [Pattern Matching](../Pattern_Matching)
+- [Pattern Matching](../../../../Algorithms/String_Algorithms/Pattern_Matching/)
 - [Rope](../Rope)
 - [Two Pointers](../../../../Problem_Patterns/Two_Pointers)

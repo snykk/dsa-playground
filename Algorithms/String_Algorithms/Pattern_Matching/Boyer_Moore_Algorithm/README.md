@@ -92,4 +92,4 @@ Preprocessing is O(m) time and O(sigma) space (one entry per distinct pattern ch
 - [KMP Algorithm](../KMP_Algorithm/)
 - [Rabin-Karp Algorithm](../Rabin_Karp_Algorithm/)
 - [Z-Algorithm](../../Advanced_String/Z_Algorithm/)
-- [String Pattern Matching (overview)](../../../../Data_Structures/Linear/String/Pattern_Matching/)
+- [Pattern Matching (all four algorithms)](../)

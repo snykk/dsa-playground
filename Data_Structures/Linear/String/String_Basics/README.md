@@ -110,6 +110,6 @@ Use a string for text. For heavy editing of a long text, a list of pieces, a bui
 ## Related
 
 - [String Manipulation](../String_Manipulation)
-- [Pattern Matching](../Pattern_Matching)
+- [Pattern Matching](../../../../Algorithms/String_Algorithms/Pattern_Matching/)
 - [Rope](../Rope)
 - [Array](../../Array)

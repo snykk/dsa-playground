@@ -125,7 +125,7 @@ These two patterns appear in 40%+ of array/string problems.
 - [Tarjan's Bridges & Articulation Points](Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/)
 
 ### 13. Advanced String
-- [KMP / Rabin-Karp / Boyer-Moore](Data_Structures/Linear/String/Pattern_Matching/)
+- [KMP / Rabin-Karp / Boyer-Moore](Algorithms/String_Algorithms/Pattern_Matching/)
 - [Z-Algorithm](Algorithms/String_Algorithms/Advanced_String/Z_Algorithm/)
 - [Manacher's Algorithm](Algorithms/String_Algorithms/Advanced_String/Longest_Palindromic_Substring_Manachers/)
 - [Aho-Corasick](Algorithms/String_Algorithms/Advanced_String/Aho_Corasick/) — multi-pattern

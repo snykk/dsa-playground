@@ -106,6 +106,6 @@ Children are stored in hash maps keyed by character, so a node costs memory in p
 ## Related
 
 - [Suffix Tree](../Suffix_Tree)
-- [Suffix Array](../Suffix_Array)
+- [Suffix Array](../../../../Algorithms/String_Algorithms/Advanced_String/Suffix_Array/)
 - [Binary Search Tree](../Binary_Search_Tree)
 - [Aho-Corasick](../../../../Algorithms/String_Algorithms/Advanced_String/Aho_Corasick)

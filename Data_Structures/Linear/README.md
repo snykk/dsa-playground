@@ -19,7 +19,6 @@ Linear data structures are fundamental building blocks in computer science where
 
 ### 2. String
 - **String Manipulation**: Basic string operations
-- **Pattern Matching**: String search algorithms
 - **Introduction**: String fundamentals
 
 ### 3. Linked List

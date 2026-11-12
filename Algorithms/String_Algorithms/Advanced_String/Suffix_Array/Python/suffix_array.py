@@ -46,12 +46,11 @@ def search_pattern(suffix_array: List[int], text: str, pattern: str) -> List[int
     while left <= right:
         mid = (left + right) // 2
         suffix_idx = suffix_array[mid]
-        suffix = text[suffix_idx:]
         
-        if suffix.startswith(pattern):
+        if text.startswith(pattern, suffix_idx):
             first = mid
             right = mid - 1
-        elif suffix < pattern:
+        elif text[suffix_idx:suffix_idx + m] < pattern:
             left = mid + 1
         else:
             right = mid - 1
@@ -66,9 +65,8 @@ def search_pattern(suffix_array: List[int], text: str, pattern: str) -> List[int
     while left <= right:
         mid = (left + right) // 2
         suffix_idx = suffix_array[mid]
-        suffix = text[suffix_idx:]
         
-        if suffix.startswith(pattern):
+        if text.startswith(pattern, suffix_idx):
             last = mid
             left = mid + 1
         else:
@@ -79,6 +77,38 @@ def search_pattern(suffix_array: List[int], text: str, pattern: str) -> List[int
         result.append(suffix_array[i])
     
     return sorted(result)
+
+
+def get_suffixes(suffix_array: List[int], text: str) -> List[str]:
+    """Return the suffixes of text in sorted order."""
+    return [text[i:] for i in suffix_array]
+
+
+def longest_common_prefix(text: str, i: int, j: int) -> int:
+    """Length of the common prefix of the suffixes starting at i and j."""
+    n = len(text)
+    k = 0
+    while i + k < n and j + k < n and text[i + k] == text[j + k]:
+        k += 1
+    return k
+
+
+class SuffixArray:
+    """Data-structure view: keeps the text and its suffix array together."""
+
+    def __init__(self, text: str):
+        self.text = text
+        self.n = len(text)
+        self.suffix_array = build_suffix_array(text)
+
+    def search(self, pattern: str) -> List[int]:
+        return search_pattern(self.suffix_array, self.text, pattern)
+
+    def get_suffixes(self) -> List[str]:
+        return get_suffixes(self.suffix_array, self.text)
+
+    def longest_common_prefix(self, i: int, j: int) -> int:
+        return longest_common_prefix(self.text, i, j)
 
 
 if __name__ == "__main__":

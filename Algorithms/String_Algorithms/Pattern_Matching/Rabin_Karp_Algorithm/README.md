@@ -98,4 +98,4 @@ Extra space is O(1). The default modulus 101 is small, so about 1 window in 101 
 - [KMP Algorithm](../KMP_Algorithm/)
 - [Boyer-Moore Algorithm](../Boyer_Moore_Algorithm/)
 - [Aho-Corasick](../../Advanced_String/Aho_Corasick/)
-- [String Pattern Matching (overview)](../../../../Data_Structures/Linear/String/Pattern_Matching/)
+- [Pattern Matching (all four algorithms)](../)

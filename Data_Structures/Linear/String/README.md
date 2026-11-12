@@ -6,7 +6,7 @@ This folder covers three progressively deeper topics:
 
 1. **[Introduction](String_Basics/)** — How strings are represented, indexed, and copied. The quiet performance cliffs.
 2. **[String Manipulation](String_Manipulation/)** — Common operations: reverse, palindrome, case, split, join.
-3. **[Pattern Matching](Pattern_Matching/)** — Finding a pattern `P` in a text `T`: Naive, KMP, Rabin-Karp, Boyer-Moore.
+3. **[Pattern Matching](../../../Algorithms/String_Algorithms/Pattern_Matching/)** — Finding a pattern `P` in a text `T`: Naive, KMP, Rabin-Karp, Boyer-Moore.
 
 ---
 
@@ -82,7 +82,7 @@ Practical rule: **`str.find` / `std::string::find` / `strings.Index` are already
 
 1. **Start with [Introduction](String_Basics/)** — build an accurate mental model of how strings behave in your language.
 2. **Move to [String Manipulation](String_Manipulation/)** — master the "classic interview" operations (reverse, palindrome, etc.) both with stdlib and from scratch.
-3. **Finish with [Pattern Matching](Pattern_Matching/)** — learn KMP first (most teachable), then Rabin-Karp (for rolling-hash intuition), then Boyer-Moore (for the "skip ahead" insight).
+3. **Finish with [Pattern Matching](../../../Algorithms/String_Algorithms/Pattern_Matching/)** — learn KMP first (most teachable), then Rabin-Karp (for rolling-hash intuition), then Boyer-Moore (for the "skip ahead" insight).
 4. **Then branch into [Advanced String Algorithms](../../../Algorithms/String_Algorithms/)** — Z-algorithm, suffix array, Manacher's, and eventually Aho-Corasick for multi-pattern.
 
 ---

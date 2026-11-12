@@ -33,12 +33,11 @@ std::vector<int> searchPattern(const std::vector<int>& suffixArray,
     while (left <= right) {
         int mid = (left + right) / 2;
         int idx = suffixArray[mid];
-        std::string suffix = text.substr(idx);
         
-        if (suffix.substr(0, m) == pattern) {
+        if (text.compare(idx, m, pattern) == 0) {
             first = mid;
             right = mid - 1;
-        } else if (suffix < pattern) {
+        } else if (text.compare(idx, m, pattern) < 0) {
             left = mid + 1;
         } else {
             right = mid - 1;
@@ -54,9 +53,8 @@ std::vector<int> searchPattern(const std::vector<int>& suffixArray,
     while (left <= right) {
         int mid = (left + right) / 2;
         int idx = suffixArray[mid];
-        std::string suffix = text.substr(idx);
         
-        if (suffix.substr(0, m) == pattern) {
+        if (text.compare(idx, m, pattern) == 0) {
             last = mid;
             left = mid + 1;
         } else {
@@ -71,3 +69,43 @@ std::vector<int> searchPattern(const std::vector<int>& suffixArray,
     return result;
 }
 
+
+std::vector<std::string> getSuffixes(const std::vector<int>& suffixArray,
+                                     const std::string& text) {
+    std::vector<std::string> result;
+    for (int idx : suffixArray) {
+        result.push_back(text.substr(idx));
+    }
+    return result;
+}
+
+int longestCommonPrefix(const std::string& text, int i, int j) {
+    int n = text.length();
+    int k = 0;
+    while (i + k < n && j + k < n && text[i + k] == text[j + k]) {
+        k++;
+    }
+    return k;
+}
+
+// Data-structure view: keeps the text and its suffix array together.
+class SuffixArray {
+public:
+    std::string text;
+    std::vector<int> suffixArray;
+
+    explicit SuffixArray(const std::string& s)
+        : text(s), suffixArray(buildSuffixArray(s)) {}
+
+    std::vector<int> search(const std::string& pattern) const {
+        return searchPattern(suffixArray, text, pattern);
+    }
+
+    std::vector<std::string> getSuffixes() const {
+        return ::getSuffixes(suffixArray, text);
+    }
+
+    int longestCommonPrefix(int i, int j) const {
+        return ::longestCommonPrefix(text, i, j);
+    }
+};

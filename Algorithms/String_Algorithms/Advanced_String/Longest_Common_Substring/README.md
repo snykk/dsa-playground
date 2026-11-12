@@ -96,7 +96,6 @@ For very long strings use a suffix array (concatenate with a separator and take 
 
 ## Related
 
-- [Suffix Array (algorithm view)](../Suffix_Array/)
-- [Suffix Array (data structure)](../../../../Data_Structures/Non_Linear/Trees/Suffix_Array/)
+- [Suffix Array](../Suffix_Array/)
 - [KMP Algorithm](../../Pattern_Matching/KMP_Algorithm/)
 - [Longest Palindromic Substring (Manacher's)](../Longest_Palindromic_Substring_Manachers/)
