@@ -5,8 +5,6 @@ import (
 	"math"
 )
 
-const eps = 1e-9
-
 type Point struct {
 	X, Y float64
 }
@@ -27,8 +25,9 @@ func (p Point) DistanceSquared(other Point) float64 {
 	return dx*dx + dy*dy
 }
 
+// Equals is exact coordinate equality (no tolerance), the same as p == other.
 func (p Point) Equals(other Point) bool {
-	return math.Abs(p.X-other.X) < eps && math.Abs(p.Y-other.Y) < eps
+	return p.X == other.X && p.Y == other.Y
 }
 
 type Line struct {
@@ -47,19 +46,26 @@ func (l Line) LengthSquared() float64 {
 	return l.P1.DistanceSquared(l.P2)
 }
 
+// Slope is +Inf for a vertical line and NaN for a zero-length line (it has no direction).
+// The test is exact, so it does not depend on the scale.
 func (l Line) Slope() float64 {
-	if math.Abs(l.P2.X-l.P1.X) < eps {
+	if l.P1 == l.P2 {
+		return math.NaN()
+	}
+	if l.P2.X == l.P1.X {
 		return math.Inf(1)
 	}
 	return (l.P2.Y - l.P1.Y) / (l.P2.X - l.P1.X)
 }
 
+// IsVertical: exactly equal X, and not a zero-length line.
 func (l Line) IsVertical() bool {
-	return math.Abs(l.P2.X-l.P1.X) < eps
+	return l.P2.X == l.P1.X && l.P2.Y != l.P1.Y
 }
 
+// IsHorizontal: exactly equal Y, and not a zero-length line.
 func (l Line) IsHorizontal() bool {
-	return math.Abs(l.P2.Y-l.P1.Y) < eps
+	return l.P2.Y == l.P1.Y && l.P2.X != l.P1.X
 }
 
 type Circle struct {
@@ -67,7 +73,11 @@ type Circle struct {
 	Radius float64
 }
 
+// NewCircle panics for a negative (or NaN) radius.
 func NewCircle(center Point, radius float64) Circle {
+	if !(radius >= 0) {
+		panic("radius must be non-negative")
+	}
 	return Circle{Center: center, Radius: radius}
 }
 
@@ -79,28 +89,35 @@ func (c Circle) Circumference() float64 {
 	return 2 * math.Pi * c.Radius
 }
 
+// ContainsPoint: inside or on the circle (exact comparison of squared distances).
 func (c Circle) ContainsPoint(point Point) bool {
-	return c.Center.DistanceSquared(point) <= c.Radius*c.Radius+eps
+	return c.Center.DistanceSquared(point) <= c.Radius*c.Radius
 }
 
+// PointOnCircle: exactly on the boundary (exact comparison).
 func (c Circle) PointOnCircle(point Point) bool {
-	distSq := c.Center.DistanceSquared(point)
-	return math.Abs(distSq-c.Radius*c.Radius) < eps
+	return c.Center.DistanceSquared(point) == c.Radius*c.Radius
 }
 
 // Geometric utility functions
 
 func CrossProduct(o, a, b Point) float64 {
-	return (a.X-o.X)*(b.Y-o.Y) - (a.Y-o.Y)*(b.X-o.X)
+	// float64(...) stops the compiler from fusing the products into one FMA instruction,
+	// which would change the rounding of the result on some CPUs.
+	left := float64((a.X - o.X) * (b.Y - o.Y))
+	right := float64((a.Y - o.Y) * (b.X - o.X))
+	return left - right
 }
 
 func DotProduct(o, a, b Point) float64 {
 	return (a.X-o.X)*(b.X-o.X) + (a.Y-o.Y)*(b.Y-o.Y)
 }
 
+// Orientation returns 0 for collinear, 1 for clockwise and 2 for counterclockwise. It is
+// exact: the sign of the cross product.
 func Orientation(p, q, r Point) int {
 	val := CrossProduct(p, q, r)
-	if math.Abs(val) < eps {
+	if val == 0 {
 		return 0 // Collinear
 	}
 	if val > 0 {
@@ -109,26 +126,30 @@ func Orientation(p, q, r Point) int {
 	return 1 // Clockwise
 }
 
+// AngleBetweenPoints returns the angle AOB in radians, in [0, pi]. It uses atan2(|cross|, dot),
+// which stays accurate for angles near 0 and pi. It returns 0 if A or B coincides with O.
 func AngleBetweenPoints(o, a, b Point) float64 {
 	oaX := a.X - o.X
 	oaY := a.Y - o.Y
 	obX := b.X - o.X
 	obY := b.Y - o.Y
 
-	dot := oaX*obX + oaY*obY
-	magOA := math.Sqrt(oaX*oaX + oaY*oaY)
-	magOB := math.Sqrt(obX*obX + obY*obY)
-
-	if magOA < eps || magOB < eps {
+	if (oaX == 0 && oaY == 0) || (obX == 0 && obY == 0) {
 		return 0.0
 	}
 
-	cosAngle := dot / (magOA * magOB)
-	cosAngle = math.Max(-1.0, math.Min(1.0, cosAngle))
-	return math.Acos(cosAngle)
+	cross := float64(oaX*obY) - float64(oaY*obX)
+	dot := oaX*obX + oaY*obY
+	return math.Atan2(math.Abs(cross), dot)
 }
 
+// PointInTriangle reports whether p is inside triangle ABC or on its boundary (either
+// orientation). A degenerate triangle (collinear or repeated vertices) contains no point.
 func PointInTriangle(p, a, b, c Point) bool {
+	if CrossProduct(a, b, c) == 0 {
+		return false
+	}
+
 	d1 := CrossProduct(p, a, b)
 	d2 := CrossProduct(p, b, c)
 	d3 := CrossProduct(p, c, a)

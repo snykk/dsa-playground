@@ -1,63 +1,29 @@
-# Rat in a Maze - Go
+# Rat in a Maze -- Go Implementation
 
-This folder contains a Go implementation of **Rat in a Maze** problem using backtracking.
+## Files
 
----
+- `main.go`: `isSafe`, `solveMazeUtil`, `solveMaze`, `printSolution` and a demo `main`.
+- `main_test.go`: tests (example maze, no path, `is_safe`, a path that needs up and left moves, path validity, a 30 x 30 maze with the goal walled off, 1 x 1 and empty mazes, non-square rejection).
 
-## Concept
+## API
 
-Finds a path from the top-left corner to the bottom-right corner of a maze using backtracking. The maze is represented as a 2D array where 1 represents an open path and 0 represents a wall.
+- `solveMaze(maze [][]int) [][]int`: returns a matrix with 1 on the path cells, or `nil` (no path, empty, non-square, blocked start or goal). Moves: right, down, left, up.
+- `isSafe(maze, x, y, n)`: true if `(x, y)` is inside the grid and open.
+- `printSolution(solution)`: prints the matrix.
 
-**Key Features:**
-- Backtracking pathfinding
-- Finds valid path if one exists
-- Marks solution path in result matrix
+## Go-Specific Notes
 
----
+- Everything is in `package main` and unexported.
+- Go grows the stack as needed, so deep recursion on large mazes is not a problem as it is in Python.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `isSafe(maze, x, y, n)` | Check if position is valid | O(1) |
-| `solveMaze(maze)` | Find path from (0,0) to (n-1,n-1) | O(2^(n×n)) worst case |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Find Path | O(2^(n×n)) worst case | O(n²) |
-| Safety Check | O(1) | O(1) |
-
----
-
-## Usage
-
-```go
-maze := [][]int{
-    {1, 0, 0, 0},
-    {1, 1, 0, 1},
-    {0, 1, 0, 0},
-    {1, 1, 1, 1},
-}
-
-solution := solveMaze(maze)
-if solution != nil {
-    printSolution(solution)
-}
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-go test
+go test ./...
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Mark the route, retreat from dead ends, and never re-enter a visited cell: O(n^2).
+- Four directions are needed for general mazes.
+- The path is not the shortest; use BFS for that.

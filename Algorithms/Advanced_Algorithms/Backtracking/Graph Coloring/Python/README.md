@@ -1,68 +1,39 @@
-# Graph Coloring - Python
+# Graph Coloring -- Python Implementation
 
-This folder contains a Python implementation of **Graph Coloring** using backtracking.
+## Files
 
----
+- `graph_coloring.py`: the solver (recursive helper `graph_coloring_util` plus the public functions).
+- `graph_coloring_test.py`: tests (valid coloring, too few colors, chromatic number, `is_safe`, empty graph, edgeless graph, even and odd cycles, complete graph; the returned colorings are checked for validity).
 
-## Concept
+## API
 
-Colors a graph with minimum number of colors such that no two adjacent vertices have the same color. Uses backtracking to find a valid coloring.
-
-**Key Features:**
-- Backtracking algorithm
-- Finds minimum chromatic number
-- Validates coloring constraints
-
----
-
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `is_safe(graph, v, color, c)` | Check if color c is safe for vertex v | O(V) |
-| `graph_coloring(graph, m)` | Color graph with m colors | O(m × k^n) |
-| `chromatic_number(graph)` | Find minimum colors needed | O(V × m × k^n) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Graph Coloring | O(m × k^n) | O(n) |
-| Chromatic Number | O(V × m × k^n) | O(n) |
-| Safety Check | O(V) | O(1) |
-
----
-
-## Usage
+- `is_safe(graph, v, color, c)`: true if color `c` can be given to vertex `v` (no neighbor has it).
+- `graph_coloring(graph, m)`: tries to color the graph with colors `1..m`; returns the color list, or `None` if impossible
+- `chromatic_number(graph)`: smallest m for which a coloring exists (0 for an empty graph).
 
 ```python
 from graph_coloring import graph_coloring, chromatic_number
 
-graph = [
-    [0, 1, 1, 1],
-    [1, 0, 1, 0],
-    [1, 1, 0, 1],
-    [1, 0, 1, 0]
-]
-
-color = graph_coloring(graph, 3)
-if color:
-    print(f"Coloring: {color}")
-
-print(f"Chromatic number: {chromatic_number(graph)}")
+graph = [[0, 1, 1, 1], [1, 0, 1, 0], [1, 1, 0, 1], [1, 0, 1, 0]]
+print(graph_coloring(graph, 3))   # [1, 2, 3, 2]
+print(graph_coloring(graph, 2))   # None
+print(chromatic_number(graph))    # 3
 ```
 
----
+## Python-Specific Notes
 
-## Running Tests
+- `graph` is a list of lists of 0 and 1 and must be symmetric.
+- The recursion depth is the number of vertices, so graphs with about 1,000 vertices hit Python's recursion limit (the search would be far too slow by then anyway).
+- Python 3.9 and later.
+
+## How to Run
 
 ```bash
-python graph_coloring_test.py
+python3 -m unittest graph_coloring_test
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Choose a color, check the neighbors, recurse, and undo on failure.
+- The worst case is O(V * m^V); use it for small graphs only.
+- The chromatic number comes from trying m = 1, 2, 3, ... until one succeeds.

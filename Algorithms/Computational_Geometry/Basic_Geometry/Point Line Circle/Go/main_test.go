@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+const eps = 1e-9
+
 func TestPoint(t *testing.T) {
 	p := NewPoint(1, 2)
 	if math.Abs(p.X-1) > eps || math.Abs(p.Y-2) > eps {
@@ -115,5 +117,109 @@ func TestGeometricFunctions(t *testing.T) {
 	pOut := NewPoint(10, 10)
 	if PointInTriangle(pOut, aTri, bTri, cTri) {
 		t.Errorf("Point should be outside triangle")
+	}
+}
+
+func TestOrientationDoesNotDependOnScale(t *testing.T) {
+	for _, k := range []float64{1e-10, 1e-5, 1.0, 1e5} {
+		p, q := NewPoint(0, 0), NewPoint(4*k, 4*k)
+		if Orientation(p, q, NewPoint(1*k, 2*k)) != 2 || Orientation(p, q, NewPoint(2*k, 1*k)) != 1 ||
+			Orientation(p, q, NewPoint(2*k, 2*k)) != 0 {
+			t.Errorf("orientation wrong at scale %v", k)
+		}
+	}
+}
+
+func TestDotProduct(t *testing.T) {
+	if DotProduct(NewPoint(0, 0), NewPoint(3, 4), NewPoint(2, 1)) != 10 ||
+		DotProduct(NewPoint(1, 1), NewPoint(2, 1), NewPoint(1, 2)) != 0 {
+		t.Errorf("dot product wrong")
+	}
+}
+
+func TestAngleBetweenPoints(t *testing.T) {
+	o := NewPoint(0, 0)
+	if math.Abs(AngleBetweenPoints(o, NewPoint(1, 0), NewPoint(0, 1))-math.Pi/2) > 1e-12 ||
+		math.Abs(AngleBetweenPoints(o, NewPoint(1, 0), NewPoint(1, 1))-math.Pi/4) > 1e-12 ||
+		math.Abs(AngleBetweenPoints(o, NewPoint(1, 0), NewPoint(-1, 0))-math.Pi) > 1e-12 {
+		t.Errorf("angle wrong")
+	}
+	if AngleBetweenPoints(o, NewPoint(1, 0), NewPoint(2, 0)) != 0 || AngleBetweenPoints(o, o, NewPoint(1, 1)) != 0 {
+		t.Errorf("parallel and undefined angles are 0")
+	}
+}
+
+func TestAngleIsAccurateForTinyAnglesAndTinyVectors(t *testing.T) {
+	o := NewPoint(0, 0)
+	// acos of a clamped cosine returns 0 here
+	if math.Abs(AngleBetweenPoints(o, NewPoint(1, 0), NewPoint(1, 1e-8))-1e-8) > 1e-20 {
+		t.Errorf("tiny angle lost")
+	}
+	if math.Abs(AngleBetweenPoints(o, NewPoint(1e-10, 0), NewPoint(0, 1e-10))-math.Pi/2) > 1e-12 {
+		t.Errorf("tiny vectors should still give pi/2")
+	}
+}
+
+func TestPointInTriangleBoundaryAndOrientation(t *testing.T) {
+	a, b, c := NewPoint(0, 0), NewPoint(4, 0), NewPoint(2, 4)
+	if !PointInTriangle(NewPoint(2, 0), a, b, c) || !PointInTriangle(a, a, b, c) ||
+		!PointInTriangle(NewPoint(2, 1), a, c, b) || PointInTriangle(NewPoint(2, -1), a, b, c) {
+		t.Errorf("boundary or orientation handling is wrong")
+	}
+}
+
+func TestPointInDegenerateTriangleIsFalse(t *testing.T) {
+	o := NewPoint(0, 0)
+	if PointInTriangle(NewPoint(100, 100), o, o, o) ||
+		PointInTriangle(NewPoint(10, 10), NewPoint(0, 0), NewPoint(1, 1), NewPoint(2, 2)) ||
+		PointInTriangle(NewPoint(1, 1), NewPoint(0, 0), NewPoint(1, 1), NewPoint(2, 2)) {
+		t.Errorf("a degenerate triangle contains no point")
+	}
+}
+
+func TestCircleTestsDoNotDependOnScale(t *testing.T) {
+	small := NewCircle(NewPoint(0, 0), 1e-5)
+	if small.ContainsPoint(NewPoint(3e-5, 0)) || !small.ContainsPoint(NewPoint(5e-6, 0)) || small.PointOnCircle(NewPoint(5e-6, 0)) {
+		t.Errorf("small circle tests wrong")
+	}
+	zero := NewCircle(NewPoint(0, 0), 0)
+	if zero.PointOnCircle(NewPoint(3e-5, 0)) || !zero.PointOnCircle(NewPoint(0, 0)) {
+		t.Errorf("zero-radius circle tests wrong")
+	}
+	five := NewCircle(NewPoint(0, 0), 5)
+	if !five.PointOnCircle(NewPoint(3, 4)) || !five.ContainsPoint(NewPoint(3, 4)) {
+		t.Errorf("(3, 4) is on the circle of radius 5")
+	}
+}
+
+func TestNegativeRadiusPanics(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Errorf("a negative radius must be rejected")
+		}
+	}()
+	NewCircle(NewPoint(0, 0), -5)
+}
+
+func TestSlopeAndDirectionDoNotDependOnScale(t *testing.T) {
+	tiny := NewLine(NewPoint(0, 0), NewPoint(1e-10, 1e-10))
+	if math.Abs(tiny.Slope()-1.0) > 1e-12 || tiny.IsVertical() || tiny.IsHorizontal() {
+		t.Errorf("tiny diagonal line misjudged")
+	}
+}
+
+func TestZeroLengthLineHasNoDirection(t *testing.T) {
+	dot := NewLine(NewPoint(1, 1), NewPoint(1, 1))
+	if !math.IsNaN(dot.Slope()) || dot.IsVertical() || dot.IsHorizontal() || dot.LengthSquared() != 0 {
+		t.Errorf("a zero-length line has no direction")
+	}
+	if NewLine(NewPoint(0, 0), NewPoint(3, 4)).LengthSquared() != 25 {
+		t.Errorf("length squared wrong")
+	}
+}
+
+func TestPointEqualityIsExact(t *testing.T) {
+	if NewPoint(0, 0).Equals(NewPoint(5e-10, 0)) || !NewPoint(1.5, 2.5).Equals(NewPoint(1.5, 2.5)) {
+		t.Errorf("equality must be exact")
 	}
 }

@@ -5,7 +5,6 @@ Basic geometric operations for computational geometry problems.
 """
 
 import math
-from typing import Tuple, List
 
 
 class Point:
@@ -19,9 +18,13 @@ class Point:
         return f"Point({self.x}, {self.y})"
 
     def __eq__(self, other):
+        """Exact coordinate equality (no tolerance), consistent with __hash__."""
         if not isinstance(other, Point):
             return False
-        return abs(self.x - other.x) < 1e-9 and abs(self.y - other.y) < 1e-9
+        return self.x == other.x and self.y == other.y
+
+    def __hash__(self):
+        return hash((self.x, self.y))
 
     def distance_to(self, other: 'Point') -> float:
         """Calculate Euclidean distance to another point."""
@@ -48,24 +51,31 @@ class Line:
         return self.p1.distance_squared(self.p2)
 
     def slope(self) -> float:
-        """Calculate slope of line. Returns inf for vertical lines."""
-        if abs(self.p2.x - self.p1.x) < 1e-9:
+        """
+        Calculate slope of line. Returns inf for vertical lines and nan for a zero-length
+        line (it has no direction). The test is exact, so it does not depend on the scale.
+        """
+        if self.p1 == self.p2:
+            return float('nan')
+        if self.p2.x == self.p1.x:
             return float('inf')
         return (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x)
 
     def is_vertical(self) -> bool:
-        """Check if line is vertical."""
-        return abs(self.p2.x - self.p1.x) < 1e-9
+        """Check if line is vertical (exactly equal x, and not a zero-length line)."""
+        return self.p2.x == self.p1.x and self.p2.y != self.p1.y
 
     def is_horizontal(self) -> bool:
-        """Check if line is horizontal."""
-        return abs(self.p2.y - self.p1.y) < 1e-9
+        """Check if line is horizontal (exactly equal y, and not a zero-length line)."""
+        return self.p2.y == self.p1.y and self.p2.x != self.p1.x
 
 
 class Circle:
     """Represents a circle with center and radius."""
 
     def __init__(self, center: Point, radius: float):
+        if not radius >= 0:
+            raise ValueError("radius must be non-negative")
         self.center = center
         self.radius = radius
 
@@ -78,13 +88,12 @@ class Circle:
         return 2 * math.pi * self.radius
 
     def contains_point(self, point: Point) -> bool:
-        """Check if point is inside or on the circle."""
-        return self.center.distance_squared(point) <= self.radius * self.radius + 1e-9
+        """Check if point is inside or on the circle (exact comparison of squared distances)."""
+        return self.center.distance_squared(point) <= self.radius * self.radius
 
     def point_on_circle(self, point: Point) -> bool:
-        """Check if point is exactly on the circle boundary."""
-        dist_sq = self.center.distance_squared(point)
-        return abs(dist_sq - self.radius * self.radius) < 1e-9
+        """Check if point is exactly on the circle boundary (exact comparison)."""
+        return self.center.distance_squared(point) == self.radius * self.radius
 
 
 # Geometric utility functions
@@ -109,36 +118,43 @@ def orientation(p: Point, q: Point, r: Point) -> int:
         0: Collinear
         1: Clockwise
         2: Counterclockwise
+    The test is exact (the sign of the cross product), so it does not depend on the scale.
     """
     val = cross_product(p, q, r)
-    if abs(val) < 1e-9:
+    if val == 0:
         return 0
-    return 1 if val > 0 else 2
+    return 2 if val > 0 else 1
 
 
 def angle_between_points(o: Point, a: Point, b: Point) -> float:
-    """Calculate angle AOB in radians."""
-    oa = Point(a.x - o.x, a.y - o.y)
-    ob = Point(b.x - o.x, b.y - o.y)
-    dot = oa.x * ob.x + oa.y * ob.y
-    mag_oa = math.sqrt(oa.x * oa.x + oa.y * oa.y)
-    mag_ob = math.sqrt(ob.x * ob.x + ob.y * ob.y)
-    if mag_oa < 1e-9 or mag_ob < 1e-9:
+    """
+    Calculate angle AOB in radians, in [0, pi]. Uses atan2(|cross|, dot), which stays
+    accurate for angles near 0 and pi. Returns 0.0 if A or B coincides with O.
+    """
+    oa_x, oa_y = a.x - o.x, a.y - o.y
+    ob_x, ob_y = b.x - o.x, b.y - o.y
+    if (oa_x == 0 and oa_y == 0) or (ob_x == 0 and ob_y == 0):
         return 0.0
-    cos_angle = dot / (mag_oa * mag_ob)
-    cos_angle = max(-1.0, min(1.0, cos_angle))  # Clamp to [-1, 1]
-    return math.acos(cos_angle)
+    cross = oa_x * ob_y - oa_y * ob_x
+    dot = oa_x * ob_x + oa_y * ob_y
+    return math.atan2(abs(cross), dot)
 
 
 def point_in_triangle(p: Point, a: Point, b: Point, c: Point) -> bool:
-    """Check if point p is inside triangle ABC."""
+    """
+    Check if point p is inside triangle ABC or on its boundary (either orientation).
+    A degenerate triangle (collinear or repeated vertices) contains no point.
+    """
+    if cross_product(a, b, c) == 0:
+        return False
+
     d1 = cross_product(p, a, b)
     d2 = cross_product(p, b, c)
     d3 = cross_product(p, c, a)
-    
+
     has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
     has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
-    
+
     return not (has_neg and has_pos)
 
 

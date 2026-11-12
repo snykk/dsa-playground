@@ -1,68 +1,35 @@
-# Graph Coloring - Go
+# Graph Coloring -- Go Implementation
 
-This folder contains a Go implementation of **Graph Coloring** using backtracking.
+## Files
 
----
+- `main.go`: the solver (`isSafe`, `graphColoringUtil`, `graphColoring`, `chromaticNumber` and a demo `main`).
+- `main_test.go`: tests (valid coloring, too few colors, chromatic number, `is_safe`, empty graph, edgeless graph, even and odd cycles, complete graph; the returned colorings are checked for validity).
 
-## Concept
+## API
 
-Colors a graph with minimum number of colors such that no two adjacent vertices have the same color. Uses backtracking to find a valid coloring.
-
-**Key Features:**
-- Backtracking algorithm
-- Finds minimum chromatic number
-- Validates coloring constraints
-
----
-
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `isSafe(graph, v, color, c)` | Check if color c is safe for vertex v | O(V) |
-| `graphColoring(graph, m)` | Color graph with m colors | O(m × k^n) |
-| `chromaticNumber(graph)` | Find minimum colors needed | O(V × m × k^n) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Graph Coloring | O(m × k^n) | O(n) |
-| Chromatic Number | O(V × m × k^n) | O(n) |
-| Safety Check | O(V) | O(1) |
-
----
-
-## Usage
+- `isSafe(graph, v, color, c)`: true if color `c` can be given to vertex `v` (no neighbor has it).
+- `graphColoring(graph, m)`: tries to color the graph with colors `1..m`; returns a slice, or `nil` if impossible (an empty graph gives an empty non-nil slice)
+- `chromaticNumber(graph)`: smallest m for which a coloring exists (0 for an empty graph).
 
 ```go
-graph := [][]int{
-    {0, 1, 1, 1},
-    {1, 0, 1, 0},
-    {1, 1, 0, 1},
-    {1, 0, 1, 0},
-}
-
-color := graphColoring(graph, 3)
-if color != nil {
-    fmt.Printf("Coloring: %v\n", color)
-}
-
-chromNum := chromaticNumber(graph)
-fmt.Printf("Chromatic number: %d\n", chromNum)
+graph := [][]int{{0, 1, 1, 1}, {1, 0, 1, 0}, {1, 1, 0, 1}, {1, 0, 1, 0}}
+color := graphColoring(graph, 3) // [1 2 3 2]
+k := chromaticNumber(graph)      // 3
 ```
 
----
+## Go-Specific Notes
 
-## Running Tests
+- Everything is in `package main`; the functions are unexported, so the code is meant to be read and tested in place.
+- Check `color == nil` for failure, not `len(color) == 0`.
+
+## How to Run
 
 ```bash
-go test
+go test ./...
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Choose a color, check the neighbors, recurse, and undo on failure.
+- The worst case is O(V * m^V); use it for small graphs only.
+- The chromatic number comes from trying m = 1, 2, 3, ... until one succeeds.

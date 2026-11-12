@@ -1,0 +1,231 @@
+---
+topic: Algorithms/Computational_Geometry/Basic_Geometry/Line Intersection
+title: Line Intersection
+lead: Two lines meet in one point unless they are parallel. Two segments may cross, touch at an endpoint, form a T, overlap along a line, or miss each other. This topic finds the intersection point and decides whether segments intersect using exact orientation tests, so every one of those cases is handled correctly.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(1)
+    hint: a fixed number of multiplications per pair
+  - label: Space
+    value: O(1)
+  - label: Input cases
+    value: '7 kinds'
+    hint: crossing, T, shared endpoint, collinear overlap, collinear touch, point segment, miss
+  - label: Tolerance
+    value: none
+    hint: exact comparisons with zero, no epsilon
+    tone: warn
+properties:
+  - { label: Exact on integer input, value: true }
+  - { label: Handles collinear segments, value: true }
+  - { label: Independent of coordinate scale, value: true }
+prerequisites:
+  - Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle
+related:
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex Hull
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating Calipers
+  - Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle
+---
+
+## How line intersection works
+
+Everything is built from the **cross product**, `cross(o, a, b) = (a.x - o.x)(b.y - o.y) - (a.y - o.y)(b.x - o.x)`. Its sign says on which side of the line through `o` and `a` the point `b` lies: positive on the left, negative on the right, zero on the line.
+
+### Infinite lines
+
+Write the first line as `P = p1 + t(p2 - p1)` and the second as `P = p3 + u(p4 - p3)`. Setting them equal gives two equations in `t` and `u`. With `d1 = p2 - p1` and `d2 = p4 - p3` the solution is `t = cross(p3 - p1, d2) / cross(d1, d2)`. The denominator `cross(d1, d2)` is the code's `denom`. If it is exactly 0 the lines are parallel (or coincide), and there is no single intersection point.
+
+### Segments
+
+Segments need a yes or no decision first. Four orientation values decide it:
+
+<Steps>
+  <Step title="Compute four orientations">
+    `o1 = cross(p1, p2, p3)`, `o2 = cross(p1, p2, p4)`, `o3 = cross(p3, p4, p1)` and `o4 = cross(p3, p4, p2)`.
+  </Step>
+  <Step title="Proper crossing">
+    If `o1` and `o2` have strictly opposite signs, and `o3` and `o4` have strictly opposite signs, each segment straddles the line of the other, so they cross.
+  </Step>
+  <Step title="Endpoint on the other segment">
+    If an orientation is 0, that endpoint is on the other segment's line. It then counts only if it also lies in the bounding box of that segment. This covers T-junctions, shared endpoints, collinear overlap and zero-length segments.
+  </Step>
+  <Step title="Otherwise they miss">
+    No rule applies, so the segments do not meet.
+  </Step>
+</Steps>
+
+<Callout title="Why exact comparisons are safe here">
+The tests only ask whether a number is exactly zero or which sign it has. For integer coordinates these cross products are exact in Python (any size), and in C++ and Go as long as they stay below 2<sup>53</sup>. A tolerance such as 1e-9 would fail: it is an absolute threshold on a quantity measured in length<sup>2</sup>, so at a scale of 1e-5 it calls every pair parallel.
+</Callout>
+
+## Worked example
+
+The segments `(0,0)-(4,4)` and `(0,4)-(4,0)` form an X:
+
+<GraphDiagram
+  edges="A-X, X-B, C-X, X-D"
+  positions={{ A: [0, 100], B: [100, 0], C: [0, 0], D: [100, 100], X: [50, 50] }}
+  tones={{ X: 'f', A: 'l', B: 'l', C: 'r', D: 'r' }}
+  width={320}
+  height={260}
+  legend={{ l: 'segment 1 endpoints: (0,0) and (4,4)', r: 'segment 2 endpoints: (0,4) and (4,0)', f: 'intersection point (2,2)' }}
+  caption="The two diagonals of a square cross at its centre."
+/>
+
+The orientations are `o1 = 16`, `o2 = -16`, `o3 = -16` and `o4 = 16`: both pairs have opposite signs, so the segments cross. The denominator is `denom = -32`, the numerator of `t` is `-16`, so `t = 0.5` and the point is `p1 + 0.5 (p2 - p1) = (2, 2)`.
+
+Here is how the code classifies the other cases:
+
+<DataTable
+  columns={['Case', 'Segments', 'o1, o2, o3, o4', 'segments_intersect', 'segment_intersection']}
+  rows={[
+    ['Crossing', '(0,0)-(4,4) and (0,4)-(4,0)', '16, -16, -16, 16', 'True', '(2, 2)'],
+    ['T-junction', '(0,0)-(4,0) and (2,0)-(2,3)', '0, 12, 6, -6', 'True', '(2, 0)'],
+    ['Shared endpoint', '(0,0)-(1,0) and (1,0)-(1,1)', '0, 1, 1, 0', 'True', '(1, 0)'],
+    ['Collinear overlap', '(0,0)-(2,0) and (1,0)-(3,0)', '0, 0, 0, 0', 'True', '(1, 0), the first shared point'],
+    ['Collinear, disjoint', '(0,0)-(1,0) and (2,0)-(3,0)', '0, 0, 0, 0', 'False', 'None'],
+    ['Parallel', '(0,0)-(2,0) and (0,1)-(2,1)', '2, 2, -2, -2', 'False', 'None'],
+    ['Point on segment', '(0,0)-(2,0) and (1,0)-(1,0)', '0, 0, 0, 0', 'True', '(1, 0)'],
+    ['Miss', '(0,0)-(2,0) and (1,1)-(1,3)', '2, 6, 2, -2', 'False', 'None'],
+  ]}
+  caption="The all-zero rows are the collinear cases; only the bounding-box test tells overlap from disjoint."
+/>
+
+For the last row the infinite lines still meet at (1, 0), but that point is not on the second segment. That is why `line_intersection` and `segment_intersection` are different functions.
+
+## Pseudocode
+
+```text
+cross(o, a, b) = (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
+
+lineIntersection(l1, l2):
+    denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+    if denom == 0: return none                  # parallel, coincident, or a zero-length line
+    t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
+    return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
+
+segmentsIntersect(l1, l2):
+    o1 = cross(p1, p2, p3);  o2 = cross(p1, p2, p4)
+    o3 = cross(p3, p4, p1);  o4 = cross(p3, p4, p2)
+    if sign(o1) * sign(o2) < 0 and sign(o3) * sign(o4) < 0: return true
+    if o1 == 0 and inBox(p1, p2, p3): return true     # p3 lies on segment 1
+    if o2 == 0 and inBox(p1, p2, p4): return true
+    if o3 == 0 and inBox(p3, p4, p1): return true
+    if o4 == 0 and inBox(p3, p4, p2): return true
+    return false
+
+segmentIntersection(l1, l2):
+    if not segmentsIntersect(l1, l2): return none
+    if denom == 0:                                   # collinear overlap, touching, or a point segment
+        return the larger of the two lower ends, ordering points by (x, y)
+    if o1 == 0: return p3   (and o2 -> p4, o3 -> p1, o4 -> p2)   # an endpoint, returned exactly
+    return lineIntersection(l1, l2)
+
+pointOnSegment(p, line):
+    return cross(p1, p2, p) == 0 and inBox(p1, p2, p)
+```
+
+## Implementation
+
+The four functions are `line_intersection` (infinite lines, a point or nothing), `segment_intersection` (one common point or nothing), `segments_intersect` (a yes or no) and `point_on_segment`. A `Line` holds two points and is used as a segment or as the infinite line through them.
+
+When segments overlap along a line there are infinitely many common points. `segment_intersection` then returns the first one in (x, y) order, and returns an endpoint exactly in the touching cases. `line_intersection` returns nothing for coincident lines, because they have no single intersection point, and for a `Line` whose two endpoints are equal.
+
+<TopicCode topic="Algorithms/Computational_Geometry/Basic_Geometry/Line Intersection" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'One pair of lines or segments', time: 'O(1)', space: 'O(1)', when: 'Four to eight multiplications and a few comparisons, whatever the coordinates.' },
+    { case: 'Testing n segments pairwise', time: 'O(n^2)', space: 'O(1)', when: 'All n(n-1)/2 pairs are checked.' },
+  ]}
+/>
+
+For many segments, a sweep-line algorithm such as Bentley-Ottmann reports all intersections in <BigO of="(n + k) log n" /> time, where k is the number of intersections. It is not part of this repository.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Approach', 'Handles', 'Weakness']}
+  rows={[
+    ['Orientation tests (this repository)', 'all cases, including collinear', 'a second step is needed to get the point'],
+    ['Parametric t and u in [0, 1]', 'proper crossings and the point directly', 'denominator 0 for parallel; rounding at endpoints'],
+    ['Bounding box pre-check', 'cheap rejection of far apart segments', 'not enough by itself'],
+    ['Tolerance (epsilon) comparisons', 'hides tiny rounding errors', 'scale dependent; breaks tiny or huge coordinates'],
+  ]}
+/>
+
+## Exact tests vs tolerance tests
+
+<DataTable
+  columns={['', 'Exact zero test', 'Absolute epsilon']}
+  highlight={0}
+  rows={[
+    ['Scale 1e-5', 'correct', 'every pair looks parallel'],
+    ['Shared endpoint', 'detected exactly, whatever the endpoint order', 'depends on rounding'],
+    ['Decimal coordinates', 'rounding can flip a near-zero sign', 'also affected'],
+    ['Integer coordinates', 'exact', 'not needed'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Constant time and no iteration or allocation.',
+    'Handles degenerate input (collinear, touching, zero-length) that parametric formulas reject.',
+    'The result does not depend on the order of the endpoints.',
+    'No tolerance to tune, and the same answer at any coordinate scale.',
+  ]}
+  cons={[
+    'Decimal coordinates are only as exact as floating-point arithmetic: a point that is mathematically on a line may be rejected after rounding.',
+    'Overlapping collinear segments return one representative point, not the whole overlap.',
+    'Checking many segments pairwise is quadratic.',
+  ]}
+/>
+
+## Applications
+
+- **Polygon tests.** Segment intersection tests are the building block for checking whether a polygon is simple and for polygon clipping.
+- **Geometry in games and graphics.** Ray and wall collisions, line of sight.
+- **GIS and CAD.** Overlaying roads, boundaries and plans.
+- **Map and routing checks.** Detecting crossing roads or paths.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Dividing first.** Computing `t` and `u` and testing `0 <= t <= 1` rejects every parallel case, including collinear overlap, and loses endpoints to rounding. Decide with orientations, then compute the point.
+- **An absolute epsilon.** Writing `abs(denom) < 1e-9` is a threshold on length<sup>2</sup>; at a scale of 1e-5 every pair counts as parallel.
+- **Forgetting the bounding box in the collinear case.** Zero orientations only say that the point is on the line; you still need to check that it lies between the endpoints.
+- **Forgetting zero-length segments.** A segment whose endpoints are equal is a point. The orientation tests handle it, a parametric formula does not.
+- **Treating `line_intersection` as a segment test.** It works on infinite lines; the point it returns may be outside both segments.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What does segment_intersection return for collinear overlapping segments?">
+    The first shared point in (x, y) order, for example `(1, 0)` for `(0,0)-(2,0)` and `(1,0)-(3,0)`. Use `segments_intersect` if you only need to know whether they meet.
+  </FaqItem>
+  <FaqItem question="Why does line_intersection return nothing for coincident lines?">
+    Two identical lines share infinitely many points, so there is no single point to return. The code treats them like parallel lines.
+  </FaqItem>
+  <FaqItem question="Can I use decimal coordinates?">
+    Yes. Shared endpoints are still detected exactly, because the cross product with a repeated point is exactly zero. For other near-degenerate cases the result is only as exact as floating point, so scale decimals to integers if borderline cases matter.
+  </FaqItem>
+  <FaqItem question="How do I find all intersections among many segments?">
+    Checking all pairs costs O(n<sup>2</sup>). Sweep-line algorithms such as Bentley-Ottmann do better when there are few intersections; they are not implemented in this repository.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Line Segment Intersection (CSES)', 'decide for each query whether two segments share a point, including collinear cases'],
+  ]}
+/>

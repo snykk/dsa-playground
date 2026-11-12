@@ -1,0 +1,226 @@
+---
+topic: Algorithms/Computational_Geometry/Advanced_Geometry/Rotating Calipers
+title: Rotating Calipers
+lead: Rotating calipers sweeps two parallel supporting lines once around a convex polygon. In linear time it finds the diameter (the farthest pair of vertices) and the width (the narrowest strip that contains the polygon). The input is the hull, so the cost comes on top of computing it.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Diameter and width
+    value: O(n)
+    hint: n hull vertices, after the hull is known
+  - label: Pointer moves
+    value: at most 2n
+    hint: the far pointer only moves forward, around the polygon once
+  - label: Extra space
+    value: O(n)
+    hint: a cleaned copy of the vertex list
+  - label: Input
+    value: convex polygon in order
+    hint: clockwise or counterclockwise
+    tone: warn
+properties:
+  - { label: Needs a convex hull first, value: true }
+  - { label: Exact on integer input, value: true }
+  - { label: Orientation independent, value: true }
+prerequisites:
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex Hull
+  - Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle
+related:
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex Hull
+  - Algorithms/Computational_Geometry/Basic_Geometry/Line Intersection
+  - Algorithms/Divide_and_Conquer/Closest Pair of Points
+---
+
+## How rotating calipers works
+
+Picture a pair of calipers clamped on a convex polygon. Each jaw is a **supporting line**: it touches the polygon and has the whole polygon on one side. Rotate the calipers by one full turn, keeping the jaws parallel. Every vertex that touches a jaw while it is rotating is **antipodal** to a vertex on the other jaw, and the farthest pair of points of the polygon is always one of these antipodal pairs. Checking the O(n) antipodal pairs replaces checking all n<sup>2</sup> pairs.
+
+The implementation does not rotate anything. It walks the edges of the polygon in order and keeps a second pointer `j` on the vertex that is farthest from the current edge:
+
+<Steps>
+  <Step title="Clean the polygon">
+    Remove consecutive repeated vertices and vertices that lie on an edge (a zero cross product). If all points are collinear only the two end points remain. This is what keeps the area test below well behaved.
+  </Step>
+  <Step title="Take an edge">
+    For edge `(i, i+1)`, the distance of a vertex `k` from the line through it is proportional to the triangle area `|cross(i, i+1, k)|`.
+  </Step>
+  <Step title="Advance the far pointer">
+    While vertex `j + 1` is farther from the edge than vertex `j` (strictly larger area), move `j` forward. On a convex polygon the area first grows and then shrinks as `k` goes around, so the pointer stops at the top of the hill. When the polygon has a parallel edge, `j + 1` has the same area and is a candidate too.
+  </Step>
+  <Step title="Record the candidates">
+    For the diameter, test the squared distances from `i` and `i + 1` to `j` (and to `j + 1` on a tie). For the width, take `area / edge length`, the height of `j` over the edge, and keep the smallest over all edges.
+  </Step>
+</Steps>
+
+<Callout title="Why the area, and not the distance, drives the pointer">
+The distance from a fixed vertex to the other vertices of a convex polygon is not unimodal, so climbing on it can stop at a local maximum. The height over an edge is unimodal on a strictly convex polygon. A version that climbed on vertex-to-vertex distance returned 104.96 instead of 104.98 on a six-vertex fan-shaped hull; the tests include that polygon.
+</Callout>
+
+## Worked example
+
+The polygon has five vertices: `A (0,0)`, `B (4,0)`, `C (5,2)`, `D (2,5)` and `E (-1,3)`, listed counterclockwise.
+
+<GraphDiagram
+  edges="A-B, B-C, C-D, D-E, E-A, C-E"
+  positions={{ A: [17, 100], B: [83, 100], C: [100, 60], D: [50, 0], E: [0, 40] }}
+  tones={{ C: 'f', E: 'f', A: 'p' }}
+  edgeTones={{ 'C-E': 'f', 'C-D': 'p' }}
+  width={380}
+  height={320}
+  legend={{ f: 'ends of the diameter, length sqrt(37), about 6.08', p: 'edge C-D with its farthest vertex A: the narrowest strip, width about 4.95' }}
+  caption="Aqua chord C-E is the diameter. Edge C-D and the vertex A farthest from it give the width."
+/>
+
+Walking the five edges, the far pointer ends at these vertices. "Height" is the distance of `j` from the line through the edge:
+
+<DataTable
+  columns={['Edge', 'Farthest vertex j', 'Height of j', 'Candidate pairs (distance)']}
+  rows={[
+    ['A-B', 'D', '5.0000', 'A-D 5.385, B-D 5.385'],
+    ['B-C', 'E', '5.8138', 'B-E 5.831, C-E 6.083'],
+    ['C-D', 'A', '4.9497', 'C-A 5.385, D-A 5.385'],
+    ['D-E', 'B', '5.2697', 'D-B 5.385, E-B 5.831'],
+    ['E-A', 'C', '5.3759', 'E-C 6.083, A-C 5.385'],
+  ]}
+  caption="The largest candidate distance is 6.083, the diameter. The smallest height is 4.9497, the width."
+/>
+
+The pointer visits `D`, `E`, `A`, `B`, `C` in turn: it goes once around the polygon while the edge goes once around it, so the loop does O(n) steps in total. The perimeter of this polygon is 17.25 and its area is 20.
+
+## Pseudocode
+
+```text
+cleanPolygon(hull):
+    drop consecutive repeated vertices (and a last vertex equal to the first)
+    if fewer than 3 vertices: return them
+    if all vertices are collinear: return the two end points
+    drop vertices with cross(prev, v, next) == 0, also across the wrap-around
+    return the rest
+
+diameter(hull):
+    pts = cleanPolygon(hull)
+    if size(pts) <= 2: return the distance between the points (0 for none or one)
+    best = -1; j = 1
+    for i = 0 to n - 1:
+        edge = (i, i + 1)
+        while |cross(edge, j + 1)| > |cross(edge, j)|:
+            j = j + 1
+        candidates = [j], plus j + 1 if |cross(edge, j + 1)| == |cross(edge, j)|
+        for k in candidates, for m in [i, i + 1]:
+            best = max(best, dist(pts[m], pts[k])^2)
+    return sqrt(best)
+
+width(hull):
+    pts = cleanPolygon(hull)
+    if size(pts) < 3: return 0
+    for each edge, move j as above and take |cross(edge, j)| / length(edge)
+    return the minimum
+```
+
+## Implementation
+
+Each module takes a list of points: the vertices of a convex polygon in order, in either orientation. Output of Graham's scan or Jarvis march from the Convex Hull topic fits directly. Comparisons are exact, so integer input is handled without tolerances. Degenerate input returns sensible values in all three languages: a diameter of 0 for no or one distinct point and a width of 0 for fewer than three distinct corners.
+
+The folder also has `perimeter` (the sum of edge lengths) and `area` (the shoelace formula). They work for any polygon and are not caliper algorithms.
+
+<TopicCode topic="Algorithms/Computational_Geometry/Advanced_Geometry/Rotating Calipers" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Diameter', time: 'O(n)', space: 'O(n)', when: 'The edge index runs once around the polygon and the far pointer moves forward at most about 2n times in total. The cleaned copy needs O(n) space.' },
+    { case: 'Width', time: 'O(n)', space: 'O(n)', when: 'Same sweep; each edge costs O(1) beyond the pointer movement.' },
+    { case: 'Hull first', time: 'O(n log n)', space: 'O(n)', when: 'If you start from a point set, computing the hull dominates the total.' },
+  ]}
+/>
+
+<Equation label="Pointer movement" expr="moves of j <= 2n" result="total work O(n)" />
+
+The pointer never moves backwards: as the edge turns counterclockwise, the vertex farthest from it also moves counterclockwise. So j goes around the polygon at most about twice while i goes around once.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Problem', 'Calipers idea', 'In this repository']}
+  rows={[
+    ['Diameter (farthest pair)', 'enumerate antipodal pairs', 'Yes'],
+    ['Width (narrowest strip)', 'minimum edge-to-farthest-vertex height', 'Yes'],
+    ['Minimum-area bounding rectangle', 'use four calipers at right angles; one side lies on an edge', 'No'],
+    ['Distance between two convex polygons', 'rotate calipers on both and track the closest vertex-edge pair', 'No'],
+    ['Perimeter and area', 'plain edge sum and shoelace formula', 'Yes, but not caliper-based'],
+  ]}
+/>
+
+## Rotating calipers vs brute force
+
+<DataTable
+  columns={['', 'Rotating calipers', 'All pairs']}
+  highlight={0}
+  rows={[
+    ['Diameter time', 'O(n) on the hull', 'O(n^2)'],
+    ['Needs the hull', 'Yes, O(n log n) to build', 'No'],
+    ['Input size where it pays off', 'large n', 'small n, or when the hull is not computed'],
+    ['Code', 'pointer logic and degenerate cases', 'two nested loops'],
+  ]}
+/>
+
+When the input is a raw point set, you can also run the all-pairs search on the hull vertices alone, which is already a large saving because far fewer points are on the hull than in the input.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time once the hull is known, with a simple pointer that only moves forward.',
+    'One sweep yields several quantities: diameter, width and, with more calipers, bounding boxes.',
+    'Exact on integer input, with no tolerance to tune.',
+  ]}
+  cons={[
+    'Needs a convex polygon in order; on a non-convex or unordered list the answers are meaningless.',
+    'Degenerate polygons (collinear vertices, repeated points) must be cleaned first, as the code does.',
+    'It does not combine with hull computation: building the hull is the O(n log n) part.',
+  ]}
+/>
+
+## Applications
+
+- **Farthest pair of points.** The diameter of a point set is the diameter of its hull.
+- **Narrowest strip.** The width of a point set, for example the thinnest slab that contains an object.
+- **Bounding boxes.** The same sweep, with four calipers, gives the smallest bounding rectangle.
+- **Collision and clearance checks** between convex shapes.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Climbing on distance.** Moving `j` while `dist(i, j + 1) > dist(i, j)` can stop at a local maximum. Drive the pointer with the triangle area.
+- **Feeding a point set that is not a hull.** The input must be the vertices of a convex polygon, in order. Compute the hull first.
+- **Collinear or repeated vertices.** A zero-area plateau stalls the pointer, which once made `width` return 0 for a rectangle with an extra vertex on one side. The code removes them first.
+- **Only testing `(i, j)`.** Both ends of the edge, `i` and `i + 1`, pair up with `j`, and a parallel edge gives a second antipodal vertex `j + 1`.
+- **Returning a sentinel.** A hull with fewer than three distinct corners has width 0, not infinity.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Do I need to pass the hull in counterclockwise order?">
+    No. The code uses absolute values of the cross product and works for clockwise and counterclockwise order. The vertices must still go around the polygon in order.
+  </FaqItem>
+  <FaqItem question="Why are antipodal pairs enough for the diameter?">
+    The farthest pair of a convex polygon admits two parallel supporting lines, one through each point. Two such lines exist exactly for antipodal pairs, so the diameter is among them.
+  </FaqItem>
+  <FaqItem question="What is the width of a polygon?">
+    It is the smallest distance between two parallel lines that enclose the polygon. One of the two lines always contains a whole edge of the polygon, which is why the code only tries the lines through edges.
+  </FaqItem>
+  <FaqItem question="Does this work on a point set that is not already a hull?">
+    Not directly. Compute the hull first (for example with Graham's scan from the Convex Hull topic) and pass its vertices.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Beauty Contest (POJ 2187)', 'the farthest pair of points: hull, then calipers'],
+  ]}
+/>

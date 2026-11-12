@@ -8,9 +8,8 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
-#include <climits>
+#include <limits>
 #include <stdexcept>
-#include <iostream>
 
 struct Point {
     double x, y;
@@ -46,7 +45,14 @@ Result bruteForceClosestPair(const std::vector<Point>& points, int start, int en
     return {minDist, p1, p2};
 }
 
-Result closestPairRecursive(std::vector<Point>& pointsX, std::vector<Point>& pointsY, int start, int end) {
+// A point together with its position in the x-sorted order. The rank decides which half a
+// point belongs to, so repeated x values and duplicate points are split exactly like pointsX.
+struct Ranked {
+    Point p;
+    int rank;
+};
+
+Result closestPairRecursive(const std::vector<Point>& pointsX, const std::vector<Ranked>& pointsY, int start, int end) {
     int n = end - start;
     
     // Base case: use brute force for small sets
@@ -58,13 +64,14 @@ Result closestPairRecursive(std::vector<Point>& pointsX, std::vector<Point>& poi
     int mid = start + n / 2;
     Point midPoint = pointsX[mid];
     
-    // Split pointsY maintaining y-sort
-    std::vector<Point> leftY, rightY;
-    for (const auto& p : pointsY) {
-        if (p.x <= midPoint.x) {
-            leftY.push_back(p);
+    // Split pointsY maintaining y-sort. Split by rank, not by x <= mid.x: with repeated
+    // x values the two lists would no longer match the two halves.
+    std::vector<Ranked> leftY, rightY;
+    for (const auto& r : pointsY) {
+        if (r.rank < mid) {
+            leftY.push_back(r);
         } else {
-            rightY.push_back(p);
+            rightY.push_back(r);
         }
     }
     
@@ -78,9 +85,9 @@ Result closestPairRecursive(std::vector<Point>& pointsX, std::vector<Point>& poi
     
     // Combine: check for closer pairs across the dividing line
     std::vector<Point> strip;
-    for (const auto& p : pointsY) {
-        if (std::abs(p.x - midPoint.x) < minDist) {
-            strip.push_back(p);
+    for (const auto& r : pointsY) {
+        if (std::abs(r.p.x - midPoint.x) < minDist) {
+            strip.push_back(r.p);
         }
     }
     
@@ -110,11 +117,16 @@ Result closestPair(std::vector<Point>& points) {
                   return a.x < b.x || (a.x == b.x && a.y < b.y); 
               });
     
-    // Sort points by y-coordinate
-    std::vector<Point> pointsY = points;
+    // Rank every point by its position in the x order, then sort the ranked points by y
+    std::vector<Ranked> pointsY;
+    for (size_t i = 0; i < pointsX.size(); ++i) {
+        pointsY.push_back({pointsX[i], (int)i});
+    }
     std::sort(pointsY.begin(), pointsY.end(), 
-              [](const Point& a, const Point& b) { 
-                  return a.y < b.y || (a.y == b.y && a.x < b.x); 
+              [](const Ranked& a, const Ranked& b) { 
+                  if (a.p.y != b.p.y) return a.p.y < b.p.y;
+                  if (a.p.x != b.p.x) return a.p.x < b.p.x;
+                  return a.rank < b.rank;
               });
     
     return closestPairRecursive(pointsX, pointsY, 0, pointsX.size());

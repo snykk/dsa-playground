@@ -10,7 +10,7 @@ type Point struct {
 }
 
 type Result struct {
-	Dist float64
+	Dist   float64
 	P1, P2 Point
 }
 
@@ -38,7 +38,15 @@ func bruteForceClosestPair(points []Point) Result {
 	return Result{minDist, p1, p2}
 }
 
-func closestPairRecursive(pointsX, pointsY []Point, start, end int) Result {
+// ranked is a point together with its position in the x-sorted order. The rank decides which
+// half a point belongs to, so repeated x values and duplicate points are split exactly like
+// pointsX.
+type ranked struct {
+	p    Point
+	rank int
+}
+
+func closestPairRecursive(pointsX []Point, pointsY []ranked, start, end int) Result {
 	n := end - start
 
 	// Base case: use brute force for small sets
@@ -50,13 +58,14 @@ func closestPairRecursive(pointsX, pointsY []Point, start, end int) Result {
 	mid := start + n/2
 	midPoint := pointsX[mid]
 
-	// Split pointsY maintaining y-sort
-	var leftY, rightY []Point
-	for _, p := range pointsY {
-		if p.X <= midPoint.X {
-			leftY = append(leftY, p)
+	// Split pointsY maintaining y-sort. Split by rank, not by X <= midPoint.X: with repeated
+	// X values the two lists would no longer match the two halves.
+	var leftY, rightY []ranked
+	for _, r := range pointsY {
+		if r.rank < mid {
+			leftY = append(leftY, r)
 		} else {
-			rightY = append(rightY, p)
+			rightY = append(rightY, r)
 		}
 	}
 
@@ -73,9 +82,9 @@ func closestPairRecursive(pointsX, pointsY []Point, start, end int) Result {
 
 	// Combine: check for closer pairs across the dividing line
 	var strip []Point
-	for _, p := range pointsY {
-		if math.Abs(p.X-midPoint.X) < minDist {
-			strip = append(strip, p)
+	for _, r := range pointsY {
+		if math.Abs(r.p.X-midPoint.X) < minDist {
+			strip = append(strip, r.p)
 		}
 	}
 
@@ -107,11 +116,20 @@ func ClosestPair(points []Point) Result {
 		return pointsX[i].X < pointsX[j].X || (pointsX[i].X == pointsX[j].X && pointsX[i].Y < pointsX[j].Y)
 	})
 
-	// Sort points by y-coordinate
-	pointsY := make([]Point, len(points))
-	copy(pointsY, points)
+	// Rank every point by its position in the x order, then sort the ranked points by y
+	pointsY := make([]ranked, len(pointsX))
+	for i, p := range pointsX {
+		pointsY[i] = ranked{p, i}
+	}
 	sort.Slice(pointsY, func(i, j int) bool {
-		return pointsY[i].Y < pointsY[j].Y || (pointsY[i].Y == pointsY[j].Y && pointsY[i].X < pointsY[j].X)
+		a, b := pointsY[i], pointsY[j]
+		if a.p.Y != b.p.Y {
+			return a.p.Y < b.p.Y
+		}
+		if a.p.X != b.p.X {
+			return a.p.X < b.p.X
+		}
+		return a.rank < b.rank
 	})
 
 	return closestPairRecursive(pointsX, pointsY, 0, len(pointsX))

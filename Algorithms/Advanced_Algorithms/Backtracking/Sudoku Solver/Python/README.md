@@ -1,65 +1,39 @@
-# Sudoku Solver - Python
+# Sudoku Solver -- Python Implementation
 
-This folder contains a Python implementation of a **Sudoku Solver** using backtracking.
+## Files
 
----
+- `sudoku_solver.py`: `is_valid_puzzle`, `is_valid`, `find_empty`, the private `_search`, `solve_sudoku`, `print_board`.
+- `sudoku_solver_test.py`: unit tests (the example puzzle against its exact solution, `is_valid`, duplicates in row, column and box, out-of-range values, bad shapes, an unsolvable puzzle that must restore the board, an already solved board, an empty board).
 
-## Concept
+## API
 
-Solves a 9×9 Sudoku puzzle using backtracking. The algorithm tries placing numbers 1-9 in empty cells and backtracks when a conflict is detected.
-
-**Key Features:**
-- Backtracking algorithm
-- Validates row, column, and 3×3 box constraints
-- Finds solution if one exists
-- Handles standard Sudoku puzzles
-
----
-
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `is_valid(board, row, col, num)` | Check if number placement is valid | O(1) |
-| `find_empty(board)` | Find next empty cell | O(n²) |
-| `solve_sudoku(board)` | Solve Sudoku puzzle | O(9^m) where m is empty cells |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Solve Puzzle | O(9^m) | O(1) |
-| Validation | O(1) | O(1) |
-| Find Empty | O(n²) | O(1) |
-
----
-
-## Usage
+- `solve_sudoku(board)`: `board` is a 9 x 9 list of lists, 0 for empty. Solves in place and returns `True`; returns `False` and leaves the board unchanged if the givens conflict, a value is outside 0..9, the shape is wrong, or there is no solution.
+- `is_valid_puzzle(board)`: shape, range and conflicts among the givens.
+- `is_valid(board, row, col, num)`: true if `num` is legal at the cell.
+- `find_empty(board)`: `(row, col)` of the first 0, or `None`.
+- `print_board(board)`: prints the board with box separators.
 
 ```python
-from sudoku_solver import solve_sudoku, print_board
-
-board = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    # ... more rows
-]
+from sudoku_solver import solve_sudoku
 
 if solve_sudoku(board):
-    print_board(board)
+    print(board[0])  # [5, 3, 4, 6, 7, 8, 9, 1, 2]
 ```
 
----
+## Python-Specific Notes
 
-## Running Tests
+- The board is a list of lists of `int`; `bool` and other types are not special-cased beyond `isinstance(v, int)`.
+- Recursion depth is at most the number of blanks (81), well inside Python's limit.
+- Python 3.9 and later.
+
+## How to Run
 
 ```bash
-python sudoku_solver_test.py
+python3 -m unittest sudoku_solver_test
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Validate the givens once, then search.
+- Fill the first empty cell with each legal digit and undo on failure.
+- A failed solve restores the board; plain backtracking is exponential in the worst case.

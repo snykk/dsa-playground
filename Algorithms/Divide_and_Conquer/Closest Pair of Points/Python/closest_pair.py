@@ -2,10 +2,12 @@
 Closest Pair of Points Implementation
 
 Finds the closest pair of points in a 2D plane using divide and conquer algorithm.
-Time Complexity: O(n log² n) or O(n log n) with optimization
+Time Complexity: O(n log n): the points are sorted by x and by y once, and every
+level of the recursion splits and merges in linear time.
 """
 
 import math
+from collections import Counter
 
 
 def distance(p1, p2):
@@ -23,7 +25,7 @@ def brute_force_closest_pair(points):
     Returns:
         Tuple of (min_distance, point1, point2)
         
-    Time Complexity: O(n²)
+    Time Complexity: O(n^2)
     """
     n = len(points)
     min_dist = float('inf')
@@ -37,6 +39,27 @@ def brute_force_closest_pair(points):
                 closest_pair = (points[i], points[j])
     
     return min_dist, closest_pair[0], closest_pair[1]
+
+
+def split_by_membership(points_y, left_x):
+    """
+    Split points_y (sorted by y) into the points that belong to left_x and the rest,
+    keeping the y order. Membership is by coordinates with multiplicity, so repeated x
+    values and duplicate points are split exactly like points_x was.
+
+    Returns:
+        Tuple of (left_y, right_y)
+    """
+    remaining = Counter((p[0], p[1]) for p in left_x)
+    left_y, right_y = [], []
+    for p in points_y:
+        key = (p[0], p[1])
+        if remaining[key] > 0:
+            remaining[key] -= 1
+            left_y.append(p)
+        else:
+            right_y.append(p)
+    return left_y, right_y
 
 
 def closest_pair_recursive(points_x, points_y):
@@ -64,9 +87,9 @@ def closest_pair_recursive(points_x, points_y):
     left_x = points_x[:mid]
     right_x = points_x[mid:]
     
-    # Split points_y maintaining y-sort
-    left_y = [p for p in points_y if p[0] <= mid_point[0]]
-    right_y = [p for p in points_y if p[0] > mid_point[0]]
+    # Split points_y maintaining y-sort. Split by membership in left_x, not by x <= mid_x:
+    # with repeated x values the two lists would no longer match the two halves.
+    left_y, right_y = split_by_membership(points_y, left_x)
     
     # Conquer: find closest pair in each half
     dist_left, p1_left, p2_left = closest_pair_recursive(left_x, left_y)
@@ -107,8 +130,8 @@ def closest_pair(points):
     Returns:
         Tuple of (min_distance, point1, point2)
         
-    Time Complexity: O(n log² n)
-    Space Complexity: O(n log n)
+    Time Complexity: O(n log n)
+    Space Complexity: O(n)
     """
     if len(points) < 2:
         raise ValueError("Need at least 2 points")
@@ -124,8 +147,8 @@ def closest_pair(points):
 
 def closest_pair_optimized(points):
     """
-    Optimized version with O(n log n) time complexity
-    Uses better strip searching
+    Same algorithm with a cap on the strip scan (at most 6 following points per point)
+    and ties in the sort broken by the other coordinate.
     
     Args:
         points: List of (x, y) tuples
@@ -160,13 +183,7 @@ def closest_pair_recursive_optimized(points_x, points_y):
     left_x = points_x[:mid]
     right_x = points_x[mid:]
     
-    left_y = []
-    right_y = []
-    for p in points_y:
-        if p[0] <= mid_point[0]:
-            left_y.append(p)
-        else:
-            right_y.append(p)
+    left_y, right_y = split_by_membership(points_y, left_x)
     
     # Recursive calls
     dist_left, p1_left, p2_left = closest_pair_recursive_optimized(left_x, left_y)

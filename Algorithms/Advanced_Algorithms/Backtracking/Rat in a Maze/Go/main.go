@@ -8,47 +8,58 @@ func isSafe(maze [][]int, x, y, n int) bool {
 	return x >= 0 && x < n && y >= 0 && y < n && maze[x][y] == 1
 }
 
-func solveMazeUtil(maze [][]int, x, y, n int, solution [][]int) bool {
-	// Base case: reached destination
-	if x == n-1 && y == n-1 {
-		solution[x][y] = 1
-		return true
-	}
+// Moves in order: right, down, left, up.
+var dx = [4]int{0, 1, 0, -1}
+var dy = [4]int{1, 0, -1, 0}
 
-	if isSafe(maze, x, y, n) {
-		// Mark current cell as part of solution
-		solution[x][y] = 1
-
-		// Move right
-		if solveMazeUtil(maze, x, y+1, n, solution) {
-			return true
-		}
-
-		// Move down
-		if solveMazeUtil(maze, x+1, y, n, solution) {
-			return true
-		}
-
-		// If none of the above work, backtrack
-		solution[x][y] = 0
+// solveMazeUtil searches in four directions and enters every cell at most once, so it is
+// O(n^2). A cell that failed once fails again, so it stays in visited after backtracking.
+func solveMazeUtil(maze [][]int, x, y, n int, solution [][]int, visited [][]bool) bool {
+	if !isSafe(maze, x, y, n) || visited[x][y] {
 		return false
 	}
 
+	visited[x][y] = true
+	solution[x][y] = 1
+
+	// Base case: reached destination
+	if x == n-1 && y == n-1 {
+		return true
+	}
+
+	for d := 0; d < 4; d++ {
+		if solveMazeUtil(maze, x+dx[d], y+dy[d], n, solution, visited) {
+			return true
+		}
+	}
+
+	// No direction works: this cell is not on the path
+	solution[x][y] = 0
 	return false
 }
 
 func solveMaze(maze [][]int) [][]int {
 	n := len(maze)
-	if n == 0 || maze[0][0] == 0 || maze[n-1][n-1] == 0 {
+	if n == 0 {
+		return nil
+	}
+	for _, row := range maze {
+		if len(row) != n {
+			return nil // only square mazes are supported
+		}
+	}
+	if maze[0][0] == 0 || maze[n-1][n-1] == 0 {
 		return nil
 	}
 
 	solution := make([][]int, n)
+	visited := make([][]bool, n)
 	for i := range solution {
 		solution[i] = make([]int, n)
+		visited[i] = make([]bool, n)
 	}
 
-	if solveMazeUtil(maze, 0, 0, n, solution) {
+	if solveMazeUtil(maze, 0, 0, n, solution, visited) {
 		return solution
 	}
 

@@ -71,7 +71,9 @@ describe.each(files)('%s', (file) => {
     };
     walk(tree as unknown as Parameters<typeof walk>[0]);
     expect(expressions, 'braces in prose are JavaScript expressions: put them in backticks or write &#123; &#125;').toEqual([]);
-    const used = new Set([...body.matchAll(/<([A-Z][A-Za-z]*)\b/g)].map((m) => m[1]));
+    // Component tags only: code (fenced or inline) may legitimately show types such as <Point>.
+    const markup = body.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
+    const used = new Set([...markup.matchAll(/<([A-Z][A-Za-z]*)\b/g)].map((m) => m[1]));
     for (const name of used) expect(known.has(name), `unknown component <${name}>`).toBe(true);
   });
 

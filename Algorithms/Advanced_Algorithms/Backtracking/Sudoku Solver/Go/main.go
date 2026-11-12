@@ -44,7 +44,40 @@ func findEmpty(board [][]int) (int, int, bool) {
 	return 0, 0, false
 }
 
-func solveSudoku(board [][]int) bool {
+// isValidPuzzle reports whether board is 9x9, every value is 0..9 and no digit repeats in a
+// row, a column or a 3x3 box. Empty cells (0) are ignored.
+func isValidPuzzle(board [][]int) bool {
+	if len(board) != 9 {
+		return false
+	}
+	for _, row := range board {
+		if len(row) != 9 {
+			return false
+		}
+	}
+
+	var rows, cols, boxes [9][10]bool
+	for i := 0; i < 9; i++ {
+		for j := 0; j < 9; j++ {
+			v := board[i][j]
+			if v < 0 || v > 9 {
+				return false
+			}
+			if v == 0 {
+				continue
+			}
+			b := (i/3)*3 + j/3
+			if rows[i][v] || cols[j][v] || boxes[b][v] {
+				return false
+			}
+			rows[i][v], cols[j][v], boxes[b][v] = true, true, true
+		}
+	}
+	return true
+}
+
+// searchSudoku fills the first empty cell with each valid digit, backtracking on failure.
+func searchSudoku(board [][]int) bool {
 	row, col, found := findEmpty(board)
 	if !found {
 		return true // Puzzle solved
@@ -54,7 +87,7 @@ func solveSudoku(board [][]int) bool {
 		if isValid(board, row, col, num) {
 			board[row][col] = num
 
-			if solveSudoku(board) {
+			if searchSudoku(board) {
 				return true
 			}
 
@@ -64,6 +97,15 @@ func solveSudoku(board [][]int) bool {
 	}
 
 	return false
+}
+
+// solveSudoku solves the puzzle in place. It returns false, leaving the board unchanged,
+// if the givens conflict, are out of range, or the puzzle has no solution.
+func solveSudoku(board [][]int) bool {
+	if !isValidPuzzle(board) {
+		return false
+	}
+	return searchSudoku(board)
 }
 
 func printBoard(board [][]int) {

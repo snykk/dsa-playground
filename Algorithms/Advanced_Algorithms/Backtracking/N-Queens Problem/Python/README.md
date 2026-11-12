@@ -1,72 +1,37 @@
-# N-Queens Problem - Python
+# N-Queens Problem -- Python Implementation
 
-This folder contains a Python implementation of the **N-Queens Problem** using backtracking.
+## Files
 
----
+- `n_queens.py`: `is_safe`, the recursive helper `solve_n_queens_util`, `solve_n_queens` and `print_solution`.
+- `n_queens_test.py`: unit tests (n = 4, first solution, n = 8, `is_safe`, solution counts for n = 0..9, no solution for 2 and 3, validity and distinctness of every board, lexicographically first solution).
 
-## Concept
+## API
 
-The N-Queens problem is to place N queens on an N×N chessboard such that no two queens attack each other. This implementation uses backtracking to find solutions.
-
-**Key Features:**
-- Backtracking algorithm
-- Find first solution or all solutions
-- Efficient conflict checking
-- Visual solution display
-
----
-
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `is_safe(board, row, col, n)` | Check if placing queen is safe | O(n) |
-| `solve_n_queens(n, find_all)` | Solve N-Queens problem | O(N!) worst case |
-| `print_solution(board)` | Display solution board | O(n²) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Find First Solution | O(N!) worst case | O(N²) |
-| Find All Solutions | O(N!) worst case | O(N² × solutions) |
-| Conflict Check | O(N) | O(1) |
-
----
-
-## Usage
+- `solve_n_queens(n, find_all=False)`: returns a list of boards. Each board is an n x n list of lists with 1 for a queen. One board with `find_all=False`, all boards otherwise; an empty list when there is none.
+- `is_safe(board, row, col, n)`: true if no queen above `(row, col)` attacks it.
+- `print_solution(board)`: prints `Q` and `.`.
 
 ```python
 from n_queens import solve_n_queens, print_solution
 
-# Find first solution
-solutions = solve_n_queens(4, find_all=False)
-if solutions:
-    print_solution(solutions[0])
-
-# Find all solutions
-all_solutions = solve_n_queens(4, find_all=True)
-print(f"Found {len(all_solutions)} solutions")
+print(len(solve_n_queens(8, find_all=True)))  # 92
+print_solution(solve_n_queens(4)[0])
 ```
 
----
+## Python-Specific Notes
 
-## Running Tests
+- Boards are copied with slicing when stored, so later backtracking does not change them.
+- Recursion depth is n, far below Python's limit.
+- Python 3.9 and later.
+
+## How to Run
 
 ```bash
-python n_queens_test.py
+python3 -m unittest n_queens_test
 ```
 
----
+## Key Takeaways
 
-## Example
-
-For N=4, there are 2 solutions:
-- Solution 1: Queens at (0,1), (1,3), (2,0), (3,2)
-- Solution 2: Queens at (0,2), (1,0), (2,3), (3,1)
-
----
-
-_Last Updated: December 2025_
+- One queen per row turns the problem into a choice of columns.
+- Check only the column and the two upper diagonals; undo after a failed branch.
+- Counts for n = 0..9 are 1, 1, 0, 0, 2, 10, 4, 40, 92, 352.

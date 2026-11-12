@@ -1,74 +1,30 @@
-# N-Queens Problem - C++
+# N-Queens Problem -- C++ Implementation
 
-This folder contains a C++ implementation of the **N-Queens Problem** using backtracking.
+## Files
 
----
+- `n_queens.cpp`: `isSafe`, `solveNQueensUtil`, `solveNQueens`, `printSolution`; `main` is compiled out with `-DIS_TEST_BUILD`.
+- `n_queens_test.cpp`: assert-based tests (n = 4, first solution, n = 8, `isSafe`, OEIS counts for n = 0..9, no solution for 2 and 3, board validity, lexicographically first solution).
 
-## Concept
+## API
 
-The N-Queens problem is to place N queens on an N×N chessboard such that no two queens attack each other. This implementation uses backtracking to find solutions.
+- `solveNQueens(int n, bool findAll = false)`: returns `vector<vector<vector<int>>>`, a list of n x n boards with 1 for a queen. Empty when there is no solution.
+- `isSafe(board, row, col, n)`: true if no queen above `(row, col)` attacks it.
+- `printSolution(board)`: prints `Q` and `.`.
 
-**Key Features:**
-- Backtracking algorithm
-- Find first solution or all solutions
-- Efficient conflict checking
-- Visual solution display
+## C++-Specific Notes
 
----
+- `n_queens_test.cpp` includes the `.cpp` directly; compile one file with `IS_TEST_BUILD` defined.
+- Any C++11 compiler works for the solver; the commands below use C++17.
+- Boards are copied with `push_back` when a solution is found.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `isSafe(board, row, col, n)` | Check if placing queen is safe | O(n) |
-| `solveNQueens(n, findAll)` | Solve N-Queens problem | O(N!) worst case |
-| `printSolution(board)` | Display solution board | O(n²) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Find First Solution | O(N!) worst case | O(N²) |
-| Find All Solutions | O(N!) worst case | O(N² × solutions) |
-| Conflict Check | O(N) | O(1) |
-
----
-
-## Usage
-
-```cpp
-#include "n_queens.cpp"
-
-// Find first solution
-auto solutions = solveNQueens(4, false);
-if (!solutions.empty()) {
-    printSolution(solutions[0]);
-}
-
-// Find all solutions
-auto allSolutions = solveNQueens(4, true);
-cout << "Found " << allSolutions.size() << " solutions" << endl;
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-g++ -o test n_queens_test.cpp && ./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD n_queens_test.cpp -o n_queens_test && ./n_queens_test
 ```
 
----
+## Key Takeaways
 
-## Example
-
-For N=4, there are 2 solutions:
-- Solution 1: Queens at (0,1), (1,3), (2,0), (3,2)
-- Solution 2: Queens at (0,2), (1,0), (2,3), (3,1)
-
----
-
-_Last Updated: December 2025_
-
+- One queen per row turns the problem into a choice of columns.
+- Check only the column and the two upper diagonals; undo after a failed branch.
+- Counts for n = 0..9 are 1, 1, 0, 0, 2, 10, 4, 40, 92, 352.
