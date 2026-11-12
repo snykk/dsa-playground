@@ -1,49 +1,37 @@
-# Ternary Search (Go)
+# Ternary Search -- Go Implementation
 
-**Ternary Search** is a divide-and-conquer algorithm that finds the position of a target value in a sorted array by dividing the search space into three parts.
+Ternary search over a sorted `[]int`, iterative and recursive. For the idea and the traces see the [topic README](../README.md).
 
----
+## Files
 
-## Overview
+- `main.go` - the two search functions (`package main`, no `main` function).
+- `main_test.go` - 2 test functions with table-driven subtests (7 passing cases counting subtests).
+- `go.mod` - the module `ternarysearch`.
 
-Ternary Search divides the search space into three equal parts. While it has the same asymptotic complexity as Binary Search, it typically performs more comparisons per iteration.
+## API
 
----
+- `TernarySearch(arr []int, target int) int` - index or -1.
+- `TernarySearchRecursive(arr []int, target int, left int, right int) int` - the recursive form; the caller passes the bounds, for example `0` and `len(arr)-1`.
 
-## Complexity Analysis
+There is no unimodal-function search in Go (Python has one).
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Best Case** | O(1) | O(1) |
-| **Average Case** | O(log₃ n) | O(1) |
-| **Worst Case** | O(log₃ n) | O(1) |
+## Go-Specific Notes
 
----
+- The probes are `left + (right-left)/3` and `right - (right-left)/3`, which cannot overflow.
+- Only `[]int` is supported.
+- For lookups, `sort.SearchInts` (binary search) is the better choice.
+- The package is `main` without a `main` function, so `go test` works but `go run .` and `go build` do not.
 
-## Usage
+## How to Run
 
-```go
-arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-index := TernarySearch(arr, 5)
-// index = 4
-```
-
----
-
-## Testing
+From this folder:
 
 ```bash
-go test
+go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **Binary Search**: O(log₂ n) for sorted arrays
-- **Linear Search**: O(n) for unsorted arrays
-
----
-
-_Last Updated: December 2025_
-
+- Two probes per round, a third discarded: more probes in total than binary search.
+- Use `sort.SearchInts` for lookups in real code.
+- Ternary search is for unimodal functions, which this folder does not implement in Go.

@@ -1,10 +1,17 @@
-#include "reservoir_sampling.h"
-
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <iostream>
 #include <map>
+#include <random>
+#include <stdexcept>
 #include <vector>
+
+// White-box access: the overflow regression test sets the private counter
+// directly instead of offering 2^31 items.
+#define private public
+#include "reservoir_sampling.h"
+#undef private
 
 void testEmptyStream() {
     std::vector<int> empty;
@@ -71,6 +78,17 @@ void testNegativeKThrows() {
     assert(threw);
 }
 
+// Regression: the seen counter was an int and overflowed after 2^31 - 1 offers,
+// making seen() negative and the distribution range invalid.
+void testSeenCounterPastIntMax() {
+    ReservoirSampler<int> sampler(1, 42);
+    sampler.offer(0);
+    sampler.seen_ = 2147483646ULL;  // INT_MAX - 1 items already seen
+    for (int i = 0; i < 5; ++i) sampler.offer(i);
+    assert(sampler.seen() == 2147483651ULL);
+    assert(sampler.size() == 1);
+}
+
 int main() {
     testEmptyStream();
     testKZero();
@@ -79,6 +97,7 @@ int main() {
     testIncrementalSampler();
     testStatisticalUniformity();
     testNegativeKThrows();
-    std::cout << "All 7 tests passed!" << std::endl;
+    testSeenCounterPastIntMax();
+    std::cout << "All 8 tests passed!" << std::endl;
     return 0;
 }

@@ -1,0 +1,221 @@
+---
+topic: Algorithms/Searching/Ternary Search
+title: Ternary Search
+lead: Ternary Search splits a sorted range into three parts with two probes and discards at least one third each round. It is in the same O(log n) class as Binary Search but makes more probes, so for plain lookup it loses. Its real use is finding the peak of a unimodal function.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(log n)
+    hint: log3(n) rounds, each with two probes
+  - label: Probes
+    value: 1.26 x binary
+    hint: 2 log3(n) = 1.26 log2(n) probes against log2(n)
+    tone: warn
+  - label: Extra space
+    value: O(1)
+    hint: iterative
+  - label: Best use
+    value: Unimodal peak
+    hint: not plain lookup
+properties:
+  - { label: Requires sorted data (array search), value: true }
+  - { label: Fewer probes than binary search, value: false }
+  - { label: Finds a function maximum, value: true }
+  - { label: Works with plateaus, value: false }
+prerequisites:
+  - Algorithms/Searching/Binary Search
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Algorithms/Searching/Binary Search
+  - Algorithms/Searching/Interpolation Search
+  - Algorithms/Searching/Linear Search
+  - Problem_Patterns/Binary Search on Answer
+---
+
+## How Ternary Search works
+
+Two probes `mid1` and `mid2` cut the window `[lo, hi]` into three parts: the left third, the middle third and the right third. One round compares the target with both probes and keeps only the third that can hold it.
+
+<Steps>
+  <Step title="Place two probes">
+    `mid1 = lo + (hi - lo) / 3` and `mid2 = hi - (hi - lo) / 3`, with integer division.
+  </Step>
+  <Step title="Check both probes">
+    If `a[mid1]` or `a[mid2]` equals the target, return that index.
+  </Step>
+  <Step title="Keep one third">
+    If `target < a[mid1]`, keep the left part: `hi = mid1 - 1`. If `target > a[mid2]`, keep the right part: `lo = mid2 + 1`. Otherwise the target is between the probes: `lo = mid1 + 1`, `hi = mid2 - 1`.
+  </Step>
+  <Step title="Stop on an empty window">
+    When `lo > hi`, return -1.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+If the target is in the array, it is inside `a[lo..hi]`. The three cases are exhaustive and the discarded parts cannot contain the target, because the array is sorted.
+</Callout>
+
+## See it in action
+
+Press Apply to run your own sorted values and target, or Random for a random input. The transport buttons step through the rounds: watch the two probes split the range into thirds and the other two thirds fade out. Count the probes and compare them with the Binary Search visualization on the same array.
+
+<ArticleViz ids={['ternary-search']} />
+
+## Worked example
+
+Search for 5 in `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]` (indexes 0 to 9). These rounds come from the repository's algorithm.
+
+<ArrayDiagram
+  legend={{ c: 'mid1 and mid2: the probes', l: 'still in the window [lo..hi]', m: 'ruled out', f: 'found' }}
+  rows={[
+    { label: 'round 1', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'lllcllclll', marks: { 0: 'lo', 3: 'mid1', 6: 'mid2', 9: 'hi' }, note: 'mid1 = 3 (value 4), mid2 = 6 (value 7). 4 < 5 < 7: the target is in the middle third, so `lo = 4`, `hi = 5`.' },
+    { label: 'round 2', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'mmmmfcmmmm', marks: { 4: 'lo, mid1', 5: 'hi, mid2' }, note: 'mid1 = 4, mid2 = 5. `a[4] = 5`: found, return 4.' },
+  ]}
+/>
+
+Two rounds and four probes, while Binary Search happens to hit 5 on its first probe. For the target 9, ternary search takes 3 rounds and 6 probes, against 3 probes for binary.
+
+## Pseudocode
+
+```text
+ternarySearch(arr, target):
+    lo = 0; hi = len(arr) - 1
+    while lo <= hi:
+        mid1 = lo + (hi - lo) / 3
+        mid2 = hi - (hi - lo) / 3
+        if arr[mid1] == target: return mid1
+        if arr[mid2] == target: return mid2
+        if target < arr[mid1]:   hi = mid1 - 1
+        elif target > arr[mid2]: lo = mid2 + 1
+        else:                    lo = mid1 + 1; hi = mid2 - 1
+    return -1
+```
+
+## Peak of a unimodal function
+
+A function is **unimodal** if it strictly increases up to one peak and strictly decreases after it. Ternary search finds the peak without derivatives: compare `f(mid1)` and `f(mid2)`. If `f(mid1) < f(mid2)`, the peak cannot be left of `mid1`; otherwise it cannot be right of `mid2`.
+
+```text
+peak(f, lo, hi):                       # integer domain, strictly unimodal f
+    while hi - lo > 2:
+        mid1 = lo + (hi - lo) / 3
+        mid2 = hi - (hi - lo) / 3
+        (nudge mid1 and mid2 so that lo < mid1 < mid2 < hi)
+        if f(mid1) < f(mid2): lo = mid1
+        else:                 hi = mid2
+    return the best of f(lo) .. f(hi)
+```
+
+For `f(x) = -(x - 7)^2 + 3` on `[0, 20]` the repository's code narrows the window `[0, 20]`, `[0, 14]`, `[0, 10]`, `[3, 10]`, `[5, 10]`, `[5, 9]`, `[5, 8]`, `[6, 8]`, scans the three left points and returns 7.
+
+## Implementation
+
+All three languages have the sorted-array search, iterative and recursive. Only Python has the peak finder: `ternary_search_unimodal(func, left, right)` works on **integer** bounds only (float bounds raise `TypeError`) and finds **maxima** only; to find a minimum, search for the maximum of `-f`. C++ includes `<functional>` but has no unimodal function, and neither has Go.
+
+<TopicCode topic="Algorithms/Searching/Ternary Search" />
+
+## Complexity analysis
+
+Whichever third is kept, the window shrinks to about a third of its size, so the number of rounds is about `log3(n)`.
+
+<Equation label="Recurrence" expr="T(n) = T(n/3) + O(1)" result="O(log3(n)) = O(log n)" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(1)', when: 'The target is at the first mid1 or mid2.' },
+    { case: 'Average and worst case', time: 'O(log n)', when: 'About log3(n) rounds, two probes each.' },
+    { case: 'Space', time: 'O(1)', when: 'Iterative. The recursive version uses O(log n) stack.' },
+  ]}
+/>
+
+The constant is what matters. Binary Search needs `log2(n)` probes; ternary search needs `2 log3(n)`, which is `1.26 log2(n)`, so it is **worse**. Probes in the worst case, measured for a present target in `0 .. n - 1`:
+
+<DataTable
+  columns={['n', { label: 'Ternary probes', kind: 'mono' }, { label: 'Binary probes', kind: 'mono' }]}
+  rows={[
+    ['10', '6', '4'],
+    ['100', '10', '7'],
+    ['1,000', '14', '10'],
+    ['100,000', '22', '17'],
+  ]}
+/>
+
+Cutting the range in more parts does not help, because every extra part needs an extra probe, and `k` parts need `k - 1` probes for a factor of `log2(k)`. Two parts (binary) minimize `(k - 1) / log2(k)`.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Variant', 'Use', 'Note']}
+  rows={[
+    ['Sorted-array lookup (here)', 'find a value', 'works, but Binary Search is cheaper'],
+    ['Integer unimodal peak (Python)', 'maximum of a strictly unimodal `f`', 'integer bounds only'],
+    ['Continuous peak', 'real-valued `f` with a tolerance', 'loop for a fixed number of iterations or until `hi - lo < eps`; not implemented here'],
+    ['Golden-section search', 'peak, reusing one probe per round', 'one function evaluation per round instead of two; not implemented here'],
+    ['Binary search on the slope', 'peak of a discrete `f`', 'compare `f(m)` with `f(m + 1)`: one comparison per round'],
+  ]}
+/>
+
+## Ternary Search vs alternatives
+
+<DataTable
+  columns={['Method', 'Task', { label: 'Cost', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Ternary Search', 'sorted lookup', '2 log3(n) probes', 'valid but wasteful'],
+    ['Binary Search', 'sorted lookup', 'log2(n) probes', 'the standard choice'],
+    ['Ternary Search', 'unimodal peak', 'two evaluations per round', 'needs strict unimodality'],
+    ['Binary search on the slope', 'unimodal peak', 'one comparison per round', 'discrete domains; also fails on plateaus'],
+    ['Linear scan', 'any peak', 'O(n)', 'no assumptions at all'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Finds the peak of a unimodal function without derivatives.',
+    'Simple to code, and the same loop works for maxima of black-box functions.',
+    'Constant extra space.',
+  ]}
+  cons={[
+    'More probes than Binary Search for plain lookup: about 26 percent more.',
+    'Breaks on plateaus: if `f(mid1) == f(mid2)` below the peak, it discards the wrong side.',
+    'The function must be strictly unimodal; local bumps give wrong answers.',
+    'The Python peak finder handles integers and maxima only.',
+  ]}
+/>
+
+## Applications
+
+- **Maximizing or minimizing a unimodal function**, for example the best position on a line, or a cost that falls and then rises (negate it to turn a minimum into a maximum).
+- **Competitive programming** problems with a convex or concave cost over an integer or real range.
+- **Teaching:** it shows why splitting into more parts does not beat splitting in two.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using it for plain lookup.** Binary Search is cheaper.
+- **Plateaus.** A function that rises from 0 to 5 by x = 5, stays flat at 5 until x = 15 and then rises again to 10 at x = 20 is not unimodal. The Python peak finder returns x = 5 (value 5) while the maximum is at x = 20 (value 10).
+- **Passing floats to the Python peak finder.** It uses `range`, so float bounds raise `TypeError`.
+- **Looking for a minimum.** The Python function finds maxima; negate `f` to find a minimum.
+- **Probes that coincide.** On very small windows `mid1` and `mid2` can collapse onto the same index, so the code scans the last few points directly.
+- **Off-by-one in the thirds.** Use `lo + (hi - lo) / 3` and `hi - (hi - lo) / 3`, and discard the probes themselves (`mid1 - 1`, `mid2 + 1`).
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is Ternary Search faster than Binary Search because log base 3 is smaller?">
+    No. The number of rounds is smaller (`log3 n` against `log2 n`), but each round needs two probes, so the total is `2 log3 n = 1.26 log2 n` probes. Binary Search wins.
+  </FaqItem>
+  <FaqItem question="Why use it at all?">
+    Because on a unimodal function you cannot test a single point against a target: you need two evaluations to tell which side of the peak you are on. That makes the two-probe round natural, and no binary lookup applies.
+  </FaqItem>
+  <FaqItem question="What if the function has a flat top?">
+    A flat top at the maximum is fine: any point on it is a maximum. A flat stretch away from the maximum is the problem, because equal values at the two probes do not say where the peak is.
+  </FaqItem>
+  <FaqItem question="How do I search a real-valued function?">
+    Use the same two-probe rule on floating-point `lo` and `hi`, and stop after a fixed number of iterations or when `hi - lo` is smaller than a tolerance. The repository's Python version covers integers only.
+  </FaqItem>
+</Faq>

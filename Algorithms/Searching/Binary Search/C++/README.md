@@ -1,140 +1,38 @@
-# Binary Search (C++)
+# Binary Search -- C++ Implementation
 
-**Binary Search** is an efficient searching algorithm that finds the position of a target value within a sorted array by repeatedly dividing the search interval in half.
+Template binary search over `std::vector`, with recursive and first/last occurrence variants. For the idea, the invariant and the trace see the [topic README](../README.md).
 
----
+## Files
 
-## Overview
+- `binary_search.cpp` - the templates and their explicit instantiations.
+- `binary_search_test.cpp` - 9 assert-based tests (it includes the .cpp file).
 
-Binary Search is a divide-and-conquer algorithm that works on sorted arrays. It compares the target value to the middle element and eliminates half of the search space in each iteration.
+## API
 
----
+- `int binarySearch(const std::vector<T>& arr, const T& target)` - index or -1. Instantiated for `int` and `double`.
+- `int binarySearchRecursive(arr, target, left, right)` - the recursive form; the caller passes the bounds. `int` and `double`.
+- `int binarySearchFirstOccurrence(arr, target)` and `int binarySearchLastOccurrence(arr, target)` - `int` only.
 
-## Algorithm
+There is no closest-element search in C++ (Python has one). For insertion points use `std::lower_bound` and `std::upper_bound`.
 
-1. Compare target with middle element
-2. If match found, return index
-3. If target is greater, search right half
-4. If target is smaller, search left half
-5. Repeat until found or search space is exhausted
+## C++-Specific Notes
 
----
+- The midpoint is `left + (right - left) / 2`, which avoids the overflow of `(left + right) / 2`.
+- Indexes are `int`, so arrays beyond `INT_MAX` elements are not supported.
+- The explicit instantiations at the end of the file mean only the listed types work when the file is linked separately; including the .cpp (as the test does) works for any type with `==` and `<`.
+- Do not compile `binary_search.cpp` and the test together: the test already includes it.
 
-## Complexity Analysis
+## How to Run
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Best Case** | O(1) | O(1) |
-| **Average Case** | O(log n) | O(1) |
-| **Worst Case** | O(log n) | O(1) |
-
-**Note**: Space complexity is O(log n) for recursive version due to recursion stack.
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`binarySearch(arr, target)`**
-   - Iterative implementation
-   - O(1) space complexity
-   - Template-based for generic types
-
-2. **`binarySearchRecursive(arr, target, left, right)`**
-   - Recursive implementation
-   - O(log n) space complexity
-   - More intuitive but uses recursion stack
-
-3. **`binarySearchFirstOccurrence(arr, target)`**
-   - Finds first occurrence in array with duplicates
-   - Useful for lower bound problems
-
-4. **`binarySearchLastOccurrence(arr, target)`**
-   - Finds last occurrence in array with duplicates
-   - Useful for upper bound problems
-
----
-
-## Usage
-
-```cpp
-#include <vector>
-#include "binary_search.cpp"
-
-// Basic search
-std::vector<int> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-int index = binarySearch(arr, 5);
-// index = 4
-
-// Recursive search
-int index = binarySearchRecursive(arr, 7, 0, arr.size() - 1);
-// index = 6
-
-// First occurrence (with duplicates)
-std::vector<int> arr = {1, 2, 2, 2, 3, 4, 5};
-int index = binarySearchFirstOccurrence(arr, 2);
-// index = 1
-
-// Last occurrence (with duplicates)
-int index = binarySearchLastOccurrence(arr, 2);
-// index = 3
-```
-
----
-
-## Compilation
+From this folder:
 
 ```bash
-g++ -std=c++11 binary_search.cpp binary_search_test.cpp -o test
-./test
+g++ -std=c++17 -O2 -Wall binary_search_test.cpp -o binary_search_test
+./binary_search_test
 ```
 
----
+## Key Takeaways
 
-## Important Notes
-
-1. **Array must be sorted**: Binary Search only works on sorted arrays
-2. **Use `left + (right - left) / 2`**: Prevents integer overflow
-3. **Boundary conditions**: Always check `left <= right` in while loop
-
----
-
-## Advantages
-
-1. ✅ **Efficient**: O(log n) time complexity
-2. ✅ **Optimal**: Best possible for comparison-based search
-3. ✅ **Space efficient**: O(1) space for iterative version
-4. ✅ **Generic**: Template-based for any comparable type
-
----
-
-## Disadvantages
-
-1. ❌ **Requires sorted array**: Must sort first (O(n log n))
-2. ❌ **Not suitable for unsorted data**: Use Linear Search instead
-
----
-
-## When to Use
-
-- ✅ Sorted arrays
-- ✅ Large datasets
-- ✅ Need guaranteed O(log n) performance
-- ❌ Unsorted data
-
----
-
-## Related Algorithms
-
-- **Linear Search**: O(n) for unsorted arrays
-- **Ternary Search**: O(log₃ n) for unimodal functions
-- **Interpolation Search**: O(log log n) for uniformly distributed data
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 3)
-- "Algorithm Design Manual" by Steven Skiena
-
+- Write the midpoint as `left + (right - left) / 2`.
+- Prefer `std::lower_bound` and `std::upper_bound` in real code.
+- First and last occurrence only change what happens on a match.
