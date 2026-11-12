@@ -11,10 +11,33 @@ from big_theta import (
 )
 
 
+class CountingList(list):
+    """A list that counts element reads, to observe how much work a search does."""
+
+    reads = 0
+
+    def __getitem__(self, index):
+        self.reads += 1
+        return list.__getitem__(self, index)
+
+
 class TestBigTheta(unittest.TestCase):
+
+    def test_binary_search_best_case_is_constant(self):
+        """Best case Theta(1): a target at the first middle probe is found with one read.
+        Worst case Theta(log n): an absent target needs about log2(n) probes."""
+        n = 1023
+        arr = CountingList(range(n))
+        self.assertEqual(binary_search_example(arr, 511), 511)
+        self.assertEqual(arr.reads, 1)
+
+        arr.reads = 0
+        self.assertEqual(binary_search_example(arr, -1), -1)
+        # 10 probes, each with at least one read
+        self.assertGreaterEqual(arr.reads, 10)
     
     def test_tight_bound_linear(self):
-        """Test Θ(n) tight bound"""
+        """Test Theta(n) tight bound"""
         arr = [1, 2, 3, 4, 5]
         self.assertEqual(tight_bound_example(arr), 15)
         
@@ -25,7 +48,7 @@ class TestBigTheta(unittest.TestCase):
         self.assertEqual(tight_bound_example(arr), 0)
     
     def test_merge_sort_tight_bound(self):
-        """Test Θ(n log n) tight bound for merge sort"""
+        """Test Theta(n log n) tight bound for merge sort"""
         arr = [64, 34, 25, 12, 22, 11, 90]
         sorted_arr = merge_sort_example(arr)
         self.assertEqual(sorted_arr, [11, 12, 22, 25, 34, 64, 90])
@@ -39,7 +62,7 @@ class TestBigTheta(unittest.TestCase):
         self.assertEqual(sorted_arr, [1])
     
     def test_binary_search_tight_bound(self):
-        """Test Θ(log n) tight bound for binary search"""
+        """Test Theta(log n) tight bound for binary search"""
         arr = [1, 3, 5, 7, 9, 11, 13, 15]
         
         # Found cases
@@ -53,7 +76,7 @@ class TestBigTheta(unittest.TestCase):
         self.assertEqual(binary_search_example(arr, 6), -1)
     
     def test_matrix_multiplication_tight_bound(self):
-        """Test Θ(n³) tight bound for matrix multiplication"""
+        """Test Theta(n^3) tight bound for matrix multiplication"""
         A = [[1, 2], [3, 4]]
         B = [[5, 6], [7, 8]]
         C = matrix_multiplication_naive(A, B)

@@ -1,12 +1,15 @@
 """
-Big-Omega (Ω) Notation Implementation and Examples
+Big-Omega (Omega) Notation Implementation and Examples
 
-Big-Omega notation describes the lower bound of an algorithm's time complexity.
-It represents the best-case scenario for how the runtime grows with input size.
+Big-Omega notation is an asymptotic lower bound on a function. In algorithm
+analysis that function is a running time, and it can be the best-case, average-case
+or worst-case time (Omega is not a synonym for "best case"). A lower bound on the
+worst case says "some input of size n needs at least this long"; a lower bound on
+the best case says "every input of size n needs at least this long".
 
 Formal Definition:
-f(n) = Ω(g(n)) if there exist positive constants c and n₀ such that
-0 ≤ c·g(n) ≤ f(n) for all n ≥ n₀
+f(n) = Omega(g(n)) if there exist positive constants c and n_0 such that
+0 <= c*g(n) <= f(n) for all n >= n_0
 
 This means f(n) is bounded below by g(n).
 """
@@ -14,8 +17,9 @@ This means f(n) is bounded below by g(n).
 
 def linear_search_best_case(arr, target):
     """
-    Ω(1) - Best case for linear search
-    If target is at the first position, we find it immediately.
+    Omega(1) - lower bound that holds for linear search on every input
+    (it always does at least one comparison). The best case is Theta(1): the
+    target is at the first position and is found immediately.
     
     Args:
         arr: List of elements
@@ -24,7 +28,7 @@ def linear_search_best_case(arr, target):
     Returns:
         Index of target if found, -1 otherwise
         
-    Time Complexity: O(n) worst case, Ω(1) best case
+    Time Complexity: best case Theta(1), worst case Theta(n)
     Space Complexity: O(1)
     """
     for i, element in enumerate(arr):
@@ -35,8 +39,9 @@ def linear_search_best_case(arr, target):
 
 def bubble_sort_best_case(arr):
     """
-    Ω(n) - Best case for bubble sort
-    If array is already sorted, we still need to check all elements once.
+    Omega(n) - lower bound for bubble sort with the early-exit flag, on every
+    input: even an already sorted array needs one full pass (n - 1 comparisons).
+    The best case (sorted input) is therefore Theta(n).
     
     Args:
         arr: List of elements to sort
@@ -44,7 +49,7 @@ def bubble_sort_best_case(arr):
     Returns:
         Sorted list
         
-    Time Complexity: O(n²) worst case, Ω(n) best case
+    Time Complexity: best case Theta(n), worst case Theta(n^2)
     Space Complexity: O(1)
     """
     n = len(arr)
@@ -61,8 +66,11 @@ def bubble_sort_best_case(arr):
 
 def quick_sort_best_case(arr):
     """
-    Ω(n log n) - Best case for quick sort
-    When pivot always divides array in half (balanced partition).
+    Three-way quick sort that builds new lists (not in place), with the middle
+    element as the pivot. The name is historical: it does NOT have an
+    Omega(n log n) best case. Elements equal to the pivot are not recursed on, so
+    an all-equal input is sorted in Theta(n) (one partition, no deeper calls).
+    With distinct keys and perfectly balanced pivots it takes Theta(n log n).
     
     Args:
         arr: List of elements to sort
@@ -70,8 +78,10 @@ def quick_sort_best_case(arr):
     Returns:
         Sorted list
         
-    Time Complexity: O(n²) worst case, Ω(n log n) best case
-    Space Complexity: O(log n)
+    Time Complexity: best case Theta(n) (all keys equal), average Theta(n log n),
+    worst case Theta(n^2)
+    Space Complexity: O(n) extra per level of recursion, because every call
+    allocates new lists; it is not O(log n)
     """
     if len(arr) <= 1:
         return arr
@@ -86,16 +96,16 @@ def quick_sort_best_case(arr):
 
 def matrix_traversal_lower_bound(matrix):
     """
-    Ω(n²) - Lower bound for matrix traversal
-    Must visit every element in an n×n matrix.
+    Theta(n^2) - visiting every element of an n x n matrix takes at least n^2
+    steps (Omega(n^2)) and exactly that many (O(n^2)).
     
     Args:
-        matrix: 2D list (n×n matrix)
+        matrix: 2D list (nxn matrix)
         
     Returns:
         Sum of all elements
         
-    Time Complexity: Ω(n²) - tight bound
+    Time Complexity: Theta(n^2) in every case
     Space Complexity: O(1)
     """
     total = 0
@@ -109,44 +119,45 @@ def demonstrate_big_omega():
     """
     Demonstrate Big-Omega notation with examples.
     """
-    print("=== Big-Omega (Ω) Notation Examples ===\n")
-    print("Big-Omega provides a LOWER BOUND (best case)\n")
+    print("=== Big-Omega (Omega) Notation Examples ===\n")
+    print("Big-Omega is a LOWER BOUND on a function (any case can have one)\n")
     
-    # Ω(1) - Constant lower bound
-    print("Ω(1) - Constant Lower Bound:")
+    # Omega(1) - Constant lower bound
+    print("Omega(1) - Constant Lower Bound:")
     arr = [5, 3, 8, 1, 9]
     result = linear_search_best_case(arr, 5)  # Target at first position
     print(f"  Linear search (best case): found at index {result}")
-    print("  Explanation: Best case is O(1) when target is first\n")
+    print("  Explanation: the best case is Theta(1): the target is first\n")
     
-    # Ω(n) - Linear lower bound
-    print("Ω(n) - Linear Lower Bound:")
+    # Omega(n) - Linear lower bound
+    print("Omega(n) - Linear Lower Bound:")
     sorted_arr = [1, 2, 3, 4, 5]
     bubble_sort_best_case(sorted_arr.copy())
     print(f"  Bubble sort (best case): already sorted array")
-    print("  Explanation: Even best case requires checking all elements\n")
+    print("  Explanation: even the best case needs one full pass: Theta(n)\n")
     
-    # Ω(n log n) - Linearithmic lower bound
-    print("Ω(n log n) - Linearithmic Lower Bound:")
+    # Omega(n log n) - Linearithmic lower bound
+    print("Quick sort (three-way, out of place):")
     arr = [64, 34, 25, 12, 22, 11, 90]
     sorted_result = quick_sort_best_case(arr)
     print(f"  Quick sort (best case): {sorted_result}")
-    print("  Explanation: Best case requires n log n operations\n")
+    print("  Explanation: average Theta(n log n), worst Theta(n^2), all-equal keys Theta(n)\n")
     
-    # Ω(n²) - Quadratic lower bound
-    print("Ω(n²) - Quadratic Lower Bound:")
+    # Omega(n^2) - Quadratic lower bound
+    print("Omega(n^2) - Quadratic Lower Bound:")
     matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     total = matrix_traversal_lower_bound(matrix)
     print(f"  Matrix traversal: sum = {total}")
-    print("  Explanation: Must visit all n² elements\n")
+    print("  Explanation: Must visit all n^2 elements\n")
     
-    print("=== Key Difference: Big-O vs Big-Omega ===\n")
-    print("Big-O (O): Upper bound (worst case)")
-    print("  Example: Linear search is O(n) worst case\n")
-    print("Big-Omega (Ω): Lower bound (best case)")
-    print("  Example: Linear search is Ω(1) best case\n")
-    print("Big-Theta (Θ): Tight bound (best = worst)")
-    print("  Example: Binary search is Θ(log n) in all cases\n")
+    print("=== Notations are bounds; cases are separate ===\n")
+    print("Big-O (O): upper bound on a function")
+    print("Big-Omega (Omega): lower bound on a function")
+    print("Big-Theta (Theta): both at once (a tight bound)")
+    print("Best, average and worst case are different functions; any of them can")
+    print("be described with O, Omega or Theta.")
+    print("  Linear search: best case Theta(1), worst case Theta(n)")
+    print("  Binary search: best case Theta(1), worst case Theta(log n)\n")
 
 
 if __name__ == "__main__":

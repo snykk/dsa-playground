@@ -52,17 +52,17 @@ def linear_space_example(n):
 
 def quadratic_space_example(n):
     """
-    O(n²) - Quadratic Space
+    O(n^2) - Quadratic Space
     Memory usage grows quadratically with input size.
     
     Args:
         n: Input size
         
     Returns:
-        n×n matrix
+        nxn matrix
         
-    Time Complexity: O(n²)
-    Space Complexity: O(n²) - creates an n×n matrix
+    Time Complexity: O(n^2)
+    Space Complexity: O(n^2) - creates an nxn matrix
     """
     matrix = []
     for i in range(n):
@@ -85,8 +85,9 @@ def logarithmic_space_example(n):
     Returns:
         Result of binary operation
         
-    Time Complexity: O(log n)
-    Space Complexity: O(log n) - recursion depth is log n
+    Time Complexity: O(n) - two recursive calls on halves, T(n) = 2T(n/2) + O(1)
+    Space Complexity: O(log n) - the calls run one after the other, so only one
+    root-to-leaf chain of frames (depth log n) is alive at a time
     """
     if n <= 1:
         return n
@@ -104,7 +105,7 @@ def recursive_fibonacci_naive(n):
     Returns:
         Fibonacci number at position n
         
-    Time Complexity: O(2ⁿ)
+    Time Complexity: O(2^n)
     Space Complexity: O(n) - maximum recursion depth is n
     """
     if n <= 1:
@@ -189,13 +190,13 @@ def demonstrate_space_complexity():
     print(f"  Created array of size {len(arr)}: {arr[:5]}...")
     print("  Explanation: Creates a list proportional to input size\n")
     
-    # O(n²) - Quadratic space
-    print("O(n²) - Quadratic Space:")
+    # O(n^2) - Quadratic space
+    print("O(n^2) - Quadratic Space:")
     matrix = quadratic_space_example(3)
-    print(f"  Created {len(matrix)}×{len(matrix)} matrix:")
+    print(f"  Created {len(matrix)}x{len(matrix)} matrix:")
     for row in matrix:
         print(f"    {row}")
-    print("  Explanation: Creates n×n matrix\n")
+    print("  Explanation: Creates nxn matrix\n")
     
     # O(log n) - Logarithmic space
     print("O(log n) - Logarithmic Space:")

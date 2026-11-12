@@ -28,7 +28,7 @@ vector<int> linearSpaceExample(int n) {
     return result;
 }
 
-// O(n²) - Quadratic Space
+// O(n^2) - Quadratic Space
 vector<vector<int>> quadraticSpaceExample(int n) {
     vector<vector<int>> matrix;
     for (int i = 0; i < n; i++) {
@@ -61,9 +61,9 @@ void demonstrateSpaceComplexity() {
     vector<int> arr = linearSpaceExample(10);
     cout << "  Created array of size " << arr.size() << "\n\n";
     
-    cout << "O(n²) - Quadratic Space:\n";
+    cout << "O(n^2) - Quadratic Space:\n";
     vector<vector<int>> matrix = quadraticSpaceExample(3);
-    cout << "  Created " << matrix.size() << "×" << matrix[0].size() << " matrix\n\n";
+    cout << "  Created " << matrix.size() << "x" << matrix[0].size() << " matrix\n\n";
     
     vector<int> test = {1, 2, 3, 4, 5};
     inPlaceReverse(test);

@@ -13,7 +13,7 @@ void testConstantTime() {
     assert(constantTimeExample(100) == 42);
     assert(constantTimeExample(1000) == 42);
     assert(constantTimeExample(10000) == 42);
-    cout << "✓ Constant time tests passed\n";
+    cout << "OK Constant time tests passed\n";
 }
 
 void testLogarithmicTime() {
@@ -21,7 +21,7 @@ void testLogarithmicTime() {
     assert(logarithmicTimeExample(16) == 4);
     assert(logarithmicTimeExample(32) == 5);
     assert(logarithmicTimeExample(64) == 6);
-    cout << "✓ Logarithmic time tests passed\n";
+    cout << "OK Logarithmic time tests passed\n";
 }
 
 void testLinearTime() {
@@ -33,7 +33,7 @@ void testLinearTime() {
     
     vector<int> arr3 = {};
     assert(linearTimeExample(arr3) == 0);
-    cout << "✓ Linear time tests passed\n";
+    cout << "OK Linear time tests passed\n";
 }
 
 void testLinearithmicTime() {
@@ -46,7 +46,7 @@ void testLinearithmicTime() {
     vector<int> sorted2 = linearithmicTimeExample(arr2);
     vector<int> expected2 = {1, 2, 5, 8, 9};
     assert(sorted2 == expected2);
-    cout << "✓ Linearithmic time tests passed\n";
+    cout << "OK Linearithmic time tests passed\n";
 }
 
 void testQuadraticTime() {
@@ -57,7 +57,7 @@ void testQuadraticTime() {
     vector<int> arr2 = {1, 2, 3, 4};
     vector<pair<int, int>> pairs2 = quadraticTimeExample(arr2);
     assert(pairs2.size() == 6);  // C(4,2) = 6
-    cout << "✓ Quadratic time tests passed\n";
+    cout << "OK Quadratic time tests passed\n";
 }
 
 void testCubicTime() {
@@ -65,7 +65,7 @@ void testCubicTime() {
     assert(cubicTimeExample(2) == 8);
     assert(cubicTimeExample(3) == 27);
     assert(cubicTimeExample(5) == 125);
-    cout << "✓ Cubic time tests passed\n";
+    cout << "OK Cubic time tests passed\n";
 }
 
 void testExponentialTime() {
@@ -76,7 +76,7 @@ void testExponentialTime() {
     assert(exponentialTimeExample(4) == 3);
     assert(exponentialTimeExample(5) == 5);
     assert(exponentialTimeExample(6) == 8);
-    cout << "✓ Exponential time tests passed\n";
+    cout << "OK Exponential time tests passed\n";
 }
 
 int main() {
@@ -90,7 +90,7 @@ int main() {
     testCubicTime();
     testExponentialTime();
     
-    cout << "\nAll tests passed! ✓\n";
+    cout << "\nAll tests passed! OK\n";
     return 0;
 }
 

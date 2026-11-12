@@ -57,3 +57,41 @@ func TestBinaryCounter(t *testing.T) {
 		t.Errorf("Expected value between 0 and 15, got %d", value)
 	}
 }
+
+func TestZeroInitialCapacity(t *testing.T) {
+	// Regression: capacity 0 used to stay 0 after doubling (index out of range panic)
+	arr := NewDynamicArray(0)
+	for i := 0; i < 5; i++ {
+		arr.Append(i)
+	}
+	if arr.size != 5 {
+		t.Fatalf("Expected size 5, got %d", arr.size)
+	}
+	for i := 0; i < 5; i++ {
+		if arr.Get(i) != i {
+			t.Errorf("Get(%d) = %d", i, arr.Get(i))
+		}
+	}
+}
+
+func TestAggregateBounds(t *testing.T) {
+	for _, n := range []int{1, 10, 100, 1000} {
+		arr := NewDynamicArray(1)
+		for i := 0; i < n; i++ {
+			arr.Append(i)
+		}
+		if arr.copies > 2*n {
+			t.Errorf("n=%d: copies %d exceed 2n", n, arr.copies)
+		}
+	}
+	counter := NewBinaryCounter(16)
+	for i := 0; i < 1000; i++ {
+		counter.Increment()
+	}
+	if counter.flips > 2000 {
+		t.Errorf("flips %d exceed 2n", counter.flips)
+	}
+	if counter.GetValue() != 1000 {
+		t.Errorf("Expected 1000, got %d", counter.GetValue())
+	}
+}

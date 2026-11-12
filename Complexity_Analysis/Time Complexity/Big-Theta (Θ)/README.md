@@ -1,229 +1,121 @@
-# Big-Theta (Θ) Notation
+# Big-Theta (Theta) Notation
 
-A comprehensive guide to **Big-Theta (Θ) Notation**, which describes a tight bound on an algorithm's time complexity.
+Big-Theta is a **tight asymptotic bound on a function**: the function grows at exactly the rate of `g`, bounded above and below by constant multiples of it. In algorithm analysis it attaches to one function (for example the worst case) and not to the algorithm as a whole.
 
----
+## Intuition
 
-## Overview
+Picture `f(n)` between two copies of `g(n)`, one scaled down by `c1` and one scaled up by `c2`. Past `n0` the curve never leaves that band, so `f` grows exactly like `g`. Big-O and Big-Omega are loose by default (`n` is `O(n^2)`), but Theta pins the rate down: `n` is not `Theta(n^2)`.
 
-Big-Theta notation provides a tight bound, meaning the algorithm's growth rate is bounded both above and below by the same function. This is stronger than Big-O (which only provides an upper bound) and is used when best case = average case = worst case.
+**Formal definition.** `f(n) = Theta(g(n))` if there exist constants `c1, c2 > 0` and `n0` such that
 
----
-
-## Formal Definition
-
-f(n) = Θ(g(n)) if there exist positive constants c₁, c₂, and n₀ such that:
-```
-0 ≤ c₁·g(n) ≤ f(n) ≤ c₂·g(n) for all n ≥ n₀
+```text
+0 <= c1 * g(n) <= f(n) <= c2 * g(n)   for all n >= n0
 ```
 
-This means f(n) is bounded both above and below by g(n).
+Equivalently, `f = Theta(g)` exactly when `f = O(g)` and `f = Omega(g)`.
 
----
+**Theta does not need best = average = worst.** An algorithm has several functions you can bound: the best-case, average-case and worst-case running time. Each can have its own Theta. The worst case of Quick Sort is `Theta(n^2)` and its average case is `Theta(n log n)`; both are correct statements. A single Theta for the whole algorithm exists only when every case has the same growth rate.
 
-## Key Characteristics
+## Visual
 
-1. **Tight Bound**: Both upper and lower bounds are the same
-2. **All Cases**: Best, average, and worst cases have the same complexity
-3. **Precise**: More informative than Big-O when applicable
-4. **Stronger Statement**: If f(n) = Θ(g(n)), then f(n) = O(g(n)) and f(n) = Ω(g(n))
+```text
+f(n) = 3n^2 + 5n + 2, g(n) = n^2, c1 = 3, c2 = 10, n0 = 1
 
----
-
-## When to Use Big-Theta
-
-Use Big-Theta when:
-- ✅ Best case = Average case = Worst case
-- ✅ You want to express the exact growth rate
-- ✅ The algorithm's performance is consistent
-- ✅ You can prove both upper and lower bounds
-
-**Example**: Merge sort is Θ(n log n) because it always requires n log n operations regardless of input.
-
----
-
-## When NOT to Use Big-Theta
-
-Don't use Big-Theta when:
-- ❌ Best case ≠ Worst case
-- ❌ You only know the upper bound
-- ❌ Performance varies significantly with input
-
-**Example**: Quick sort is O(n log n) average but O(n²) worst case, so we cannot say it's Θ(n log n).
-
----
-
-## Common Big-Theta Complexities
-
-| Notation | Description | Example |
-|----------|-------------|---------|
-| **Θ(1)** | Constant time | Array access |
-| **Θ(log n)** | Logarithmic | Binary search |
-| **Θ(n)** | Linear | Summing array elements |
-| **Θ(n log n)** | Linearithmic | Merge sort, heap sort |
-| **Θ(n²)** | Quadratic | Selection sort |
-| **Θ(n³)** | Cubic | Naive matrix multiplication |
-
----
-
-## Examples
-
-### Θ(n) - Linear Tight Bound
-```python
-def tight_bound_example(arr):
-    total = 0
-    for element in arr:
-        total += element
-    return total
-# Must process every element exactly once
+n          1    2    3    4     5     6
+3n^2       3   12   27   48    75   108     <- lower bound  c1 * g(n)
+f(n)      10   24   44   70   102   140     <- the function
+10n^2     10   40   90  160   250   360     <- upper bound  c2 * g(n)
 ```
 
-### Θ(log n) - Logarithmic Tight Bound
-```python
-def binary_search_example(arr, target):
-    left, right = 0, len(arr) - 1
-    while left <= right:
-        mid = (left + right) // 2
-        if arr[mid] == target:
-            return mid
-        elif arr[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-    return -1
-# Always eliminates half the search space
-```
+## How It Works
 
-### Θ(n log n) - Linearithmic Tight Bound
-```python
-def merge_sort_example(arr):
-    # Merge sort implementation
-    # Always requires n log n operations
-```
+To prove `f(n) = Theta(g(n))`, prove both sides:
 
----
+1. Lower bound: `3n^2 <= 3n^2 + 5n + 2` for `n >= 1`, so `c1 = 3`.
+2. Upper bound: for `n >= 1`, `5n <= 5n^2` and `2 <= 2n^2`, so `f(n) <= 10n^2`, so `c2 = 10`.
+3. Take `n0 = 1`.
 
-## Big-O vs Big-Theta vs Big-Omega
+Handy closed forms: `n(n + 1)/2 = Theta(n^2)`; a polynomial with a positive leading coefficient is `Theta(n^k)` for its degree `k`; `log2(n!) = Theta(n log n)`; `log_a n = Theta(log n)` for every base `a > 1`.
 
-| Aspect | Big-O (O) | Big-Theta (Θ) | Big-Omega (Ω) |
-|--------|-----------|---------------|---------------|
-| **Bound** | Upper bound only | Tight bound (upper + lower) | Lower bound only |
-| **Use Case** | Worst case analysis | Exact growth rate | Best case analysis |
-| **Example** | Quick sort: O(n²) worst | Merge sort: Θ(n log n) | Linear search: Ω(1) best |
-| **Precision** | Less precise | More precise | Less precise |
+Theta is an equivalence relation: `f = Theta(f)`, `f = Theta(g)` implies `g = Theta(f)`, and it is transitive.
 
----
+## Step-by-Step Trace
 
-## Common Algorithms with Tight Bounds
+Binary search returns as soon as it finds the target, so it has more than one Theta. Measured with a list that counts element reads (`n = 1,023`):
 
-| Algorithm | Time Complexity | Notes |
-|-----------|-----------------|-------|
-| Binary Search | Θ(log n) | Always eliminates half |
-| Merge Sort | Θ(n log n) | All cases require n log n |
-| Heap Sort | Θ(n log n) | All cases require n log n |
-| Selection Sort | Θ(n²) | Always requires n² comparisons |
-| Matrix Multiplication (naive) | Θ(n³) | Always requires n³ operations |
+| Search | Reads | Probes | Case |
+|--------|-------|--------|------|
+| target 511 (the first middle element) | 1 | 1 | best case, `Theta(1)` |
+| target -1 (absent) | 20 | 10 | worst case, `Theta(log n)` |
 
----
+The second row costs 2 comparisons per probe. No single Theta describes "binary search"; each case gets its own.
 
-## Relationship Between Notations
+## Complexity
 
-If f(n) = Θ(g(n)), then:
-- f(n) = O(g(n)) ✓ (upper bound)
-- f(n) = Ω(g(n)) ✓ (lower bound)
+| Algorithm | Best case | Average case | Worst case | One Theta for all inputs? |
+|-----------|-----------|--------------|------------|---------------------------|
+| Quick Sort (fixed pivot) | Theta(n log n) | Theta(n log n) | Theta(n^2) | no |
+| Binary search | Theta(1) | Theta(log n) | Theta(log n) | no |
+| Linear search | Theta(1) | Theta(n) | Theta(n) | no |
+| Merge Sort | Theta(n log n) | Theta(n log n) | Theta(n log n) | yes |
+| Naive matrix multiplication | Theta(n^3) | Theta(n^3) | Theta(n^3) | yes |
 
-**Example**: If merge sort is Θ(n log n), then:
-- It is O(n log n) (upper bound)
-- It is Ω(n log n) (lower bound)
+The examples in this folder:
 
----
+| Function | Tight bound |
+|----------|-------------|
+| `tight_bound_example` (sum) | Theta(n) on every input |
+| `binary_search_example` | best Theta(1), worst Theta(log n) |
+| `merge_sort_example` (Python, a real merge sort) | Theta(n log n) on every input |
+| `matrix_multiplication_naive` (Python only) | Theta(n^3) on every input |
 
-## Key Points
+In C++ and Go, `mergeSortExample` / `MergeSortExample` call the library sort. That is `O(n log n)` in the worst case but not `Theta(n log n)` in every case: Go's `sort.Ints` is a pattern-defeating quicksort and is close to linear on sorted input.
 
-1. **Tight Bound**: More precise than Big-O alone
-2. **Consistent Performance**: All cases have same complexity
-3. **Stronger Statement**: Implies both O and Ω
-4. **Not Always Applicable**: Only when best = worst
+## When to Use
 
----
+- When you can bound a function from both sides and want to say "exactly this order".
+- To say two functions or two algorithms grow at the same rate.
+- Prefer it to Big-O when a loose upper bound would mislead: `O(n)` for a loop that always does `n^2` steps is true but misleading.
+
+When no matching lower bound is known, state O and Omega separately.
+
+## Big-Theta vs. Big-O and Big-Omega
+
+| Notation | Meaning | Example |
+|----------|---------|---------|
+| O(g) | at most g (ceiling) | `n` is `O(n^2)` |
+| Omega(g) | at least g (floor) | `n^2` is `Omega(n)` |
+| Theta(g) | exactly g (both) | `3n^2 + 5n + 2` is `Theta(n^2)` |
+
+`f = Theta(g)` if and only if `f = O(g)` and `f = Omega(g)`.
+
+## Common Pitfalls
+
+- Believing Theta needs best = average = worst. Theta bounds one function; bound each case separately.
+- Saying "Quick Sort is Theta(n log n)" with no case. Its average case is `Theta(n log n)` and its worst case is `Theta(n^2)`.
+- Calling binary search `Theta(log n)` without a case. Its best case is `Theta(1)`.
+- Treating C++ `std::sort` or Go `sort.Ints` as `Theta(n log n)` merge sorts.
+- Forgetting that Theta hides constants: `3n` and `300n` are both `Theta(n)`.
+- Writing `Theta` when only an upper bound is known.
 
 ## Implementations
 
-This folder contains implementations in multiple languages:
+- [Python](./Python/big_theta.py): four examples (sum, binary search, merge sort, naive matrix multiplication).
+- [C++](./C++/big_theta.cpp): three examples (no matrix multiplication); the sort calls `std::sort`.
+- [Go](./Go/main.go): three examples (no matrix multiplication); the sort calls `sort.Ints`.
 
-- **[Python](./Python/)** - Readable and educational examples
-- **[C++](./C++/)** - High-performance implementations
-- **[Go](./Go/)** - Modern and efficient code
+## Practice Problems
 
-Each implementation includes:
-- Complete source code with examples
-- Comprehensive test suites
-- Detailed documentation
-- Complexity analysis
+- [Binary Search (LeetCode 704)](https://leetcode.com/problems/binary-search/): state the best and worst case separately.
+- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/): which of your sort's cases are `Theta(n log n)`?
+- Prove with `c1`, `c2` and `n0` that `n^2 / 2 - 3n` is `Theta(n^2)`.
+- Show that `log2(n!)` is `Theta(n log n)`.
 
----
+## Related
 
-## Usage
-
-### Python
-```python
-from big_theta import (
-    tight_bound_example,
-    merge_sort_example,
-    binary_search_example
-)
-
-# Run examples
-python big_theta.py
-
-# Run tests
-python big_theta_test.py
-```
-
-### C++
-```bash
-# Compile and run
-g++ -std=c++11 -o big_theta big_theta.cpp
-./big_theta
-```
-
-### Go
-```bash
-# Run
-go run main.go
-
-# Run tests
-go test
-```
-
----
-
-## Related Topics
-
-- **[Big-O Notation](../Big-O%20Notation/)** - Upper bound notation
-- **[Big-Omega (Ω)](../Big-Omega%20(%CE%A9)/)** - Lower bound notation
-- **[Space Complexity](../../Space%20Complexity/)** - Memory usage analysis
-- **[Amortized Analysis](../../Amortized%20Analysis/)** - Average-case analysis
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 3)
-- "Algorithm Design Manual" by Steven Skiena
-- "Competitive Programming" by Steven Halim
-
----
-
-## Further Reading
-
-- Proving tight bounds
-- Master theorem applications
-- Complexity analysis techniques
-- When to use each notation
-
----
-
-**Happy Learning! 🚀**
-
-
+- [Big-O Notation](../Big-O%20Notation/)
+- [Big-Omega](../Big-Omega%20(%CE%A9)/)
+- [Amortized Analysis](../../Amortized%20Analysis/)
+- [Merge Sort](../../../Algorithms/Sorting/Merge%20Sort/)
+- [Quick Sort](../../../Algorithms/Sorting/Quick%20Sort/)
+- [Binary Search](../../../Algorithms/Searching/Binary%20Search/)

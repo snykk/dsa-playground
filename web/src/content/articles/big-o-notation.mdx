@@ -1,0 +1,183 @@
+---
+topic: Complexity_Analysis/Time Complexity/Big-O Notation
+title: Big-O Notation
+lead: Big-O gives an asymptotic upper bound on how fast a function grows. In algorithm analysis it describes how a running time scales with input size, once constants and small inputs stop mattering. It is a bound on a function, not a synonym for the worst case.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Meaning
+    value: Upper bound
+    hint: f grows no faster than c * g
+  - label: Definition
+    value: f(n) <= c * g(n)
+    hint: for all n >= n0
+  - label: Not the same as
+    value: Worst case
+    hint: any case can be bounded by O, Omega or Theta
+    tone: warn
+  - label: Ignores
+    value: Constants and lower terms
+related:
+  - "Complexity_Analysis/Time Complexity/Big-Omega (\u03A9)"
+  - "Complexity_Analysis/Time Complexity/Big-Theta (\u0398)"
+  - Complexity_Analysis/Amortized Analysis
+  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Searching/Binary Search
+---
+
+## Definition
+
+Big-O is a relation between two functions of `n`. Here `f(n)` is usually a running time (steps as a function of input size) and `g(n)` is a simple comparison function such as `n` or `n log n`.
+
+<Equation label="Big-O" expr="f(n) = O(g(n))  if there are constants c > 0 and n0 such that  0 <= f(n) <= c * g(n)  for all n >= n0" />
+
+In words: from some point `n0` on, `f` stays below a constant multiple of `g`. The constants `c` and `n0` only need to exist; you choose them.
+
+<Callout title="The equals sign is misleading">
+`f(n) = O(g(n))` really means "f is in the set O(g)", the set of all functions bounded above by a multiple of `g`. That is why `n = O(n^2)` is true and `O(n^2) = n` is nonsense. Every function in that set is a valid upper bound, so many different `g` work for the same `f`.
+</Callout>
+
+## Intuition
+
+Big-O keeps only the part of a formula that dominates when `n` is large.
+
+- **Drop constants.** `5n` and `n` grow the same way: `O(5n) = O(n)`. Constants depend on the machine and the language, not on the algorithm.
+- **Drop lower-order terms.** `n^2 + 100n` is `O(n^2)`: for large `n` the `n^2` term wins.
+- **It is an upper bound only.** `3n + 1` is `O(n)`, and also `O(n^2)` and `O(2^n)`, because those functions all stay above it. The statement is true but not informative. To say that the bound is tight you use Big-Theta.
+
+Here is how fast the common classes grow. A computer doing about 10<sup>9</sup> simple steps per second is a rough yardstick.
+
+<DataTable
+  columns={['Class', 'Name', { label: 'n = 10', kind: 'mono' }, { label: 'n = 100', kind: 'mono' }, { label: 'n = 1,000', kind: 'mono' }]}
+  rows={[
+    ['O(1)', 'constant', '1', '1', '1'],
+    ['O(log n)', 'logarithmic', '3.3', '6.6', '10'],
+    ['O(n)', 'linear', '10', '100', '1,000'],
+    ['O(n log n)', 'linearithmic', '33', '664', '9,966'],
+    ['O(n^2)', 'quadratic', '100', '10,000', '1,000,000'],
+    ['O(n^3)', 'cubic', '1,000', '1,000,000', '1,000,000,000'],
+    ['O(2^n)', 'exponential', '1,024', '1.27 x 10^30', '1.07 x 10^301'],
+    ['O(n!)', 'factorial', '3,628,800', '9.3 x 10^157', 'about 4 x 10^2567'],
+  ]}
+  caption='Values of g(n) with log base 2. The order O(1) < O(log n) < O(n) < O(n log n) < O(n^2) < O(n^3) < O(2^n) < O(n!) holds for large n.'
+/>
+
+## Worked examples
+
+### Proving a bound with c and n0
+
+Claim: `f(n) = 3n^2 + 5n + 2` is `O(n^2)`. For `n >= 1`, `5n <= 5n^2` and `2 <= 2n^2`, so
+
+<Equation label="Proof" expr="3n^2 + 5n + 2 <= 3n^2 + 5n^2 + 2n^2 = 10 n^2  for n >= 1" result="c = 10, n0 = 1" />
+
+Other pairs work too. With `c = 4` the bound only starts to hold at `n0 = 6`, which shows that `n0` matters:
+
+<ArrayDiagram
+  legend={{ r: 'f(n) is above c * g(n): the bound does not hold yet', f: 'f(n) <= c * g(n): the bound holds' }}
+  rows={[
+    { label: 'n', values: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+    { label: 'f(n) = 3n^2 + 5n + 2', values: [10, 24, 44, 70, 102, 140, 184, 234, 290], tones: 'rrrrrffff' },
+    { label: 'c * g(n) = 4n^2', values: [4, 16, 36, 64, 100, 144, 196, 256, 324], tones: 'rrrrrffff', note: 'At n = 5, f = 102 but 4n^2 = 100. From n = 6 on, f stays below 4n^2, so n0 = 6.' },
+  ]}
+/>
+
+### Disproving a bound
+
+Is `n^2 = O(n)`? That would need `n^2 <= c * n`, which means `n <= c` for all `n >= n0`. No constant `c` works, because `n` grows without limit. So `n^2` is not `O(n)`.
+
+### Reading code
+
+<DataTable
+  columns={['Code shape', 'Bound', 'Why']}
+  rows={[
+    ['`return 42`', 'O(1)', 'a fixed number of steps'],
+    ['`while i > 1: i = i // 2`', 'O(log n)', 'halving: about log2(n) iterations'],
+    ['`for x in arr: total += x`', 'O(n)', 'one pass'],
+    ['two nested loops over n (all pairs)', 'O(n^2)', 'n(n - 1)/2 pairs'],
+    ['three nested loops over n', 'O(n^3)', 'n^3 iterations'],
+    ['naive recursive Fibonacci', 'O(2^n)', 'each call spawns two calls'],
+  ]}
+/>
+
+## Using it in practice
+
+Big-O is a statement about **a function**. To use it on an algorithm you first choose which function you are bounding, and that choice is the case:
+
+- the running time on the **best** input of size `n`,
+- on the **worst** input of size `n`, or
+- the **average** over a distribution of inputs.
+
+Each of those is a different function of `n`, and any of the three can be bounded with O, Omega or Theta. For linear search:
+
+<DataTable
+  columns={['Function being bounded', 'Big-O statement', 'Also true']}
+  rows={[
+    ['best case (target is first)', 'O(1)', 'Theta(1)'],
+    ['worst case (target absent)', 'O(n)', 'Theta(n)'],
+    ['average case (target equally likely anywhere)', 'O(n)', 'Theta(n)'],
+    ['"the running time on any input"', 'O(n)', 'Omega(1)'],
+  ]}
+/>
+
+So "the worst case of Quick Sort is O(n^2)" is a statement about the worst-case function. "Quick Sort's average case is also O(n log n)" bounds a different function with the same notation. Writing "O(n) = best case" or "O(n^2) = worst case" confuses the notation with the case.
+
+Practical rules:
+
+- **Sequential steps add:** `O(f) + O(g) = O(max(f, g))`.
+- **Nested steps multiply:** a loop of `n` with `O(m)` work inside is `O(n * m)`.
+- **Several inputs need several variables:** graph search is `O(V + E)`, not `O(n)`.
+- **Be honest about size:** for numbers, `n` may be the value, not the bit length.
+- **Pick the tightest bound you can prove.** Saying `O(n!)` for a linear algorithm is true but useless.
+
+## Implementation
+
+All three languages implement the same ladder of examples: constant, logarithmic, linear, linearithmic, quadratic, cubic and exponential. Python also has the factorial example. Honest labels for the code:
+
+- **Linearithmic.** Python implements a real merge sort. C++ and Go call the library sort (`std::sort`, `sort.Ints`), which is O(n log n) in the worst case, and for Go about O(n) on already sorted input.
+- **Exponential.** The Fibonacci example is O(2<sup>n</sup>), which is valid but loose: its exact growth is about 1.618<sup>n</sup>.
+- **Factorial** (Python only). It builds all n! permutations by slicing, which costs n times n! steps. That is O(n * n!), not O(n!).
+
+<TopicCode topic="Complexity_Analysis/Time Complexity/Big-O Notation" />
+
+## Complexity
+
+Growth rates, sorted. When the rate of two terms differs, the faster-growing term wins:
+
+<ComplexityTable
+  rows={[
+    { case: 'Fast', time: 'O(1), O(log n), O(n)', when: 'Scales to millions or billions of items.' },
+    { case: 'Acceptable', time: 'O(n log n)', when: 'Sorting-class cost. About 2 x 10^7 steps for n = 10^6.' },
+    { case: 'Slow', time: 'O(n^2), O(n^3)', when: 'Fine for thousands of items, hopeless for millions.' },
+    { case: 'Infeasible', time: 'O(2^n), O(n!)', when: 'Only tiny n (about 20 to 25 for 2^n, about 10 to 12 for n!).' },
+  ]}
+  caption='A rough feasibility guide, not a case analysis: the labels are speed classes.'
+/>
+
+## Common misconceptions
+
+<Callout tone="warning" title="Watch out for these">
+- **"O means worst case."** O is an upper bound on a function. The best, average and worst case are different functions, and each can be bounded with O, Omega or Theta.
+- **"O(n) is always faster than O(n^2)."** Only for large `n`. For small `n` constants dominate: `100n` is bigger than `n^2` until `n = 100`.
+- **"O(g) is a precise statement."** `n = O(n^2)` is true. Use Theta when you mean a tight bound.
+- **"The log base matters."** It does not: `log2 n = (1 / log10 2) * log10 n`, a constant factor. Write `O(log n)`.
+- **"Constants never matter."** They are hidden by the notation, not absent. Two `O(n)` algorithms can differ by a factor of 100.
+- **Wrong variable.** Graph algorithms depend on both `V` and `E`; writing a single `n` hides that.
+- **Mislabeled examples.** Building all permutations is `O(n * n!)`, because each permutation costs `O(n)` to write down.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is Big-O the worst case?">
+    No. Big-O bounds a function from above. Worst case is a choice of which function to analyse (the slowest input of each size). You can state the worst case with O, with Omega or with Theta, and you can bound the best or average case with O too.
+  </FaqItem>
+  <FaqItem question="How do I pick c and n0?">
+    Any pair that makes the inequality hold for all `n >= n0` is enough. Bound each term by a multiple of the dominant term (`5n <= 5n^2` for `n >= 1`), add the multiples to get `c`, and take `n0` where the inequalities start to hold.
+  </FaqItem>
+  <FaqItem question="Why is log n the same for any base?">
+    Changing the base multiplies by a constant: `log_a n = log_b n / log_b a`. Constants are absorbed by `c`.
+  </FaqItem>
+  <FaqItem question="What is the difference between O(n) and Theta(n)?">
+    `f = O(n)` says `f` is at most linear. `f = Theta(n)` says `f` is both at most and at least linear, so linear is its exact growth rate. See the Big-Theta article.
+  </FaqItem>
+</Faq>

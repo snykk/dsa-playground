@@ -31,6 +31,16 @@ function split(source: string): { frontmatter: string; body: string } {
   return { frontmatter: m[1], body: m[2] };
 }
 
+/**
+ * The topic folder named by each <TopicCode>, written either as topic="..." or, for a
+ * folder name an ASCII file cannot spell, as a JavaScript string with escapes: topic={'...'}.
+ */
+function topicCodeFolders(body: string): string[] {
+  return [...body.matchAll(/<TopicCode\s+topic=(?:"([^"]+)"|\{'((?:[^'\\]|\\.)*)'\})/g)].map((m) =>
+    m[1] !== undefined ? m[1] : (JSON.parse(`"${m[2].replace(/"/g, '\\"')}"`) as string),
+  );
+}
+
 function load(file: string) {
   const source = readFileSync(path.join(DIR, file), 'utf8');
   const { frontmatter, body } = split(source);
@@ -72,7 +82,7 @@ describe.each(files)('%s', (file) => {
         expect(vizIds.has(id), `visualization ${id}`).toBe(true);
       }
     }
-    for (const m of body.matchAll(/<TopicCode\s+topic="([^"]+)"/g)) expect(content.byRel.has(m[1]), m[1]).toBe(true);
+    for (const folder of topicCodeFolders(body)) expect(content.byRel.has(folder), folder).toBe(true);
   });
 
   it('follows the house rules', () => {
@@ -85,7 +95,7 @@ describe.each(files)('%s', (file) => {
     const sections = [...prose.matchAll(/^## (.+)$/gm)].map((m) => m[1].trim());
     expect(sections.length, 'at least 6 sections').toBeGreaterThanOrEqual(6);
     expect(sections.some((s) => /^implementation/i.test(s)), 'an "Implementation" section').toBe(true);
-    expect(body.includes(`<TopicCode topic="${data.topic}"`), 'the code tabs of this topic').toBe(true);
+    expect(topicCodeFolders(body).includes(data.topic), 'the code tabs of this topic').toBe(true);
   });
 });
 

@@ -55,7 +55,7 @@ class TestBigONotation(unittest.TestCase):
         self.assertEqual(sorted_arr, [])
     
     def test_quadratic_time(self):
-        """Test O(n²) quadratic time complexity"""
+        """Test O(n^2) quadratic time complexity"""
         arr = [1, 2, 3]
         pairs = quadratic_time_example(arr)
         self.assertEqual(len(pairs), 3)  # C(3,2) = 3
@@ -68,14 +68,14 @@ class TestBigONotation(unittest.TestCase):
         self.assertEqual(len(pairs), 6)  # C(4,2) = 6
     
     def test_cubic_time(self):
-        """Test O(n³) cubic time complexity"""
+        """Test O(n^3) cubic time complexity"""
         self.assertEqual(cubic_time_example(1), 1)
         self.assertEqual(cubic_time_example(2), 8)
         self.assertEqual(cubic_time_example(3), 27)
         self.assertEqual(cubic_time_example(5), 125)
     
     def test_exponential_time(self):
-        """Test O(2ⁿ) exponential time complexity"""
+        """Test O(2^n) exponential time complexity"""
         self.assertEqual(exponential_time_example(0), 0)
         self.assertEqual(exponential_time_example(1), 1)
         self.assertEqual(exponential_time_example(2), 1)

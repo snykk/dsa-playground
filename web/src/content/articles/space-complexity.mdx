@@ -1,0 +1,164 @@
+---
+topic: Complexity_Analysis/Space Complexity
+title: Space Complexity
+lead: Space complexity describes how much memory an algorithm needs as the input grows. Usually you count the extra, auxiliary memory, including the recursion stack, and ignore the input itself. It decides whether a program fits in memory at all.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: What it counts
+    value: Auxiliary space
+    hint: extra memory beyond the input
+  - label: In-place
+    value: O(1)
+    hint: a few variables, whatever the input size
+  - label: Recursion
+    value: O(depth)
+    hint: one stack frame per active call
+    tone: warn
+  - label: Notation
+    value: Big-O of memory
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Complexity_Analysis/Amortized Analysis
+  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Sorting/Heap Sort
+---
+
+## Definition
+
+The space complexity of an algorithm is a function `S(n)`: the memory it uses on an input of size `n`, as a function of `n`. As with time, it is described with asymptotic notation (see Big-O Notation), so constants and lower-order terms are dropped.
+
+Three quantities are easy to mix up:
+
+<DataTable
+  columns={['Term', 'Meaning', 'Counted by default?']}
+  rows={[
+    ['Input space', 'memory that holds the input itself', 'No'],
+    ['Auxiliary space', 'extra memory the algorithm allocates, including the call stack', 'Yes'],
+    ['Total space', 'input space + auxiliary space', 'Only if the problem says so'],
+  ]}
+/>
+
+<Equation label="Total space" expr="total(n) = input(n) + auxiliary(n)" />
+
+When someone says "Heap Sort uses O(1) space" they mean auxiliary space: the array is being sorted in place and only a few extra variables are used. Each bound is still a Big-O statement about a function, so it can be given for the best, average or worst case of the memory used.
+
+## Intuition: where memory goes
+
+Memory is used in three places:
+
+- **Variables**: a fixed number of scalars is <BigO of="1" />.
+- **Data you build**: a list of `n` items is <BigO of="n" />, an `n` by `n` matrix is <BigO of="n^2" />.
+- **The call stack**: every active function call keeps a frame. Recursion that goes `d` levels deep holds `d` frames at the same time, so its space is at least <BigO of="d" />.
+
+The stack is the one that is easy to forget. A recursive function with no arrays can still use O(n) space.
+
+<ArrayDiagram
+  legend={{ p: 'frame on the stack', c: 'deepest frame (the base case)' }}
+  rows={[
+    { label: 'stack at the deepest point', values: ['f(16)', 'f(8)', 'f(4)', 'f(2)', 'f(1)'], tones: 'ppppc', note: '`logarithmic_space_example(16)` halves `n` on every call, so the chain is log2(16) + 1 = 5 frames deep.' },
+  ]}
+/>
+
+## Worked examples
+
+The repository's examples, from least to most memory. Time is listed too, because space and time are separate questions.
+
+<DataTable
+  columns={['Function', 'Time', 'Space', 'Why']}
+  rows={[
+    ['`constant_space_example(n)`', 'O(n)', 'O(1)', 'one running total'],
+    ['`in_place_reverse(arr)`', 'O(n)', 'O(1)', 'two indices and a swap'],
+    ['`linear_space_example(n)`', 'O(n)', 'O(n)', 'builds a list of n items'],
+    ['`quadratic_space_example(n)`', 'O(n^2)', 'O(n^2)', 'builds an n by n matrix'],
+    ['`logarithmic_space_example(n)`', 'O(n)', 'O(log n)', 'two calls on halves, but one after the other: depth is log n'],
+    ['`recursive_fibonacci_naive(n)`', 'O(2^n)', 'O(n)', 'the calls form a tree, but only one root-to-leaf path is on the stack'],
+    ['`merge_sort_space(arr)`', 'O(n log n)', 'O(n)', 'merge buffers add up to a geometric series'],
+  ]}
+/>
+
+Two of these surprise people:
+
+- **Naive Fibonacci** makes exponentially many calls, but the second call only starts after the first returns. At any moment the stack holds one path, at most `n` frames. The measured depth for `n = 5, 10, 20` is 5, 10, 20.
+- **Merge Sort** has log n levels and n elements of work per level, which looks like O(n log n) space. But memory from a finished merge is freed before the next one starts. At any time the live buffers hold about n + n/2 + n/4 + &hellip; elements, so the space is O(n).
+
+## Using it in practice
+
+1. **Name what you count.** Say "auxiliary space" or "total space". Include recursion depth.
+2. **Find the largest thing alive at once**, not the sum of everything ever allocated.
+3. **Decide whether recursion is acceptable.** Depth `n` costs O(n) space and, in Python, hits the default limit of 1,000 frames.
+4. **Trade space for time deliberately.** A hash table or memo table spends O(n) memory to avoid recomputation. Streaming and in-place algorithms do the opposite.
+
+<DataTable
+  columns={['Algorithm', 'Time', 'Auxiliary space', 'Note']}
+  rows={[
+    ['Binary search, iterative', 'O(log n)', 'O(1)', 'a few indices'],
+    ['Binary search, recursive', 'O(log n)', 'O(log n)', 'one frame per halving'],
+    ['Merge Sort (arrays)', 'O(n log n)', 'O(n)', 'merge buffer'],
+    ['Quick Sort', 'O(n log n) average', 'O(log n) if the smaller side is recursed first', 'plain recursion can reach O(n)'],
+    ['Heap Sort', 'O(n log n)', 'O(1)', 'in place'],
+    ['DFS / BFS on a graph', 'O(V + E)', 'O(V)', 'visited set plus stack or queue'],
+  ]}
+/>
+
+Memory growth for the four most common bounds, counting stored cells:
+
+<DataTable
+  columns={['n', { label: 'O(1)', kind: 'mono' }, { label: 'O(log n)', kind: 'mono' }, { label: 'O(n)', kind: 'mono' }, { label: 'O(n^2)', kind: 'mono' }]}
+  rows={[
+    ['10', '1', '4', '10', '100'],
+    ['100', '1', '7', '100', '10,000'],
+    ['1,000', '1', '10', '1,000', '1,000,000'],
+  ]}
+  caption='O(log n) is rounded up to whole frames (log2 n, rounded up). Real memory also depends on the size of each cell.'
+/>
+
+Converting recursion to a loop is the classic space saving. Recursive `factorial(n)` uses O(n) stack frames; the iterative version keeps one variable.
+
+## Implementation
+
+Python has seven examples (the table above). C++ and Go have the four non-recursive ones: constant, linear, quadratic and in-place reverse. There are no recursive examples in C++ or Go, so the recursion-depth ideas above are demonstrated by the Python code only.
+
+<TopicCode topic="Complexity_Analysis/Space Complexity" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Constant', time: 'O(1)', when: 'loops with a fixed number of variables, in-place swaps' },
+    { case: 'Logarithmic', time: 'O(log n)', when: 'balanced recursion where only one path of the call tree is alive' },
+    { case: 'Linear', time: 'O(n)', when: 'one copy of the input, a deep recursion chain, a merge buffer' },
+    { case: 'Quadratic', time: 'O(n^2)', when: 'an n by n table or adjacency matrix' },
+  ]}
+  caption='Common space bounds. They are space functions, not best, average or worst cases.'
+/>
+
+## Common misconceptions
+
+<Callout tone="warning" title="Watch out for these">
+- **"Recursion uses no extra space."** Every active call has a frame. Depth `d` costs O(d) memory.
+- **"Total calls decide the stack."** Only calls alive at the same time count. Naive Fibonacci has O(2<sup>n</sup>) calls but O(n) space.
+- **"Depth times work per level."** For Merge Sort that gives O(n log n), but freed memory is reused, so the real answer is O(n).
+- **Slicing copies in Python.** `arr[:mid]` allocates a new list. Slicing inside a recursion adds O(n) memory per level of work you thought was free. Pass indices instead.
+- **Input vs auxiliary.** Returning a new list of size `n` is O(n) output. Many problem statements do not count the output; state which convention you use.
+- **Language limits.** Python allows about 1,000 nested calls by default and raises `RecursionError` beyond that. In C++ a deep recursion overflows the fixed-size stack. Go grows goroutine stacks on demand, starting small (2 KB per goroutine in current Go versions), up to a configurable maximum.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Does space complexity include the input?">
+    Usually not. The convention is auxiliary space, the memory beyond the input. Total space includes the input. Say which one you mean, especially when you compare in-place with copying algorithms.
+  </FaqItem>
+  <FaqItem question="Is Quick Sort O(log n) space?">
+    Only if you recurse into the smaller partition first and loop on the larger one, which keeps the depth at most log2(n). Plain two-call recursion can reach O(n) depth on bad input.
+  </FaqItem>
+  <FaqItem question="Why is Merge Sort O(n) and not O(n log n) in space?">
+    Each merge needs a buffer, but the buffer is released when the merge ends. The live buffers at any moment form a geometric series that sums to O(n).
+  </FaqItem>
+  <FaqItem question="Can I trade time for space?">
+    Yes, in both directions. Memoization and hash tables spend memory to save time. In-place algorithms and recomputation save memory at the cost of extra time.
+  </FaqItem>
+</Faq>
