@@ -108,5 +108,5 @@ A root of rank r has at least 2^r nodes (rank grows only when equal-rank trees m
 
 - [Union-Find DSU (graph algorithm view)](../../../Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU/)
 - [Union-Find Applications (patterns)](../../../Problem_Patterns/Union-Find%20Applications/)
-- [Kruskal's algorithm](../../../Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/)
+- [Kruskal's algorithm](../../../Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/)
 - [Advanced Structures overview](../README.md)

@@ -103,7 +103,7 @@ Use Kruskal on sparse graphs, when the graph is already an edge list, or when yo
 
 ## Related
 
-- [Prim's Algorithm](../Prim's%20Algorithm/) - the other classic MST algorithm
+- [Prim's Algorithm](../Prims_Algorithm/) - the other classic MST algorithm
 - [Union-Find (DSU)](../../../Graph_Algorithms/Advanced_Graph/Union-Find_DSU/) - the cycle test
 - [Disjoint Set Union](../../../../Data%20Structures/Advanced_Structures/Disjoint%20Set%20Union/)
-- [Activity Selection](../../Activity%20Selection/) - another greedy algorithm
+- [Activity Selection](../../../Greedy/Activity%20Selection/) - another greedy algorithm

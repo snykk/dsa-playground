@@ -42,8 +42,8 @@ A Minimum Spanning Tree of a connected, undirected graph is a tree that:
 ## Implementation
 
 Complete implementations are available in:
-- **[Kruskal's Algorithm](./)** - Links to [Greedy implementations](./)
-- **[Prim's Algorithm](./)** - Links to [Greedy implementations](./)
+- **[Kruskal's Algorithm](Kruskals_Algorithm/)**: sort the edges, then add each one that joins two components (union-find).
+- **[Prim's Algorithm](Prims_Algorithm/)**: grow one tree from a start vertex, always taking the cheapest edge out of it (priority queue).
 
 Both implementations include:
 - Python, C++, and Go versions

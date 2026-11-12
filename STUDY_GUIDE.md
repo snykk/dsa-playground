@@ -119,7 +119,7 @@ These two patterns appear in 40%+ of array/string problems.
 - [Dijkstra](Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm/)
 - [Bellman-Ford](Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm/)
 - [Floyd-Warshall](Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm/)
-- [MST: Kruskal / Prim](Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/)
+- [MST: Kruskal / Prim](Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/)
 - [Union-Find (DSU)](Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU/) — essential
 - [Strongly Connected Components](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/)
 - [Tarjan's Bridges & Articulation Points](Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/)
