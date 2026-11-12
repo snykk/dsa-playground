@@ -1,43 +1,31 @@
-# DP on Trees (C++)
+# DP on Trees -- C++ Implementation
 
-C++ scaffold for Dynamic Programming on Trees, a technique that computes optimal values by propagating DP states from leaves to root (or root to leaves) in a tree structure. The full implementation is in the Python directory.
+A placeholder. This folder does not implement tree DP yet; the working code is the Python version.
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `tree_dp.cpp` | Placeholder structure (see Python for full implementation) |
-| `tree_dp_test.cpp` | Basic structure test |
+| `tree_dp.cpp` | Comment-only stub, no functions |
+| `tree_dp_test.cpp` | Includes the stub and prints a message; it asserts nothing |
+
+## API
+
+None. There are no functions or types.
+
+## C++-Specific Notes
+
+- A real port would store children as `std::vector<int>` adjacency lists, use `long long` sums, and either raise the stack limit or use an iterative post-order for deep trees.
+- Because the test cannot fail, passing it proves nothing about tree DP.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -DTESTING -o test tree_dp_test.cpp
-./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD tree_dp_test.cpp -o tree_dp_test
+./tree_dp_test
 ```
 
-## Key Concepts
+## Key Takeaways
 
-| Concept | Description | Typical Complexity |
-|---------|-------------|-------------------|
-| Maximum Independent Set | Select nodes with maximum sum such that no two adjacent nodes are chosen | O(n) |
-| Maximum Path Sum | Find the path through the tree with the largest total value | O(n) |
-| State: `(include, exclude)` | For each node, track the optimal value when the node is included vs. excluded | -- |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n) where n = number of nodes |
-| Space | O(n) for recursion stack and DP values |
-
-## Notes
-
-- Tree DP uses post-order DFS: process all children before the current node.
-- Each node typically stores two states (include/exclude) to handle adjacency constraints.
-- The Python implementation contains complete solvers for Maximum Independent Set and Maximum Path Sum.
-- See `../Python/tree_dp.py` for the full working implementation.
-
----
-
-_Last Updated: April 2026_
+- Treat this folder as a stub; see `../Python/tree_dp.py` for the algorithms.
+- The expected cost for a port is O(n) time.

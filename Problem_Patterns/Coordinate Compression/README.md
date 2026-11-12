@@ -1,156 +1,93 @@
-# Coordinate Compression Pattern
+# Coordinate Compression
 
-A **Coordinate Compression** is a technique to map large coordinate values to smaller, consecutive indices. This pattern is essential when dealing with sparse coordinate spaces where the actual coordinate values are large but the number of unique coordinates is relatively small.
+Coordinate compression replaces each value by its rank among the distinct values, so numbers up to 10^9 become indices 0..k-1 that fit an array, a Fenwick tree or a segment tree. It keeps the order of the values and nothing else. Building the mapping takes O(n log n).
 
----
+## Intuition
 
-## Overview
+Many algorithms only compare values (smaller, equal, larger). If you replace every value by its position in the sorted list of distinct values, all comparisons stay the same, but the numbers become small and dense. The invariant: `a < b` exactly when `rank(a) < rank(b)`, and `a == b` exactly when the ranks are equal.
 
-Coordinate compression transforms a set of coordinates (which may be large integers or have large gaps) into a compact, consecutive mapping starting from 0. This is particularly useful for:
-- Reducing memory usage when coordinates are sparse
-- Enabling array-based data structures (segment trees, Fenwick trees)
-- Simplifying indexing and range operations
-- Working with coordinate-based algorithms
+The signal is a gap between the range of the values (10^9, 10^18) and their number (n up to about 2 * 10^5), together with a wish to index an array or tree by value.
 
-The process involves:
-1. Collecting all unique coordinates
-2. Sorting them
-3. Creating a mapping from original coordinates to compressed indices
-4. Optionally decompressing back to original coordinates
+## Visual
 
----
-
-## Key Characteristics
-
-1. **Space Reduction**: Maps large coordinate space to compact indices
-2. **Preserves Order**: Maintains relative ordering of coordinates
-3. **Bijective Mapping**: One-to-one correspondence between original and compressed
-4. **Reversible**: Can decompress back to original coordinates
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `compress_coordinates(coords)` | Compress coordinates to 0-indexed mapping | O(n log n) |
-| `decompress_coordinates(mapping)` | Decompress mapping back to original | O(n) |
-| `compress_2d_coordinates(points)` | Compress 2D coordinates | O(n log n) |
-
-Where `n` is the number of unique coordinates.
-
----
-
-## Implementation Approaches
-
-### 1. Standard Compression
-- **Pros**: Simple, straightforward
-- **Cons**: Requires sorting
-- **Use Case**: 1D coordinate compression
-
-### 2. 2D Coordinate Compression
-- **Pros**: Handles both X and Y coordinates
-- **Cons**: More complex, requires two mappings
-- **Use Case**: 2D problems, grid compression
-
-### 3. Online Compression
-- **Pros**: Can compress as coordinates arrive
-- **Cons**: More complex implementation
-- **Use Case**: Streaming coordinate data
-
----
-
-## Applications
-
-1. **Segment Trees**: Enabling segment trees on large coordinate ranges
-2. **Fenwick Trees**: Using BIT on compressed coordinates
-3. **Sweep Line Algorithms**: Compressing coordinates for efficient processing
-4. **Grid Problems**: Compressing sparse grids
-5. **Range Queries**: Enabling efficient range operations on large spaces
-6. **Discrete Events**: Compressing event coordinates in timeline problems
-
----
-
-## Example Use Cases
-
-### Basic Compression
-```python
-coords = [1000, 5, 200, 1000, 5, 50]
-mapping = compress_coordinates(coords)
-# mapping: {5: 0, 50: 1, 200: 2, 1000: 3}
+```text
+original  : 1000    5  200 1000    5   50
+distinct  : 5 < 50 < 200 < 1000      ranks 0   1   2    3
+ranks     :    3    0    2    3    0    1
 ```
 
-### Decompression
-```python
-original = decompress_coordinates(mapping)
-# original: [5, 50, 200, 1000]
-```
+## How It Works
 
-### 2D Compression
-```python
-points = [(1000, 500), (5, 10), (200, 300)]
-x_mapping, y_mapping = compress_2d_coordinates(points)
-# Compresses both X and Y coordinates separately
-```
+1. Collect every value you will index. Include query endpoints, not only the data.
+2. Sort and remove duplicates: `v[0] < v[1] < ... < v[k-1]`.
+3. The rank of `v[i]` is `i`. Store `value -> rank` in a map, or keep only the sorted list and use a binary search (lower bound).
+4. Work with the ranks (array or Fenwick or segment tree indices) and translate back through the sorted list.
 
----
+## Step-by-Step Trace
 
-## Implementations
+`compress_coordinates([1000, 5, 200, 1000, 5, 50])`:
 
-This folder contains implementations in three languages:
+| Step | Result |
+|------|--------|
+| distinct values | `{1000, 5, 200, 50}` |
+| sorted | `[5, 50, 200, 1000]` |
+| mapping | `{5: 0, 50: 1, 200: 2, 1000: 3}` |
+| ranks of the input | `[3, 0, 2, 3, 0, 1]` |
+| `decompress_coordinates(mapping)` | `[5, 50, 200, 1000]` (index = rank) |
 
-- **Python** (`Python/`) - Dictionary and list-based implementation
-- **C++** (`C++/`) - Map and set-based implementation
-- **Go** (`Go/`) - Map and slice-based implementation
+## Complexity
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+| Operation | Time | Space |
+|-----------|------|-------|
+| `compress_coordinates` | O(n log n) | O(k) |
+| `decompress_coordinates` | O(k) | O(k) |
+| `compress_2d_coordinates` | O(n log n) | O(k) |
+| Lookup of a rank | O(1) average (Python dict, Go map), O(log k) (C++ `std::map`) | O(1) |
 
----
-
-## Complexity Summary
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **Compress** | O(n log n) | O(n) |
-| **Decompress** | O(n) | O(n) |
-| **2D Compress** | O(n log n) | O(n) |
-| **Lookup** | O(1) | O(1) |
-
-Where `n` is the number of unique coordinates.
-
----
+n is the number of input values and k the number of distinct ones. Sorting dominates the build.
 
 ## When to Use
 
-- **Large Coordinate Ranges**: When coordinates span large values but are sparse
-- **Array-Based Structures**: When need to use arrays but coordinates are too large
-- **Memory Optimization**: When want to reduce memory usage
-- **Range Operations**: When need efficient range queries on compressed space
+- Values are huge but there are few of them, and the algorithm only needs their order: Fenwick-tree counting of inversions, offline range updates, sweep lines over endpoints.
+- Do not use it when you need distances between values (lengths, areas) unless you keep the original values as weights, or when the data arrives online.
 
----
+## Coordinate Compression vs. Alternatives
 
-## Related Patterns
+| Approach | Time per operation | Use when |
+|----------|--------------------|----------|
+| Coordinate compression | O(log n) with a Fenwick tree | offline: all values known first |
+| Hash map by value | O(1) average | only equality matters |
+| Dynamic segment tree | O(log V) | online data, manageable V |
+| Order-statistic tree | O(log n) | online rank queries |
 
-- **Sorting**: Essential for coordinate compression
-- **Hash Maps**: Used for mapping original to compressed
-- **Segment Trees**: Often used with compressed coordinates
-- **Sweep Line**: Frequently combined with coordinate compression
+## Common Pitfalls
 
----
+- Not compressing the query values together with the data.
+- Losing gaps: ranks do not preserve distances. Example: segments `[0, 10]`, `[5, 20]` and `[100, 110]` compress to endpoints `0, 5, 10, 20, 100, 110`; the covered length 5 + 5 + 10 + 10 = 30 needs the original lengths of the pieces, not their count.
+- Off-by-one when turning a half-open range into ranks.
+- Compressing x and y of 2D points together instead of separately.
+- The mapping only covers the values you passed in.
 
-## Further Reading
+## Implementations
 
-- "Competitive Programming" by Halim & Halim
-- "Algorithm Design Manual" by Steven Skiena
-- LeetCode problems: The Skyline Problem, Rectangle Area II
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `coordinate_compression.py` | dictionary mapping; 6 tests |
+| C++ | [C++](C++/) | `coordinate_compression.cpp` | `std::set` and `std::map`; 4 tests |
+| Go | [Go](Go/) | `main.go` | `map` and `sort.Ints`; 4 tests |
 
----
+All three provide compress, decompress and a 2D compress. They work on integers.
 
-**Note**: Coordinate compression preserves the relative ordering of coordinates, making it suitable for algorithms that depend on coordinate ordering. Always ensure uniqueness is handled correctly when compressing.
+## Practice Problems
 
----
+- [The Skyline Problem (LeetCode 218)](https://leetcode.com/problems/the-skyline-problem/)
+- [Rectangle Area II (LeetCode 850)](https://leetcode.com/problems/rectangle-area-ii/)
+- [Count of Smaller Numbers After Self (LeetCode 315)](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
+- [Salary Queries (CSES)](https://cses.fi/problemset/task/1144)
 
-_Last Updated: December 2025_
+## Related
+
+- [Prefix Sum and Difference Array](../Prefix%20Sum%20Difference%20Array/)
+- [Sliding Window](../Sliding%20Window/)
+- [Monotonic Stack](../Monotonic%20Stack/)
+- [DP Problem Patterns](../DP%20Problem%20Patterns/)

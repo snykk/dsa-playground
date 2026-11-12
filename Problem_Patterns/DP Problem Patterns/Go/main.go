@@ -10,7 +10,7 @@ import (
 // Time: O(N * W), Space: O(W)
 func Knapsack01(weights, values []int, capacity int) int {
 	n := len(weights)
-	if n == 0 || capacity == 0 {
+	if n == 0 || capacity < 0 {
 		return 0
 	}
 

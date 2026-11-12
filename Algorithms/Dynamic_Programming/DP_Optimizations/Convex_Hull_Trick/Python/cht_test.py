@@ -50,6 +50,40 @@ class TestMonotonicCHT(unittest.TestCase):
                              msg=f"at x={x}")
 
 
+    def test_three_equal_slopes_keep_lowest_intercept(self):
+        # Regression: the middle line (2, 1) used to be dropped
+        cht = MonotonicCHT()
+        for m, b in [(2, 5), (2, 1), (2, 3)]:
+            cht.add_line(m, b)
+        self.assertEqual(cht.query(0), 1)
+
+    def test_equal_slopes_after_other_lines(self):
+        lines = [(5, 0), (3, 4), (3, 2), (3, 9), (1, 10), (1, 6)]
+        cht = MonotonicCHT()
+        for m, b in lines:
+            cht.add_line(m, b)
+        for x in range(-5, 20):
+            self.assertEqual(cht.query(x), brute_min(lines, x), msg=f"at x={x}")
+
+    def test_random_with_equal_slopes(self):
+        rng = random.Random(11)
+        for _ in range(300):
+            lines = []
+            m = 20
+            for _ in range(rng.randint(1, 12)):
+                m -= rng.randint(0, 3)  # 0 allowed: equal slopes
+                lines.append((m, rng.randint(-30, 30)))
+            cht = MonotonicCHT()
+            for line in lines:
+                cht.add_line(*line)
+            for x in range(-15, 16):
+                self.assertEqual(cht.query(x), brute_min(lines, x), msg=f"{lines} at x={x}")
+
+    def test_empty_query_raises(self):
+        with self.assertRaises(ValueError):
+            MonotonicCHT().query(0)
+
+
 class TestLiChaoTree(unittest.TestCase):
     def test_single_line(self):
         lc = LiChaoTree(-10, 10)

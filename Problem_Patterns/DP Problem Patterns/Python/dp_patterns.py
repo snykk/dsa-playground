@@ -7,6 +7,7 @@ This module contains implementations of common DP patterns:
 3. Longest Increasing Subsequence (LIS)
 """
 
+import bisect
 from typing import List
 
 def knapsack_01(weights: List[int], values: List[int], capacity: int) -> int:
@@ -83,13 +84,11 @@ def lis(nums: List[int]) -> int:
     if not nums:
         return 0
         
-    n = len(nums)
     # tails[i] stores the smallest tail of all increasing subsequences of length i+1.
     tails = []
     
     for num in nums:
         # Binary search for num in tails
-        import bisect
         idx = bisect.bisect_left(tails, num)
         
         if idx < len(tails):

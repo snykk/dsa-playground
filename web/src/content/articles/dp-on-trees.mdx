@@ -1,0 +1,248 @@
+---
+topic: Algorithms/Dynamic_Programming/Advanced DP/DP on Trees
+title: DP on Trees
+lead: DP on trees solves a problem for every subtree from the leaves upward, combining the answers of a node's children into the node's own answer. It gives linear-time solutions to independent set, maximum path sum and many other problems that look exponential at first.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n)
+    hint: one post-order pass, each node once
+  - label: Space
+    value: O(h)
+    hint: recursion stack of tree height h (up to n)
+  - label: Order
+    value: Children before parent
+  - label: Typical state
+    value: 1 or 2 values per node
+    hint: for example (include, exclude)
+properties:
+  - { label: Exact answer, value: true }
+  - { label: Needs a rooted tree, value: true }
+  - { label: Recursion depth limit, value: true }
+prerequisites:
+  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Dynamic_Programming/Advanced DP/DP on Graphs
+  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
+  - Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)
+  - Problem_Patterns/DP Problem Patterns
+---
+
+## When to use DP on trees
+
+A tree has no cycles and exactly one path between two nodes, so the answer for a subtree depends only on the subtrees of its children. Use the pattern when:
+
+- you must choose nodes or edges with a constraint between neighbours (no two adjacent, at most k per node);
+- you want the best path, diameter or total of some quantity over a tree;
+- the same question is asked for every subtree.
+
+If the same structure were a general graph, the constraint would make the problem hard. On a tree, each subtree is independent of its siblings, which is what makes the DP exact.
+
+## How it works
+
+Root the tree and process it in post-order (children before their parent). For each node compute a small state from the children's states.
+
+<Steps>
+  <Step title="Define the state of a subtree">
+    Write down what a subtree must report to its parent. For independent set it is a pair: the best sum if the node is taken (`include`) and if it is not (`exclude`). For a maximum path it is one number: the best sum of a chain going **down** from the node.
+  </Step>
+  <Step title="Solve the children first">
+    A recursive DFS calls itself on each child and gets their states. Leaves are the base case.
+  </Step>
+  <Step title="Combine into the node's state">
+    Apply the rule for the problem. This is the only problem-specific step.
+  </Step>
+  <Step title="Read the answer at the root">
+    Often the answer is the root's state. For path problems the answer can be a node in the middle of the tree, so it is tracked in a variable that the DFS updates on the way.
+  </Step>
+</Steps>
+
+<Callout title="Each child is visited exactly once">
+The cost is linear only if the DFS loops over the children once and reuses what it got. Calling the recursion a second time for every child doubles the work at each level and makes the algorithm exponential. An earlier version of this repository's path function did exactly that.
+</Callout>
+
+## Example 1: maximum independent set
+
+Choose nodes of maximum total value so that no two chosen nodes are connected by an edge. For each node `v` with children `c`:
+
+<Equation label="Independent set" expr="include(v) = val(v) + sum of exclude(c);  exclude(v) = sum of max(include(c), exclude(c))" result="answer = max(include(root), exclude(root))" />
+
+If `v` is taken, its children must be skipped. If `v` is skipped, each child is free to do whichever is better. Here is the tree with root 1, children 2 and 3, and node 2 having leaves 4 and 5. Each badge shows `(include, exclude)`.
+
+<TreeDiagram
+  root={{
+    label: 1,
+    badge: '(10, 12)',
+    tone: 'p',
+    children: [
+      { label: 2, badge: '(2, 9)', tone: 'l', children: [{ label: 4, badge: '(4, 0)', tone: 'f' }, { label: 5, badge: '(5, 0)', tone: 'f' }] },
+      { label: 3, badge: '(3, 0)', tone: 'f' },
+    ],
+  }}
+  legend={{ p: 'root: not chosen, the answer is max(10, 12) = 12', l: 'node 2: not chosen', f: 'chosen in the optimal set {3, 4, 5}' }}
+  caption="Leaves report (value, 0). Node 2: include = 2 + 0 + 0 = 2, exclude = max(4, 0) + max(5, 0) = 9. Root: include = 1 + 9 + 0 = 10, exclude = max(2, 9) + max(3, 0) = 12."
+/>
+
+The best set is {3, 4, 5} with sum 12: the root is skipped, node 2 is skipped (its children are better) and node 3 is taken. The repository returns 12 for this tree.
+
+## Example 2: maximum path sum
+
+Find the path with the largest value sum. A path may start and end at any node and uses each node once. Values may be negative, and a path has at least one node.
+
+Let `chain(v)` be the best sum of a path that starts at `v` and goes **down**. A path whose highest node is `v` goes down through at most **two** children, so the best path through `v` is `val(v) + best1 + best2`, where those are the two largest positive child chains (0 if fewer or negative). The parent can only continue one of them, so `chain(v) = val(v) + best1`.
+
+<TreeDiagram
+  root={{
+    label: 10,
+    badge: 'through 100',
+    tone: 'f',
+    children: [
+      { label: 20, badge: 'chain 20', tone: 'f' },
+      { label: 30, badge: 'chain 70', tone: 'f', children: [{ label: 40, badge: 'chain 40', tone: 'f' }] },
+    ],
+  }}
+  legend={{ f: 'the best path: 20, 10, 30, 40, sum 100' }}
+  caption="At the root, the two child chains are 70 (from 30) and 20, so the best path through the root is 10 + 70 + 20 = 100. The root would report chain 80 to a parent."
+/>
+
+### Why two children, not all of them
+
+A path is a line, so at a node it can use one chain coming in and one going out. In a star with center 1 and leaves 2, 3 and 4, the best path is 3, 1, 4 with sum 8, not 1 + 2 + 3 + 4 = 10. Summing every positive child, as an earlier version here did, counts nodes that cannot be on one path.
+
+## Pseudocode
+
+```text
+maxIndependentSet(node):                     # returns (include, exclude)
+    if node is null: return (0, 0)
+    include = node.val
+    exclude = 0
+    for child in node.children:
+        (ci, ce) = maxIndependentSet(child)
+        include += ce
+        exclude += max(ci, ce)
+    return (include, exclude)
+answer = max(maxIndependentSet(root))
+
+maxPathSum(root):
+    best = -infinity
+    chain(node):                              # best downward chain from node
+        if node is null: return 0
+        best1 = 0; best2 = 0                  # two largest positive child chains
+        for child in node.children:
+            g = chain(child)
+            if g > best1: best2 = best1; best1 = g
+            else if g > best2: best2 = g
+        best = max(best, node.val + best1 + best2)
+        return node.val + best1
+    chain(root)
+    return best
+```
+
+## Implementation
+
+The Python version has `TreeNode(val, children)`, `tree_dp_max_independent_set(root)` and `tree_dp_max_path_sum(root)`. The empty tree gives 0 for the independent set and `-inf` for the path sum. The C++ and Go folders are placeholders (a stub and a test that asserts nothing).
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Advanced DP/DP on Trees" />
+
+Both functions recurse once per tree level, so a path-shaped tree deeper than about 1,000 nodes hits Python's recursion limit.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(n)', when: 'Each node is expanded once, and the work per node is proportional to its number of children, so the total is the number of nodes plus edges.' },
+    { case: 'Space', time: 'O(h)', when: 'The recursion stack holds one frame per level of a root-to-leaf path: O(log n) for a balanced tree, O(n) for a chain.' },
+  ]}
+/>
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'State per node', 'Combine']}
+  rows={[
+    ['Maximum independent set', '(include, exclude)', 'sum over children as above'],
+    ['Maximum path sum', 'best downward chain', 'keep the two largest positive chains'],
+    ['Tree diameter', 'height of the subtree', 'two largest child heights plus 2'],
+    ['Minimum vertex cover', '(taken, not taken)', 'not taken forces every child taken'],
+    ['Count nodes or sum a subtree', 'one number', 'sum of children plus 1'],
+    ['Rerooting (answer for every root)', 'down value and up value', 'second pass from the root downward'],
+  ]}
+/>
+
+Only the first two are implemented in the repository. The others use the same traversal with a different combine rule.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Use when']}
+  rows={[
+    ['Recursive DFS (this code)', 'simple, depth equals tree height', 'trees of moderate depth'],
+    ['Iterative post-order', 'explicit stack or order list', 'deep trees where recursion would overflow'],
+    ['Knapsack on trees', 'state `dp[v][k]`, merge children like knapsack', 'at most k nodes chosen; O(n^2) total'],
+    ['Rerooting', 'a second top-down pass', 'the answer for every node as the root'],
+  ]}
+/>
+
+## Tree DP vs alternatives
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Tree DP', 'O(n)', 'exact; works for adjacency constraints and path questions'],
+    ['Brute force over subsets', 'O(2^n)', 'only for tiny trees'],
+    ['Greedy', 'varies', 'works for some problems (leaf-first vertex cover) but needs a proof'],
+    ['Two-DFS diameter trick', 'O(n)', 'only for the unweighted-path diameter, not for general values'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time and exact answers for problems that are exponential on general graphs.',
+    'A small, regular template: define the state, recurse, combine.',
+    'Extends naturally to knapsack on trees and rerooting.',
+  ]}
+  cons={[
+    'Recursion depth equals tree height, which can exceed language limits on chain-like inputs.',
+    'The combine step is easy to get subtly wrong, such as using every child in a path.',
+    'Works for trees only: cycles break the independence of subtrees.',
+  ]}
+/>
+
+## Applications
+
+- Choosing non-adjacent items in a hierarchy, such as selecting employees with no direct manager pairs (independent set).
+- Network design: maximum-value paths and diameters in tree-shaped networks.
+- File-system or organisation trees: aggregates over every subtree such as sizes and counts.
+- A building block for harder problems: heavy-light decomposition and centroid decomposition rely on the same bottom-up merging.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Taking every positive child in a path.** A path uses at most two child chains at a node: keep the two largest.
+- **Recursing twice per child.** Store the result of the first call. A second call per child makes the time exponential.
+- **Returning the through-node sum to the parent.** The parent can extend only a downward chain: return `val + best1`, and use `val + best1 + best2` only to update the answer.
+- **Forgetting that a path needs one node.** If all values are negative the answer is the largest single value, not 0.
+- **Ignoring recursion depth.** A chain of 5,000 nodes overflows Python's default recursion limit.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the independent set need two values per node?">
+    The best choice for a node depends on whether its parent is taken. A taken parent forces the child to be skipped, while a skipped parent leaves the child free. Keeping both answers lets the parent pick the compatible one.
+  </FaqItem>
+  <FaqItem question="Is the answer always at the root?">
+    For independent set, yes. For path problems the best path may have its highest node anywhere, so the answer is the maximum over all nodes, tracked in a variable updated at each node.
+  </FaqItem>
+  <FaqItem question="What if the tree is given as an undirected edge list?">
+    Pick any node as the root and pass the parent along the DFS, skipping it when you look at neighbours. The repository functions expect an already rooted `TreeNode` structure.
+  </FaqItem>
+  <FaqItem question="How do I avoid the recursion limit?">
+    Compute a DFS order with an explicit stack, then process the nodes in reverse order, so every child is handled before its parent. The combine step does not change.
+  </FaqItem>
+</Faq>

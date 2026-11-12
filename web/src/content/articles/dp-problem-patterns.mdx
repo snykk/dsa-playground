@@ -1,0 +1,198 @@
+---
+topic: Problem_Patterns/DP Problem Patterns
+title: DP Problem Patterns
+lead: Most dynamic programming problems fall into a handful of families (linear, knapsack, subsequence, grid, interval, bitmask, digit and tree). This page gives the recipe for writing any DP (state, transition, order, base case) and works through knapsack, LCS and LIS with the repository code.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Knapsack 0/1
+    value: O(N * W)
+    hint: one rolling array of size W + 1
+  - label: LCS
+    value: O(N * M)
+    hint: two rows, O(min(N, M)) memory
+  - label: LIS
+    value: O(N log N)
+    hint: tails array with binary search
+  - label: Recipe
+    value: State, transition, order, base
+properties:
+  - { label: Optimal substructure needed, value: true }
+  - { label: Overlapping subproblems needed, value: true }
+  - { label: Polynomial time, value: true }
+prerequisites:
+  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+related:
+  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
+  - Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence
+  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
+---
+
+## When to use DP
+
+DP applies when a problem has two properties:
+
+- **Optimal substructure:** the best answer is built from the best answers to smaller versions of the same problem.
+- **Overlapping subproblems:** the same smaller problems come up again and again, so computing each once pays off.
+
+Signals in the statement: "minimum / maximum / how many ways", a sequence, two strings, a grid, a budget or capacity, and choices that can be made one position at a time. A brute force that tries every choice is exponential, but the number of *distinct situations* is polynomial.
+
+## How it works: the four-part recipe
+
+<Steps>
+  <Step title="Define the state">
+    Say in one sentence what `dp[...]` means, for example "best value using the first `i` items with capacity `w`". Everything else follows from this sentence.
+  </Step>
+  <Step title="Write the transition">
+    Express a state through smaller states: take the item or skip it, match the characters or drop one, extend a sequence or not.
+  </Step>
+  <Step title="Choose an order and a base case">
+    Fill states so that every dependency is ready (increasing index, or increasing size). The base case is the smallest state with a known answer.
+  </Step>
+  <Step title="Read the answer and optimize space">
+    The answer is a particular cell. If a state needs only the previous row, keep only that row.
+  </Step>
+</Steps>
+
+<Callout title="Top-down and bottom-up are the same DP">
+Top-down writes the recurrence recursively and caches results (memoization). Bottom-up fills the table in dependency order (tabulation). They compute the same states; the repository code is bottom-up, which avoids recursion limits and makes space optimization easy.
+</Callout>
+
+## Pseudocode template
+
+```text
+solve(input):
+    dp = table over the states, filled with the base case
+    for state in an order where dependencies come first:
+        dp[state] = best over choices of (cost of choice + dp[smaller state])
+    return dp[the state that asks the question]
+```
+
+## A pattern map
+
+<DataTable
+  columns={['Family', 'State', 'Transition idea', 'Repository topic']}
+  rows={[
+    ['Linear / sequence', '`dp[i]` over a prefix', 'depends on a few previous positions', 'Fibonacci, Climbing Stairs, Kadane'],
+    ['0/1 knapsack', '`dp[w]` over capacity', 'take the item or skip it', 'DP Problem Patterns, 0-1 Knapsack'],
+    ['Two sequences', '`dp[i][j]` over two prefixes', 'match the last characters or drop one', 'LCS, Edit Distance'],
+    ['Increasing subsequence', 'length, or smallest tail', 'extend a smaller tail', 'LIS'],
+    ['Interval', '`dp[l][r]` over a range', 'split the range at `k`', 'Matrix Chain Multiplication'],
+    ['Subset (bitmask)', '`dp[mask]` or `dp[mask][last]`', 'add one item to the set', 'Bitmask DP'],
+    ['Digits', '`dp[pos][tight][state]`', 'choose the next digit', 'Digit DP'],
+    ['Tree', 'a state per subtree', 'combine the children', 'DP on Trees'],
+    ['DAG / graph', '`dp[v]` over successors', 'best over outgoing edges', 'DP on Graphs'],
+  ]}
+/>
+
+## Worked example 1: 0/1 knapsack
+
+Items with weights `[1, 3, 4, 5]` and values `[1, 4, 5, 7]`, capacity 7. State: `dp[w]` is the best value with capacity `w` using the items processed so far. For each item, `dp[w] = max(dp[w], dp[w - weight] + value)`. The inner loop runs from the **highest** `w` down so that the item is used at most once. The repository code gives these arrays (index = capacity 0..7):
+
+<ArrayDiagram
+  legend={{ p: 'cell that changed for this item', f: 'answer: dp[7]' }}
+  rows={[
+    { label: 'start', values: [0, 0, 0, 0, 0, 0, 0, 0], note: 'No items yet.' },
+    { label: 'item (1, 1)', values: [0, 1, 1, 1, 1, 1, 1, 1], tones: '.ppppppp', note: 'Every capacity of at least 1 can hold the first item.' },
+    { label: 'item (3, 4)', values: [0, 1, 1, 4, 5, 5, 5, 5], tones: '...ppppp', note: 'Capacity 3: take it (4). Capacity 4: 4 + 1 = 5.' },
+    { label: 'item (4, 5)', values: [0, 1, 1, 4, 5, 6, 6, 9], tones: '.....ppp', note: 'Capacity 7: 5 + dp[3] = 9.' },
+    { label: 'item (5, 7)', values: [0, 1, 1, 4, 5, 7, 8, 9], tones: '.....ppf', note: 'Capacity 5: 7. Capacity 6: 7 + 1 = 8. Capacity 7 stays 9.' },
+  ]}
+/>
+
+Iterating upwards instead would let the same item count twice: after the first item, `dp[2]` would become 2 (the weight-1 item used twice), which is the unbounded knapsack, a different problem.
+
+## Worked example 2: longest common subsequence
+
+State: `dp[i][j]` is the LCS length of the first `i` characters of one string and the first `j` of the other. Equal last characters extend the diagonal (`1 + dp[i-1][j-1]`); otherwise take `max(dp[i-1][j], dp[i][j-1])`. For `"abcde"` and `"ace"`:
+
+<GridDiagram
+  corner="abcde \ ace"
+  colLabels={['-', 'a', 'c', 'e']}
+  rowLabels={['-', 'a', 'b', 'c', 'd', 'e']}
+  rows={[[0, 0, 0, 0], [0, 1, 1, 1], [0, 1, 1, 1], [0, 1, 2, 2], [0, 1, 2, 2], [0, 1, 2, 3]]}
+  tones={['....', '.f..', '....', '..f.', '....', '...f']}
+  legend={{ f: 'a matching character: the diagonal cell plus one' }}
+  caption="The answer is the bottom-right cell, 3 (the subsequence ace). The code keeps only two rows of this table."
+/>
+
+## Worked example 3: longest increasing subsequence
+
+The repository uses the `tails` method instead of an O(N<sup>2</sup>) table: `tails[k]` is the smallest possible last element of an increasing subsequence of length `k + 1`. Each number replaces the first tail that is `>=` it (binary search), or is appended if it is larger than all tails. The length of `tails` is the LIS length. For `[10, 9, 2, 5, 3, 7, 101, 18]`:
+
+<ArrayDiagram
+  legend={{ p: 'the number just placed', f: 'final tails: LIS length 4' }}
+  rows={[
+    { label: '10', values: [10], tones: 'p' },
+    { label: '9', values: [9], tones: 'p', note: 'replaces 10: a smaller tail is never worse' },
+    { label: '2', values: [2], tones: 'p' },
+    { label: '5', values: [2, 5], tones: '.p', note: 'larger than every tail: append' },
+    { label: '3', values: [2, 3], tones: '.p', note: 'replaces 5' },
+    { label: '7', values: [2, 3, 7], tones: '..p' },
+    { label: '101', values: [2, 3, 7, 101], tones: '...p' },
+    { label: '18', values: [2, 3, 7, 18], tones: 'ffff', note: 'replaces 101; the tails are not the subsequence itself' },
+  ]}
+/>
+
+The `tails` array is not an actual subsequence (here `[2, 3, 7, 18]` happens to be one), only a summary that gives the correct length. Because the search uses `bisect_left`, equal numbers replace each other, so the subsequence is **strictly** increasing: `[7, 7, 7]` gives 1.
+
+## Implementation
+
+The Python, C++ and Go versions each have `knapsack_01`, `lcs` and `lis`, with the rolling-array optimizations used above (one row for knapsack, two rows for LCS, `tails` for LIS).
+
+<TopicCode topic="Problem_Patterns/DP Problem Patterns" />
+
+## Complexity analysis
+
+<DataTable
+  columns={['Pattern', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Reason']}
+  rows={[
+    ['0/1 knapsack', 'O(N * W)', 'O(W)', 'N items times W + 1 capacities; one array is enough going downwards'],
+    ['LCS', 'O(N * M)', 'O(min(N, M))', 'every cell once; the code swaps so the shorter string is the row length'],
+    ['LIS (tails)', 'O(N log N)', 'O(N)', 'one binary search per element'],
+  ]}
+/>
+
+The general rule: time is the number of states times the work per state. Knapsack is *pseudo-polynomial*: W is a value, not the input length, so it is not polynomial in the number of bits of W.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Change', 'Effect']}
+  rows={[
+    ['Unbounded knapsack', 'iterate capacity upwards', 'each item can be used many times'],
+    ['Reconstructing the answer', 'keep the full table or parent pointers', 'costs the memory the rolling array saved'],
+    ['Non-strict LIS', 'use `bisect_right` / `upper_bound`', 'equal values extend the subsequence'],
+    ['Memoized recursion', 'cache calls on `(i, w)`', 'only reachable states are computed'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Wrong loop direction in 1D knapsack.** Downwards for 0/1, upwards for unbounded.
+- **A vague state definition.** If you cannot say what `dp[i]` means in a sentence, the transition will be wrong.
+- **Treating `tails` as the subsequence.** It gives the length only.
+- **Strict versus non-strict.** `bisect_left` gives strictly increasing; `bisect_right` allows equal values.
+- **Zero-weight items.** A loop that stops at `w > 0` misses them. The Python and C++ versions handle them, and the Go version used to return 0 for capacity 0 even when a zero-weight item fits (fixed).
+- **Forgetting base cases.** An empty string or zero capacity must give 0.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How do I tell DP from greedy?">
+    Greedy makes one irrevocable choice per step and needs a proof that it is safe. DP tries all choices, but remembers sub-results. If a locally best choice can ruin the global answer, as in the 0/1 knapsack where the best value-per-weight item may not belong in the optimum, use DP.
+  </FaqItem>
+  <FaqItem question="When do I need the full table?">
+    When you must reconstruct the solution (which items, which characters) or when a state depends on rows further back than the previous one. Otherwise keep only what the transition reads.
+  </FaqItem>
+  <FaqItem question="Is knapsack really polynomial?">
+    Not in the strict sense. The running time grows with the numeric value of the capacity W, not with the number of digits needed to write it, so it is pseudo-polynomial.
+  </FaqItem>
+  <FaqItem question="Which DP family should I try for a new problem?">
+    Look at what is being chosen: a position in a sequence (linear), a subset of items under a budget (knapsack), two sequences (grid over prefixes), a split point in a range (interval), or a small set of used items (bitmask). Then write the state sentence for that family.
+  </FaqItem>
+</Faq>
