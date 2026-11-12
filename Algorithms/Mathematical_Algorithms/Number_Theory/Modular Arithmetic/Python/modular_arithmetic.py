@@ -87,37 +87,48 @@ def mod_divide(a, b, m):
     return mod_multiply(a, inv, m)
 
 
+def _extended_gcd_nonneg(a, b):
+    """Extended Euclid for a, b >= 0. Returns (g, x, y) with a*x + b*y = g."""
+    if b == 0:
+        return (a, 1, 0)
+    gcd_val, x1, y1 = _extended_gcd_nonneg(b, a % b)
+    return (gcd_val, y1, x1 - (a // b) * y1)
+
+
+def extended_gcd(a, b):
+    """
+    Extended Euclidean Algorithm
+
+    Returns (g, x, y) with a*x + b*y = g = gcd(a, b) >= 0, for inputs of any
+    sign: it runs on |a| and |b|, then negates x when a < 0 and y when b < 0.
+    """
+    gcd_val, x, y = _extended_gcd_nonneg(abs(a), abs(b))
+    return (gcd_val, -x if a < 0 else x, -y if b < 0 else y)
+
+
 def mod_inverse(a, m):
     """
     Compute modular multiplicative inverse using Extended Euclidean Algorithm
-    
-    Finds x such that: (a * x) mod m = 1
-    
+
+    Finds x in [0, m) such that: (a * x) mod m = 1. Negative a is fine:
+    the inverse of -3 modulo 11 is 7, because -3 * 7 = -21 = 1 (mod 11).
+
     Args:
         a: Number to find inverse for
-        m: Modulus (must be coprime with a)
-        
+        m: Modulus (positive integer, must be coprime with a)
+
     Returns:
         Modular inverse of a mod m, or None if it doesn't exist
-        
+
     Time Complexity: O(log min(a, m))
     Space Complexity: O(log min(a, m))
     """
-    def extended_gcd(a, b):
-        a, b = abs(a), abs(b)
-        if b == 0:
-            return (a, 1, 0)
-        gcd_val, x1, y1 = extended_gcd(b, a % b)
-        x = y1
-        y = x1 - (a // b) * y1
-        return (gcd_val, x, y)
-    
     gcd_val, x, _ = extended_gcd(a, m)
-    
+
     if gcd_val != 1:
         return None
-    
-    return (x % m + m) % m
+
+    return x % m
 
 
 def mod_power(base, exponent, m):
@@ -125,16 +136,23 @@ def mod_power(base, exponent, m):
     Compute (base^exponent) mod m using binary exponentiation
     
     Args:
-        base: Base number
-        exponent: Exponent (non-negative integer)
+        base: Base number (any sign)
+        exponent: Exponent; a negative exponent means the inverse power,
+            base^(-e) = (base^-1)^e
         m: Modulus (positive integer)
         
     Returns:
-        (base^exponent) mod m
+        (base^exponent) mod m in [0, m), or None if the exponent is negative
+        and base has no inverse modulo m
         
-    Time Complexity: O(log exponent)
+    Time Complexity: O(log |exponent|)
     Space Complexity: O(1)
     """
+    if exponent < 0:
+        inv = mod_inverse(base, m)
+        if inv is None:
+            return None
+        return mod_power(inv, -exponent, m)
     if m == 1:
         return 0
     
@@ -161,6 +179,7 @@ if __name__ == "__main__":
     print(f"(7 / 5) mod 11 = {mod_divide(7, 5, m)}")  # Should be 8
     print(f"(2^5) mod 11 = {mod_power(2, 5, m)}")  # Should be 10
     
-    print(f"\nModular Inverse:")
+    print("\nModular Inverse:")
     print(f"Inverse of 3 mod 11 = {mod_inverse(3, m)}")  # Should be 4
     print(f"Verification: (3 * 4) mod 11 = {(3 * 4) % m}")  # Should be 1
+    print(f"Inverse of -3 mod 11 = {mod_inverse(-3, m)}")  # Should be 7

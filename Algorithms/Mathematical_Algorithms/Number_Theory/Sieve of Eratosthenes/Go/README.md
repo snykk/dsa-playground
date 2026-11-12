@@ -1,94 +1,31 @@
-# Sieve of Eratosthenes (Go)
+# Sieve of Eratosthenes -- Go Implementation
 
-**Sieve of Eratosthenes** is an efficient algorithm for finding all prime numbers up to a given limit n.
+## Files
 
----
+- `main.go`: the three functions below plus a demo in `main`.
+- `main_test.go`: tests (small and medium limits, counts, empty cases, the boolean sieve, lookups, negative and out-of-range lookups, negative limits, agreement with trial division up to 20,000, prime counts).
+- `go.mod`: module file (Go 1.21).
 
-## Overview
+## API
 
-The Sieve of Eratosthenes is one of the most efficient ways to find all primes smaller than n when n is smaller than about 10 million. It works by iteratively marking the multiples of each prime number starting from 2.
+- `SieveOfEratosthenes(n int) []int`: the primes up to and including `n`; empty for `n < 2`.
+- `SieveBoolean(n int) []bool`: `n + 1` flags, true at the primes; empty for `n < 0`.
+- `IsPrimeSieve(n int, sieve []bool) bool`: `sieve[n]` for `0 <= n < len(sieve)`, otherwise false.
 
-**Key Characteristics:**
-- Efficient: O(n log log n) time complexity
-- Simple: Easy to understand and implement
-- Space: O(n) for boolean array
+## Go-Specific Notes
 
----
+- `[]bool` uses one byte per number.
+- `int` is 64 bits on common platforms, so `i * i` cannot overflow for any `n` whose sieve fits in memory.
+- The old code panicked on a negative limit or a negative index; both now return an empty result or false.
 
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **SieveOfEratosthenes** | O(n log log n) | O(n) |
-| **SieveBoolean** | O(n log log n) | O(n) |
-| **IsPrimeSieve** | O(1) | O(1) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`SieveOfEratosthenes(n)`**
-   - Find all prime numbers up to n
-   - Returns slice of primes
-   - Time: O(n log log n), Space: O(n)
-
-2. **`SieveBoolean(n)`**
-   - Return boolean array indicating primes
-   - Returns slice where isPrime[i] = true if i is prime
-   - Time: O(n log log n), Space: O(n)
-
-3. **`IsPrimeSieve(n, sieve)`**
-   - Check if n is prime using precomputed sieve
-   - Returns true if prime, false otherwise
-   - Time: O(1), Space: O(1)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // Find all primes up to 100
-    primes := SieveOfEratosthenes(100)
-    fmt.Println(primes)
-    
-    // Use boolean array for O(1) prime checking
-    sieve := SieveBoolean(1000)
-    if sieve[17] {
-        fmt.Println("17 is prime")
-    }
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Number Theory" by Rosen
-
----
-
-_Last Updated: December 2025_
-
+- Start crossing out at `p * p` and stop at `sqrt(n)`.
+- Guard lookups against negative indexes.

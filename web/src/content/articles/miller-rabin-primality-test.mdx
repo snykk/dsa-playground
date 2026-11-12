@@ -1,0 +1,204 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Miller-Rabin Primality Test
+title: Miller-Rabin Primality Test
+lead: Miller-Rabin decides whether a large number is prime by testing a property every prime has and almost every composite lacks. A composite slips past one random witness with probability at most 1/4, and twelve fixed witnesses make the answer exact for every 64-bit integer.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time per witness
+    value: O(log n)
+    hint: one modular exponentiation
+  - label: Error with k witnesses
+    value: at most 4^-k
+    hint: only for composite n; primes always pass
+  - label: Deterministic range
+    value: n < 2^64
+    hint: 12 fixed bases, exact up to about 3.2e23
+  - label: Overflow
+    value: 128-bit products
+    hint: 64-bit products fail above about 3.04e9
+    tone: warn
+properties:
+  - { label: Deterministic (fixed bases, n < 2^64), value: true }
+  - { label: Never rejects a prime, value: true }
+  - { label: Finds a factor, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+related:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Sieve of Eratosthenes
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese Remainder Theorem
+---
+
+## Definition
+
+Write an odd `n` as `n - 1 = d * 2^r` with `d` odd. A base `a` with `2 <= a <= n - 2` is a **strong witness** for the compositeness of `n` unless one of these holds:
+
+<Equation label="Strong probable prime to base a" expr="a^d = 1 (mod n)   or   a^(d * 2^i) = -1 (mod n) for some 0 <= i < r" />
+
+If `n` is prime, every base passes. If `n` is composite and a base passes, `a` is a **strong liar**. For every odd composite `n`, at most a quarter of the bases in `2 .. n-2` are strong liars, so `k` independent random bases leave an error probability of at most `4^-k`.
+
+## Intuition
+
+Modulo a prime `p`, the only numbers whose square is 1 are 1 and `-1 = p - 1`. Fermat's little theorem says `a^(p-1) = 1`. So starting from `a^(p-1)` and taking square roots step by step must give 1, 1, ..., 1 and then at some point `-1` (or stay 1 all the way down). A composite number has extra square roots of 1, and the chain from a random base usually hits one of them.
+
+<Callout title="A non-trivial square root of 1 proves compositeness">
+In the chain for `n = 561` with `a = 2`, the term 67 satisfies `67^2 = 1 (mod 561)` but `67` is neither 1 nor 560. A prime has no such number, so 561 is composite. The Fermat test cannot see this: 561 is a Carmichael number, and it passes the Fermat test for every base coprime to it.
+</Callout>
+
+## How it works
+
+<Steps>
+  <Step title="Filter the easy cases">
+    Return false for `n < 2` and for even `n > 2`; return true for 2 and 3.
+  </Step>
+  <Step title="Factor out the twos">
+    Write `n - 1 = d * 2^r` with `d` odd, by halving `n - 1` until it is odd.
+  </Step>
+  <Step title="Test each witness">
+    Compute `x = a^d mod n`. If `x` is 1 or `n - 1`, the witness passes. Otherwise square `x` up to `r - 1` times; if `n - 1` appears, it passes.
+  </Step>
+  <Step title="Decide">
+    A witness that never reaches `n - 1` proves `n` composite: return false at once. If all witnesses pass, return true.
+  </Step>
+</Steps>
+
+## Worked example
+
+Chains `a^d, a^(2d), a^(4d), ...` computed with the repository's formulas:
+
+<DataTable
+  columns={['n', 'a', 'd, r', 'chain mod n', 'verdict']}
+  rows={[
+    ['97', '2', '3, 5', '8, 64, 22, 96', '96 = n - 1: passes (97 is prime)'],
+    ['561', '2', '35, 4', '263, 166, 67, 1', 'never n - 1: witness, composite'],
+    ['2047', '2', '1023, 1', '1', 'starts at 1: passes, so 2 is a liar for 2047 = 23 * 89'],
+    ['2047', '3', '1023, 1', '1565', 'not 1 or n - 1: witness, composite'],
+  ]}
+  caption='A single base can be fooled (2 for 2047), which is why the test uses several.'
+/>
+
+<ArrayDiagram
+  legend={{ p: 'start of the chain, 2^35 mod 561', l: 'repeated squaring', r: 'a square root of 1 that is not 1 or 560', f: 'the chain ends at 1 without passing through 560' }}
+  rows={[
+    { label: 'a^d, a^2d, a^4d, a^8d', values: [263, 166, 67, 1], tones: 'pllf', marks: { 0: '2^35', 1: '2^70', 2: '2^140', 3: '2^280' }, note: 'n = 561, a = 2, 560 = 35 * 2^4. Each term is the square of the one before it.' },
+    { label: 'what it shows', values: [263, 166, 67, 1], tones: '..rf', marks: { 2: '67^2 = 1' }, note: '67 is a non-trivial square root of 1, so 561 is composite.' },
+  ]}
+/>
+
+## Pseudocode
+
+```text
+isWitness(a, n, d, r):                  # true if a proves n composite
+    x = a^d mod n
+    if x == 1 or x == n - 1: return false
+    repeat r - 1 times:
+        x = x * x mod n
+        if x == n - 1: return false
+    return true
+
+millerRabin(n, k):
+    if n < 2: return false
+    if n is 2 or 3: return true
+    if n is even: return false
+    (d, r) = decompose(n - 1)           # n - 1 = d * 2^r, d odd
+    repeat k times:
+        a = random integer in [2, n - 2]
+        if isWitness(a, n, d, r): return false
+    return true
+
+deterministic(n):                       # same loop over a in 2,3,5,...,37 (skip a >= n)
+```
+
+## Implementation
+
+Python has `miller_rabin` (random witnesses), `is_prime_miller_rabin` and `miller_rabin_deterministic`. C++ and Go have the same three, plus a `U64` variant that accepts the full range up to 2^64 - 1; their `int64` forms accept up to 2^63 - 1 and treat negative input as not prime. Every modular product in C++ and Go goes through a 128-bit multiplication (`unsigned __int128`, `math/bits`). An earlier version multiplied in signed 64 bits and reported primes above about 3.04e9 as composite. C++ draws witnesses from a seeded `std::mt19937_64`, Go from the auto-seeded `math/rand`.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Miller-Rabin Primality Test" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Random, k witnesses', time: 'O(k log n) mulmods', space: 'O(1)', when: 'Each witness is one modular exponentiation plus at most r - 1 squarings. With schoolbook big-number multiplication that is O(k log^3 n) bit operations.' },
+    { case: 'Deterministic, 12 witnesses', time: 'O(log n) mulmods', space: 'O(1)', when: 'A constant number of witnesses; about 12 * 64 multiplications for a 64-bit input.' },
+  ]}
+/>
+
+<Equation label="Error bound" expr="P(composite n passes k random witnesses) <= 4^-k" result="k = 20 gives below 10^-12" />
+
+## Choosing the witnesses
+
+<DataTable
+  columns={['Strategy', 'Witnesses', 'Guarantee']}
+  rows={[
+    ['Random (miller_rabin)', 'k values from [2, n - 2]', 'error at most 4^-k for any n'],
+    ['First 12 primes (deterministic)', '2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37', 'exact for every n < 318665857834031151167461, so for all 64-bit n'],
+    ['Fewer fixed bases', 'for example only 2, 3, 5, 7', 'fooled: 3215031751 passes all four'],
+  ]}
+/>
+
+Beyond the bound the twelve primes are no longer enough: `399165290221 * 798330580441 = 318665857834031151167461` passes all of them, and the Python version returns True for it (the Python tests record this on purpose). For larger inputs use random witnesses.
+
+## Miller-Rabin vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Weakness']}
+  highlight={2}
+  rows={[
+    ['Trial division', 'O(sqrt n)', 'about 3 * 10^9 divisions at n = 10^19'],
+    ['Fermat test', 'O(log n) per base', 'fooled by Carmichael numbers such as 561'],
+    ['Miller-Rabin', 'O(log n) per base', 'probabilistic unless the bases are fixed and n is small enough'],
+    ['Sieve of Eratosthenes', 'O(n log log n)', 'finds all primes up to n, needs O(n) memory'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Handles 64-bit and much larger numbers in microseconds.',
+    'Never rejects a prime; the only mistake is accepting a composite.',
+    'Exact for 64-bit inputs with twelve fixed witnesses.',
+    'Tiny code: one modular exponentiation and a few squarings.',
+  ]}
+  cons={[
+    'Probabilistic for random witnesses (though 4^-k shrinks very fast).',
+    'Needs overflow-free modular multiplication for moduli above 2^32.',
+    'Returns no factor when it says composite.',
+  ]}
+/>
+
+## Applications
+
+- **Prime generation.** Pick random odd numbers and keep the first that passes, as in cryptographic key generation.
+- **Competitive programming.** Testing one 64-bit number for primality, and a quick check to run before trying to factor a number (for example with Pollard's rho).
+- **Number theory tools.** Choosing prime moduli for hashing or for the Chinese Remainder Theorem.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Overflowing the product.** `(a * b) % n` in signed 64-bit is wrong for `n` above about 3.04e9. Use `__int128` or `math/bits`.
+- **Trusting the bound too far.** Twelve witnesses are exact below 318665857834031151167461, not for every integer.
+- **Weak randomness.** A fixed sequence or only small witnesses voids the `4^-k` bound.
+- **Squaring too often.** After `a^d` only `r - 1` squarings are needed; the chain stops at the first `n - 1`.
+- **Skipping the small cases.** Even numbers, 2 and 3 must be handled before the main loop, or the witness range `[2, n - 2]` is empty.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Can Miller-Rabin say a prime is composite?">
+    No. A prime passes every base. Only composites can be misreported, as "probably prime".
+  </FaqItem>
+  <FaqItem question="Why is the error at most 1/4 per witness and not smaller?">
+    That is a worst case over all odd composites. For most numbers the share of strong liars is far smaller: only 8 of the 558 bases are strong liars for 561. The 1/4 bound is the guarantee that holds for every composite.
+  </FaqItem>
+  <FaqItem question="Why are twelve primes enough for 64-bit numbers?">
+    Computer searches show that no composite below 318665857834031151167461 is a strong pseudoprime to all of the first twelve primes. That bound is larger than 2^64, which is about 1.8 * 10^19.
+  </FaqItem>
+  <FaqItem question="How does it relate to the Fermat test?">
+    The Fermat test checks only `a^(n-1) = 1`. Miller-Rabin also inspects the square roots along the way, which exposes Carmichael numbers.
+  </FaqItem>
+</Faq>

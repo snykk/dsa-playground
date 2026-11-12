@@ -1,86 +1,31 @@
-# Modular Exponentiation (Go)
+# Modular Exponentiation -- Go Implementation
 
-**Modular Exponentiation** computes (base^exponent) mod modulus efficiently using binary exponentiation (also known as fast exponentiation).
+## Files
 
----
+- `main.go`: the functions below plus a demo in `main`.
+- `main_test.go`: tests (basics, exponent 0, base 0, modulus 1, a 60-bit modulus, Fermat checks modulo 2^61 - 1 and 2^63 - 25, negative base, negative exponent, inverses of negative numbers and of 2^53 + 1, a signed extended-gcd identity check, exponent 2^63 - 1).
+- `go.mod`: module file (Go 1.21).
 
-## Overview
+## API
 
-Modular exponentiation is a fundamental operation in number theory and cryptography. The naive approach of computing base^exponent first and then taking modulo is inefficient for large numbers. Binary exponentiation reduces the time complexity from O(exponent) to O(log exponent).
+- `ModPow(base, exponent, modulus int64) int64`: result in `[0, modulus)`; a negative exponent gives the inverse power, or `-1` if `base` has no inverse.
+- `ModInverse(a, m int64) int64`: inverse in `[0, m)`, or `-1`.
+- `ExtendedGCDResult`: `{GCD, X, Y}`, returned by the unexported `extendedGcd` with `a*X + b*Y == GCD` for any signs.
 
-**Key Characteristics:**
-- Efficient: O(log exponent) time complexity
-- Essential for cryptography: RSA, Diffie-Hellman
-- Uses binary representation of exponent
+## Go-Specific Notes
 
----
+- Products use `bits.Mul64` and `bits.Rem64`, so any modulus up to `math.MaxInt64` is safe. Absolute values are integer arithmetic (the old `math.Abs` went through `float64` and broke above 2^53).
+- A negative base is reduced into `[0, modulus)` first, because `%` keeps the sign of the dividend.
+- `math.MinInt64` as an argument is not supported. There is no recursive version in Go.
 
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **ModPow** | O(log exponent) | O(1) |
-| **ModInverse** | O(log min(a, m)) | O(log min(a, m)) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`ModPow(base, exponent, modulus)`**
-   - Compute (base^exponent) mod modulus using iterative binary exponentiation
-   - Returns result
-   - Time: O(log exponent), Space: O(1)
-
-2. **`ModInverse(a, m)`**
-   - Compute modular multiplicative inverse using Extended Euclidean Algorithm
-   - Returns inverse x where (a * x) mod m = 1, or -1 if it doesn't exist
-   - Time: O(log min(a, m)), Space: O(log min(a, m))
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // Compute modular exponentiation
-    result := ModPow(2, 10, 1000)
-    fmt.Println(result)  // 24
-    
-    // Compute modular inverse
-    inv := ModInverse(3, 11)
-    fmt.Println(inv)  // 4
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 31)
-- "Algorithm Design Manual" by Steven Skiena
-- "Number Theory" by Rosen
-
----
-
-_Last Updated: December 2025_
-
+- `bits.Mul64` plus `bits.Rem64` is an overflow-free `a * b % m`.
+- Normalize a negative base before the loop.

@@ -1,102 +1,32 @@
-# Euclidean Algorithm (Go)
+# Euclidean Algorithm -- Go Implementation
 
-**Euclidean Algorithm** is an efficient method for computing the greatest common divisor (GCD) of two integers. It can also be used to compute the least common multiple (LCM).
+## Files
 
----
+- `main.go`: the functions below plus a demo in `main`.
+- `main_test.go`: tests (gcd table, commutativity, lcm, the gcd-lcm identity, extended gcd with negative inputs and 20,000 random signed pairs, lcm that overflows a plain product, gcd above 2^53).
+- `go.mod`: module file (Go 1.21).
 
-## Overview
+## API
 
-The Euclidean algorithm is one of the oldest algorithms still in use today. It is based on the principle that the GCD of two numbers also divides their difference.
+- `GCD(a, b int64) int64`: recursive Euclid on absolute values.
+- `GCDIterative(a, b int64) int64`: loop version.
+- `LCM(a, b int64) int64`: `|a| / gcd * |b|`; 0 if either is 0.
+- `ExtendedGCD(a, b int64) ExtendedGCDResult`: `{GCD, X, Y}` with `a*X + b*Y == GCD`, for any signs.
 
-**Key Characteristics:**
-- Efficient: O(log min(a, b)) time complexity
-- Simple: Easy to understand and implement
-- Versatile: Can compute GCD, LCM, and solve linear Diophantine equations
+## Go-Specific Notes
 
----
+- The absolute value is integer arithmetic (`abs`). Do not use `math.Abs`: converting to `float64` rounds values above 2^53 (the old code returned `GCD(2^53 + 1, 3) == 1`).
+- `LCM` divides before it multiplies; the result must still fit in `int64`.
+- `math.MinInt64` is not supported.
 
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **GCD** | O(log min(a, b)) | O(1) iterative, O(log min(a, b)) recursive |
-| **LCM** | O(log min(a, b)) | O(1) |
-| **Extended GCD** | O(log min(a, b)) | O(log min(a, b)) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`GCD(a, b)`**
-   - Compute GCD using recursive Euclidean algorithm
-   - Returns GCD of a and b
-   - Time: O(log min(a, b)), Space: O(log min(a, b))
-
-2. **`GCDIterative(a, b)`**
-   - Compute GCD using iterative Euclidean algorithm
-   - Returns GCD of a and b
-   - Time: O(log min(a, b)), Space: O(1)
-
-3. **`LCM(a, b)`**
-   - Compute LCM using GCD
-   - Returns LCM of a and b
-   - Time: O(log min(a, b)), Space: O(1)
-
-4. **`ExtendedGCD(a, b)`**
-   - Extended Euclidean algorithm
-   - Returns ExtendedGCDResult struct with GCD, X, Y where a*X + b*Y = GCD
-   - Time: O(log min(a, b)), Space: O(log min(a, b))
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // Compute GCD
-    result := GCD(48, 18)
-    fmt.Println(result)  // 6
-    
-    // Compute LCM
-    result = LCM(12, 18)
-    fmt.Println(result)  // 36
-    
-    // Extended GCD
-    egcd := ExtendedGCD(48, 18)
-    fmt.Printf("GCD = %d, x = %d, y = %d\n", egcd.GCD, egcd.X, egcd.Y)
-    // GCD = 6, x = -1, y = 3
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 31)
-- "Algorithm Design Manual" by Steven Skiena
-- "Number Theory" by Rosen
-
----
-
-_Last Updated: December 2025_
-
+- Stay in integer arithmetic for number theory; floats silently lose bits.
+- Divide by the gcd before multiplying in an lcm.

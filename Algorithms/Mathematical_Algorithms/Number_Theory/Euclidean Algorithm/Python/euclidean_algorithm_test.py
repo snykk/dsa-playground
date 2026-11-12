@@ -2,6 +2,8 @@
 Unit tests for Euclidean Algorithm
 """
 
+import math
+import random
 import unittest
 from euclidean_algorithm import gcd, gcd_iterative, lcm, extended_gcd
 
@@ -77,7 +79,7 @@ class TestEuclideanAlgorithm(unittest.TestCase):
         """Test Extended Euclidean Algorithm"""
         gcd_val, x, y = extended_gcd(48, 18)
         self.assertEqual(gcd_val, 6)
-        # Verify Bézout's identity: ax + by = gcd
+        # Verify Bezout's identity: ax + by = gcd
         self.assertEqual(48 * x + 18 * y, gcd_val)
         
         gcd_val, x, y = extended_gcd(100, 25)
@@ -89,6 +91,37 @@ class TestEuclideanAlgorithm(unittest.TestCase):
         gcd_val, x, y = extended_gcd(17, 13)
         self.assertEqual(gcd_val, 1)
         self.assertEqual(17 * x + 13 * y, 1)
+
+    def test_extended_gcd_negative_inputs(self):
+        """a*x + b*y == gcd(a, b) when a or b is negative"""
+        gcd_val, x, y = extended_gcd(-48, 18)
+        self.assertEqual(gcd_val, 6)
+        self.assertEqual(-48 * x + 18 * y, 6)
+        gcd_val, x, y = extended_gcd(48, -18)
+        self.assertEqual(48 * x - 18 * y, 6)
+        gcd_val, x, y = extended_gcd(-48, -18)
+        self.assertEqual(-48 * x - 18 * y, 6)
+
+    def test_extended_gcd_identity_random_signed(self):
+        rng = random.Random(2026)
+        for _ in range(5000):
+            a, b = rng.randint(-10**6, 10**6), rng.randint(-10**6, 10**6)
+            g, x, y = extended_gcd(a, b)
+            self.assertEqual(g, math.gcd(a, b))
+            self.assertEqual(a * x + b * y, g)
+
+    def test_extended_gcd_zero(self):
+        self.assertEqual(extended_gcd(0, 0), (0, 1, 0))
+        g, x, y = extended_gcd(-7, 0)
+        self.assertEqual((g, -7 * x), (7, 7))
+        g, x, y = extended_gcd(0, -7)
+        self.assertEqual(g, 7)
+        self.assertEqual(-7 * y, 7)
+
+    def test_large_values(self):
+        a, b = 2**53 + 1, 3
+        self.assertEqual(gcd(a, b), 3)
+        self.assertEqual(lcm(4000000000, 4000000000), 4000000000)
 
 
 if __name__ == '__main__':

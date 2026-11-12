@@ -110,3 +110,59 @@ func equal(a, b []int) bool {
 	}
 	return true
 }
+
+func TestNegativeIndexIsNotPrime(t *testing.T) {
+	sieve := SieveBoolean(101)
+	if !sieve[101] {
+		t.Fatal("101 is prime")
+	}
+	for _, n := range []int{-1, -101, -2} {
+		if IsPrimeSieve(n, sieve) {
+			t.Errorf("IsPrimeSieve(%d) should be false", n)
+		}
+	}
+}
+
+func TestBeyondTheSieveIsFalse(t *testing.T) {
+	if IsPrimeSieve(103, SieveBoolean(100)) {
+		t.Error("IsPrimeSieve(103, sieve up to 100) should be false")
+	}
+}
+
+func TestNegativeLimit(t *testing.T) {
+	if got := SieveOfEratosthenes(-5); len(got) != 0 {
+		t.Errorf("SieveOfEratosthenes(-5) = %v, expected empty", got)
+	}
+	if got := SieveBoolean(-5); len(got) != 0 {
+		t.Errorf("SieveBoolean(-5) = %v, expected empty", got)
+	}
+	if got := SieveBoolean(0); len(got) != 1 {
+		t.Errorf("SieveBoolean(0) length = %d, expected 1", len(got))
+	}
+}
+
+func TestMatchesTrialDivision(t *testing.T) {
+	sieve := SieveBoolean(20000)
+	count := 0
+	for n := 0; n <= 20000; n++ {
+		prime := n >= 2
+		for i := 2; i*i <= n; i++ {
+			if n%i == 0 {
+				prime = false
+				break
+			}
+		}
+		if sieve[n] != prime {
+			t.Fatalf("sieve[%d] = %t, expected %t", n, sieve[n], prime)
+		}
+		if prime {
+			count++
+		}
+	}
+	if count != 2262 {
+		t.Errorf("found %d primes up to 20000, expected 2262", count)
+	}
+	if got := len(SieveOfEratosthenes(100000)); got != 9592 {
+		t.Errorf("found %d primes up to 100000, expected 9592", got)
+	}
+}

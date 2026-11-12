@@ -3,6 +3,7 @@
  */
 
 #include <cassert>
+#include <numeric>
 #include <iostream>
 #include "modular_arithmetic.cpp"
 
@@ -14,7 +15,7 @@ void testModAdd() {
 
 void testModSubtract() {
     assert(modSubtract(7, 5, 11) == 2);
-    assert(modSubtract(3, 5, 11) == 9);  // 3 - 5 = -2 ≡ 9 (mod 11)
+    assert(modSubtract(3, 5, 11) == 9);  // 3 - 5 = -2, which is 9 modulo 11
     assert(modSubtract(0, 0, 11) == 0);
 }
 
@@ -68,6 +69,57 @@ void testModArithmeticProperties() {
     assert(modMultiply(a, modAdd(b, c, m), m) == modAdd(modMultiply(a, b, m), modMultiply(a, c, m), m));
 }
 
+void testNegativeOperandsStayInRange() {
+    assert(modAdd(-3, 1, 11) == 9);
+    assert(modMultiply(-3, 4, 11) == 10);
+    assert(modPower(-2, 3, 5) == 2);
+    assert(modSubtract(-3, -5, 11) == 2);
+}
+
+void testExtendedGcdSignedIdentity() {
+    unsigned seed = 11;
+    auto next = [&seed]() { seed = seed * 1103515245u + 12345u; return seed >> 8; };
+    for (int i = 0; i < 20000; i++) {
+        long long a = static_cast<long long>(next() % 1001) - 500;
+        long long b = static_cast<long long>(next() % 1001) - 500;
+        ExtendedGCD r = extendedGcd(a, b);
+        assert(r.gcd == std::gcd(a, b));
+        assert(a * r.x + b * r.y == r.gcd);
+    }
+}
+
+void testInverseOfNegativeNumber() {
+    assert(modInverse(-3, 11) == 7);
+    assert(modDivide(1, -3, 11) == 7);
+    assert(modDivide(-1, 1, 11) == 10);  // not confused with the -1 sentinel
+    for (long long a = -30; a < 30; a++) {
+        long long inv = modInverse(a, 11);
+        if (a % 11 == 0) {
+            assert(inv == -1);
+        } else {
+            assert(modMultiply(a, inv, 11) == 1);
+        }
+    }
+}
+
+void testNegativeExponent() {
+    assert(modPower(2, -1, 11) == 6);
+    assert(modPower(2, -1, 12) == -1);
+}
+
+void testLargeModulusNoOverflow() {
+    const long long m = 1000000000000000003LL;
+    assert(modMultiply(1000000000000LL, 1000000000000LL, m) == 999999999997000003LL);
+    assert(modPower(3, 1000000, m) == 390030038026333578LL);
+    // m > 2^62: a plain x + y would overflow.
+    const long long big = 9223372036854775783LL;  // 2^63 - 25
+    assert(modAdd(big - 1, big - 2, big) == big - 3);
+    assert(modSubtract(1, big - 1, big) == 2);
+    assert(modMultiply(big - 1, big - 1, big) == 1);
+    long long inv = modInverse(1234567890123LL, big);
+    assert(inv != -1 && modMultiply(1234567890123LL, inv, big) == 1);
+}
+
 int main() {
     testModAdd();
     testModSubtract();
@@ -78,6 +130,11 @@ int main() {
     testModInverseNotCoprime();
     testModPower();
     testModArithmeticProperties();
+    testNegativeOperandsStayInRange();
+    testExtendedGcdSignedIdentity();
+    testInverseOfNegativeNumber();
+    testNegativeExponent();
+    testLargeModulusNoOverflow();
     
     std::cout << "All tests passed!" << std::endl;
     return 0;

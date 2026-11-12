@@ -46,9 +46,12 @@ long long gcdIterative(long long a, long long b) {
 
 /**
  * Compute Least Common Multiple using GCD
- * 
- * LCM(a, b) = |a * b| / GCD(a, b)
- * 
+ *
+ * LCM(a, b) = |a| / GCD(a, b) * |b|
+ *
+ * Dividing before multiplying keeps the intermediate value as small as the
+ * result. The result itself must still fit in a long long.
+ *
  * Time Complexity: O(log min(a, b))
  * Space Complexity: O(1)
  */
@@ -56,15 +59,17 @@ long long lcm(long long a, long long b) {
     if (a == 0 || b == 0) {
         return 0;
     }
-    
-    return std::abs(a * b) / gcd(a, b);
+
+    return std::abs(a) / gcd(a, b) * std::abs(b);
 }
 
 /**
  * Extended Euclidean Algorithm
- * 
- * Finds integers x and y such that: ax + by = GCD(a, b)
- * 
+ *
+ * Finds integers x and y such that: a*x + b*y = GCD(a, b), for inputs of any
+ * sign. It runs on |a| and |b|, then negates x when a is negative and y when
+ * b is negative. (LLONG_MIN is not supported: it has no positive counterpart.)
+ *
  * Returns: struct containing gcd, x, and y
  * Time Complexity: O(log min(a, b))
  * Space Complexity: O(log min(a, b))
@@ -75,37 +80,19 @@ struct ExtendedGCD {
     long long y;
 };
 
-ExtendedGCD extendedGcd(long long a, long long b) {
-    a = std::abs(a);
-    b = std::abs(b);
-    
+// Extended Euclid for a, b >= 0.
+static ExtendedGCD extendedGcdNonNeg(long long a, long long b) {
     if (b == 0) {
         return {a, 1, 0};
     }
-    
-    ExtendedGCD result = extendedGcd(b, a % b);
-    long long x = result.y;
-    long long y = result.x - (a / b) * result.y;
-    
-    return {result.gcd, x, y};
+
+    ExtendedGCD result = extendedGcdNonNeg(b, a % b);
+    return {result.gcd, result.y, result.x - (a / b) * result.y};
 }
 
-// Example usage (uncomment to use)
-/*
-#include <iostream>
-#ifndef TESTING
-#ifndef IS_TEST_BUILD
-int main() {
-    std::cout << "Euclidean Algorithm Examples:" << std::endl;
-    std::cout << "GCD(48, 18) = " << gcd(48, 18) << std::endl;
-    std::cout << "LCM(12, 18) = " << lcm(12, 18) << std::endl;
-    
-    ExtendedGCD result = extendedGcd(48, 18);
-    std::cout << "Extended GCD(48, 18): GCD = " << result.gcd 
-              << ", x = " << result.x << ", y = " << result.y << std::endl;
-    
-    return 0;
+ExtendedGCD extendedGcd(long long a, long long b) {
+    ExtendedGCD result = extendedGcdNonNeg(std::abs(a), std::abs(b));
+    if (a < 0) result.x = -result.x;
+    if (b < 0) result.y = -result.y;
+    return result;
 }
-#endif
-#endif
-*/
