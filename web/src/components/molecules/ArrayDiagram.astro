@@ -1,16 +1,16 @@
 ---
+import { toneAt, toneClass } from '../../lib/diagram';
 import { formatInline } from '../../lib/inline';
+import DiagramLegend from './DiagramLegend.astro';
 
 /**
  * A static, illustrated walk-through of an array algorithm (one card per step),
  * built from the same cell look as the visualizations.
  *
- * Each row gives the array values, a tone string with one character per cell
- * (p pivot, l left part, r right part, c being compared, f final, m muted, "." none),
- * pointer marks under cells (index -> label) and a note explaining the step.
+ * Each row gives the array values, a tone string with one character per cell (the shared
+ * diagram tones in src/lib/diagram.ts: p primary, l light, r secondary, c current,
+ * f final, m muted, "." none), pointer marks under cells (index -> label) and a note.
  */
-type ToneKey = 'p' | 'l' | 'r' | 'c' | 'f' | 'm';
-
 interface Row {
   values: Array<number | string>;
   tones?: string;
@@ -21,30 +21,16 @@ interface Row {
 
 interface Props {
   rows: Row[];
-  /** Legend entries, keyed by tone character. */
-  legend?: Partial<Record<ToneKey, string>>;
+  /** What each tone means in this diagram, keyed by tone character. */
+  legend?: Record<string, string>;
   caption?: string;
 }
-
-const TONES: Record<ToneKey, string> = { p: 'pivot', l: 'left', r: 'right', c: 'current', f: 'final', m: 'muted' };
-const toneOf = (row: Row, i: number): string | undefined => TONES[(row.tones ?? '')[i] as ToneKey];
 
 const { rows, legend, caption } = Astro.props;
 ---
 
-<figure class="array-diagram">
-  {
-    legend && (
-      <ul class="legend">
-        {(Object.entries(legend) as Array<[ToneKey, string]>).map(([key, label]) => (
-          <li>
-            <span class:list={['swatch', TONES[key]]} aria-hidden="true" />
-            <span set:html={formatInline(label)} />
-          </li>
-        ))}
-      </ul>
-    )
-  }
+<figure class="dg-figure array-diagram">
+  {legend && <DiagramLegend legend={legend} />}
   <ol class="rows">
     {
       rows.map((row) => (
@@ -55,7 +41,7 @@ const { rows, legend, caption } = Astro.props;
               {row.values.map((v, i) => (
                 <div class="slot">
                   <span class="idx">{i}</span>
-                  <span class:list={['cell', toneOf(row, i)]}>{v}</span>
+                  <span class={`cell ${toneClass(toneAt(row.tones, i))}`}>{v}</span>
                   <span class="mark">{row.marks?.[i] ?? ''}</span>
                 </div>
               ))}
@@ -66,35 +52,10 @@ const { rows, legend, caption } = Astro.props;
       ))
     }
   </ol>
-  {caption && <figcaption set:html={formatInline(caption)} />}
+  {caption && <figcaption class="dg-caption" set:html={formatInline(caption)} />}
 </figure>
 
 <style>
-  .array-diagram {
-    margin: 20px 0 24px;
-  }
-  .legend {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 16px;
-    margin: 0 0 12px;
-    padding: 0;
-    font-size: 13.5px;
-    color: var(--text-2);
-  }
-  .legend li {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-  }
-  .swatch {
-    width: 14px;
-    height: 14px;
-    border-radius: 4px;
-    border: 1.5px solid var(--border-strong);
-    background: var(--surface);
-  }
   .rows {
     list-style: none;
     margin: 0;
@@ -146,51 +107,19 @@ const { rows, legend, caption } = Astro.props;
     color: var(--text);
     font-weight: 650;
   }
-  .cell,
-  .swatch {
-    --fill: var(--surface);
-  }
   .cell {
     display: grid;
     place-items: center;
-    width: 38px;
+    min-width: 38px;
     height: 38px;
+    padding: 0 6px;
     border-radius: 8px;
-    border: 1.5px solid var(--border-strong);
-    background: var(--fill);
+    border: var(--dg-stroke-width) solid var(--dg-stroke);
+    background: var(--dg-fill);
+    color: var(--dg-ink);
     font-family: var(--font-mono);
     font-size: 14.5px;
     font-weight: 600;
-    color: var(--text);
-  }
-  .pivot {
-    --fill: var(--viz-active);
-    border-color: var(--viz-active);
-    color: var(--viz-ink-on-fill);
-  }
-  .left {
-    --fill: color-mix(in srgb, var(--viz-compare) 22%, var(--surface));
-    border-color: var(--viz-compare);
-  }
-  .right {
-    --fill: var(--surface-3);
-  }
-  .current {
-    border: 2.5px solid var(--text);
-  }
-  .final {
-    --fill: var(--viz-done);
-    border-color: var(--viz-done);
-    color: var(--viz-ink-on-fill);
-  }
-  .muted {
-    opacity: 0.4;
-  }
-  .swatch {
-    background: var(--fill);
-  }
-  .swatch.current {
-    border-width: 2.5px;
   }
   .row-note {
     margin: 0;
@@ -201,11 +130,6 @@ const { rows, legend, caption } = Astro.props;
   .row-note :global(code) {
     font-family: var(--font-mono);
     font-size: 0.9em;
-  }
-  figcaption {
-    margin-top: 8px;
-    font-size: 14px;
-    color: var(--text-3);
   }
   @media (max-width: 759px) {
     .row {

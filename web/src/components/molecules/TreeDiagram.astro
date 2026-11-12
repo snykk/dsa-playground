@@ -1,0 +1,171 @@
+---
+import { layoutTree, toneClass, treeFromLevelOrder, type PlacedNode, type TreeNode } from '../../lib/diagram';
+import { formatInline } from '../../lib/inline';
+import DiagramLegend from './DiagramLegend.astro';
+
+/**
+ * A static tree picture for articles: binary trees from level order
+ * (levelOrder={[8, 3, 10, 1, 6, null, 14]} tones="p.....f"), or any tree from a nested
+ * root={{ label, tone, badge, edge, children: [...] }}. A node label that is an array
+ * draws a multi-key node (B-tree); a word draws a pill.
+ */
+interface Props {
+  root?: TreeNode;
+  levelOrder?: Array<string | number | null>;
+  /** One tone character per levelOrder position (see src/lib/diagram.ts). */
+  tones?: string;
+  /** One tone character per levelOrder position for the edge from its parent. */
+  edgeTones?: string;
+  /** One badge per levelOrder position (null for none). */
+  badges?: Array<string | null>;
+  legend?: Record<string, string>;
+  caption?: string;
+  /** What the picture shows, for screen readers. */
+  label?: string;
+}
+
+const { root: given, levelOrder, tones, edgeTones, badges, legend, caption, label } = Astro.props;
+const root = given ?? (levelOrder ? treeFromLevelOrder(levelOrder, { tones, edgeTones, badges }) : null);
+
+const R = 18;
+const KEY_W = 30;
+const BOX_H = 36;
+const DY = 74;
+const PAD = 10;
+const BADGE_ROOM = 34;
+
+type Shape = { w: number; h: number; kind: 'circle' | 'pill' | 'keys' };
+const shapeOf = (n: TreeNode): Shape => {
+  if (Array.isArray(n.label)) return { w: Math.max(1, n.label.length) * KEY_W + 2, h: BOX_H, kind: 'keys' };
+  const text = n.label === undefined ? '' : String(n.label);
+  if (text.length <= 3) return { w: 2 * R, h: 2 * R, kind: 'circle' };
+  return { w: text.length * 8.6 + 20, h: BOX_H, kind: 'pill' };
+};
+
+const layout = root ? layoutTree(root) : { placed: [] as PlacedNode[], slots: 0, depth: 0 };
+const maxW = Math.max(2 * R, ...layout.placed.map((p) => shapeOf(p.node).w));
+const slotW = Math.max(maxW + 16, 48);
+const width = PAD * 2 + Math.max(layout.slots, 1) * slotW + BADGE_ROOM;
+const height = PAD * 2 + layout.depth * DY + BOX_H + 4;
+const cx = (p: PlacedNode) => PAD + p.x * slotW + slotW / 2;
+const cy = (p: PlacedNode) => PAD + 2 + BOX_H / 2 + p.depth * DY;
+const keys = (n: TreeNode) => (Array.isArray(n.label) ? n.label : []);
+const edgeClass = (tone?: string) => `edge${tone ? ` edge-${tone}` : ''}`;
+---
+
+<figure class="dg-figure tree-diagram">
+  {legend && <DiagramLegend legend={legend} />}
+  <div class="dg-stage">
+    {
+      root ? (
+        <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height} role="img" aria-label={label ?? 'Tree diagram'}>
+          {layout.placed
+            .filter((p) => p.parent)
+            .map((p) => {
+              const parent = p.parent as PlacedNode;
+              const x1 = cx(parent);
+              const y1 = cy(parent) + shapeOf(parent.node).h / 2;
+              const x2 = cx(p);
+              const y2 = cy(p) - shapeOf(p.node).h / 2;
+              return (
+                <g>
+                  <line class={edgeClass(p.node.edgeTone)} x1={x1} y1={y1} x2={x2} y2={y2} />
+                  {p.node.edge && (
+                    <text class="edge-label" x={(x1 + x2) / 2 + (x2 >= x1 ? 8 : -8)} y={(y1 + y2) / 2} text-anchor={x2 >= x1 ? 'start' : 'end'}>
+                      {p.node.edge}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          {layout.placed.map((p) => {
+            const s = shapeOf(p.node);
+            const x = cx(p);
+            const y = cy(p);
+            return (
+              <g class={toneClass(p.node.tone)}>
+                {s.kind === 'circle' && <circle class="shape" cx={x} cy={y} r={R} />}
+                {s.kind === 'pill' && <rect class="shape" x={x - s.w / 2} y={y - s.h / 2} width={s.w} height={s.h} rx={s.h / 2} />}
+                {s.kind === 'keys' && <rect class="shape" x={x - s.w / 2} y={y - s.h / 2} width={s.w} height={s.h} rx={6} />}
+                {s.kind === 'keys' ? (
+                  keys(p.node).map((k, i) => (
+                    <g>
+                      {i > 0 && <line class="divider" x1={x - s.w / 2 + 1 + i * KEY_W} y1={y - s.h / 2} x2={x - s.w / 2 + 1 + i * KEY_W} y2={y + s.h / 2} />}
+                      <text class="label" x={x - s.w / 2 + 1 + i * KEY_W + KEY_W / 2} y={y}>
+                        {k}
+                      </text>
+                    </g>
+                  ))
+                ) : (
+                  <text class="label" x={x} y={y}>
+                    {p.node.label ?? ''}
+                  </text>
+                )}
+                {p.node.badge && (
+                  <text class="badge" x={x + s.w / 2 + 4} y={y - s.h / 2 + 4}>
+                    {p.node.badge}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      ) : (
+        <p class="empty">(empty tree)</p>
+      )
+    }
+  </div>
+  {caption && <figcaption class="dg-caption" set:html={formatInline(caption)} />}
+</figure>
+
+<style>
+  .shape {
+    fill: var(--dg-fill);
+    stroke: var(--dg-stroke);
+    stroke-width: var(--dg-stroke-width);
+  }
+  .label {
+    fill: var(--dg-ink);
+    font: 600 14px var(--font-mono);
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .divider {
+    stroke: var(--dg-stroke);
+    stroke-width: 1;
+  }
+  .badge {
+    fill: var(--text-2);
+    font: 600 11px var(--font-mono);
+    dominant-baseline: central;
+  }
+  .edge {
+    stroke: var(--axis);
+    stroke-width: 2;
+  }
+  .edge-l {
+    stroke: var(--viz-compare);
+    stroke-width: 3;
+  }
+  .edge-p {
+    stroke: var(--viz-active);
+    stroke-width: 3;
+  }
+  .edge-f {
+    stroke: var(--viz-done);
+    stroke-width: 3;
+  }
+  .edge-m {
+    opacity: 0.35;
+  }
+  .edge-label {
+    fill: var(--text-2);
+    font: 600 12px var(--font-mono);
+    dominant-baseline: central;
+  }
+  .empty {
+    margin: 0;
+    color: var(--text-3);
+    font-size: 14px;
+  }
+</style>

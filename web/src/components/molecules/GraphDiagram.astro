@@ -1,0 +1,200 @@
+---
+import { toneClass } from '../../lib/diagram';
+import { formatInline } from '../../lib/inline';
+import { circleLayout, parseGraph } from '../../viz/algorithms/graph';
+import DiagramLegend from './DiagramLegend.astro';
+
+/**
+ * A static graph picture for articles, using the visualizations' edge syntax:
+ * edges="A-B 4, A->C 2" (U-V undirected, U->V directed, optional integer weight).
+ * Nodes sit on a circle unless positions gives them coordinates on a 0..100 grid.
+ */
+interface Props {
+  edges: string;
+  /** Node coordinates on a 0..100 grid: {{ A: [10, 50], B: [50, 10] }}. */
+  positions?: Record<string, [number, number]>;
+  /** Node tones by name: {{ A: 'p', D: 'f' }}. */
+  tones?: Record<string, string>;
+  /** Small text above a node (a distance, a discovery time). */
+  badges?: Record<string, string>;
+  /** Edge tones by "U-V" (undirected) or "U->V" (directed). */
+  edgeTones?: Record<string, string>;
+  /** A walk such as "A,B,D": its edges get the final tone. */
+  path?: string;
+  width?: number;
+  height?: number;
+  legend?: Record<string, string>;
+  caption?: string;
+  label?: string;
+}
+
+const { edges, positions, tones = {}, badges = {}, edgeTones = {}, path, width = 520, height = 300, legend, caption, label } = Astro.props;
+const graph = parseGraph(edges, { maxNodes: 26, maxEdges: 80 });
+
+const R = 20;
+const PAD = 34;
+const pos = new Map<string, { x: number; y: number }>();
+if (positions && graph.nodes.every((n) => positions[n])) {
+  for (const n of graph.nodes) {
+    const [px, py] = positions[n];
+    pos.set(n, { x: PAD + (px / 100) * (width - 2 * PAD), y: PAD + (py / 100) * (height - 2 * PAD) });
+  }
+} else {
+  for (const [n, p] of circleLayout(graph.nodes, width, height)) pos.set(n, p);
+}
+
+const walk = (path ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+const onPath = new Set<string>();
+for (let i = 0; i + 1 < walk.length; i++) {
+  onPath.add(`${walk[i]}->${walk[i + 1]}`);
+  onPath.add(`${walk[i]}-${walk[i + 1]}`);
+  onPath.add(`${walk[i + 1]}-${walk[i]}`);
+}
+const toneOfEdge = (from: string, to: string, directed: boolean): string | undefined => {
+  const keys = directed ? [`${from}->${to}`] : [`${from}-${to}`, `${to}-${from}`];
+  for (const k of keys) if (edgeTones[k]) return edgeTones[k];
+  return keys.some((k) => onPath.has(k)) ? 'f' : undefined;
+};
+const hasReverse = (from: string, to: string) => graph.edges.some((e) => e.directed && e.from === to && e.to === from);
+
+const lines = graph.edges.map((e, i) => {
+  const a = pos.get(e.from) as { x: number; y: number };
+  const b = pos.get(e.to) as { x: number; y: number };
+  const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+  const ux = (b.x - a.x) / len;
+  const uy = (b.y - a.y) / len;
+  // Two opposite directed edges are drawn side by side instead of on top of each other.
+  const off = e.directed && hasReverse(e.from, e.to) ? 5 : 0;
+  const ox = -uy * off;
+  const oy = ux * off;
+  const tone = toneOfEdge(e.from, e.to, e.directed);
+  return {
+    key: i,
+    tone,
+    directed: e.directed,
+    x1: a.x + ux * R + ox,
+    y1: a.y + uy * R + oy,
+    x2: b.x - ux * (R + (e.directed ? 5 : 0)) + ox,
+    y2: b.y - uy * (R + (e.directed ? 5 : 0)) + oy,
+    label: e.weighted ? String(e.weight) : '',
+    lx: (a.x + b.x) / 2 + ox * 2.4 - uy * 11,
+    ly: (a.y + b.y) / 2 + oy * 2.4 + ux * 11,
+  };
+});
+const markerTones = ['default', 'l', 'p', 'f'];
+/** Marker ids are page-global, so they carry a hash of the edge list. */
+const uid = `gd${Math.abs([...edges].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7))}`;
+const markerFor = (tone?: string) => `url(#${uid}-arrow-${tone && markerTones.includes(tone) ? tone : 'default'})`;
+---
+
+<figure class="dg-figure graph-diagram">
+  {legend && <DiagramLegend legend={legend} />}
+  <div class="dg-stage">
+    <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height} role="img" aria-label={label ?? `Graph with ${graph.nodes.length} nodes`}>
+      <defs>
+        {
+          markerTones.map((t) => (
+            <marker id={`${uid}-arrow-${t}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path class={`arrow arrow-${t}`} d="M0,0 L10,5 L0,10 z" />
+            </marker>
+          ))
+        }
+      </defs>
+      {
+        lines.map((l) => (
+          <g>
+            <line class={`edge${l.tone ? ` edge-${l.tone}` : ''}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} marker-end={l.directed ? markerFor(l.tone) : undefined} />
+            {l.label && (
+              <text class="weight" x={l.lx} y={l.ly}>
+                {l.label}
+              </text>
+            )}
+          </g>
+        ))
+      }
+      {
+        graph.nodes.map((n) => {
+          const p = pos.get(n) as { x: number; y: number };
+          return (
+            <g class={toneClass(tones[n])}>
+              <circle class="shape" cx={p.x} cy={p.y} r={R} />
+              <text class="label" x={p.x} y={p.y}>
+                {n}
+              </text>
+              {badges[n] && (
+                <text class="badge" x={p.x} y={p.y - R - 9}>
+                  {badges[n]}
+                </text>
+              )}
+            </g>
+          );
+        })
+      }
+    </svg>
+  </div>
+  {caption && <figcaption class="dg-caption" set:html={formatInline(caption)} />}
+</figure>
+
+<style>
+  .shape {
+    fill: var(--dg-fill);
+    stroke: var(--dg-stroke);
+    stroke-width: var(--dg-stroke-width);
+  }
+  .label {
+    fill: var(--dg-ink);
+    font: 600 14px var(--font-mono);
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .badge {
+    fill: var(--text);
+    font: 600 12px var(--font-mono);
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .edge {
+    stroke: var(--axis);
+    stroke-width: 2;
+  }
+  .edge-l {
+    stroke: var(--viz-compare);
+    stroke-width: 3;
+  }
+  .edge-p {
+    stroke: var(--viz-active);
+    stroke-width: 3;
+  }
+  .edge-f {
+    stroke: var(--viz-done);
+    stroke-width: 3.5;
+  }
+  .edge-m {
+    opacity: 0.3;
+  }
+  .edge-c {
+    stroke: var(--text);
+    stroke-dasharray: 6 5;
+  }
+  .arrow-default {
+    fill: var(--text-3);
+  }
+  .arrow-l {
+    fill: var(--viz-compare);
+  }
+  .arrow-p {
+    fill: var(--viz-active);
+  }
+  .arrow-f {
+    fill: var(--viz-done);
+  }
+  .weight {
+    fill: var(--text-2);
+    font: 600 12px var(--font-mono);
+    text-anchor: middle;
+    dominant-baseline: central;
+    paint-order: stroke;
+    stroke: var(--surface);
+    stroke-width: 4px;
+  }
+</style>
