@@ -36,6 +36,8 @@ const DY = 66;
 const PAD = 20;
 const TOP = 34;
 const TREE_GAP = 0.5;
+/** Corner badges ("r=2") start right of a node; keep room for them past the last node. */
+const BADGE_ROOM = 26;
 const ARROW_ROLES: Role[] = ['idle', 'compare', 'active', 'done'];
 
 /** Tidy layout: leaves take consecutive slots, a parent sits centered over its children. */
@@ -84,7 +86,7 @@ export function ForestView({ state }: { state: ForestState }) {
   const { target, slots, depth } = layout(nodes);
   const pos = useTween(target);
   const at = (id: number) => pos.get(id) ?? target.get(id)!;
-  const width = Math.max(PAD * 2 + 2 * R + Math.max(slots - 1, 0) * DX, 260);
+  const width = Math.max(PAD * 2 + 2 * R + Math.max(slots - 1, 0) * DX + BADGE_ROOM, 260);
   const height = TOP + 2 * R + depth * DY + PAD;
   const roots = nodes.filter((n) => n.parent === n.id).length;
 
