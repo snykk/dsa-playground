@@ -75,7 +75,7 @@ def _strip_block_comments(text: str) -> str:
 def wrap_main(text: str) -> tuple[str, bool]:
     """Return (new_text, changed). Wraps the last `int main(` block with guards.
 
-    Skip files whose only `int main(` sits inside a /* ... */ block comment —
+    Skip files whose only `int main(` sits inside a /* ... */ block comment --
     those are commented-out demos that don't need guarding.
     """
     if is_already_wrapped(text):
@@ -89,7 +89,7 @@ def wrap_main(text: str) -> tuple[str, bool]:
         return text, False
     # Use the last match: in our files, demo main() is always the final
     # top-level function. (If there are multiple matches, only the last is
-    # the demo; earlier ones could be inside #if 0 or comments — but in
+    # the demo; earlier ones could be inside #if 0 or comments -- but in
     # practice each impl has at most one main.)
     m = matches[-1]
     insert_at = m.start()
