@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/Stack/Array Based/Dynamic Size
+topic: Data Structures/Linear/Stack/Dynamic_Array_Stack
 title: Dynamic Size Array Stack
 lead: A stack follows last-in, first-out order. This version keeps its items in a growable array, so it has no fixed capacity. Push, pop and peek all run in O(1) (push amortized), because the array grows by a constant factor instead of one slot at a time.
 level: Beginner
@@ -23,8 +23,8 @@ properties:
 prerequisites:
   - Data Structures/Linear/Array
 related:
-  - Data Structures/Linear/Stack/Array Based/Static Size
-  - Data Structures/Linear/Stack/Linked List Based
+  - Data Structures/Linear/Stack/Static_Array_Stack
+  - Data Structures/Linear/Stack/Linked_List_Stack
   - Problem_Patterns/Monotonic Stack
   - Algorithms/Graph_Algorithms/Traversal/DFS
 ---
@@ -113,7 +113,7 @@ None of the three implementations shrinks the array on pop. After many pushes an
 
 The three versions are thin wrappers over the built-in array, which keeps the code short. Their only visible differences are in the error behaviour described above.
 
-<TopicCode topic="Data Structures/Linear/Stack/Array Based/Dynamic Size" />
+<TopicCode topic="Data Structures/Linear/Stack/Dynamic_Array_Stack" />
 
 ## Complexity
 

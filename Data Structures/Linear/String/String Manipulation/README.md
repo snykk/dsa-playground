@@ -129,7 +129,7 @@ Use these functions for per-character transformations, input cleaning and parsin
 
 ## Related
 
-- [Introduction to Strings](../Introduction)
+- [Introduction to Strings](../String_Basics)
 - [Pattern Matching](../Pattern%20Matching)
 - [Rope](../Rope)
 - [Two Pointers](../../../../Problem_Patterns/Two%20Pointers)

@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/Stack/Linked List Based
+topic: Data Structures/Linear/Stack/Linked_List_Stack
 title: Linked List Stack
 lead: A linked-list stack keeps each item in a node that points to the node below it, and the stack is just a pointer to the top node. Push, pop and peek are O(1) in the worst case, there is no capacity limit and no resizing, at the cost of one pointer and one allocation per item.
 level: Beginner
@@ -24,8 +24,8 @@ properties:
 prerequisites:
   - Data Structures/Linear/Linked List/Singly
 related:
-  - Data Structures/Linear/Stack/Array Based/Dynamic Size
-  - Data Structures/Linear/Stack/Array Based/Static Size
+  - Data Structures/Linear/Stack/Dynamic_Array_Stack
+  - Data Structures/Linear/Stack/Static_Array_Stack
   - Data Structures/Linear/Linked List/Singly
   - Problem_Patterns/Monotonic Stack
 ---
@@ -115,7 +115,7 @@ pop():
 
 The C++ class owns raw `new` allocations, so it has a destructor that frees every node still on the stack, and its copy operations are deleted (a copy would share the nodes and free them twice). The node type is private to the class, so it cannot collide with another `Node`. Python and Go rely on garbage collection.
 
-<TopicCode topic="Data Structures/Linear/Stack/Linked List Based" />
+<TopicCode topic="Data Structures/Linear/Stack/Linked_List_Stack" />
 
 ## Complexity
 

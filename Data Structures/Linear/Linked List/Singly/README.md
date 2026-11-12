@@ -108,5 +108,5 @@ Use it for stacks, for queues (with a tail pointer), for hash-table chains and w
 
 - [Doubly Linked List](../Doubly)
 - [Circular Linked List](../Circular)
-- [Linked List Stack](../../Stack/Linked%20List%20Based)
+- [Linked List Stack](../../Stack/Linked_List_Stack)
 - [Simple Queue](../../Queue/Simple%20Queue)

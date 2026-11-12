@@ -4,7 +4,7 @@ Strings are one of the most fundamental linear data structures in computer scien
 
 This folder covers three progressively deeper topics:
 
-1. **[Introduction](Introduction/)** — How strings are represented, indexed, and copied. The quiet performance cliffs.
+1. **[Introduction](String_Basics/)** — How strings are represented, indexed, and copied. The quiet performance cliffs.
 2. **[String Manipulation](String%20Manipulation/)** — Common operations: reverse, palindrome, case, split, join.
 3. **[Pattern Matching](Pattern%20Matching/)** — Finding a pattern `P` in a text `T`: Naive, KMP, Rabin-Karp, Boyer-Moore.
 
@@ -80,7 +80,7 @@ Practical rule: **`str.find` / `std::string::find` / `strings.Index` are already
 
 ## 🎓 Learning Roadmap
 
-1. **Start with [Introduction](Introduction/)** — build an accurate mental model of how strings behave in your language.
+1. **Start with [Introduction](String_Basics/)** — build an accurate mental model of how strings behave in your language.
 2. **Move to [String Manipulation](String%20Manipulation/)** — master the "classic interview" operations (reverse, palindrome, etc.) both with stdlib and from scratch.
 3. **Finish with [Pattern Matching](Pattern%20Matching/)** — learn KMP first (most teachable), then Rabin-Karp (for rolling-hash intuition), then Boyer-Moore (for the "skip ahead" insight).
 4. **Then branch into [Advanced String Algorithms](../../../Algorithms/String_Algorithms/)** — Z-algorithm, suffix array, Manacher's, and eventually Aho-Corasick for multi-pattern.

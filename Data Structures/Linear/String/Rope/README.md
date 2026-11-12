@@ -110,6 +110,6 @@ Ropes are used in editors such as xi-editor, Zed and Helix (through the `ropey` 
 ## Related
 
 - [String Manipulation](../String%20Manipulation)
-- [Introduction to Strings](../Introduction)
+- [Introduction to Strings](../String_Basics)
 - [Treap](../../../Non_Linear/Trees/Treap)
 - [AVL Tree](../../../Non_Linear/Trees/AVL%20Tree)

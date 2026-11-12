@@ -28,8 +28,8 @@ Linear data structures are fundamental building blocks in computer science where
 - **Circular Linked List**: Circular linked list
 
 ### 4. Stack
-- **Array Based**: Static and dynamic size implementations
-- **Linked List Based**: Linked list implementation
+- **Static_Array_Stack** and **Dynamic_Array_Stack**: array-backed, fixed or growing capacity
+- **Linked_List_Stack**: one linked node per item
 
 ### 5. Queue
 - **Simple Queue**: Basic FIFO queue

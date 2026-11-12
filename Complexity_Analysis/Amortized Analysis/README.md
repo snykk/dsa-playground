@@ -120,6 +120,6 @@ All three count total element copies (`copies`) and total bit flips (`flips`); t
 
 - [Space Complexity](../Space%20Complexity/)
 - [Big-O Notation](../Time%20Complexity/Big-O%20Notation/)
-- [Dynamic array stack](../../Data%20Structures/Linear/Stack/Array%20Based/Dynamic%20Size/)
+- [Dynamic array stack](../../Data%20Structures/Linear/Stack/Dynamic_Array_Stack/)
 - [Splay Tree](../../Data%20Structures/Non_Linear/Trees/Splay%20Tree/)
 - [Hash Table](../../Data%20Structures/Hashing/Hash%20Table/)

@@ -116,7 +116,7 @@ Use an array when you need fast access by position, compact storage and fast ite
 ## Related
 
 - [Singly Linked List](../Linked%20List/Singly)
-- [Dynamic Stack](../Stack/Array%20Based/Dynamic%20Size)
+- [Dynamic Stack](../Stack/Dynamic_Array_Stack)
 - [Circular Queue](../Queue/Circular%20Queue)
 - [Hash Table](../../Hashing/Hash%20Table)
 - [Binary Search](../../../Algorithms/Searching/Binary%20Search)

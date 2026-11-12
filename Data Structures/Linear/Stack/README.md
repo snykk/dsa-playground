@@ -68,21 +68,14 @@ Stacks are crucial because they:
 
 ## 📂 Folder Structure
 
-```
+```text
 Stack/
-├── Array Based/
-│ ├── Static Size/
-│ │ ├── Python/
-│ │ ├── C++/
-│ │ └── Go/
-│ └── Dynamic Size/
-│   ├── Python/
-│   ├── C++/
-│   └── Go/
-└── Linked List Based/
-    ├── Python/
-    ├── C++/
-    └── Go/
+|-- Static_Array_Stack/     fixed capacity, overflow is an error
+|   |-- Python/  C++/  Go/
+|-- Dynamic_Array_Stack/    grows by doubling, amortized O(1) push
+|   |-- Python/  C++/  Go/
+`-- Linked_List_Stack/      one node per item, O(1) push in the worst case
+    |-- Python/  C++/  Go/
 ```
 
 - Each language folder contains:
