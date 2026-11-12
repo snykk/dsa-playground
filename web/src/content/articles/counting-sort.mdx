@@ -1,0 +1,202 @@
+---
+topic: Algorithms/Sorting/Counting Sort
+title: Counting Sort
+lead: Counting Sort sorts integers without comparing them. It counts how often each value occurs, turns the counts into positions, and writes every element straight to its final slot. It runs in O(n + k) time, where k is the size of the value range, and it is stable.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n + k)
+    hint: k = max - min + 1, the size of the value range
+  - label: Extra space
+    value: O(n + k)
+    hint: count array plus output array
+  - label: Weak spot
+    value: Large range
+    hint: memory and time grow with k, not only with n
+    tone: warn
+  - label: Approach
+    value: Count, prefix-sum, place
+properties:
+  - { label: In-place, value: false }
+  - { label: Stable, value: true }
+  - { label: Comparison sort, value: false }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Algorithms/Sorting/Radix Sort
+  - Algorithms/Sorting/Bucket Sort
+  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Sorting/Merge Sort
+---
+
+## How Counting Sort works
+
+Comparison sorts need at least about `n log n` comparisons. Counting Sort avoids that bound by using the values themselves as array indexes. The count array has one slot per possible value, from the minimum to the maximum, so `k = max - min + 1` slots, and the value `x` is counted in slot `x - min`. That offset is what lets it handle negative numbers.
+
+<Steps>
+  <Step title="Find the range">
+    Compute `min` and `max` of the input. If you pass a `max_val` (or `maxVal`) yourself, it must be at least the real maximum, otherwise Python raises `ValueError`, C++ throws `std::invalid_argument` and Go panics.
+  </Step>
+  <Step title="Count">
+    Add one to `count[x - min]` for every element `x`.
+  </Step>
+  <Step title="Prefix sums">
+    Replace each count by the running total. Now `count[v - min]` is the number of elements that are `<= v`, which is one past the last output slot for the value `v`.
+  </Step>
+  <Step title="Place, back to front">
+    Walk the input from the last element to the first. For each `x`, decrement `count[x - min]` and write `x` to `output[count[x - min]]`.
+  </Step>
+</Steps>
+
+<Callout title="Why walking backwards keeps it stable">
+Equal values receive their slots from the highest down. The last 3 in the input is written first, into the highest slot reserved for 3s, and the earlier 3s fill the slots below it. So equal elements keep their input order, which is what Radix Sort needs from its inner sort.
+</Callout>
+
+## See it in action
+
+Press play, or step through one phase at a time. Blue marks a cell being read, orange a cell being written, grey the cells already handled, and aqua the cells in their final position. The Duplicates and Negatives examples are worth a look.
+
+<ArticleViz ids={['counting-sort']} />
+
+## Worked example
+
+Sorting `[4, 2, 2, 8, 3, 3, 1]` gives `min = 1`, `max = 8`, so `k = 8`. The counts are for the values 1 to 8; the prefix sums say where each value's block of slots ends.
+
+<ArrayDiagram
+  legend={{ p: 'the cell written in this step', f: 'filled output slot' }}
+  rows={[
+    { label: 'input', values: [4, 2, 2, 8, 3, 3, 1] },
+    { label: 'count', values: [1, 2, 2, 1, 0, 0, 0, 1], marks: { 0: 'v=1', 1: 'v=2', 2: 'v=3', 3: 'v=4', 7: 'v=8' }, note: 'one 1, two 2s, two 3s, one 4, one 8.' },
+    { label: 'prefix sums', values: [1, 3, 5, 6, 6, 6, 6, 7], marks: { 0: 'v=1', 1: 'v=2', 2: 'v=3', 3: 'v=4', 7: 'v=8' }, note: 'values up to 3 end at slot 5 (exclusive), the value 8 ends at 7.' },
+    { label: 'place input[6] = 1', values: [1, '-', '-', '-', '-', '-', '-'], tones: 'p......', note: 'count for 1 drops to 0: slot 0.' },
+    { label: 'place input[5] = 3', values: [1, '-', '-', '-', 3, '-', '-'], tones: 'f...p..', note: 'the last 3 takes the highest slot reserved for 3s: slot 4.' },
+    { label: 'place input[4] = 3', values: [1, '-', '-', 3, 3, '-', '-'], tones: 'f..pf..', note: 'the earlier 3 goes just before it: slot 3.' },
+    { label: 'place input[3] = 8', values: [1, '-', '-', 3, 3, '-', 8], tones: 'f..ff.p', note: 'slot 6.' },
+    { label: 'place input[2] = 2', values: [1, '-', 2, 3, 3, '-', 8], tones: 'f.pff.f', note: 'slot 2.' },
+    { label: 'place input[1] = 2', values: [1, 2, 2, 3, 3, '-', 8], tones: 'fpfff.f', note: 'slot 1.' },
+    { label: 'place input[0] = 4', values: [1, 2, 2, 3, 3, 4, 8], tones: 'fffffpf', note: 'slot 5: the output is sorted.' },
+  ]}
+/>
+
+## Pseudocode
+
+```text
+countingSort(arr, maxVal):
+    if arr is empty: return arr
+    minVal = min(arr)
+    require max(arr) <= maxVal
+    count = array of size maxVal - minVal + 1, all 0
+    for x in arr:
+        count[x - minVal] += 1
+    for i = 1 to length(count) - 1:
+        count[i] += count[i - 1]
+    output = array of size length(arr)
+    for i = length(arr) - 1 down to 0:
+        count[arr[i] - minVal] -= 1
+        output[count[arr[i] - minVal]] = arr[i]
+    return output
+```
+
+The Python code writes the same steps in a slightly different order (`output[count[...] - 1] = x`, then decrement), with identical results.
+
+## Implementation
+
+Python's `counting_sort(arr, max_val=None)` finds the maximum itself when `max_val` is omitted; C++ (`countingSort(arr, maxVal)`) and Go (`CountingSort(arr, maxVal)`) require it. All three return a **new** sorted array and leave the input alone (an empty input is returned as is). Python also has `counting_sort_simple`, which skips the prefix sums and rebuilds the output by writing each value `count` times; it is simpler but only suits plain integers, because it cannot move records around.
+
+<TopicCode topic="Algorithms/Sorting/Counting Sort" />
+
+## Complexity analysis
+
+Each loop is either over the `n` elements or over the `k` count slots, and none is nested.
+
+<Equation label="Total time" expr="T(n, k) = O(n) + O(k) + O(n) + O(k)" result="O(n + k)" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n + k)', space: 'O(n + k)', when: 'There is no early exit: the same loops run for any input of the same n and k.' },
+    { case: 'Average case', time: 'O(n + k)', space: 'O(n + k)', when: 'The cost depends only on n and on the value range, not on the order of the input.' },
+    { case: 'Worst case', time: 'O(n + k)', space: 'O(n + k)', when: 'Always the same. It is linear when k is O(n), but a few huge values make k, and the memory, enormous.' },
+  ]}
+/>
+
+<Callout title="Linear does not mean fast for every input">
+Sorting `[1, 1000000000]` needs a count array of a billion slots. The running time is linear in `n + k`, and `k` here is the range, not the number of elements. Use Counting Sort when `k` is at most a small multiple of `n`.
+</Callout>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'How', 'Stable', 'Notes']}
+  rows={[
+    ['With prefix sums (this repository)', 'count, accumulate, place back to front', 'Yes', 'works on records with keys; the basis of Radix Sort'],
+    ['Simple rebuild (`counting_sort_simple`, Python only)', 'write each value `count` times', 'Not applicable', 'only for bare integers; no output array of elements to order'],
+    ['Offset by minimum (all versions here)', 'slot `x - min`', 'Yes', 'supports negative values; k = max - min + 1'],
+    ['Hash map of counts', 'dictionary instead of an array', 'Yes', 'for sparse values; not implemented here'],
+  ]}
+/>
+
+## Counting Sort vs other sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Works on']}
+  highlight={0}
+  rows={[
+    ['Counting Sort', 'O(n + k)', 'O(n + k)', 'Yes', 'integers in a small range'],
+    ['Radix Sort', 'O(d (n + b))', 'O(n + b)', 'Yes', 'integers with a bounded number of digits'],
+    ['Bucket Sort', 'O(n + k) average', 'O(n + k)', 'Depends', 'numbers spread evenly over a range'],
+    ['Quick Sort', 'O(n log n) average', 'O(log n)', 'No', 'anything comparable'],
+    ['Merge Sort', 'O(n log n)', 'O(n)', 'Yes', 'anything comparable'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time when the range is comparable to n: faster than any comparison sort.',
+    'Stable, so it can serve as the digit sort inside Radix Sort.',
+    'Simple, predictable running time: it does not depend on the order of the input.',
+    'Handles negative numbers with a single offset.',
+  ]}
+  cons={[
+    'Works only on integers (or things that map to small integer keys).',
+    'Memory and time grow with the range k, which can dwarf n.',
+    'Not in place: it needs a count array and an output array.',
+    'Overkill for tiny inputs, where a simple comparison sort is faster in practice.',
+  ]}
+/>
+
+## Applications
+
+- **Radix Sort.** Sorting digit by digit needs a stable inner sort with a tiny range (the 10 decimal digits); Counting Sort is that sort.
+- **Small integer keys.** Ages, grades, scores, letters of the alphabet, character codes.
+- **Frequency tables.** The count array is itself a histogram of the data, useful beyond sorting.
+- **Ranking.** The prefix sums say how many elements are smaller than or equal to each value.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Negative values without an offset.** `count[x]` with a negative `x` indexes from the end in Python and out of bounds in C++ and Go. Subtract the minimum.
+- **Too small a `maxVal`.** Passing a maximum below the real one is an error here (it is checked), because the value would have no slot.
+- **Placing front to back.** Walking the input forwards with the decremented counts breaks stability, which matters for records and for Radix Sort.
+- **Ignoring the range.** The memory is `k` slots, so a large spread between the smallest and largest value can exhaust memory.
+- **Index arithmetic overflow.** In C++, `x - minVal` can exceed `INT_MAX`, so the repository computes the slot in 64-bit.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is Counting Sort faster than O(n log n)?">
+    The O(n log n) bound is for comparison sorts. Counting Sort never compares two elements: it uses each value as an index, so it is not subject to that bound. The price is a dependence on the value range `k`.
+  </FaqItem>
+  <FaqItem question="Does it work with negative numbers?">
+    Yes. Each value `x` is counted in slot `x - min`, so the smallest value maps to slot 0. The count array then has `max - min + 1` slots.
+  </FaqItem>
+  <FaqItem question="Why do we need prefix sums?">
+    A count says how many of each value there are. A prefix sum says where the block of that value ends in the output. With it you can place every element directly, and in a stable way, instead of only rebuilding the values.
+  </FaqItem>
+  <FaqItem question="When should I choose Radix Sort instead?">
+    When the range is too large for one count array, for example 32-bit integers. Radix Sort applies Counting Sort to one digit at a time, so each pass only needs a small count array.
+  </FaqItem>
+</Faq>

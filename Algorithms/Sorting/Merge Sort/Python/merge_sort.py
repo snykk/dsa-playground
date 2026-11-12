@@ -46,28 +46,7 @@ def merge(arr, left, right):
         left: Left sorted subarray
         right: Right sorted subarray
     """
-    i = j = k = 0
-    
-    # Copy data to temp arrays left[] and right[]
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
-            arr[k] = left[i]
-            i += 1
-        else:
-            arr[k] = right[j]
-            j += 1
-        k += 1
-    
-    # Copy remaining elements
-    while i < len(left):
-        arr[k] = left[i]
-        i += 1
-        k += 1
-    
-    while j < len(right):
-        arr[k] = right[j]
-        j += 1
-        k += 1
+    _merge_into(arr, 0, left, right)
 
 
 def _merge_into(arr, left_start, left, right):

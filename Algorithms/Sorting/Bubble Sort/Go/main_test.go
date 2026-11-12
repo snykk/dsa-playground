@@ -47,3 +47,29 @@ func TestBubbleSortSingleElement(t *testing.T) {
 	}
 }
 
+
+func TestBubbleSortDuplicatesAndNegatives(t *testing.T) {
+	arr := []int{3, -1, 3, 0, -1, 2, 2}
+	expected := []int{-1, -1, 0, 2, 2, 3, 3}
+
+	BubbleSort(arr)
+
+	if !reflect.DeepEqual(arr, expected) {
+		t.Errorf("Expected %v, got %v", expected, arr)
+	}
+}
+
+func TestBubbleSortGenericIsStable(t *testing.T) {
+	type rec struct {
+		key int
+		tag string
+	}
+	arr := []rec{{2, "a"}, {1, "x"}, {2, "b"}, {1, "y"}, {2, "c"}}
+	expected := []rec{{1, "x"}, {1, "y"}, {2, "a"}, {2, "b"}, {2, "c"}}
+
+	BubbleSortGeneric(arr, func(a, b rec) bool { return a.key < b.key })
+
+	if !reflect.DeepEqual(arr, expected) {
+		t.Errorf("Expected %v, got %v", expected, arr)
+	}
+}

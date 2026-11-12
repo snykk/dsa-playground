@@ -42,6 +42,26 @@ class TestMergeSort(unittest.TestCase):
         self.assertEqual(result, expected)
 
 
+class TestMergeSortStability(unittest.TestCase):
+
+    def test_stable_with_equal_keys(self):
+        """Equal keys keep their original order (both versions)"""
+        class Rec:
+            def __init__(self, key, tag):
+                self.key, self.tag = key, tag
+
+            def __le__(self, other):
+                return self.key <= other.key
+
+            def __gt__(self, other):
+                return self.key > other.key
+
+        for sort in (merge_sort, merge_sort_iterative):
+            arr = [Rec(2, 'a'), Rec(1, 'x'), Rec(2, 'b'), Rec(1, 'y'), Rec(2, 'c')]
+            sort(arr)
+            self.assertEqual([r.tag for r in arr], ['x', 'y', 'a', 'b', 'c'])
+
+
 if __name__ == '__main__':
     unittest.main()
 
