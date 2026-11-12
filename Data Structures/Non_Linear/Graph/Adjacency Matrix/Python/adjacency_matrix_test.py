@@ -144,6 +144,28 @@ class TestAdjacencyMatrix(unittest.TestCase):
         self.assertFalse(self.unweighted_undirected.has_edge(0, 10))
         self.assertEqual(self.unweighted_undirected.get_neighbors(10), [])
 
+    def test_zero_and_negative_weights_are_edges(self):
+        """A zero or negative weight is an edge, not 'no edge'."""
+        g = self.weighted_directed
+        g.add_edge(0, 1, 0.0)
+        g.add_edge(1, 2, -2.5)
+        g.add_edge(3, 3, 0.0)
+        self.assertTrue(g.has_edge(0, 1))
+        self.assertEqual(g.get_weight(0, 1), 0.0)
+        self.assertEqual(g.get_neighbors(0), [1])
+        self.assertEqual(g.get_weight(1, 2), -2.5)
+        self.assertTrue(g.has_edge(3, 3))
+        self.assertFalse(g.has_edge(2, 2))
+        self.assertFalse(g.has_edge(1, 0))
+        g.remove_edge(0, 1)
+        self.assertFalse(g.has_edge(0, 1))
+        self.assertIsNone(g.get_weight(0, 1))
+
+    def test_infinite_weight_is_an_edge(self):
+        g = AdjacencyMatrix(3, directed=True, weighted=True)
+        g.add_edge(0, 1, float('inf'))
+        self.assertTrue(g.has_edge(0, 1))
+
 
 if __name__ == '__main__':
     unittest.main()

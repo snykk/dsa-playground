@@ -169,6 +169,14 @@ class TestGraph(unittest.TestCase):
         # Vertex 1 has out-degree 2 (to 2 and 3) and in-degree 1 (from 2)
         self.assertEqual(self.directed_graph.get_degree(1), 3)
 
+    def test_get_neighbors_returns_copy(self):
+        """Editing the returned list must not change the graph."""
+        self.undirected_graph.add_edge(1, 2)
+        neighbors = self.undirected_graph.get_neighbors(1)
+        neighbors.append(99)
+        self.assertEqual(self.undirected_graph.get_neighbors(1), [2])
+        self.assertFalse(self.undirected_graph.has_edge(1, 99))
+
 
 if __name__ == '__main__':
     unittest.main()

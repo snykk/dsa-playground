@@ -1,104 +1,33 @@
-# Weighted & Unweighted Graph - Python
+# Weighted & Unweighted Graphs -- Python Implementation
 
-This folder contains a Python implementation of **Weighted Graph** that supports both weighted and unweighted edges.
+Adjacency list of `(neighbor, weight)` pairs for directed and undirected graphs. See the [topic README](../README.md) for the theory, the trace and the complexity table.
 
-A **Weighted Graph** is a graph where edges have associated weights (costs, distances, or values). An **Unweighted Graph** treats all edges as having equal weight (typically 1).
+## Files
 
----
+- `weighted_graph.py`: the `WeightedGraph` class
+- `weighted_graph_test.py`: unit tests (add, update, remove, traversals, total weight, copies)
 
-## Concept
+## API
 
-- **Edge Weights**: Each edge can have a weight value
-- **Unweighted Default**: Default weight is 1.0 for unweighted edges
-- **Flexible**: Can mix weighted and unweighted operations
-- **Adjacency List**: Uses adjacency list representation with weights
+- `WeightedGraph(directed=False)`
+- `add_vertex(v)`, `add_edge(u, v, weight=1.0)`, `remove_edge(u, v)`
+- `has_edge(u, v)`, `get_weight(u, v)` (None when absent)
+- `get_neighbors(u)`, `get_neighbors_with_weights(u)` (a copy)
+- `get_vertices()`, `get_edges()` (triples; an undirected edge once), `get_total_weight()`
+- `bfs(s)`, `dfs(s)`, `dfs_recursive(s)`, `is_connected()` (raises `ValueError` on a directed graph)
 
----
+## Python-Specific Notes
 
-## Operations
+Weights are ordinary Python numbers, so ints, floats, zero and negative values all work. `dfs_recursive` recurses once per level, so a very deep graph can hit the recursion limit; `dfs` is iterative.
 
-| Operation | Description | Time Complexity |
-| --------- | ----------- | --------------- |
-| `add_vertex(vertex)` | Add a vertex to the graph | O(1) |
-| `add_edge(from, to, weight)` | Add a weighted edge | O(1) |
-| `remove_edge(from, to)` | Remove an edge | O(V) |
-| `has_edge(from, to)` | Check if edge exists | O(V) |
-| `get_weight(from, to)` | Get edge weight | O(V) |
-| `get_neighbors(vertex)` | Get all neighbors | O(1) |
-| `get_neighbors_with_weights(vertex)` | Get neighbors with weights | O(1) |
-| `get_total_weight()` | Get sum of all edge weights | O(E) |
-| `bfs(start)` | Breadth-First Search | O(V + E) |
-| `dfs(start)` | Depth-First Search | O(V + E) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Add Edge | O(1) | O(1) |
-| Get Weight | O(V) | O(1) |
-| Update Weight | O(V) | O(1) |
-| Get Neighbors | O(1) | O(degree) |
-| BFS/DFS | O(V + E) | O(V) |
-| Total Weight | O(E) | O(1) |
-
----
-
-## Usage
-
-```python
-from weighted_graph import WeightedGraph
-
-# Weighted undirected graph
-graph = WeightedGraph(directed=False)
-graph.add_edge(1, 2, weight=5.0)
-graph.add_edge(2, 3, weight=3.0)
-graph.add_edge(1, 4, weight=2.0)
-
-print(graph.get_weight(1, 2))  # 5.0
-print(graph.get_total_weight())  # 10.0
-
-# Unweighted (default weight = 1.0)
-graph.add_edge(4, 5)  # weight = 1.0
-```
-
----
-
-## Example: Weighted Graph
-
-```python
-graph = WeightedGraph(directed=False)
-
-# Add weighted edges
-graph.add_edge(0, 1, weight=5.0)
-graph.add_edge(1, 2, weight=3.0)
-graph.add_edge(0, 3, weight=2.0)
-
-# Get neighbors with weights
-neighbors = graph.get_neighbors_with_weights(0)
-# [(1, 5.0), (3, 2.0)]
-
-# Calculate total weight
-total = graph.get_total_weight()  # 10.0
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-# Run tests
-python weighted_graph_test.py
+python3 -m unittest weighted_graph_test
 ```
 
----
+## Key Takeaways
 
-## Notes
-
-- Default weight is 1.0 for unweighted edges
-- Supports both integer and floating-point weights
-- Can update edge weight by re-adding edge with new weight
-- For undirected graphs, both directions have same weight
-- `get_total_weight()` counts each unique edge once
-
+- Weight defaults to 1.0, so an unweighted graph is a special case.
+- Re-adding an edge updates its weight.
+- BFS ignores weights; use Dijkstra or Bellman-Ford for cheapest paths.

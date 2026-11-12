@@ -1,38 +1,35 @@
-# Trie (Prefix Tree) - C++
+# Trie -- C++ Implementation
 
-This folder contains a C++ implementation of a **Trie** (Prefix Tree).
+Prefix tree with `unordered_map` children. See the [topic README](../README.md) for the theory, the trace and the complexity table.
 
----
+## Files
 
-## Operations
+- `trie.cpp`: `TrieNode` and `Trie`
+- `trie_test.cpp`: assert-based tests (basic operations, delete, count, empty word, long word)
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------- | ------------------------------------ | --------------- |
-| `insert(word)`           | Insert a word into the trie          | O(m)            |
-| `search(word)`           | Search for a complete word           | O(m)            |
-| `startsWith(prefix)`     | Check if prefix exists               | O(m)            |
-| `deleteWord(word)`       | Delete a word from the trie          | O(m)            |
-| `getAllWords()`          | Get all words in the trie            | O(n)            |
-| `isEmpty()`              | Check if trie is empty               | O(1)            |
+## API
 
----
+- `insert(word)`
+- `search(word)`, `startsWith(prefix)`
+- `deleteWord(word)`: true if the word was stored and has been removed
+- `getAllWords()`: unspecified order
+- `countWords()`, `isEmpty()`
 
-## Usage
+## C++-Specific Notes
 
-```cpp
-#include "trie.cpp"
+Characters are bytes (`char`), so a multi-byte UTF-8 character is several nodes. Nodes are raw pointers, and the destructor frees every node with an explicit stack, so nothing leaks and a very long word cannot overflow the call stack. Copying a `Trie` is deleted because the copies would share nodes. `deleteWord`, `getAllWords` and `countWords` are iterative.
 
-Trie trie;
-trie.insert("apple");
-trie.insert("app");
-cout << trie.search("apple") << endl;  // 1 (true)
-cout << trie.startsWith("app") << endl; // 1 (true)
+## How to Run
+
+```bash
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD trie_test.cpp -o trie_test
+./trie_test
 ```
 
----
+With AddressSanitizer: add `-g -fsanitize=address,undefined` to the compile line.
 
-## Notes
+## Key Takeaways
 
-- Uses `unordered_map` for efficient character lookups
-- O(m) time complexity for all operations where m is word length
-
+- The destructor frees the whole tree.
+- Delete returns whether the word was stored and prunes unused nodes.
+- The class cannot be copied.

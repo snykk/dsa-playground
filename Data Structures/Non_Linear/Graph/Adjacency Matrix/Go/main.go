@@ -11,12 +11,16 @@ type AdjacencyMatrix struct {
 	directed    bool
 	weighted    bool
 	matrix      [][]float64
+	// present records which edges exist, so weight 0 (or +Inf) is still a valid weight.
+	present [][]bool
 }
 
 func NewAdjacencyMatrix(numVertices int, directed, weighted bool) *AdjacencyMatrix {
 	matrix := make([][]float64, numVertices)
+	present := make([][]bool, numVertices)
 	for i := range matrix {
 		matrix[i] = make([]float64, numVertices)
+		present[i] = make([]bool, numVertices)
 		if weighted {
 			for j := range matrix[i] {
 				if i == j {
@@ -33,6 +37,7 @@ func NewAdjacencyMatrix(numVertices int, directed, weighted bool) *AdjacencyMatr
 		directed:    directed,
 		weighted:    weighted,
 		matrix:      matrix,
+		present:     present,
 	}
 }
 
@@ -42,18 +47,18 @@ func (am *AdjacencyMatrix) AddEdge(fromVertex, toVertex int, weight float64) {
 		return
 	}
 
-	if am.weighted {
-		am.matrix[fromVertex][toVertex] = weight
-	} else {
-		am.matrix[fromVertex][toVertex] = 1
-	}
-
+	am.setCell(fromVertex, toVertex, weight)
 	if !am.directed {
-		if am.weighted {
-			am.matrix[toVertex][fromVertex] = weight
-		} else {
-			am.matrix[toVertex][fromVertex] = 1
-		}
+		am.setCell(toVertex, fromVertex, weight)
+	}
+}
+
+func (am *AdjacencyMatrix) setCell(u, v int, weight float64) {
+	am.present[u][v] = true
+	if am.weighted {
+		am.matrix[u][v] = weight
+	} else {
+		am.matrix[u][v] = 1
 	}
 }
 
@@ -63,10 +68,7 @@ func (am *AdjacencyMatrix) HasEdge(fromVertex, toVertex int) bool {
 		return false
 	}
 
-	if am.weighted {
-		return !math.IsInf(am.matrix[fromVertex][toVertex], 1) && am.matrix[fromVertex][toVertex] != 0
-	}
-	return am.matrix[fromVertex][toVertex] == 1
+	return am.present[fromVertex][toVertex]
 }
 
 func (am *AdjacencyMatrix) GetNeighbors(vertex int) []int {
@@ -122,4 +124,3 @@ func main() {
 	fmt.Println("Has edge 0->1:", graph.HasEdge(0, 1))
 	fmt.Println("Neighbors of 1:", graph.GetNeighbors(1))
 }
-

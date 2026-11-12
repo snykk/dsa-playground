@@ -62,12 +62,33 @@ void test_dfs() {
     cout << "test_dfs: PASSED" << endl;
 }
 
+void test_zero_negative_and_large_weights() {
+    AdjacencyMatrix graph(4, true, true);
+    graph.add_edge(0, 1, 0.0);
+    graph.add_edge(1, 2, -1.0);
+    graph.add_edge(2, 3, 2147483647.0);
+    assert(graph.has_edge(0, 1));
+    assert(graph.has_edge(1, 2));
+    assert(graph.has_edge(2, 3));
+    assert(!graph.has_edge(3, 3));
+    double w = 99;
+    assert(graph.try_get_weight(0, 1, w) && w == 0.0);
+    assert(graph.try_get_weight(1, 2, w) && w == -1.0);
+    assert(graph.try_get_weight(2, 3, w) && w == 2147483647.0);
+    assert(!graph.try_get_weight(1, 0, w));
+    graph.remove_edge(0, 1);
+    assert(!graph.has_edge(0, 1));
+    assert(graph.get_neighbors(0).empty());
+    cout << "test_zero_negative_and_large_weights: PASSED" << endl;
+}
+
 int main() {
     test_add_edge_unweighted();
     test_add_edge_weighted();
     test_get_neighbors();
     test_bfs();
     test_dfs();
+    test_zero_negative_and_large_weights();
     
     cout << "\nAll tests passed!" << endl;
     return 0;

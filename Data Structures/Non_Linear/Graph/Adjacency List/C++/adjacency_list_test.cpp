@@ -49,11 +49,29 @@ void test_directed() {
     cout << "test_directed: PASSED" << endl;
 }
 
+void test_remove_edge_undirected_removes_both_directions() {
+    AdjacencyList graph(false, false);
+    graph.add_edge(1, 2);
+    graph.remove_edge(1, 2);
+    assert(!graph.has_edge(1, 2));
+    assert(!graph.has_edge(2, 1));
+    assert(graph.bfs(2).size() == 1);
+
+    AdjacencyList directed(true, false);
+    directed.add_edge(1, 2);
+    directed.add_edge(2, 1);
+    directed.remove_edge(1, 2);
+    assert(!directed.has_edge(1, 2));
+    assert(directed.has_edge(2, 1));
+    cout << "test_remove_edge_undirected_removes_both_directions: PASSED" << endl;
+}
+
 int main() {
     test_add_edge_unweighted();
     test_get_neighbors();
     test_bfs();
     test_directed();
+    test_remove_edge_undirected_removes_both_directions();
     
     cout << "\nAll tests passed!" << endl;
     return 0;

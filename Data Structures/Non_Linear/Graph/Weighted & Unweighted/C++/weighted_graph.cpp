@@ -5,6 +5,7 @@
 #include <stack>
 #include <algorithm>
 #include <climits>
+#include <string>
 using namespace std;
 
 class WeightedGraph {
@@ -27,18 +28,27 @@ public:
         add_vertex(from_vertex);
         add_vertex(to_vertex);
 
-        // Remove existing edge if present
-        remove_edge(from_vertex, to_vertex);
+        // Replace an existing edge in this direction only
+        remove_one_way(from_vertex, to_vertex);
 
         adjacency_list[from_vertex].push_back({to_vertex, weight});
 
         if (!directed) {
-            remove_edge(to_vertex, from_vertex);
+            remove_one_way(to_vertex, from_vertex);
             adjacency_list[to_vertex].push_back({from_vertex, weight});
         }
     }
 
+    // Removes from -> to and, on an undirected graph, to -> from as well.
     void remove_edge(int from_vertex, int to_vertex) {
+        remove_one_way(from_vertex, to_vertex);
+        if (!directed) {
+            remove_one_way(to_vertex, from_vertex);
+        }
+    }
+
+private:
+    void remove_one_way(int from_vertex, int to_vertex) {
         if (adjacency_list.find(from_vertex) != adjacency_list.end()) {
             vector<pair<int, double>>& neighbors = adjacency_list[from_vertex];
             neighbors.erase(
@@ -49,6 +59,7 @@ public:
         }
     }
 
+public:
     bool has_edge(int from_vertex, int to_vertex) {
         if (adjacency_list.find(from_vertex) == adjacency_list.end()) {
             return false;

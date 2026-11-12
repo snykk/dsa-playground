@@ -37,18 +37,30 @@ func (al *AdjacencyList) AddEdge(fromVertex, toVertex int, weight float64) {
 	al.AddVertex(fromVertex)
 	al.AddVertex(toVertex)
 
-	al.RemoveEdge(fromVertex, toVertex)
+	al.removeOneWay(fromVertex, toVertex)
 
 	al.adjacencyList[fromVertex] = append(al.adjacencyList[fromVertex], Edge{To: toVertex, Weight: weight})
 
 	if !al.directed {
-		al.RemoveEdge(toVertex, fromVertex)
+		al.removeOneWay(toVertex, fromVertex)
 		al.adjacencyList[toVertex] = append(al.adjacencyList[toVertex], Edge{To: fromVertex, Weight: weight})
 	}
 }
 
+// RemoveEdge removes fromVertex -> toVertex and, on an undirected graph,
+// toVertex -> fromVertex as well.
 func (al *AdjacencyList) RemoveEdge(fromVertex, toVertex int) {
-	neighbors := al.adjacencyList[fromVertex]
+	al.removeOneWay(fromVertex, toVertex)
+	if !al.directed {
+		al.removeOneWay(toVertex, fromVertex)
+	}
+}
+
+func (al *AdjacencyList) removeOneWay(fromVertex, toVertex int) {
+	neighbors, ok := al.adjacencyList[fromVertex]
+	if !ok {
+		return
+	}
 	newNeighbors := []Edge{}
 	for _, edge := range neighbors {
 		if edge.To != toVertex {

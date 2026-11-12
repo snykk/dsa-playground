@@ -76,6 +76,22 @@ void test_is_connected() {
     cout << "test_is_connected: PASSED" << endl;
 }
 
+void test_remove_edge() {
+    Graph u(false);
+    u.add_edge(1, 2);
+    u.remove_edge(1, 2);
+    assert(!u.has_edge(1, 2));
+    assert(!u.has_edge(2, 1));
+
+    Graph d(true);
+    d.add_edge(1, 2);
+    d.add_edge(2, 1);
+    d.remove_edge(1, 2);
+    assert(!d.has_edge(1, 2));
+    assert(d.has_edge(2, 1));
+    cout << "test_remove_edge: PASSED" << endl;
+}
+
 int main() {
     test_add_vertex();
     test_add_edge_undirected();
@@ -83,6 +99,7 @@ int main() {
     test_bfs();
     test_dfs();
     test_is_connected();
+    test_remove_edge();
     
     cout << "\nAll tests passed!" << endl;
     return 0;

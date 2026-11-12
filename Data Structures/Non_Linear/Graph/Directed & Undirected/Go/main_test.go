@@ -105,3 +105,33 @@ func TestGetNeighbors(t *testing.T) {
 	}
 }
 
+
+func TestGetNeighborsReturnsCopy(t *testing.T) {
+	g := NewGraph(false)
+	g.AddEdge(1, 2)
+	neighbors := g.GetNeighbors(1)
+	neighbors[0] = 99
+	if g.HasEdge(1, 99) || !g.HasEdge(1, 2) {
+		t.Error("editing the returned slice must not change the graph")
+	}
+}
+
+func TestRemoveEdge(t *testing.T) {
+	g := NewGraph(false)
+	g.AddEdge(1, 2)
+	g.RemoveEdge(1, 2)
+	if g.HasEdge(1, 2) || g.HasEdge(2, 1) {
+		t.Error("undirected removal must clear both directions")
+	}
+	d := NewGraph(true)
+	d.AddEdge(1, 2)
+	d.AddEdge(2, 1)
+	d.RemoveEdge(1, 2)
+	if d.HasEdge(1, 2) || !d.HasEdge(2, 1) {
+		t.Error("directed removal must clear one direction only")
+	}
+	d.RemoveEdge(7, 8)
+	if _, ok := d.adjacencyList[7]; ok {
+		t.Error("removing an unknown edge must not create adjacency entries")
+	}
+}

@@ -1,87 +1,33 @@
-# Weighted & Unweighted Graph - C++
+# Weighted & Unweighted Graphs -- C++ Implementation
 
-This folder contains a C++ implementation of **Weighted Graph** that supports both weighted and unweighted edges.
+`unordered_map<int, vector<pair<int, double>>>` adjacency list. See the [topic README](../README.md) for the theory, the trace and the complexity table.
 
-A **Weighted Graph** is a graph where edges have associated weights (costs, distances, or values). An **Unweighted Graph** treats all edges as having equal weight (typically 1).
+## Files
 
----
+- `weighted_graph.cpp`: the `WeightedGraph` class
+- `weighted_graph_test.cpp`: assert-based tests (weights, total weight, undirected removal)
 
-## Concept
+## API
 
-- **Edge Weights**: Each edge can have a weight value
-- **Unweighted Default**: Default weight is 1.0 for unweighted edges
-- **Adjacency List**: Uses `unordered_map<int, vector<pair<int, double>>>` for storage
-- **Flexible**: Can mix weighted and unweighted operations
+- `WeightedGraph(bool directed = false)`
+- `add_vertex(v)`, `add_edge(u, v, weight = 1.0)`
+- `remove_edge(u, v)`: removes both directions when undirected
+- `has_edge(u, v)`, `get_weight(u, v)` (-1.0 when absent), `get_neighbors(u)`
+- `get_total_weight()`, `bfs(start)`
 
----
+## C++-Specific Notes
 
-## Operations
+Weights are `double`. The one-way removal used when `add_edge` replaces an edge is a private helper (`remove_one_way`), so the public `remove_edge` can clear both directions. `get_weight` uses -1.0 for "absent", which is also a legal weight; call `has_edge` first when negative weights are possible. Everything is standard containers, so copying is safe.
 
-| Operation | Description | Time Complexity |
-| --------- | ----------- | --------------- |
-| `add_vertex(vertex)` | Add a vertex to the graph | O(1) |
-| `add_edge(from, to, weight)` | Add a weighted edge | O(1) |
-| `remove_edge(from, to)` | Remove an edge | O(V) |
-| `has_edge(from, to)` | Check if edge exists | O(V) |
-| `get_weight(from, to)` | Get edge weight | O(V) |
-| `get_neighbors(vertex)` | Get all neighbors | O(1) |
-| `get_total_weight()` | Get sum of all edge weights | O(E) |
-| `bfs(start)` | Breadth-First Search | O(V + E) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Add Edge | O(1) | O(1) |
-| Get Weight | O(V) | O(1) |
-| Get Neighbors | O(1) | O(degree) |
-| BFS | O(V + E) | O(V) |
-| Total Weight | O(E) | O(1) |
-
----
-
-## Usage
-
-```cpp
-#include "weighted_graph.cpp"
-#include <iostream>
-using namespace std;
-
-int main() {
-    WeightedGraph graph(false);
-    graph.add_edge(1, 2, 5.0);
-    graph.add_edge(2, 3, 3.0);
-
-    double weight = graph.get_weight(1, 2);  // 5.0
-    double total = graph.get_total_weight();  // 8.0
-
-    vector<int> bfs_result = graph.bfs(1);
-
-    return 0;
-}
-```
-
----
-
-## Compile and Run
+## How to Run
 
 ```bash
-# Compile
-g++ -o weighted_graph_test weighted_graph_test.cpp
-
-# Run
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD weighted_graph_test.cpp -o weighted_graph_test
 ./weighted_graph_test
 ```
 
----
+## Key Takeaways
 
-## Notes
-
-- Uses `unordered_map<int, vector<pair<int, double>>>` for adjacency list
-- Default weight is 1.0 if not specified
-- Supports both integer and floating-point weights
-- For undirected graphs, both directions have same weight
-- Requires `<unordered_map>`, `<vector>`, `<queue>` headers
-
+- Weight defaults to 1.0; re-adding an edge updates it.
+- Undirected removal clears both entries.
+- `get_weight` returning -1.0 is ambiguous with negative weights.
