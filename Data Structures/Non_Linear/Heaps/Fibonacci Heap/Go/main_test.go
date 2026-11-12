@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"math/rand"
+	"sort"
+	"testing"
+)
 
 func TestInsertAndPeek(t *testing.T) {
 	heap := NewFibonacciHeap()
@@ -106,3 +110,36 @@ func TestMultipleExtracts(t *testing.T) {
 	}
 }
 
+
+func TestScaleWithDuplicatesAndNegatives(t *testing.T) {
+	rng := rand.New(rand.NewSource(7))
+	heap := NewFibonacciHeap()
+	vals := make([]int, 2000)
+	for i := range vals {
+		vals[i] = rng.Intn(501) - 250
+		heap.Insert(vals[i])
+	}
+	sort.Ints(vals)
+	for i, want := range vals {
+		if got := heap.ExtractMin(); got != want {
+			t.Fatalf("extract %d: expected %d, got %d", i, want, got)
+		}
+	}
+	if !heap.IsEmpty() {
+		t.Error("expected empty heap")
+	}
+}
+
+func TestEmptyHeapPanics(t *testing.T) {
+	heap := NewFibonacciHeap()
+	for name, f := range map[string]func(){"Peek": func() { heap.Peek() }, "ExtractMin": func() { heap.ExtractMin() }} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Errorf("%s on empty heap should panic", name)
+				}
+			}()
+			f()
+		}()
+	}
+}

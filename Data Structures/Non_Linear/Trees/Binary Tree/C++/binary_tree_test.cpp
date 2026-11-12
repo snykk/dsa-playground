@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cassert>
 #include <vector>
+#include <type_traits>
 #include "binary_tree.cpp"
 
 bool compareVectors(const vector<int>& a, const vector<int>& b) {
@@ -100,6 +101,28 @@ void testLevelOrderTraversal() {
     cout << "testLevelOrderTraversal passed" << endl;
 }
 
+// Regression: the class owns raw pointers; copying used to double free.
+static_assert(!is_copy_constructible<BinaryTree>::value, "BinaryTree must not be copyable");
+static_assert(!is_copy_assignable<BinaryTree>::value, "BinaryTree must not be copyable");
+
+void testSevenNodesAllTraversals() {
+    BinaryTree tree;
+    for (int i = 1; i <= 7; i++) tree.insert(i);
+    assert(compareVectors(tree.preorderTraversal(), {1, 2, 4, 5, 3, 6, 7}));
+    assert(compareVectors(tree.inorderTraversal(), {4, 2, 5, 1, 6, 3, 7}));
+    assert(compareVectors(tree.postorderTraversal(), {4, 5, 2, 6, 7, 3, 1}));
+    assert(tree.height() == 2);
+    cout << "testSevenNodesAllTraversals passed" << endl;
+}
+
+void testHeightStaysLogarithmic() {
+    BinaryTree tree;
+    for (int i = 1; i <= 1000; i++) tree.insert(i);
+    assert(tree.size() == 1000);
+    assert(tree.height() == 9);  // level-order insertion keeps the tree complete
+    cout << "testHeightStaysLogarithmic passed" << endl;
+}
+
 int main() {
     cout << "Running Binary Tree tests..." << endl;
     testInsertAndSearch();
@@ -110,7 +133,9 @@ int main() {
     testPreorderTraversal();
     testPostorderTraversal();
     testLevelOrderTraversal();
-    cout << "\nAll tests passed! ✓" << endl;
+    testSevenNodesAllTraversals();
+    testHeightStaysLogarithmic();
+    cout << "\nAll tests passed!" << endl;
     return 0;
 }
 

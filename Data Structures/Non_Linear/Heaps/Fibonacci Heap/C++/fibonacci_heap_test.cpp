@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <type_traits>
+#include <algorithm>
 #include "fibonacci_heap.cpp"
 using namespace std;
 
@@ -80,7 +82,33 @@ void test_multiple_extracts() {
     cout << "Multiple extracts test passed!" << endl;
 }
 
+void test_not_copyable() {
+    // Regression: copying used to share nodes and double free them.
+    static_assert(!is_copy_constructible<FibonacciHeap>::value, "no copy ctor");
+    static_assert(!is_copy_assignable<FibonacciHeap>::value, "no copy assignment");
+    cout << "Not copyable test passed!" << endl;
+}
+
+void test_consolidation_at_scale() {
+    FibonacciHeap heap;
+    vector<int> vals;
+    unsigned s = 12345;
+    for (int i = 0; i < 2000; i++) {
+        s = s * 1103515245u + 12345u;
+        vals.push_back((int)((s >> 8) % 500) - 250);  // duplicates, negatives
+    }
+    for (int v : vals) heap.insert(v);
+    sort(vals.begin(), vals.end());
+    for (int v : vals) {
+        assert(heap.extract_min() == v);
+    }
+    assert(heap.is_empty());
+    cout << "Consolidation at scale test passed!" << endl;
+}
+
 int main() {
+    test_not_copyable();
+    test_consolidation_at_scale();
     test_insert_and_peek();
     test_extract_min();
     test_is_empty();

@@ -1,41 +1,36 @@
-# Treap — Go Implementation
-
-Randomized self-balancing BST via split/merge. Expected O(log n) per operation.
-
-For the conceptual overview and comparison with AVL / Red-Black, see the parent README: [../README.md](../README.md)
-
----
+# Treap -- Go Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | `Treap` type with `Insert`, `Delete`, `Contains`, `Inorder` methods |
-| `main_test.go` | Table-driven tests + 1000-op randomized stress test |
-| `go.mod` | Module definition |
+- `main.go`: `Treap`, the package-level `split`, `merge` and `dropMin` helpers, and a small demo `main`.
+- `main_test.go`: unit tests, a 1000-operation randomized stress test and a regression test for `math.MaxInt` and `math.MinInt` keys.
+- `go.mod`: module `treap`.
 
----
+## API
+
+- `NewTreap() *Treap`
+- `Insert(key int) bool`: `false` if already present.
+- `Delete(key int) bool`: `false` if absent.
+- `Contains(key int) bool`, `Len() int`
+- `Inorder() []int`: sorted keys.
+- `CheckHeapProperty() bool`: diagnostic.
 
 ## Go-Specific Notes
 
-- **`*node` pointers**: Go's GC makes manual memory management irrelevant. Keep pointers; let the GC reclaim when subtrees drop.
-- **`math/rand.Uint32()` for priorities**: fine for algorithmic use. For adversarial contexts (contest judges seeding inputs to your randomness), use `math/rand/v2` with `ChaCha8` or seed from `crypto/rand`.
-- **Closures for tree walks**: `var walk func(n *node)` followed by `walk = func(n *node) { ... walk(n.left) ... }` is the Go way to express recursive closures. The two-line pattern is needed because Go doesn't support forward self-reference in a single `var` decl.
-- **`split` and `merge` as free functions**: they don't need access to private state of `Treap`, so they're package-level helpers. Cleaner than methods.
-- **`nil`-safe everywhere**: `split(nil, k)` and `merge(nil, x)` both work correctly. This makes the recursive formulation significantly easier to reason about.
-
----
+- Priorities come from `rand.Uint32()` in `math/rand`. The top-level functions are safe for concurrent use, but they share one lock; use a per-goroutine `*rand.Rand` if that matters.
+- `split`, `merge` and `dropMin` are free functions because they need no `Treap` state; `nil` is a valid empty treap.
+- `Delete` does not compute `key+1`, which would wrap around at `math.MaxInt`.
+- Garbage collection frees dropped nodes.
 
 ## How to Run
 
 ```bash
-go test -v ./...
+cd "Data Structures/Non_Linear/Trees/Treap/Go"
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **`nil` is a valid treap.** Every split/merge operation treats `nil` as "empty subtree" — the recursion bottoms out without special-casing. This is the single most important insight for clean tree code in Go.
-2. **Closures over local state beat threading arguments.** The `walk` helpers capture `out` via closure instead of returning/accumulating — cleaner and Go-idiomatic.
-3. **`math/rand` is thread-unsafe**: if multiple goroutines insert concurrently, seed a `*rand.Rand` per goroutine. The default global `rand` has internal locking but that hurts throughput.
+- `nil` as the empty treap removes special cases from split and merge.
+- Delete drops the minimum of the right part of a split.

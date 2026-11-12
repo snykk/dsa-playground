@@ -2,6 +2,7 @@
 Test cases for Splay Tree
 """
 
+import random
 import unittest
 from splay_tree import SplayTree
 
@@ -42,28 +43,37 @@ class TestSplayTree(unittest.TestCase):
         self.assertEqual(self.tree.root.key, 40)
     
     def test_delete(self):
-        """Test delete operation"""
-        self.tree.insert(10)
-        self.tree.insert(5)
-        self.tree.insert(15)
-        self.tree.insert(3)
-        self.tree.insert(7)
-        
+        """Test delete operation (keys carry values so a missed delete is visible)"""
+        for k in [10, 5, 15, 3, 7]:
+            self.tree.insert(k, "v%d" % k)
+
         # Delete leaf node
         self.assertTrue(self.tree.delete(3))
+        self.assertEqual(self.tree.inorder_traversal(), [5, 7, 10, 15])
         self.assertIsNone(self.tree.search(3))
-        
+
         # Delete node with one child
         self.assertTrue(self.tree.delete(5))
-        self.assertIsNone(self.tree.search(5))
-        
+        self.assertEqual(self.tree.inorder_traversal(), [7, 10, 15])
+
         # Delete node with two children
         self.assertTrue(self.tree.delete(10))
-        self.assertIsNone(self.tree.search(10))
-        
+        self.assertEqual(self.tree.inorder_traversal(), [7, 15])
+        self.assertEqual(self.tree.search(7), "v7")
+        self.assertEqual(self.tree.search(15), "v15")
+
         # Delete non-existent key
         self.assertFalse(self.tree.delete(100))
-    
+        self.assertEqual(self.tree.size(), 2)
+
+    def test_delete_when_left_child_is_max_of_left_subtree(self):
+        """Regression: the C++ and Go ports once corrupted the tree here."""
+        for k in [1, 3, 2]:
+            self.tree.insert(k, "v%d" % k)
+        self.assertTrue(self.tree.delete(2))
+        self.assertEqual(self.tree.search(3), "v3")
+        self.assertEqual(self.tree.inorder_traversal(), [1, 3])
+
     def test_find_min_max(self):
         """Test find minimum and maximum"""
         self.tree.insert(50)
@@ -133,6 +143,51 @@ class TestSplayTree(unittest.TestCase):
         result = self.tree.inorder_traversal()
         self.assertEqual(result, list(range(10)))
         self.assertEqual(self.tree.size(), 10)
+
+    def test_missed_search_splays_last_visited_node(self):
+        for k in [10, 20, 30, 40]:
+            self.tree.insert(k)
+        self.assertIsNone(self.tree.search(25))
+        self.assertIn(self.tree.root.key, (20, 30))
+
+    def test_missed_delete_splays_last_visited_node(self):
+        """Regression: a failed delete used to leave the tree untouched."""
+        for k in [10, 20, 30, 40]:
+            self.tree.insert(k)
+        self.assertEqual(self.tree.root.key, 40)
+        self.assertFalse(self.tree.delete(5))
+        self.assertEqual(self.tree.root.key, 10)
+
+    def test_deep_path_traversal_and_size(self):
+        """Regression: recursive traversal overflowed on a path-shaped tree."""
+        for i in range(5000):
+            self.tree.insert(i)
+        self.assertEqual(self.tree.size(), 5000)
+        self.assertEqual(self.tree.inorder_traversal(), list(range(5000)))
+
+    def test_random_operations_against_dict(self):
+        rng = random.Random(3)
+        ref = {}
+        for _ in range(3000):
+            k = rng.randint(0, 40)
+            op = rng.random()
+            if op < 0.4:
+                self.tree.insert(k, k * 2)
+                ref[k] = k * 2
+            elif op < 0.7:
+                self.assertEqual(self.tree.delete(k), ref.pop(k, None) is not None)
+            else:
+                self.assertEqual(self.tree.search(k), ref.get(k))
+            self.assertEqual(self.tree.inorder_traversal(), sorted(ref))
+            self.assertEqual(self.tree.size(), len(ref))
+            self._check_parents(self.tree.root, None)
+
+    def _check_parents(self, node, parent):
+        if node is None:
+            return
+        self.assertIs(node.parent, parent)
+        self._check_parents(node.left, node)
+        self._check_parents(node.right, node)
 
 
 if __name__ == '__main__':

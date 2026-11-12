@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <stdexcept>
 using namespace std;
 
 struct TreeNode {
@@ -123,16 +124,25 @@ class BinarySearchTree {
         return 1 + sizeRecursive(node->left) + sizeRecursive(node->right);
     }
 
+    // Iterative, so a degenerate (chain-shaped) tree cannot overflow the stack.
     void deleteTree(TreeNode* node) {
-        if (node) {
-            deleteTree(node->left);
-            deleteTree(node->right);
-            delete node;
+        vector<TreeNode*> stack;
+        if (node) stack.push_back(node);
+        while (!stack.empty()) {
+            TreeNode* cur = stack.back();
+            stack.pop_back();
+            if (cur->left) stack.push_back(cur->left);
+            if (cur->right) stack.push_back(cur->right);
+            delete cur;
         }
     }
 
 public:
     BinarySearchTree() : root(nullptr) {}
+
+    // Nodes are owned through raw pointers, so a copy would double free.
+    BinarySearchTree(const BinarySearchTree&) = delete;
+    BinarySearchTree& operator=(const BinarySearchTree&) = delete;
 
     ~BinarySearchTree() {
         deleteTree(root);

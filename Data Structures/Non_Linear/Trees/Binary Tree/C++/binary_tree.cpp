@@ -68,6 +68,10 @@ class BinaryTree {
 public:
     BinaryTree() : root(nullptr) {}
 
+    // Nodes are owned through raw pointers, so a copy would double free.
+    BinaryTree(const BinaryTree&) = delete;
+    BinaryTree& operator=(const BinaryTree&) = delete;
+
     ~BinaryTree() {
         deleteTree(root);
     }

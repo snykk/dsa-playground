@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"math/rand"
 	"reflect"
 	"sort"
@@ -123,5 +124,22 @@ func TestHeapPropertyInvariant(t *testing.T) {
 	}
 	if !tr.CheckHeapProperty() {
 		t.Errorf("heap property violated")
+	}
+}
+
+// Regression: Delete used key+1, which wraps at math.MaxInt and left the key behind.
+func TestDeleteExtremeKeys(t *testing.T) {
+	tr := NewTreap()
+	tr.Insert(1)
+	tr.Insert(math.MaxInt)
+	tr.Insert(math.MinInt)
+	if !tr.Delete(math.MaxInt) {
+		t.Fatal("Delete(MaxInt) should succeed")
+	}
+	if tr.Contains(math.MaxInt) || tr.Len() != 2 {
+		t.Fatalf("MaxInt still present, len=%d", tr.Len())
+	}
+	if got := tr.Inorder(); !reflect.DeepEqual(got, []int{math.MinInt, 1}) {
+		t.Fatalf("inorder = %v", got)
 	}
 }

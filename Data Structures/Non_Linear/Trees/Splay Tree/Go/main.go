@@ -123,15 +123,16 @@ func (st *SplayTree) searchNode(key int) *SplayNode {
 	return nil
 }
 
-// Search searches for a key and splays it to root if found
+// Search searches for a key. The last visited node is splayed to the root on
+// a hit and on a miss, which keeps unsuccessful searches amortized O(log n).
 func (st *SplayTree) Search(key int) (string, bool) {
 	if st.root == nil {
 		return "", false
 	}
 
 	node := st.searchNode(key)
-	if node != nil && node.key == key {
-		st.splay(node)
+	st.splay(node)
+	if node.key == key {
 		return node.value, true
 	}
 	return "", false
@@ -174,51 +175,41 @@ func (st *SplayTree) Insert(key int, value string) {
 	st.splay(newNode)
 }
 
-// Delete deletes a key and splays parent to root
+// Delete removes a key using split and merge: splay the key to the root,
+// detach both subtrees, splay the maximum of the left one and attach the
+// right one under it. A missing key splays the last visited node instead.
 func (st *SplayTree) Delete(key int) bool {
 	if st.root == nil {
 		return false
 	}
 
 	node := st.searchNode(key)
-	if node == nil || node.key != key {
+	st.splay(node)
+	if node.key != key {
 		return false
 	}
 
-	// Splay the node to root
-	st.splay(node)
+	left, right := node.left, node.right
+	if left != nil {
+		left.parent = nil
+	}
+	if right != nil {
+		right.parent = nil
+	}
 
-	// If node has no children
-	if node.left == nil && node.right == nil {
-		st.root = nil
-	} else if node.left == nil {
-		// If node has only right child
-		st.root = node.right
-		st.root.parent = nil
-	} else if node.right == nil {
-		// If node has only left child
-		st.root = node.left
-		st.root.parent = nil
+	if left == nil {
+		st.root = right
+	} else if right == nil {
+		st.root = left
 	} else {
-		// If node has both children
-		// Find maximum in left subtree
-		maxLeft := node.left
+		st.root = left
+		maxLeft := left
 		for maxLeft.right != nil {
 			maxLeft = maxLeft.right
 		}
-
-		// Splay maxLeft to root of left subtree
-		if maxLeft.parent != node {
-			st.splay(maxLeft)
-			maxLeft.parent = nil
-		}
-
-		// Attach right subtree to maxLeft
-		maxLeft.right = node.right
-		if node.right != nil {
-			node.right.parent = maxLeft
-		}
-
+		st.splay(maxLeft)
+		maxLeft.right = right
+		right.parent = maxLeft
 		st.root = maxLeft
 	}
 
@@ -255,20 +246,23 @@ func (st *SplayTree) FindMax() (int, bool) {
 	return current.key, true
 }
 
-// InorderTraversal returns keys in sorted order
+// InorderTraversal returns keys in sorted order. It is iterative because a
+// splay tree is often a long path.
 func (st *SplayTree) InorderTraversal() []int {
 	result := []int{}
-	st.inorderRecursive(st.root, &result)
-	return result
-}
-
-// inorderRecursive is a helper for inorder traversal
-func (st *SplayTree) inorderRecursive(node *SplayNode, result *[]int) {
-	if node != nil {
-		st.inorderRecursive(node.left, result)
-		*result = append(*result, node.key)
-		st.inorderRecursive(node.right, result)
+	stack := []*SplayNode{}
+	current := st.root
+	for len(stack) > 0 || current != nil {
+		for current != nil {
+			stack = append(stack, current)
+			current = current.left
+		}
+		current = stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		result = append(result, current.key)
+		current = current.right
 	}
+	return result
 }
 
 // IsEmpty checks if tree is empty
@@ -276,16 +270,61 @@ func (st *SplayTree) IsEmpty() bool {
 	return st.root == nil
 }
 
-// Size returns the number of nodes in the tree
+// Size returns the number of nodes in the tree (iterative).
 func (st *SplayTree) Size() int {
-	return st.sizeRecursive(st.root)
-}
-
-// sizeRecursive is a helper to count nodes
-func (st *SplayTree) sizeRecursive(node *SplayNode) int {
-	if node == nil {
+	if st.root == nil {
 		return 0
 	}
-	return 1 + st.sizeRecursive(node.left) + st.sizeRecursive(node.right)
+	count := 0
+	stack := []*SplayNode{st.root}
+	for len(stack) > 0 {
+		n := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		count++
+		if n.left != nil {
+			stack = append(stack, n.left)
+		}
+		if n.right != nil {
+			stack = append(stack, n.right)
+		}
+	}
+	return count
 }
 
+// consistent checks BST order and parent links. It is used by the tests.
+func (st *SplayTree) consistent() bool {
+	if st.root == nil {
+		return true
+	}
+	if st.root.parent != nil {
+		return false
+	}
+	stack := []*SplayNode{st.root}
+	for len(stack) > 0 {
+		n := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		if n.left != nil {
+			if n.left.parent != n || n.left.key >= n.key {
+				return false
+			}
+			stack = append(stack, n.left)
+		}
+		if n.right != nil {
+			if n.right.parent != n || n.right.key <= n.key {
+				return false
+			}
+			stack = append(stack, n.right)
+		}
+	}
+	return true
+}
+
+func main() {
+	st := NewSplayTree()
+	for _, k := range []int{5, 3, 8, 1} {
+		st.Insert(k, "v")
+	}
+	v, ok := st.Search(3)
+	println("Search 3:", v, ok)
+	println("Inorder size:", st.Size())
+}

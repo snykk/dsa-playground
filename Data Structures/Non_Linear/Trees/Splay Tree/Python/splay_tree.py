@@ -183,14 +183,19 @@ class SplayTree:
         Time Complexity: O(log n) amortized
         """
         node = self._search_node(key)
-        if node is None or node.key != key:
+        if node is None:
+            return False
+        if node.key != key:
+            # Miss: splay the last visited node so a failed delete still pays
+            # for itself (amortized O(log n)).
+            self._splay(node)
             return False
 
         # Step 1: Splay the doomed node to the root.
         self._splay(node)
 
         # Step 2: Detach the two subtrees. Clearing parent pointers is
-        # critical — leaving them dangling causes search/splay to traverse
+        # critical - leaving them dangling causes search/splay to traverse
         # back into the deleted node and corrupt the tree.
         left_subtree = node.left
         right_subtree = node.right
@@ -246,29 +251,36 @@ class SplayTree:
         return current.key
     
     def inorder_traversal(self):
-        """Inorder traversal (returns sorted keys)"""
+        """Inorder traversal (returns sorted keys).
+
+        Iterative: a splay tree is often a long path (sequential inserts), so
+        recursion would overflow the Python stack.
+        """
         result = []
-        self._inorder_recursive(self.root, result)
+        stack = []
+        current = self.root
+        while stack or current is not None:
+            while current is not None:
+                stack.append(current)
+                current = current.left
+            current = stack.pop()
+            result.append(current.key)
+            current = current.right
         return result
-    
-    def _inorder_recursive(self, node, result):
-        """Recursive helper for inorder traversal"""
-        if node is not None:
-            self._inorder_recursive(node.left, result)
-            result.append(node.key)
-            self._inorder_recursive(node.right, result)
-    
+
     def is_empty(self):
         """Check if tree is empty"""
         return self.root is None
     
     def size(self):
-        """Get number of nodes in tree"""
-        return self._size_recursive(self.root)
-    
-    def _size_recursive(self, node):
-        """Recursive helper to count nodes"""
-        if node is None:
-            return 0
-        return 1 + self._size_recursive(node.left) + self._size_recursive(node.right)
-
+        """Get number of nodes in tree (iterative, see inorder_traversal)"""
+        count = 0
+        stack = [self.root] if self.root is not None else []
+        while stack:
+            node = stack.pop()
+            count += 1
+            if node.left is not None:
+                stack.append(node.left)
+            if node.right is not None:
+                stack.append(node.right)
+        return count

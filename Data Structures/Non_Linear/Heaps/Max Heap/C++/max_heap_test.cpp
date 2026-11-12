@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <algorithm>
+#include <functional>
 #include "max_heap.cpp"
 using namespace std;
 
@@ -77,7 +79,48 @@ void test_single_element() {
     cout << "Single element test passed!" << endl;
 }
 
+void test_duplicates_and_negatives() {
+    MaxHeap heap;
+    vector<int> ref = {4, -2, 4, 0, -2, 9, 9, 4, -7};
+    for (int v : ref) heap.insert(v);
+    sort(ref.begin(), ref.end(), greater<int>());
+    for (int v : ref) {
+        assert(heap.extract_max() == v);
+    }
+    assert(heap.is_empty());
+    cout << "Duplicates test passed!" << endl;
+}
+
+void test_random_matches_sort() {
+    vector<int> ref;
+    unsigned s = 99;
+    for (int i = 0; i < 1000; i++) {
+        s = s * 1103515245u + 12345u;
+        ref.push_back((int)((s >> 8) % 200) - 100);
+    }
+    const MaxHeap built(ref);
+    MaxHeap heap(ref);
+    assert(built.size() == 1000);
+    sort(ref.begin(), ref.end(), greater<int>());
+    for (int v : ref) assert(heap.extract_max() == v);
+    cout << "Random heapify test passed!" << endl;
+}
+
+void test_empty_throws() {
+    MaxHeap heap;
+    bool thrown = false;
+    try { heap.peek(); } catch (const runtime_error&) { thrown = true; }
+    assert(thrown);
+    thrown = false;
+    try { heap.extract_max(); } catch (const runtime_error&) { thrown = true; }
+    assert(thrown);
+    cout << "Empty throws test passed!" << endl;
+}
+
 int main() {
+    test_duplicates_and_negatives();
+    test_random_matches_sort();
+    test_empty_throws();
     test_insert_and_peek();
     test_extract_max();
     test_heapify();

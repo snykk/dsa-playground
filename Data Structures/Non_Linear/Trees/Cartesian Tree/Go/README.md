@@ -1,102 +1,39 @@
-# Cartesian Tree (Go)
+# Cartesian Tree -- Go Implementation
 
-A **Cartesian Tree** is a binary tree derived from a sequence of numbers with min-heap property and inorder traversal that produces the original sequence.
+## Files
 
----
+- `main.go`: `CartesianTree` and a small `main` with an example.
+- `main_test.go`: build, empty, single and sorted inputs, traversals, range queries compared with brute force, invalid ranges, and a 100,000-element chain.
+- `go.mod`: module `cartesian_tree`.
 
-## Overview
+## API
 
-Cartesian Trees are built from arrays such that the inorder traversal returns the original array, while maintaining a min-heap structure.
-
----
-
-## Operations
-
-### 1. Build from Array
-
-```go
-array := []int{9, 3, 7, 1, 8, 12, 10}
-tree := NewCartesianTreeFromArray(array)
-```
-
-**Time Complexity**: O(n)
-
-### 2. Traversals
+- `NewCartesianTree() *CartesianTree`, `NewCartesianTreeFromArray([]int) *CartesianTree`: O(n) build.
+- `GetMinIndex(left, right int) int`: leftmost index of the minimum in `array[left..right]`; -1 for an empty tree or an invalid range. O(h).
+- `InorderTraversal()`, `PreorderTraversal()`, `PostorderTraversal()`: return `[]int`.
+- `Height()` in edges (empty = -1), `Size()`, `IsEmpty()`, `GetRootValue()` (-1 when empty).
 
 ```go
-inorder := tree.InorderTraversal()    // Original array
-preorder := tree.PreorderTraversal()  // Root, Left, Right
-postorder := tree.PostorderTraversal() // Left, Right, Root
+tree := NewCartesianTreeFromArray([]int{9, 3, 7, 1, 8, 12, 10, 20, 15, 18, 5})
+fmt.Println(tree.GetRootValue())     // 1
+fmt.Println(tree.GetMinIndex(4, 8))  // 4
 ```
 
-**Time Complexity**: O(n)
+## Go-Specific Notes
 
-### 3. Range Minimum Query
+- The package is `main`, so it cannot be imported by other packages; copy the file or run the example with `go run .`.
+- Traversals are recursive. Go grows goroutine stacks on demand, so a chain of 100,000 nodes is fine.
+- `GetRootValue` returns -1 for an empty tree, which collides with a real value of -1; check `IsEmpty()` first.
 
-```go
-minIdx := tree.GetMinIndex(0, 4)  // Find min in range [0, 4]
-```
-
-**Time Complexity**: O(log n) average
-
----
-
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Build     | O(n)           | O(n)             |
-| Inorder   | O(n)           | O(n)             |
-| RMQ       | O(log n) avg   | O(1)             |
-| Height    | O(n)           | O(h)             |
-| Size      | O(n)           | O(h)             |
-
----
-
-## Example Usage
-
-```go
-package main
-
-import (
-    "fmt"
-    "cartesiantree"
-)
-
-func main() {
-    array := []int{9, 3, 7, 1, 8, 12, 10}
-    tree := NewCartesianTreeFromArray(array)
-    
-    // Inorder returns original array
-    result := tree.InorderTraversal()
-    fmt.Println(result)
-    
-    // Root is minimum
-    fmt.Printf("Root value: %d\n", tree.GetRootValue())
-}
-```
-
----
-
-## Testing
-
-Run the test suite:
+## How to Run
 
 ```bash
-go test
+go test ./...
+go run .
 ```
 
-Or run with verbose output:
+## Key Takeaways
 
-```bash
-go test -v
-```
-
----
-
-## Related Data Structures
-
-- **Segment Tree**: Another structure for range queries
-- **Sparse Table**: Static RMQ with O(1) queries
-- **Treap**: Combination of BST and heap
-
+- A range minimum is the LCA of its ends; walk down from the root.
+- The stack build is linear because each element is popped at most once.
+- Check `IsEmpty()` before trusting `GetRootValue()`.

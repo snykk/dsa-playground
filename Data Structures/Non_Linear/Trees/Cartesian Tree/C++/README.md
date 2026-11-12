@@ -1,106 +1,41 @@
-# Cartesian Tree (C++)
+# Cartesian Tree -- C++ Implementation
 
-A **Cartesian Tree** is a binary tree derived from a sequence of numbers with min-heap property and inorder traversal that produces the original sequence.
+## Files
 
----
+- `cartesian_tree.cpp`: `CartesianNode` and `CartesianTree` (a single file, included by the test).
+- `cartesian_tree_test.cpp`: build, sorted and empty inputs, traversals, range queries compared with brute force, a 1,000,000-element sorted array, a rebuild test, and a compile-time check that the class is not copyable.
 
-## Overview
+## API
 
-Cartesian Trees are built from arrays such that the inorder traversal returns the original array, while maintaining a min-heap structure.
-
----
-
-## Operations
-
-### 1. Build from Array
-
-```cpp
-std::vector<int> array = {9, 3, 7, 1, 8, 12, 10};
-CartesianTree tree(array);
-```
-
-**Time Complexity**: O(n)
-
-### 2. Traversals
-
-```cpp
-std::vector<int> inorder = tree.inorderTraversal();    // Original array
-std::vector<int> preorder = tree.preorderTraversal();  // Root, Left, Right
-std::vector<int> postorder = tree.postorderTraversal(); // Left, Right, Root
-```
-
-**Time Complexity**: O(n)
-
-### 3. Range Minimum Query
-
-```cpp
-int min_idx = tree.getMinIndex(0, 4);  // Find min in range [0, 4]
-```
-
-**Time Complexity**: O(log n) average
-
----
-
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Build     | O(n)           | O(n)             |
-| Inorder   | O(n)           | O(n)             |
-| RMQ       | O(log n) avg   | O(1)             |
-| Height    | O(n)           | O(h)             |
-| Size      | O(n)           | O(h)             |
-
----
-
-## Example Usage
+- `CartesianTree()`, `CartesianTree(const std::vector<int>&)`, `buildFromArray(const std::vector<int>&)`: O(n); a rebuild frees the previous tree.
+- `getMinIndex(left, right)`: leftmost index of the minimum in `array[left..right]`; -1 for an empty tree or an invalid range. O(h).
+- `inorderTraversal()`, `preorderTraversal()`, `postorderTraversal()`: `std::vector<int>`.
+- `height()` in edges (empty = -1), `size()`, `isEmpty()`, `getRootValue()` (`INT_MIN` when empty).
+- `root`: public member pointer, used by the tests.
 
 ```cpp
 #include "cartesian_tree.cpp"
-#include <iostream>
 
 int main() {
-    std::vector<int> array = {9, 3, 7, 1, 8, 12, 10};
-    CartesianTree tree(array);
-    
-    // Inorder returns original array
-    std::vector<int> result = tree.inorderTraversal();
-    for (int val : result) {
-        std::cout << val << " ";
-    }
-    
-    // Root is minimum
-    std::cout << "\nRoot value: " << tree.getRootValue() << std::endl;
-    
-    return 0;
+    CartesianTree tree({9, 3, 7, 1, 8, 12, 10, 20, 15, 18, 5});
+    return tree.getMinIndex(4, 8) == 4 ? 0 : 1;
 }
 ```
 
----
+## C++-Specific Notes
 
-## Compilation
+- Nodes are raw pointers freed by the destructor, so copy construction and assignment are deleted.
+- Traversals, height, size and the destructor are iterative: a sorted array of 1,000,000 values makes a chain, and the recursive versions crashed on it.
+- `buildFromArray` on an existing tree used to leak the old nodes; it now frees them first.
 
-```bash
-g++ -std=c++11 cartesian_tree.cpp cartesian_tree_test.cpp -o cartesian_tree_test
-./cartesian_tree_test
-```
-
----
-
-## Testing
-
-Run the test suite:
+## How to Run
 
 ```bash
-g++ -std=c++11 cartesian_tree_test.cpp -o test
-./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD cartesian_tree_test.cpp -o cartesian_test && ./cartesian_test
 ```
 
----
+## Key Takeaways
 
-## Related Data Structures
-
-- **Segment Tree**: Another structure for range queries
-- **Sparse Table**: Static RMQ with O(1) queries
-- **Treap**: Combination of BST and heap
-
+- Own raw memory, forbid copies, free before rebuilding.
+- Keep every walk over a possibly degenerate tree iterative.
+- A range minimum is the LCA of its ends.

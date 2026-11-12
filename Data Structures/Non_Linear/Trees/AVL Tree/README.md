@@ -1,240 +1,120 @@
 # AVL Tree
 
-An **AVL Tree** (Adelson-Velsky and Landis Tree) is a self-balancing Binary Search Tree where the height difference between left and right subtrees of any node is at most 1. This guarantees O(log n) time complexity for all operations, even in the worst case.
+An AVL tree is a binary search tree that rebalances itself with rotations so that, for every node, the heights of its two subtrees differ by at most 1. Search, insert and delete are therefore O(log n) in the worst case, not just on average.
 
----
+## Intuition
 
-## Overview
+A plain BST is only as good as the order its keys arrive in: sorted input builds a chain and every operation becomes O(n). The AVL tree repairs the shape after every change. It stores a height in each node, and when an insert or delete makes some node lean two levels to one side, a small local rotation lifts the heavier child above its parent. The search order is untouched, but the tree gets shorter.
 
-AVL Trees were the first self-balancing binary search trees, invented in 1962. They maintain balance through rotations after insertions and deletions, ensuring the tree height remains O(log n).
+**Invariant:** for every node, `balance factor = height(left) - height(right)` is -1, 0 or +1. A tree of height h then holds at least N(h) = N(h-1) + N(h-2) + 1 nodes (a Fibonacci-like recurrence, exponential in h), so the height is at most about 1.44 log2(n + 2).
 
-**Key Advantage**: Unlike regular BST which can degrade to O(n) in worst case, AVL Tree **guarantees O(log n)** for all operations.
+In this repository a leaf has height 1 and an empty subtree has height 0. Duplicates are ignored.
 
----
+## Visual
 
-## Key Characteristics
+```text
+Right rotation at z (left-left case)
 
-1. **Self-Balancing**: Automatically maintains balance after insert/delete
-2. **Balance Factor**: For each node, |height(left) - height(right)| ≤ 1
-3. **Rotations**: Uses 4 types of rotations to restore balance
-4. **BST Property**: Maintains binary search tree ordering
-5. **Height Guarantee**: Height is always O(log n)
+        z  (bf +2)                  y
+       / \                        /   \
+      y   T3        ==>          x     z
+     / \                        / \   / \
+    x   T2                     T0 T1 T2 T3
+   / \
+  T0  T1
 
----
-
-## Balance Factor
-
-For each node, **balance factor = height(left) - height(right)**
-
-- **-1**: Right subtree is 1 level taller
-- **0**: Both subtrees have same height  
-- **1**: Left subtree is 1 level taller
-- **|balance| > 1**: Unbalanced - rotation needed
-
----
-
-## Rotations
-
-AVL Tree uses 4 types of rotations to maintain balance:
-
-### 1. Right Rotation (Left-Left Case)
-When left subtree is too tall and left child's left subtree is taller.
-
-**Before (Unbalanced):**
-```
-        z (BF = +2)
-       /
-      y (BF = +1)
-     /
-    x
+T2 moves from y to z. Keys stay in order: T0 x T1 y T2 z T3.
 ```
 
-**After (Right Rotate):**
-```
-      y
-     / \
-    x   z
-```
+## How It Works / Operations
 
-### 2. Left Rotation (Right-Right Case)
-When right subtree is too tall and right child's right subtree is taller.
+Insert and delete work as in a plain BST, then walk back up the path, recompute each node's height and balance factor, and fix the first violation:
 
-**Before (Unbalanced):**
-```
-    z (BF = -2)
-     \
-      y (BF = -1)
-       \
-        x
-```
+| Case | Condition | Fix |
+|------|-----------|-----|
+| Left-Left | bf > 1, left child bf >= 0 | rotate right at the node |
+| Right-Right | bf < -1, right child bf <= 0 | rotate left at the node |
+| Left-Right | bf > 1, left child bf < 0 | rotate left at the left child, then right at the node |
+| Right-Left | bf < -1, right child bf > 0 | rotate right at the right child, then left at the node |
 
-**After (Left Rotate):**
-```
-      y
-     / \
-    z   x
-```
+| Operation | Description | Time |
+|-----------|-------------|------|
+| `insert(x)` | BST insert, then rebalance on the way up; duplicates ignored | O(log n) |
+| `search(x)` | walk down by comparison | O(log n) |
+| `delete(x)` | BST delete (in-order successor for two children), then rebalance every ancestor | O(log n) |
+| `find_min()`, `find_max()` | follow left or right links | O(log n) |
+| `inorder_traversal()` | sorted output | O(n) |
+| `height()`, `is_empty()` | read the root's stored height | O(1) |
+| `size()`, `is_balanced()` | visit every node | O(n) |
 
-### 3. Left-Right Rotation (Left-Right Case)
-When left subtree is too tall but left child's right subtree is taller.
+Python also provides `preorder_traversal`, `postorder_traversal` and `level_order_traversal`. C++ and Go provide in-order only.
 
-**Before (Unbalanced):**
-```
-        z (BF = +2)
-       /
-      y (BF = -1)
-       \
-        x
-```
+An insert needs at most one single or double rotation. A delete can shorten the subtree it fixes, so it may rotate on every level up to the root. When the heavy child has balance factor 0 (possible only after a delete), a single rotation is correct.
 
-**Step 1: Left Rotate y**
-```
-        z
-       /
-      x
-     /
-    y
-```
+## Step-by-Step Trace
 
-**Step 2: Right Rotate z**
-```
-      x
-     / \
-    y   z
-```
+Insert 10, 20, 30, 40, 50, 25 (snapshots in level order, produced by the Python code):
 
-### 4. Right-Left Rotation (Right-Left Case)
-When right subtree is too tall but right child's left subtree is taller.
+| Insert | Tree after | Event |
+|--------|-----------|-------|
+| 10, 20 | 10, 20 | no rotation |
+| 30 | 20, 10, 30 | 10 has bf -2, right-right: rotate left |
+| 40 | 20, 10, 30, 40 | balanced |
+| 50 | 20, 10, 40, 30, 50 | 30 has bf -2, right-right: rotate left |
+| 25 | 30, 20, 40, 10, 25, 50 | 20 has bf -2, its right child 40 leans left: right-left double rotation |
 
-**Before (Unbalanced):**
-```
-    z (BF = -2)
-     \
-      y (BF = +1)
-     /
-    x
-```
+Delete after inserting 2, 1, 3, 4: removing 1 leaves node 2 with an empty left side and a right subtree of height 2 (bf -2, right-right), so a left rotation at 2 gives `[3, 2, 4]`.
 
-**Step 1: Right Rotate y**
-```
-    z
-     \
-      x
-       \
-        y
-```
+## Complexity
 
-**Step 2: Left Rotate z**
-```
-      x
-     / \
-    z   y
-```
+| Operation | Time | Notes |
+|-----------|------|-------|
+| search, insert, delete | O(log n) | one path of at most 1.44 log2(n + 2) nodes |
+| rotation | O(1) | pointer changes and two height updates |
+| traversals, `size`, `is_balanced` | O(n) | every node visited |
 
----
+Space is O(n) for nodes plus O(log n) recursion stack (the height).
 
-## Operations
+## When to Use
 
-| Operation      | Description                          | Time Complexity |
-| -------------- | ------------------------------------ | --------------- |
-| `insert(data)` | Insert with automatic balancing      | O(log n)        |
-| `search(data)` | Search for data                      | O(log n)        |
-| `delete(data)` | Delete with automatic balancing       | O(log n)        |
-| `find_min()`   | Find minimum value                    | O(log n)        |
-| `find_max()`   | Find maximum value                    | O(log n)        |
-| Traversals     | Inorder, Preorder, Postorder          | O(n)            |
-| `height()`     | Get tree height                       | O(1)            |
-| `size()`       | Get number of nodes                   | O(n)            |
-| `is_balanced()`| Check AVL property                    | O(n)            |
+Use it for an ordered map or set with a worst-case guarantee, especially when lookups dominate. Prefer a Red-Black tree when updates dominate (fewer rotations per update), a hash table when no order is needed, and a B-Tree for disk-resident data.
 
----
+## AVL Tree vs. Alternatives
 
-## Complexity Summary
+| Structure | Search | Insert | Notes |
+|-----------|--------|--------|-------|
+| AVL tree | O(log n) | O(log n) | height at most 1.44 log2(n) |
+| [Red-Black Tree](../Red-Black%20Tree/README.md) | O(log n) | O(log n) | height up to 2 log2(n), fewer rotations on update |
+| [Binary Search Tree](../Binary%20Search%20Tree/README.md) | O(n) worst | O(n) worst | no rebalancing |
+| [Treap](../Treap/README.md) | O(log n) expected | O(log n) expected | randomized, split and merge |
 
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| insert    | O(log n)        | O(log n)         |
-| search    | O(log n)        | O(log n)         |
-| delete    | O(log n)        | O(log n)         |
-| find_min  | O(log n)        | O(1)             |
-| find_max  | O(log n)        | O(1)             |
-| Traversal | O(n)            | O(log n)         |
-| height    | O(1)            | O(1)             |
-| size      | O(n)            | O(log n)         |
+Both AVL and Red-Black insert need at most one rotation case (single or double). The difference shows in delete: AVL may rotate O(log n) times, Red-Black at most 3.
 
-**All operations are guaranteed O(log n)**, unlike regular BST.
+## Common Pitfalls
 
----
-
-## Applications
-
-1. **Database Indexing**: Maintain sorted order with guaranteed performance
-2. **Priority Queues**: Can be used (though heap is more common)
-3. **Symbol Tables**: Key-value mapping with ordered keys
-4. **Range Queries**: Efficient range search operations
-5. **Memory Management**: Used in some memory allocators
-
----
-
-## Comparison with Other Trees
-
-| Feature         | BST          | AVL Tree     | Red-Black Tree |
-| --------------- | ------------ | ------------ | -------------- |
-| Search (worst)  | O(n)         | O(log n)     | O(log n)       |
-| Insert (worst)  | O(n)         | O(log n)     | O(log n)       |
-| Delete (worst)  | O(n)         | O(log n)     | O(log n)       |
-| Balance         | Not guaranteed | Always balanced | Always balanced |
-| Rotations       | None         | More frequent | Less frequent |
-| Height          | O(n) worst   | O(log n)     | O(log n)       |
-| Complexity      | Simple       | Medium       | Complex        |
-
----
-
-## Advantages
-
-- ✅ **Guaranteed O(log n)**: All operations are O(log n) even in worst case
-- ✅ **Predictable Performance**: No degradation to O(n)
-- ✅ **Simple Concept**: Easier to understand than Red-Black Tree
-- ✅ **Good for Read-Heavy**: Excellent for frequent searches
-
-## Disadvantages
-
-- ❌ **More Rotations**: More rotations than Red-Black Tree
-- ❌ **Memory Overhead**: Each node stores height
-- ❌ **Insert/Delete Overhead**: Balancing adds overhead
-
----
+- Update a node's height after its children changed and before computing its balance factor; in a rotation, update the lower node first.
+- After a delete, choose the case from the heavy child's balance factor (0 means a single rotation), not from the deleted key.
+- Keep walking to the root after a delete fix; a rotation can unbalance the parent.
+- A test that reads the stored `height` cannot detect a stale height. The tests recompute heights from scratch.
+- Heights here count nodes (leaf = 1); the Binary Search Tree folder counts edges (empty = -1). Do not mix them.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+- [Python](Python/README.md)
+- [C++](C++/README.md)
+- [Go](Go/README.md)
 
-- **Python** (`Python/`) - Complete implementation with all rotations
-- **C++** (`C++/`) - With proper memory management
-- **Go** (`Go/`) - Idiomatic Go implementation
+The interactive visualization on the topic page animates insert, delete and every rotation.
 
-Each implementation includes:
-- Complete source code with all rotation types
-- Comprehensive test suite
-- Detailed README with usage examples
+## Practice Problems
 
----
-
-## Further Reading
-
-- [AVL Tree on Wikipedia](https://en.wikipedia.org/wiki/AVL_tree)
-- Tree visualization: [Visualgo](https://visualgo.net/en/avl)
-- [AVL vs Red-Black Tree](https://www.geeksforgeeks.org/difference-between-avl-tree-and-red-black-tree/)
-
----
+- LeetCode 110, Balanced Binary Tree (check the AVL property).
+- LeetCode 108, Convert Sorted Array to Binary Search Tree (build a height-balanced tree).
+- LeetCode 1382, Balance a Binary Search Tree.
 
 ## Related
 
-- **[Red-Black Tree](../Red-Black%20Tree/README.md)** — different balance invariant; fewer rotations per update, favored by `std::map` and the Linux kernel.
-- **[Treap](../Treap/README.md)** — _randomized_ balanced BST via split/merge. Gives O(log n) _in expectation_ instead of AVL's worst-case guarantee, but trades rotation complexity for a `random.random()` call — much simpler to implement correctly, and uniquely good at range operations (split/merge in O(log n)).
-- **[Binary Search Tree](../Binary%20Search%20Tree/README.md)** — the unbalanced starting point this structure improves upon.
-
----
-
-**Note**: AVL Tree is ideal when you need guaranteed O(log n) performance and can tolerate more rotations. For write-heavy workloads, Red-Black Tree might be better due to fewer rotations.
-
+- [Binary Search Tree](../Binary%20Search%20Tree/README.md): the unbalanced starting point.
+- [Red-Black Tree](../Red-Black%20Tree/README.md): a looser balance rule with cheaper updates.
+- [Treap](../Treap/README.md): randomized balancing with split and merge.
+- [Splay Tree](../Splay%20Tree/README.md): amortized balancing by moving accessed keys to the root.

@@ -122,6 +122,43 @@ class TestBinarySearchTree(unittest.TestCase):
         self.assertTrue(self.bst.search(3))
         self.assertTrue(self.bst.search(7))
 
+    def test_degenerate_chain_does_not_overflow_recursion(self):
+        # Regression: sorted input builds a chain deeper than Python's recursion limit.
+        for i in range(5000):
+            self.bst.insert(i)
+        self.assertTrue(self.bst.search(4999))
+        self.assertEqual(self.bst.size(), 5000)
+        self.assertEqual(self.bst.height(), 4999)
+        self.assertEqual(self.bst.inorder_traversal(), list(range(5000)))
+        self.assertEqual(self.bst.postorder_traversal()[-1], 0)
+        self.bst.delete(0)
+        self.bst.delete(2500)
+        self.assertFalse(self.bst.search(2500))
+        self.assertEqual(self.bst.size(), 4998)
+
+    def test_random_ops_match_set(self):
+        import random
+        rng = random.Random(3)
+        ref = set()
+        for _ in range(3000):
+            k = rng.randrange(120)
+            if rng.random() < 0.4:
+                self.bst.delete(k)
+                ref.discard(k)
+            else:
+                self.bst.insert(k)
+                ref.add(k)
+        self.assertEqual(self.bst.inorder_traversal(), sorted(ref))
+        self.assertEqual(self.bst.size(), len(ref))
+
+    def test_traversal_orders_after_delete(self):
+        for k in (50, 30, 70, 20, 40, 60, 80):
+            self.bst.insert(k)
+        self.bst.delete(50)
+        self.assertEqual(self.bst.preorder_traversal(), [60, 30, 20, 40, 70, 80])
+        self.assertEqual(self.bst.postorder_traversal(), [20, 40, 30, 80, 70, 60])
+        self.assertEqual(self.bst.level_order_traversal(), [60, 30, 70, 20, 40, 80])
+
 if __name__ == "__main__":
     unittest.main()
 

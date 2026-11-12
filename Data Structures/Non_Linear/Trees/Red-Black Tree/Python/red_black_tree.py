@@ -1,5 +1,3 @@
-from collections import deque
-
 class Color:
     RED = 0
     BLACK = 1

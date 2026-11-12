@@ -113,44 +113,24 @@ func (ct *CartesianTree) postorderRecursive(node *CartesianNode, result *[]int) 
 	}
 }
 
-// GetMinIndex finds the index of minimum value in range [left, right]
+// GetMinIndex returns the index of the minimum in array[left..right] (the
+// leftmost one on ties), or -1 for an empty tree or an invalid range. The
+// answer is the lowest common ancestor of the two end positions, found by
+// walking down from the root: O(h).
 func (ct *CartesianTree) GetMinIndex(left, right int) int {
-	if ct.root == nil || left < 0 || right >= len(ct.originalArray) {
+	if ct.root == nil || left < 0 || right >= len(ct.originalArray) || left > right {
 		return -1
 	}
-	return ct.findMinInRange(ct.root, left, right)
-}
-
-// findMinInRange is a helper to find minimum in range
-func (ct *CartesianTree) findMinInRange(node *CartesianNode, left, right int) int {
-	if node == nil {
-		return -1
-	}
-
-	candidate := -1
-	if left <= node.index && node.index <= right {
-		candidate = node.index
-	}
-
-	if node.left != nil && node.index > left {
-		leftCandidate := ct.findMinInRange(node.left, left, right)
-		if leftCandidate != -1 {
-			if candidate == -1 || ct.originalArray[candidate] > ct.originalArray[leftCandidate] {
-				candidate = leftCandidate
-			}
+	node := ct.root
+	for {
+		if node.index < left {
+			node = node.right
+		} else if node.index > right {
+			node = node.left
+		} else {
+			return node.index
 		}
 	}
-
-	if node.right != nil && node.index < right {
-		rightCandidate := ct.findMinInRange(node.right, left, right)
-		if rightCandidate != -1 {
-			if candidate == -1 || ct.originalArray[candidate] > ct.originalArray[rightCandidate] {
-				candidate = rightCandidate
-			}
-		}
-	}
-
-	return candidate
 }
 
 // IsEmpty checks if tree is empty
@@ -195,4 +175,11 @@ func (ct *CartesianTree) GetRootValue() int {
 		return -1
 	}
 	return ct.root.value
+}
+
+func main() {
+	tree := NewCartesianTreeFromArray([]int{9, 3, 7, 1, 8, 12, 10, 20, 15, 18, 5})
+	println("Root value:", tree.GetRootValue())
+	println("Index of min in [4, 8]:", tree.GetMinIndex(4, 8))
+	println("Height:", tree.Height())
 }

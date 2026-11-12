@@ -13,7 +13,7 @@ type node struct {
 	left, right *node
 }
 
-// Treap is an unordered set of int keys with expected O(log n) operations.
+// Treap is an ordered set of int keys with expected O(log n) operations.
 type Treap struct {
 	root *node
 	size int
@@ -60,9 +60,10 @@ func (t *Treap) Delete(key int) bool {
 	if !t.Contains(key) {
 		return false
 	}
+	// rest holds keys >= key and key is present, so key is its minimum.
+	// Dropping the minimum avoids key+1, which overflows at math.MaxInt.
 	left, rest := split(t.root, key)
-	_, right := split(rest, key+1) // extract exactly {key}
-	t.root = merge(left, right)
+	t.root = merge(left, dropMin(rest))
 	t.size--
 	return true
 }
@@ -113,6 +114,14 @@ func split(n *node, key int) (*node, *node) {
 	l, r := split(n.left, key)
 	n.left = r
 	return l, n
+}
+
+func dropMin(n *node) *node {
+	if n.left == nil {
+		return n.right
+	}
+	n.left = dropMin(n.left)
+	return n
 }
 
 func merge(a, b *node) *node {

@@ -10,17 +10,20 @@ class FibonacciHeapNode:
         self.marked = False
 
 class FibonacciHeap:
-    """Fibonacci Heap implementation.
-    
-    A Fibonacci Heap is an advanced heap data structure with amortized O(1) insert
-    and O(log n) extract min. It's more complex than binary heaps but offers
-    better performance for certain operations.
-    
-    Supports:
-    - Insert: O(1) amortized
+    """Lazy heap of heap-ordered trees (the structure behind a Fibonacci heap).
+
+    Insert just drops a node into the circular root list. Extract min promotes
+    the children of the minimum to the root list and then consolidates trees of
+    equal degree. This implementation provides insert, extract_min, peek, size,
+    is_empty and clear. It has no decrease_key, delete or merge, and the
+    `marked` flag is never used (no cascading cuts), so it is the lazy
+    binomial-style core rather than a complete Fibonacci heap.
+
+    Costs:
+    - Insert: O(1) worst case
+    - Peek: O(1)
     - Extract min: O(log n) amortized
-    - Decrease key: O(1) amortized
-    - Merge: O(1)
+    - Clear: O(1)
     """
     
     def __init__(self):

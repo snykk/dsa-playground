@@ -1,221 +1,127 @@
 # Splay Tree
 
-A **Splay Tree** is a self-adjusting binary search tree that automatically moves recently accessed elements to the root through a process called "splaying". This improves access time for frequently used elements.
+A splay tree is a binary search tree that moves every accessed node to the root by rotations ("splaying"). It stores no balance information, and search, insert and delete are O(log n) amortized (a single operation can take O(n)).
 
----
+## Intuition
 
-## Overview
+Keep recently used keys near the top. Every access ends by rotating the touched node to the root, and the rotations also roughly halve the depth of the nodes on the access path. A long path is therefore expensive once and mostly repaired afterwards.
 
-Splay Trees are a type of binary search tree that reorganize themselves after each access operation. When a node is accessed (searched, inserted, or deleted), it is moved to the root through a series of rotations called "splaying".
+Because of that, the guarantee is amortized: over any sequence of m operations the total cost is O((m + n) log n), but one operation may cost O(n). The proof (Sleator and Tarjan's access lemma) uses the potential function "sum over nodes of log2(subtree size)": a splay costs at most 3 log2 n + 1 amortized. The bound needs every access to splay, including failed searches and failed deletes.
 
-Unlike other self-balancing trees (like AVL or Red-Black trees), Splay Trees don't store any balance information. Instead, they rely on the splaying operation to maintain reasonable balance over time.
+## Visual
 
----
+The three splay cases (x is the accessed node, A..D are subtrees):
 
-## Key Characteristics
+```text
+Zig (parent is the root)          Zig-zig (same direction)
+     y                x                 z                 x
+    / \              / \               / \               / \
+   x   C    -->     A   y             y   D     -->     A   y
+  / \                  / \           / \                   / \
+ A   B                B   C         x   C                 B   z
+                                   / \                       / \
+                                  A   B                     C   D
 
-- **Self-Adjusting**: Frequently accessed nodes move closer to the root
-- **Amortized O(log n)**: Average-case performance is O(log n) for all operations
-- **No Extra Storage**: No balance information is stored in nodes
-- **Cache-Friendly**: Recently accessed elements are at the root, improving cache performance
-- **Simple Implementation**: Easier to implement than AVL or Red-Black trees
-
----
-
-## Splaying Operations
-
-Splaying uses three types of rotations to move a node to the root:
-
-### 1. Zig (Single Rotation)
-When the node is a direct child of the root.
-
-```
-     y                x
-    / \              / \
-   x   C    -->     A   y
-  / \                  / \
- A   B                B   C
-```
-
-### 2. Zig-Zig (Two Same-Direction Rotations)
-When the node and its parent are both left children or both right children.
-
-```
-       z                x
-      / \              / \
-     y   D            A   y
-    / \        -->       / \
-   x   C                B   z
-  / \                      / \
- A   B                    C   D
-```
-
-### 3. Zig-Zag (Two Opposite-Direction Rotations)
-When the node is a left child and parent is a right child, or vice versa.
-
-```
-     z                x
-    / \              /   \
-   y   D            y     z
-  / \        -->   / \   / \
- A   x            A   B C   D
+Zig-zag (opposite directions)
+     z                  x
+    / \                / \
+   y   D     -->      y   z
+  / \                / \ / \
+ A   x              A  B C  D
     / \
    B   C
 ```
 
----
-
 ## Operations
 
-| Operation | Description | Time Complexity (Amortized) |
-|-----------|-------------|----------------------------|
-| **Search** | Find a key and splay it to root | O(log n) |
-| **Insert** | Insert a key-value pair and splay to root | O(log n) |
-| **Delete** | Delete a key and splay parent to root | O(log n) |
-| **Find Min** | Find minimum key and splay to root | O(log n) |
-| **Find Max** | Find maximum key and splay to root | O(log n) |
-| **Traversal** | Inorder traversal (sorted order) | O(n) |
+| Operation | What it does | Time |
+| --------- | ------------ | ---- |
+| `insert(key, value)` | BST insert, splay the new node; an existing key has its value overwritten and is splayed | O(log n) amortized |
+| `search(key)` | find the key and splay it; on a miss splay the last visited node | O(log n) amortized |
+| `delete(key)` | splay the key, split off both subtrees, join them; on a miss splay the last visited node | O(log n) amortized |
+| `find_min()`, `find_max()` | walk to the end of a spine and splay it | O(log n) amortized |
+| `inorder_traversal()`, `size()` | iterative | O(n) |
 
----
+### Splay step
 
-## Complexity Analysis
+While the node has a parent, look at it, its parent p and its grandparent g:
 
-| Operation | Average Case | Worst Case | Amortized |
-|-----------|-------------|------------|-----------|
-| Search    | O(log n)    | O(n)       | O(log n)  |
-| Insert    | O(log n)    | O(n)       | O(log n)  |
-| Delete    | O(log n)    | O(n)       | O(log n)  |
-| Find Min  | O(log n)    | O(n)       | O(log n)  |
-| Find Max  | O(log n)    | O(n)       | O(log n)  |
-| Traversal | O(n)        | O(n)       | O(n)      |
+- Zig: p is the root. Rotate at p.
+- Zig-zig: node and p are both left (or both right) children. Rotate at g first, then at p.
+- Zig-zag: they are opposite children. Rotate at p, then at g.
 
-**Space Complexity**: O(n)
+### Delete (split and join)
 
-**Note**: Worst case occurs when the tree becomes a linked list, but amortized analysis shows that over a sequence of operations, the average time per operation is O(log n).
+1. Splay the key to the root (if absent, splay the last visited node and return false).
+2. Detach the left and right subtrees and clear their parent pointers.
+3. If one side is empty, the other becomes the tree.
+4. Otherwise splay the maximum of the left subtree to the top of that subtree. It has no right child, so attach the right subtree there.
 
----
+## Step-by-Step Trace
 
-## Advantages
+Insert 1, 2, 3, then search for 1 (output of the Python code, level order, `-` is empty):
 
-1. ✅ **Simple Implementation**: No balance information needed
-2. ✅ **Locality of Reference**: Frequently accessed nodes are near root
-3. ✅ **Amortized Performance**: Good average-case performance
-4. ✅ **Cache Efficiency**: Hot data stays at the top
-5. ✅ **No Extra Memory**: No balance fields required
+| Step | Tree (level order) | Note |
+| ---- | ------------------ | ---- |
+| insert 1 | 1 | |
+| insert 2 | 2 / 1 - | zig: 2 splayed over 1 |
+| insert 3 | 3 / 2 - / 1 - | zig: a left path |
+| search 1 | 1 / - 2 / - 3 | zig-zig: rotate at 3, then at 2; 1 is the root |
 
----
+Insert 50, 30, 70, 20, 40 gives root 40 with children 20 and 70 (30 under 20, 50 under 70). Searching 20 splays it to the root (zig), and then deleting 20 leaves 40 as the root with children 30 and 70.
 
-## Disadvantages
+## Complexity
 
-1. ❌ **Worst Case O(n)**: Can degrade to linear time in worst case
-2. ❌ **No Guaranteed Balance**: Tree can become unbalanced
-3. ❌ **Amortized Analysis**: Performance is amortized, not worst-case guaranteed
-4. ❌ **Not Thread-Safe**: Splaying operations are not easily parallelizable
-
----
-
-## Applications
-
-1. **Caching Systems**: Frequently accessed items move to root
-2. **Network Routing**: Hot routes stay accessible
-3. **Garbage Collection**: Recently used objects stay accessible
-4. **Text Editors**: Recently edited lines stay accessible
-5. **Operating Systems**: Frequently used files stay accessible
-6. **Database Systems**: Hot data stays in memory
-
----
+| Operation | Amortized | Worst single operation |
+| --------- | --------- | ---------------------- |
+| search, insert, delete, min, max | O(log n) | O(n) |
+| traversal, size | O(n) | O(n) |
+| space | O(n), no recursion stack | |
 
 ## When to Use
 
-### ✅ Use Splay Tree when:
-- Access patterns are non-uniform (some keys accessed more frequently)
-- You need simple implementation without balance tracking
-- Amortized performance is acceptable
-- Cache locality is important
+- Access patterns are skewed or sequential, so the hot keys sit near the root.
+- You want no balance fields and simple split/join logic.
+- Avoid it when every single operation must be fast (real-time), when readers run concurrently (reads modify the tree), or when access is uniformly random (a red-black tree is usually faster).
 
-### ❌ Avoid Splay Tree when:
-- Worst-case guarantees are required
-- Uniform access patterns are expected
-- Thread-safety is critical
-- Real-time constraints exist
+## Splay Tree vs. Alternatives
 
----
+| Structure | Guarantee | Extra data per node | Reads modify the tree |
+| --------- | --------- | ------------------- | --------------------- |
+| Splay tree | amortized O(log n) | none | yes |
+| AVL tree | worst-case O(log n) | height | no |
+| Red-black tree | worst-case O(log n) | 1 color bit | no |
+| Treap | expected O(log n) | random priority | no |
 
-## Comparison with Other Trees
+## Common Pitfalls
 
-| Feature | Splay Tree | AVL Tree | Red-Black Tree |
-|---------|-----------|----------|----------------|
-| Balance Guarantee | No | Yes (strict) | Yes (loose) |
-| Extra Storage | No | Yes (height) | Yes (color) |
-| Worst Case | O(n) | O(log n) | O(log n) |
-| Amortized | O(log n) | O(log n) | O(log n) |
-| Implementation | Simple | Moderate | Complex |
-| Cache Locality | Excellent | Good | Good |
-
----
+- Not splaying on a miss: failed searches and deletes must splay the last visited node, or the amortized bound is lost.
+- Leaving parent pointers dangling in delete: clear them on both detached subtrees before splaying inside the left one.
+- Wrong zig-zig order: rotate the grandparent first.
+- Recursive size or traversal on a path-shaped tree (sequential inserts make one) overflows the stack. The code here is iterative.
+- Confusing amortized with average-case.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+| Language | Folder | Main file | Notes |
+| -------- | ------ | --------- | ----- |
+| Python | [Python](Python/) | `splay_tree.py` | values of any type; `None` for a miss or an empty tree |
+| C++ | [C++](C++/) | `splay_tree.cpp` | `std::string` values; copying deleted; `findMin` returns `-1` on an empty tree |
+| Go | [Go](Go/) | `main.go` | `string` values; `Search` returns `(value, found)` |
 
-- **Python** (`Python/`) - Object-oriented implementation with comprehensive tests
-- **C++** (`C++/`) - Efficient implementation with proper memory management
-- **Go** (`Go/`) - Clean implementation with Go idioms
+## Practice Problems
 
-Each implementation includes:
-- Complete source code with all operations
-- Comprehensive test suite
-- Detailed README with usage examples
+- [LeetCode 706: Design HashMap](https://leetcode.com/problems/design-hashmap/) (any ordered map can be swapped in)
+- [LeetCode 981: Time Based Key-Value Store](https://leetcode.com/problems/time-based-key-value-store/) (ordered lookup by key)
+- [CSES: Sliding Window Median](https://cses.fi/problemset/task/1076) (ordered multiset)
 
----
+## Related
 
-## Learning Path
-
-1. **Start with BST**: Understand basic binary search tree operations
-2. **Learn Rotations**: Master left and right rotations
-3. **Understand Splaying**: Learn the three splaying cases (Zig, Zig-Zig, Zig-Zag)
-4. **Study Amortized Analysis**: Understand why splaying works well on average
-5. **Compare with Other Trees**: See when to use Splay Tree vs AVL/Red-Black
-
----
-
-## Visual Example
-
-```
-Initial Tree:
-        50
-       /  \
-     30    70
-    /  \  /  \
-  20  40 60  80
-
-After searching for 20 (splayed to root):
-        20
-         \
-         30
-           \
-           50
-          /  \
-        40    70
-            /  \
-          60   80
-```
-
----
+- [Binary Search Tree](../Binary%20Search%20Tree/)
+- [AVL Tree](../AVL%20Tree/)
+- [Red-Black Tree](../Red-Black%20Tree/)
+- [Treap](../Treap/)
 
 ## References
 
-- "Introduction to Algorithms" by CLRS (Chapter 13)
-- "Data Structures and Algorithms" by Aho, Hopcroft, Ullman
-- Original Paper: "Self-Adjusting Binary Search Trees" by Sleator and Tarjan (1985)
-
----
-
-## Related Data Structures
-
-- **Binary Search Tree**: Basic sorted tree structure
-- **AVL Tree**: Height-balanced BST with guaranteed O(log n)
-- **Red-Black Tree**: Self-balancing BST with color properties
-- **Treap**: Randomized BST with heap property
-- **B-Tree**: Multi-way tree for database indexing
-
+- Sleator and Tarjan, "Self-Adjusting Binary Search Trees", Journal of the ACM, 1985.

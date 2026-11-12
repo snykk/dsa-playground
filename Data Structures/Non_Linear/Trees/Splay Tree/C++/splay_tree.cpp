@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <string>
 #include <vector>
 #include <algorithm>
 
@@ -121,27 +122,34 @@ private:
         return nullptr;
     }
     
-    int sizeRecursive(SplayNode* node) {
-        if (node == nullptr) return 0;
-        return 1 + sizeRecursive(node->left) + sizeRecursive(node->right);
-    }
-    
-    void inorderRecursive(SplayNode* node, std::vector<int>& result) {
-        if (node != nullptr) {
-            inorderRecursive(node->left, result);
-            result.push_back(node->key);
-            inorderRecursive(node->right, result);
+    // Iterative helpers: sequential inserts build a path-shaped tree, so
+    // recursion could overflow the native stack.
+    int sizeIterative() const {
+        int count = 0;
+        std::vector<const SplayNode*> stack;
+        if (root != nullptr) stack.push_back(root);
+        while (!stack.empty()) {
+            const SplayNode* n = stack.back();
+            stack.pop_back();
+            count++;
+            if (n->left != nullptr) stack.push_back(n->left);
+            if (n->right != nullptr) stack.push_back(n->right);
         }
+        return count;
     }
-    
+
     void deleteTree(SplayNode* node) {
-        if (node != nullptr) {
-            deleteTree(node->left);
-            deleteTree(node->right);
-            delete node;
+        std::vector<SplayNode*> stack;
+        if (node != nullptr) stack.push_back(node);
+        while (!stack.empty()) {
+            SplayNode* n = stack.back();
+            stack.pop_back();
+            if (n->left != nullptr) stack.push_back(n->left);
+            if (n->right != nullptr) stack.push_back(n->right);
+            delete n;
         }
     }
-    
+
 public:
     SplayTree() : root(nullptr) {}
     
@@ -149,20 +157,11 @@ public:
         deleteTree(root);
     }
     
-    // Copy constructor and assignment operator (rule of three)
-    SplayTree(const SplayTree& other) {
-        // Simplified: just copy root pointer (not deep copy)
-        root = nullptr;
-    }
-    
-    SplayTree& operator=(const SplayTree& other) {
-        if (this != &other) {
-            deleteTree(root);
-            root = nullptr;
-        }
-        return *this;
-    }
-    
+    // The tree owns raw nodes, so copying is disabled (a shallow copy would
+    // free the nodes twice).
+    SplayTree(const SplayTree&) = delete;
+    SplayTree& operator=(const SplayTree&) = delete;
+
     void insert(int key, const std::string& value = "") {
         if (root == nullptr) {
             root = new SplayNode(key, value);
@@ -202,70 +201,55 @@ public:
     
     std::string search(int key) {
         if (root == nullptr) return "";
-        
+
         SplayNode* node = searchNode(key);
-        if (node != nullptr && node->key == key) {
-            splay(node);
+        // Splay on a hit and on a miss (the last visited node), which keeps
+        // the amortized O(log n) bound for unsuccessful searches too.
+        splay(node);
+        if (node->key == key) {
             return node->value;
         }
         return "";
     }
-    
+
     bool remove(int key) {
         if (root == nullptr) return false;
-        
+
         SplayNode* node = searchNode(key);
-        if (node == nullptr || node->key != key) {
+        splay(node);
+        if (node->key != key) {
             return false;
         }
-        
-        // Splay the node to root
-        splay(node);
-        
-        // If node has no children
-        if (node->left == nullptr && node->right == nullptr) {
-            delete node;
-            root = nullptr;
-        }
-        // If node has only right child
-        else if (node->left == nullptr) {
-            root = node->right;
-            root->parent = nullptr;
-            delete node;
-        }
-        // If node has only left child
-        else if (node->right == nullptr) {
-            root = node->left;
-            root->parent = nullptr;
-            delete node;
-        }
-        // If node has both children
-        else {
-            // Find maximum in left subtree
-            SplayNode* max_left = node->left;
+
+        // node is now the root. Detach both subtrees, clearing parent links.
+        SplayNode* left_subtree = node->left;
+        SplayNode* right_subtree = node->right;
+        if (left_subtree != nullptr) left_subtree->parent = nullptr;
+        if (right_subtree != nullptr) right_subtree->parent = nullptr;
+        delete node;
+
+        if (left_subtree == nullptr) {
+            root = right_subtree;
+        } else if (right_subtree == nullptr) {
+            root = left_subtree;
+        } else {
+            // Splay the maximum of the left subtree to the top of that
+            // subtree; it then has no right child, so the right subtree
+            // can be attached there.
+            root = left_subtree;
+            SplayNode* max_left = left_subtree;
             while (max_left->right != nullptr) {
                 max_left = max_left->right;
             }
-            
-            // Splay max_left to root of left subtree
-            if (max_left->parent != node) {
-                splay(max_left);
-                max_left->parent = nullptr;
-            }
-            
-            // Attach right subtree to max_left
-            max_left->right = node->right;
-            if (node->right != nullptr) {
-                node->right->parent = max_left;
-            }
-            
+            splay(max_left);
+            max_left->right = right_subtree;
+            right_subtree->parent = max_left;
             root = max_left;
-            delete node;
         }
-        
+
         return true;
     }
-    
+
     int findMin() {
         if (root == nullptr) return -1;
         
@@ -292,16 +276,51 @@ public:
     
     std::vector<int> inorderTraversal() {
         std::vector<int> result;
-        inorderRecursive(root, result);
+        std::vector<SplayNode*> stack;
+        SplayNode* current = root;
+        while (!stack.empty() || current != nullptr) {
+            while (current != nullptr) {
+                stack.push_back(current);
+                current = current->left;
+            }
+            current = stack.back();
+            stack.pop_back();
+            result.push_back(current->key);
+            current = current->right;
+        }
         return result;
     }
-    
+
     bool isEmpty() {
         return root == nullptr;
     }
-    
+
     int size() {
-        return sizeRecursive(root);
+        return sizeIterative();
+    }
+
+    // Key at the root, or -1 for an empty tree. For tests.
+    int rootKey() {
+        return root == nullptr ? -1 : root->key;
+    }
+
+    // Checks BST order and parent links. For tests.
+    bool isConsistent() {
+        if (root != nullptr && root->parent != nullptr) return false;
+        std::vector<SplayNode*> stack;
+        if (root != nullptr) stack.push_back(root);
+        while (!stack.empty()) {
+            SplayNode* n = stack.back();
+            stack.pop_back();
+            if (n->left != nullptr) {
+                if (n->left->parent != n || n->left->key >= n->key) return false;
+                stack.push_back(n->left);
+            }
+            if (n->right != nullptr) {
+                if (n->right->parent != n || n->right->key <= n->key) return false;
+                stack.push_back(n->right);
+            }
+        }
+        return true;
     }
 };
-

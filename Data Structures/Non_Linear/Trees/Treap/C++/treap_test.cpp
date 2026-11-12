@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <climits>
 #include <iostream>
 #include <random>
 #include <set>
@@ -96,6 +97,21 @@ void testHeapProperty() {
     assert(t.checkHeapProperty());
 }
 
+// Regression: erase used key + 1, which overflows at INT_MAX and left the key behind.
+void testEraseExtremeKeys() {
+    Treap t;
+    t.insert(1);
+    t.insert(INT_MAX);
+    t.insert(INT_MIN);
+    assert(t.erase(INT_MAX));
+    assert(!t.contains(INT_MAX));
+    assert(t.size() == 2);
+    assert((collectInorder(t) == std::vector<int>{INT_MIN, 1}));
+    assert(t.erase(INT_MIN));
+    assert(t.erase(1));
+    assert(t.size() == 0);
+}
+
 int main() {
     testEmpty();
     testSingleInsert();
@@ -106,6 +122,7 @@ int main() {
     testDeleteAll();
     testRandomizedStress();
     testHeapProperty();
-    std::cout << "All 9 tests passed!" << std::endl;
+    testEraseExtremeKeys();
+    std::cout << "All 10 tests passed!" << std::endl;
     return 0;
 }

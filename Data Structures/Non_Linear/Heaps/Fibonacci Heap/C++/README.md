@@ -1,85 +1,35 @@
-# Fibonacci Heap - C++
+# Fibonacci Heap -- C++ Implementation
 
-This folder contains a C++ implementation of a **Fibonacci Heap**.
+Lazy forest of heap-ordered trees with a circular root list. See the [topic README](../README.md) for the theory.
 
-A **Fibonacci Heap** is an advanced heap data structure with amortized O(1) insert and O(log n) extract min. It's more complex than binary heaps but offers better performance for certain operations.
+## Files
 
----
+- `fibonacci_heap.cpp`: node struct and `FibonacciHeap` class (included directly by the test)
+- `fibonacci_heap_test.cpp`: assert-based tests, including consolidation on 2000 keys and a compile-time check that the heap is not copyable
 
-## Concept
+## API
 
-- **Collection of Trees**: Multiple min-heap ordered trees
-- **Amortized O(1) Insert**: Very fast insertion
-- **Lazy Consolidation**: Trees are consolidated only when needed
-- **More Complex**: More complex than binary heaps
-- **Better for Many Inserts**: Better when you have many insertions
+- `void insert(int key)`
+- `int extract_min()`: throws `std::runtime_error` when empty
+- `int peek()`: throws `std::runtime_error` when empty
+- `int size()`, `bool is_empty()`
+- `void clear()`: frees every node by repeated `extract_min`, O(n log n)
 
----
+None of the three versions has `decrease_key`, `delete` or `merge`; the `marked` flag is stored but unused.
 
-## Operations
+## C++-Specific Notes
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------ | ------------------------------------ | --------------- |
-| `insert(key)`            | Insert key into heap                 | O(1) amortized  |
-| `extract_min()`          | Remove and return minimum element    | O(log n) amortized |
-| `peek()`                 | Get minimum element without removing | O(1)            |
-| `is_empty()`             | Check if heap is empty               | O(1)            |
-| `size()`                 | Get number of elements               | O(1)            |
-| `clear()`                | Remove all elements                 | O(n)            |
+Keys are `int`. Nodes are allocated with `new` and freed by the destructor, so the copy constructor and copy assignment are deleted (copying would double free). The degree table is a `std::map`.
 
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Insert    | O(1) amortized  | O(1)             |
-| Extract   | O(log n) amortized | O(1)             |
-| Peek      | O(1)            | O(1)             |
-| Space     | O(n)            | O(n)             |
-
----
-
-## Usage
-
-```cpp
-#include "fibonacci_heap.cpp"
-using namespace std;
-
-// Create empty heap
-FibonacciHeap heap;
-
-// Insert elements
-heap.insert(5);
-heap.insert(3);
-heap.insert(7);
-heap.insert(1);
-
-// Peek minimum
-cout << heap.peek() << endl;  // 1
-
-// Extract minimum
-cout << heap.extract_min() << endl;  // 1
-cout << heap.extract_min() << endl;  // 3
-```
-
----
-
-## Compile and Run
+## How to Run
 
 ```bash
-# Compile
-g++ -o fibonacci_heap_test fibonacci_heap_test.cpp
-
-# Run
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD fibonacci_heap_test.cpp -o fibonacci_heap_test
 ./fibonacci_heap_test
 ```
 
----
+## Key Takeaways
 
-## Applications
-
-- Graph algorithms (Dijkstra's with many edges)
-- Priority queues with many insertions
-- Advanced algorithms requiring fast inserts
-
+- Insert is a list splice; `extract_min` consolidates equal-degree trees.
+- This is the lazy core, not a complete Fibonacci heap (no decrease-key).
+- Empty-heap reads are errors, not sentinel values.
