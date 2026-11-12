@@ -11,6 +11,7 @@ describe('formatInline', () => {
     expect(formatInline('use `arr[high]` as **pivot**')).toBe('use <code>arr[high]</code> as <strong>pivot</strong>');
     expect(formatInline('n^2 and 2^{k+1}')).toBe('n<sup>2</sup> and 2<sup>k+1</sup>');
     expect(formatInline('log2(n) levels')).toBe('log<sub>2</sub>(n) levels');
+    expect(formatInline('n^2.81 and n^{log2(7)}')).toBe('n<sup>2.81</sup> and n<sup>log<sub>2</sub>(7)</sup>');
   });
 
   it('keeps complexities on one line', () => {

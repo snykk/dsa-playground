@@ -4,7 +4,7 @@
  * Authors write plain ASCII and this turns it into HTML:
  *   `code`         -> <code>code</code>          (left exactly as written)
  *   **bold**       -> <strong>bold</strong>
- *   n^2, 2^{k+1}   -> n<sup>2</sup>, 2<sup>k+1</sup>
+ *   n^2, n^2.81, 2^{k+1} -> n<sup>2</sup>, n<sup>2.81</sup>, 2<sup>k+1</sup>
  *   log2(n)        -> log<sub>2</sub>(n)
  *   O(...)         -> kept on one line
  *   <=  >=  !=  -> -> the matching math symbols
@@ -28,7 +28,7 @@ const SYMBOLS: Array<[RegExp, string]> = [
 function formatText(text: string): string {
   let html = escapeHtml(text);
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>').replace(/\^([A-Za-z0-9]+)/g, '<sup>$1</sup>');
+  html = html.replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>').replace(/\^(\d+\.\d+|[A-Za-z0-9]+)/g, '<sup>$1</sup>');
   html = html.replace(/\blog_?(\d+)/g, 'log<sub>$1</sub>');
   for (const [pattern, symbol] of SYMBOLS) html = html.replace(pattern, symbol);
   // Keep a complexity such as O(n log n) on one line.
