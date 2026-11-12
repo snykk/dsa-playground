@@ -1,0 +1,16 @@
+---
+/** A numbered procedure. Each child is a <Step>; numbering comes from a CSS counter. */
+---
+
+<ol class="steps"><slot /></ol>
+
+<style>
+  .steps {
+    list-style: none;
+    margin: 20px 0 24px;
+    padding: 0;
+    counter-reset: step;
+    display: grid;
+    gap: 10px;
+  }
+</style>

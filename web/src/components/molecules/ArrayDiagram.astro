@@ -1,0 +1,215 @@
+---
+import { formatInline } from '../../lib/inline';
+
+/**
+ * A static, illustrated walk-through of an array algorithm (one card per step),
+ * built from the same cell look as the visualizations.
+ *
+ * Each row gives the array values, a tone string with one character per cell
+ * (p pivot, l left part, r right part, c being compared, f final, m muted, "." none),
+ * pointer marks under cells (index -> label) and a note explaining the step.
+ */
+type ToneKey = 'p' | 'l' | 'r' | 'c' | 'f' | 'm';
+
+interface Row {
+  values: Array<number | string>;
+  tones?: string;
+  marks?: Record<number, string>;
+  label?: string;
+  note?: string;
+}
+
+interface Props {
+  rows: Row[];
+  /** Legend entries, keyed by tone character. */
+  legend?: Partial<Record<ToneKey, string>>;
+  caption?: string;
+}
+
+const TONES: Record<ToneKey, string> = { p: 'pivot', l: 'left', r: 'right', c: 'current', f: 'final', m: 'muted' };
+const toneOf = (row: Row, i: number): string | undefined => TONES[(row.tones ?? '')[i] as ToneKey];
+
+const { rows, legend, caption } = Astro.props;
+---
+
+<figure class="array-diagram">
+  {
+    legend && (
+      <ul class="legend">
+        {(Object.entries(legend) as Array<[ToneKey, string]>).map(([key, label]) => (
+          <li>
+            <span class:list={['swatch', TONES[key]]} aria-hidden="true" />
+            <span set:html={formatInline(label)} />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  <ol class="rows">
+    {
+      rows.map((row) => (
+        <li class="row">
+          {row.label && <p class="row-label" set:html={formatInline(row.label)} />}
+          <div class="cells-scroll">
+            <div class="cells" role="img" aria-label={`Array: ${row.values.join(', ')}`}>
+              {row.values.map((v, i) => (
+                <div class="slot">
+                  <span class="idx">{i}</span>
+                  <span class:list={['cell', toneOf(row, i)]}>{v}</span>
+                  <span class="mark">{row.marks?.[i] ?? ''}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {row.note && <p class="row-note" set:html={formatInline(row.note)} />}
+        </li>
+      ))
+    }
+  </ol>
+  {caption && <figcaption set:html={formatInline(caption)} />}
+</figure>
+
+<style>
+  .array-diagram {
+    margin: 20px 0 24px;
+  }
+  .legend {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin: 0 0 12px;
+    padding: 0;
+    font-size: 13.5px;
+    color: var(--text-2);
+  }
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface);
+  }
+  .rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 96px minmax(0, max-content) minmax(0, 1fr);
+    align-items: center;
+    gap: 6px 18px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .row-label {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 650;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+  }
+  .cells-scroll {
+    overflow-x: auto;
+    min-width: 0;
+  }
+  .cells {
+    display: flex;
+    gap: 4px;
+  }
+  .slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .idx,
+  .mark {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.2;
+    min-height: 1.2em;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .mark {
+    color: var(--text);
+    font-weight: 650;
+  }
+  .cell,
+  .swatch {
+    --fill: var(--surface);
+  }
+  .cell {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-strong);
+    background: var(--fill);
+    font-family: var(--font-mono);
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .pivot {
+    --fill: var(--viz-active);
+    border-color: var(--viz-active);
+    color: var(--viz-ink-on-fill);
+  }
+  .left {
+    --fill: color-mix(in srgb, var(--viz-compare) 22%, var(--surface));
+    border-color: var(--viz-compare);
+  }
+  .right {
+    --fill: var(--surface-3);
+  }
+  .current {
+    border: 2.5px solid var(--text);
+  }
+  .final {
+    --fill: var(--viz-done);
+    border-color: var(--viz-done);
+    color: var(--viz-ink-on-fill);
+  }
+  .muted {
+    opacity: 0.4;
+  }
+  .swatch {
+    background: var(--fill);
+  }
+  .swatch.current {
+    border-width: 2.5px;
+  }
+  .row-note {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--text-2);
+  }
+  .row-note :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+  figcaption {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--text-3);
+  }
+  @media (max-width: 759px) {
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

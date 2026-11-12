@@ -36,7 +36,17 @@ Handy URL parameters on any page with a visualization: `?step=40` opens the run 
 - [`src/lib/repo.ts`](src/lib/repo.ts) walks the repository at build time. A folder with `Python/`, `C++/` or `Go/` subfolders is a **topic**; any other folder with a README (or with topics below it) is a **category**. Root `README.md`, `STUDY_GUIDE.md` and `CONTRIBUTING.md` become `/overview/`, `/study-guide/` and `/contributing/`.
 - Folder names become URL slugs (`Dijkstra's_Algorithm` → `dijkstras-algorithm`, `B+ Tree` → `b-plus-tree`); the build fails on a slug collision.
 - [`src/lib/markdown.ts`](src/lib/markdown.ts) renders READMEs with Astro's Markdown pipeline (GFM, Shiki, GitHub-compatible heading ids) and rewrites links: README → page, `Python/` → that language tab, other repo files → GitHub, missing targets → a dashed red "broken link" plus a build warning.
-- READMEs stay the single source of truth. Improving a README improves the site; nothing is copied into `web/`.
+- A topic page shows its README unless the topic has a hand-written **article** (next section). On README pages, emoji are cleaned up while rendering ([`src/lib/emoji.ts`](src/lib/emoji.ts)): check / cross / warning marks become icons, decorative emoji are dropped, code is left as written.
+
+## Topic articles (pilot: Quick Sort)
+
+A topic can have an article in [`src/content/articles/`](src/content/articles/) (MDX). The article replaces the README on that topic's page and is built from components instead of rendered Markdown, in the style of a GeeksforGeeks article: comprehensive, but every section short.
+
+- **Frontmatter** (schema in [`src/lib/article.ts`](src/lib/article.ts), checked at build time): `topic` (repository folder), `title`, `lead`, `level`, `updated`, `facts` (2-6 key facts such as average / worst time), `properties` (yes/no, e.g. In-place, Stable), `prerequisites` and `related` (repository folders).
+- **Components** usable in the body without an import ([`src/components/mdx.ts`](src/components/mdx.ts)): `Steps` / `Step`, `Callout`, `DataTable`, `ComplexityTable`, `Equation`, `ArrayDiagram`, `ProsCons`, `Faq` / `FaqItem`, `BigO`, `ArticleViz` (an interactive visualization) and `TopicCode` (the Python / C++ / Go sources as tabs).
+- **Section order** for an algorithm: how it works, see it in action, a worked example, pseudocode, implementation, complexity analysis, variants and comparisons, advantages and disadvantages, applications, common mistakes, FAQ. Use `##` headings (they feed the "On this page" list); never horizontal rules or emoji.
+- **Text in component props** is plain ASCII and goes through [`src/lib/inline.ts`](src/lib/inline.ts): `` `code` ``, `**bold**`, `n^2`, `log2(n)` and `<=` / `>=` / `!=` / `->` are typeset for you. In prose, use HTML entities (`&le;`) or `<sub>` / `<sup>`.
+- Every claim must match the repository code (which partition scheme, which pivot, what the tests cover); the article is a guide to that code, not a generic text.
 
 ---
 
@@ -45,13 +55,18 @@ Handy URL parameters on any page with a visualization: `?step=40` opens the run 
 ```
 src/
   components/          Astro (server-rendered) site UI
-    atoms/             Button, Chip, Icon, IconButton, SectionTitle
-    molecules/         Breadcrumbs, Card, CardGrid, StatTile, TableOfContents, ThemeToggle
-    organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, TopicCards, Implementations, VizSection
-    templates/         BaseLayout (page shell), DocPage (topic / category / document page)
+    atoms/             Button, Chip, Icon, IconButton, SectionTitle, BigO, LevelMeter
+    molecules/         Breadcrumbs, Card, CardGrid, StatTile, TableOfContents, ThemeToggle,
+                       article blocks: Callout, Steps/Step, DataTable, ComplexityTable, Equation,
+                       ArrayDiagram, ProsCons, Faq/FaqItem, FactTile
+    organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, TopicCards, Implementations, VizSection,
+                       ArticleHeader, KeyFacts, ArticleViz, TopicCode, RelatedTopics
+    templates/         BaseLayout (page shell), DocPage (README page), ArticlePage (hand-written article)
+    mdx.ts             the components an article can use without importing them
+  content/articles/    hand-written topic articles (MDX)
   pages/               routes only: load data, pick a template
-  styles/              global CSS only: tokens, base elements, page grid, rendered README prose
-  lib/                 build-time logic: repository scan, slugs, Markdown rendering
+  styles/              global CSS only: tokens, base elements, page grid, README prose, article prose
+  lib/                 build-time logic: repository scan, slugs, Markdown rendering, article schema, inline text
   viz/
     ui/                React design system for visualizations
       atoms/           Cell, Token, Swatch, IconButton, NodeGlyph
@@ -109,7 +124,7 @@ The visualizations re-implement algorithms in TypeScript, so they are pinned to 
 ## Conventions
 
 - **ASCII-only sources** (repository rule): use `SYM` from `src/viz/ui/symbols.ts` (or `String.fromCodePoint`) for UI symbols; otherwise write them as escapes in strings (`'\u221e'`), as entities in markup (`&#x2197;`) and as CSS escapes in stylesheets (`'\2713'`).
-- **Colors are role tokens** (`--viz-compare`, `--viz-active`, `--viz-done`, ...) defined once in `src/styles/global.css` for light and dark. The three categorical roles were checked for color-vision-deficiency separation in both themes; status colors (match / mismatch) always come with a ✓ / ✕ glyph, and every visualization has a legend, so color never carries meaning alone.
+- **Colors are role tokens** (`--viz-compare`, `--viz-active`, `--viz-done`, ...) defined once in `src/styles/tokens.css` for light and dark. The three categorical roles were checked for color-vision-deficiency separation in both themes; status colors (match / mismatch) always come with a ✓ / ✕ glyph, and every visualization has a legend, so color never carries meaning alone.
 - **No external requests**: system fonts, no CDN scripts, no analytics.
 
 ---
