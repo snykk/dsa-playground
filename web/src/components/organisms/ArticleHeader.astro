@@ -7,18 +7,22 @@ import Icon from '../atoms/Icon.astro';
 import LevelMeter from '../atoms/LevelMeter.astro';
 import Breadcrumbs from '../molecules/Breadcrumbs.astro';
 
-/** Top of an article: breadcrumbs, title, lead, difficulty and dates, prerequisites and quick actions. */
+/**
+ * Top of an article: breadcrumbs, title, lead, difficulty and dates, prerequisites and quick
+ * actions. A topic shows its level; a category overview shows `stats` such as "4 topics".
+ */
 interface Props {
   node: DocNode;
   title: string;
   lead: string;
-  level: Level;
+  level?: Level;
+  stats?: string[];
   updated: Date;
   prerequisites: string[];
   hasViz: boolean;
 }
 
-const { node, title, lead, level, updated, prerequisites, hasViz } = Astro.props;
+const { node, title, lead, level, stats = [], updated, prerequisites, hasViz } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const content = getContent();
 const before = prerequisites.map((rel) => {
@@ -36,7 +40,8 @@ const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'shor
   <p class="lead" set:html={formatInline(lead)} />
 
   <div class="meta">
-    <LevelMeter level={level} />
+    {level && <LevelMeter level={level} />}
+    {stats.map((s) => <span>{s}</span>)}
     {languages && <span>{languages}</span>}
     <span class="updated">
       <Icon name="clock" size={14} />

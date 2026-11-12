@@ -1,0 +1,150 @@
+---
+category: Algorithms/String_Algorithms/Pattern_Matching
+title: Pattern Matching Algorithms
+lead: Pattern matching finds every place a pattern occurs in a text. The four algorithms here all return the same answer and differ in one step, what to do after a mismatch, which is to start over, filter by hash, reuse what matched or skip ahead.
+updated: 2026-11-12
+facts:
+  - label: Brute force
+    value: O(n*m)
+    hint: naive search, worst case
+    tone: warn
+  - label: Expected linear
+    value: O(n + m)
+    hint: Rabin-Karp, with few hash collisions
+  - label: Guaranteed linear
+    value: O(n + m)
+    hint: KMP, on every input
+  - label: Best case
+    value: O(n/m)
+    hint: Boyer-Moore skips most of the text
+contents:
+  - folder: Naive_Pattern_Search
+    note: The baseline. Try every alignment, compare left to right, and forget everything on a mismatch.
+  - folder: Rabin_Karp_Algorithm
+    note: Filter first. A rolling hash rejects most windows in O(1); only hash hits are compared character by character.
+  - folder: KMP_Algorithm
+    note: Reuse what matched. The LPS table says how far the pattern can move, so the text pointer never goes back.
+  - folder: Boyer_Moore_Algorithm
+    note: Skip ahead. Compare right to left and jump by the mismatching character, often by a whole pattern length.
+prerequisites:
+  - Data_Structures/Linear/String/String_Basics
+related:
+  - Algorithms/String_Algorithms/Advanced_String
+  - Algorithms/String_Algorithms/Advanced_String/Z_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Aho_Corasick
+  - Algorithms/String_Algorithms/Advanced_String/Suffix_Array
+---
+
+## The problem
+
+Given a text `T` of length `n` and a pattern `P` of length `m`, report every index `i` where `T[i..i+m-1] == P`. Matches may overlap: `aa` occurs in `aaaa` at `[0, 1, 2]`.
+
+All four algorithms in this section keep the same contract in Python, C++ and Go:
+
+- They return every start index, in increasing order, overlapping matches included.
+- An empty pattern, an empty text, or a pattern longer than the text returns `[]`.
+- Python indexes code points; C++ and Go index bytes, so offsets differ on non-ASCII text.
+
+What separates them is one question: after a mismatch, how much of what you already read can you reuse?
+
+## At a glance
+
+<DataTable
+  columns={['Algorithm', 'Idea', 'After a mismatch', { label: 'Worst case', kind: 'mono' }]}
+  rows={[
+    ['Naive', 'compare the pattern at every alignment, left to right', 'move one step and start over from `pattern[0]`', 'O(n*m)'],
+    ['Rabin-Karp', 'compare a rolling hash of each window before any character', 'a window whose hash differs is skipped in O(1)', 'O(n*m)'],
+    ['KMP', 'precompute the longest border of every prefix (the LPS table)', 'keep the border that is still matched; the text pointer never moves back', 'O(n + m)'],
+    ['Boyer-Moore', 'compare right to left, starting at the last pattern character', 'jump so the bad character lines up with its last occurrence in the pattern', 'O(n*m)'],
+  ]}
+/>
+
+Rabin-Karp's worst case needs many hash hits, so its expected time is O(n + m). Boyer-Moore's needs a repetitive text; on typical text with a long pattern it reads only a fraction of the characters.
+
+## See them side by side
+
+Each tab runs one algorithm and counts the character comparisons it makes. The input is `text | pattern`, so paste the same one into every tab and compare the counts. The naive search's **Worst case** example, `AAAAAAAAAAAAAAAAAAAB | AAAAB`, is a good start. In the Rabin-Karp tab, add `| mod 7` to the input to provoke spurious hash hits.
+
+<ArticleViz ids={['naive-search', 'rabin-karp', 'kmp', 'boyer-moore']} />
+
+## One mismatch, four next steps
+
+Search `ababaca` in `abababaca`. The only match is at index 2, and all four algorithms find it, but they reach it differently. With base 256 and modulus 101, as in the code here, the pattern hashes to 51.
+
+<ArrayDiagram
+  legend={{ p: 'the pattern', l: 'characters known to match', c: 'the mismatch', r: 'a window rejected by its hash', f: 'the match' }}
+  rows={[
+    { label: 'pattern', values: ['a', 'b', 'a', 'b', 'a', 'c', 'a'], tones: 'ppppppp' },
+    { label: 'Naive', values: ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'c', 'a'], tones: 'lllllc...', marks: { 0: 's' }, note: 'Left to right from `s = 0`: five characters match, then `c` meets `b` at index 5. Naive moves to `s = 1` and starts again from `pattern[0]`, which fails at once; `s = 2` is the match.' },
+    { label: 'Rabin-Karp', values: ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'c', 'a'], tones: 'rrrrrrr..', marks: { 0: 's' }, note: 'Window 0 hashes to 98 and window 1 to 85, so both are rejected without comparing a character. Window 2 hashes to 51, and seven comparisons confirm it.' },
+    { label: 'KMP', values: ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'c', 'a'], tones: '..lll....', marks: { 2: 's', 5: 'i' }, note: 'After the same mismatch, `lps[4] = 3`: the matched `ababa` ends with `aba`, which is also how the pattern starts. The pattern moves to `s = 2` with three characters already matched, and the next comparison is `pattern[3]` against `text[5]`.' },
+    { label: 'Boyer-Moore', values: ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'c', 'a'], tones: '.....cl..', marks: { 5: 'bad' }, note: 'Right to left from `s = 0`: `a = a` at index 6, then `c` meets `b` at index 5. The last `b` in the pattern is at index 3, so the shift is 5 - 3 = 2 and the next alignment is `s = 2`.' },
+    { label: 'all four', values: ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'c', 'a'], tones: '..fffffff', marks: { 2: 'match' }, note: 'Every algorithm reports `[2]`. Naive tried three alignments and Rabin-Karp compared characters at one; KMP and Boyer-Moore went from `s = 0` straight to `s = 2`.' },
+  ]}
+/>
+
+## Complexity
+
+<DataTable
+  columns={['Algorithm', { label: 'Preprocessing', kind: 'mono' }, { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Worst-case input']}
+  rows={[
+    ['Naive', 'none', 'O(n)', 'O(n*m)', 'O(1)', '`aa...ab` in `aaa...a`'],
+    ['Rabin-Karp', 'O(m)', 'O(n + m)', 'O(n*m)', 'O(1)', 'many hash hits'],
+    ['KMP', 'O(m)', 'O(n + m)', 'O(n + m)', 'O(m)', 'none'],
+    ['Boyer-Moore', 'O(m)', 'O(n/m)', 'O(n*m)', 'O(sigma)', '`baaa` in `aaa...a`'],
+  ]}
+/>
+
+Extra space excludes the list of results, and Boyer-Moore here uses the bad-character rule only. Rabin-Karp's hash hits come from real matches (`aaa` in `aaa...a` hits at every window) or from collisions. The code uses a modulus of 101 so the arithmetic stays readable, and about one window in 101 then shares the pattern's hash by chance. Every hit is verified, so the result stays correct, but a large prime keeps the running time near O(n + m).
+
+## Choosing an algorithm
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['A short pattern, or code that must stay simple', 'Naive', 'no setup, and on typical text most alignments fail after a character or two'],
+    ['A guaranteed bound, or a stream read once', 'KMP', 'O(n + m) on every input, and the text is read left to right without going back'],
+    ['Many patterns of the same length', 'Rabin-Karp', 'hash every pattern once, then look each window hash up in a set'],
+    ['A long pattern over a large alphabet, such as prose', 'Boyer-Moore', 'most alignments end after one or two comparisons, followed by a long jump'],
+    ['Many patterns of different lengths', 'Aho-Corasick', 'one pass over the text finds every pattern of the set'],
+    ['Many queries against one fixed text', 'Suffix array', 'build it once, then answer each query with binary search'],
+    ['Everyday code', 'the standard library', '`str.find`, `std::string::find` and `strings.Index` are tuned and tested'],
+  ]}
+/>
+
+## Applications
+
+- **Editors and search tools.** Find and replace, and `grep`-like scans of files.
+- **Bioinformatics.** Locating a short DNA motif in a long genome.
+- **Plagiarism and duplicate detection.** Hashing fixed-length windows, as Rabin-Karp does, to find shared passages.
+- **Network security.** Scanning traffic for known signatures, usually many at once with Aho-Corasick.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Shifting by `m` after a match.** It misses overlapping matches; all four searches here report `aa` in `aaaa` at `[0, 1, 2]`.
+- **Moving the text pointer back in KMP.** On a mismatch only `j` falls back, to `lps[j - 1]`. Resetting `i` makes the search quadratic again.
+- **Trusting a hash hit.** Different windows can share a hash, so Rabin-Karp must compare the characters before it reports a match.
+- **Calling this Boyer-Moore linear.** The bad-character rule alone is O(n*m) on inputs such as `baaa` in `aaaa...a`. The linear bound needs the good-suffix rule, which is not implemented here.
+- **Mixing empty-pattern conventions.** These searches return `[]`, while `'abc'.find('')`, `std::string::find` and `strings.Index` report index 0.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with the naive search: every other algorithm answers one of its weaknesses. Then Rabin-Karp, KMP and Boyer-Moore, as in the list above. Each of those three needs only the naive search as background, so after it any order works.
+  </FaqItem>
+  <FaqItem question="Which one is fastest?">
+    It depends on the input. Boyer-Moore usually wins on prose with a long pattern, because it reads only part of the text. KMP has the best worst case, O(n + m) on every input. Rabin-Karp pays off when you look for many patterns of one length at once, and for short patterns the naive search is often fastest in practice because it needs no setup.
+  </FaqItem>
+  <FaqItem question="What do standard libraries use?">
+    Tuned hybrids rather than one textbook algorithm. CPython's `str.find` mixes Boyer-Moore-Horspool-style skips with the two-way algorithm for long patterns, and Go's `strings.Index` switches to Rabin-Karp when its first-byte scan keeps failing on a long pattern. C++17 offers `std::boyer_moore_searcher` when you want Boyer-Moore explicitly.
+  </FaqItem>
+  <FaqItem question="How do I search for many patterns at once?">
+    If they share a length, hash them all and check each window's rolling hash against the set, as Rabin-Karp does for one pattern. Otherwise build an Aho-Corasick automaton: it extends the KMP failure links to a trie of the patterns and finds every occurrence of every pattern in one pass.
+  </FaqItem>
+  <FaqItem question="Is there another linear-time method?">
+    The Z-algorithm also runs in O(n + m): it computes the Z-array of the pattern, a separator and the text, and reports the positions where the Z-value equals `m`. Suffix arrays take the opposite trade, a slower build in exchange for fast queries against one fixed text.
+  </FaqItem>
+</Faq>

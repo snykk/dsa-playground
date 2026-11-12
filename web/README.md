@@ -36,9 +36,9 @@ Handy URL parameters on any page with a visualization: `?step=40` opens the run 
 - [`src/lib/repo.ts`](src/lib/repo.ts) walks the repository at build time. A folder with `Python/`, `C++/` or `Go/` subfolders is a **topic**; any other folder with a README (or with topics below it) is a **category**. Root `README.md`, `STUDY_GUIDE.md` and `CONTRIBUTING.md` become `/overview/`, `/study-guide/` and `/contributing/`.
 - Folder names become URL slugs (`Dijkstras_Algorithm` → `dijkstras-algorithm`, `B_Plus_Tree` → `b-plus-tree`); the build fails on a slug collision.
 - [`src/lib/markdown.ts`](src/lib/markdown.ts) renders READMEs with Astro's Markdown pipeline (GFM, Shiki, GitHub-compatible heading ids) and rewrites links: README → page, `Python/` → that language tab, other repo files → GitHub, missing targets → a dashed red "broken link" plus a build warning.
-- A topic page shows its README unless the topic has a hand-written **article** (next section).
+- A topic page shows its README unless the topic has a hand-written **article**, and a category page shows its README unless the category has a hand-written **overview** (next sections).
 
-## Topic articles (pilot: Quick Sort)
+## Topic articles
 
 A topic can have an article in [`src/content/articles/`](src/content/articles/) (MDX). The article replaces the README on that topic's page and is built from components instead of rendered Markdown, in the style of a GeeksforGeeks article: comprehensive, but every section short.
 
@@ -49,6 +49,14 @@ A topic can have an article in [`src/content/articles/`](src/content/articles/) 
 - **Section order** for an algorithm: how it works, see it in action, a worked example, pseudocode, implementation, complexity analysis, variants and comparisons, advantages and disadvantages, applications, common mistakes, FAQ. Use `##` headings (they feed the "On this page" list); never horizontal rules or emoji.
 - **Text in component props** is plain ASCII and goes through [`src/lib/inline.ts`](src/lib/inline.ts): `` `code` ``, `**bold**`, `n^2`, `log2(n)` and `<=` / `>=` / `!=` / `->` are typeset for you. In prose, use HTML entities (`&le;`) or `<sub>` / `<sup>`.
 - Every claim must match the repository code (which partition scheme, which pivot, what the tests cover); the article is a guide to that code, not a generic text.
+
+## Category overviews (pilot: Pattern Matching)
+
+A category can have an overview in [`src/content/categories/`](src/content/categories/) (MDX). It replaces the README on the category's page with the same look as an article: header, key facts, an "In this section" list of the category's topics in reading order, then a body that compares the topics instead of repeating them.
+
+- **Frontmatter** (schema in [`src/lib/category.ts`](src/lib/category.ts)): `category` (repository folder), `title`, `lead`, `updated`, `facts` (0-6), `contents` (every sub-folder exactly once, in reading order, each with an optional one-line `note`; without one the topic's own lead is shown), `prerequisites` and `related`.
+- **Checks**: `src/content/articles.test.ts` covers overviews too: the schema, a category folder, `contents` naming every sub-folder once, existing visualizations, registered components, ASCII, no horizontal rules, at least four sections, and a file named after the folder (`pattern-matching.mdx`).
+- **Section order**: the problem the topics share, an at-a-glance comparison, the topics side by side (`ArticleViz` with several ids shows them as tabs), a worked example that sets them against each other, complexity, choosing one, applications, common mistakes, FAQ.
 
 ---
 
@@ -62,13 +70,15 @@ src/
                        article blocks: Callout, Steps/Step, DataTable, ComplexityTable, Equation,
                        ArrayDiagram, ProsCons, Faq/FaqItem, FactTile
     organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, TopicCards, Implementations, VizSection,
-                       ArticleHeader, KeyFacts, ArticleViz, TopicCode, RelatedTopics
-    templates/         BaseLayout (page shell), DocPage (README page), ArticlePage (hand-written article)
+                       ArticleHeader, KeyFacts, ArticleViz, TopicCode, RelatedTopics, CategoryContents
+    templates/         BaseLayout (page shell), DocPage (README page), ArticlePage (hand-written article),
+                       CategoryPage (hand-written category overview)
     mdx.ts             the components an article can use without importing them
   content/articles/    hand-written topic articles (MDX)
+  content/categories/  hand-written category overviews (MDX)
   pages/               routes only: load data, pick a template
   styles/              global CSS only: tokens, base elements, page grid, README prose, article prose
-  lib/                 build-time logic: repository scan, slugs, Markdown rendering, article schema, inline text
+  lib/                 build-time logic: repository scan, slugs, Markdown rendering, article and category schemas, inline text
   viz/
     ui/                React design system for visualizations
       atoms/           Cell, Token, Swatch, IconButton, NodeGlyph

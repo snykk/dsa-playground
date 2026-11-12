@@ -61,3 +61,10 @@
 .article-body > :last-child {
   margin-bottom: 0;
 }
+
+/* The closing line of a topic article or a category overview. */
+.article-foot {
+  margin: 48px 0 0;
+  font-size: 14px;
+  color: var(--text-3);
+}
