@@ -93,3 +93,56 @@ func TestFFTIdentity(t *testing.T) {
 		}
 	}
 }
+
+func TestFFTKnownValues(t *testing.T) {
+	// Textbook convention: X[k] = sum a[j] e^(-2 pi i j k / n)
+	result := FFT([]complex128{1, 2, 3, 4}, false)
+	expected := []complex128{10, complex(-2, 2), -2, complex(-2, -2)}
+	for i := range expected {
+		if !complexEqual(result[i], expected[i]) {
+			t.Errorf("FFT[%d] = %v, expected %v", i, result[i], expected[i])
+		}
+	}
+}
+
+func TestFFTMatchesDirectDFT(t *testing.T) {
+	signal := []complex128{1, 2, 3, 4, 5, 6, 7, 8}
+	n := len(signal)
+	result := FFT(signal, false)
+	for k := 0; k < n; k++ {
+		var sum complex128
+		for j := 0; j < n; j++ {
+			angle := -2 * math.Pi * float64(j*k) / float64(n)
+			sum += signal[j] * complex(math.Cos(angle), math.Sin(angle))
+		}
+		if !complexEqual(result[k], sum) {
+			t.Errorf("FFT[%d] = %v, direct DFT = %v", k, result[k], sum)
+		}
+	}
+}
+
+func TestIFFTNonPowerOfTwoPanics(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Error("expected a panic for a non-power-of-two inverse")
+		}
+	}()
+	IFFT([]complex128{1, 2, 3})
+}
+
+func TestFFTEmpty(t *testing.T) {
+	if len(FFT(nil, false)) != 0 || len(IFFT(nil)) != 0 {
+		t.Error("expected empty output for empty input")
+	}
+}
+
+func TestMultiplyPolynomialsLargeCoefficients(t *testing.T) {
+	p := []int{100000, 100000}
+	product := MultiplyPolynomials(p, p)
+	expected := []int{10000000000, 20000000000, 10000000000}
+	for i := range expected {
+		if product[i] != expected[i] {
+			t.Errorf("product[%d] = %d, expected %d", i, product[i], expected[i])
+		}
+	}
+}

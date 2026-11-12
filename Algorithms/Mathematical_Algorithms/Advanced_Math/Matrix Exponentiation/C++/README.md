@@ -1,101 +1,41 @@
-# Matrix Exponentiation (C++)
+# Matrix Exponentiation -- C++ Implementation
 
-**Matrix Exponentiation** computes A^k efficiently using binary exponentiation, where A is a square matrix and k is a non-negative integer.
+Matrix multiplication, identity, recursive and iterative matrix power, and Fibonacci by matrix power on `long long` entries.
 
----
+For the concept, see the topic README: [../README.md](../README.md).
 
-## Overview
+## Files
 
-Matrix exponentiation is a powerful technique for computing high powers of matrices efficiently. It's particularly useful for solving linear recurrences, computing Fibonacci numbers, and solving dynamic programming problems.
+| File | Purpose |
+|------|---------|
+| `matrix_exponentiation.cpp` | the functions below (included by the test; no `main`) |
+| `matrix_exponentiation_test.cpp` | 14 tests: exact small powers, modulus, negative entries, a modulus above 2^32, negative exponents, modulus 0 and 1, the Fibonacci overflow guard |
 
-**Key Characteristics:**
-- Efficient: O(n³ log k) time complexity
-- Applications: Fibonacci, linear recurrences, graph paths
-- Supports modular arithmetic
+## API
 
----
+- `typedef std::vector<std::vector<long long>> Matrix`.
+- `Matrix matrixMultiply(const Matrix& A, const Matrix& B, long long mod = -1)`.
+- `Matrix matrixIdentity(int n, long long mod = -1)`.
+- `Matrix matrixPower(const Matrix& A, long long k, long long mod = -1)`: recursive; throws `std::invalid_argument` if `k < 0`.
+- `Matrix matrixPowerIterative(const Matrix& A, long long k, long long mod = -1)`: iterative; same checks.
+- `long long fibonacciMatrix(long long n, long long mod = -1)`: throws `std::invalid_argument` for `n < 0` and `std::overflow_error` for `n > 92` without a modulus.
 
-## Complexity Analysis
+## C++-Specific Notes
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **matrixMultiply** | O(n × m × p) | O(n × p) |
-| **matrixPower** | O(n³ log k) | O(n²) |
-| **matrixPowerIterative** | O(n³ log k) | O(n²) |
-| **fibonacciMatrix** | O(log n) | O(1) |
+- A modulus is applied when `mod > 0`; `-1` (the default), 0 and negative values mean no modulus.
+- With a modulus, entries are normalised into `[0, mod)` and products are accumulated in `__int128` (a GCC/Clang extension), so any modulus up to 2^63 - 1 is exact.
+- Without a modulus the arithmetic is plain `long long`; overflow in `matrixPower` is not detected.
+- `matrixPower` is recursive; the depth is about `2 log k`.
 
----
-
-## Implementation Details
-
-### Functions
-
-1. **`matrixMultiply(A, B, mod)`**
-   - Multiply two matrices A and B
-   - Optional modulus for modular arithmetic
-   - Time: O(n × m × p), Space: O(n × p)
-
-2. **`matrixPower(A, k, mod)`**
-   - Compute A^k using recursive binary exponentiation
-   - Time: O(n³ log k), Space: O(n²)
-
-3. **`matrixPowerIterative(A, k, mod)`**
-   - Compute A^k using iterative binary exponentiation
-   - Time: O(n³ log k), Space: O(n²)
-
-4. **`fibonacciMatrix(n, mod)`**
-   - Compute nth Fibonacci number using matrix exponentiation
-   - Time: O(log n), Space: O(1)
-
----
-
-## Usage
-
-```cpp
-#include "matrix_exponentiation.cpp"
-#include <vector>
-
-int main() {
-    // Compute matrix power
-    Matrix A = {{1, 1}, {1, 0}};
-    Matrix A_5 = matrixPower(A, 5);
-    
-    // Compute Fibonacci
-    long long fib_10 = fibonacciMatrix(10);
-    
-    return 0;
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Compile
-g++ -o matrix_exponentiation_test matrix_exponentiation_test.cpp
-
-# Run
-./matrix_exponentiation_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD matrix_exponentiation_test.cpp -o matrix_test
+./matrix_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ matrix_exponentiation_test.cpp -o matrix_exponentiation_test && ./matrix_exponentiation_test
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Competitive Programming" by Halim & Halim
-
----
-
-_Last Updated: December 2025_
-
+1. A 64-bit modular product needs a 128-bit intermediate once the modulus passes about 3e9.
+2. C++ `%` keeps the sign of the dividend: normalise negative entries explicitly.
+3. Reject impossible inputs (negative exponents, `F(93)` without a modulus) instead of returning garbage.

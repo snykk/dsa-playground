@@ -8,6 +8,7 @@
 #include <vector>
 #include <complex>
 #include <cmath>
+#include <stdexcept>
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -16,17 +17,33 @@ typedef std::complex<double> Complex;
 typedef std::vector<Complex> ComplexVector;
 
 /**
- * Compute Fast Fourier Transform using Cooley-Tukey algorithm
+ * Compute the Discrete Fourier Transform with the Cooley-Tukey algorithm.
+ *
+ * Convention: X[k] = sum_j a[j] * e^(-2*pi*i*j*k/n), so fft({1, 2, 3, 4}) is
+ * {10, -2+2i, -2, -2-2i} (the same as numpy.fft.fft). The inverse uses
+ * e^(+2*pi*i*j*k/n) and divides by n.
+ *
+ * A forward transform of a non-power-of-two input is zero-padded to the next
+ * power of two. The inverse requires a power-of-two length and throws
+ * std::invalid_argument otherwise.
  * Time Complexity: O(n log n)
  */
 ComplexVector fft(const ComplexVector& a, bool inverse = false) {
     int n = a.size();
-    
+
+    if (n == 0) {
+        return a;
+    }
+
+    if (inverse && (n & (n - 1)) != 0) {
+        throw std::invalid_argument("inverse FFT needs a power-of-two length");
+    }
+
     // Base case
     if (n == 1) {
         return a;
     }
-    
+
     // Ensure n is power of 2 (pad with zeros if needed)
     int next_power = 1;
     while (next_power < n) {
@@ -53,7 +70,7 @@ ComplexVector fft(const ComplexVector& a, bool inverse = false) {
     
     // Combine
     ComplexVector result(n);
-    double sign = inverse ? -1.0 : 1.0;
+    double sign = inverse ? 1.0 : -1.0;
     
     for (int k = 0; k < n / 2; k++) {
         Complex t = std::exp(Complex(0, sign * 2.0 * M_PI * k / n)) * odd_fft[k];
@@ -79,10 +96,13 @@ ComplexVector ifft(const ComplexVector& a) {
 }
 
 /**
- * Multiply two polynomials using FFT
+ * Multiply two polynomials using FFT.
+ * Coefficients are returned as long long (a product of two ints can exceed
+ * int). Double precision keeps the result exact only while the largest
+ * output coefficient stays well below 2^53 (about 9e15); see the README.
  * Time Complexity: O(n log n)
  */
-std::vector<int> multiplyPolynomials(const std::vector<int>& p, const std::vector<int>& q) {
+std::vector<long long> multiplyPolynomials(const std::vector<int>& p, const std::vector<int>& q) {
     // Pad polynomials to same length (power of 2)
     int n = 1;
     while (n < static_cast<int>(p.size() + q.size() - 1)) {
@@ -117,10 +137,10 @@ std::vector<int> multiplyPolynomials(const std::vector<int>& p, const std::vecto
     ComplexVector product = ifft(product_fft);
     
     // Round to integers (for integer coefficients)
-    std::vector<int> result;
+    std::vector<long long> result;
     int result_size = p.size() + q.size() - 1;
     for (int i = 0; i < result_size; i++) {
-        result.push_back(static_cast<int>(std::round(product[i].real())));
+        result.push_back(std::llround(product[i].real()));
     }
     
     return result;
@@ -130,7 +150,7 @@ std::vector<int> multiplyPolynomials(const std::vector<int>& p, const std::vecto
  * Compute convolution of two sequences using FFT
  * Time Complexity: O(n log n)
  */
-std::vector<int> convolve(const std::vector<int>& a, const std::vector<int>& b) {
+std::vector<long long> convolve(const std::vector<int>& a, const std::vector<int>& b) {
     return multiplyPolynomials(a, b);
 }
 

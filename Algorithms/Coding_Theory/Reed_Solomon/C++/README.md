@@ -4,16 +4,12 @@ Header-only Reed-Solomon over GF(2^8) reusing the sibling `gf256::GF256` field, 
 
 For the conceptual overview, see the parent README: [../README.md](../README.md)
 
----
-
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `reed_solomon.h` | Header-only `reed_solomon::ReedSolomon(n, k, alpha = 3, fcr = 0)` with `encode()` / `decode(received, erasures = {})`, plus `DecodeError` |
 | `reed_solomon_test.cpp` | 22 tests: errors only (incl. Voyager RS(255, 223) at 16 errors), erasures only, mixed errors + erasures, several `fcr` values, beyond-budget detection, and the shared RS(7, 5) known-codeword fixture |
-
----
 
 ## Usage
 
@@ -28,7 +24,12 @@ cw[7] ^= 0xAA; cw[11] ^= 0x55;               // + 2 errors at unknown positions
 auto msg = rs.decode(cw, {0, 1, 2, 3});      // 4 + 2*2 = 8 <= 8 -> "ABCDEFG"
 ```
 
----
+## API
+
+- `reed_solomon::ReedSolomon(int n, int k, int alpha = 3, int fcr = 0)`.
+- `encode(message)`: returns the `n`-byte systematic codeword `[parity | message]` as `std::vector<uint8_t>`.
+- `decode(received, erasures = {})`: returns the `k` message bytes; throws `DecodeError` (a `std::runtime_error`) when the damage exceeds the budget and `std::invalid_argument` for malformed input.
+- `reed_solomon::DecodeError`.
 
 ## C++-Specific Notes
 
@@ -41,8 +42,6 @@ auto msg = rs.decode(cw, {0, 1, 2, 3});      // 4 + 2*2 = 8 <= 8 -> "ABCDEFG"
 - **Exponents are reduced mod 255** (`expMod`) before `gf.pow`, so any `fcr` value, even a large or negative one, is safe from integer overflow.
 - **All ops on `std::vector<uint8_t>`** -- low-degree-first polynomial storage, matches the Python sibling byte-for-byte.
 
----
-
 ## How to Run
 
 ```bash
@@ -50,9 +49,7 @@ g++ -std=c++17 -O2 -Wall reed_solomon_test.cpp -o reed_solomon_test
 ./reed_solomon_test
 ```
 
----
-
-## Key Takeaways for Learners
+## Key Takeaways
 
 1. **Primitive-element selection is silent if you get it wrong.** Code passes RS(15, 11) tests, then mysteriously fails RS(255, 223). The right answer is to verify `order(alpha)` equals `FIELD_ORDER` (255) before using it.
 2. **Reuse, don't reimplement, the GF layer.** The C++ RS class delegates every byte operation to `gf256::shared()` -- the singleton GF instance. This guarantees the encoder and decoder use bit-identical arithmetic.

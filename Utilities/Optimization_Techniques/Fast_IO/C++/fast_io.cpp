@@ -5,7 +5,10 @@
  * operations which can be crucial for time-sensitive problems.
  */
 
-#include <bits/stdc++.h>
+#include <cstdio>
+#include <iostream>
+#include <string>
+#include <vector>
 using namespace std;
 
 // Basic Fast I/O
@@ -25,34 +28,36 @@ void fastIO() {
 
 /**
  * Ultra-fast integer reader using getchar()
- * Faster than cin for large inputs
+ * Faster than cin for large inputs.
+ * The character is kept in an int so that EOF (-1) is never confused with a
+ * data byte. At end of input readInt returns 0 instead of looping forever.
  */
 inline int readInt() {
     int x = 0, f = 1;
-    char c = getchar();
-    while (c < '0' || c > '9') {
+    int c = getchar();
+    while (c != EOF && (c < '0' || c > '9')) {
         if (c == '-') f = -1;
         c = getchar();
     }
     while (c >= '0' && c <= '9') {
-        x = x * 10 + c - '0';
+        x = x * 10 + (c - '0');
         c = getchar();
     }
     return x * f;
 }
 
 /**
- * Fast long long reader
+ * Fast long long reader (returns 0 at end of input)
  */
 inline long long readLong() {
     long long x = 0, f = 1;
-    char c = getchar();
-    while (c < '0' || c > '9') {
+    int c = getchar();
+    while (c != EOF && (c < '0' || c > '9')) {
         if (c == '-') f = -1;
         c = getchar();
     }
     while (c >= '0' && c <= '9') {
-        x = x * 10 + c - '0';
+        x = x * 10 + (c - '0');
         c = getchar();
     }
     return x * f;
@@ -61,27 +66,37 @@ inline long long readLong() {
 // Custom Fast Integer Write
 
 /**
- * Ultra-fast integer writer using putchar()
+ * Writes the decimal digits of u with putchar().
  */
-inline void writeInt(int x) {
-    if (x < 0) {
-        putchar('-');
-        x = -x;
-    }
-    if (x > 9) writeInt(x / 10);
-    putchar(x % 10 + '0');
+inline void writeUnsigned(unsigned long long u) {
+    if (u > 9) writeUnsigned(u / 10);
+    putchar(static_cast<int>(u % 10) + '0');
 }
 
 /**
- * Fast long long writer
+ * Ultra-fast integer writer using putchar().
+ * The magnitude is computed in unsigned arithmetic, so INT_MIN works
+ * (negating INT_MIN as an int is undefined behaviour).
  */
-inline void writeLong(long long x) {
+inline void writeInt(int x) {
+    unsigned long long u = static_cast<unsigned long long>(x);
     if (x < 0) {
         putchar('-');
-        x = -x;
+        u = 0ULL - u;
     }
-    if (x > 9) writeLong(x / 10);
-    putchar(x % 10 + '0');
+    writeUnsigned(u);
+}
+
+/**
+ * Fast long long writer (works for LLONG_MIN)
+ */
+inline void writeLong(long long x) {
+    unsigned long long u = static_cast<unsigned long long>(x);
+    if (x < 0) {
+        putchar('-');
+        u = 0ULL - u;
+    }
+    writeUnsigned(u);
 }
 
 // Buffered I/O
@@ -91,52 +106,55 @@ inline void writeLong(long long x) {
  */
 class FastInput {
     static const int BUFFER_SIZE = 1 << 20;  // 1 MB buffer
-    char buffer[BUFFER_SIZE];
+    // On the heap: two 1 MB arrays as locals would put 2 MB on the stack.
+    vector<char> buffer = vector<char>(BUFFER_SIZE);
     int pos = 0, len = 0;
-    
-    inline char nextChar() {
+
+    // Returns the next byte (0..255) or EOF (-1); an int so the two never mix.
+    inline int nextChar() {
         if (pos == len) {
-            len = fread(buffer, 1, BUFFER_SIZE, stdin);
+            len = static_cast<int>(fread(buffer.data(), 1, BUFFER_SIZE, stdin));
             pos = 0;
         }
-        return pos < len ? buffer[pos++] : EOF;
+        return pos < len ? static_cast<unsigned char>(buffer[pos++]) : EOF;
     }
-    
+
 public:
+    // At end of input the readers return 0 (readString returns "").
     inline int readInt() {
         int x = 0, f = 1;
-        char c = nextChar();
-        while (c < '0' || c > '9') {
+        int c = nextChar();
+        while (c != EOF && (c < '0' || c > '9')) {
             if (c == '-') f = -1;
             c = nextChar();
         }
         while (c >= '0' && c <= '9') {
-            x = x * 10 + c - '0';
+            x = x * 10 + (c - '0');
             c = nextChar();
         }
         return x * f;
     }
-    
+
     inline long long readLong() {
         long long x = 0, f = 1;
-        char c = nextChar();
-        while (c < '0' || c > '9') {
+        int c = nextChar();
+        while (c != EOF && (c < '0' || c > '9')) {
             if (c == '-') f = -1;
             c = nextChar();
         }
         while (c >= '0' && c <= '9') {
-            x = x * 10 + c - '0';
+            x = x * 10 + (c - '0');
             c = nextChar();
         }
         return x * f;
     }
-    
+
     inline string readString() {
         string s;
-        char c = nextChar();
-        while (c <= ' ') c = nextChar();
-        while (c > ' ') {
-            s += c;
+        int c = nextChar();
+        while (c != EOF && c <= ' ') c = nextChar();
+        while (c != EOF && c > ' ') {
+            s += static_cast<char>(c);
             c = nextChar();
         }
         return s;
@@ -148,11 +166,11 @@ public:
  */
 class FastOutput {
     static const int BUFFER_SIZE = 1 << 20;  // 1 MB buffer
-    char buffer[BUFFER_SIZE];
+    vector<char> buffer = vector<char>(BUFFER_SIZE);  // heap, not stack
     int pos = 0;
     
     inline void flushBuffer() {
-        fwrite(buffer, 1, pos, stdout);
+        fwrite(buffer.data(), 1, pos, stdout);
         pos = 0;
     }
     
@@ -166,34 +184,36 @@ public:
         buffer[pos++] = c;
     }
     
-    inline void writeInt(int x) {
-        if (x < 0) {
-            writeChar('-');
-            x = -x;
-        }
-        char tmp[12];
-        int len = 0;
-        do {
-            tmp[len++] = x % 10 + '0';
-            x /= 10;
-        } while (x);
-        while (len--) writeChar(tmp[len]);
-    }
-    
-    inline void writeLong(long long x) {
-        if (x < 0) {
-            writeChar('-');
-            x = -x;
-        }
+    inline void writeUnsigned(unsigned long long u) {
         char tmp[20];
         int len = 0;
         do {
-            tmp[len++] = x % 10 + '0';
-            x /= 10;
-        } while (x);
+            tmp[len++] = static_cast<char>(u % 10 + '0');
+            u /= 10;
+        } while (u);
         while (len--) writeChar(tmp[len]);
     }
-    
+
+    // Magnitudes are computed in unsigned arithmetic, so INT_MIN and
+    // LLONG_MIN are written correctly.
+    inline void writeInt(int x) {
+        unsigned long long u = static_cast<unsigned long long>(x);
+        if (x < 0) {
+            writeChar('-');
+            u = 0ULL - u;
+        }
+        writeUnsigned(u);
+    }
+
+    inline void writeLong(long long x) {
+        unsigned long long u = static_cast<unsigned long long>(x);
+        if (x < 0) {
+            writeChar('-');
+            u = 0ULL - u;
+        }
+        writeUnsigned(u);
+    }
+
     inline void writeString(const string& s) {
         for (char c : s) writeChar(c);
     }
@@ -266,6 +286,7 @@ void demoBufferedIO() {
     fout.flush();
 }
 
+#ifndef IS_TEST_BUILD
 int main() {
     // Choose one method based on problem requirements
     
@@ -276,4 +297,4 @@ int main() {
     
     return 0;
 }
-
+#endif  // IS_TEST_BUILD
