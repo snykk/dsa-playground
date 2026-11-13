@@ -1,0 +1,150 @@
+/* Linked nodes: boxes, pointer arrows, named references and row labels. */
+.chain-view-wrap {
+  overflow-x: auto;
+}
+.chain-view {
+  display: block;
+  margin: 0 auto;
+}
+
+.chain-view .c-box rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 2;
+  transition: fill 0.2s ease;
+}
+.chain-view .c-box.role-idle rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 2;
+}
+.chain-view .c-box.role-muted rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 4 3;
+}
+.chain-view .c-box.slot.role-idle rect {
+  fill: var(--surface-2);
+}
+.chain-view .c-box.sentinel rect {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 4 3;
+}
+.chain-view .c-box.ghost {
+  opacity: 0.35;
+}
+.chain-view .c-box.role-active rect,
+.chain-view .c-box.role-good rect,
+.chain-view .c-box.role-bad rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.4s ease;
+}
+
+.chain-view .c-label {
+  fill: var(--viz-ink-on-fill);
+  font-size: 14px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.chain-view .c-box.role-idle .c-label,
+.chain-view .c-box.role-muted .c-label,
+.chain-view .c-box.sentinel .c-label {
+  fill: var(--text);
+}
+.chain-view .c-box.sentinel .c-label,
+.chain-view .c-box.role-muted .c-label {
+  fill: var(--text-2);
+  font-weight: 600;
+  font-size: 12px;
+}
+.chain-view .c-badge {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  text-anchor: start;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chain-view .c-link,
+.chain-view .c-link line {
+  stroke: var(--viz-neutral);
+  stroke-width: 2;
+  fill: none;
+  transition: stroke 0.25s ease, stroke-width 0.25s ease;
+}
+.chain-view .c-link.role-compare,
+.chain-view .c-link.role-active,
+.chain-view .c-link.role-done,
+.chain-view .c-link.role-compare line,
+.chain-view .c-link.role-active line,
+.chain-view .c-link.role-done line {
+  stroke: var(--role);
+  stroke-width: 3;
+}
+.chain-view .c-link.role-compare,
+.chain-view .c-link.role-compare line {
+  stroke-dasharray: 8 5;
+  animation: viz-march 0.8s linear infinite;
+}
+.chain-view .c-link.role-muted,
+.chain-view .c-link.role-muted line {
+  stroke: var(--axis);
+  stroke-dasharray: 3 4;
+}
+.chain-view .c-link.ghost {
+  opacity: 0.35;
+}
+.chain-view .c-null {
+  fill: var(--text-2);
+  stroke: none;
+  font-size: 11px;
+  font-style: italic;
+  dominant-baseline: central;
+}
+
+.chain-view .c-ptr text {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+}
+.chain-view .c-ptr:not(.role-idle) text {
+  fill: var(--role);
+}
+.chain-view .c-ptr line {
+  stroke: var(--viz-neutral);
+  stroke-width: 2;
+}
+.chain-view .c-ptr:not(.role-idle):not(.role-muted) line {
+  stroke: var(--role);
+}
+
+.chain-view .c-lane {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  text-anchor: end;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.chain-view .c-lane:not(.role-idle):not(.role-muted) {
+  fill: var(--role);
+  font-weight: 700;
+}
+
+.chain-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
