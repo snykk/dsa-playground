@@ -63,6 +63,12 @@ What separates the four kinds is the shape of the links:
 
 The circular list is O(n) at the head because it must update the tail's link, and the code finds the tail by walking from the head. The skip list inserts a key at its sorted position, so it has no head or tail insert.
 
+## See them side by side
+
+The first three tabs share one input, and its first example is the sequence of the next section, so switch tabs to watch the same operations on each list; the skip list tab takes keys and a seed for its coin flips instead.
+
+<ArticleViz ids={['singly-linked-list', 'doubly-linked-list', 'circular-linked-list', 'skip-list']} />
+
 ## One sequence, three lists
 
 Insert `1`, `2` and `3` at the head, insert `4` at the tail, then delete the value `3`. These results come from running the Python versions.
