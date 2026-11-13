@@ -9,14 +9,14 @@ export const entries: VizInfo[] = [
     title: 'Dynamic Array',
     group: 'Linear Structures',
     blurb: 'Append doubles the capacity when the array is full and pop halves it at a quarter full: watch every element a resize copies.',
-    topics: ['Data_Structures/Linear/Array'],
+    topics: ['Data_Structures/Linear/Array', 'Data_Structures/Linear'],
   },
   {
     id: 'singly-linked-list',
     title: 'Singly Linked List',
     group: 'Linear Structures',
     blurb: 'Insert at the head with two pointer writes, walk to the tail, and unlink a value with prev and curr.',
-    topics: ['Data_Structures/Linear/Linked_List/Singly', 'Data_Structures/Linear/Linked_List'],
+    topics: ['Data_Structures/Linear/Linked_List/Singly', 'Data_Structures/Linear/Linked_List', 'Data_Structures/Linear'],
   },
   {
     id: 'doubly-linked-list',
@@ -46,7 +46,7 @@ export const entries: VizInfo[] = [
     title: 'Static Array Stack',
     group: 'Linear Structures',
     blurb: 'A fixed array and a top index: push and pop move only top, and a push onto a full stack raises OverflowError.',
-    topics: ['Data_Structures/Linear/Stack/Static_Array_Stack', 'Data_Structures/Linear/Stack'],
+    topics: ['Data_Structures/Linear/Stack/Static_Array_Stack', 'Data_Structures/Linear/Stack', 'Data_Structures/Linear'],
   },
   {
     id: 'dynamic-array-stack',
@@ -74,7 +74,7 @@ export const entries: VizInfo[] = [
     title: 'Circular Queue',
     group: 'Linear Structures',
     blurb: 'A fixed array used as a ring: front and rear wrap around with % capacity, and -1 marks an empty queue.',
-    topics: ['Data_Structures/Linear/Queue/Circular_Queue', 'Data_Structures/Linear/Queue'],
+    topics: ['Data_Structures/Linear/Queue/Circular_Queue', 'Data_Structures/Linear/Queue', 'Data_Structures/Linear'],
   },
   {
     id: 'deque',
@@ -97,7 +97,7 @@ export const entries: VizInfo[] = [
     title: 'String Basics',
     group: 'Linear Structures',
     blurb: 'Index, measure, traverse, slice and concatenate: s[i] raises out of range, a slice clamps its bounds, and s + t copies both strings.',
-    topics: ['Data_Structures/Linear/String/String_Basics', 'Data_Structures/Linear/String'],
+    topics: ['Data_Structures/Linear/String/String_Basics', 'Data_Structures/Linear/String', 'Data_Structures/Linear'],
   },
   {
     id: 'string-reverse',
