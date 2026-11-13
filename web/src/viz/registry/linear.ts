@@ -41,6 +41,55 @@ export const entries: VizInfo[] = [
   },
 
   // Stacks and queues
+  {
+    id: 'static-array-stack',
+    title: 'Static Array Stack',
+    group: 'Linear Structures',
+    blurb: 'A fixed array and a top index: push and pop move only top, and a push onto a full stack raises OverflowError.',
+    topics: ['Data_Structures/Linear/Stack/Static_Array_Stack', 'Data_Structures/Linear/Stack'],
+  },
+  {
+    id: 'dynamic-array-stack',
+    title: 'Dynamic Array Stack',
+    group: 'Linear Structures',
+    blurb: "A Python list underneath: watch CPython's allocated slots grow by a factor and shrink when under half full.",
+    topics: ['Data_Structures/Linear/Stack/Dynamic_Array_Stack', 'Data_Structures/Linear/Stack'],
+  },
+  {
+    id: 'linked-list-stack',
+    title: 'Linked List Stack',
+    group: 'Linear Structures',
+    blurb: 'Push links a new node in front of top and pop moves top to the next node: no capacity, no copying.',
+    topics: ['Data_Structures/Linear/Stack/Linked_List_Stack', 'Data_Structures/Linear/Stack'],
+  },
+  {
+    id: 'simple-queue',
+    title: 'Simple Queue',
+    group: 'Linear Structures',
+    blurb: 'Enqueue appends at the back; dequeue is pop(0), so every remaining item shifts one slot left.',
+    topics: ['Data_Structures/Linear/Queue/Simple_Queue', 'Data_Structures/Linear/Queue'],
+  },
+  {
+    id: 'circular-queue',
+    title: 'Circular Queue',
+    group: 'Linear Structures',
+    blurb: 'A fixed array used as a ring: front and rear wrap around with % capacity, and -1 marks an empty queue.',
+    topics: ['Data_Structures/Linear/Queue/Circular_Queue', 'Data_Structures/Linear/Queue'],
+  },
+  {
+    id: 'deque',
+    title: 'Deque',
+    group: 'Linear Structures',
+    blurb: 'Push and pop at both ends of a Python list: the back is O(1), the front shifts every item.',
+    topics: ['Data_Structures/Linear/Queue/Deque', 'Data_Structures/Linear/Queue'],
+  },
+  {
+    id: 'priority-queue',
+    title: 'Priority Queue (heapq)',
+    group: 'Linear Structures',
+    blurb: 'A binary min heap of (priority, count, item) entries: sift-up on enqueue, sift-down on dequeue, ties in arrival order.',
+    topics: ['Data_Structures/Linear/Queue/Priority_Queue', 'Data_Structures/Linear/Queue'],
+  },
 
   // Strings
 ];
@@ -54,6 +103,13 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'skip-list': () => import('../specs/skipList').then((m) => m.skipList),
 
   // Stacks and queues
+  'static-array-stack': () => import('../specs/stack').then((m) => m.staticArrayStack),
+  'dynamic-array-stack': () => import('../specs/stack').then((m) => m.dynamicArrayStack),
+  'linked-list-stack': () => import('../specs/stack').then((m) => m.linkedListStack),
+  'simple-queue': () => import('../specs/queue').then((m) => m.simpleQueue),
+  'circular-queue': () => import('../specs/queue').then((m) => m.circularQueue),
+  deque: () => import('../specs/queue').then((m) => m.deque),
+  'priority-queue': () => import('../specs/priorityQueue').then((m) => m.priorityQueue),
 
   // Strings
 };

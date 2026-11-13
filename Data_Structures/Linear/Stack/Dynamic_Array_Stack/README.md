@@ -59,7 +59,7 @@ Empty-stack behaviour differs: Python raises `IndexError`, C++ throws `std::out_
 | pop, peek | O(1) | only the last slot is touched |
 | search | O(n) | only the top is directly reachable |
 
-Why amortized: with doubling, n pushes copy 1 + 2 + 4 + ... up to at most n items, a geometric series below 2n. With the n plain writes the total is under 3n, so under 3 operations per push. Growing by a fixed amount (for example 10 slots) would make the copies add up to about n^2 / 20, so the growth must be by a constant factor. None of the implementations shrinks the array on pop.
+Why amortized: with doubling, n pushes copy 1 + 2 + 4 + ... up to at most n items, a geometric series below 2n. With the n plain writes the total is under 3n, so under 3 operations per push. Growing by a fixed amount (for example 10 slots) would make the copies add up to about n^2 / 20, so the growth must be by a constant factor. On pop, C++ (`vector::pop_back`) and Go (reslicing) never shrink the array; CPython's `list.pop` does, once fewer than half of the allocated slots are in use.
 
 Space is O(n); the unused capacity is a constant factor of the size.
 

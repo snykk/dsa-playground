@@ -1,0 +1,114 @@
+/* ArrayTrack organism: array slots, the items gliding over them and the index pointers under them. */
+.track-wrap {
+  overflow-x: auto;
+}
+.track {
+  position: relative;
+  margin: 0 auto;
+  font-family: var(--font-mono);
+}
+
+.track-block,
+.track-item,
+.track-ptr,
+.track-parking {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.track-block,
+.track-item,
+.track-ptr {
+  transition:
+    transform 0.38s ease,
+    opacity 0.25s ease;
+}
+.track-block.ghost,
+.track-item.ghost {
+  opacity: 0.35;
+}
+.track-item {
+  z-index: 1;
+}
+
+/* An empty slot: holds None (solid) or is spare capacity (dashed). */
+.track-slot {
+  position: absolute;
+  top: 0;
+  box-sizing: border-box;
+  width: 30px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--grid);
+  border-radius: 6px;
+  background: var(--viz-surface);
+  color: var(--text-3);
+  font-size: 9px;
+  transition: border-color 0.2s ease;
+}
+.track-slot.spare {
+  border: 1px dashed var(--axis);
+  background: transparent;
+}
+.track-slot.role-compare,
+.track-slot.role-active,
+.track-slot.role-done,
+.track-slot.role-good,
+.track-slot.role-bad {
+  border: 2px solid var(--role);
+}
+/* A slot a call wanted but that does not exist (an empty list's index 0, no free slot). */
+.track-slot.missing {
+  left: 0;
+  border: 2px dashed var(--role);
+  background: transparent;
+}
+
+.track-index {
+  position: absolute;
+  width: 30px;
+  height: 14px;
+  text-align: center;
+  font: 11px var(--font-sans);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+.track-parking {
+  opacity: 0.7;
+}
+.track-label {
+  position: absolute;
+  top: 0;
+  height: 32px;
+  line-height: 32px;
+  text-align: right;
+  font: 12px var(--font-sans);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.track-ptr {
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font: 700 12px var(--font-sans);
+  line-height: 13px;
+  color: var(--text-2);
+}
+.track-ptr:not(.role-idle) {
+  color: var(--role);
+}
+.track-arrow {
+  height: 12px;
+  line-height: 12px;
+  font-size: 12px;
+}
+
+.track-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}

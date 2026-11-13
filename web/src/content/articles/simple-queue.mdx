@@ -48,6 +48,12 @@ The repository stores the items in a growable array: a Python `list`, a C++ `std
 Items leave in exactly the order they arrived. `enqueue` only ever touches the back and `dequeue` and `peek` only ever touch the front, so no operation can reorder the line.
 </Callout>
 
+## See it in action
+
+Every dequeue here is Python's `pop(0)`: watch the remaining items slide one slot left while the move counter in the state panel adds up. **Long line** makes the shifting cost easy to see.
+
+<ArticleViz ids={['simple-queue']} />
+
 ## Operations
 
 <DataTable
