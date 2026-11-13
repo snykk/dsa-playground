@@ -123,7 +123,8 @@ input text ──parse──▶ input ──trace──▶ Frame[] ──▶ Pla
 - **Tracers** live in [`src/viz/algorithms/`](src/viz/algorithms/) and are plain TypeScript, so they are unit-tested without a browser.
 - **Renderers** (organisms) are shared across topics and built from `viz/ui` atoms:
   - arrays: `ArrayBars` (sorting), `SearchBars`, `ArrayScene`, `BucketScene`, `DynamicArrayView` (a block that doubles and shrinks), `ArrayTrack` (stacks and queues on a Python list);
-  - linked structures: `ChainView` (nodes, pointers and named references: the linked lists, the linked stack, skip-list levels), `RingBuffer` (the circular queue), `HeapView` (a binary heap as a tree and an array at once);
+  - linked structures: `ChainView` (nodes, pointers and named references: the linked lists, the linked stack, skip-list levels, hash buckets and their chains, the LRU and LFU lists), `RingBuffer` (the circular queue), `HeapView` (a binary heap as a tree and an array at once);
+  - hashing: `OpenAddressingTable` (slots, tombstones and a marker that slides along the probe sequence), `BloomBitArray` (the bit array and the k positions of an item);
   - trees and graphs: `TreeView` (BST / AVL, with animated rotations), `ForestView` (union-find), `RopeView`, `GraphView` (BFS / DFS / Dijkstra);
   - tables and text: `Grid` (DP tables), `GridMap`, `IntervalTimeline`, `KnapsackFill`, `StringMatch` (KMP), `StringScan`, `StringOpsView` (string operations), `ByteRows` (Reed-Solomon).
 - [`src/viz/registry/`](src/viz/registry/) holds one file per area with its catalog entries (which repository folders show which visualization) and its loaders (code-split, so a page only downloads what it shows). [`catalog.ts`](src/viz/catalog.ts) and [`loaders.ts`](src/viz/loaders.ts) merge them.
@@ -143,7 +144,7 @@ input text ──parse──▶ input ──trace──▶ Frame[] ──▶ Pla
 The visualizations re-implement algorithms in TypeScript, so they are pinned to the repository implementations:
 
 - **Brute-force differential tests** for every tracer (sorting vs. the built-in sort, KMP vs. naive search, LCS and knapsack vs. exhaustive search, AVL invariants after random operations...).
-- **Golden fixtures**: each `scripts/gen_<area>_fixtures.py` runs the repository's Python implementation on fixed inputs and writes `src/viz/algorithms/__fixtures__/<area>.json`, for example every Reed-Solomon codeword ([`gen_rs_fixtures.py`](scripts/gen_rs_fixtures.py)) or the state of a list, stack, queue or rope after every operation. The TypeScript ports must reproduce every value. CI regenerates every file and fails if one changes.
+- **Golden fixtures**: each `scripts/gen_<area>_fixtures.py` runs the repository's Python implementation on fixed inputs and writes `src/viz/algorithms/__fixtures__/<area>.json`, for example every Reed-Solomon codeword ([`gen_rs_fixtures.py`](scripts/gen_rs_fixtures.py)), the state of a list, stack, queue, rope, hash table or cache after every operation, or the MD5 positions of the Bloom filter. The TypeScript ports must reproduce every value. CI regenerates every file and fails if one changes.
 
 ---
 
