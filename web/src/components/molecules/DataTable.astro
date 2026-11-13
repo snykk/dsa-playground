@@ -1,0 +1,149 @@
+---
+import { formatInline } from '../../lib/inline';
+import Icon from '../atoms/Icon.astro';
+
+/**
+ * A designed table for article data: comparisons, properties, dry runs.
+ * Cells are plain ASCII run through formatInline (`code`, **bold**, n^2, <=).
+ */
+interface Column {
+  label: string;
+  align?: 'left' | 'center' | 'right';
+  /** "mono": code-like values (complexities). "yesno": a leading Yes/No gets a check or cross icon. */
+  kind?: 'text' | 'mono' | 'yesno';
+}
+
+interface Props {
+  columns: Array<string | Column>;
+  rows: string[][];
+  caption?: string;
+  /** Show the first cell of each row as a row header. */
+  rowHeaders?: boolean;
+  /** Index of a row to emphasise (e.g. the topic itself in a comparison). */
+  highlight?: number;
+}
+
+const { columns, rows, caption, rowHeaders = true, highlight } = Astro.props;
+const cols: Column[] = columns.map((c) => (typeof c === 'string' ? { label: c } : c));
+const yesNo = (cell: string): 'yes' | 'no' | undefined => (/^yes\b/i.test(cell) ? 'yes' : /^no\b/i.test(cell) ? 'no' : undefined);
+---
+
+<figure class="data-table">
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr>
+          {cols.map((c) => <th scope="col" class={c.align ?? 'left'}>{c.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row, r) => (
+            <tr class:list={{ highlight: r === highlight }}>
+              {row.map((cell, i) => {
+                const col = cols[i] ?? { label: '' };
+                const cls = [col.align ?? 'left', { mono: col.kind === 'mono' }];
+                const mark = col.kind === 'yesno' ? yesNo(cell) : undefined;
+                const body = mark ? (
+                  <span class:list={['yn', mark]}>
+                    <Icon name={mark === 'yes' ? 'check' : 'cross'} size={16} />
+                    <span set:html={formatInline(cell)} />
+                  </span>
+                ) : (
+                  <Fragment set:html={formatInline(cell)} />
+                );
+                return i === 0 && rowHeaders ? (
+                  <th scope="row" class:list={cls}>
+                    {body}
+                  </th>
+                ) : (
+                  <td class:list={cls}>{body}</td>
+                );
+              })}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  {caption && <figcaption set:html={formatInline(caption)} />}
+</figure>
+
+<style>
+  .data-table {
+    margin: 20px 0 24px;
+  }
+  .scroll {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  th,
+  td {
+    padding: 11px 14px;
+    vertical-align: top;
+  }
+  .left {
+    text-align: left;
+  }
+  .center {
+    text-align: center;
+  }
+  .right {
+    text-align: right;
+  }
+  thead th {
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  tbody tr + tr > * {
+    border-top: 1px solid var(--border);
+  }
+  tbody th {
+    font-weight: 650;
+  }
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  tr.highlight > * {
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  }
+  .yn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .yn.yes :global(svg) {
+    color: var(--viz-good);
+  }
+  .yn.no :global(svg) {
+    color: var(--viz-bad);
+  }
+  td :global(code),
+  th :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    padding: 0.1em 0.35em;
+    border-radius: 5px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  figcaption {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--text-3);
+  }
+</style>

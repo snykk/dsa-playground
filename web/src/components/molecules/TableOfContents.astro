@@ -1,0 +1,64 @@
+---
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
+
+/** "On this page" list from the README's h2/h3 headings; hidden on narrower screens. */
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+---
+
+<aside class="toc" aria-label="On this page">
+  <h2>On this page</h2>
+  <ol>
+    {
+      headings.map((h) => (
+        <li class={`depth-${h.depth}`}>
+          <a href={`#${h.slug}`}>{h.text.replace(/^[^\p{L}\p{N}]+/u, '')}</a>
+        </li>
+      ))
+    }
+  </ol>
+</aside>
+
+<style>
+  .toc {
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    overflow-y: auto;
+    padding: 28px 16px;
+    font-size: 13px;
+  }
+  h2 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    margin: 0 0 8px;
+  }
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    margin: 4px 0;
+  }
+  li.depth-3 {
+    padding-left: 12px;
+  }
+  a {
+    color: var(--text-2);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--link);
+  }
+  @media (max-width: 1279px) {
+    .toc {
+      display: none;
+    }
+  }
+</style>

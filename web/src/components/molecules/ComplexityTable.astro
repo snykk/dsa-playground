@@ -1,0 +1,132 @@
+---
+import { formatInline } from '../../lib/inline';
+
+/**
+ * Best / average / worst case cards: each case gets a colored tag, its bound in
+ * monospace and one sentence on when it happens.
+ */
+interface Row {
+  case: string;
+  time: string;
+  space?: string;
+  when: string;
+}
+
+interface Props {
+  rows: Row[];
+  caption?: string;
+}
+
+const { rows, caption } = Astro.props;
+const tone = (label: string) => (/best/i.test(label) ? 'best' : /worst/i.test(label) ? 'worst' : /aver|expect/i.test(label) ? 'average' : 'other');
+---
+
+<figure class="complexity">
+  <ul class="cases">
+    {
+      rows.map((r) => (
+        <li class:list={['case', tone(r.case)]}>
+          <div class="case-head">
+            <span class="case-tag">
+              <span class="dot" aria-hidden="true" />
+              {r.case}
+            </span>
+            <span class="case-time" set:html={formatInline(r.time)} />
+            {r.space && (
+              <span class="case-space">
+                space <span class="mono" set:html={formatInline(r.space)} />
+              </span>
+            )}
+          </div>
+          <p class="case-when" set:html={formatInline(r.when)} />
+        </li>
+      ))
+    }
+  </ul>
+  {caption && <figcaption set:html={formatInline(caption)} />}
+</figure>
+
+<style>
+  .complexity {
+    margin: 20px 0 24px;
+  }
+  .cases {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .case {
+    --tone: var(--viz-neutral);
+    display: grid;
+    grid-template-columns: minmax(150px, 210px) minmax(0, 1fr);
+    gap: 4px 20px;
+    align-items: start;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .case.best {
+    --tone: var(--viz-done);
+  }
+  .case.average {
+    --tone: var(--viz-compare);
+  }
+  .case.worst {
+    --tone: var(--viz-active);
+  }
+  .case-head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .case-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--tone);
+  }
+  .case-time {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 650;
+  }
+  .case-space {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .mono {
+    font-family: var(--font-mono);
+  }
+  .case-when {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 15px;
+    line-height: 1.6;
+    align-self: center;
+  }
+  .case-when :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+  figcaption {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--text-3);
+  }
+  @media (max-width: 599px) {
+    .case {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

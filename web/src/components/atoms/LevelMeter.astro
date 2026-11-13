@@ -1,0 +1,40 @@
+---
+/** Difficulty of a topic as three rising bars plus the word, e.g. "Intermediate". */
+import type { Level } from '../../lib/article';
+
+interface Props {
+  level: Level;
+}
+
+const { level } = Astro.props;
+const filled = { Beginner: 1, Intermediate: 2, Advanced: 3 }[level];
+---
+
+<span class="level">
+  <span class="bars" aria-hidden="true">
+    {[1, 2, 3].map((k) => <span class:list={['bar', { on: k <= filled }]} style={`height: ${3 + k * 3}px`} />)}
+  </span>
+  {level}
+</span>
+
+<style>
+  .level {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bars {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+  }
+  .bar {
+    width: 4px;
+    border-radius: 1px;
+    background: var(--axis);
+  }
+  .bar.on {
+    background: var(--accent);
+  }
+</style>

@@ -1,0 +1,56 @@
+---
+import { formatInline } from '../../lib/inline';
+
+/** One step of a <Steps> list: a short title plus an explanation (markdown in MDX). */
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<li class="step">
+  <p class="step-title" set:html={formatInline(title)} />
+  <div class="step-body"><slot /></div>
+</li>
+
+<style>
+  .step {
+    counter-increment: step;
+    position: relative;
+    padding: 14px 18px 14px 62px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .step::before {
+    content: counter(step);
+    position: absolute;
+    left: 18px;
+    top: 14px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--accent-soft);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .step-title {
+    margin: 3px 0 4px;
+    font-weight: 650;
+  }
+  .step-body {
+    color: var(--text-2);
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+  .step-body :global(p) {
+    margin: 0 0 8px;
+  }
+  .step-body > :global(:last-child) {
+    margin-bottom: 0;
+  }
+</style>
