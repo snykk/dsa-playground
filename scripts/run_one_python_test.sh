@@ -22,13 +22,15 @@ fi
 # Announce which test we're running so a hung suite shows the culprit in CI logs.
 echo "PYTHON: $testfile"
 
-if ! ( cd "$dir" && $TIMEOUT python3 -m unittest "$module" ) >/dev/null 2>&1; then
-    rc=$?
-    if [ "$rc" = "124" ]; then
-        echo "TIMEOUT: $testfile (exceeded 120s)"
-    else
-        echo "FAIL: $testfile"
-        ( cd "$dir" && $TIMEOUT python3 -m unittest "$module" ) 2>&1 | tail -20
-    fi
+# The exit status is read directly: inside `if ! cmd`, $? is the status of the negation
+# (always 0), which hid every timeout and re-ran the hung test for another 120s.
+rc=0
+( cd "$dir" && $TIMEOUT python3 -m unittest "$module" ) >/dev/null 2>&1 || rc=$?
+if [ "$rc" = "124" ]; then
+    echo "TIMEOUT: $testfile (exceeded 120s)"
+    exit 1
+elif [ "$rc" != "0" ]; then
+    echo "FAIL: $testfile"
+    ( cd "$dir" && $TIMEOUT python3 -m unittest "$module" ) 2>&1 | tail -20
     exit 1
 fi
