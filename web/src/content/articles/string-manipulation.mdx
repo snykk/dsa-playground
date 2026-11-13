@@ -50,6 +50,12 @@ The repository implements seven operations in each language. They are thin and i
 
 All seven take O(n) time, where n is the string length (or the total length for join). Strings are immutable in Python and Go, so each operation returns a new string. C++ takes its arguments by value or by reference and returns a new string as well.
 
+## See it in action
+
+The three tabs step through the Python functions, which hand the work to built-ins: watch `s[::-1]` build its reversed copy from the last index, `is_palindrome` build that whole copy before its first comparison (try **Not a palindrome**), and `split(" ")` keep the empty fields that `join` puts back.
+
+<ArticleViz ids={['string-reverse', 'string-count-replace', 'string-split-join']} />
+
 ## Two pointers: reverse and palindrome
 
 Put one index `i` at the start and another `j` at the end, then move them toward each other. For reversing, swap the two characters at each step. For a palindrome check, compare them and stop at the first mismatch. Reversing `hello`:
@@ -139,7 +145,7 @@ Python reverses code points and Go reverses runes, so `hello` with an accented e
   columns={['Operation', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Why']}
   rows={[
     ['reverse', 'O(n)', 'O(n)', 'a new string, n/2 swaps'],
-    ['palindrome', 'O(n)', 'O(1) C++, O(n) Python and Go', 'at most n/2 comparisons; the copies are the extra space'],
+    ['palindrome', 'O(n)', 'O(1) C++, O(n) Python and Go', 'at most n/2 comparisons with two pointers (C++, Go); up to n in Python, which compares s with its whole reverse; the copies are the extra space'],
     ['count vowels', 'O(n)', 'O(1)', 'one test per character against 10 vowels'],
     ['replace', 'O(n)', 'O(n)', 'one pass writing a new string'],
     ['case conversion', 'O(n)', 'O(n)', 'one mapping per character'],

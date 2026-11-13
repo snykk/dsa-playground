@@ -60,6 +60,12 @@ The versions differ in one question: what happens when the stack runs out of roo
 
 Pop, peek, `is_empty` and `size` are O(1) in every version. The static stack's capacity must be at least 1; a smaller value raises `ValueError` in Python.
 
+## See them side by side
+
+The three tabs share one input box, so a script runs on every stack. The **Overview sequence** example is the sequence below: only the static stack, with capacity 3, rejects the fourth push.
+
+<ArticleViz ids={['static-array-stack', 'dynamic-array-stack', 'linked-list-stack']} />
+
 ## One sequence, three stacks
 
 Push `A`, `B` and `C`, then push `D`, pop twice and peek. The static stack here has capacity 3. These results come from running the Python versions.

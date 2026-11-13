@@ -50,6 +50,12 @@ The repository stores the items in a growable array: a Python `list`, a C++ `std
 Growable arrays are built for changes at the end. Anything at index 0 forces the other items to move, so the front operations cost O(n) in Python and C++, and `push_front` costs O(n) in Go as well.
 </Callout>
 
+## See it in action
+
+The back operations touch one slot, while `push_front` (`insert(0, x)`) and `pop_front` (`pop(0)`) move every item: **Front is O(n)** shows the shift, and the state panel keeps count of the moves.
+
+<ArticleViz ids={['deque']} />
+
 ## Operations
 
 <DataTable

@@ -48,6 +48,12 @@ Items never move. Push writes to slot `top + 1` and pop reads slot `top`, so bot
 The stack is the slots `0 .. top`. Everything above `top` is garbage that may be overwritten. The stack is empty when `top == -1` and full when `top == capacity - 1`.
 </Callout>
 
+## See it in action
+
+Watch `top` move one slot per push and pop: **Push until full** pushes onto a full stack and raises `OverflowError` without changing anything, and **Pop an empty stack** shows the `IndexError`.
+
+<ArticleViz ids={['static-array-stack']} />
+
 ## Operations
 
 <DataTable

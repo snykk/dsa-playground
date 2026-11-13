@@ -1,0 +1,106 @@
+/* HeapView organism: tree edges, holes, the array row under the tree and its markers. */
+.heap-wrap {
+  overflow-x: auto;
+}
+.heap-view {
+  display: block;
+  margin: 0 auto;
+}
+
+.heap-view .h-edge {
+  stroke: var(--axis);
+  stroke-width: 2;
+  transition:
+    stroke 0.25s ease,
+    stroke-width 0.25s ease;
+}
+.heap-view .h-edge.role-compare,
+.heap-view .h-edge.role-active,
+.heap-view .h-edge.role-done {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.heap-view .h-edge.role-compare {
+  stroke-dasharray: 8 5;
+  animation: viz-march 0.8s linear infinite;
+}
+.heap-view .h-hole {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+
+.heap-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.heap-view .h-tag {
+  fill: var(--text-2);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* The array row: a frame per index, with the entry's cell gliding over it. */
+.heap-view .h-frame {
+  fill: none;
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.heap-view .h-frame.hole {
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 4 3;
+}
+.heap-view .h-cell rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 2;
+  transition: fill 0.2s ease;
+}
+.heap-view .h-cell.role-idle rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+}
+.heap-view .h-cell .h-label {
+  fill: var(--viz-ink-on-fill);
+  font-size: 13px;
+  font-weight: 700;
+}
+.heap-view .h-cell .h-sub {
+  fill: var(--viz-ink-on-fill);
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+.heap-view .h-cell.role-idle .h-label,
+.heap-view .h-cell.role-idle .h-sub {
+  fill: var(--text);
+}
+.heap-view .h-badge {
+  fill: var(--text-2);
+  font-size: 10px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.heap-view .h-index {
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.heap-view .h-marker text {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+.heap-view .h-marker:not(.role-idle) text {
+  fill: var(--role);
+}
+
+.heap-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}

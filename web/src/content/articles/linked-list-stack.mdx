@@ -48,6 +48,12 @@ Because every operation works on the head, nothing ever walks the list. That is 
 `top` is `null` exactly when the stack is empty, and otherwise `top` is the most recently pushed node. Following `next` from `top` visits the items from newest to oldest.
 </Callout>
 
+## See it in action
+
+Step through a push to see the order that matters: the new node is linked to the old top first, and only then does `top` move to it. A pop moves `top` to the next node and leaves the old node unreachable.
+
+<ArticleViz ids={['linked-list-stack']} />
+
 ## Operations
 
 <DataTable

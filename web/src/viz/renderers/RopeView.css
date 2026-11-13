@@ -1,0 +1,129 @@
+/* Rope: leaf boxes with their fragments, weight circles (NodeGlyph), height levels and cuts. */
+.rope-view-wrap {
+  overflow-x: auto;
+}
+.rope-view {
+  display: block;
+  margin: 0 auto;
+}
+
+.rope-view .r-level {
+  fill: var(--text-3);
+  font-size: 11px;
+  dominant-baseline: central;
+}
+
+.rope-view .r-edge {
+  stroke: var(--axis);
+  stroke-width: 2;
+  transition: stroke 0.25s ease, stroke-width 0.25s ease;
+}
+.rope-view .r-edge.role-compare,
+.rope-view .r-edge.role-active,
+.rope-view .r-edge.role-done {
+  stroke: var(--role);
+  stroke-width: 3;
+}
+.rope-view .r-edge.role-compare {
+  stroke-dasharray: 8 5;
+  animation: viz-march 0.8s linear infinite;
+}
+
+.rope-view .r-leaf rect:first-child {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 2;
+  transition: fill 0.2s ease;
+}
+.rope-view .r-leaf.role-idle rect:first-child {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+}
+.rope-view .r-leaf.role-muted rect:first-child {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 4 3;
+}
+.rope-view .r-leaf.role-active rect:first-child,
+.rope-view .r-leaf.role-good rect:first-child,
+.rope-view .r-leaf.role-bad rect:first-child {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.4s ease;
+}
+.rope-view .r-char {
+  fill: var(--viz-ink-on-fill);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.rope-view .r-leaf.role-idle .r-char {
+  fill: var(--text);
+  font-weight: 600;
+}
+.rope-view .r-leaf.role-muted .r-char {
+  fill: var(--text-3);
+  font-weight: 500;
+}
+.rope-view .r-leaf .r-char.marked {
+  fill: var(--viz-ink-on-fill);
+}
+.rope-view .r-mark {
+  fill: var(--role);
+}
+.rope-view .r-slice {
+  stroke: var(--viz-active);
+  stroke-width: 2.5;
+  stroke-dasharray: 4 3;
+}
+.rope-view .r-offset {
+  fill: var(--text-3);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.rope-view .r-glyph {
+  fill: var(--role);
+  font-size: 12px;
+  font-weight: 700;
+  text-anchor: end;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+}
+
+.rope-view .r-cut-gap {
+  stroke: var(--viz-active);
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+}
+.rope-view .r-empty {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 4 3;
+}
+.rope-view .r-empty-text {
+  fill: var(--text-3);
+  font-size: 11px;
+  font-style: italic;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.rope-view .r-piece-label {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.rope-view .r-piece:not(.role-idle) .r-piece-label {
+  fill: var(--role);
+}
+.rope-view .r-pointer {
+  fill: var(--role);
+  font-size: 12px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+}

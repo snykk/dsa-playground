@@ -1,0 +1,115 @@
+/* RingBuffer organism: slots on a ring, the items in them, the front / rear labels and the list row. */
+.ring-wrap {
+  overflow-x: auto;
+}
+.ring-buffer {
+  display: block;
+  margin: 0 auto;
+}
+
+.ring-buffer .rb-track {
+  fill: none;
+  stroke: var(--grid);
+  stroke-width: 12;
+}
+.ring-buffer .rb-slot rect,
+.ring-buffer .rb-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--axis);
+  stroke-width: 1.5;
+  transition: stroke 0.2s ease;
+}
+.ring-buffer .rb-slot.hl rect,
+.ring-buffer .rb-cell.hl rect {
+  stroke: var(--role);
+  stroke-width: 2.5;
+}
+
+.ring-buffer .rb-item rect,
+.ring-buffer .rb-cell.filled rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 2;
+  transition: fill 0.2s ease;
+}
+.ring-buffer .rb-item.role-idle rect,
+.ring-buffer .rb-cell.filled.role-idle rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+}
+.ring-buffer .rb-item.role-active rect,
+.ring-buffer .rb-item.role-bad rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.4s ease;
+}
+.ring-buffer .rb-item.ghost,
+.ring-buffer .rb-cell.ghost {
+  opacity: 0.35;
+}
+
+.ring-buffer text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.ring-buffer .rb-item .rb-value,
+.ring-buffer .rb-cell.filled .rb-value {
+  fill: var(--viz-ink-on-fill);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+.ring-buffer .rb-item.role-idle .rb-value,
+.ring-buffer .rb-cell.filled.role-idle .rb-value {
+  fill: var(--text);
+}
+.ring-buffer .rb-item .rb-glyph {
+  fill: var(--role);
+  font-size: 11px;
+  text-anchor: start;
+}
+.ring-buffer .rb-empty {
+  fill: var(--text-3);
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+.ring-buffer .rb-index {
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.ring-buffer .rb-parking {
+  opacity: 0.7;
+}
+.ring-buffer .rb-list-label {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  text-anchor: start;
+}
+
+.ring-buffer .rb-ptr text {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+}
+.ring-buffer .rb-ptr:not(.role-idle) text {
+  fill: var(--role);
+}
+.ring-buffer .rb-ptr line {
+  stroke: var(--viz-neutral);
+  stroke-width: 2;
+}
+.ring-buffer .rb-ptr:not(.role-idle):not(.role-muted) line {
+  stroke: var(--role);
+}
+
+.ring-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}

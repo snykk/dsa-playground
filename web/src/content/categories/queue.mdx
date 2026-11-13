@@ -60,6 +60,12 @@ The four structures in this section answer three different questions:
 
 The circular queue is the only bounded one: `enqueue` on a full queue raises `OverflowError` in Python, and the capacity must be at least 1. Peek is O(1) in all four.
 
+## See them side by side
+
+The simple and the circular queue share their input box, so one script can run on both: the simple queue shifts every item on a dequeue, while the circular queue only moves `front`. The deque and the priority queue take their own operations.
+
+<ArticleViz ids={['simple-queue', 'circular-queue', 'deque', 'priority-queue']} />
+
 ## One sequence, four queues
 
 Add `A`, `B` and `C`, then remove twice. The priority queue gets the priorities 2, 1 and 2. The circular queue has capacity 3, and the deque adds with `push_back`, then uses `pop_front` followed by `pop_back`. These results come from running the Python versions.
