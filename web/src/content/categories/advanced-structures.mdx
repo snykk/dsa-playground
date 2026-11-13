@@ -2,7 +2,7 @@
 category: Data_Structures/Advanced_Structures
 title: Advanced Data Structures
 lead: "These three structures combine simpler ones to get one operation pattern in O(1) or nearly so. The two caches pair a hash map with ordered lists and differ in what they evict. The disjoint set union keeps groups of items and merges them in near constant time."
-updated: 2026-11-13
+updated: 2026-11-14
 facts:
   - label: Cache get, put
     value: O(1)
@@ -57,9 +57,9 @@ Both caches return `-1` from `get` for a missing key, with integer keys and valu
 
 ## See them side by side
 
-The union-find visualization shows the parent trees, so you can watch union by rank keep them short and path compression flatten them. Run **Path compression**, then `find 5` and `find 3` flatten the paths they walk.
+The two cache tabs share their script: run **LRU vs LFU**, the sequence of the next section, in both and watch the second eviction take `1` under LRU and `3` under LFU. The union-find tab shows the parent trees, so you can watch union by rank keep them short and path compression flatten them. Run **Path compression**, then `find 5` and `find 3` flatten the paths they walk.
 
-<ArticleViz ids={['union-find']} />
+<ArticleViz ids={['lru-cache', 'lfu-cache', 'union-find']} />
 
 ## One sequence, two eviction policies
 

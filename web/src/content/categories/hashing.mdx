@@ -2,7 +2,7 @@
 category: Data_Structures/Hashing
 title: Hashing
 lead: "Hashing turns a key into an array index, so lookups, inserts and deletes take O(1) on average. The four topics are the key-value map, the rules for two keys that land in one slot, the set that keeps only keys, and the Bloom filter that trades exactness for memory."
-updated: 2026-11-13
+updated: 2026-11-14
 facts:
   - label: put, get, remove
     value: O(1) average
@@ -59,6 +59,12 @@ The four topics split the work:
 />
 
 The Hash_Table topic also has the map helpers: `get_or_default(key, default)` returns the default for an absent key, `put_if_absent(key, value)` returns `False` and keeps the old value when the key exists, and `update(other)` and `copy()` copy pairs between tables.
+
+## See them side by side
+
+Each tab runs one structure, in reading order. The three collision tabs share their script, so paste `cap 8; put 1 a, put 17 b, put 33 c, put 2 d, remove 17, get 33` (the keys of the next section, which land in the same slots with 8 slots as with 16) and switch tabs to watch each rule place them.
+
+<ArticleViz ids={['hash-table', 'separate-chaining', 'linear-probing', 'quadratic-probing', 'hash-set', 'bloom-filter']} />
 
 ## One set of keys, three collision rules
 

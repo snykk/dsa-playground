@@ -3,7 +3,7 @@ topic: Data_Structures/Advanced_Structures/LRU_Cache
 title: LRU Cache
 lead: An LRU (least recently used) cache holds a fixed number of key-value pairs and, when full, throws away the entry that has gone unused the longest. A hash map plus a doubly linked list gives O(1) get and put.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: get
     value: O(1)
@@ -50,6 +50,12 @@ Two structures cooperate:
 <Callout title="Why the node stores its key">
 When the back node is evicted, the hash map entry for it must be deleted too, and the only way to know which key to delete is to read it from the node. The Python and Go versions also use two sentinel nodes (head and tail), which remove all special cases for an empty list or for the first and last element. C++ uses `std::list`, which handles that itself.
 </Callout>
+
+## See it in action
+
+Run **LeetCode 146**: every hit lifts its node out of the list and puts it back right after `head`, and a put into the full cache evicts the node just before `tail`; **Capacity 0** inserts a node and evicts it at once.
+
+<ArticleViz ids={['lru-cache']} />
 
 ## Operations
 

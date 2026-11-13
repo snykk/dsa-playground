@@ -3,7 +3,7 @@ topic: Data_Structures/Hashing/Collision_Handling
 title: Collision Handling
 lead: Two different keys can hash to the same slot, and every hash table needs a rule for that. Chaining keeps a list per slot; open addressing probes for another free slot. The rule decides how lookups, deletes and a nearly full table behave.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Chaining
     value: O(1 + load)
@@ -61,6 +61,12 @@ Here is the same insertion, keys `3, 11, 19, 6, 14` into 8 slots (`k mod 8`), ha
 <Callout title="The invariant of open addressing">
 A key is always stored on its own probe sequence, and every slot before it on that sequence is occupied (or was, see tombstones below). A lookup can therefore stop at the first truly empty slot and conclude "not present".
 </Callout>
+
+## See it in action
+
+The three tabs run the same script. In the probing tabs, **Re-put after a remove** shows `put(17)` walking past the tombstone that `remove(1)` left and updating 17 instead of storing it twice (the bug fixed in v0.2.0), and **Remove, then insert** shows a later key reusing a tombstone; **Same home slot** compares the three rules on keys that all want slot 0.
+
+<ArticleViz ids={['separate-chaining', 'linear-probing', 'quadratic-probing']} />
 
 ## Operations
 

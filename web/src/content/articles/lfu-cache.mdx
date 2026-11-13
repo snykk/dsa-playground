@@ -3,7 +3,7 @@ topic: Data_Structures/Advanced_Structures/LFU_Cache
 title: LFU Cache
 lead: An LFU (least frequently used) cache has a fixed capacity and, when full, evicts the entry that was accessed the fewest times, breaking ties by evicting the least recently used of them. With a hash map plus one list per frequency, both get and put take O(1) time.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: get
     value: O(1)
@@ -60,6 +60,12 @@ A heap ordered by count would cost O(log n). To reach O(1) the code keeps three 
 <Callout title="The invariant">
 Every cached key is in exactly one bucket, the bucket number equals its access count, and `min_freq` is the smallest non-empty bucket. Putting a new key always creates a count-1 bucket entry, so `min_freq` becomes 1 at that moment. It only moves up when promoting the last key out of the `min_freq` bucket, and then to exactly count + 1, because that key just landed there.
 </Callout>
+
+## See it in action
+
+Each row is the bucket of one use count, least recently used on the left. Run **LeetCode 460** to watch keys climb from row to row, `min_freq` follow the lowest row, and the tie at `put(4, 4)` evict the least recently used key.
+
+<ArticleViz ids={['lfu-cache']} />
 
 ## Operations
 
