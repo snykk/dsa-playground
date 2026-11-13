@@ -277,7 +277,22 @@ Theory topics (for example Big-O notation) may call section 4 `## Definition`; t
 5. `## How to Run` - the exact commands for the tests (and the demo, if there is one).
 6. `## Key Takeaways` - two to four bullets.
 
-Check a folder with `python3 scripts/check_readme_style.py "<topic folder>"` (or `--all`).
+**Category README** (a folder that groups topics, for example `Algorithms/Sorting/README.md`). It is the GitHub-side twin of the category's overview on the web site, `web/src/content/categories/<name>.mdx`, and says the same things more briefly. Sections, in this order:
+
+1. `# <Category name>`, exactly the title the site shows, then a one-paragraph lead: what the topics share and what separates them.
+2. `## Topics` - a table in reading order: `#`, the linked topic or sub-category, what it adds (one line), and its level (or "N topics" for a sub-category). Every sub-folder that is a topic or has a README must be linked.
+3. `## How They Compare` - one comparison table, usually complexity. For a category of sub-categories, compare the sub-areas instead and add `## Where to Start`.
+4. `## Choosing One` - situation, choice and reason, when the topics are alternatives to each other.
+5. `## Common Pitfalls` - three to five bullets.
+6. `## Related` - linked prerequisites ("read first") and related folders.
+
+Category READMEs are ASCII only (write `n^2`, `<=`, `sigma`, `Omega`).
+
+Check a folder with `python3 scripts/check_readme_style.py "<topic or category folder>"` (or `--all`). For a topic, it checks the topic README and its language READMEs. For a category, it checks:
+- ASCII only, and no emoji;
+- the `## Topics` section;
+- a link to every sub-folder;
+- that every relative link resolves.
 
 ### Code Comments
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Check topic and language READMEs against the house template (CONTRIBUTING.md,
+Check topic, language and category READMEs against the house template (CONTRIBUTING.md,
 "README.md Structure").
 
 Usage:
@@ -8,8 +8,11 @@ Usage:
     python3 scripts/check_readme_style.py --all
 
 A topic folder is a folder with a Python/, C++/ or Go/ subfolder. For each topic the
-script checks the topic README and every language README in it, prints one line per
-problem and exits with status 1 if there is any problem.
+script checks the topic README and every language README in it. A category folder is any
+other folder with a README and at least one sub-folder that is a page (a topic, or a folder
+with a README); its README must be ASCII, have a '## Topics' section, link every such
+sub-folder, and only link to paths that exist. The script prints one line per problem and
+exits with status 1 if there is any problem.
 """
 import os
 import re
@@ -103,6 +106,56 @@ def check_lang(folder, lang, problems):
             problems.append("%s: missing section '## %s'" % (rel, name))
 
 
+def is_topic(folder):
+    return any(os.path.isdir(os.path.join(folder, lang)) for lang in LANGS)
+
+
+def page_children(folder):
+    """Sub-folders that get their own page: topics, and folders with a README."""
+    out = []
+    for d in sorted(os.listdir(folder)):
+        sub = os.path.join(folder, d)
+        if d in LANGS or d in SKIP_DIRS or d.startswith(".") or not os.path.isdir(sub):
+            continue
+        if is_topic(sub) or os.path.isfile(os.path.join(sub, "README.md")):
+            out.append(sub)
+    return out
+
+
+def link_targets(folder, text):
+    """Absolute paths of the relative Markdown links in text (anchors and URLs left out)."""
+    targets = []
+    for raw in re.findall(r"\]\(([^)\s]+)\)", strip_code(text)):
+        path = raw.split("#", 1)[0]
+        if not path or re.match(r"^[a-z][a-z0-9+.-]*:", path, flags=re.I) or path.startswith("/"):
+            continue
+        targets.append((raw, os.path.normpath(os.path.join(folder, path))))
+    return targets
+
+
+def check_category(folder, problems):
+    path = os.path.join(folder, "README.md")
+    rel = os.path.relpath(path, ROOT)
+    text = open(path, encoding="utf-8").read()
+    check_common(rel, text, problems)
+    for n, line in enumerate(text.splitlines(), 1):
+        if any(ord(c) > 127 for c in line):
+            problems.append("%s: non-ASCII on line %d: %s" % (rel, n, line.strip()[:60]))
+            break
+    if not re.match(r"# \S", text):
+        problems.append("%s: must start with '# <Category name>'" % rel)
+    if not any(re.match(r"topics$", h, flags=re.I) for h in headings(text, 2)):
+        problems.append("%s: missing section '## Topics'" % rel)
+    targets = link_targets(folder, text)
+    linked = {t if os.path.basename(t) != "README.md" else os.path.dirname(t) for _, t in targets}
+    for child in page_children(folder):
+        if os.path.normpath(child) not in linked:
+            problems.append("%s: does not link its sub-folder %s/" % (rel, os.path.basename(child)))
+    for raw, target in targets:
+        if not os.path.exists(target):
+            problems.append("%s: broken link %s" % (rel, raw))
+
+
 def topic_folders():
     for root, dirs, _files in os.walk(ROOT):
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS and not d.startswith("."))
@@ -111,20 +164,40 @@ def topic_folders():
             dirs[:] = [d for d in dirs if d not in LANGS]
 
 
+def category_folders():
+    for root, dirs, _files in os.walk(ROOT):
+        dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS and not d.startswith("."))
+        if is_topic(root):
+            dirs[:] = []
+            continue
+        if root != ROOT and os.path.isfile(os.path.join(root, "README.md")) and page_children(root):
+            yield root
+
+
 def main(argv):
     if not argv:
         print(__doc__.strip())
         return 2
-    folders = list(topic_folders()) if argv == ["--all"] else [os.path.join(ROOT, a) for a in argv]
+    if argv == ["--all"]:
+        folders = list(topic_folders()) + list(category_folders())
+    else:
+        folders = [os.path.join(ROOT, a) for a in argv]
     problems = []
+    topics = categories = 0
     for folder in folders:
         if not os.path.isdir(folder):
             problems.append("%s: not a folder" % folder)
-            continue
-        check_topic(folder, problems)
+        elif is_topic(folder):
+            topics += 1
+            check_topic(folder, problems)
+        elif os.path.isfile(os.path.join(folder, "README.md")) and page_children(folder):
+            categories += 1
+            check_category(folder, problems)
+        else:
+            problems.append("%s: neither a topic nor a category with sub-folders" % os.path.relpath(folder, ROOT))
     for p in problems:
         print(p)
-    print("%d topic folder(s) checked, %d problem(s)" % (len(folders), len(problems)))
+    print("%d topic folder(s) and %d category folder(s) checked, %d problem(s)" % (topics, categories, len(problems)))
     return 1 if problems else 0
 
 
