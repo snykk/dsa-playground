@@ -1,14 +1,28 @@
-# Maximum Subarray - Kadane's Algorithm (Go)
+# Maximum Subarray (Kadane's Algorithm) -- Go Implementation
 
-Go implementation of Kadane's Algorithm to find the maximum sum of a contiguous subarray in linear time.
+The one-pass sum.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `main.go` | Main implementation of Kadane's Algorithm |
-| `main_test.go` | Test cases for maximum subarray computation |
-| `go.mod` | Go module definition (`kadane`) |
+| File | Contents |
+|------|----------|
+| `main.go` | `KadaneAlgorithm` |
+| `main_test.go` | table-driven test |
+| `go.mod` | module `kadane` (Go 1.21) |
+
+## API
+
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `KadaneAlgorithm(arr []int) int` | maximum subarray sum; 0 for an empty slice | O(n) | O(1) |
+
+There is no window (index) version here; the Python folder has one.
+
+## Go-Specific Notes
+
+- It uses the "restart when `currentSum < 0`" form rather than `max`, which is equivalent.
+- `int` is 64 bits on 64-bit platforms, so overflow is unlikely in practice.
+- The package is `main` with no `main` function, so only `go test` runs it.
 
 ## How to Run
 
@@ -16,26 +30,8 @@ Go implementation of Kadane's Algorithm to find the maximum sum of a contiguous 
 go test ./...
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `KadaneAlgorithm(arr []int) int` | Finds the maximum sum of any contiguous subarray | O(n) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n) single pass through the array |
-| Space | O(1) only two tracking variables used |
-
-## Notes
-
-- Maintains `currentSum` (best sum ending at current position) and `maxSum` (global best).
-- Resets `currentSum` to the current element when it drops below zero; otherwise extends.
-- Handles all-negative arrays correctly by initializing both sums to `arr[0]`.
-- Returns 0 for empty arrays as an edge case.
-
----
-
-_Last Updated: April 2026_
+- Start from `arr[0]` so all-negative input works.
+- One pass, two variables.
+- Empty input returns 0 by convention.

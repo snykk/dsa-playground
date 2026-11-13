@@ -1,0 +1,215 @@
+---
+topic: Problem_Patterns/Union-Find Applications
+title: Union-Find Applications
+lead: Union-Find tracks which items belong to the same group while groups merge over time. Its union call reports whether two items were already connected, which is all you need to count components, detect a cycle while adding edges, or build a minimum spanning tree with Kruskal's algorithm.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Find / union
+    value: O(alpha(n))
+    hint: amortized; alpha is the inverse Ackermann function, below 5 for any practical n
+  - label: Build
+    value: O(n)
+  - label: Extra space
+    value: O(n)
+    hint: parent and rank arrays
+  - label: Limitation
+    value: Merges only
+    hint: no splitting or deleting an edge
+    tone: warn
+properties:
+  - { label: Online (edges arrive one by one), value: true }
+  - { label: Supports deleting edges, value: false }
+  - { label: Needs sorted input, value: false }
+prerequisites:
+  - Data Structures/Advanced_Structures/Disjoint Set Union
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm
+  - Problem_Patterns/Graph Traversal Problems
+  - Data Structures/Non_Linear/Graph
+---
+
+## When to use it
+
+This article is about **using** a disjoint set union. How the structure itself works is covered in the Disjoint Set Union data structure topic and in the Union-Find DSU algorithm topic (both are linked as prerequisite and related topics at the top of this page).
+
+Signals in a problem statement:
+
+- "are A and B connected", "how many groups / components" while connections are **added** over time;
+- "does adding this edge create a cycle" in an undirected graph;
+- "build the cheapest network that connects everything": Kruskal;
+- grouping by a shared property: merge accounts that share an email, treat equal-valued cells in a grid as one region, merge equivalent variables;
+- you only ever merge groups and never split them.
+
+If edges are **removed** as well, process the operations offline in reverse (so deletions become merges), or use a different structure.
+
+## How it works
+
+Each group is a tree stored in a `parent` array; the root is the group's representative.
+
+<Steps>
+  <Step title="Find with path compression">
+    `find(x)` follows parents to the root and points every node on the way directly at the root, which flattens the tree for later calls.
+  </Step>
+  <Step title="Union by rank">
+    `union(x, y)` finds both roots. If they are equal, nothing happens and the call returns `False`: the two items were already connected. Otherwise the shorter tree is hung under the taller one and the group count drops by one.
+  </Step>
+  <Step title="Use the boolean and the count">
+    A `False` from `union` means "this pair is redundant", which is exactly a cycle in a graph. The final `get_count()` is the number of connected components.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+Two items are connected if and only if `find` returns the same root for both. Every `union` that returns `True` merges two groups and lowers the count by one, so after processing all edges, `n - (number of successful unions)` equals the number of components.
+</Callout>
+
+## See it in action
+
+Type the number of elements and a list of operations, then press Apply. The picture shows the forest of parent pointers; watch union by rank pick the root and path compression flatten a tree on a `find`. The redundant-union preset is a cycle: the last union joins items that are already connected.
+
+<ArticleViz ids={['union-find']} />
+
+## Template
+
+```text
+count_components(n, edges):
+    uf = UnionFind(n)
+    for (u, v) in edges: uf.union(u, v)
+    return uf.get_count()
+
+has_cycle(n, edges):                     # undirected graph
+    uf = UnionFind(n)
+    for (u, v) in edges:
+        if not uf.union(u, v): return true      # u and v were already connected
+    return false
+
+kruskal(n, weighted_edges):              # minimum spanning forest
+    sort weighted_edges by weight
+    uf = UnionFind(n); total = 0
+    for (u, v, w) in sorted edges:
+        if uf.union(u, v): total += w            # accepted: joins two components
+    return total
+```
+
+The repository provides `UnionFind` (`find`, `union`, `connected`, `get_count`) and `count_components`. Cycle detection and Kruskal are the loops above written on top of `union`'s return value; they are not separate functions here.
+
+## Worked example: how the forest changes
+
+`UnionFind(6)` followed by `union(0, 1)`, `union(2, 3)`, `union(0, 2)`, `union(4, 5)` leaves 2 groups. The `parent` array after each step (a root points to itself):
+
+<ArrayDiagram
+  legend={{ p: 'a root (parent[i] = i) that heads a group', l: 'a non-root pointing at its parent', f: 'a node whose pointer was just flattened by path compression' }}
+  rows={[
+    { label: 'start', values: [0, 1, 2, 3, 4, 5], tones: 'pppppp', note: 'Six singleton groups.' },
+    { label: 'union(0, 1)', values: [0, 0, 2, 3, 4, 5], tones: 'plpppp', note: 'Equal ranks: 1 hangs under 0. 5 groups.' },
+    { label: 'union(2, 3)', values: [0, 0, 2, 2, 4, 5], tones: 'plplpp', note: '3 hangs under 2. 4 groups.' },
+    { label: 'union(0, 2)', values: [0, 0, 0, 2, 4, 5], tones: 'plllpp', note: 'Both roots have rank 2, so 2 hangs under 0. 3 groups.' },
+    { label: 'union(4, 5)', values: [0, 0, 0, 2, 4, 4], tones: 'plllpl', note: '5 hangs under 4. 2 groups: `{0, 1, 2, 3}` and `{4, 5}`.' },
+    { label: 'find(3)', values: [0, 0, 0, 0, 4, 4], tones: 'pllfpl', note: 'Path compression: 3 now points straight at the root 0.' },
+  ]}
+/>
+
+## Worked example: cycle detection
+
+Add the edges `0-1, 1-2, 2-3, 3-1, 3-4` one by one and call `union`. The fourth edge returns `False`, so it closes a cycle:
+
+<GraphDiagram
+  edges="0-1, 1-2, 2-3, 3-1, 3-4"
+  positions={{ 0: [5, 50], 1: [35, 50], 2: [60, 12], 3: [60, 88], 4: [95, 50] }}
+  edgeTones={{ '3-1': 'p' }}
+  tones={{ 1: 'l', 2: 'l', 3: 'l' }}
+  width={520}
+  height={240}
+  legend={{ p: 'redundant edge: union(3, 1) returned False', l: 'the three nodes on the cycle 1-2-3' }}
+/>
+
+## Worked example: Kruskal's minimum spanning tree
+
+Five vertices and the weighted edges `0-1 (1)`, `2-3 (2)`, `0-2 (3)`, `1-3 (4)`, `1-2 (5)`, `3-4 (7)`, already in order of weight. Running `union` on each, the accepted edges are the tree; `1-3` and `1-2` return `False` because their ends are already connected:
+
+<GraphDiagram
+  edges="0-1 1, 2-3 2, 0-2 3, 1-3 4, 1-2 5, 3-4 7"
+  positions={{ 0: [10, 20], 1: [10, 80], 2: [50, 20], 3: [50, 80], 4: [92, 50] }}
+  edgeTones={{ '0-1': 'f', '2-3': 'f', '0-2': 'f', '3-4': 'f', '1-3': 'm', '1-2': 'm' }}
+  width={520}
+  height={260}
+  legend={{ f: 'accepted: union returned True (total weight 1 + 2 + 3 + 7 = 13)', m: 'rejected: the ends were already connected' }}
+/>
+
+A spanning tree of 5 vertices has 4 edges, and `get_count()` ends at 1, which also confirms the graph is connected.
+
+## Implementation
+
+All three languages provide the DSU with path compression and union by rank: Python `UnionFind` (`find`, `union`, `connected`, `get_count`), C++ `UnionFind` (`find`, `unite`, `connected`, `getCount`) and Go `UnionFind` (`Find`, `Union`, `Connected`, `GetCount`). `union` returns whether a merge happened. `count_components(n, edges)` exists only in Python.
+
+Invalid indices behave differently: Python raises `ValueError`, C++ throws `std::out_of_range`, and Go does no bounds check, so an out-of-range index panics (and a negative size panics in the constructor). The `find` function is recursive; union by rank keeps the trees shallow (height at most log n), so the recursion stays short.
+
+<TopicCode topic="Problem_Patterns/Union-Find Applications" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'find / union / connected', time: 'O(alpha(n))', when: 'Amortized over a sequence of operations with both optimizations; alpha(n) is at most 4 for any n that fits in memory.' },
+    { case: 'Components or cycle check over E edges', time: 'O(n + E alpha(n))', when: 'Build the DSU, then one union per edge.' },
+    { case: 'Kruskal', time: 'O(E log E)', when: 'Sorting the edges dominates; the unions add only O(E alpha(n)).' },
+  ]}
+/>
+
+Space is <BigO of="n" />.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Number of Provinces (LeetCode 547)', 'union connected cities, report the count'],
+    ['Redundant Connection (LeetCode 684)', 'the first edge whose union returns False'],
+    ['Graph Valid Tree (LeetCode 261, premium)', 'n - 1 edges and no failed union'],
+    ['Accounts Merge (LeetCode 721)', 'union accounts that share an email, group by root'],
+    ['Number of Islands (LeetCode 200)', 'union adjacent land cells, or flood fill instead'],
+    ['Min Cost to Connect All Points (LeetCode 1584)', 'Kruskal over all point pairs'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Extra data', 'In this repository']}
+  rows={[
+    ['Component size', 'a size array merged on union', 'no'],
+    ['Weighted DSU', 'offset to the parent, for ratios or distances', 'no'],
+    ['Parity DSU', 'one bit per node, for bipartite checks', 'no'],
+    ['Offline deletion', 'process operations in reverse', 'no'],
+    ['Grid DSU', 'index = row * cols + col', 'no'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Comparing parents instead of roots.** `parent[x] == parent[y]` is wrong before the paths are compressed; always compare `find(x)` and `find(y)`.
+- **Ignoring the return value of `union`.** It is the cycle signal and the Kruskal accept test.
+- **Using it on directed graphs.** DSU models undirected connectivity. Directed cycles need DFS or topological sort.
+- **Expecting deletions.** Removing an edge cannot be undone in a DSU.
+- **Index mismatch.** Elements must be `0..n - 1`; map strings or large ids to indices first.
+- **Calling the Python `count_components` with swapped arguments.** The signature is `count_components(n, edges)`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Union-Find, BFS or DFS for components?">
+    For a static graph all three work. Union-Find is better when edges arrive over time and you must answer connectivity after each one, and when you need the cycle test or Kruskal for free.
+  </FaqItem>
+  <FaqItem question="Why is it called nearly constant time?">
+    With path compression and union by rank, a sequence of m operations on n items costs O(m alpha(n)), where alpha grows so slowly that it is at most 4 for any realistic n.
+  </FaqItem>
+  <FaqItem question="How does Kruskal use it?">
+    Sort the edges by weight and take an edge only if `union` succeeds, meaning its ends lie in different components. Skipping the failures guarantees no cycle, and taking the cheapest first gives a minimum spanning tree.
+  </FaqItem>
+  <FaqItem question="Can it find a cycle in a directed graph?">
+    No. Use DFS with colours, or Kahn's algorithm, which returns fewer than n nodes when a cycle exists.
+  </FaqItem>
+</Faq>

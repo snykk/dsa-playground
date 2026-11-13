@@ -1,108 +1,114 @@
 # Binary Search
 
-**Binary Search** is an efficient searching algorithm that finds the position of a target value within a sorted array by repeatedly dividing the search interval in half.
+Binary Search finds a value in a **sorted** array by comparing it with the middle element and discarding the half that cannot contain it. Each probe halves the range, so the search takes O(log n) time and O(1) extra space.
 
----
+## Intuition
 
-## Overview
+Think of looking up a word in a dictionary: you open it in the middle, see whether your word comes before or after, and throw away the other half. Repeating that 20 times is enough for a million entries.
 
-Binary Search is a divide-and-conquer algorithm that works on sorted arrays. It compares the target value to the middle element and eliminates half of the search space in each iteration.
+The invariant: **if the target is in the array, it is inside `arr[lo..hi]`.** It is true at the start; when `arr[mid] < target` every element up to `mid` is too small, and when `arr[mid] > target` every element from `mid` on is too large, so discarding that half keeps it true. When the window is empty the target is absent.
 
----
+## Visual
 
-## Algorithm
+```text
+Array:  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]      target = 7
+index:   0  1  2  3  4  5  6  7  8  9
 
-1. Compare target with middle element
-2. If match found, return index
-3. If target is greater, search right half
-4. If target is smaller, search left half
-5. Repeat until found or search space is exhausted
-
----
-
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Best Case** | O(1) | O(1) |
-| **Average Case** | O(log n) | O(1) |
-| **Worst Case** | O(log n) | O(1) |
-
-**Note**: Space complexity is O(log n) for recursive version due to recursion stack.
-
----
-
-## Visual Example
-
-```
-Array: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-Target: 7
-
-Step 1: mid = 4, arr[4] = 5 < 7, search right [6, 7, 8, 9, 10]
-Step 2: mid = 7, arr[7] = 8 > 7, search left [6, 7]
-Step 3: mid = 6, arr[6] = 7 = 7, found! Return 6
+step 1:  lo=0 ................ mid=4 ....... hi=9    arr[4]=5 < 7  -> lo = 5
+step 2:           lo=5 ... mid=7 ... hi=9           arr[7]=8 > 7  -> hi = 6
+step 3:                lo=5 mid=5 hi=6              arr[5]=6 < 7  -> lo = 6
+step 4:                     lo=mid=hi=6             arr[6]=7      -> found, return 6
 ```
 
----
+## How It Works
 
-## Advantages
+1. Set `left = 0` and `right = n - 1`.
+2. While `left <= right`, compute `mid = left + (right - left) / 2`.
+3. If `arr[mid] == target`, return `mid`.
+4. If `arr[mid] < target`, set `left = mid + 1`; otherwise set `right = mid - 1`.
+5. If the loop ends, return -1.
 
-1. ✅ **Efficient**: O(log n) time complexity
-2. ✅ **Optimal**: Best possible for comparison-based search on sorted arrays
-3. ✅ **Space efficient**: O(1) space for iterative version
-4. ✅ **Versatile**: Can find first, last, or closest occurrence
+For the first (or last) occurrence of a duplicate, do not return on a match: save `mid`, then continue left (`right = mid - 1`) or right (`left = mid + 1`).
 
----
+## Step-by-Step Trace
 
-## Disadvantages
+Search for 7 in `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`:
 
-1. ❌ **Requires sorted array**: Must sort first (O(n log n))
-2. ❌ **Not suitable for unsorted data**: Use Linear Search instead
-3. ❌ **Random access required**: Doesn't work well with linked lists
+| Step | left | right | mid | arr[mid] | Decision |
+|------|------|-------|-----|----------|----------|
+| 1 | 0 | 9 | 4 | 5 | 5 < 7: `left = 5` |
+| 2 | 5 | 9 | 7 | 8 | 8 > 7: `right = 6` |
+| 3 | 5 | 6 | 5 | 6 | 6 < 7: `left = 6` |
+| 4 | 6 | 6 | 6 | 7 | found, return 6 |
 
----
+Four probes for ten elements, which is `floor(log2 10) + 1`, the worst case.
+
+## Complexity
+
+| Case | Time | Space |
+|------|------|-------|
+| Best | O(1) | O(1) |
+| Average | O(log n) | O(1) |
+| Worst | O(log n) | O(1) |
+
+Each probe halves the window: T(n) = T(n/2) + O(1) = O(log n), at most `floor(log2 n) + 1` probes. The recursive version uses O(log n) stack. Binary search is optimal for comparison-based search in a sorted array, since a decision tree with n + 1 outcomes has depth at least `log2(n + 1)`.
+
+| n | Linear search (worst) | Binary search (worst) |
+|---|-----------------------|-----------------------|
+| 10 | 10 | 4 |
+| 1,000 | 1,000 | 10 |
+| 1,000,000 | 1,000,000 | 20 |
+| 1,000,000,000 | 1,000,000,000 | 30 |
 
 ## When to Use
 
-- ✅ Sorted arrays
-- ✅ Large datasets
-- ✅ Need guaranteed O(log n) performance
-- ✅ Multiple searches on same array
-- ❌ Unsorted data (sort first or use Linear Search)
-- ❌ Small datasets (overhead may not be worth it)
+Use it on sorted arrays with random access, especially for many lookups on mostly static data, and for "binary search on the answer" problems (a monotone yes/no condition over a range).
 
----
+Do not use it on unsorted data (sorting first costs O(n log n)), on linked lists (reaching the middle is O(n)), or on tiny arrays where a linear scan is just as fast.
+
+## Binary Search vs. Alternatives
+
+| Method | Time | Needs sorted | Notes |
+|--------|------|--------------|-------|
+| Binary Search | O(log n) | Yes | repeated lookups in a sorted array |
+| [Linear Search](../Linear%20Search/) | O(n) | No | unsorted data, linked lists |
+| [Interpolation Search](../Interpolation%20Search/) | O(log log n) on uniform data | Yes | degrades to O(n) on skewed data |
+| [Ternary Search](../Ternary%20Search/) | O(log n), more comparisons | Yes | for unimodal functions, not plain lookup |
+| Hash table | O(1) average | No | exact lookup, no ordering |
+
+## Common Pitfalls
+
+- **Unsorted input.** There is no error, just a wrong answer.
+- **Wrong loop condition.** With `right = n - 1` use `left <= right`; with `right = mid` use `left < right`. Mixing the two loops forever or skips the last element.
+- **`left = mid` instead of `mid + 1`.** It can loop forever on two elements.
+- **Overflow.** `(left + right) / 2` can overflow `int` in C++ and Go on huge arrays; `left + (right - left) / 2` cannot. Python integers do not overflow.
+- **Duplicates.** The plain search returns any match: on `[1, 2, 2, 2, 2, 3, 4]` searching for 2 gives index 3, while the first and last occurrence versions give 1 and 4.
+- **Ties in the closest search.** Python `binary_search_closest` returns the larger value on a tie: for `[1, 3, 5, 7, 9]` and target 4 it returns the index of 5.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `binary_search.py` | iterative, recursive, first and last occurrence, closest |
+| C++ | [C++/](C++/) | `binary_search.cpp` | templates; `int` and `double` instances; no closest search |
+| Go | [Go/](Go/) | `main.go` | `[]int` only; no closest search |
 
-- **Python** (`Python/`) - Standard, recursive, first/last occurrence, and closest variants
-- **C++** (`C++/`) - Template-based implementation
-- **Go** (`Go/`) - Implementation with Go 1.21+
+No language implements lower and upper bound (the insertion point); Python's `bisect_left` and `bisect_right` do.
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+## Practice Problems
 
----
+- [Binary Search (LeetCode 704)](https://leetcode.com/problems/binary-search/)
+- [Search Insert Position (LeetCode 35)](https://leetcode.com/problems/search-insert-position/)
+- [Find First and Last Position of Element in Sorted Array (LeetCode 34)](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
+- [Search in Rotated Sorted Array (LeetCode 33)](https://leetcode.com/problems/search-in-rotated-sorted-array/)
+- [Koko Eating Bananas (LeetCode 875)](https://leetcode.com/problems/koko-eating-bananas/) - binary search on the answer.
 
-## Related Algorithms
+## Related
 
-- **Linear Search**: O(n) for unsorted arrays
-- **Ternary Search**: O(log₃ n) for unimodal functions
-- **Interpolation Search**: O(log log n) for uniformly distributed sorted arrays
-- **Binary Search Tree**: Data structure optimized for searching
+- [Linear Search](../Linear%20Search/)
+- [Interpolation Search](../Interpolation%20Search/)
+- [Ternary Search](../Ternary%20Search/)
+- [Binary Search on Answer](../../../Problem_Patterns/Binary%20Search%20on%20Answer/)
+- [Divide and Conquer](../../Divide_and_Conquer/)
 
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 3)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+Reference: CLRS poses binary search as Exercise 2.3-5 (the chapter on getting started); Skiena's Algorithm Design Manual also covers it.

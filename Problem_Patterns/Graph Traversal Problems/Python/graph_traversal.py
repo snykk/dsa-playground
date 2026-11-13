@@ -25,9 +25,11 @@ def bfs_shortest_path(graph: Dict[int, List[int]], start: int, target: int) -> i
         target: Target node
         
     Returns:
-        Shortest distance (number of edges), or -1 if not reachable
+        Shortest distance (number of edges), or -1 if not reachable.
+        The target does not need to be a key of the graph: in a directed
+        adjacency list a sink node has no entry of its own.
     """
-    if start not in graph or target not in graph:
+    if start not in graph:
         return -1
     if start == target:
         return 0
@@ -51,7 +53,9 @@ def bfs_shortest_path(graph: Dict[int, List[int]], start: int, target: int) -> i
 
 def dfs_recursive(graph: Dict[int, List[int]], node: int, visited: Set[int], result: List[int]):
     """
-    Helper function for recursive DFS traversal.
+    Recursive DFS helper. It nests one call per node on a path, so it hits
+    Python's recursion limit (about 1000) on long paths; get_dfs_traversal
+    uses an explicit stack instead and visits nodes in the same order.
     """
     visited.add(node)
     result.append(node)
@@ -63,22 +67,38 @@ def dfs_recursive(graph: Dict[int, List[int]], node: int, visited: Set[int], res
 
 def get_dfs_traversal(graph: Dict[int, List[int]], start: int) -> List[int]:
     """
-    Perform DFS traversal starting from start node.
+    Perform DFS traversal (preorder) starting from start node, using an
+    explicit stack so deep graphs do not hit the recursion limit.
+    Neighbors are visited in list order, like the recursive version.
     Time Complexity: O(V + E)
     Space Complexity: O(V)
     """
     visited = set()
     result = []
-    if start in graph:
-        dfs_recursive(graph, start, visited, result)
+    if start not in graph:
+        return result
+    stack = [start]
+    while stack:
+        node = stack.pop()
+        if node in visited:
+            continue
+        visited.add(node)
+        result.append(node)
+        # Push in reverse so the first neighbor is popped first.
+        for neighbor in reversed(graph.get(node, [])):
+            if neighbor not in visited:
+                stack.append(neighbor)
     return result
 
 
 def num_islands(grid: List[List[str]]) -> int:
     """
-    Count number of islands (connected '1's) in a binary grid using Flood Fill (DFS/BFS).
+    Count number of islands (connected '1's) in a binary grid using Flood Fill
+    with an explicit stack (no recursion limit).
+    The grid is modified: every visited '1' is overwritten with '0'. Pass a copy
+    if you still need the original.
     Time Complexity: O(R * C)
-    Space Complexity: O(R * C) (recursion stack)
+    Space Complexity: O(R * C) (stack)
     """
     if not grid or not grid[0]:
         return 0
@@ -86,23 +106,22 @@ def num_islands(grid: List[List[str]]) -> int:
     rows, cols = len(grid), len(grid[0])
     count = 0
     
-    def dfs(r, c):
-        if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] != '1':
-            return
-        
-        grid[r][c] = '0' # Mark as visited (sink the island)
-        
-        # Explore 4 directions
-        dfs(r + 1, c)
-        dfs(r - 1, c)
-        dfs(r, c + 1)
-        dfs(r, c - 1)
-        
+    def sink(r, c):
+        stack = [(r, c)]
+        grid[r][c] = '0'  # Mark as visited (sink the island)
+        while stack:
+            cr, cc = stack.pop()
+            # Explore 4 directions
+            for nr, nc in ((cr + 1, cc), (cr - 1, cc), (cr, cc + 1), (cr, cc - 1)):
+                if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == '1':
+                    grid[nr][nc] = '0'
+                    stack.append((nr, nc))
+
     for r in range(rows):
         for c in range(cols):
             if grid[r][c] == '1':
                 count += 1
-                dfs(r, c)
+                sink(r, c)
                 
     return count
 
@@ -158,7 +177,7 @@ def main():
         4: [3]
     }
     dist = bfs_shortest_path(graph, 0, 4)
-    print(f"Shortest path from 0 to 4: {dist}") # Expected: 2 (0->1->3->4 or 0->2->3->4 is 3 edges, wait. 0->1->3->4: dist 3. 0->2->3->4: dist 3. Ah, bfs goes level by level. 0(0)->1(1)->3(2)->4(3). Correct dist is 3.)
+    print(f"Shortest path from 0 to 4: {dist}")  # 3: 0->1->3->4
     
     print("\n=== DFS Traversal ===")
     order = get_dfs_traversal(graph, 0)

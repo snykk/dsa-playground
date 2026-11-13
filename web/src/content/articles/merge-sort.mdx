@@ -1,0 +1,224 @@
+---
+topic: Algorithms/Sorting/Merge Sort
+title: Merge Sort
+lead: Merge Sort splits the array in half, sorts each half recursively, and merges the two sorted halves into one. It always takes O(n log n) time and is stable, at the price of O(n) extra memory.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time (all cases)
+    value: O(n log n)
+    hint: best, average and worst
+  - label: Extra space
+    value: O(n)
+    hint: temporary copies of the halves
+    tone: warn
+  - label: Recursion depth
+    value: O(log n)
+  - label: Approach
+    value: Divide and conquer
+properties:
+  - { label: In-place, value: false }
+  - { label: Stable, value: true }
+  - { label: Comparison sort, value: true }
+  - { label: Adaptive, value: false }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Algorithms/Divide_and_Conquer
+related:
+  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Sorting/Heap Sort
+  - Algorithms/Sorting/Insertion Sort
+  - Algorithms/Sorting/Counting Sort
+---
+
+## How Merge Sort works
+
+Quick Sort does its work before recursing; Merge Sort does it **after**. It splits the range blindly in the middle, sorts both halves, and then relies on one fact: two sorted lists can be merged into one sorted list in a single linear pass.
+
+<Steps>
+  <Step title="Divide">
+    Split the array into a left half of `n / 2` elements (rounded down) and a right half with the rest. A range of zero or one element is already sorted, which ends the recursion.
+  </Step>
+  <Step title="Conquer">
+    Sort the left half and the right half recursively.
+  </Step>
+  <Step title="Merge">
+    Keep one pointer at the front of each sorted half. Repeatedly copy the smaller of the two front elements to the output and advance that pointer. When one half runs out, copy the rest of the other. On a tie, take the left element first.
+  </Step>
+</Steps>
+
+<Callout title="Why it is stable">
+The merge takes from the left half when `left[i] <= right[j]`, so an equal element from the left (which came earlier in the input) is always written before its twin on the right. Equal keys therefore keep their original order.
+</Callout>
+
+## See it in action
+
+Press play, or step through one comparison at a time. Blue bars are being compared, orange bars are being written back by a merge, and aqua bars have reached their final position. Watch how small sorted runs are merged into larger ones.
+
+<ArticleViz ids={['merge-sort']} />
+
+## Worked example
+
+Sorting `[38, 27, 43, 3, 9, 82, 10]`. The repository splits at `len // 2`, so the left half is the smaller one. First the divide phase, down to single elements:
+
+<TreeDiagram
+  label='Divide phase of Merge Sort'
+  legend={{ p: 'the whole array', l: 'a single element, sorted by definition' }}
+  root={{
+    label: '38 27 43 3 9 82 10', tone: 'p',
+    children: [
+      { label: '38 27 43', children: [
+        { label: '38', tone: 'l' },
+        { label: '27 43', children: [{ label: '27', tone: 'l' }, { label: '43', tone: 'l' }] },
+      ] },
+      { label: '3 9 82 10', children: [
+        { label: '3 9', children: [{ label: '3', tone: 'l' }, { label: '9', tone: 'l' }] },
+        { label: '82 10', children: [{ label: '82', tone: 'l' }, { label: '10', tone: 'l' }] },
+      ] },
+    ],
+  }}
+/>
+
+Then the merges happen from the bottom up, in this order:
+
+<DataTable
+  columns={['Merge', 'Left', 'Right', 'Result', { label: 'Comparisons', kind: 'mono' }]}
+  rows={[
+    ['1', '27', '43', '27 43', '1'],
+    ['2', '38', '27 43', '27 38 43', '2'],
+    ['3', '3', '9', '3 9', '1'],
+    ['4', '82', '10', '10 82', '1'],
+    ['5', '3 9', '10 82', '3 9 10 82', '2'],
+    ['6', '27 38 43', '3 9 10 82', '3 9 10 27 38 43 82', '6'],
+  ]}
+/>
+
+That is 13 comparisons in total. The last merge compares `27` with `3`, `9` and `10` (all smaller, so they go first), then `27`, `38` and `43` with `82`. The left half is then empty, so `82` is copied without a comparison.
+
+## Pseudocode
+
+```text
+mergeSort(arr):
+    if length(arr) <= 1: return arr
+    mid = length(arr) / 2                 # integer division
+    left  = copy of arr[0 .. mid - 1]
+    right = copy of arr[mid .. end]
+    mergeSort(left)
+    mergeSort(right)
+    merge(arr, left, right)
+    return arr
+
+merge(arr, left, right):                  # writes into arr
+    i = 0; j = 0; k = 0
+    while i < length(left) and j < length(right):
+        if left[i] <= right[j]:           # <= keeps it stable
+            arr[k] = left[i]; i = i + 1
+        else:
+            arr[k] = right[j]; j = j + 1
+        k = k + 1
+    copy the rest of left, then the rest of right, into arr
+```
+
+## Implementation
+
+The Python and Go versions follow the pseudocode: they copy the two halves, sort the copies, and merge back into the original. The C++ version works on index ranges `[left, right]` of one vector and builds two temporary vectors `L` and `R` inside every `merge`. Python also has `merge_sort_iterative`, a bottom-up version that merges runs of size 1, 2, 4, ... with no recursion; C++ and Go have no iterative variant.
+
+<TopicCode topic="Algorithms/Sorting/Merge Sort" />
+
+## Complexity analysis
+
+Each level of the recursion tree merges ranges that together cover all `n` elements, so a level costs <BigO of="n" />. Halving gives log<sub>2</sub>(n) levels.
+
+<Equation label="Recurrence" expr="T(n) = 2 T(n/2) + O(n)" result="O(n log n)" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n log n)', space: 'O(n)', when: 'Sorted input still splits and merges every level: the algorithm does not look at the data when splitting.' },
+    { case: 'Average case', time: 'O(n log n)', space: 'O(n)', when: 'Always log2(n) levels of linear merging.' },
+    { case: 'Worst case', time: 'O(n log n)', space: 'O(n)', when: 'Never worse: the split is always even, whatever the input.' },
+  ]}
+/>
+
+The number of comparisons is between about `(n log<sub>2</sub> n) / 2` and `n log<sub>2</sub> n - n + 1`. The extra memory is the temporary halves: at most about `n` elements are live at once, plus <BigO of="log n" /> stack frames.
+
+<Callout title="Memory is the price of the guarantee">
+Merging in place is possible but complicated and slower. The versions here are the simple ones, and they allocate new buffers on every call: Python and Go slice or copy the halves at each level, and C++ allocates `L` and `R` inside each `merge`. A single reusable buffer would avoid those allocations (the code does not do this).
+</Callout>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Notes']}
+  rows={[
+    ['Top-down (all languages)', 'split recursively, merge on the way back', 'depth log2(n); the textbook version'],
+    ['Bottom-up (`merge_sort_iterative`, Python only)', 'merge runs of size 1, 2, 4, ... in passes', 'no recursion; same O(n log n)'],
+    ['Linked-list Merge Sort', 'split with slow/fast pointers, merge by relinking nodes', 'O(1) extra space for the merge; not implemented here'],
+    ['Natural Merge Sort', 'start from the existing sorted runs', 'adaptive: O(n) on sorted input; not implemented here'],
+    ['Hybrid with Insertion Sort', 'sort small ranges directly', 'fewer calls; not implemented here'],
+  ]}
+/>
+
+## Merge Sort vs other O(n log n) sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Average', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Best for']}
+  highlight={0}
+  rows={[
+    ['Merge Sort', 'O(n log n)', 'O(n log n)', 'O(n)', 'Yes', 'stability, linked lists, external sorting'],
+    ['Quick Sort', 'O(n log n)', 'O(n^2)', 'O(log n)', 'No', 'arrays in memory; usually the fastest'],
+    ['Heap Sort', 'O(n log n)', 'O(n log n)', 'O(log n) here', 'No', 'a hard bound with almost no extra memory'],
+    ['Insertion Sort', 'O(n^2)', 'O(n^2)', 'O(1)', 'Yes', 'tiny or nearly sorted input'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'O(n log n) in every case, with no bad input.',
+    'Stable: equal keys keep their order.',
+    'Sequential access to memory, which suits linked lists and data on disk.',
+    'The two halves are independent, so they can be sorted in parallel.',
+  ]}
+  cons={[
+    'Needs O(n) extra memory.',
+    'Not adaptive: sorted input costs as much as random input.',
+    'Usually slower than Quick Sort on arrays because of the copying.',
+    'Allocating temporary buffers on every call adds overhead (as in these versions).',
+  ]}
+/>
+
+## Applications
+
+- **Stable sorting.** When records must keep their relative order (sort by name, then by city), Merge Sort is the classic choice.
+- **Linked lists.** It needs only sequential access, so it sorts a linked list without random access.
+- **External sorting.** Data too large for memory is sorted in chunks and the sorted chunks are merged.
+- **Counting inversions.** During a merge, every time a right element is taken before the remaining left ones, it forms inversions with all of them: the count comes at no extra asymptotic cost.
+- **Merging sorted lists.** The merge step on its own combines two sorted sequences in `O(n + m)`.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using `<` instead of `<=` when comparing the fronts.** With strict `<` an equal right element is taken first, which makes the sort unstable.
+- **Forgetting to copy the leftover run.** When one half is exhausted, the rest of the other half must still be copied.
+- **Wrong C++ index convention.** The C++ range is inclusive: `mid = left + (right - left) / 2`, the halves are `[left, mid]` and `[mid + 1, right]`. Mixing it with half-open ranges gives off-by-one errors.
+- **Merging into the same array being read.** Without temporary copies the merge overwrites elements it has not read yet.
+- **Assuming it is in place.** The temporary arrays are O(n).
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is Merge Sort O(n log n) even in the worst case?">
+    It always splits the range exactly in half, so the recursion has log<sub>2</sub>(n) levels, and each level does a linear amount of merging. Unlike Quick Sort, the data cannot make the split uneven.
+  </FaqItem>
+  <FaqItem question="Is Merge Sort stable?">
+    Yes, as long as the merge prefers the left element on a tie (`<=`). All three implementations here do; the Python and C++ tests check it with records that have equal keys.
+  </FaqItem>
+  <FaqItem question="Why is it better for linked lists than arrays?">
+    The merge only moves forward through both lists, so it needs no random access, and it can relink nodes instead of copying them. Quick Sort and Heap Sort both need fast random access.
+  </FaqItem>
+  <FaqItem question="Top-down or bottom-up?">
+    They do the same merges, in a different order. Top-down is shorter to write; bottom-up avoids recursion. This repository has the bottom-up version in Python only.
+  </FaqItem>
+</Faq>

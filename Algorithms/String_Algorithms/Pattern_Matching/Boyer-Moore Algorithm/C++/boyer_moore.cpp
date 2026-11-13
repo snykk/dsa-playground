@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 
 std::unordered_map<char, int> buildBadCharTable(const std::string& pattern) {
     std::unordered_map<char, int> table;
@@ -11,6 +12,14 @@ std::unordered_map<char, int> buildBadCharTable(const std::string& pattern) {
         table[pattern[i]] = i;
     }
     return table;
+}
+
+// Last index of c in the pattern, or -1 when c does not occur in it. Uses
+// find(): operator[] would insert an absent c with index 0, which shrinks the
+// shift after a match from m + 1 to m and pollutes the table for later lookups.
+int lastOccurrence(const std::unordered_map<char, int>& table, char c) {
+    auto it = table.find(c);
+    return it == table.end() ? -1 : it->second;
 }
 
 std::vector<int> boyerMooreSearch(const std::string& text, const std::string& pattern) {
@@ -21,7 +30,7 @@ std::vector<int> boyerMooreSearch(const std::string& text, const std::string& pa
     
     int n = text.length();
     int m = pattern.length();
-    auto badChar = buildBadCharTable(pattern);
+    const auto badChar = buildBadCharTable(pattern);
     int s = 0;
     
     while (s <= n - m) {
@@ -31,9 +40,9 @@ std::vector<int> boyerMooreSearch(const std::string& text, const std::string& pa
         }
         if (j < 0) {
             result.push_back(s);
-            s += (s + m < n) ? (m - badChar[text[s + m]]) : 1;
+            s += (s + m < n) ? (m - lastOccurrence(badChar, text[s + m])) : 1;
         } else {
-            int badCharShift = j - (badChar.count(text[s + j]) ? badChar[text[s + j]] : -1);
+            int badCharShift = j - lastOccurrence(badChar, text[s + j]);
             s += std::max(1, badCharShift);
         }
     }

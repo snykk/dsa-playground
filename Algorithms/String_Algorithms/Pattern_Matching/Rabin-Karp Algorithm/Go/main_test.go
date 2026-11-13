@@ -14,6 +14,15 @@ func TestRabinKarpSearch(t *testing.T) {
 		{"ABC", "ABCDEF", []int{}},
 		{"", "ABC", []int{}},
 		{"ABC", "", []int{}},
+		{"aaaa", "aa", []int{0, 1, 2}},
+		{"AAAAA", "AAA", []int{0, 1, 2}},
+		{"xxabc", "abc", []int{2}},
+		// With base 256 and mod 101, "JU" and "AB" share the hash 41: a spurious hit
+		// that the character comparison must reject.
+		{"XJUAB", "AB", []int{3}},
+		// Bytes above 0x7F ("caf" + e-acute in UTF-8).
+		{"caf\xc3\xa9 caf\xc3\xa9", "caf\xc3\xa9", []int{0, 6}},
+		{"a\xff", "\xff", []int{1}},
 	}
 
 	for _, tt := range tests {
@@ -35,4 +44,3 @@ func equal(a, b []int) bool {
 	}
 	return true
 }
-

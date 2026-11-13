@@ -22,8 +22,8 @@ func BubbleSort(arr []int) {
 	}
 }
 
-// BubbleSortGeneric sorts any comparable slice
-func BubbleSortGeneric[T comparable](arr []T, less func(T, T) bool) {
+// BubbleSortGeneric sorts a slice of any type, ordered by less (stable)
+func BubbleSortGeneric[T any](arr []T, less func(T, T) bool) {
 	n := len(arr)
 	
 	for i := 0; i < n; i++ {

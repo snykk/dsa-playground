@@ -1,69 +1,40 @@
-# Floyd-Warshall Algorithm - Go
+# Floyd-Warshall Algorithm -- Go Implementation
 
-**Floyd-Warshall Algorithm** finds shortest paths between all pairs of vertices in a weighted graph.
+All-pairs shortest paths over `map[int][]struct{Neighbor, Weight int}`, returning an `[][]int` matrix.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | `FloydWarshall` (`package main`, no `main` function) |
+| `main_test.go` | 7 tests (`go test`) |
+| `go.mod` | module definition |
 
-Floyd-Warshall implementation in Go using:
-- 2D slice for distance matrix
-- `math.MaxInt32` for infinity
+## API
 
----
+| Function | Returns |
+|----------|---------|
+| `FloydWarshall(graph, numVertices)` | `[][]int` matrix, with `math.MaxInt` where j is unreachable from i; `nil` if there is a negative cycle |
 
-## Complexity Analysis
+Time O(V^3), space O(V^2). There is no path reconstruction in Go. Missing map keys have no edges.
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(V³) | O(V²) |
+## Go-Specific Notes
 
----
+- Infinity is `math.MaxInt`; cells at infinity are skipped, so they are never added.
+- The negative-cycle check runs after every round, so values cannot shrink without bound.
+- Edge initialization keeps the cheapest of parallel edges; a positive self-loop leaves the diagonal at 0.
+- An edge endpoint outside `0..numVertices-1` causes an index-out-of-range panic.
+- The package has no `func main`, so `go run .` does not work; use the tests.
 
-## Implementation Details
-
-### Functions
-
-1. **`FloydWarshall(graph, numVertices)`**
-   - Finds shortest distances between all pairs
-   - Returns 2D slice
-   - Time: O(V³), Space: O(V²)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    graph := map[int][]struct {
-        Neighbor int
-        Weight   int
-    }{
-        0: {{Neighbor: 1, Weight: 4}, {Neighbor: 2, Weight: 2}},
-        1: {{Neighbor: 3, Weight: 5}},
-        2: {{Neighbor: 3, Weight: 1}},
-        3: {},
-    }
-    
-    dist := FloydWarshall(graph, 4)
-    fmt.Println(dist[0][3])  // 3
-}
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-go test -v
+cd Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm/Go
+go test ./...
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
-
+- Check `dist == nil` for a negative cycle.
+- Infinity is `math.MaxInt`, not `math.MaxInt32`.
+- `k` is the outermost loop.

@@ -62,6 +62,33 @@ void testBadCharTable() {
     assert(table['C'] == 2);
 }
 
+void testLookupOfAbsentCharDoesNotInsert() {
+    // Regression: the shift after a match read badChar[c] (operator[]), which
+    // inserted an absent c with index 0: the shift was m instead of m + 1 and
+    // the polluted table shrank later bad-character shifts as well.
+    const auto table = buildBadCharTable("ABC");
+    assert(lastOccurrence(table, 'X') == -1);
+    assert(lastOccurrence(table, 'C') == 2);
+    assert(table.size() == 3);
+    // The audit's input: every match is followed by the absent 'X', so the
+    // pattern jumps m + 1 = 4 after each match.
+    std::string text;
+    for (int k = 0; k < 1000; k++) {
+        text += "ABCX";
+    }
+    std::vector<int> result = boyerMooreSearch(text, "ABC");
+    assert(result.size() == 1000);
+    for (int k = 0; k < 1000; k++) {
+        assert(result[k] == 4 * k);
+    }
+}
+
+void testTextbookAndOverlaps() {
+    assert((boyerMooreSearch("HERE IS A SIMPLE EXAMPLE", "EXAMPLE") == std::vector<int>{17}));
+    assert((boyerMooreSearch("aaaa", "aa") == std::vector<int>{0, 1, 2}));
+    assert((boyerMooreSearch("xxabc", "abc") == std::vector<int>{2}));
+}
+
 int main() {
     testBasicSearch();
     testMultipleOccurrences();
@@ -70,6 +97,8 @@ int main() {
     testEmptyText();
     testPatternLongerThanText();
     testBadCharTable();
+    testTextbookAndOverlaps();
+    testLookupOfAbsentCharDoesNotInsert();
     
     std::cout << "All tests passed!" << std::endl;
     return 0;

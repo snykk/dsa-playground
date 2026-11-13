@@ -1,41 +1,36 @@
-# Randomized Quickselect — Go Implementation
+# Randomized Quickselect -- Go Implementation
 
-O(n) expected-time k-th smallest element, using Lomuto partition with a random pivot.
-
-For the conceptual overview and probability proof, see the parent README: [../README.md](../README.md)
-
----
+The k-th smallest element in O(n) expected time, using a three-way partition and a random pivot. For the idea, the trace and the complexity argument see the [topic README](../README.md).
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | `Quickselect(arr, k, rng)` + `TopKSmallest` helper |
-| `main_test.go` | 12 tests: ranks, duplicates, adversarial inputs, random sorted cross-check |
-| `go.mod` | Module definition |
+- `main.go` - `Quickselect`, `TopKSmallest`, the three-way partition and a small demo `main`.
+- `main_test.go` - 13 tests: ranks, duplicates, sorted input, a random cross-check, error cases and large duplicate-heavy inputs.
+- `go.mod` - the module definition.
 
----
+## API
+
+- `Quickselect(arr []int, k int, rng *rand.Rand) int` - the k-th smallest element, 0-indexed. Reorders `arr`. Panics if `arr` is empty or `k` is out of range. A `nil` `rng` is replaced by a generator seeded from the global `rand.Int63()`.
+- `TopKSmallest(arr []int, k int, rng *rand.Rand) []int` - the k smallest elements, unordered, from a copy of the input.
 
 ## Go-Specific Notes
 
-- **Injected `*rand.Rand`**: each call accepts its own RNG for reproducibility. Passing `nil` falls back to a time-seeded random source.
-- **`rng.Intn(hi - lo + 1) + lo`** gives a uniform integer in `[lo, hi]`. Built-in `Intn` handles modulo bias for you — never `rng.Int() % n`.
-- **Panic vs error**: out-of-range `k` panics rather than returning `(int, error)`. This matches Go stdlib conventions for programmer errors (like `slice[n]` on an n-length slice).
-- **Multi-assignment swap**: `arr[i], arr[j] = arr[j], arr[i]` — one line, no tmp. A Go idiom worth internalizing.
-- **No generics**: hardcoded to `int`. A 1.18+ version would read `func Quickselect[T cmp.Ordered](arr []T, ...)`.
-
----
+- `rng.Intn(hi-lo+1)` is uniform and free of modulo bias.
+- Bad arguments panic instead of returning an error, like an out-of-range slice index.
+- The code is not generic: it works on `[]int`.
+- Go has no standard-library selection function, so a hand-written Quickselect or a sort is the usual choice.
 
 ## How to Run
 
+From this folder:
+
 ```bash
 go test -v ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **`sort.Slice` + index access is O(n log n)** — Quickselect is O(n) expected. For a one-shot median on a million elements, the constant factor matters.
-2. **Go's runtime has no stdlib `nth_element`.** C++ gives you `std::nth_element`; Python has `heapq.nsmallest`. Go programmers hand-roll or use a third-party package.
-3. **Pivot randomness is the algorithm's antifragility.** Even on sorted / reverse-sorted input, the expected O(n) bound holds because the adversary can't predict your choices.
+- Three bands (`<`, `==`, `>`) keep duplicate-heavy input linear.
+- Inject your own `*rand.Rand` for reproducible tests.
+- `TopKSmallest` never changes its input; `Quickselect` does.

@@ -1,42 +1,36 @@
-# Huffman Coding (C++)
+# Huffman Coding -- C++ Implementation
 
-C++ scaffold for Huffman Coding, a greedy algorithm that builds an optimal prefix-free binary code for lossless data compression based on character frequencies. The full implementation is in the Python directory.
+This folder is a placeholder. The only function, `huffmanEncode`, returns an empty map; the full algorithm exists in Python only (see `../Python/huffman_coding.py`).
 
 ## Files
 
-| File | Description |
+| File | Contents |
+|------|----------|
+| `huffman_coding.cpp` | the placeholder `huffmanEncode`, plus the includes a real implementation would use (`<queue>`, `<unordered_map>`) |
+| `huffman_coding_test.cpp` | one test that only checks that the placeholder runs; it asserts nothing about the result |
+
+## API
+
+| Name | Description |
 |------|-------------|
-| `huffman_coding.cpp` | Placeholder with `huffmanEncode` signature (see Python for full implementation) |
-| `huffman_coding_test.cpp` | Basic encode test |
+| `std::unordered_map<char, std::string> huffmanEncode(const std::string& text)` | placeholder: always returns an empty map |
+
+There is no tree type, no heap, no decoder and no compression-ratio helper in C++. Writing them is future work.
+
+## C++-Specific Notes
+
+- A real port would use `std::priority_queue` with a comparator on frequency (a min-heap), a node type owning its children (for example `std::unique_ptr`), and `char` or `unsigned char` keys.
+- Equal frequencies leave the exact code table dependent on the heap order, as in Python.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -DTESTING -o test huffman_coding_test.cpp
-./test
+cd "Algorithms/Greedy/Huffman Coding/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD huffman_coding_test.cpp -o huffman_test
+./huffman_test
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `huffmanEncode(text)` | Returns a map of characters to their Huffman codes (placeholder) | O(n log n) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n log n) for building the Huffman tree via a priority queue |
-| Space | O(n) for the tree and code table |
-
-## Notes
-
-- Huffman coding assigns shorter codes to more frequent characters and longer codes to rarer ones.
-- The algorithm greedily merges the two lowest-frequency nodes until a single tree remains.
-- The resulting codes are prefix-free, meaning no code is a prefix of another.
-- The Python implementation contains the complete tree builder, encoder, decoder, and compression ratio calculator.
-- See `../Python/huffman_coding.py` for the full working implementation.
-
----
-
-_Last Updated: April 2026_
+- Nothing is implemented here yet; use the Python version.
+- A passing test does not mean the algorithm works in C++.

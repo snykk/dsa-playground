@@ -1,72 +1,44 @@
-# Bellman-Ford Algorithm - C++
+# Bellman-Ford Algorithm -- C++ Implementation
 
-**Bellman-Ford Algorithm** finds shortest paths from a source vertex to all other vertices in a weighted graph, even with negative edge weights.
+Bellman-Ford on a `vector<Edge>`, returning `unordered_map<int, int>` distances.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `bellman_ford.cpp` | `struct Edge { int u, v, weight; }` and `bellmanFord` |
+| `bellman_ford_test.cpp` | 8 test functions using `assert`; it `#include`s `bellman_ford.cpp` |
 
-Bellman-Ford implementation in C++ using:
-- Edge list representation
-- `std::unordered_map` for distances
-- `INT_MAX` for infinity
+## API
 
----
+| Function | Returns |
+|----------|---------|
+| `bellmanFord(edges, numVertices, start)` | map from vertex to distance, with `INT_MAX` for unreachable vertices; an empty map if a negative cycle is reachable or `numVertices` is 0; throws `std::out_of_range` if an edge endpoint is outside `0..numVertices-1` |
 
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(V * E) | O(V) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`bellmanFord(edges, numVertices, start)`**
-   - Finds shortest distances from start to all vertices
-   - Returns `unordered_map<int, int>` or empty map if negative cycle exists
-   - Time: O(V * E), Space: O(V)
-
----
-
-## Usage
+Time O(V * E), space O(V). There is no path-reconstruction function in C++.
 
 ```cpp
-#include "bellman_ford.cpp"
-#include <vector>
-#include <iostream>
-
-using namespace std;
-
-int main() {
-    vector<Edge> edges = {
-        {0, 1, 4},
-        {0, 2, 2},
-        {1, 3, 5},
-        {2, 3, 1}
-    };
-    
-    unordered_map<int, int> distances = bellmanFord(edges, 4, 0);
-    // distances: {0: 0, 1: 4, 2: 2, 3: 3}
-    
-    return 0;
-}
+vector<Edge> edges = {{3, 4, 1}, {2, 3, 3}, {1, 2, -2}, {0, 2, 4}, {0, 1, 5}};
+unordered_map<int, int> dist = bellmanFord(edges, 5, 0);  // 0:0 1:5 2:3 3:6 4:7
 ```
 
----
+## C++-Specific Notes
 
-## Compilation
+- Needs C++17. The test file includes `bellman_ford.cpp`; compile only the test file, or you get duplicate-symbol errors.
+- Edges are validated first, so an out-of-range endpoint cannot be read as a vertex at distance 0.
+- An empty map means a negative cycle (or zero vertices); check `numVertices` if you need to tell them apart.
+- Distances are `int` with `INT_MAX` as infinity. Edges whose tail is `INT_MAX` are skipped, but sums are not checked for overflow, so keep weights small.
+
+## How to Run
 
 ```bash
-g++ -std=c++17 bellman_ford.cpp bellman_ford_test.cpp -o bellman_ford_test
+cd Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm/C++
+g++ -std=c++17 -O2 -Wall bellman_ford_test.cpp -o bellman_ford_test
 ./bellman_ford_test
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
-
+- Validate edge endpoints before indexing the distance map.
+- An empty result signals a negative cycle.
+- Compile only the test file.

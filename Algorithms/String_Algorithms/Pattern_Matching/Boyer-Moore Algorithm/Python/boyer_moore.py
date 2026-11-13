@@ -1,8 +1,9 @@
 """
 Boyer-Moore Algorithm Implementation
 
-Boyer-Moore algorithm is an efficient string matching algorithm that uses
-two heuristics: bad character rule and good suffix rule to skip characters.
+Boyer-Moore compares the pattern right to left and uses the bad character
+rule to skip alignments. The good suffix rule of the full algorithm is not
+implemented here (this is a Horspool-style variant).
 """
 
 from typing import List, Dict
@@ -35,7 +36,7 @@ def boyer_moore_search(text: str, pattern: str) -> List[int]:
     Returns:
         List of starting indices where pattern is found
         
-    Time Complexity: O(n × m) worst case, O(n/m) best case
+    Time Complexity: O(n * m) worst case, O(n/m) best case
     Space Complexity: O(m)
     """
     if not pattern:

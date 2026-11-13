@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -95,6 +96,23 @@ void testEmptyThrows() {
     assert(threw);
 }
 
+// Regression: a two-way partition was O(n^2) on all-equal / duplicate-heavy input.
+void testManyDuplicatesIsFast() {
+    auto start = std::chrono::steady_clock::now();
+    std::vector<int> equal(200000, 7);
+    std::mt19937 rng(42);
+    assert(quickselect(equal, 100000, rng) == 7);
+
+    std::vector<int> few(200000);
+    for (size_t i = 0; i < few.size(); ++i) few[i] = static_cast<int>(rng() % 4);
+    std::vector<int> sorted_few = few;
+    std::sort(sorted_few.begin(), sorted_few.end());
+    assert(quickselect(few, 150000, rng) == sorted_few[150000]);
+    double secs = std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - start).count();
+    assert(secs < 1.0);
+}
+
 int main() {
     testSingleElement();
     testSmallest();
@@ -106,6 +124,7 @@ int main() {
     testMatchesSortOnRandomData();
     testOutOfRangeThrows();
     testEmptyThrows();
-    std::cout << "All 10 tests passed!" << std::endl;
+    testManyDuplicatesIsFast();
+    std::cout << "All 11 tests passed!" << std::endl;
     return 0;
 }

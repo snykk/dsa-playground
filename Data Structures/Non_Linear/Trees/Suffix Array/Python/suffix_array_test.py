@@ -35,7 +35,26 @@ class TestSuffixArray(unittest.TestCase):
         
         # Test with same suffix
         lcp = self.sa.longest_common_prefix(1, 1)
-        self.assertGreater(lcp, 0)
+        self.assertEqual(lcp, 5)
+
+        # "ana" and "anana" share "ana".
+        self.assertEqual(self.sa.longest_common_prefix(3, 1), 3)
+
+    def test_suffix_array_order(self):
+        # banana: a, ana, anana, banana, na, nana
+        self.assertEqual(self.sa.suffix_array, [5, 3, 1, 0, 4, 2])
+        self.assertEqual(self.sa.get_suffixes(),
+                         ["a", "ana", "anana", "banana", "na", "nana"])
+
+    def test_search_exact_results(self):
+        self.assertEqual(self.sa.search("ana"), [1, 3])
+        self.assertEqual(self.sa.search("a"), [1, 3, 5])
+        self.assertEqual(self.sa.search("bananas"), [])
+        # The empty pattern is a prefix of every suffix.
+        self.assertEqual(self.sa.search(""), [0, 1, 2, 3, 4, 5])
+
+    def test_empty_text(self):
+        self.assertEqual(SuffixArray("").search("a"), [])
 
 if __name__ == "__main__":
     unittest.main()

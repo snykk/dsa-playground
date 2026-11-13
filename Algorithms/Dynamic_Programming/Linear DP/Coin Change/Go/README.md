@@ -1,14 +1,28 @@
-# Coin Change (Go)
+# Coin Change -- Go Implementation
 
-Go implementation of the Coin Change problem using linear dynamic programming to find the minimum number of coins needed to make a given amount.
+The minimum-coins table.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `main.go` | Main implementation with 1D DP approach |
-| `main_test.go` | Test cases for coin change solver |
-| `go.mod` | Go module definition (`coinchange`) |
+| File | Contents |
+|------|----------|
+| `main.go` | `CoinChangeMinCoins` |
+| `main_test.go` | table-driven test and a check that a negative amount panics |
+| `go.mod` | module `coinchange` (Go 1.21) |
+
+## API
+
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `CoinChangeMinCoins(coins []int, amount int) int` | fewest coins that make `amount`, or `-1` | O(n * amount) | O(amount) |
+
+It panics with `CoinChangeMinCoins: amount must be non-negative` for a negative `amount`. The ways and 0/1 variants are only in the Python folder.
+
+## Go-Specific Notes
+
+- `amount + 1` serves as the "unreachable" sentinel: no valid answer can need more than `amount` coins of value at least 1.
+- Unreachable entries are skipped, so there is no overflow.
+- The package is `main` with no `main` function, so only `go test` runs it.
 
 ## How to Run
 
@@ -16,26 +30,8 @@ Go implementation of the Coin Change problem using linear dynamic programming to
 go test ./...
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `CoinChangeMinCoins(coins []int, amount int) int` | Finds the minimum number of coins to make the target amount, returns -1 if impossible | O(n * amount) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n * amount) where n = number of coin denominations |
-| Space | O(amount) for the 1D DP array |
-
-## Notes
-
-- Uses unbounded knapsack pattern: each coin denomination can be used multiple times.
-- `dp[i]` stores the minimum coins needed to make amount `i`.
-- Initializes `dp` values to `amount + 1` as a sentinel for unreachable amounts.
-- Returns -1 when the target amount cannot be formed with the given coins.
-
----
-
-_Last Updated: April 2026_
+- The sentinel `amount + 1` is larger than any real answer.
+- Unreachable is `-1`; a negative amount panics.
+- The sweep goes upward so coins can repeat.

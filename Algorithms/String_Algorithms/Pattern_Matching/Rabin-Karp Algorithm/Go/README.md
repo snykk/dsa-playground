@@ -1,85 +1,32 @@
-# Rabin-Karp Algorithm (Go)
+# Rabin-Karp Algorithm -- Go Implementation
 
-**Rabin-Karp Algorithm** uses hashing to find patterns in text efficiently.
+Rabin-Karp search with a rolling hash and verified hits.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | package `main`: the constants `base` and `mod`, `RabinKarpSearch`, and a demo `main` |
+| `main_test.go` | a table-driven `TestRabinKarpSearch`: matches, no match, empty inputs, overlaps, a spurious hit, bytes above 0x7F |
+| `go.mod` | module `rabin_karp` |
 
-The Rabin-Karp algorithm uses a rolling hash function to compute hash values for all substrings of the text. It compares hash values instead of characters directly, making it efficient on average.
+## API
 
-**Key Characteristics:**
-- Hash-based pattern matching
-- Average case: O(n + m) time complexity
-- Worst case: O(n × m) time complexity
-- Space: O(1)
+- `RabinKarpSearch(text, pattern string) []int`: all start indices, in increasing order; an empty slice for an empty pattern, an empty text, or a pattern longer than the text. O(n + m) expected, O(n*m) worst case.
 
----
+## Go-Specific Notes
 
-## Complexity Analysis
+- Strings are indexed by `byte`, which is unsigned, so no sign problem arises; indices are byte offsets.
+- Go's `%` can return a negative number, so the rolled hash is normalised by adding `mod`.
+- `base = 256` and `mod = 101` are constants. A larger modulus needs `uint64` arithmetic or `math/bits`.
 
-| Aspect | Complexity |
-|--------|------------|
-| **Average Time** | O(n + m) |
-| **Worst Time** | O(n × m) |
-| **Space** | O(1) |
-
-Where:
-- n = length of text
-- m = length of pattern
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`RabinKarpSearch(text, pattern)`**
-   - Find all occurrences of pattern in text using Rabin-Karp algorithm
-   - Returns slice of starting indices
-   - Time: O(n + m) average, O(n × m) worst
-   - Space: O(1)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    text := "ABABDABACDABABCABC"
-    pattern := "ABABCABC"
-    
-    occurrences := RabinKarpSearch(text, pattern)
-    fmt.Println(occurrences)  // [10]
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 32)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. Verify every hash hit.
+2. Normalise negative results of `%`.

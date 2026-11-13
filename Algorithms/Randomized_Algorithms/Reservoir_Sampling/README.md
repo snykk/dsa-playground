@@ -1,150 +1,119 @@
 # Reservoir Sampling
 
-> Given a stream of items with **unknown length**, select `k` items **uniformly at random** using only O(k) memory. You don't know how long the stream is until it ends — but each of the final `n` items still has an equal `k/n` probability of appearing in your sample.
+Reservoir sampling selects `k` items **uniformly at random** from a stream of **unknown length** in one pass, using only O(k) memory. After `n` items, each of them is in the sample with probability exactly `k/n`.
 
----
+## Intuition
 
-## 🎯 Intuition
+You have a firehose of items (log lines, sensor readings) and can store only `k` of them. At the end, every item that went by must have had the same chance of being in the final sample.
 
-You have a firehose of items (log entries, sensor readings, tweets) and you can store only `k` of them. At the end, every one of the items that passed by must have had the same chance of being in your final sample of size `k`.
+If the item after the first `k` always replaced a stored one you would favor late arrivals; if it never did you would favor early ones. The fix: the i-th item (1-indexed, `i > k`) is accepted with probability `k/i`, and when accepted it replaces a uniformly random slot. Late items enter less often, but they also have less time to be evicted, and the two effects cancel exactly.
 
-**The problem if you're naive:** once you've stored `k` items, should the (k+1)-th item replace one of them? If yes, which? If you always replace with probability 1, you bias toward late arrivals; if you never replace, you bias toward early arrivals.
+The invariant: after `i` items, every one of them is in the reservoir with probability `k/i`.
 
-**Reservoir's answer:** for the i-th item (1-indexed, i > k), accept it into the reservoir with probability `k/i`, replacing a uniformly-random slot. That's it. This single rule gives every item an equal final probability of being selected.
+## Visual
 
----
+```text
+Stream:   a  b  c  d  e  f  ...        k = 2
 
-## 📊 Visual
-
-```
-Stream:          a  b  c  d  e  f  g  ...
-k = 2
-
-i=1 (a): reservoir has room → store              [a, _]
-i=2 (b): reservoir has room → store              [a, b]
-i=3 (c): accept with prob 2/3 → replace random   [a, c] or [c, b]
-i=4 (d): accept with prob 2/4 → replace random   probability 0.5 each
-i=5 (e): accept with prob 2/5 → replace random
-i=6 (f): accept with prob 2/6 → replace random
-...
+i=1 (a): room             -> [a, _]
+i=2 (b): room             -> [a, b]
+i=3 (c): accept prob 2/3  -> replace a random slot
+i=4 (d): accept prob 2/4  -> replace a random slot
+i=5 (e): accept prob 2/5  -> ...
+i=6 (f): accept prob 2/6  -> ...
 ```
 
-At the end of a stream of length `n`, any individual item's probability of being in the reservoir is exactly `k/n`. That's uniform random sampling.
+## How It Works
 
----
+1. Fill the reservoir with the first `k` items.
+2. For each later item `i` (1-indexed), draw `j` uniformly from `0 .. i - 1`.
+3. If `j < k`, overwrite `reservoir[j]` with the item; otherwise discard it. One draw gives both the `k/i` acceptance and the uniform slot.
 
-## 🧮 Algorithm
-
-### Algorithm R (Vitter, 1985)
-
-```
-reservoir = []
-for i, item in enumerate(stream, start=1):
-    if i <= k:
-        reservoir.append(item)              # fill phase
-    else:
-        j = random_int(1, i)                # uniform in [1, i]
-        if j <= k:
-            reservoir[j-1] = item           # replace slot j
-```
-
-O(n) time, O(k) space, **one pass** over the stream.
-
----
-
-## 🚶 Why It Works (Probability Proof Sketch)
-
-After processing the first `n` items, the probability that item `x` (seen at step `i`) is in the reservoir is:
-
-```
-P(x in reservoir) = P(x enters at step i) × P(x survives steps i+1..n)
-
-P(x enters at step i):   k/i   (for i > k; probability 1 for i ≤ k)
-P(x survives each later step j): probability j-th item doesn't replace x's slot
-                               = 1 - (k/j × 1/k) = 1 - 1/j = (j-1)/j
-
-Total: (k/i) × ∏_{j=i+1}^{n} (j-1)/j
-     = (k/i) × (i/n)  (telescoping product)
-     = k/n
+```text
+reservoirSample(stream, k):
+    reservoir = []; seen = 0
+    for item in stream:
+        seen = seen + 1
+        if seen <= k:
+            reservoir.append(item)
+        else:
+            j = random integer in [0, seen - 1]
+            if j < k:
+                reservoir[j] = item
+    return reservoir
 ```
 
-Same `k/n` for every item regardless of when it arrived — that's the magic.
+### Why every item ends with probability k/n
 
----
+Item `i > k` is in the final sample if it enters (probability `k/i`) and survives each later step `j`, where it is evicted only if the new item enters (`k/j`) and picks its slot (`1/k`), so it survives with `(j-1)/j`:
 
-## ⏱️ Complexity
+```text
+P = (k/i) * (i/(i+1)) * ((i+1)/(i+2)) * ... * ((n-1)/n) = k/n
+```
 
-| Operation | Cost |
-|-----------|------|
-| Time | O(n) |
-| Space | **O(k)** — the reservoir only |
-| Passes over stream | **1** |
+The product telescopes. Items `i <= k` enter with probability 1 and survive by the same product.
 
-A better variant, **Algorithm L (Li, 1994)**, achieves O(k · (1 + log(n/k))) expected time by computing how many items to skip via a geometric-ish distribution. Useful when `n` is huge and `k` is small (e.g., sampling 10 items from a trillion-item stream).
+## Step-by-Step Trace
 
----
+`k = 2`, stream `a b c d e f`, using Python `random.Random(8)`:
 
-## 🎯 When to Use
+| i | Item | Draw j | Action | Reservoir |
+|---|------|--------|--------|-----------|
+| 1 | a | - | fill | [a] |
+| 2 | b | - | fill | [a, b] |
+| 3 | c | 0 | 0 < 2: replace slot 0 | [c, b] |
+| 4 | d | 2 | 2 >= 2: reject | [c, b] |
+| 5 | e | 3 | 3 >= 2: reject | [c, b] |
+| 6 | f | 1 | 1 < 2: replace slot 1 | [c, f] |
 
-✅ **Perfect fit:**
-- Log sampling — keep k random log lines per day
-- A/B test traffic sampling
-- Distributed compute: each worker does local reservoir sampling, then combine
-- Database `SAMPLE` operators
-- Reservoir sampling appears in Twitter / Kafka / Splunk internals
+## Complexity
 
-❌ **Not the right tool:**
-- You already have all the data in memory → just shuffle and pick first `k`
-- Stream is bounded + small → `random.sample` is fine
-- You need _weighted_ sampling — use [Weighted Reservoir Sampling](https://en.wikipedia.org/wiki/Reservoir_sampling#Weighted_random_sampling) (algorithm A-Res)
+| Aspect | Cost | Why |
+|--------|------|-----|
+| Time | O(n) | one draw and at most one write per item |
+| Memory | O(k) | only the reservoir is stored |
+| Passes | 1 | the stream length is never needed |
 
----
+Algorithm L skips ahead by a random gap instead of drawing for every item, which takes expected O(k (1 + log(n/k))) time when skipping is cheap (an indexed array, say). It is not implemented here.
 
-## ⚠️ Common Pitfalls
+## When to Use
 
-1. **Using `random.random() < k/i`** (a Bernoulli trial) is correct for "should I accept?" — but only if you then pick a _random_ slot to replace. A common bug: always replace slot 0.
-2. **Off-by-one on 1-indexed vs 0-indexed i.** If your stream is 0-indexed, the formula is `j = random_int(0, i)`, accept if `j < k`. Test with `k = 1` and a stream of 10 items — expected distribution is 10% each.
-3. **Not seeding the RNG**: tests that don't set a seed are flaky. Set `random.seed(fixed)` in tests and use `random.Random()` per-instance in production.
-4. **Thread safety**: Python's `random` is thread-safe (uses locks); Go's global `math/rand` is also locked; C++'s `std::mt19937` is **not** — give each thread its own RNG.
-5. **Multiple passes assumed**: many students first write a "shuffle the array and take first k" solution and call it reservoir sampling. It's not — reservoir sampling's whole point is _single pass over a stream_.
+Use it for a stream of unknown or huge length, a linked list you cannot count cheaply, or a file larger than memory, whenever you need an exactly uniform sample of fixed size `k`.
 
----
+Do not use it when all the data is in memory with a known length (shuffle or pick random indexes), when you need weighted sampling (use a weighted variant such as A-Res), or when you only need a count of distinct items (a sketch such as HyperLogLog).
 
-## ⚔️ Reservoir Sampling vs. Alternatives
+## Reservoir Sampling vs. Alternatives
 
-| Technique | When |
-|-----------|------|
-| **Reservoir Sampling** | Stream of unknown length, need uniform sample |
-| **Fisher-Yates shuffle + first k** | All data fits in memory |
-| **`random.sample`** | Same as above, short implementation |
-| **Weighted reservoir (A-Res)** | Weighted stream, need weighted-uniform sample |
-| **Count-distinct sketches (HyperLogLog)** | Don't need the items themselves, just count |
+| Technique | Needs n first | Memory | Notes |
+|-----------|---------------|--------|-------|
+| Reservoir sampling | No | O(k) | one pass over a stream |
+| Shuffle, take the first k | Yes | O(n) | all data in memory |
+| Random indexes | Yes | O(k) | needs random access |
+| Bernoulli sampling with probability p | No | O(pn) | sample size is random, not exactly k |
+| Weighted reservoir (A-Res) | No | O(k) | unequal weights |
 
----
+## Common Pitfalls
 
-## 🔧 Implementations
+1. **Always replacing slot 0.** The accept test is right but the slot must be uniform.
+2. **Off-by-one on the range.** With `i` counted from 1, draw from `0 .. i - 1` and accept `j < k`.
+3. **A 32-bit counter.** A stream can pass 2^31 items. The C++ sampler used an `int` counter that overflowed; it is now `std::uint64_t`.
+4. **Sharing a generator between threads.** Give each thread its own, and fix the seed in tests.
+5. **Calling a shuffle reservoir sampling.** A shuffle needs all the data; reservoir sampling needs one pass.
 
-| Language | Folder | Notes |
-|----------|--------|-------|
-| Python | [Python/](Python/) | Generator-friendly; supports arbitrary iterables |
-| C++ | [C++/](C++/) | Uses `std::mt19937` and `std::uniform_int_distribution` |
-| Go | [Go/](Go/) | Takes a `io.Reader`-style iterator via channel |
+## Implementations
 
----
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `reservoir_sampling.py` | any iterable; `ReservoirSampler` class; optional `random.Random` |
+| C++ | [C++/](C++/) | `reservoir_sampling.h` | header-only template `ReservoirSampler<T>`; 64-bit counter; `std::mt19937` |
+| Go | [Go/](Go/) | `main.go` | `Sampler` and `ReservoirSample`; `[]int` only; per-instance `*rand.Rand` |
 
-## 📝 Practice Problems
+## Practice Problems
 
-- [LeetCode 382. Linked List Random Node](https://leetcode.com/problems/linked-list-random-node/) — reservoir on a singly linked list (you can't count it first)
-- [LeetCode 398. Random Pick Index](https://leetcode.com/problems/random-pick-index/)
-- [LeetCode 519. Random Flip Matrix](https://leetcode.com/problems/random-flip-matrix/)
+- [Linked List Random Node (LeetCode 382)](https://leetcode.com/problems/linked-list-random-node/) - reservoir sampling with `k = 1` on a list you cannot count first.
+- [Random Pick Index (LeetCode 398)](https://leetcode.com/problems/random-pick-index/) - pick a random index among equal values.
 
----
+## Related
 
-## 🔗 Related
-
-- [Randomized Quickselect](../Randomized_Quickselect/README.md) — the other "randomization replaces algorithmic complexity" pattern.
+- [Randomized Quickselect](../Randomized_Quickselect/README.md) - another randomized algorithm for large data.
 - [Randomized Algorithms overview](../README.md)
-
----
-
-_Part of [Randomized Algorithms](../README.md)._

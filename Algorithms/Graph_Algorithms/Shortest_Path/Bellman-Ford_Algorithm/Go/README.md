@@ -1,67 +1,44 @@
-# Bellman-Ford Algorithm - Go
+# Bellman-Ford Algorithm -- Go Implementation
 
-**Bellman-Ford Algorithm** finds shortest paths from a source vertex to all other vertices in a weighted graph, even with negative edge weights.
+Bellman-Ford on a `[]Edge`, returning `map[int]int` distances.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | `Edge` and `BellmanFord` (`package main`, no `main` function) |
+| `main_test.go` | 8 tests (`go test`) |
+| `go.mod` | module definition |
 
-Bellman-Ford implementation in Go using:
-- Edge list representation
-- `map[int]int` for distances
-- `math.MaxInt32` for infinity
+## API
 
----
+| Function | Returns |
+|----------|---------|
+| `BellmanFord(edges, numVertices, start)` | map from vertex to distance, with `math.MaxInt` for unreachable vertices; `nil` if a negative cycle is reachable; an empty map if `numVertices` is 0; panics if an edge endpoint is outside `0..numVertices-1` |
 
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(V * E) | O(V) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`BellmanFord(edges, numVertices, start)`**
-   - Finds shortest distances from start to all vertices
-   - Returns `map[int]int` or nil if negative cycle exists
-   - Time: O(V * E), Space: O(V)
-
----
-
-## Usage
+`Edge` is `struct{ U, V, Weight int }`. Time O(V * E), space O(V). There is no path-reconstruction function in Go.
 
 ```go
-package main
-
-import "fmt"
-
-func main() {
-    edges := []Edge{
-        {0, 1, 4},
-        {0, 2, 2},
-        {1, 3, 5},
-        {2, 3, 1},
-    }
-    
-    distances := BellmanFord(edges, 4, 0)
-    fmt.Println(distances)  // map[0:0 1:4 2:2 3:3]
-}
+edges := []Edge{{3, 4, 1}, {2, 3, 3}, {1, 2, -2}, {0, 2, 4}, {0, 1, 5}}
+dist := BellmanFord(edges, 5, 0) // map[0:0 1:5 2:3 3:6 4:7]
 ```
 
----
+## Go-Specific Notes
 
-## Running Tests
+- Infinity is `math.MaxInt`. Edges whose tail is at infinity are skipped; sums are not checked for overflow, so keep weights small.
+- A nil map means a negative cycle; reading a nil map is safe, so check `dist == nil` explicitly.
+- Edges are validated first and a bad endpoint panics.
+- The package has no `func main`, so `go run .` does not work; use the tests.
+
+## How to Run
 
 ```bash
-go test -v
+cd Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm/Go
+go test ./...
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
-
+- Check `dist == nil` for a negative cycle.
+- Infinity is `math.MaxInt`, not `math.MaxInt32`.
+- Bad edges panic instead of being read as distance 0.

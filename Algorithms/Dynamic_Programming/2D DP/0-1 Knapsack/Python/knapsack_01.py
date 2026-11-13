@@ -18,8 +18,8 @@ def knapsack_01(weights, values, capacity):
     Returns:
         Maximum value achievable
         
-    Time Complexity: O(n × W)
-    Space Complexity: O(n × W)
+    Time Complexity: O(n x W)
+    Space Complexity: O(n x W)
     """
     n = len(weights)
     dp = [[0] * (capacity + 1) for _ in range(n + 1)]
@@ -49,7 +49,7 @@ def knapsack_01_optimized(weights, values, capacity):
     Returns:
         Maximum value achievable
         
-    Time Complexity: O(n × W)
+    Time Complexity: O(n x W)
     Space Complexity: O(W)
     """
     n = len(weights)

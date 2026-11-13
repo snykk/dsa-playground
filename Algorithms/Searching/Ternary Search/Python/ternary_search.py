@@ -18,7 +18,7 @@ def ternary_search(arr, target):
     Returns:
         Index of target if found, -1 otherwise
         
-    Time Complexity: O(log₃ n)
+    Time Complexity: O(log3(n))
     Space Complexity: O(1)
     """
     left, right = 0, len(arr) - 1
@@ -64,8 +64,8 @@ def ternary_search_recursive(arr, target, left=0, right=None):
     Returns:
         Index of target if found, -1 otherwise
         
-    Time Complexity: O(log₃ n)
-    Space Complexity: O(log₃ n) due to recursion stack
+    Time Complexity: O(log3(n))
+    Space Complexity: O(log3(n)) due to recursion stack
     """
     if right is None:
         right = len(arr) - 1
@@ -112,7 +112,7 @@ def ternary_search_unimodal(func, left, right):
     Returns:
         x value at which function reaches maximum
         
-    Time Complexity: O(log₃ n)
+    Time Complexity: O(log3(n))
     Space Complexity: O(1)
     """
     while right - left > 2:

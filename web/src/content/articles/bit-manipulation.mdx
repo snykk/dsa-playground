@@ -1,0 +1,182 @@
+---
+topic: Problem_Patterns/Bit Manipulation
+title: Bit Manipulation
+lead: Bit manipulation works directly on the binary digits of an integer. A handful of identities, such as n & (n - 1) and x ^ x = 0, replace loops and extra memory, and a bitmask lets one integer stand for a whole subset.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Single operation
+    value: O(1)
+    hint: AND, OR, XOR, shifts on one machine word
+  - label: Popcount (Kernighan)
+    value: O(k)
+    hint: k = number of set bits
+  - label: All subsets
+    value: O(n * 2^n)
+    hint: 2^n masks, n bits each
+    tone: warn
+  - label: Extra space
+    value: O(1)
+properties:
+  - { label: In-place, value: true }
+  - { label: Needs sorted input, value: false }
+  - { label: Width-dependent (overflow, shifts), value: true }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Utilities/Optimization_Techniques/Bitmasking
+  - Problem_Patterns/Inclusion-Exclusion Principle
+  - Algorithms/Dynamic_Programming/Advanced DP
+  - Data Structures/Non_Linear/Trees/Fenwick Tree
+---
+
+## When to use it
+
+Signals in a problem statement:
+
+- "every element appears twice except one": XOR cancels pairs;
+- "is it a power of two", "count the 1 bits", "Hamming distance";
+- a set of at most about 20-30 items where you must try **all subsets**: one integer per subset;
+- flags, permissions or visited sets that should fit in one word;
+- "lowest set bit" appears inside Fenwick trees, where `x & -x` is the step size.
+
+## How it works
+
+Integers are stored in two's complement. Six operators do all the work: `&`, `|`, `^`, `~`, `<<`, `>>`.
+
+<DataTable
+  columns={['Goal', 'Expression', 'Why it works']}
+  rows={[
+    ['Get bit i', '`(n >> i) & 1`', 'shift bit i to position 0, mask the rest'],
+    ['Set bit i', '`n | (1 << i)`', 'OR with a mask that has only bit i'],
+    ['Clear bit i', '`n & ~(1 << i)`', 'AND with a mask that has every bit but i'],
+    ['Toggle bit i', '`n ^ (1 << i)`', 'XOR flips exactly the masked bit'],
+    ['Lowest set bit', '`n & (-n)`', '-n inverts every bit above the lowest 1 and keeps that bit'],
+    ['Clear lowest set bit', '`n & (n - 1)`', 'n - 1 flips the lowest 1 and the zeros below it'],
+    ['Power of two', '`n > 0 and (n & (n - 1)) == 0`', 'exactly one bit set; n > 0 excludes 0'],
+    ['Even', '`(n & 1) == 0`', 'bit 0 is the parity'],
+  ]}
+/>
+
+<Steps>
+  <Step title="Think in positions">
+    Bit i has value 2<sup>i</sup>, counted from the least significant bit at position 0.
+  </Step>
+  <Step title="Build a mask for what you want to touch">
+    `1 << i` is a mask with only bit i set. `~mask` is its complement.
+  </Step>
+  <Step title="Combine with the right operator">
+    AND keeps or clears, OR sets, XOR flips or cancels.
+  </Step>
+</Steps>
+
+<Callout title="The key identity">
+`n & (n - 1)` removes the lowest set bit. Subtracting 1 turns the lowest 1 into 0 and every 0 below it into 1, so AND-ing with `n` wipes exactly that bit. Counting how many times you can repeat it before reaching 0 gives the number of set bits (Brian Kernighan's algorithm).
+</Callout>
+
+## Template
+
+```text
+popcount(n):                      # Brian Kernighan; negatives count as 64-bit values
+    if n < 0: n = n mod 2^64      # Python only: ints have unlimited sign bits
+    count = 0
+    while n != 0:
+        n = n & (n - 1)           # drop the lowest set bit
+        count = count + 1
+    return count
+
+all_subsets(n):                   # element i is in the subset when bit i of mask is 1
+    for mask in 0 .. 2^n - 1:
+        subset = [i for i in 0 .. n - 1 if mask & (1 << i)]
+```
+
+## Worked example: counting bits of 13
+
+`count_set_bits(13)` clears one bit per round: 13 = `1101`.
+
+<ArrayDiagram
+  legend={{ f: 'bit is 1', m: 'bit is 0 (or already cleared)', p: 'the lowest set bit that this round clears' }}
+  rows={[
+    { label: 'n = 13', values: [1, 1, 0, 1], tones: 'ffmp', marks: { 0: 'bit 3', 3: 'bit 0' }, note: 'Binary 1101, three bits set. `n - 1 = 1100`, so `n & (n - 1)` clears bit 0.' },
+    { label: 'n = 12', values: [1, 1, 0, 0], tones: 'fpmm', note: 'count = 1. `12 & 11 = 1000`: bit 2 was the lowest set bit.' },
+    { label: 'n = 8', values: [1, 0, 0, 0], tones: 'pmmm', note: 'count = 2. `8 & 7 = 0`.' },
+    { label: 'n = 0', values: [0, 0, 0, 0], tones: 'mmmm', note: 'count = 3. The loop stops, and the answer is 3.' },
+  ]}
+/>
+
+The same idea yields Hamming distance: `count_differing_bits(7, 10)` XORs the numbers (`0111 ^ 1010 = 1101`) and counts the 3 set bits. And `lowest_set_bit(12)` returns `12 & -12 = 4`.
+
+## Implementation
+
+Each language provides `is_power_of_two`, `count_set_bits`, `get_bit`, `set_bit`, `clear_bit`, `toggle_bit`, `lowest_set_bit`, `highest_set_bit`, `count_differing_bits`, `swap_without_temp`, `is_even`, `next_power_of_two` and `subset_generation` (named in camelCase in C++ and exported names in Go). C++ and Go use 64-bit `int64` values.
+
+Negative inputs to the bit counters are treated as 64-bit two's complement values in all three languages, so `count_set_bits(-1)` is 64. The Python version masks to 64 bits first, because without it the loop would run forever: a Python `int` has infinitely many sign bits.
+
+<TopicCode topic="Problem_Patterns/Bit Manipulation" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Get / set / clear / toggle', time: 'O(1)', when: 'One shift and one logical operation on a machine word.' },
+    { case: 'Kernighan popcount', time: 'O(k)', when: 'One iteration per set bit, at most 64 for a 64-bit value.' },
+    { case: 'highest_set_bit, next_power_of_two', time: 'O(log n)', when: 'The loops shift one position at a time.' },
+    { case: 'subset_generation', time: 'O(n * 2^n)', when: '2^n masks, each scanned over n bit positions, and the output itself has that size.' },
+  ]}
+/>
+
+Space is <BigO of="1" /> except `subset_generation`, which returns all 2<sup>n</sup> subsets.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Single Number (LeetCode 136)', 'XOR all values: pairs cancel, the unique one remains'],
+    ['Number of 1 Bits (LeetCode 191)', 'Kernighan loop'],
+    ['Power of Two (LeetCode 231)', '`n > 0 and n & (n - 1) == 0` with correct precedence'],
+    ['Hamming Distance (LeetCode 461)', 'popcount of the XOR'],
+    ['Counting Bits (LeetCode 338)', 'DP: `bits[i] = bits[i & (i - 1)] + 1`'],
+    ['Subsets (LeetCode 78)', 'enumerate masks 0 .. 2^n - 1'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Technique', 'Use', 'Note']}
+  rows={[
+    ['XOR swap', 'swap two values without a temporary', 'implemented; a plain swap is clearer and just as fast'],
+    ['Bitmask DP', 'state = subset of items', 'see the Bitmasking topic; limited to about 20 items'],
+    ['Lookup table per byte', 'popcount in O(1) per byte', 'trades memory for speed'],
+    ['Hardware popcount', '`std::popcount`, `bits.OnesCount64`', 'single instruction on most CPUs'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Precedence in C and C++.** `n & (n - 1) == 0` parses as `n & ((n - 1) == 0)`, because `==` binds tighter than `&`. Always parenthesize: `(n & (n - 1)) == 0`.
+- **Forgetting `n > 0`.** `0 & -1 == 0`, so 0 passes the power-of-two test unless you exclude it.
+- **Shifting by the width or more.** `1 << 32` on a 32-bit `int` is undefined behaviour in C++. Use `1LL << i` or `uint64_t` for bit positions above 30.
+- **Right shift of negatives.** `>>` on a signed value is an arithmetic shift in practice: it copies the sign bit. Use unsigned types for pure bit work.
+- **Negative numbers in loops.** Python integers never run out of sign bits, so `while n: n &= n - 1` never ends for negatives unless masked.
+- **Too clever.** XOR swap does nothing useful on modern compilers and fails when both names refer to the same variable.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does n & (n - 1) clear the lowest set bit?">
+    Write n as a prefix, a lowest 1, then zeros. Subtracting 1 turns that 1 into 0 and the zeros into 1s, leaving the prefix unchanged. AND-ing with n keeps the prefix and clears the rest.
+  </FaqItem>
+  <FaqItem question="Why does x & -x give the lowest set bit?">
+    In two's complement, -x is ~x + 1. Inverting flips every bit, and adding 1 carries up through the trailing ones, restoring the lowest 1 and the zeros below it. Only that lowest bit is set in both x and -x.
+  </FaqItem>
+  <FaqItem question="How many items can a bitmask hold?">
+    One machine word: 64 bits for `int64`. But enumerating subsets costs 2<sup>n</sup>, so exhaustive search is practical for n up to about 20-25.
+  </FaqItem>
+  <FaqItem question="Is bit manipulation always faster?">
+    Not by much on its own: the compiler already turns `x * 2` into a shift. The real gains come from the algorithms, such as O(k) popcount, XOR cancellation in O(n) time and O(1) space, and subset DP.
+  </FaqItem>
+</Faq>

@@ -1,192 +1,45 @@
-# Kruskal's Algorithm (C++)
+# Kruskal's Algorithm -- C++ Implementation
 
-**Kruskal's Algorithm** finds Minimum Spanning Tree (MST) by adding edges in increasing order of weight, using Union-Find to detect cycles.
+Kruskal's algorithm on a `vector<tuple<int, int, int>>` of `(u, v, weight)` edges.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `kruskal.cpp` | the `UnionFind` class and `kruskalMST` |
+| `kruskal_test.cpp` | 4 test functions using `assert`; it `#include`s `kruskal.cpp` |
 
-Kruskal's algorithm is a greedy algorithm that finds the minimum spanning tree of a connected, undirected graph. It works by:
-1. Sorting all edges by weight
-2. Adding edges in order (lightest first)
-3. Skipping edges that would create cycles
-4. Stopping when V-1 edges are added (MST complete)
+## API
 
-**Key Insight**: Always add the minimum weight edge that doesn't create a cycle.
+| Name | Returns |
+|------|---------|
+| `UnionFind(n)` | `find(x)` with path compression; `unionSets(x, y)` by rank, returning `false` if already joined |
+| `kruskalMST(edges, numVertices)` | `vector<tuple<int, int, int>>` of the chosen edges; empty for 0 vertices |
 
----
-
-## Algorithm
-
-1. **Sort edges**: Sort all edges by weight (ascending)
-2. **Initialize Union-Find**: Create disjoint set for each vertex
-3. **Process edges** (greedy):
-   - For each edge (u, v, weight) in sorted order:
-     - If u and v are in different sets (no cycle):
-       - Add edge to MST
-       - Union the sets containing u and v
-     - Otherwise, skip edge (would create cycle)
-4. **Stop**: When MST has V-1 edges (tree complete)
-
----
-
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(E log E) or O(E log V) | O(V) |
-
-**Note**: 
-- O(E log E) for sorting edges
-- O(E log V) with path compression and union by rank
-- O(V) for Union-Find structure
-
----
-
-## Implementation Details
-
-### Classes
-
-1. **`UnionFind`**
-   - Disjoint Set Union data structure
-   - Methods: `find(x)` with path compression, `unionSets(x, y)` with union by rank
-   - Used for efficient cycle detection
-
-### Functions
-
-1. **`kruskalMST(edges, numVertices)`**
-   - Finds MST using Kruskal's algorithm
-   - Returns vector of tuples (u, v, weight) representing MST edges
-   - Time: O(E log E), Space: O(V)
-
----
-
-## Usage
+Time O(E log E), space O(V). The function returns edges only; add up the weights yourself.
 
 ```cpp
-#include <vector>
-#include <tuple>
-#include "kruskal.cpp"
-
-int main() {
-    // Edge list: (u, v, weight)
-    std::vector<std::tuple<int, int, int>> edges = {
-        {0, 1, 10},
-        {0, 2, 6},
-        {0, 3, 5},
-        {1, 3, 15},
-        {2, 3, 4}
-    };
-    
-    auto mst = kruskalMST(edges, 4);
-    
-    // Print MST edges
-    for (const auto& edge : mst) {
-        std::cout << "Edge: (" << std::get<0>(edge) << ", " 
-                  << std::get<1>(edge) << ", " 
-                  << std::get<2>(edge) << ")\n";
-    }
-    // Output:
-    // Edge: (2, 3, 4)
-    // Edge: (0, 3, 5)
-    // Edge: (0, 1, 10)
-    
-    return 0;
-}
+std::vector<std::tuple<int, int, int>> edges = {{0, 1, 10}, {0, 2, 6}, {0, 3, 5}, {1, 3, 15}, {2, 3, 4}};
+auto mst = kruskalMST(edges, 4);   // (2,3,4) (0,3,5) (0,1,10)
 ```
 
----
+## C++-Specific Notes
 
-## Important Notes
+- Needs C++17 (generic lambda in `std::sort`, structured bindings in the tests). The test file includes `kruskal.cpp`; compile only the test file, or you get duplicate-symbol errors.
+- `kruskalMST` takes the edge vector by non-const reference and **sorts it in place**. Copy it first if you need the original order.
+- `std::sort` is not stable, so equal-weight edges can come out in any order; the total weight does not change.
+- A disconnected graph returns a spanning forest (fewer than V - 1 edges).
 
-1. **Cycle Detection**: Union-Find efficiently detects cycles in O(α(V)) amortized time
-2. **Connected Graph**: Algorithm assumes connected graph (MST has V-1 edges)
-3. **Undirected**: Works on undirected graphs
-4. **Edge Cases**: Handle empty graph, single vertex, disconnected graph
-5. **Sorting**: Must sort edges by weight first using std::sort
-
----
-
-## Advantages
-
-1. ✅ **Optimal**: Guarantees minimum spanning tree
-2. ✅ **Efficient**: O(E log E) time complexity
-3. ✅ **Simple**: Easy to understand and implement
-4. ✅ **Sparse graphs**: Works well for sparse graphs (E ≈ V)
-
----
-
-## Disadvantages
-
-1. ❌ **Sorting overhead**: Must sort all edges
-2. ❌ **Dense graphs**: For dense graphs (E ≈ V²), Prim's may be better
-3. ❌ **Union-Find complexity**: Requires understanding of Union-Find
-
----
-
-## When to Use
-
-- ✅ Sparse graphs (few edges)
-- ✅ When all edges are known upfront
-- ✅ When edge list representation is natural
-- ❌ Dense graphs (Prim's may be better)
-- ❌ When graph changes dynamically
-
----
-
-## Comparison with Prim's
-
-| Aspect | Kruskal's | Prim's |
-|--------|-----------|--------|
-| **Graph Type** | Works on edge list | Works on adjacency list/matrix |
-| **Best For** | Sparse graphs | Dense graphs |
-| **Start** | No starting vertex needed | Requires starting vertex |
-| **Data Structure** | Union-Find | Priority Queue |
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++11 kruskal.cpp kruskal_test.cpp -o kruskal_test
+cd "Algorithms/Greedy/Minimum Spanning Tree/Kruskal's Algorithm/C++"
+g++ -std=c++17 -O2 -Wall kruskal_test.cpp -o kruskal_test
 ./kruskal_test
 ```
 
----
+## Key Takeaways
 
-## Testing
-
-Run the test suite:
-
-```bash
-g++ -std=c++11 kruskal_test.cpp -o test && ./test
-```
-
----
-
-## Related Algorithms
-
-- **Prim's Algorithm**: Alternative MST algorithm
-- **Union-Find**: Essential data structure for Kruskal's
-- **Borůvka's Algorithm**: Another MST algorithm
-
----
-
-## Applications
-
-1. **Network Design**: Design networks with minimum cost
-2. **Cluster Analysis**: Find clusters in data
-3. **Image Segmentation**: Segment images into regions
-4. **Circuit Design**: Design circuits with minimum wire
-
----
-
-## References
-
-- Kruskal, J. B. (1956). "On the shortest spanning subtree of a graph"
-- "Introduction to Algorithms" by CLRS (Chapter 23)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
+- The input vector is sorted in place.
+- Compile only the test file.
+- Sum the weights yourself; the result is a list of edges.

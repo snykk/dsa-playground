@@ -1,102 +1,34 @@
-# Suffix Array (C++)
+# Suffix Array -- C++ Implementation
 
-**Suffix Array** is a sorted array of all suffixes of a string, useful for efficient pattern matching and string processing.
+Suffix array construction by sorting, with binary-search pattern lookup.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `suffix_array.cpp` | `buildSuffixArray`, `searchPattern` |
+| `suffix_array_test.cpp` | `assert`-based tests: all indices present, search counts and indices, no match, a single character, an empty text, the exact order of `banana`, exact results, the empty pattern, overlaps |
 
-A suffix array is a sorted array of all suffixes of a string. It enables efficient pattern matching using binary search, making it powerful for multiple pattern queries and string analysis.
+## API
 
-**Key Characteristics:**
-- Sorted array of all suffixes
-- Time: O(n log n) construction, O(m log n) search
-- Space: O(n)
-- Powerful for string processing
+- `std::vector<int> buildSuffixArray(const std::string& s)`: the start indices of the suffixes in sorted order.
+- `std::vector<int> searchPattern(const std::vector<int>& suffixArray, const std::string& text, const std::string& pattern)`: all start indices, in increasing order. An empty pattern returns `0..n-1` on a non-empty text.
 
----
+## C++-Specific Notes
 
-## Complexity Analysis
+- Construction stores `std::pair<std::string, int>` for every suffix (`substr`): O(n^2) memory, O(n^2 log n) worst-case time.
+- Search copies the probed suffix with `substr(idx)` and then `substr(0, m)` at each probe, so a query costs O(n log n).
+- Indices are byte offsets.
+- `int` indices limit the text to about 2 billion bytes, far above what the quadratic build can handle.
 
-| Aspect | Complexity |
-|--------|------------|
-| **Construction Time** | O(n log n) |
-| **Search Time** | O(m log n) |
-| **Space** | O(n) |
-
-Where:
-- n = length of text
-- m = length of pattern
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`buildSuffixArray(s)`**
-   - Build suffix array for a given string
-   - Returns vector of indices sorted by suffix
-   - Time: O(n log n), Space: O(n)
-
-2. **`searchPattern(suffixArray, text, pattern)`**
-   - Search for pattern in text using suffix array
-   - Returns vector of starting indices where pattern is found
-   - Time: O(m log n), Space: O(1)
-
----
-
-## Usage
-
-```cpp
-#include <string>
-#include <vector>
-#include <iostream>
-#include "suffix_array.cpp"
-
-int main() {
-    std::string text = "banana";
-    
-    // Build suffix array
-    std::vector<int> sa = buildSuffixArray(text);
-    
-    // Search for pattern
-    std::string pattern = "ana";
-    std::vector<int> occurrences = searchPattern(sa, text, pattern);
-    // occurrences = [1, 3]
-    
-    return 0;
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Compile
-g++ -o suffix_array_test suffix_array_test.cpp
-
-# Run
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD suffix_array_test.cpp -o suffix_array_test
 ./suffix_array_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ suffix_array_test.cpp -o suffix_array_test && ./suffix_array_test
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. Suffixes with a common prefix are adjacent after sorting.
+2. Copying suffixes is simple but quadratic in memory.

@@ -1,5 +1,6 @@
 import unittest
-from graph_traversal import bfs_shortest_path, get_dfs_traversal, num_islands, topological_sort
+from graph_traversal import (bfs_shortest_path, dfs_recursive, get_dfs_traversal,
+                             num_islands, topological_sort)
 
 class TestGraphTraversal(unittest.TestCase):
     def setUp(self):
@@ -48,6 +49,28 @@ class TestGraphTraversal(unittest.TestCase):
         # Cycle: 0 -> 1 -> 0
         edges_cycle = [[0, 1], [1, 0]]
         self.assertEqual(topological_sort(2, edges_cycle), [])
+
+    def test_bfs_reaches_sink_nodes_of_a_directed_graph(self):
+        # Regression: a target that is not a dict key (no outgoing edges) was
+        # reported unreachable.
+        self.assertEqual(bfs_shortest_path({0: [1]}, 0, 1), 1)
+        self.assertEqual(bfs_shortest_path({0: [1], 1: [2]}, 0, 2), 2)
+        self.assertEqual(bfs_shortest_path({0: [1]}, 0, 7), -1)
+
+    def test_dfs_order_matches_the_recursive_version(self):
+        visited, expected = set(), []
+        dfs_recursive(self.graph, 0, visited, expected)
+        self.assertEqual(get_dfs_traversal(self.graph, 0), expected)
+        self.assertEqual(get_dfs_traversal(self.graph, 9), [])
+
+    def test_deep_inputs_do_not_hit_the_recursion_limit(self):
+        # Regression: both used to raise RecursionError.
+        path = {i: [i + 1] for i in range(1500)}
+        path[1500] = []
+        self.assertEqual(get_dfs_traversal(path, 0), list(range(1501)))
+        grid = [["1"] * 60 for _ in range(60)]
+        self.assertEqual(num_islands(grid), 1)
+
 
 if __name__ == '__main__':
     unittest.main()

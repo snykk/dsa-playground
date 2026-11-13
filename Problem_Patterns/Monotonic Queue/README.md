@@ -1,184 +1,112 @@
-# Monotonic Queue Pattern
+# Monotonic Queue
 
-> A **Monotonic Queue** is a **deque** where we maintain elements in monotonic (non-increasing or non-decreasing) order from front to back. It supports O(1) access to the maximum (or minimum) of the current window, making it the canonical tool for **sliding window maximum / minimum** problems.
+A monotonic queue is a deque whose values stay sorted from front to back, so the maximum (or minimum) of a sliding window is always at the front. It computes every window maximum in O(n) total instead of O(n * k).
 
----
+## Intuition
 
-## 🎯 Intuition
+Imagine a line of people ordered by height, newcomers joining at the back. When someone taller arrives, every shorter person at the back can leave: they entered earlier, so they also leave the window earlier, and the taller newcomer beats them for as long as they could matter. The front of the line is always the tallest person still in view. People also leave from the front when they slide out of the window.
 
-Imagine a line of people arranged by height. New person comes from the right:
-- If they're taller than the person at the back, the shorter ones can leave — they'll never be the tallest _visible_ again while the taller newcomer is in line.
-- The front of the line always holds the tallest currently-in-view person.
+Invariants: every index in the deque lies inside the current window, the values at those indices decrease from front to back, and the front is the window maximum. For the minimum, flip the comparison.
 
-That's the essence of a monotonic decreasing deque: **when a bigger element comes in, pop all smaller elements from the back first**. The front is always the max.
+Signals: "maximum or minimum of every window of size k", DP with `dp[i] = best(dp[i-k..i-1]) + cost`, "longest subarray with max - min <= limit".
 
-For minimum, flip: pop all _larger_ elements from the back.
+## Visual
 
-This generalizes the **Monotonic Stack** (one-direction) to a **Monotonic Deque** (window with both ends). Think of it as: _"monotonic stack, but the front can also leave when it slides out of the window."_
+```text
+arr = [1, 3, -1, -3, 5, 3, 6, 7], k = 3     deque shows indices (values)
 
----
+i=0  [0(1)]
+i=1  [1(3)]               3 pops 1
+i=2  [1(3), 2(-1)]                          window max 3
+i=3  [1(3), 2(-1), 3(-3)]                   window max 3
+i=4  [4(5)]               1 expires, 5 pops -3 and -1    window max 5
+i=5  [4(5), 5(3)]                           window max 5
+i=6  [6(6)]               6 pops 3 and 5    window max 6
+i=7  [7(7)]               7 pops 6          window max 7
 
-## 📊 Visual: Sliding Window Max
-
-Array `[1, 3, -1, -3, 5, 3, 6, 7]`, window size `k = 3`.
-
-```
-Window        Deque (indices, values shown)   Max at front
-[1]           [1]                             1
-[1,3]         [3]       (popped 1, too small) 3
-[1,3,-1]      [3,-1]                          3
-[3,-1,-3]     [3,-1,-3] (1 slides out; 3 still at front) 3
-[-1,-3,5]     [5]       (popped all; 5 biggest) 5
-[-3,5,3]      [5,3]                            5
-[5,3,6]       [6]       (popped 5 and 3)       6
-[3,6,7]       [7]       (popped 6)             7
-
-Output: [3, 3, 3, 5, 5, 6, 7]
+output: [3, 3, 5, 5, 6, 7]
 ```
 
-Every element enters and leaves the deque at most once → **O(n) total** across all windows, not O(n·k) as brute force would be.
+## How It Works
 
----
+For each index `i`:
 
-## 🧮 Algorithm
+1. Pop from the front while the front index is `<= i - k` (outside the window).
+2. Pop from the back while `arr[back] <= arr[i]` (dominated).
+3. Push `i`.
+4. If `i >= k - 1`, record `arr[front]`.
 
-For **sliding window maximum** with window size `k` over array `arr`:
-
-```
-dq = empty deque (stores indices)
-result = []
+```text
 for i in range(n):
-    # 1. Remove indices that fall out of the window
-    while dq and dq.front() <= i - k:
-        dq.popleft()
-    # 2. Maintain decreasing order at the back
-    while dq and arr[dq.back()] <= arr[i]:
-        dq.pop()
-    # 3. Push current index
+    while dq and dq[0] <= i - k: dq.popleft()
+    while dq and arr[dq[-1]] <= arr[i]: dq.pop()
     dq.append(i)
-    # 4. Once we have a full window, record the max
-    if i >= k - 1:
-        result.append(arr[dq.front()])
-return result
+    if i >= k - 1: result.append(arr[dq[0]])
 ```
 
-Three invariants:
-1. **All indices in the deque are inside the current window.**
-2. **Values at those indices are strictly decreasing from front to back.**
-3. **Front is the current window maximum.**
+## Step-by-Step Trace
 
----
+`arr = [3, 1, -1, 2]`, `k = 2`:
 
-## 🚶 Step-by-Step Walkthrough
+| i | arr[i] | Evict front | Pop back | Deque (indices) | Output |
+|---|--------|-------------|----------|-----------------|--------|
+| 0 | 3 | none | none | [0] | none yet |
+| 1 | 1 | none | none | [0, 1] | 3 |
+| 2 | -1 | 0 (0 <= 0) | none | [1, 2] | 1 |
+| 3 | 2 | 1 (1 <= 1) | 2 (-1 <= 2) | [3] | 2 |
 
-Array `[3, 1, -1, 2]`, `k = 2`.
+Result: `[3, 1, 2]`.
 
-```
-i=0, arr=3
-  Step 1: deque empty — nothing to pop
-  Step 2: deque empty — nothing to pop
-  Step 3: push 0 → dq=[0]
-  Step 4: i < k-1=1 → no output
+## Complexity
 
-i=1, arr=1
-  Step 1: front=0, 0 > 1-2=-1 → keep
-  Step 2: arr[back=0]=3 > 1 → don't pop
-  Step 3: push 1 → dq=[0,1] (values 3, 1: decreasing ✓)
-  Step 4: i=1, window [3,1], max=arr[0]=3 → output 3
+| Quantity | Value | Why |
+|----------|-------|-----|
+| Time | O(n) | each index is pushed once and popped at most once |
+| Per window | O(1) | the answer is the front |
+| Space | O(k) | at most k indices in the deque |
 
-i=2, arr=-1
-  Step 1: front=0, 0 > 0 false → 0 <= 2-2=0 → pop! dq=[1]
-  Step 2: arr[back=1]=1 > -1 → don't pop
-  Step 3: push 2 → dq=[1,2] (values 1, -1: decreasing ✓)
-  Step 4: output arr[1]=1
+## When to Use
 
-i=3, arr=2
-  Step 1: front=1, 1 > 3-2=1 false → 1 <= 1 → pop! dq=[2]
-  Step 2: arr[back=2]=-1 <= 2 → pop! dq=[]
-  Step 3: push 3 → dq=[3]
-  Step 4: output arr[3]=2
+Use it for sliding window maximum or minimum, DP transitions over a bounded window, and constrained subarray problems. Do not use it for static range queries (Sparse Table or Segment Tree) or for ranks such as the median or the k-th element (balanced tree or two heaps).
 
-Output: [3, 1, 2]
-```
-
----
-
-## ⏱️ Complexity — and Why
-
-| Metric | Value | Explanation |
-|--------|-------|-------------|
-| **Time** | O(n) | Each index pushed and popped at most once across the entire scan |
-| **Space** | O(k) | Deque holds at most `k` indices |
-
-The amortized argument is the same as monotonic stack: total work across the inner `while` loops is bounded by total push count, which is `n`.
-
----
-
-## 🎯 When to Use
-
-✅ **Perfect fit:**
-- Sliding window maximum / minimum — the canonical use case
-- "What's the best we could do starting from each position with limit k?"
-- DP optimization when transitions reference the min/max of a sliding range
-- Constrained subarray problems (e.g., "longest subarray with max - min ≤ k")
-
-❌ **Not the right tool:**
-- Static range max/min (no window movement) → use **Sparse Table** or **Segment Tree**
-- You need arbitrary range queries, not just sliding → use **Segment Tree**
-- You need the k-th largest — monotonic queue only tracks the extreme
-
----
-
-## ⚔️ Monotonic Queue vs. Alternatives
+## Monotonic Queue vs. Alternatives
 
 | Technique | Best for | Time |
 |-----------|----------|------|
-| **Monotonic Queue** | Sliding window min/max | O(n) total |
-| **Multiset / Balanced BST** | Sliding window, any rank query | O(n log k) |
-| **Segment Tree** | Any range, any query | O(n log n) build + O(log n) per query |
-| **Heap + lazy deletion** | Sliding window max | O(n log k) |
-| **Sparse Table** | Static range max/min | O(n log n) build, O(1) per query |
+| Monotonic queue | sliding window min or max | O(n) total |
+| Heap with lazy deletion | sliding window max, simple to write | O(n log n) |
+| Balanced tree / multiset | any rank query in a window | O(n log k) |
+| Sparse table | static range min or max | O(n log n) build, O(1) query |
+| Segment tree | arbitrary range queries and updates | O(log n) per query |
 
-Monotonic queue **wins on speed** when you only need the extreme and the window slides uniformly.
+## Common Pitfalls
 
----
+- Storing values instead of indices: you cannot see when the front leaves the window, and equal values are evicted wrongly (`[5, 5, 1]` with `k = 2` must give `[5, 5]`).
+- Evicting the front after reading the answer instead of before.
+- Emitting output during the first `k - 1` steps.
+- Using a decreasing deque for a minimum, or the reverse.
+- Python `MonotonicDeque` evicts by index: call `pop_front_if` once for every value leaving the window, oldest first.
+- `k <= 0`, an empty array or `k > len(arr)` return an empty result.
 
-## ⚠️ Common Pitfalls
+## Implementations
 
-1. **Storing values, not indices.** You need indices to know when something slides out of the window. Storing only values works for one-shot max but loses window awareness.
-2. **`<=` vs `<` for the back-pop condition.** Use `<=` (strict decreasing isn't required) — otherwise equal values force extra work. Both are correct; `<=` is more cache-friendly in practice.
-3. **Forgetting the window-expiration check.** Step 1 of the loop must run _before_ step 4 emits the answer. Otherwise you may output a value that's no longer in the window.
-4. **Output only after the window fills.** For the first `k-1` iterations, the window isn't full — no output. Off-by-one here is a classic bug.
-5. **Deque vs. stack confusion.** Monotonic _stack_ is push/pop at one end. Monotonic _queue_ needs both ends — hence `deque`, not `stack`.
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `monotonic_queue.py` | `collections.deque` of indices; also a reusable `MonotonicDeque` class |
+| C++ | [C++/](C++/) | `monotonic_queue.h` | header-only, `std::deque<int>` of indices |
+| Go | [Go/](Go/) | `main.go` | slice as deque; front pop reslices `dq[1:]` |
 
----
+## Practice Problems
 
-## 🔗 Related Patterns
+- [LeetCode 239. Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)
+- [LeetCode 862. Shortest Subarray with Sum at Least K](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)
+- [LeetCode 1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit](https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
+- [LeetCode 1499. Max Value of Equation](https://leetcode.com/problems/max-value-of-equation/)
+- [Codeforces 372C. Watching Fireworks is Fun](https://codeforces.com/problemset/problem/372/C)
 
-- [Monotonic Stack](../Monotonic%20Stack/README.md) — the one-ended ancestor
-- [Sliding Window](../Sliding%20Window/README.md) — the window-management pattern; monotonic queue is the optimization inside
-- [Two Pointers](../Two%20Pointers/README.md) — similar spirit, different mechanics
+## Related
 
----
-
-## 🔧 Implementations
-
-| Language | Folder | Notes |
-|----------|--------|-------|
-| Python | [Python/](Python/) | `collections.deque`-based with sliding-window max/min helpers |
-| C++ | [C++/](C++/) | `std::deque<int>`-based |
-| Go | [Go/](Go/) | Slice-based deque (front-pop via index head, back-push/pop via slice) |
-
----
-
-## 📝 Practice Problems
-
-- [LeetCode 239. Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/) — the canonical problem
-- [LeetCode 862. Shortest Subarray with Sum at Least K](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/) — monotonic queue on prefix sums
-- [LeetCode 918. Maximum Sum Circular Subarray](https://leetcode.com/problems/maximum-sum-circular-subarray/) — sliding max after unrolling
-- [LeetCode 1499. Max Value of Equation](https://leetcode.com/problems/max-value-of-equation/) — sliding window with constraint
-- [Codeforces 372C. Watching Fireworks is Fun](https://codeforces.com/problemset/problem/372/C) — monotonic queue DP optimization
-
----
-
-_Part of [Problem Patterns](../README.md)._
+- [Monotonic Stack](../Monotonic%20Stack/)
+- [Sliding Window](../Sliding%20Window/)
+- [Two Pointers](../Two%20Pointers/)
+- [Deque](../../Data%20Structures/Linear/Queue/Deque/)

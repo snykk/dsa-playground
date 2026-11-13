@@ -54,6 +54,27 @@ void testPatternLongerThanText() {
     assert(result.empty());
 }
 
+void testBytesAbove0x7F() {
+    // Regression: char is signed, so bytes >= 0x80 made the initial hashes
+    // negative while rolled hashes were normalized, and matches were lost.
+    std::vector<int> a = rabinKarpSearch("a\xFF", "\xFF");
+    assert(a.size() == 1 && a[0] == 1);
+    std::vector<int> b = rabinKarpSearch("\xFF" "aa" "\xFF\xFF" "aa", "\xFF" "a");
+    assert(b.size() == 2 && b[0] == 0 && b[1] == 4);
+    // UTF-8 text: "caf\xC3\xA9" is "cafe" with an e-acute (2 bytes).
+    std::vector<int> c = rabinKarpSearch("caf\xC3\xA9 caf\xC3\xA9", "caf\xC3\xA9");
+    assert(c.size() == 2 && c[0] == 0 && c[1] == 6);
+}
+
+void testOverlapsAndSpuriousHit() {
+    assert((rabinKarpSearch("aaaa", "aa") == std::vector<int>{0, 1, 2}));
+    assert((rabinKarpSearch("AAAAA", "AAA") == std::vector<int>{0, 1, 2}));
+    assert((rabinKarpSearch("xxabc", "abc") == std::vector<int>{2}));
+    // With base 256 and mod 101, "JU" and "AB" share the hash 41: a spurious hit
+    // that the character comparison must reject.
+    assert((rabinKarpSearch("XJUAB", "AB") == std::vector<int>{3}));
+}
+
 int main() {
     testBasicSearch();
     testMultipleOccurrences();
@@ -61,6 +82,8 @@ int main() {
     testEmptyPattern();
     testEmptyText();
     testPatternLongerThanText();
+    testBytesAbove0x7F();
+    testOverlapsAndSpuriousHit();
     
     std::cout << "All tests passed!" << std::endl;
     return 0;

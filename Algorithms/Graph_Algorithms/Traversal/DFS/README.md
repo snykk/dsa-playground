@@ -1,84 +1,109 @@
 # DFS (Depth-First Search)
 
-**DFS (Depth-First Search)** is a graph traversal algorithm that explores as far as possible along each branch before backtracking.
+Depth-First Search follows one branch of a graph as deep as it can go, then backtracks and tries the next one. It runs in O(V + E) time, and the order in which it enters and leaves vertices powers cycle detection, topological sort and connected components.
 
----
+## Intuition
 
-## Overview
+Walk a maze with a ball of thread: go down a corridor until you hit a dead end or a place you have already been, then retrace your steps to the last junction that still has an unexplored corridor.
 
-DFS is a fundamental graph traversal algorithm that:
-- Explores depth-first (goes deep before going wide)
-- Uses a stack data structure (or recursion)
-- Useful for path finding, cycle detection, topological sort
-- Can be implemented iteratively or recursively
+The invariant: the vertices that are entered but not yet finished always form one path from the start to the current vertex, which is the recursion stack. A vertex is finished only when everything reachable from it has been visited. So an edge that points back into the current path closes a cycle, and listing vertices by decreasing finish time gives a topological order.
 
-**Key Insight**: Explore as deep as possible before backtracking.
+## Visual
 
----
+```text
+Directed graph, start A (discovery/finish times):
 
-## Algorithm
+   A 1/10 ---> B 2/7 ---> D 3/6 ---> E 4/5
+     |           ^         ^           |
+     |           |         |           |
+     |           +---------|-----------+      E->B  back edge (cycle B-D-E)
+     +-------> C 8/9 ------+                  C->D  cross edge
+                                              A->B, B->D, D->E, A->C  tree edges
+```
 
-1. **Start**: Add starting vertex to stack and mark as visited
-2. **Process**: While stack is not empty:
-   - Pop a vertex
-   - Visit all unvisited neighbors
-   - Add neighbors to stack and mark as visited
-3. **Repeat**: Continue until stack is empty
+## How It Works
 
----
+Recursive form:
 
-## Complexity Analysis
+1. Mark the vertex visited (discovery).
+2. For each neighbor that is not visited, recurse into it (a tree edge).
+3. When no neighbor is left, the vertex is finished: return to the caller.
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(V + E) | O(V) |
+Iterative form (`dfs_adjacency_list` and the other stack versions):
 
-**Note**: 
-- V = number of vertices
-- E = number of edges
-- O(V) space for stack/recursion and visited set
+1. Push the start vertex.
+2. Pop a vertex. If it is already visited, skip it. Otherwise mark it visited **now** and report it.
+3. Push its unvisited neighbors in reverse order, so the first neighbor is popped first.
 
----
+Marking a vertex when it is pushed is not DFS: on `0:[1,2], 1:[2,3]` it visits 0, 1, 3, 2 instead of 0, 1, 2, 3.
 
-## Key Characteristics
+## Step-by-Step Trace
 
-- ✅ **Memory efficient**: O(V) space (better than BFS for deep graphs)
-- ✅ **Path finding**: Natural for finding paths
-- ✅ **Cycle detection**: Easy to detect cycles
-- ✅ **Topological sort**: Natural for topological sorting
-- ❌ **Not shortest path**: Doesn't guarantee shortest path
-- ❌ **Deep recursion**: Recursive version may hit stack limit
+The graph above numbered A to E = 0 to 4 (`{0:[1,2], 1:[3], 2:[3], 3:[4], 4:[1]}`), iterative form, top of stack on the right:
 
----
+| Pop | Action | Stack after |
+|-----|--------|-------------|
+| A | visit A, push C then B | C B |
+| B | visit B, push D | C D |
+| D | visit D, push E | C E |
+| E | visit E; neighbor B is visited | C |
+| C | visit C; neighbor D is visited | empty |
+
+- Order: `[0, 1, 3, 4, 2]` (A, B, D, E, C)
+- `dfs_detect_cycle(g, True)` is `True`: E->B is a back edge.
+- Without E->B, `dfs_topological_sort` returns `[0, 2, 1, 3, 4]`.
+
+## Complexity
+
+| Quantity | Cost | Why |
+|----------|------|-----|
+| Time | O(V + E) | each vertex is entered once, each adjacency list is scanned once |
+| Space, recursion | O(V) | one frame per vertex on the current path |
+| Space, mark-on-pop stack | O(V + E) | a vertex can be pushed once per incoming edge (about 19,700 entries on a complete graph with 200 vertices) |
 
 ## When to Use
 
-- ✅ Finding paths (not necessarily shortest)
-- ✅ Cycle detection
-- ✅ Topological sorting
-- ✅ Connected components
-- ✅ Maze solving
-- ❌ Finding shortest path (use BFS for unweighted)
+Use DFS for cycle detection, topological sorting, connected components, flood fill, backtracking, and as the base of strongly connected component and bridge algorithms.
 
----
+Do not use it when you need the fewest edges between two vertices (use BFS) or least-weight paths (use Dijkstra's algorithm).
 
-## Related Algorithms
+## DFS vs. Alternatives
 
-- **BFS**: Breadth-First Search for level-order traversal
-- **Dijkstra's**: Shortest path in weighted graphs
-- **Topological Sort**: DFS-based topological sorting
+| | DFS | BFS |
+|--|-----|-----|
+| Structure | stack or recursion | queue |
+| Time | O(V + E) | O(V + E) |
+| Fewest-edge path | No | Yes |
+| Cycles, finish order | natural | only cycles and components |
+| Memory on wide graphs | small | a whole ring |
 
----
+## Common Pitfalls
 
-## Applications
+- **Marking on push.** It changes the order. Mark on pop.
+- **Deep recursion.** A path of 100,000 vertices overflows the stack in Python and C++. The Python and C++ code here uses an explicit stack; Go grows stacks on demand.
+- **Two different cycle rules.** Undirected: a visited neighbor that is not the parent. Directed: a neighbor that is still on the current path (a finished vertex is not a cycle).
+- **Sentinel parent.** A parent value such as -1 breaks when -1 is a real vertex; the code keeps a separate "has parent" flag.
+- **Expecting shortest paths.** `dfs_with_path` returns the first path in DFS order.
 
-1. **Path Finding**: Find any path between vertices
-2. **Cycle Detection**: Detect cycles in graphs
-3. **Topological Sort**: Order vertices in DAG
-4. **Maze Solving**: Solve mazes using DFS
-5. **Connected Components**: Find all connected components
+## Implementations
 
----
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `dfs.py` | six functions: traversal, recursive order, path, components, cycle, topological sort; recursion simulated with explicit stacks |
+| C++ | [C++/](C++/) | `dfs.cpp` | three functions: traversal, path, cycle detection |
+| Go | [Go/](Go/) | `main.go` | four functions: traversal, recursive traversal, path, cycle detection |
 
-_Last Updated: December 2025_
+## Practice Problems
 
+- [Number of Islands](https://leetcode.com/problems/number-of-islands/) (LeetCode)
+- [Course Schedule](https://leetcode.com/problems/course-schedule/) (LeetCode, directed cycle)
+- [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/) (LeetCode, topological order)
+- [Clone Graph](https://leetcode.com/problems/clone-graph/) (LeetCode)
+- [Building Teams](https://cses.fi/problemset/task/1668) and [Round Trip](https://cses.fi/problemset/task/1669) (CSES)
+
+## Related
+
+- [BFS](../BFS/) - the queue-based counterpart
+- [Topological Sort](../../Advanced_Graph/Topological_Sort/)
+- [Tarjan's Algorithm](../../Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm/) - strongly connected components built on DFS
+- [Stack](../../../../Data%20Structures/Linear/Stack/)

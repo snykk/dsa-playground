@@ -70,4 +70,3 @@ func main() {
 	occurrences := RabinKarpSearch(text, pattern)
 	fmt.Printf("Occurrences at indices: %v\n", occurrences)
 }
-

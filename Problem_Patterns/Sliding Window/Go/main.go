@@ -8,7 +8,8 @@ import (
 // Time Complexity: O(n)
 // Space Complexity: O(1)
 func maxSumSubarray(arr []int, k int) int {
-	if len(arr) < k {
+	// 0 for k <= 0 or k > len(arr) (the same in the Python and C++ versions)
+	if k <= 0 || len(arr) < k {
 		return 0
 	}
 

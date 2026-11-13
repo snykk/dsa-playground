@@ -63,24 +63,40 @@ class MonotonicDeque:
     'pop while back <= new' rule (gives you a max-oriented deque).
 
     Use `lambda existing, new: existing >= new` for min-oriented.
+
+    Entries are (index, value) pairs, where index counts the pushes, and
+    eviction goes by index. Evicting by value would break on repeated values:
+    the rules above pop an equal older value, so evicting the outgoing copy by
+    value would remove the newer copy that is still in the window.
     """
 
     def __init__(self, should_pop: Callable[[int, int], bool]) -> None:
-        self._dq: deque = deque()
+        self._dq: deque = deque()  # (index, value), values monotone front to back
         self._should_pop = should_pop
+        self._pushed = 0   # index of the next value pushed
+        self._evicted = 0  # index of the oldest value still in the window
 
     def push(self, value: int) -> None:
-        while self._dq and self._should_pop(self._dq[-1], value):
+        while self._dq and self._should_pop(self._dq[-1][1], value):
             self._dq.pop()
-        self._dq.append(value)
+        self._dq.append((self._pushed, value))
+        self._pushed += 1
 
     def pop_front_if(self, value: int) -> None:
-        """Remove `value` from the front if present (for window eviction)."""
-        if self._dq and self._dq[0] == value:
+        """Evict `value`, the oldest value still in the window (for window eviction).
+
+        Call it once for every value that leaves the window, oldest first. The
+        front is removed only if it is that very element (same index); a newer
+        equal value stays.
+        """
+        if self._evicted == self._pushed:
+            return  # nothing in the window
+        if self._dq and self._dq[0][0] == self._evicted:
             self._dq.popleft()
+        self._evicted += 1
 
     def front(self) -> int:
-        return self._dq[0]
+        return self._dq[0][1]
 
     def __len__(self) -> int:
         return len(self._dq)

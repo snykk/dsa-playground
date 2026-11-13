@@ -18,7 +18,7 @@ def activity_selection(activities):
         List of selected activity indices (0-indexed)
         
     Time Complexity: O(n log n)
-    Space Complexity: O(1) excluding output
+    Space Complexity: O(n) for the sorted copy of the activities
     """
     if not activities:
         return []
@@ -78,15 +78,16 @@ def activity_selection_with_weights(activities):
     return dp[n]
 
 
-def activity_selection_recursive(activities, selected=None, last_finish=-1):
+def activity_selection_recursive(activities, selected=None, last_finish=float('-inf')):
     """
     Recursive implementation of activity selection
-    
+
     Args:
         activities: List of tuples (index, start_time, finish_time)
         selected: List of selected indices
-        last_finish: Finish time of last selected activity
-        
+        last_finish: Finish time of last selected activity (-inf: nothing
+            selected yet, so even negative start times are compatible)
+
     Returns:
         List of selected activity indices
     """
@@ -94,7 +95,7 @@ def activity_selection_recursive(activities, selected=None, last_finish=-1):
         # Sort by finish time and add index
         sorted_activities = sorted(enumerate(activities), key=lambda x: x[1][1])
         activities_with_idx = [(idx, start, finish) for idx, (start, finish) in sorted_activities]
-        return activity_selection_recursive(activities_with_idx, [], -1)
+        return activity_selection_recursive(activities_with_idx, [], float('-inf'))
     
     if not activities:
         return selected

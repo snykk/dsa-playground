@@ -1,38 +1,41 @@
-# Bit Manipulation Patterns (Python)
+# Bit Manipulation -- Python Implementation
 
-Python implementation of common bit manipulation techniques.
+Common bit tricks as small functions. See the [topic README](../README.md) for the identities.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `bit_manipulation.py` | Main implementation with 13 utility functions |
-| `bit_manipulation_test.py` | Test cases |
+| File | Contents |
+|------|----------|
+| `bit_manipulation.py` | 13 functions and a demo `main` |
+| `bit_manipulation_test.py` | Unit tests per function, including negative inputs |
+
+## API
+
+- `is_power_of_two(n)`, `is_even(n)`: boolean tests.
+- `count_set_bits(n)`: Kernighan popcount; a negative `n` counts as a 64-bit value.
+- `get_bit(n, i)`, `set_bit(n, i)`, `clear_bit(n, i)`, `toggle_bit(n, i)`
+- `lowest_set_bit(n)`: `n & -n`, 0 for 0.
+- `highest_set_bit(n)`: position, or -1 for `n <= 0`.
+- `count_differing_bits(a, b)`: Hamming distance.
+- `swap_without_temp(a, b)`: returns the tuple `(b, a)`.
+- `next_power_of_two(n)`: smallest power of two `>= n`, 1 for `n <= 1`.
+- `subset_generation(n)`: all 2^n subsets as lists of indices, in mask order.
+
+## Python-Specific Notes
+
+- Integers have unlimited size, so shifts never overflow.
+- A negative int has infinitely many sign bits; `count_set_bits` masks negatives to 64 bits so the loop ends.
+- `subset_generation` is O(n * 2^n) time and builds the whole result in memory.
 
 ## How to Run
 
 ```bash
-python bit_manipulation.py       # Run demo
-python bit_manipulation_test.py  # Run tests
+python3 -m unittest bit_manipulation_test
+python3 bit_manipulation.py
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time |
-|----------|-------------|------|
-| `is_power_of_two(n)` | Check if n is a power of 2 | O(1) |
-| `count_set_bits(n)` | Count 1-bits (Brian Kernighan) | O(k) |
-| `get_bit(n, i)` | Get i-th bit value | O(1) |
-| `set_bit(n, i)` | Set i-th bit to 1 | O(1) |
-| `clear_bit(n, i)` | Clear i-th bit to 0 | O(1) |
-| `toggle_bit(n, i)` | Toggle i-th bit | O(1) |
-| `lowest_set_bit(n)` | Isolate lowest set bit | O(1) |
-| `highest_set_bit(n)` | Position of highest set bit | O(log n) |
-| `count_differing_bits(a, b)` | Hamming distance | O(k) |
-| `swap_without_temp(a, b)` | XOR swap | O(1) |
-| `next_power_of_two(n)` | Next power of 2 >= n | O(log n) |
-| `subset_generation(n)` | Generate all bitmask subsets | O(2^n) |
-
----
-
-_Last Updated: April 2026_
+- `n & (n - 1)` clears the lowest set bit and drives popcount.
+- Always pair the power-of-two test with `n > 0`.
+- Mask negatives before looping over bits in Python.

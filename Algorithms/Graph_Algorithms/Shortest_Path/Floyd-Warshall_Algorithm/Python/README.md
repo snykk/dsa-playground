@@ -1,158 +1,49 @@
-# Floyd-Warshall Algorithm - Python
+# Floyd-Warshall Algorithm -- Python Implementation
 
-**Floyd-Warshall Algorithm** finds shortest paths between all pairs of vertices in a weighted graph. It works with negative edge weights but not negative cycles.
+All-pairs shortest paths over an adjacency list `Dict[int, List[Tuple[int, int]]]`, with vertices numbered 0 to `num_vertices - 1`.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `floyd_warshall.py` | `floyd_warshall`, `floyd_warshall_path`, `reconstruct_path` |
+| `floyd_warshall_test.py` | 16 unit tests (`unittest`) |
 
-Floyd-Warshall algorithm is a dynamic programming approach that:
-- Finds all pairs shortest paths
-- Works with negative edge weights (but not negative cycles)
-- Uses adjacency matrix representation
-- Simpler implementation but O(V³) time complexity
+## API
 
-**Key Insight**: For each intermediate vertex k, update shortest path from i to j via k.
+| Function | Returns |
+|----------|---------|
+| `floyd_warshall(graph, num_vertices)` | matrix `dist[i][j]`, with `sys.maxsize` where j is unreachable from i, or `None` on a negative cycle |
+| `floyd_warshall_path(graph, num_vertices)` | `(dist, next_vertex)` matrices, or `None` on a negative cycle |
+| `reconstruct_path(next_vertex, start, end)` | the path as a list, or `None` if there is none |
 
----
-
-## Algorithm
-
-1. **Initialize**: Create distance matrix, set diagonal to 0, edges to weights
-2. **For each intermediate vertex k**:
-   - For each pair (i, j):
-     - dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
-3. **Check cycles**: If dist[i][i] < 0 for any i, negative cycle exists
-4. **Return**: Distance matrix
-
----
-
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(V³) | O(V²) |
-
-**Note**: 
-- V = number of vertices
-- Very simple but cubic time complexity
-- Good for dense graphs or when all pairs needed
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`floyd_warshall(graph, num_vertices)`**
-   - Finds shortest distances between all pairs
-   - Returns 2D list or None if negative cycle exists
-   - Time: O(V³), Space: O(V²)
-
-2. **`floyd_warshall_path(graph, num_vertices)`**
-   - Finds distances and path reconstruction matrix
-   - Returns (distance matrix, next matrix)
-   - Time: O(V³), Space: O(V²)
-
-3. **`reconstruct_path(next_vertex, start, end)`**
-   - Reconstructs path from next matrix
-   - Returns path as list or None
-   - Time: O(V), Space: O(V)
-
----
-
-## Usage
+Time O(V^3), space O(V^2).
 
 ```python
 from floyd_warshall import floyd_warshall, floyd_warshall_path, reconstruct_path
 
-graph = {
-    0: [(1, 4), (2, 2)],
-    1: [(3, 5)],
-    2: [(3, 1)],
-    3: []
-}
-
-# Find all pairs shortest distances
-dist = floyd_warshall(graph, 4)
-print(dist[0][3])  # 3 (shortest distance from 0 to 3)
-
-# With path reconstruction
-dist, next_vertex = floyd_warshall_path(graph, 4)
-path = reconstruct_path(next_vertex, 0, 3)
-print(path)  # [0, 2, 3]
+g = {0: [(1, 3), (3, 7)], 1: [(0, 8), (2, -2)], 2: [(0, 5), (3, 1)], 3: [(0, 2)]}
+print(floyd_warshall(g, 4)[1])          # [1, 0, -2, -1]
+dist, nxt = floyd_warshall_path(g, 4)
+print(reconstruct_path(nxt, 1, 3))      # [1, 2, 3]
 ```
 
----
+## Python-Specific Notes
 
-## Important Notes
+- "No path" is `sys.maxsize`, while Dijkstra and Bellman-Ford in this repository use `float('inf')`.
+- Edge initialization uses `min`, so parallel edges keep the cheapest and a positive self-loop does not change the diagonal.
+- The negative-cycle check runs once at the end. Python integers cannot overflow, so values that shrink during the rounds are harmless.
+- `reconstruct_path` stops after V vertices instead of looping on corrupt next pointers.
 
-1. **All pairs**: Finds shortest paths between all pairs
-2. **Negative weights**: Works with negative weights (but not cycles)
-3. **Dense graphs**: Good for dense graphs
-4. **Simple**: Very simple implementation
-
----
-
-## Advantages
-
-1. ✅ **All pairs**: Finds all pairs shortest paths
-2. ✅ **Simple**: Very simple implementation
-3. ✅ **Negative weights**: Works with negative weights
-4. ✅ **Dense graphs**: Good for dense graphs
-
----
-
-## Disadvantages
-
-1. ❌ **Slow**: O(V³) time complexity
-2. ❌ **Space**: O(V²) space complexity
-3. ❌ **Not efficient**: For single-source, use Dijkstra's or Bellman-Ford
-
----
-
-## When to Use
-
-- ✅ All pairs shortest paths needed
-- ✅ Dense graphs
-- ✅ Negative weights (but not cycles)
-- ❌ Single-source shortest path (use Dijkstra's or Bellman-Ford)
-- ❌ Sparse graphs (may be inefficient)
-
----
-
-## Testing
+## How to Run
 
 ```bash
-python floyd_warshall_test.py
+cd Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm/Python
+python3 -m unittest floyd_warshall_test
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **Dijkstra's**: Single-source shortest path
-- **Bellman-Ford**: Single-source with negative weights
-- **Johnson's**: All pairs using Dijkstra's
-
----
-
-## Applications
-
-1. **Network Routing**: Find shortest paths between all nodes
-2. **Transitive Closure**: Find reachability between all pairs
-3. **Social Networks**: Find degrees of separation
-4. **Game Theory**: Find optimal strategies
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 25)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
-
+- `k` is the outermost loop.
+- Check the diagonal for negative cycles before using the matrix.
+- Use `floyd_warshall_path` when you need the path itself.

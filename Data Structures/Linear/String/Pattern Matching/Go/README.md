@@ -1,38 +1,29 @@
-# Pattern Matching — Go Implementation
+# Pattern Matching -- Go Implementation
 
-Pattern matching: **"at which positions does pattern `P` appear inside text `T`?"** This folder contrasts the naive O(n·m) walk against KMP's O(n + m) linear-time algorithm.
-
-For the conceptual overview, complexity proofs, and when-to-use decision table, see the parent README: [../README.md](../README.md)
-
----
+Naive search and KMP, each returning a `[]int` of start indices.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | `NaiveSearch` and `KMPSearch` implementations |
-| `main_test.go` | Table-driven tests with shared fixtures |
-| `go.mod` | Module definition |
+| File | Contents |
+|------|----------|
+| `main.go` | package `pattern`: `NaiveSearch`, `ComputeLPS`, `KMPSearch` |
+| `main_test.go` | `TestPatternMatching` (the `ababcabcabc` / `abc` fixture), `TestEmptyPattern`, and a table-driven `TestEdgeCases` (pattern longer than the text, empty text, overlapping matches, no match) |
+| `go.mod` | module `pattern_matching` |
 
----
+## API
 
-## Algorithms Covered
+- `NaiveSearch(text, pattern string) []int`: compare every window. O(n*m).
+- `ComputeLPS(pattern string) []int`: the LPS table. O(m).
+- `KMPSearch(text, pattern string) []int`: KMP search. O(n + m).
 
-| Algorithm | Preprocessing | Match | Good when... |
-|-----------|---------------|-------|--------------|
-| **Naive** | O(1) | O(n·m) | Pattern is tiny or matches appear early |
-| **KMP** | O(m) | O(n + m) | You want guaranteed linear worst-case |
-
----
+An empty pattern returns `[0, 1, ..., n]` from both searches; no match returns an empty, non-nil slice. Rabin-Karp and Boyer-Moore exist only in the Python version of this topic.
 
 ## Go-Specific Notes
 
-- **`strings.Index(T, P)` is the stdlib answer.** Go's implementation uses Rabin-Karp with a SIMD-assisted variant on supported architectures. For production code, reach for it first.
-- **`strings.Contains`, `strings.Count`, `strings.LastIndex`** all build on the same primitive — know that they exist before writing your own.
-- **Byte-level vs rune-level matching**: this implementation operates on bytes (`string` indexing). For rune-level matching of UTF-8 text, convert `T` and `P` to `[]rune` first, or use `regexp` for character-class semantics.
-- **KMP's failure function uses `[]int`** — avoid fixed-size arrays unless `m` is known at compile time. Slice allocation is cheap and idiomatic.
-
----
+- Strings are indexed by **byte**, so offsets are byte offsets. Convert both strings to `[]rune` first for rune-level matching.
+- Slicing a string (`text[i:i+m]`) does not copy, so the naive search allocates nothing per alignment.
+- `strings.Index` is the standard-library answer for finding a substring.
+- Results are built with `append` on a slice that starts empty (`[]int{}`), so callers can compare with `reflect.DeepEqual` against `[]int{}`.
 
 ## How to Run
 
@@ -40,10 +31,8 @@ For the conceptual overview, complexity proofs, and when-to-use decision table, 
 go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **`strings.Index` is already optimized.** If you only need "find substring", use the stdlib. Hand-rolled KMP is educational; reaching for it in production usually means you're solving the wrong problem.
-2. **KMP is the foundation for more advanced algorithms** — Aho-Corasick (multi-pattern), Z-algorithm (same preprocessing idea in disguise), suffix automata. Master it first.
-3. **Understand amortized analysis here.** Each character of `T` is examined a bounded number of times; the failure function ensures we never re-scan what we've already matched. Trace the pointer by hand on a small example — it's the clearest way to see why it's O(n + m), not O(n·m).
+1. KMP reads each text byte a bounded number of times: the LPS table lets `j` fall back without moving `i`.
+2. Guard `m == 0` before indexing the pattern.
+3. Use `strings.Index` in production code.

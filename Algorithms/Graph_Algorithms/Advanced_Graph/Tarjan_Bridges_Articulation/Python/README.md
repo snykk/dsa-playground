@@ -18,9 +18,9 @@ For the conceptual overview, visuals, and walkthrough, see the parent README: [.
 ## Python-Specific Notes
 
 - **Edge-indexed parent tracking.** Parallel edges (two edges between `u` and `v`) break the "skip parent vertex" rule. We track the edge _index_ we came in on instead — robust against multi-edges.
-- **`sys.setrecursionlimit`** bump is critical on long chains. Python's default of 1000 is way too low for a 100,000-vertex path graph. We raise it then restore in `finally` to avoid leaking into the caller's environment.
-- **Timer as a single-element list** (`timer = [0]`) to sidestep Python's "nonlocal for mutation" dance. Cleaner than `global` and `nonlocal`.
-- **Adjacency list via `dict`** with integer keys: handles sparse vertex labels cleanly, though a list-of-lists is faster for contiguous `0..n-1` vertex IDs.
+- **Iterative DFS with an explicit stack.** Each stack frame `[u, parent_edge, next_index, children]` stands for one recursive call, so a 100,000-vertex path works. Python's default recursion limit (1000) is far too low for a recursive DFS, and raising `sys.setrecursionlimit` is not a fix: the deeper recursion overflows the C stack and the interpreter crashes.
+- **Plain local `timer`**: the DFS loop lives in the function body, so no `nonlocal` or one-element-list trick is needed.
+- **Adjacency list via `dict`** keyed by `0..n-1`: every vertex label must be in that range (`disc` and `low` are lists of length `n`).
 - **Self-loops are fine** — they're back edges with `v == u`, which means `disc[v] == disc[u]`, and `low` updates are harmless.
 
 ---

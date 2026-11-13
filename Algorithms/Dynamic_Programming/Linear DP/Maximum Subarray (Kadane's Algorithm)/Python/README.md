@@ -1,193 +1,47 @@
-# Kadane's Algorithm (Python)
+# Maximum Subarray (Kadane's Algorithm) -- Python Implementation
 
-**Kadane's Algorithm** is an efficient O(n) algorithm to find the maximum sum of a contiguous subarray in a given array of integers. It's a classic example of dynamic programming and greedy algorithms.
+Three versions of Kadane's algorithm.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `kadane.py` | the functions below |
+| `kadane_test.py` | `unittest` cases |
 
-Kadane's Algorithm solves the Maximum Subarray Problem: find the contiguous subarray (containing at least one number) which has the largest sum. The algorithm uses a simple but powerful insight: if the current sum becomes negative, we should start fresh from the next element.
+## API
 
-**Example**: 
-- Array: [-2, 1, -3, 4, -1, 2, 1, -5, 4]
-- Maximum subarray: [4, -1, 2, 1] with sum = 6
-- Note: The subarray [4, -1, 2, 1] has the maximum sum among all contiguous subarrays
-
----
-
-## Algorithm
-
-1. **Initialize**: 
-   - `current_sum = 0`
-   - `max_sum = -infinity` (or first element for arrays with all negatives)
-2. **Iterate** through array:
-   - Add current element to `current_sum`
-   - If `current_sum > max_sum`: update `max_sum`
-   - If `current_sum < 0`: reset `current_sum = 0` (start fresh)
-3. **Return**: `max_sum`
-
-**Key Insight**: If the current sum becomes negative, it's better to start fresh from the next element because a negative sum will only reduce future sums.
-
----
-
-## Complexity Analysis
-
-| Approach | Time | Space | Notes |
-|----------|------|-------|-------|
-| **Naive (All Subarrays)** | O(n³) | O(1) | Check all possible subarrays |
-| **Optimized Naive** | O(n²) | O(1) | Use prefix sums |
-| **Kadane's Algorithm** | O(n) | O(1) | Optimal, single pass |
-| **DP Approach** | O(n) | O(1) | More explicit DP formulation |
-
-**Note**: Kadane's Algorithm is optimal - cannot be improved beyond O(n) time and O(1) space.
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`kadane_algorithm(arr)`**
-   - Standard Kadane's algorithm
-   - Returns maximum subarray sum
-   - Time: O(n), Space: O(1)
-   - Handles all-negative arrays
-
-2. **`kadane_with_indices(arr)`**
-   - Returns maximum sum with start and end indices
-   - Returns (max_sum, start_index, end_index)
-   - Time: O(n), Space: O(1)
-   - Useful for finding actual subarray
-
-3. **`kadane_dp(arr)`**
-   - More explicit DP formulation
-   - `dp[i]` = maximum sum ending at index `i`
-   - Returns maximum subarray sum
-   - Time: O(n), Space: O(1) optimized
-
-4. **`kadane_all_negative(arr)`**
-   - Handles arrays with all negative numbers
-   - Returns maximum element (smallest negative)
-   - Time: O(n), Space: O(1)
-
----
-
-## Usage
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `kadane_algorithm(arr)` | the maximum subarray sum (0 for an empty list) | O(n) | O(1) |
+| `kadane_with_indices(arr)` | `(max_sum, start, end)`, the earliest window on ties; `(0, -1, -1)` for an empty list | O(n) | O(1) |
+| `kadane_dp(arr)` | the same sum with an explicit `dp` table | O(n) | O(n) |
 
 ```python
-from kadane import (
-    kadane_algorithm,
-    kadane_with_indices,
-    kadane_dp,
-    kadane_all_negative
-)
+from kadane import kadane_algorithm, kadane_with_indices
 
 arr = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
-
-# Standard approach
-max_sum = kadane_algorithm(arr)
-print(max_sum)  # Output: 6
-
-# With indices (find actual subarray)
-max_sum, start, end = kadane_with_indices(arr)
-print(max_sum)  # Output: 6
-print(start)    # Output: 3
-print(end)      # Output: 6
-print(arr[start:end+1])  # Output: [4, -1, 2, 1]
-
-# DP approach
-max_sum = kadane_dp(arr)
-print(max_sum)  # Output: 6
-
-# All positive array
-arr = [1, 2, 3, 4, 5]
-max_sum = kadane_algorithm(arr)  # Output: 15 (entire array)
-
-# All negative array
-arr = [-5, -2, -1, -3]
-max_sum = kadane_all_negative(arr)  # Output: -1 (least negative)
+print(kadane_algorithm(arr))        # 6
+print(kadane_with_indices(arr))     # (6, 3, 6)
+print(kadane_algorithm([-3, -1, -2]))  # -1
 ```
 
----
+## Python-Specific Notes
 
-## Important Notes
+- Integers are unbounded, so sums never overflow.
+- `kadane_algorithm` uses `max(arr[i], cur + arr[i])`; `kadane_with_indices` uses the equivalent "restart when `cur < 0`" form so it can track the start index.
+- The subarray of a non-empty input is never empty, so an all-negative list returns its largest element.
 
-1. **At least one element**: Subarray must contain at least one element
-2. **Contiguous**: Subarray must be contiguous (not subsequence)
-3. **Negative reset**: Reset sum to 0 when it becomes negative
-4. **All negatives**: Special handling when all elements are negative
-5. **Empty subarray**: Usually not allowed (sum would be 0)
+## How to Run
 
----
-
-## Advantages
-
-1. ✅ **Optimal**: O(n) time, O(1) space - cannot be improved
-2. ✅ **Simple**: Easy to understand and implement
-3. ✅ **Single pass**: Only one iteration through array
-4. ✅ **Space efficient**: O(1) space complexity
-
----
-
-## Disadvantages
-
-1. ❌ **Only for sum**: Works for sum, not for product or other operations
-2. ❌ **Contiguous only**: Only finds contiguous subarrays
-3. ❌ **All negatives**: Need special handling
-
----
-
-## When to Use
-
-- ✅ **Maximum sum**: Finding maximum sum of contiguous subarray
-- ✅ **Large arrays**: Optimal for any size array
-- ✅ **Real-time**: Single pass makes it suitable for streaming data
-- ❌ **Maximum product**: Different algorithm needed
-- ❌ **Non-contiguous**: Need different approach for subsequences
-
----
-
-## Variations
-
-1. **Maximum Product Subarray**: Similar approach but track both min and max product
-2. **Circular Array**: Maximum subarray in circular array (two passes)
-3. **2D Maximum Subarray**: Extend to 2D arrays (more complex)
-
----
-
-## Testing
-
-Run the test suite:
+From this folder:
 
 ```bash
-python kadane_test.py
+python3 -m unittest kadane_test
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **Maximum Product Subarray**: Similar approach for product
-- **Longest Increasing Subsequence**: Different DP pattern
-- **Prefix Sums**: Related technique for range queries
-
----
-
-## Applications
-
-1. **Stock Trading**: Find best time to buy and sell (maximum profit)
-2. **Signal Processing**: Find maximum signal strength
-3. **Data Analysis**: Find maximum sum in time series
-4. **Image Processing**: Find maximum intensity region
-
----
-
-## References
-
-- Kadane, J. (1984). "A Simple Algorithm for Finding the Maximum Subarray"
-- "Introduction to Algorithms" by CLRS (Chapter 4)
-- LeetCode Problem 53: Maximum Subarray
-
----
-
-_Last Updated: December 2025_
+- `cur` only needs the previous value, so the table collapses to one variable.
+- Initialize from `arr[0]`, not 0.
+- The window is updated only when `best` strictly improves.

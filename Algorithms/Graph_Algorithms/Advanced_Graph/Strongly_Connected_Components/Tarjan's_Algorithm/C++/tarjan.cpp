@@ -6,48 +6,75 @@
 
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <stack>
+#include <utility>
 #include <algorithm>
-#include <climits>
 
+// Neighbors of v, or an empty list for a vertex that only appears as a neighbor.
+static const std::vector<int>& neighborsOf(
+    const std::unordered_map<int, std::vector<int>>& graph, int v) {
+    static const std::vector<int> none;
+    auto it = graph.find(v);
+    return it == graph.end() ? none : it->second;
+}
+
+// Tarjan's DFS from start, written iteratively: `work` holds (vertex, next-neighbor
+// index) pairs and plays the role of the call stack, so a long path or a big cycle
+// cannot overflow it. Visit order and output match the recursive formulation.
+// onStack is a hash set, so any int is a valid vertex id (negative or huge).
 void strongConnect(const std::unordered_map<int, std::vector<int>>& graph,
-                   int vertex,
+                   int start,
                    std::unordered_map<int, int>& indices,
                    std::unordered_map<int, int>& lowLink,
                    std::stack<int>& stack,
-                   std::vector<bool>& onStack,
+                   std::unordered_set<int>& onStack,
                    std::vector<std::vector<int>>& sccs,
                    int& index) {
-    indices[vertex] = index;
-    lowLink[vertex] = index;
-    index++;
-    stack.push(vertex);
-    onStack[vertex] = true;
+    std::vector<std::pair<int, size_t>> work;
+    auto discover = [&](int vertex) {
+        indices[vertex] = index;
+        lowLink[vertex] = index;
+        index++;
+        stack.push(vertex);
+        onStack.insert(vertex);
+        work.push_back({vertex, 0});
+    };
     
-    auto it = graph.find(vertex);
-    if (it != graph.end()) {
-        for (int neighbor : it->second) {
+    discover(start);
+    while (!work.empty()) {
+        int vertex = work.back().first;
+        const std::vector<int>& neighbors = neighborsOf(graph, vertex);
+        if (work.back().second < neighbors.size()) {
+            int neighbor = neighbors[work.back().second++];
             if (indices.find(neighbor) == indices.end()) {
-                strongConnect(graph, neighbor, indices, lowLink, stack, onStack, sccs, index);
-                lowLink[vertex] = std::min(lowLink[vertex], lowLink[neighbor]);
-            } else if (onStack[neighbor]) {
+                discover(neighbor);  // descend ("recurse") into neighbor
+            } else if (onStack.count(neighbor)) {
                 lowLink[vertex] = std::min(lowLink[vertex], indices[neighbor]);
             }
+            continue;
         }
-    }
-    
-    if (lowLink[vertex] == indices[vertex]) {
-        std::vector<int> component;
-        while (true) {
-            int w = stack.top();
-            stack.pop();
-            onStack[w] = false;
-            component.push_back(w);
-            if (w == vertex) {
-                break;
+        
+        // All neighbors done: vertex is finished
+        if (lowLink[vertex] == indices[vertex]) {
+            std::vector<int> component;
+            while (true) {
+                int w = stack.top();
+                stack.pop();
+                onStack.erase(w);
+                component.push_back(w);
+                if (w == vertex) {
+                    break;
+                }
             }
+            sccs.push_back(component);
         }
-        sccs.push_back(component);
+        work.pop_back();
+        if (!work.empty()) {
+            // Back in the caller: propagate the low-link to the parent
+            int parent = work.back().first;
+            lowLink[parent] = std::min(lowLink[parent], lowLink[vertex]);
+        }
     }
 }
 
@@ -58,18 +85,10 @@ std::vector<std::vector<int>> tarjanSCC(
         return {};
     }
     
-    int maxVertex = 0;
-    for (const auto& pair : graph) {
-        maxVertex = std::max(maxVertex, pair.first);
-        for (int v : pair.second) {
-            maxVertex = std::max(maxVertex, v);
-        }
-    }
-    
     std::unordered_map<int, int> indices;
     std::unordered_map<int, int> lowLink;
     std::stack<int> stack;
-    std::vector<bool> onStack(maxVertex + 1, false);
+    std::unordered_set<int> onStack;
     std::vector<std::vector<int>> sccs;
     int index = 0;
     

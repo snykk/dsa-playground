@@ -1,74 +1,37 @@
-# Monotonic Stack - C++
+# Monotonic Stack -- C++ Implementation
 
-This folder contains a C++ implementation of the **Monotonic Stack** technique for solving next/previous greater/smaller element problems.
+Next and previous greater or smaller element, histogram, temperatures and stock span. See the [topic README](../README.md) for the idea.
 
----
+## Files
 
-## Concept
+| File | Contents |
+|------|----------|
+| `monotonic_stack.cpp` | Seven functions and a demo `main` |
+| `monotonic_stack_test.cpp` | Assert-based tests (includes the `.cpp`) |
 
-A monotonic stack maintains elements in either increasing or decreasing order. When processing a new element that violates the invariant, elements are popped until order is restored. Each popped element receives its answer from the current element.
+## API
 
-**Key Features:**
-- O(n) time complexity (each element pushed/popped at most once)
-- O(n) space complexity
-- Solves next/previous greater/smaller element problems efficiently
-- Useful for histogram and span problems
+- `vector<int> nextGreaterElement(const vector<int>& arr)`, `nextSmallerElement`, `previousGreaterElement`, `previousSmallerElement`: values, `-1` if none.
+- `int largestRectangleHistogram(const vector<int>& heights)`
+- `vector<int> dailyTemperatures(const vector<int>& temperatures)`: days to wait, `0` if none.
+- `vector<int> stockSpan(const vector<int>& prices)`
 
----
+## C++-Specific Notes
 
-## Functions
+- The area is an `int`: `height * width` can overflow for very large inputs.
+- `-1` is the "no answer" value, so an input containing -1 is ambiguous.
+- The demo `main` is compiled out when `IS_TEST_BUILD` is defined.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `nextGreaterElement(arr)` | Next greater element to the right | O(n) |
-| `nextSmallerElement(arr)` | Next smaller element to the right | O(n) |
-| `previousGreaterElement(arr)` | Previous greater element to the left | O(n) |
-| `previousSmallerElement(arr)` | Previous smaller element to the left | O(n) |
-| `largestRectangleHistogram(heights)` | Largest rectangle area in histogram | O(n) |
-| `dailyTemperatures(temperatures)` | Days until warmer temperature | O(n) |
-| `stockSpan(prices)` | Stock price span for each day | O(n) |
-
----
-
-## Usage
-
-```cpp
-#include "monotonic_stack.cpp"
-
-// Next Greater Element
-vector<int> arr = {4, 5, 2, 10, 8};
-vector<int> result = nextGreaterElement(arr);  // Returns {5, 10, 10, -1, -1}
-
-// Largest Rectangle in Histogram
-vector<int> heights = {2, 1, 5, 6, 2, 3};
-int area = largestRectangleHistogram(heights);  // Returns 10
-```
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++17 -DTESTING -o monotonic_stack_test monotonic_stack_test.cpp
-./monotonic_stack_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD monotonic_stack_test.cpp -o ms_test && ./ms_test
 ```
 
----
+The test file has its own `main`, so it must be built with `-DIS_TEST_BUILD`.
 
-## Examples
+## Key Takeaways
 
-1. **Next Greater Element**: Find next greater element to the right
-   - Array: [4, 5, 2, 10, 8]
-   - Result: [5, 10, 10, -1, -1]
-
-2. **Largest Rectangle**: Find largest rectangle in histogram
-   - Heights: [2, 1, 5, 6, 2, 3]
-   - Result: 10
-
-3. **Stock Span**: Find consecutive days with price <= current
-   - Prices: [100, 80, 60, 70, 60, 75, 85]
-   - Result: [1, 1, 1, 2, 1, 4, 6]
-
----
-
-_Last Updated: April 2026_
+- Indices on the stack give widths and distances.
+- Use a wider integer type if areas can exceed 2 billion.
+- Every function returns a fresh vector; inputs are not modified.

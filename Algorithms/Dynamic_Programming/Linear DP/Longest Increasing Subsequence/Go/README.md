@@ -1,14 +1,28 @@
-# Longest Increasing Subsequence (Go)
+# Longest Increasing Subsequence -- Go Implementation
 
-Go implementation of the Longest Increasing Subsequence (LIS) problem using dynamic programming to find the length of the longest strictly increasing subsequence in an array.
+The O(n^2) table for the length.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `main.go` | Main implementation with O(n^2) DP approach |
-| `main_test.go` | Test cases for LIS computation |
-| `go.mod` | Go module definition (`lis`) |
+| File | Contents |
+|------|----------|
+| `main.go` | `LISDP` |
+| `main_test.go` | table-driven test, including duplicates and negative values |
+| `go.mod` | module `lis` (Go 1.21) |
+
+## API
+
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `LISDP(arr []int) int` | length of the longest strictly increasing subsequence; 0 for an empty slice | O(n^2) | O(n) |
+
+There is no O(n log n) version and no sequence recovery here; the Python folder has both.
+
+## Go-Specific Notes
+
+- The maximum of `dp` is found with an explicit loop.
+- Equal values do not extend a run, so `[]int{7, 7, 7, 7}` gives 1.
+- The package is `main` with no `main` function, so only `go test` runs it.
 
 ## How to Run
 
@@ -16,26 +30,8 @@ Go implementation of the Longest Increasing Subsequence (LIS) problem using dyna
 go test ./...
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `LISDP(arr []int) int` | Computes the length of the longest strictly increasing subsequence | O(n^2) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n^2) where n = length of the input array |
-| Space | O(n) for the 1D DP array |
-
-## Notes
-
-- `dp[i]` stores the length of the LIS ending at index `i`, initialized to 1.
-- For each element, scans all previous elements to extend valid increasing subsequences.
-- Finds the overall maximum by iterating through all `dp` values after computation.
-- Handles the empty array edge case by returning 0.
-
----
-
-_Last Updated: April 2026_
+- Take the maximum over all entries of `dp`.
+- Strict comparison excludes duplicates.
+- Quadratic time limits it to a few thousand elements.

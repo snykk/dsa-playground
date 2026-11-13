@@ -66,7 +66,6 @@ std::vector<std::tuple<int, int, int>> kruskalMST(
     for (const auto& edge : edges) {
         int u = std::get<0>(edge);
         int v = std::get<1>(edge);
-        int weight = std::get<2>(edge);
         
         if (uf.unionSets(u, v)) {
             mst.push_back(edge);

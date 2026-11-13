@@ -1,7 +1,7 @@
 package main
 
 // StrassenMultiply multiplies two matrices using Strassen's algorithm
-// Time Complexity: O(n^log₂ 7) ≈ O(n^2.81)
+// Time Complexity: O(n^log2(7)) ~ O(n^2.81)
 func StrassenMultiply(A, B [][]int) [][]int {
 	n := len(A)
 
@@ -11,6 +11,17 @@ func StrassenMultiply(A, B [][]int) [][]int {
 
 	if n <= 64 {
 		return naiveMultiply(A, B)
+	}
+
+	// An odd size cannot be split into equal quadrants: pad by one zero row and
+	// column, multiply, and cut the padding off again.
+	if n%2 == 1 {
+		PC := StrassenMultiply(padMatrix(A, n+1), padMatrix(B, n+1))
+		C := make([][]int, n)
+		for i := range C {
+			C[i] = PC[i][:n]
+		}
+		return C
 	}
 
 	// Split matrices into quadrants
@@ -117,4 +128,16 @@ func naiveMultiply(A, B [][]int) [][]int {
 		}
 	}
 	return C
+}
+
+// padMatrix copies M into the top-left corner of a zero size x size matrix.
+func padMatrix(M [][]int, size int) [][]int {
+	P := make([][]int, size)
+	for i := range P {
+		P[i] = make([]int, size)
+		if i < len(M) {
+			copy(P[i], M[i])
+		}
+	}
+	return P
 }

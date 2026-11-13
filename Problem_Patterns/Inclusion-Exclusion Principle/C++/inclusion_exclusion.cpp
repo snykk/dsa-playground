@@ -5,28 +5,37 @@
 
 using namespace std;
 
-int gcd(int a, int b) {
+long long gcd(long long a, long long b) {
     while (b) {
-        int temp = b;
+        long long temp = b;
         b = a % b;
         a = temp;
     }
     return a;
 }
 
+// Count numbers in 1..n divisible by at least one divisor (all divisors >= 1).
+// The lcm is kept in long long and a subset is dropped once its lcm exceeds n:
+// n / lcm is 0 there, and the product could overflow otherwise.
 int countDivisible(int n, const vector<int>& divisors) {
-    int result = 0;
+    long long result = 0;
     int k = divisors.size();
     
     for (int i = 1; i < (1 << k); i++) {
         int count = 0;
-        int lcm = 1;
+        long long lcm = 1;
+        bool tooBig = false;
         for (int j = 0; j < k; j++) {
             if (i & (1 << j)) {
                 count++;
-                lcm = lcm * divisors[j] / gcd(lcm, divisors[j]);
+                lcm = lcm / gcd(lcm, divisors[j]) * divisors[j];
+                if (lcm > n) {
+                    tooBig = true;
+                    break;
+                }
             }
         }
+        if (tooBig) continue;
         
         if (count % 2 == 1) {
             result += n / lcm;
@@ -34,23 +43,27 @@ int countDivisible(int n, const vector<int>& divisors) {
             result -= n / lcm;
         }
     }
-    return result;
+    return static_cast<int>(result);
 }
 
+// Size of the union of the sets: each non-empty subset of sets adds (odd size)
+// or subtracts (even size) the size of its intersection.
 int countUnionSets(const vector<vector<int>>& sets) {
     int n = sets.size();
     int result = 0;
     
     for (int i = 1; i < (1 << n); i++) {
         set<int> intersection;
-        if (!sets[0].empty()) {
-            intersection.insert(sets[0].begin(), sets[0].end());
-        }
         int count = 0;
         
         for (int j = 0; j < n; j++) {
             if (i & (1 << j)) {
                 count++;
+                if (count == 1) {
+                    // start from the first set in the subset, not from sets[0]
+                    intersection.insert(sets[j].begin(), sets[j].end());
+                    continue;
+                }
                 set<int> currentSet(sets[j].begin(), sets[j].end());
                 set<int> newIntersection;
                 for (int val : intersection) {

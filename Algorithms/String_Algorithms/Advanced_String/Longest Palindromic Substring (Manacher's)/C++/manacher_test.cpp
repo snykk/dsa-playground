@@ -51,6 +51,21 @@ void testTwoChars() {
     assert(result == "aa");
 }
 
+void testSentinelCharactersInInput() {
+    // Regression: '^' and '$' were sentinels, so inputs containing them expanded past
+    // the sentinel ("b^a^b^a" gave the non-palindrome "b^a^b^") or indexed before it ("$a").
+    assert(manacher("b^a^b^a") == "b^a^b");
+    assert(manacher("a^") == "a");
+    assert(manacher("$a") == "$");
+    assert(manacher("^^") == "^^");
+    assert(manacher("$a$") == "$a$");
+}
+
+void testTieGoesToTheEarlierPalindrome() {
+    assert(manacher("babad") == "bab");
+    assert(manacher("cbbd") == "bb");
+}
+
 int main() {
     testBasic();
     testSingleChar();
@@ -59,6 +74,8 @@ int main() {
     testLongPalindrome();
     testEmptyString();
     testTwoChars();
+    testSentinelCharactersInInput();
+    testTieGoesToTheEarlierPalindrome();
     
     std::cout << "All tests passed!" << std::endl;
     return 0;

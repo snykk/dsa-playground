@@ -68,6 +68,39 @@ class TestFibonacci(unittest.TestCase):
         expected = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
         self.assertEqual(seq, expected)
 
+    def test_sequence_non_positive_length(self):
+        """A sequence of zero or fewer numbers is empty"""
+        self.assertEqual(fibonacci_sequence(0), [])
+        self.assertEqual(fibonacci_sequence(-3), [])
+
+    def test_negative_n_raises(self):
+        """Regression: negative n used to be returned unchanged (F(-5) gave -5)"""
+        for fn in (fibonacci_naive, fibonacci_memoization, fibonacci_tabulation,
+                   fibonacci_optimized, fibonacci_matrix):
+            for n in (-1, -5):
+                with self.subTest(fn=fn.__name__, n=n):
+                    with self.assertRaises(ValueError):
+                        fn(n)
+
+    def test_approaches_agree_on_range(self):
+        """Every approach matches the sequence for n = 0..25"""
+        seq = fibonacci_sequence(26)
+        for n in range(26):
+            with self.subTest(n=n):
+                self.assertEqual(fibonacci_naive(n), seq[n])
+                self.assertEqual(fibonacci_memoization(n), seq[n])
+                self.assertEqual(fibonacci_tabulation(n), seq[n])
+                self.assertEqual(fibonacci_optimized(n), seq[n])
+                self.assertEqual(fibonacci_matrix(n), seq[n])
+
+    def test_large_n(self):
+        """Python integers do not overflow: F(100) is exact"""
+        expected = 354224848179261915075
+        self.assertEqual(fibonacci_tabulation(100), expected)
+        self.assertEqual(fibonacci_optimized(100), expected)
+        self.assertEqual(fibonacci_matrix(100), expected)
+        self.assertEqual(fibonacci_memoization(100), expected)
+
 
 if __name__ == '__main__':
     unittest.main()

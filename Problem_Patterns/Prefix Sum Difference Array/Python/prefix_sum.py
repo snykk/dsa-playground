@@ -84,3 +84,7 @@ def main():
     result = range_updates(arr, updates)
     print(f"After range updates: {result}")
 
+
+
+if __name__ == "__main__":
+    main()

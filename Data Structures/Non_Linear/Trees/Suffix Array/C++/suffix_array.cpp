@@ -35,7 +35,7 @@ public:
             int idx = suffix_array[mid];
             string suffix = text.substr(idx);
             
-            if (suffix.find(pattern) == 0) {
+            if (suffix.compare(0, pattern.size(), pattern) == 0) {
                 first_occurrence = mid;
                 right = mid - 1;
             } else if (suffix < pattern) {
@@ -56,7 +56,7 @@ public:
             int idx = suffix_array[mid];
             string suffix = text.substr(idx);
             
-            if (suffix.find(pattern) == 0) {
+            if (suffix.compare(0, pattern.size(), pattern) == 0) {
                 last_occurrence = mid;
                 left = mid + 1;
             } else {

@@ -3,6 +3,7 @@
  */
 #include <vector>
 #include <string>
+#include <algorithm>
 
 std::vector<int> buildZArray(const std::string& s) {
     int n = s.length();
@@ -34,8 +35,10 @@ std::vector<int> zAlgorithmSearch(const std::string& text, const std::string& pa
     std::vector<int> result;
     int m = pattern.length();
     
+    // A text position i is a match when z[i] >= m. Use >=, not ==: when '$'
+    // also occurs in the text or pattern, z[i] can run past the separator.
     for (size_t i = m + 1; i < combined.length(); i++) {
-        if (z[i] == m) {
+        if (z[i] >= m) {
             result.push_back(i - m - 1);
         }
     }

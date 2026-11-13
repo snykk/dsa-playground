@@ -9,6 +9,15 @@ from typing import List, Dict, Tuple, Optional
 import heapq
 
 
+def _vertices(graph: Dict[int, List[Tuple[int, int]]]) -> List[int]:
+    """Every vertex of the graph: the dict keys plus vertices that only appear as neighbors."""
+    vertices = dict.fromkeys(graph)
+    for neighbors in graph.values():
+        for neighbor, _ in neighbors:
+            vertices.setdefault(neighbor)
+    return list(vertices)
+
+
 def dijkstra(graph: Dict[int, List[Tuple[int, int]]], start: int) -> Dict[int, int]:
     """
     Dijkstra's algorithm to find shortest distances from start to all vertices
@@ -23,7 +32,7 @@ def dijkstra(graph: Dict[int, List[Tuple[int, int]]], start: int) -> Dict[int, i
     Time Complexity: O((V + E) log V) with binary heap
     Space Complexity: O(V)
     """
-    distances = {v: float('inf') for v in graph}
+    distances = {v: float('inf') for v in _vertices(graph)}
     distances[start] = 0
     
     # Priority queue: (distance, vertex)
@@ -67,9 +76,9 @@ def dijkstra_with_path(graph: Dict[int, List[Tuple[int, int]]],
     Time Complexity: O((V + E) log V)
     Space Complexity: O(V)
     """
-    distances = {v: float('inf') for v in graph}
+    distances = {v: float('inf') for v in _vertices(graph)}
     distances[start] = 0
-    previous = {v: None for v in graph}
+    previous = {}  # vertex -> predecessor on the best path found so far
     
     pq = [(0, start)]
     visited = set()
@@ -78,12 +87,10 @@ def dijkstra_with_path(graph: Dict[int, List[Tuple[int, int]]],
         current_dist, current = heapq.heappop(pq)
         
         if current == target:
-            # Reconstruct path
-            path = []
-            node = target
-            while node is not None:
-                path.append(node)
-                node = previous[node]
+            # Reconstruct path: follow predecessors back to the start vertex
+            path = [target]
+            while path[-1] != start:
+                path.append(previous[path[-1]])
             path.reverse()
             return (current_dist, path)
         
@@ -113,14 +120,14 @@ def dijkstra_all_pairs(graph: Dict[int, List[Tuple[int, int]]]) -> Dict[int, Dic
         graph: Dictionary mapping vertex to list of (neighbor, weight) tuples
         
     Returns:
-        Dictionary mapping (source, target) to shortest distance
+        Nested dictionary: all_distances[source][target] is the shortest distance
         
     Time Complexity: O(V * (V + E) log V)
-    Space Complexity: O(V²)
+    Space Complexity: O(V^2)
     """
     all_distances = {}
     
-    for start in graph:
+    for start in _vertices(graph):
         all_distances[start] = dijkstra(graph, start)
     
     return all_distances

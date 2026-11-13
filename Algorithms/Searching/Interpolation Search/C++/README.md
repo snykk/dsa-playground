@@ -1,78 +1,36 @@
-# Interpolation Search (C++)
+# Interpolation Search -- C++ Implementation
 
-**Interpolation Search** is an improved variant of Binary Search for uniformly distributed sorted arrays.
+Template interpolation search over `std::vector`. For the idea, the formula and the traces see the [topic README](../README.md).
 
----
+## Files
 
-## Overview
+- `interpolation_search.cpp` - the templates and their explicit instantiations.
+- `interpolation_search_test.cpp` - 9 assert-based tests (it includes the .cpp file), including duplicates and `INT_MIN` / `INT_MAX`.
 
-Interpolation Search estimates the position of the target value based on the values at the boundaries. It works best when the data is uniformly distributed, achieving O(log log n) average time complexity.
+## API
 
----
+- `int interpolationSearch(const std::vector<T>& arr, const T& target)` - index or -1. Instantiated for `int` and `double`.
+- `int interpolationSearchRecursive(arr, target, left, right)` - the recursive form; the caller passes the bounds. `int` and `double`.
 
-## Algorithm
+## C++-Specific Notes
 
-1. Check if target is within array bounds
-2. Calculate position using interpolation formula
-3. Compare target with element at calculated position
-4. Eliminate search space based on comparison
-5. Repeat until found or exhausted
+- The probe is computed in `double`, because `arr[right] - arr[left]` can overflow `int` (for example `INT_MAX - INT_MIN`), which is undefined behavior.
+- Doubles represent integers exactly only up to 2^53, so for very wide values the estimate is approximate; it only affects speed, not correctness.
+- A flat window (`arr[left] == arr[right]`) returns before the division.
+- Indexes are `int`. The recursive form takes the bounds from the caller: pass `0` and `size() - 1`.
+- Do not compile `interpolation_search.cpp` and the test together: the test already includes it.
 
----
+## How to Run
 
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Best Case** | O(1) | O(1) |
-| **Average Case** | O(log log n) | O(1) |
-| **Worst Case** | O(n) | O(1) |
-
----
-
-## Usage
-
-```cpp
-#include <vector>
-#include "interpolation_search.cpp"
-
-std::vector<int> arr = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-int index = interpolationSearch(arr, 50);
-// index = 4
-```
-
----
-
-## Compilation
+From this folder:
 
 ```bash
-g++ -std=c++11 interpolation_search.cpp interpolation_search_test.cpp -o test
-./test
+g++ -std=c++17 -O2 -Wall interpolation_search_test.cpp -o interpolation_search_test
+./interpolation_search_test
 ```
 
----
+## Key Takeaways
 
-## When to Use
-
-- ✅ Uniformly distributed sorted arrays
-- ✅ Large datasets with uniform distribution
-- ❌ Non-uniformly distributed data (use Binary Search instead)
-
----
-
-## Related Algorithms
-
-- **Binary Search**: O(log n) for any sorted array
-- **Linear Search**: O(n) for unsorted arrays
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+- Do the subtraction in a wider type than the keys.
+- Guard the flat window before dividing.
+- Prefer binary search unless the keys are close to uniform.

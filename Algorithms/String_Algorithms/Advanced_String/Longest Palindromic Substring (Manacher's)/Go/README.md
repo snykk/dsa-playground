@@ -1,81 +1,32 @@
-# Manacher's Algorithm (Go)
+# Manacher's Algorithm -- Go Implementation
 
-**Manacher's Algorithm** finds the longest palindromic substring in a string in linear time.
+Longest palindromic substring in O(n).
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | package `main`: `Manacher` and a demo `main` |
+| `main_test.go` | `TestManacher` (table-driven), `TestSentinelCharactersInInput` and `TestMultiByteRunes` (regressions) |
+| `go.mod` | module `manacher` |
 
-Manacher's algorithm is the optimal algorithm for finding the longest palindromic substring. It uses a clever technique with a transformed string and maintains a palindrome radius array to achieve linear time complexity.
+## API
 
-**Key Characteristics:**
-- Finds longest palindromic substring in linear time
-- Time: O(n) time complexity
-- Space: O(n)
-- Optimal algorithm for palindrome detection
+- `Manacher(s string) string`: the first longest palindromic substring (the earliest on ties); `""` for an empty string.
 
----
+## Go-Specific Notes
 
-## Complexity Analysis
+- Works on runes: it records each rune and its byte offset, runs the algorithm on the runes, and slices the original string at those offsets. A multi-byte character is never split.
+- A separator is represented by `-1`, which is never a valid rune, so no input character can collide with it.
+- Each invalid UTF-8 byte is read as the replacement rune U+FFFD, so two different invalid bytes compare equal.
 
-| Aspect | Complexity |
-|--------|------------|
-| **Time** | O(n) |
-| **Space** | O(n) |
-
-Where:
-- n = length of string
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`Manacher(s)`**
-   - Find longest palindromic substring using Manacher's algorithm
-   - Returns the longest palindromic substring
-   - Time: O(n), Space: O(n)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    s := "babad"
-    
-    result := Manacher(s)
-    fmt.Println("Longest palindromic substring:", result)  // "bab" or "aba"
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## References
-
-- Manacher, G. (1975). "A new linear-time algorithm for finding the maximum palindrome"
-- "Introduction to Algorithms" by CLRS
-
----
-
-_Last Updated: December 2025_
-
+1. Transform and index the same unit (runes), or multi-byte text breaks the index mapping.
+2. A value outside the rune range makes a safe separator.

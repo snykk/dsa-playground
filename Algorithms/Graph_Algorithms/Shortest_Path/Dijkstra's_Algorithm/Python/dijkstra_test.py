@@ -130,6 +130,26 @@ class TestDijkstra(unittest.TestCase):
         # All other vertices should be unreachable
         self.assertEqual(distances[1], float('inf'))
 
+    def test_neighbor_only_vertex(self):
+        """A vertex that appears only as a neighbor (not a dict key) still gets a distance."""
+        graph = {0: [(1, 5)]}
+        self.assertEqual(dijkstra(graph, 0), {0: 0, 1: 5})
+        self.assertEqual(dijkstra_with_path(graph, 0, 1), (5, [0, 1]))
+        # Unreachable neighbor-only vertices are reported as infinity, like key vertices.
+        distances = dijkstra({0: [], 2: [(3, 1)]}, 0)
+        self.assertEqual(distances[3], float('inf'))
+
+    def test_all_pairs_neighbor_only_vertex(self):
+        """All pairs includes neighbor-only vertices as sources and targets."""
+        all_distances = dijkstra_all_pairs({0: [(1, 5)]})
+        self.assertEqual(all_distances, {0: {0: 0, 1: 5}, 1: {0: float('inf'), 1: 0}})
+
+    def test_with_path_start_not_in_graph(self):
+        """start == target outside the graph is a zero-length path, not a KeyError."""
+        self.assertEqual(dijkstra_with_path({}, 5, 5), (0, [5]))
+        self.assertEqual(dijkstra_with_path({0: []}, 5, 5), (0, [5]))
+        self.assertIsNone(dijkstra_with_path({0: []}, 5, 0))
+
 
 if __name__ == '__main__':
     unittest.main()

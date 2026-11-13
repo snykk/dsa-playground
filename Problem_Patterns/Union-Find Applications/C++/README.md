@@ -1,36 +1,38 @@
-# Union-Find in C++
+# Union-Find Applications -- C++ Implementation
 
-Implementation of Union-Find (DSU) in C++.
+A disjoint set union with path compression and union by rank. See the [topic README](../README.md) for the applications.
 
-## Features
+## Files
 
-1.  **UnionFind**: Class implementing DSU with:
-    - Path Compression
-    - Union by Rank
+| File | Contents |
+|------|----------|
+| `union_find.cpp` | `UnionFind` class and a demo `main` |
+| `union_find_test.cpp` | Assert-based tests (includes the `.cpp`) |
 
-## Usage
+## API
 
-```cpp
-UnionFind uf(10);
+- `UnionFind(int size)`: throws `std::invalid_argument` if `size < 0`.
+- `int find(int x)`: root with path compression; throws `std::out_of_range` for a bad index.
+- `bool unite(int x, int y)`: `true` if merged, `false` if already connected.
+- `bool connected(int x, int y)`
+- `int getCount() const`
 
-// Union elements
-uf.unite(0, 1);
-uf.unite(1, 2);
+## C++-Specific Notes
 
-// Check connectivity
-if (uf.connected(0, 2)) {
-    std::cout << "0 and 2 are connected" << std::endl;
-}
+- The merge method is named `unite` because `union` is a C++ keyword.
+- `find` is recursive; union by rank keeps trees shallow.
+- There is no `count_components` helper in C++; call `unite` for each edge and read `getCount()`.
+- The demo `main` is compiled out when `IS_TEST_BUILD` is defined.
 
-// Get number of disjoint sets
-int count = uf.getCount();
-```
-
-## Compilation and Testing
-
-Compile the test file:
+## How to Run
 
 ```bash
-g++ union_find_test.cpp -o test
-./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD union_find_test.cpp -o uf_test && ./uf_test
+g++ -std=c++17 -O2 -Wall union_find.cpp -o uf_demo && ./uf_demo
 ```
+
+## Key Takeaways
+
+- `unite` returns the cycle signal.
+- Bad indices throw instead of corrupting memory.
+- Count components with `getCount()` after uniting all edges.

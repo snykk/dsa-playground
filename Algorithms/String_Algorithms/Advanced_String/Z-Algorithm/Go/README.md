@@ -1,93 +1,33 @@
-# Z-Algorithm (Go)
+# Z-Algorithm -- Go Implementation
 
-**Z-Algorithm** constructs a Z-array for efficient pattern matching and string processing.
+The Z-array and a linear-time pattern search built on it.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | package `main`: `buildZArray`, `ZAlgorithmSearch`, and a demo `main` |
+| `main_test.go` | `TestZAlgorithmSearch` and `TestBuildZArray`, both table-driven |
+| `go.mod` | module `z_algorithm` |
 
-The Z-Algorithm constructs a Z-array where Z[i] is the length of the longest substring starting at position i that is also a prefix of the string. This array is useful for pattern matching and various string processing tasks.
+## API
 
-**Key Characteristics:**
-- Constructs Z-array for pattern matching
-- Time: O(n + m) time complexity
-- Space: O(n + m)
-- Useful for string processing
+- `ZAlgorithmSearch(text, pattern string) []int`: all start indices, in increasing order; an empty slice for an empty pattern, an empty text, or a pattern longer than the text. O(n + m).
+- `buildZArray(s string) []int` (unexported): the Z-array, with `z[0] = 0`. O(n).
 
----
+## Go-Specific Notes
 
-## Complexity Analysis
+- Strings are indexed by byte, so indices are byte offsets.
+- The search keeps positions with `z[i] >= m`; `>=` is required because a `$` inside the input can make `z[i]` exceed `m`.
+- A match returns `nil` (not an empty slice) when the loop finds nothing for non-empty valid input; the early exits return `[]int{}`.
 
-| Aspect | Complexity |
-|--------|------------|
-| **Time** | O(n + m) |
-| **Space** | O(n + m) |
-
-Where:
-- n = length of text
-- m = length of pattern
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`buildZArray(s)`**
-   - Build Z-array for a given string
-   - Returns slice of Z-values
-   - Time: O(n), Space: O(n)
-
-2. **`ZAlgorithmSearch(text, pattern)`**
-   - Find all occurrences of pattern in text using Z-algorithm
-   - Returns slice of starting indices
-   - Time: O(n + m), Space: O(n + m)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    text := "ABABDABACDABABCABC"
-    pattern := "ABABCABC"
-    
-    occurrences := ZAlgorithmSearch(text, pattern)
-    fmt.Println(occurrences)  // [10]
-    
-    // Build Z-array
-    s := "aabxaabxcaabxaabxay"
-    z := buildZArray(s)
-    fmt.Println(z)
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. The Z-box never moves left, which gives the linear bound.
+2. Test `>=`, not `==`, for matches.

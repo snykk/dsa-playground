@@ -11,8 +11,8 @@ class UnionFind:
     Disjoint Set Union (DSU) with Path Compression and Union by Rank.
     Time Complexity:
         - Construction: O(n)
-        - Find: O(α(n))
-        - Union: O(α(n))
+        - Find: O(alpha(n))
+        - Union: O(alpha(n))
     Space Complexity: O(n)
     """
 

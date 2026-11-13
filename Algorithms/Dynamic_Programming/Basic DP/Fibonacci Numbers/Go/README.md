@@ -1,158 +1,38 @@
-# Fibonacci Numbers (Go)
+# Fibonacci Numbers -- Go Implementation
 
-**Fibonacci Numbers** are a classic example of Dynamic Programming, demonstrating overlapping subproblems and optimal substructure.
+Two ways to compute Fibonacci numbers with `int64` results.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | the functions below |
+| `main_test.go` | tests: values, agreement of both versions for `n = 0..92`, negative input |
+| `go.mod` | module `fibonacci` (Go 1.21) |
 
-The Fibonacci sequence is defined as F(n) = F(n-1) + F(n-2) with base cases F(0) = 0 and F(1) = 1. This sequence appears naturally in many areas: mathematics, computer science, nature (golden ratio), and serves as the perfect introduction to Dynamic Programming concepts.
+## API
 
-**Sequence**: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, ...
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `FibonacciTabulation(n int) int64` | bottom-up table | O(n) | O(n) |
+| `FibonacciOptimized(n int) int64` | two variables | O(n) | O(1) |
 
----
+Both panic for a negative `n`. There is no memoized, naive, matrix or sequence version here; the Python folder has them.
 
-## Algorithm
+## Go-Specific Notes
 
-The naive recursive approach has exponential time complexity because it recalculates the same values multiple times. Dynamic Programming solves this by storing previously computed values.
+- `F(92)` is the largest value that fits in `int64`. For `n >= 93` the sum wraps around silently, so the result is wrong without any error.
+- Go has no recursion limit problem for these functions, since both are loops.
+- The package is `main` with no `main` function, so only `go test` runs it.
 
-### Recursive Relation
-- **Base Cases**: F(0) = 0, F(1) = 1
-- **Recurrence**: F(n) = F(n-1) + F(n-2) for n > 1
-
----
-
-## Complexity Analysis
-
-| Approach | Time | Space | Notes |
-|----------|------|-------|-------|
-| **Naive Recursive** | O(2^n) | O(n) | Recalculates same values |
-| **Memoization** | O(n) | O(n) | Top-down DP, stores computed values |
-| **Tabulation** | O(n) | O(n) | Bottom-up DP, fills table iteratively |
-| **Space-Optimized** | O(n) | O(1) | Only stores last two values |
-| **Matrix Exponentiation** | O(log n) | O(1) | Uses matrix power for fast computation |
-
-**Note**: Matrix exponentiation is optimal for very large n (e.g., n > 10^9).
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`FibonacciTabulation(n)`**
-   - Bottom-up Dynamic Programming
-   - Fills array iteratively
-   - Returns F(n)
-   - Time: O(n), Space: O(n)
-
-2. **`FibonacciOptimized(n)`**
-   - Space-optimized version
-   - Only stores last two values
-   - Returns F(n)
-   - Time: O(n), Space: O(1)
-
-3. **`FibonacciMatrix(n)`**
-   - Matrix exponentiation approach
-   - Fastest for very large n
-   - Returns F(n)
-   - Time: O(log n), Space: O(1)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // Tabulation (standard)
-    result := FibonacciTabulation(10)
-    fmt.Println(result)  // Output: 55
-
-    // Space-optimized (best for most cases)
-    result = FibonacciOptimized(50)
-    fmt.Println(result)  // Output: 12586269025
-
-    // Matrix exponentiation (for very large n)
-    result = FibonacciMatrix(100)
-    fmt.Println(result)  // Very fast even for large n
-}
-```
-
----
-
-## Important Notes
-
-1. **Integer Overflow**: Fibonacci grows exponentially, use `int64` or `big.Int` for large n
-2. **Modulo Arithmetic**: Often needed in competitive programming (e.g., F(n) mod 10^9+7)
-3. **Space Optimization**: Can reduce space from O(n) to O(1)
-4. **Matrix Method**: Optimal for very large n (n > 10^9)
-5. **Go Types**: Use `int64` for n up to ~90, `big.Int` for larger
-
----
-
-## Advantages
-
-1. ✅ **Multiple Approaches**: Choose based on constraints
-2. ✅ **Educational Value**: Perfect DP learning example
-3. ✅ **Space Optimization**: Can achieve O(1) space
-4. ✅ **Fast Methods**: Matrix exponentiation for very large n
-
----
-
-## Disadvantages
-
-1. ❌ **Naive Recursive**: Exponential time, not practical
-2. ❌ **Large Numbers**: Fibonacci grows exponentially, need big integers
-3. ❌ **Memory**: Tabulation requires O(n) space
-
----
-
-## When to Use
-
-- ✅ **Tabulation/Optimized**: General purpose, n < 10^6
-- ✅ **Matrix Exponentiation**: Very large n (n > 10^9)
-- ✅ **Memoization**: When recursive structure is more intuitive
-- ❌ **Naive Recursive**: Never in production, only for learning
-
----
-
-## Testing
-
-Run the test suite:
+## How to Run
 
 ```bash
-go test -v
+go test ./...
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **Climbing Stairs**: Same recurrence relation
-- **Coin Change**: Similar DP pattern
-- **Linear Recurrences**: General pattern for similar problems
-
----
-
-## Applications
-
-1. **Mathematics**: Golden ratio, number theory
-2. **Nature**: Plant growth patterns, spiral formations
-3. **Computer Science**: Algorithm analysis, DP examples
-4. **Cryptography**: Some encryption schemes
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 15)
-- "Algorithm Design Manual" by Steven Skiena
-- Fibonacci sequence in nature and mathematics
-
----
-
-_Last Updated: December 2025_
+- Results are exact for `n <= 92` only; Go does not report overflow.
+- The loop with two variables is the one to use.
+- A negative `n` panics.

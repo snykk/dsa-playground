@@ -1,41 +1,36 @@
-# Monotonic Queue — Go Implementation
+# Monotonic Queue -- Go Implementation
 
-O(n) sliding-window maximum / minimum via a slice-backed monotonic deque.
-
-For the conceptual overview, visuals, and common problems, see the parent README: [../README.md](../README.md)
-
----
+Sliding window maximum and minimum with a slice as the deque. See the [topic README](../README.md) for the idea.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | `SlidingWindowMax` and `SlidingWindowMin` exported functions |
+| File | Contents |
+|------|----------|
+| `main.go` | `SlidingWindowMax`, `SlidingWindowMin` and a demo `main` |
 | `main_test.go` | Table-driven tests |
 | `go.mod` | Module definition |
 
----
+## API
+
+- `SlidingWindowMax(arr []int, k int) []int`: empty slice (not nil) for `k <= 0`, an empty array or `k > len(arr)`.
+- `SlidingWindowMin(arr []int, k int) []int`
 
 ## Go-Specific Notes
 
-- **Slice as deque**: `dq = dq[1:]` to "pop front", `dq = dq[:len(dq)-1]` to "pop back", `append(dq, v)` to push back. This is idiomatic Go — no `container/list` needed, and no pointer-chasing cost.
-- **Front-pop via `dq[1:]` leaks capacity of the original backing array.** For workloads where the deque is short-lived (one call), this is fine — GC reclaims when the function returns. For long-lived deques (e.g. in an interactive loop), copy into a fresh slice periodically.
-- **Pre-sized result slice**: `make([]int, 0, n-k+1)` avoids `append` growth reallocation — classic Go performance idiom.
-- **Index-based deque** instead of storing `{index, value}` pairs: halves memory and keeps the inner-loop code branch-predictable.
-- **No concurrency**: the functions are stateless and therefore safe to call from multiple goroutines simultaneously. Each call allocates its own deque.
-
----
+- The deque is a slice of indices: pop front with `dq = dq[1:]`, pop back with `dq = dq[:len(dq)-1]`, push with `append`.
+- Reslicing the front keeps the old backing array alive until the call returns, which is fine for one-shot use.
+- The result slice is pre-sized with `make([]int, 0, n-k+1)`.
+- The functions are stateless and safe to call from several goroutines.
 
 ## How to Run
 
 ```bash
-go test -v ./...
+go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Slice-based deque is fine.** Go's `container/list` is a doubly linked list — overkill (and slower) for this use case. Slice operations at both ends are O(1) amortized.
-2. **The amortized analysis is identical** in any language. Each index enters the deque once and leaves once — total inner-loop work is O(n).
-3. **Boundary guards at the top** (`k <= 0`, `n == 0`, `k > n`) keep the hot loop clean. In Go especially, returning `[]int{}` (not `nil`) matches the caller's typical expectations and avoids nil-check boilerplate downstream.
+- A plain slice is enough for a deque here; `container/list` is not needed.
+- Guard `k <= 0`, empty input and `k > n` once at the top.
+- No Go counterpart of the Python `MonotonicDeque` class exists.

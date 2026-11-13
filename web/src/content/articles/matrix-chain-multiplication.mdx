@@ -1,0 +1,195 @@
+---
+topic: Algorithms/Dynamic_Programming/2D DP/Matrix Chain Multiplication
+title: Matrix Chain Multiplication
+lead: Multiplying a chain of matrices gives the same result for every parenthesization, but the number of scalar multiplications can differ enormously. An interval DP finds the cheapest order in O(n^3) time by trying every split point of every sub-chain.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n^3)
+    hint: n matrices; n(n+1)/2 intervals, up to n splits each
+  - label: Space
+    value: O(n^2)
+    hint: the interval table
+  - label: Parenthesizations
+    value: Catalan(n-1)
+    hint: 4,862 for 10 matrices, so brute force is out
+    tone: warn
+  - label: Approach
+    value: Interval DP
+properties:
+  - { label: Optimal substructure, value: true }
+  - { label: Overlapping subproblems, value: true }
+  - { label: Returns the order, value: false }
+  - { label: Multiplies the matrices, value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
+related:
+  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
+  - Algorithms/Dynamic_Programming/2D DP/Edit Distance
+  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+---
+
+## How Matrix Chain Multiplication works
+
+Multiplying a `p x q` matrix by a `q x r` matrix takes `p * q * r` scalar multiplications and gives a `p x r` matrix. Matrix multiplication is associative, so any parenthesization gives the same product, but the cost depends on the order. The problem asks for the cheapest order. It never multiplies any matrices: only the dimensions matter.
+
+The input is a list `dims = [p0, p1, ..., pn]` where matrix `Ai` has size `dims[i-1] x dims[i]`, so `n + 1` numbers describe `n` matrices. Let `dp[i][j]` be the cheapest cost of multiplying `Ai..Aj`.
+
+<Steps>
+  <Step title="One matrix costs nothing">
+    `dp[i][i] = 0`.
+  </Step>
+  <Step title="Pick the last multiplication">
+    In the best order of `Ai..Aj` the last product joins `Ai..Ak` with `A(k+1)..Aj` for some split `k` with `i <= k < j`.
+  </Step>
+  <Step title="Add the three costs">
+    `dp[i][j] = min over k of dp[i][k] + dp[k+1][j] + dims[i-1] * dims[k] * dims[j]`. The last term is the cost of multiplying the two results, of sizes `dims[i-1] x dims[k]` and `dims[k] x dims[j]`.
+  </Step>
+  <Step title="Fill by chain length">
+    Intervals of length 2 first, then 3, up to `n`. The answer is `dp[1][n]`.
+  </Step>
+</Steps>
+
+<Callout title="Why the sub-chains can be optimized separately">
+Whatever the last split is, the two halves do not interact: the sizes of their results depend only on `dims`, not on how they were computed. So each half must use its own cheapest order, and the minimum over all splits is the global optimum.
+</Callout>
+
+## See it in action
+
+Press play to watch the table fill by increasing chain length. For each cell, the splits being compared are highlighted. Type your own list of dimensions.
+
+<ArticleViz ids={['matrix-chain']} />
+
+## Worked example
+
+Four matrices with `dims = [40, 20, 30, 10, 30]`: `A1` is 40x20, `A2` is 20x30, `A3` is 30x10 and `A4` is 10x30. Costs below come from running `matrix_chain_multiplication` and tracing the recurrence; each cell shows the cost and, in brackets, the best split `k`.
+
+<GridDiagram
+  corner="i \ j"
+  colLabels={[1, 2, 3, 4]}
+  rowLabels={[1, 2, 3, 4]}
+  rows={[
+    ['0', '24000 [k=1]', '14000 [k=1]', '26000 [k=3]'],
+    ['', '0', '6000 [k=2]', '12000 [k=3]'],
+    ['', '', '0', '9000 [k=3]'],
+    ['', '', '', '0'],
+  ]}
+  tones={['..ff', 'm.f.', 'mm..', 'mmm.']}
+  legend={{ f: 'cells used by the optimal order', m: 'unused: the table is only filled for i <= j' }}
+/>
+
+For the whole chain `dp[1][4]`, the three splits cost:
+
+<DataTable
+  columns={['Split k', 'Left + right + join', 'Total']}
+  rows={[
+    ['k = 1', 'dp[1][1] + dp[2][4] + 40*20*30', '0 + 12000 + 24000 = 36000'],
+    ['k = 2', 'dp[1][2] + dp[3][4] + 40*30*30', '24000 + 9000 + 36000 = 69000'],
+    ['k = 3', 'dp[1][3] + dp[4][4] + 40*10*30', '14000 + 0 + 12000 = 26000'],
+  ]}
+/>
+
+The best split is `k = 3`, and `dp[1][3] = 14000` came from `k = 1`, which is `A1 (A2 A3)`. Unrolling the splits gives the order `((A1 (A2 A3)) A4)`: first `A2 A3` (20*30*10 = 6000), then `A1` times that (40*20*10 = 8000), then times `A4` (40*10*30 = 12000), for a total of 26000. Multiplying left to right costs 48000. The repository code returns only the cost; recovering the order needs a second table that remembers the best `k` of every cell, as shown above.
+
+## Pseudocode
+
+```text
+matrixChain(dims):
+    if length(dims) < 3: return 0          # fewer than two matrices
+    n = length(dims) - 1
+    dp = (n + 1) x (n + 1) table of zeros
+    for len = 2 to n:                      # chain length
+        for i = 1 to n - len + 1:
+            j = i + len - 1
+            dp[i][j] = infinity
+            for k = i to j - 1:
+                cost = dp[i][k] + dp[k+1][j] + dims[i-1] * dims[k] * dims[j]
+                dp[i][j] = min(dp[i][j], cost)
+    return dp[1][n]
+```
+
+## Implementation
+
+All three languages implement this single bottom-up function and return only the minimum cost. With fewer than two matrices (`len(dims) < 3`) they return 0. The cost is 64-bit in C++ (`long long`) and in Go (`int`, with `math.MaxInt` as the starting value), and arbitrary precision in Python, so a chain such as `[2000, 2000, 2000]` correctly gives 8,000,000,000. The dimensions are `int` in C++. The tests include these regressions.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/2D DP/Matrix Chain Multiplication" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(n^3)', when: 'There are about n^2 / 2 intervals (i, j), and each tries up to n - 1 splits at constant cost each.' },
+    { case: 'Space', time: 'O(n^2)', space: 'O(n^2)', when: 'The table dp, with half of it unused. A split table for the order is another n^2.' },
+  ]}
+/>
+
+The number of orders explains why a table is needed: the number of full parenthesizations of `n` matrices is the Catalan number C<sub>n-1</sub>, which is 4,862 for 10 matrices and 1,767,263,190 for 20. The count satisfies a recurrence of its own, with the same split structure:
+
+<Equation label="Number of parenthesizations" expr="P(n) = sum for k = 1 .. n-1 of P(k) * P(n-k)" result="grows like 4^n" />
+
+The table instead has only O(n<sup>2</sup>) distinct sub-chains. Faster algorithms exist (Hu and Shing gave an O(n log n) one), but they are far more complex and are not in this repository.
+
+## Related interval DP problems
+
+<DataTable
+  columns={['Problem', 'State', 'Transition']}
+  rows={[
+    ['Matrix Chain Multiplication', 'cheapest cost of Ai..Aj', 'try every split k, add the join cost'],
+    ['Optimal binary search tree', 'cheapest tree on keys i..j', 'try every root k'],
+    ['Burst Balloons', 'best coins from balloons i..j', 'try the last balloon k to burst'],
+    ['Minimum cost to merge stones', 'cost of merging a segment', 'try every split point'],
+    ['Polygon triangulation', 'cheapest triangulation of vertices i..j', 'try every third vertex k'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Finds the exact optimum among exponentially many orders in polynomial time.',
+    'The cost depends only on the dimensions, so it can be run before any multiplication.',
+    'A split table of the best k values recovers the order.',
+    'Teaches the interval DP pattern, which transfers to many other problems.',
+  ]}
+  cons={[
+    'Cubic time: slow for thousands of matrices.',
+    'O(n^2) memory, half of it unused.',
+    'Counts scalar multiplications only: cache effects, sparsity and parallelism are ignored.',
+    'The code returns only the cost, not the order.',
+  ]}
+/>
+
+## Applications
+
+- **Compilers and linear algebra libraries.** Choosing the order of a product of several matrices is a real optimization: for example, `A * B * v` is much cheaper as `A * (B * v)` when `v` is a vector.
+- **Chained tensor contractions.** Choosing an order is the same kind of problem.
+- **Interval DP in contests.** The same state and transition solve many problems over ranges.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Confusing the dimension list with the matrix list.** `n` matrices need `n + 1` numbers; matrix `Ai` is `dims[i-1] x dims[i]`.
+- **Integer overflow.** Costs grow like the product of three dimensions: with 32-bit integers, `[2000, 2000, 2000]` overflows. Use 64-bit costs.
+- **Wrong loop order.** Iterate by chain length, not by `i`, otherwise `dp[k+1][j]` is not ready when needed.
+- **Counting the join cost wrong.** It is `dims[i-1] * dims[k] * dims[j]`, not the sizes of the sub-chains.
+- **Reading the answer from the wrong cell.** It is `dp[1][n]`, the whole chain.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Does the order of multiplication change the result?">
+    No. Matrix multiplication is associative, so every order gives the same matrix. Only the cost differs.
+  </FaqItem>
+  <FaqItem question="Why does the code return 0 for one or no matrices?">
+    There is nothing to multiply, so the cost is 0. Fewer than three entries in `dims` means fewer than two matrices.
+  </FaqItem>
+  <FaqItem question="How do I print the optimal parenthesization?">
+    Store the best `k` for every cell in a second table `split[i][j]`, then print recursively: for `(i, j)` print `(`, the order of `(i, split)`, the order of `(split + 1, j)` and `)`. This repository returns only the cost.
+  </FaqItem>
+  <FaqItem question="Is O(n^3) optimal?">
+    No. Hu and Shing described an O(n log n) algorithm. The cubic DP is the standard, simple solution and is fast enough for typical chain lengths.
+  </FaqItem>
+</Faq>

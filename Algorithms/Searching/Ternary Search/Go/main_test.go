@@ -58,4 +58,3 @@ func TestTernarySearchRecursive(t *testing.T) {
 		t.Errorf("Expected 6, got %d", result)
 	}
 }
-

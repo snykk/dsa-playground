@@ -1,14 +1,27 @@
-# Matrix Chain Multiplication (Go)
+# Matrix Chain Multiplication -- Go Implementation
 
-Go implementation of the Matrix Chain Multiplication problem using 2D interval DP to find the optimal parenthesization that minimizes the total number of scalar multiplications.
+Bottom-up interval DP for the cheapest matrix chain order.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `main.go` | Main implementation with interval DP approach |
-| `main_test.go` | Test cases for matrix chain solver |
-| `go.mod` | Go module definition (`matrixchain`) |
+| File | Contents |
+|------|----------|
+| `main.go` | `MatrixChainMultiplication` |
+| `main_test.go` | table-driven test, including large costs and short inputs |
+| `go.mod` | module `matrixchain` (Go 1.21) |
+
+## API
+
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `MatrixChainMultiplication(dims []int) int` | minimum number of scalar multiplications; returns 0 for fewer than two matrices | O(n^3) | O(n^2) |
+
+It returns only the cost, not the parenthesization.
+
+## Go-Specific Notes
+
+- `int` is 64 bits on 64-bit platforms, so costs above 2^31 are exact (a previous version started each cell at `1<<31 - 1`, which capped them). The starting value is now `math.MaxInt`, which also works on 32-bit platforms for the values that fit.
+- Fewer than three entries in `dims` returns 0 before the table is built.
 
 ## How to Run
 
@@ -16,26 +29,8 @@ Go implementation of the Matrix Chain Multiplication problem using 2D interval D
 go test ./...
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `MatrixChainMultiplication(dims []int) int` | Finds the minimum scalar multiplications needed for a chain of matrices | O(n^3) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n^3) where n = number of matrices |
-| Space | O(n^2) for the 2D DP table |
-
-## Notes
-
-- Input `dims` is a slice of length n+1 where matrix i has dimensions `dims[i-1] x dims[i]`.
-- Uses interval DP: iterates over chain lengths, then starting positions, then split points.
-- `dp[i][j]` stores the minimum scalar multiplications to compute matrices i through j.
-- Initializes costs to `1<<31 - 1` (max int) to represent infinity.
-
----
-
-_Last Updated: April 2026_
+- Start each cell at `math.MaxInt`, never at a fixed 32-bit constant.
+- `n` matrices need `n + 1` dimensions.
+- Fill by chain length.

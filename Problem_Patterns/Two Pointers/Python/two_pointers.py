@@ -48,7 +48,7 @@ def three_sum(arr: List[int], target: int) -> List[List[int]]:
     Returns:
         List of triplets
         
-    Time Complexity: O(n²)
+    Time Complexity: O(n^2)
     Space Complexity: O(1) excluding output
     """
     arr.sort()

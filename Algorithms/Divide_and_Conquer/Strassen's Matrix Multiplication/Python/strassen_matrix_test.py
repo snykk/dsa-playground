@@ -89,6 +89,31 @@ class TestStrassenMatrix(unittest.TestCase):
         expected = [[22, 28], [49, 64]]
         self.assertEqual(result, expected)
 
+    def _random_matrix(self, n, seed):
+        import random
+        rng = random.Random(seed)
+        return [[rng.randint(-9, 9) for _ in range(n)] for _ in range(n)]
+
+    def test_seven_product_recursion_128(self):
+        """n = 128 is above the naive cutoff, so the 7-product recursion runs"""
+        A = self._random_matrix(128, 1)
+        B = self._random_matrix(128, 2)
+        self.assertEqual(strassen_multiply(A, B), matrix_multiply_naive(A, B))
+
+    def test_odd_size_above_cutoff_65(self):
+        """Regression: an odd n > 64 used to raise IndexError"""
+        A = self._random_matrix(65, 3)
+        B = self._random_matrix(65, 4)
+        result = strassen_multiply(A, B)
+        self.assertEqual(len(result), 65)
+        self.assertEqual(result, matrix_multiply_naive(A, B))
+
+    def test_odd_size_at_deeper_level_130(self):
+        """Regression: 130 halves to the odd size 65"""
+        A = self._random_matrix(130, 5)
+        B = self._random_matrix(130, 6)
+        self.assertEqual(strassen_multiply(A, B), matrix_multiply_naive(A, B))
+
 
 if __name__ == '__main__':
     unittest.main()

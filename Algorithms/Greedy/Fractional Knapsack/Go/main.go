@@ -1,6 +1,9 @@
 package main
 
-import "sort"
+import (
+	"math"
+	"sort"
+)
 
 type Item struct {
 	Value, Weight float64
@@ -12,9 +15,16 @@ func FractionalKnapsack(items []Item, capacity float64) float64 {
 		return 0
 	}
 
-	// Sort by value/weight ratio
+	// Sort by value/weight ratio. A zero-weight item uses no capacity: its
+	// ratio is infinite (0/0 would be NaN), so it is taken first.
+	ratio := func(it Item) float64 {
+		if it.Weight == 0 {
+			return math.Inf(1)
+		}
+		return it.Value / it.Weight
+	}
 	sort.Slice(items, func(i, j int) bool {
-		return (items[i].Value / items[i].Weight) > (items[j].Value / items[j].Weight)
+		return ratio(items[i]) > ratio(items[j])
 	})
 
 	totalValue := 0.0
@@ -23,6 +33,10 @@ func FractionalKnapsack(items []Item, capacity float64) float64 {
 	for _, item := range items {
 		if remaining <= 0 {
 			break
+		}
+		if item.Weight == 0 { // free item: take all of it (take/weight would be 0/0)
+			totalValue += item.Value
+			continue
 		}
 
 		take := item.Weight
@@ -36,4 +50,3 @@ func FractionalKnapsack(items []Item, capacity float64) float64 {
 
 	return totalValue
 }
-

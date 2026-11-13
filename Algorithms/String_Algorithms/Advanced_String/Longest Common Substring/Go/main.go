@@ -8,10 +8,10 @@ func LongestCommonSubstring(s1, s2 string) string {
 	for i := range dp {
 		dp[i] = make([]int, n+1)
 	}
-	
+
 	maxLen := 0
 	endI := 0
-	
+
 	for i := 1; i <= m; i++ {
 		for j := 1; j <= n; j++ {
 			if s1[i-1] == s2[j-1] {
@@ -23,7 +23,7 @@ func LongestCommonSubstring(s1, s2 string) string {
 			}
 		}
 	}
-	
+
 	if maxLen == 0 {
 		return ""
 	}
@@ -35,4 +35,3 @@ func main() {
 	s2 := "BABCA"
 	fmt.Println("Longest Common Substring:", LongestCommonSubstring(s1, s2))
 }
-

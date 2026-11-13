@@ -1,6 +1,7 @@
 /**
  * Dijkstra's Algorithm Implementation (C++)
  * Time Complexity: O((V + E) log V)
+ * Distances are long long (LLONG_MAX = unreachable) so large weights cannot overflow.
  */
 
 #include <vector>
@@ -12,27 +13,36 @@
 
 using namespace std;
 
-unordered_map<int, int> dijkstra(
+// Every vertex starts at LLONG_MAX: the map keys AND vertices that only appear as neighbors.
+static unordered_map<int, long long> unreachedDistances(
+    const unordered_map<int, vector<pair<int, int>>>& graph) {
+    unordered_map<int, long long> distances;
+    for (const auto& [vertex, neighbors] : graph) {
+        distances[vertex] = LLONG_MAX;
+        for (const auto& [neighbor, weight] : neighbors) {
+            distances[neighbor] = LLONG_MAX;
+        }
+    }
+    return distances;
+}
+
+unordered_map<int, long long> dijkstra(
     const unordered_map<int, vector<pair<int, int>>>& graph, int start) {
     /**
      * Dijkstra's algorithm to find shortest distances from start to all vertices
      * graph: vertex -> [(neighbor, weight), ...]
      */
-    unordered_map<int, int> distances;
-
     if (graph.empty()) {
-        return distances;
+        return {};
     }
 
     // Initialize distances
-    for (const auto& [vertex, _] : graph) {
-        distances[vertex] = INT_MAX;
-    }
+    unordered_map<int, long long> distances = unreachedDistances(graph);
     distances[start] = 0;
     
     // Priority queue: (distance, vertex)
-    priority_queue<pair<int, int>, vector<pair<int, int>>, 
-                   greater<pair<int, int>>> pq;
+    priority_queue<pair<long long, int>, vector<pair<long long, int>>, 
+                   greater<pair<long long, int>>> pq;
     pq.push({0, start});
     unordered_set<int> visited;
     
@@ -52,7 +62,7 @@ unordered_map<int, int> dijkstra(
                     continue;
                 }
                 
-                int newDist = currentDist + weight;
+                long long newDist = currentDist + weight;
                 if (newDist < distances[neighbor]) {
                     distances[neighbor] = newDist;
                     pq.push({newDist, neighbor});
@@ -64,24 +74,19 @@ unordered_map<int, int> dijkstra(
     return distances;
 }
 
-pair<int, vector<int>> dijkstraWithPath(
+pair<long long, vector<int>> dijkstraWithPath(
     const unordered_map<int, vector<pair<int, int>>>& graph,
     int start, int target) {
     /**
      * Dijkstra's algorithm to find shortest path from start to target
      * Returns (distance, path) or (-1, {}) if no path exists
      */
-    unordered_map<int, int> distances;
-    unordered_map<int, int> previous;
-    
-    for (const auto& [vertex, _] : graph) {
-        distances[vertex] = INT_MAX;
-        previous[vertex] = -1;
-    }
+    unordered_map<int, long long> distances = unreachedDistances(graph);
+    unordered_map<int, int> previous;  // vertex -> predecessor on the best path so far
     distances[start] = 0;
     
-    priority_queue<pair<int, int>, vector<pair<int, int>>,
-                   greater<pair<int, int>>> pq;
+    priority_queue<pair<long long, int>, vector<pair<long long, int>>,
+                   greater<pair<long long, int>>> pq;
     pq.push({0, start});
     unordered_set<int> visited;
     
@@ -90,12 +95,10 @@ pair<int, vector<int>> dijkstraWithPath(
         pq.pop();
         
         if (current == target) {
-            // Reconstruct path
-            vector<int> path;
-            int node = target;
-            while (node != -1) {
-                path.push_back(node);
-                node = previous[node];
+            // Reconstruct path: follow predecessors back to the start vertex
+            vector<int> path = {target};
+            while (path.back() != start) {
+                path.push_back(previous.at(path.back()));
             }
             reverse(path.begin(), path.end());
             return {currentDist, path};
@@ -113,7 +116,7 @@ pair<int, vector<int>> dijkstraWithPath(
                     continue;
                 }
                 
-                int newDist = currentDist + weight;
+                long long newDist = currentDist + weight;
                 if (newDist < distances[neighbor]) {
                     distances[neighbor] = newDist;
                     previous[neighbor] = current;

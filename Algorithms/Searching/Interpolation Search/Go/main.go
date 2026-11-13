@@ -9,8 +9,10 @@ func InterpolationSearch(arr []int, target int) int {
 	left, right := 0, len(arr)-1
 
 	for left <= right && arr[left] <= target && target <= arr[right] {
-		// If search space has only one element
-		if left == right {
+		// If search space has only one element, or all of its values are equal
+		// (a run of duplicates): there is nothing to interpolate, and the
+		// formula below would divide by zero (arr[right]-arr[left] == 0)
+		if left == right || arr[left] == arr[right] {
 			if arr[left] == target {
 				return left
 			}
@@ -18,7 +20,7 @@ func InterpolationSearch(arr []int, target int) int {
 		}
 
 		// Calculate position using interpolation formula
-		pos := left + int((float64(target-arr[left])*float64(right-left))/float64(arr[right]-arr[left]))
+		pos := left + interpolationOffset(arr, target, left, right)
 
 		// Check if target is at calculated position
 		if arr[pos] == target {
@@ -49,8 +51,10 @@ func InterpolationSearchRecursive(arr []int, target int, left int, right int) in
 		return -1
 	}
 
-	// If search space has only one element
-	if left == right {
+	// If search space has only one element, or all of its values are equal
+	// (a run of duplicates): there is nothing to interpolate, and the
+	// formula below would divide by zero (arr[right]-arr[left] == 0)
+	if left == right || arr[left] == arr[right] {
 		if arr[left] == target {
 			return left
 		}
@@ -58,7 +62,7 @@ func InterpolationSearchRecursive(arr []int, target int, left int, right int) in
 	}
 
 	// Calculate position using interpolation formula
-	pos := left + int((float64(target-arr[left])*float64(right-left))/float64(arr[right]-arr[left]))
+	pos := left + interpolationOffset(arr, target, left, right)
 
 	// Check if target is at calculated position
 	if arr[pos] == target {
@@ -73,3 +77,13 @@ func InterpolationSearchRecursive(arr []int, target int, left int, right int) in
 	return InterpolationSearchRecursive(arr, target, pos+1, right)
 }
 
+// interpolationOffset returns how far past left the target should sit, i.e.
+// (target - arr[left]) * (right - left) / (arr[right] - arr[left]) truncated.
+// It needs arr[left] <= target <= arr[right] and arr[left] < arr[right].
+// The differences are taken as uint64: they are non-negative and always fit,
+// while int subtraction can overflow (math.MaxInt64 - math.MinInt64).
+func interpolationOffset(arr []int, target, left, right int) int {
+	num := float64(uint64(target) - uint64(arr[left]))
+	den := float64(uint64(arr[right]) - uint64(arr[left]))
+	return int(num * float64(right-left) / den)
+}

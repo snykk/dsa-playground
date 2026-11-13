@@ -1,84 +1,45 @@
-# Suffix Array - Python
+# Suffix Array -- Python Implementation
 
-This folder contains a Python implementation of a **Suffix Array**.
+A suffix array built by sorting the materialized suffixes, with binary-search pattern lookup.
 
-A **Suffix Array** is a sorted array of all suffixes of a string. It's a simpler alternative to Suffix Tree with similar functionality for pattern matching and string operations.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `suffix_array.py` | class `SuffixArray` |
+| `suffix_array_test.py` | 6 `unittest` tests: search, sorted suffixes, the exact suffix order of `banana`, exact search results, LCP values, empty text |
 
-## Concept
+## API
 
-- **Sorted Suffixes**: All suffixes of string sorted lexicographically
-- **Pattern Matching**: Efficient pattern search using binary search
-- **Simpler than Suffix Tree**: Easier to implement and understand
-- **Space Efficient**: O(n) space vs O(n) for Suffix Tree (but simpler)
-
----
-
-## Operations
-
-| Operation                | Description                          | Time Complexity |
-| ------------------------- | ------------------------------------ | --------------- |
-| `search(pattern)`        | Search for pattern in text           | O(m log n)      |
-| `get_suffixes()`         | Get all suffixes in sorted order     | O(n)            |
-| `longest_common_prefix(i, j)` | LCP between two suffixes      | O(n)            |
-
-Where `m` = pattern length, `n` = text length.
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Build     | O(n log n)      | O(n)             |
-| Search    | O(m log n)      | O(1)             |
-| LCP       | O(n)            | O(1)             |
-| Space     | O(n)            | O(n)             |
-
----
-
-## Usage
+- `SuffixArray(text)`: builds `self.suffix_array`, the sorted start indices.
+- `search(pattern) -> list`: all start indices of `pattern`, in increasing order; `[]` if absent. An empty pattern returns `0..n-1` on a non-empty text.
+- `get_suffixes() -> list`: the suffixes in sorted order. O(n^2).
+- `longest_common_prefix(i, j) -> int`: common prefix length of the suffixes starting at `i` and `j`, by direct comparison. O(n).
 
 ```python
-from suffix_array import SuffixArray
-
-# Create suffix array
-text = "banana"
-sa = SuffixArray(text)
-
-# Search for pattern
-result = sa.search("ana")
-print(result)  # [1, 3] - positions where "ana" appears
-
-# Get sorted suffixes
-suffixes = sa.get_suffixes()
-print(suffixes)  # ['a', 'ana', 'anana', 'banana', 'na', 'nana']
+sa = SuffixArray("banana")
+sa.suffix_array        # [5, 3, 1, 0, 4, 2]
+sa.search("ana")       # [1, 3]
+sa.get_suffixes()      # ['a', 'ana', 'anana', 'banana', 'na', 'nana']
 ```
 
----
+## Python-Specific Notes
 
-## Applications
+- Construction slices every suffix (`text[i:]`) and sorts the pairs: O(n^2) memory and O(n^2 log n) worst-case time, not O(n log n).
+- `search` slices the probed suffix at each step (`text[idx:]`), which copies O(n) per probe, so a search is O(n log n) rather than O(m log n).
+- Indices are code points. The C++ and Go versions use byte offsets.
+- There is no LCP array and no prefix-doubling build.
 
-- Pattern matching in strings
-- Longest common substring
-- String compression
-- Bioinformatics (DNA sequence analysis)
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-python -m unittest suffix_array_test.py
+python3 -m unittest suffix_array_test
 ```
 
----
+(Run it from this folder.)
 
-## Notes
+## Key Takeaways
 
-- Simpler alternative to Suffix Tree
-- O(n log n) construction time
-- Can be optimized with enhanced suffix array
-- Useful for competitive programming string problems
-
+1. Suffixes starting with a pattern form one contiguous block, so two binary searches find them all.
+2. Store indices, not strings, in a production build; this version copies for clarity.
+3. The LCP array is what makes suffix arrays useful for repeat queries.

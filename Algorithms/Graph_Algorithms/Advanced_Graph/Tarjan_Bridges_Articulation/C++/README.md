@@ -21,7 +21,7 @@ For the conceptual overview, visuals, and walkthrough, see the parent README: [.
 - **Struct return via `TarjanResult`** keeps the API clean — no output parameters. RVO makes this zero-cost.
 - **`std::set<std::pair<int,int>>` for bridges** ensures uniqueness and sorted output. For performance-critical code, a `std::vector` with post-sort + unique is faster.
 - **Structured bindings** (`auto& [v, eid] : adj_[u]`) — C++17 feature. Clean iteration with named components.
-- **Recursive DFS**: acceptable for typical graphs (≤ 10⁶ vertices on a default stack). For worst-case chains, convert to iterative — the pattern is well-documented.
+- **Iterative DFS**: an explicit `std::vector<Frame>` stack replaces recursion. A recursive DFS overflows the default call stack on a path of about 10^5 vertices; the iterative one handles 10^6 (see `testLongPath`).
 
 ---
 

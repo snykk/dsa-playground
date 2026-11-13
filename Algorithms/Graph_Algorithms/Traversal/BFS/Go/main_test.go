@@ -3,6 +3,7 @@ package main
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 // TestBFSAdjacencyList tests basic BFS traversal on simple graph.
@@ -206,5 +207,47 @@ func TestBFSStartNotInGraph(t *testing.T) {
 	result := BFSAdjacencyList(graph, 99)
 	if len(result) != 0 {
 		t.Errorf("Expected empty result, got %v", result)
+	}
+}
+
+// TestBFSWithPathNeighborOnlyTarget: a target that only appears in neighbor
+// lists (no key of its own) is still reachable.
+func TestBFSWithPathNeighborOnlyTarget(t *testing.T) {
+	if path := BFSWithPath(map[int][]int{0: {1}}, 0, 1); !reflect.DeepEqual(path, []int{0, 1}) {
+		t.Errorf("Expected [0 1], got %v", path)
+	}
+	chain := map[int][]int{0: {1}, 1: {2}}
+	if path := BFSWithPath(chain, 0, 2); !reflect.DeepEqual(path, []int{0, 1, 2}) {
+		t.Errorf("Expected [0 1 2], got %v", path)
+	}
+	if path := BFSWithPath(chain, 0, 3); len(path) != 0 {
+		t.Errorf("Expected empty path to an unknown vertex, got %v", path)
+	}
+}
+
+// TestBFSWithPathLongPath: the path is rebuilt from parent links once, so a
+// 200000-vertex chain is fast (the old path copy per enqueue was O(V^2)).
+func TestBFSWithPathLongPath(t *testing.T) {
+	const n = 200000
+	graph := make(map[int][]int, n)
+	for i := 0; i+1 < n; i++ {
+		graph[i] = []int{i + 1}
+	}
+	graph[n-1] = []int{}
+
+	started := time.Now()
+	path := BFSWithPath(graph, 0, n-1)
+	elapsed := time.Since(started)
+
+	if len(path) != n {
+		t.Fatalf("Expected path length %d, got %d", n, len(path))
+	}
+	for i, v := range path {
+		if v != i {
+			t.Fatalf("Expected path[%d] = %d, got %d", i, i, v)
+		}
+	}
+	if elapsed > 2*time.Second {
+		t.Errorf("Expected a linear-time search, took %v", elapsed)
 	}
 }

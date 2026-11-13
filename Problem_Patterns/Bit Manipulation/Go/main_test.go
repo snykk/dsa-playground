@@ -23,6 +23,8 @@ func TestCountSetBits(t *testing.T) {
 		want int
 	}{
 		{0, 0}, {1, 1}, {7, 3}, {13, 3}, {255, 8}, {1024, 1},
+		// negatives count as 64-bit two's complement values (same in Python and C++)
+		{-1, 64}, {-8, 61}, {-1 << 63, 1},
 	}
 	for _, tt := range tests {
 		if got := CountSetBits(tt.n); got != tt.want {

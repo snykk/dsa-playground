@@ -28,6 +28,9 @@ void heapify(std::vector<T>& arr, size_t n, size_t i) {
 template<typename T>
 void heapSort(std::vector<T>& arr) {
     size_t n = arr.size();
+    if (n < 2) {
+        return;  // already sorted; n - 1 below would wrap around for n == 0
+    }
     
     // Build max heap
     for (int i = n / 2 - 1; i >= 0; --i) {

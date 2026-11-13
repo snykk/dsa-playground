@@ -1,0 +1,226 @@
+---
+topic: Algorithms/Graph_Algorithms/Traversal/DFS
+title: Depth-First Search (DFS)
+lead: Depth-First Search follows one branch of a graph as deep as it can go, then backtracks and tries the next one. It runs in O(V + E) time, and the order in which it enters and leaves vertices is what powers cycle detection, topological sort and connected components.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V + E)
+  - label: Extra space
+    value: O(V) to O(V + E)
+    hint: O(V) with real recursion, up to O(E) for the stack of the marking-on-pop version
+  - label: Data structure
+    value: Stack or recursion
+  - label: Shortest paths
+    value: Not guaranteed
+    hint: it finds a path, not the fewest-edge path
+    tone: warn
+properties:
+  - { label: Visits every reachable vertex, value: true }
+  - { label: Fewest-edge paths, value: false }
+  - { label: Detects cycles, value: true }
+  - { label: Gives a topological order, value: true }
+prerequisites:
+  - Data Structures/Linear/Stack
+  - Data Structures/Non_Linear/Graph
+related:
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm
+  - Problem_Patterns/Graph Traversal Problems
+---
+
+## How DFS works
+
+DFS explores a graph like a maze with a ball of thread: walk down a corridor until you hit a dead end or a place you have already been, then walk back to the last junction that still has an unexplored corridor.
+
+<Steps>
+  <Step title="Enter a vertex">
+    Mark it visited and report it. This is its **discovery** time.
+  </Step>
+  <Step title="Go deeper">
+    Take the first neighbor that is not visited yet and enter it the same way. The edge you used is a tree edge.
+  </Step>
+  <Step title="Backtrack">
+    When a vertex has no unvisited neighbor left, it is **finished**. Return to the vertex that entered it and continue with its next neighbor.
+  </Step>
+  <Step title="Restart for other components">
+    When the start vertex is finished, every vertex reachable from it has been visited. To cover the whole graph, start a new search from any vertex that is still unvisited.
+  </Step>
+</Steps>
+
+<Callout title="The invariant: gray vertices form a path">
+At any moment the vertices that are entered but not finished form a single path from the start to the current vertex, which is exactly the recursion stack. A vertex is finished only after everything reachable from it has been visited or is already finished. This is why an edge that points back into the current path means a cycle, and why finishing order gives a topological order.
+</Callout>
+
+## See it in action
+
+Press play or step through. The current vertex is highlighted, vertices on the call stack stay marked, and finished vertices and tree edges settle in a different color. Type edges such as `A->B, B->C, C->A; start A` to try a directed cycle.
+
+<ArticleViz ids={['dfs']} />
+
+## Worked example
+
+A directed graph, searched from A with neighbors in the order listed. Each vertex shows discovery/finish times. The edges fall into classes that DFS tells apart for free:
+
+<GraphDiagram
+  edges="A->B, A->C, B->D, C->D, D->E, E->B"
+  positions={{ A: [6, 50], B: [34, 10], C: [34, 90], D: [64, 50], E: [94, 50] }}
+  tones={{ A: 'l', B: 'l', C: 'l', D: 'l', E: 'l' }}
+  badges={{ A: '1/10', B: '2/7', C: '8/9', D: '3/6', E: '4/5' }}
+  edgeTones={{ 'A->B': 'f', 'B->D': 'f', 'D->E': 'f', 'A->C': 'f', 'E->B': 'p', 'C->D': 'r' }}
+  legend={{ f: 'tree edge: it discovered a new vertex', p: 'back edge: points to a vertex still on the path, so it closes a cycle', r: 'cross edge: points to a vertex that is already finished' }}
+  caption="Times are discovery/finish. The search goes A, B, D, E, then backtracks; C is entered last."
+/>
+
+The iterative version (`dfs_adjacency_list`) keeps an explicit stack and marks a vertex when it is **popped**. With A to E numbered 0 to 4, it produces the same order as the recursive one:
+
+<ArrayDiagram
+  legend={{ p: 'top of the stack (popped next)', l: 'waiting below it' }}
+  rows={[
+    { label: 'start', values: ['A'], tones: 'p', note: 'Push the start vertex.' },
+    { label: 'pop A', values: ['C', 'B'], tones: 'lp', note: 'Visit A. Push its neighbors in reverse, so B ends on top.' },
+    { label: 'pop B', values: ['C', 'D'], tones: 'lp', note: 'Visit B. Push D.' },
+    { label: 'pop D', values: ['C', 'E'], tones: 'lp', note: 'Visit D. Push E.' },
+    { label: 'pop E', values: ['C'], tones: 'p', note: 'Visit E. Its only neighbor B is visited, so nothing is pushed.' },
+    { label: 'pop C', values: [], note: 'Visit C. D is visited. The stack is empty. Order: A, B, D, E, C.' },
+  ]}
+/>
+
+Because the graph has a back edge (E to B), `dfs_detect_cycle(g, directed=True)` returns `True` and `dfs_topological_sort` returns `None`. Remove that edge and the topological sort returns `[0, 2, 1, 3, 4]`, that is A, C, B, D, E: every edge goes from an earlier vertex to a later one.
+
+## Pseudocode
+
+```text
+dfs(u):                                  # recursive form
+    visited.add(u)                       # discovery
+    for each neighbor v of u:            # graph.get(u, []) for sink vertices
+        if v not in visited:
+            dfs(v)                       # tree edge u-v
+    # u is finished: backtrack
+
+dfsIterative(start):                     # dfs_adjacency_list
+    stack = [start]
+    while stack is not empty:
+        u = stack.pop()
+        if u in visited: continue        # stale entry
+        visited.add(u); order.append(u)  # mark on POP
+        for v in reversed(neighbors of u):
+            if v not in visited: stack.push(v)
+
+hasCycle(graph, directed):
+    undirected: a visited neighbor that is not the parent  -> cycle
+    directed:   a neighbor that is on the current path     -> cycle
+```
+
+Marking a vertex when it is pushed, instead of when it is popped, does not give DFS: on `0:[1,2], 1:[2,3]` it visits 0, 1, 3, 2 instead of 0, 1, 2, 3. The cost of doing it correctly is that a vertex can sit on the stack once per incoming edge.
+
+## Implementation
+
+All three languages implement the traversal, a path search and cycle detection. Python adds a recursive-order traversal, connected components and topological sort; Go adds the recursive traversal (`DFSRecursive`). Every function is checked by the tests of its language.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Traversal/DFS" />
+
+Language notes:
+
+- The Python functions that are recursive in the textbook (`dfs_recursive`, components, cycle detection, topological sort) simulate the recursion with an explicit stack of neighbor iterators, so a path of 100,000 vertices does not raise `RecursionError`.
+- C++ `dfsDetectCycle` also uses an explicit stack of frames. It records "has a parent" in a flag rather than a sentinel such as -1, so every `int` is a valid vertex.
+- Go's `DFSRecursive` and `DFSDetectCycle` really recurse. That is safe because Go grows goroutine stacks on demand.
+- The iterative traversals and `*WithPath` functions use the mark-on-pop stack described above.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'All cases', time: 'O(V + E)', space: 'O(V) or O(V + E)', when: 'Each vertex is entered once and each adjacency list is scanned once.' },
+  ]}
+/>
+
+<Equation label="Work" expr="sum over v of (1 + deg(v)) = V + E" result="O(V + E)" />
+
+Space depends on the form. A true recursion holds at most one frame per vertex on the current path, so O(V). The mark-on-pop stack can hold one entry per edge, so up to O(E); on a complete graph with 200 vertices it reaches about 19,700 entries. Both are also bounded by the visited set, which is O(V).
+
+## Edge classification and what it gives you
+
+In a directed graph, DFS sorts every edge into one of four classes by comparing discovery and finish times.
+
+<DataTable
+  columns={['Edge class', 'Target is', 'What it tells you']}
+  rows={[
+    ['Tree', 'newly discovered', 'the edges of the DFS forest'],
+    ['Back', 'an ancestor, still on the path', 'the graph has a cycle'],
+    ['Forward', 'a descendant that is already finished', 'nothing special; shortcut inside a tree'],
+    ['Cross', 'a finished vertex in another branch', 'nothing special; no cycle'],
+  ]}
+/>
+
+- **Cycle detection:** directed graphs have a cycle exactly when a back edge exists. In an undirected graph, any visited neighbor other than the parent closes a cycle.
+- **Topological sort:** list vertices by decreasing finish time, which is what `dfs_topological_sort` does by appending on finish and reversing.
+- **Components:** each restart from an unvisited vertex discovers one connected component of an undirected graph.
+
+## DFS vs alternatives
+
+<DataTable
+  columns={['', 'DFS', 'BFS']}
+  highlight={0}
+  rows={[
+    ['Data structure', 'stack or recursion', 'queue'],
+    ['Order', 'deep first, then backtrack', 'ring by ring'],
+    ['Time', 'O(V + E)', 'O(V + E)'],
+    ['Shortest path (unweighted)', 'No', 'Yes'],
+    ['Cycles, topological order, components', 'natural', 'cycles and components only'],
+    ['Memory on wide graphs', 'small', 'a whole ring in the queue'],
+    ['Risk', 'deep recursion on long paths', 'none for depth'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time, and the visit order exposes graph structure: cycles, finishing order, components.',
+    'Small frontier on wide graphs: the path from the start is all it remembers.',
+    'The basis of backtracking, topological sort, and strongly connected component algorithms.',
+  ]}
+  cons={[
+    'The path it finds is not the shortest one.',
+    'Recursive implementations can overflow the call stack on a long path.',
+    'The order depends on the order of neighbor lists, so it is not unique.',
+  ]}
+/>
+
+## Applications
+
+- **Cycle detection** in directed and undirected graphs.
+- **Topological sorting** of dependencies such as build steps or course prerequisites.
+- **Connected components** and flood fill in grids.
+- **Backtracking** searches such as maze solving, subsets and puzzles.
+- **Building blocks** for strongly connected components (Tarjan, Kosaraju) and for bridges and articulation points.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Marking on push.** It changes the visit order and is not a DFS. Mark when you pop (or enter the recursive call).
+- **Unbounded recursion.** A path graph with 100,000 vertices overflows the stack in Python and in C++. Use an explicit stack.
+- **Mixing up the two cycle rules.** In an undirected graph the edge back to the parent is not a cycle; in a directed graph a visited neighbor is a cycle only if it is still on the current path. A vertex that is merely finished is not.
+- **Using a sentinel as the parent.** A parent value such as -1 breaks when -1 is a real vertex. Keep a separate "has parent" flag.
+- **Expecting shortest paths.** DFS returns the first path it finds. Use BFS for fewest edges.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why can DFS detect cycles but BFS cannot do it so directly?">
+    DFS keeps the current path on its stack, so it can recognize an edge that returns to it. In a directed graph that back edge is exactly a cycle. BFS has no such notion of a current path.
+  </FaqItem>
+  <FaqItem question="Does the order of neighbors matter?">
+    Yes, for the visit order and for which path is found. It does not change correctness, complexity, or whether a cycle exists. The iterative versions push neighbors in reverse so that the first neighbor is visited first, matching the recursive order.
+  </FaqItem>
+  <FaqItem question="Is the stack version really the same as recursion?">
+    It visits the same vertices in the same order when it marks on pop and pushes neighbors in reverse. The Python tests check the explicit-stack recursive-order function against a true recursive reference on random graphs. The two forms differ in memory use and in how deep a path they can handle.
+  </FaqItem>
+  <FaqItem question="What does dfs_with_path return?">
+    A path from start to target that follows DFS order, not necessarily the shortest one. It returns `[start]` when they are equal and `None` (Python) or an empty list or vector (C++ and Go) when the target is unreachable.
+  </FaqItem>
+</Faq>

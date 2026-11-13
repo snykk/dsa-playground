@@ -1,35 +1,38 @@
-# Union-Find in Go
+# Union-Find Applications -- Go Implementation
 
-Implementation of Union-Find (DSU) in Go.
+A disjoint set union with path compression and union by rank. See the [topic README](../README.md) for the applications.
 
-## Features
+## Files
 
-1.  **UnionFind**: Struct implementing DSU with:
-    - Path Compression
-    - Union by Rank
+| File | Contents |
+|------|----------|
+| `main.go` | `UnionFind` type and a demo `main` |
+| `main_test.go` | `TestUnionFind` and `TestLargeUnion` |
+| `go.mod` | Module definition |
 
-## Usage
+## API
 
-```go
-uf := NewUnionFind(10)
+- `NewUnionFind(size int) *UnionFind`
+- `(*UnionFind).Find(x int) int`: root with path compression.
+- `(*UnionFind).Union(x, y int) bool`: `true` if merged, `false` if already connected.
+- `(*UnionFind).Connected(x, y int) bool`
+- `(*UnionFind).GetCount() int`
 
-// Union elements
-uf.Union(0, 1)
-uf.Union(1, 2)
+## Go-Specific Notes
 
-// Check connectivity
-if uf.Connected(0, 2) {
-    fmt.Println("0 and 2 are connected")
-}
+- There are no bounds checks: an out-of-range index panics, and `NewUnionFind(-1)` panics in `make`.
+- There is no `count_components` helper in Go; call `Union` for each edge and read `GetCount()`.
+- `Find` is recursive; union by rank keeps trees shallow.
 
-// Get number of disjoint sets
-count := uf.GetCount()
-```
-
-## Testing
-
-Run the tests:
+## How to Run
 
 ```bash
-go test -v
+go test ./...
+go run main.go
 ```
+
+## Key Takeaways
+
+- `Union` returning `false` marks a redundant edge.
+- Validate indices yourself before calling `Find` or `Union`.
+- The count after all unions is the number of components.

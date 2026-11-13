@@ -69,6 +69,25 @@ class TestBubbleSort(unittest.TestCase):
         result = bubble_sort_recursive(arr.copy())
         self.assertEqual(result, expected)
     
+    def test_recursive_empty_and_single(self):
+        """Regression: the recursive version used to recurse forever on []"""
+        self.assertEqual(bubble_sort_recursive([]), [])
+        self.assertEqual(bubble_sort_recursive([7]), [7])
+        self.assertEqual(bubble_sort_recursive([2, 1]), [1, 2])
+
+    def test_stable_with_equal_keys(self):
+        """Equal keys keep their original order"""
+        class Rec:
+            def __init__(self, key, tag):
+                self.key, self.tag = key, tag
+
+            def __gt__(self, other):
+                return self.key > other.key
+
+        arr = [Rec(2, 'a'), Rec(1, 'x'), Rec(2, 'b'), Rec(1, 'y'), Rec(2, 'c')]
+        bubble_sort(arr)
+        self.assertEqual([r.tag for r in arr], ['x', 'y', 'a', 'b', 'c'])
+
     def test_in_place_sorting(self):
         """Test that original array is modified"""
         arr = [3, 1, 4, 1, 5]

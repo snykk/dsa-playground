@@ -3,7 +3,7 @@ package main
 // TernarySearch searches for target in sorted slice using Ternary Search algorithm
 // Returns index of target if found, -1 otherwise
 //
-// Time Complexity: O(log₃ n)
+// Time Complexity: O(log3(n))
 // Space Complexity: O(1)
 func TernarySearch(arr []int, target int) int {
 	left, right := 0, len(arr)-1
@@ -43,8 +43,8 @@ func TernarySearch(arr []int, target int) int {
 // TernarySearchRecursive searches for target recursively
 // Returns index of target if found, -1 otherwise
 //
-// Time Complexity: O(log₃ n)
-// Space Complexity: O(log₃ n) due to recursion stack
+// Time Complexity: O(log3(n))
+// Space Complexity: O(log3(n)) due to recursion stack
 func TernarySearchRecursive(arr []int, target int, left int, right int) int {
 	// Base case: search space exhausted
 	if left > right {
@@ -76,4 +76,3 @@ func TernarySearchRecursive(arr []int, target int, left int, right int) int {
 	// If target is in middle third
 	return TernarySearchRecursive(arr, target, mid1+1, mid2-1)
 }
-

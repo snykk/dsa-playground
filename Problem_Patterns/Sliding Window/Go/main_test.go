@@ -11,6 +11,10 @@ func TestMaxSumSubarray(t *testing.T) {
 		{[]int{1, 4, 2, 10, 23, 3, 1, 0, 20}, 4, 39},
 		{[]int{100, 200, 300, 400}, 2, 700},
 		{[]int{1, 2, 3}, 5, 0},
+		// Regression: k <= 0 used to panic with an index out of range.
+		{[]int{1, 2, 3}, 0, 0},
+		{[]int{1, 2, 3}, -1, 0},
+		{[]int{-5, -2, -9}, 2, -7},
 	}
 
 	for _, tt := range tests {

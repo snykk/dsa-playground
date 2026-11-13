@@ -1,76 +1,107 @@
 # Merge Sort
 
-**Merge Sort** is a divide and conquer algorithm that divides the array into two halves, sorts them, and then merges them.
+Merge Sort splits the array in half, sorts each half recursively, and merges the two sorted halves into one. It runs in O(n log n) time in every case, is stable, and needs O(n) extra memory.
 
----
+## Intuition
 
-## Overview
+To sort a huge pile, split it in two, hand each half to a helper, and take back two sorted piles. Combining two sorted piles is easy: compare the top cards, take the smaller, repeat. The whole work is the merging, and each merge is linear.
 
-Merge Sort works by:
-1. Dividing the array into two halves
-2. Recursively sorting both halves
-3. Merging the two sorted halves
+Invariant: after the recursive calls, each half is sorted, and the merge step produces a sorted sequence from two sorted ones. A range of 0 or 1 elements is sorted by definition, so the recursion ends correctly.
 
----
+## Visual
 
-## Algorithm
+```text
+                [38 27 43 3 9 82 10]
+               /                    \
+        [38 27 43]              [3 9 82 10]          split
+        /       \               /        \
+     [38]    [27 43]        [3 9]      [82 10]
+             /    \         /   \       /    \
+           [27]  [43]     [3]  [9]    [82]  [10]
 
-1. **Divide**: Split array into two halves
-2. **Conquer**: Recursively sort both halves
-3. **Combine**: Merge the sorted halves
+merge (bottom up):
+  [27] + [43]            -> [27 43]
+  [38] + [27 43]         -> [27 38 43]
+  [3] + [9]              -> [3 9]
+  [82] + [10]            -> [10 82]
+  [3 9] + [10 82]        -> [3 9 10 82]
+  [27 38 43] + [3 9 10 82] -> [3 9 10 27 38 43 82]
+```
 
----
+## How It Works
 
-## Complexity Analysis
+1. If the range has at most one element, return.
+2. Split it at `mid = len // 2` (left = first `mid` elements).
+3. Sort the left half and the right half recursively.
+4. Merge: keep a pointer in each half; copy the smaller front element to the output (take the left one on a tie), advance, and when one half is empty copy the rest of the other.
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Best Case** | O(n log n) | O(n) |
-| **Average Case** | O(n log n) | O(n) |
-| **Worst Case** | O(n log n) | O(n) |
+The `<=` on the tie in step 4 is what makes the sort stable.
 
-**Note**: Always O(n log n) regardless of input order.
+## Step-by-Step Trace
 
----
+Input `[38, 27, 43, 3, 9, 82, 10]`:
 
-## Advantages
+| Merge | Left | Right | Result | Comparisons |
+|-------|------|-------|--------|-------------|
+| 1 | 27 | 43 | 27 43 | 1 |
+| 2 | 38 | 27 43 | 27 38 43 | 2 |
+| 3 | 3 | 9 | 3 9 | 1 |
+| 4 | 82 | 10 | 10 82 | 1 |
+| 5 | 3 9 | 10 82 | 3 9 10 82 | 2 |
+| 6 | 27 38 43 | 3 9 10 82 | 3 9 10 27 38 43 82 | 6 |
 
-1. ✅ **Consistent**: Always O(n log n) time
-2. ✅ **Stable**: Maintains relative order of equal elements
-3. ✅ **Predictable**: Performance doesn't depend on input
+13 comparisons in total.
 
----
+## Complexity
 
-## Disadvantages
+| Case | Time | Space | When |
+|------|------|-------|------|
+| Best | O(n log n) | O(n) | no early exit: sorted input costs the same |
+| Average | O(n log n) | O(n) | always log2(n) levels of linear merging |
+| Worst | O(n log n) | O(n) | the split is always even |
 
-1. ❌ **Extra space**: Requires O(n) additional memory
-2. ❌ **Not in-place**: Needs temporary arrays
-3. ❌ **Slower for small arrays**: Overhead of recursion
-
----
+Recurrence: T(n) = 2 T(n/2) + O(n), which gives O(n log n): there are log2(n) levels and every level merges n elements in total. Extra space is the temporary copies of the halves (about n elements live at once) plus O(log n) stack frames. The implementations here allocate new temporary buffers on every call instead of reusing one buffer.
 
 ## When to Use
 
-- ✅ Large arrays
-- ✅ When stability is required
-- ✅ When consistent performance is needed
-- ✅ External sorting (sorting data on disk)
-- ❌ Small arrays (use insertion sort)
-- ❌ When memory is limited
+Use it when you need a stable sort, a guaranteed O(n log n) bound, to sort linked lists, or to sort data that does not fit in memory (sort chunks, then merge). Avoid it when memory is tight or for small arrays where Insertion Sort is faster.
 
----
+## Merge Sort vs. Alternatives
+
+| Algorithm | Average | Worst | Extra space | Stable |
+|-----------|---------|-------|-------------|--------|
+| Merge Sort | O(n log n) | O(n log n) | O(n) | Yes |
+| [Quick Sort](../Quick%20Sort/README.md) | O(n log n) | O(n^2) | O(log n) | No |
+| [Heap Sort](../Heap%20Sort/README.md) | O(n log n) | O(n log n) | O(log n) here | No |
+| [Insertion Sort](../Insertion%20Sort/README.md) | O(n^2) | O(n^2) | O(1) | Yes |
+
+## Common Pitfalls
+
+- Comparing with `<` instead of `<=` on the fronts: equal keys swap order, so the sort is no longer stable.
+- Forgetting to copy the leftover elements when one half runs out.
+- Mixing inclusive (`[left, right]`, used by the C++ code) and half-open ranges: off-by-one errors.
+- Merging into the array you are reading without temporary copies.
+- Calling it in place: the temporary arrays are O(n).
 
 ## Implementations
 
-- **Python** (`Python/`) - Recursive and iterative versions
-- **C++** (`C++/`) - Template-based implementation
-- **Go** (`Go/`) - Clean implementation
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `merge_sort.py` | `merge_sort` (top-down), `merge`, and `merge_sort_iterative` (bottom-up, Python only); sorts in place and returns the list |
+| C++ | [C++](C++/) | `merge_sort.cpp` | templates `merge`, `mergeSort(arr, left, right)` (inclusive range) and `mergeSort(arr)`; temporary vectors `L` and `R` per merge |
+| Go | [Go](Go/) | `main.go` | `MergeSort([]int)` copies the halves and merges back; in place |
 
----
+## Practice Problems
 
-## Related Algorithms
+- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
+- [Sort List (LeetCode 148)](https://leetcode.com/problems/sort-list/)
+- [Merge Sorted Array (LeetCode 88)](https://leetcode.com/problems/merge-sorted-array/)
+- [Reverse Pairs (LeetCode 493)](https://leetcode.com/problems/reverse-pairs/)
+- [Count of Smaller Numbers After Self (LeetCode 315)](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
 
-- **Quick Sort**: Another divide and conquer, O(n log n) average
-- **Heap Sort**: O(n log n) in-place sorting
-- **Tim Sort**: Hybrid algorithm using merge sort
+## Related
 
+- [Quick Sort](../Quick%20Sort/README.md)
+- [Heap Sort](../Heap%20Sort/README.md)
+- [Insertion Sort](../Insertion%20Sort/README.md)
+- [Divide and Conquer](../../Divide_and_Conquer/README.md)

@@ -1,14 +1,27 @@
-# Longest Common Subsequence (Go)
+# Longest Common Subsequence -- Go Implementation
 
-Go implementation of the Longest Common Subsequence (LCS) algorithm using 2D dynamic programming to find the length of the longest subsequence common to two strings.
+Bottom-up LCS length over a 2D table.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `main.go` | Main implementation with DP table approach |
-| `main_test.go` | Test cases for LCS computation |
-| `go.mod` | Go module definition (`lcs`) |
+| File | Contents |
+|------|----------|
+| `main.go` | `LCSLength` |
+| `main_test.go` | table-driven test, in both argument orders |
+| `go.mod` | module `lcs` (Go 1.21) |
+
+## API
+
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `LCSLength(s1, s2 string) int` | length of the LCS | O(m * n) | O(m * n) |
+
+There is no sequence reconstruction and no two-row version here; the Python folder has both.
+
+## Go-Specific Notes
+
+- Strings are indexed by byte, so a multi-byte UTF-8 character is compared byte by byte. Convert both strings to `[]rune` first for character semantics.
+- The table is a slice of slices, `(m + 1) x (n + 1)`.
 
 ## How to Run
 
@@ -16,25 +29,8 @@ Go implementation of the Longest Common Subsequence (LCS) algorithm using 2D dyn
 go test ./...
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `LCSLength(s1, s2 string) int` | Computes the length of the longest common subsequence of two strings | O(m * n) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(m * n) where m, n are the lengths of the input strings |
-| Space | O(m * n) for the 2D DP table |
-
-## Notes
-
-- A subsequence is derived by deleting zero or more elements without changing order.
-- The DP table `dp[i][j]` stores the LCS length of `s1[0..i-1]` and `s2[0..j-1]`.
-- Uses manual comparison to select the larger of two values instead of a built-in max function.
-
----
-
-_Last Updated: April 2026_
+- Cell `dp[i][j]` compares `s1[i-1]` and `s2[j-1]`.
+- A match adds 1 to the diagonal; a mismatch takes the larger of up and left.
+- It works on bytes, not runes.

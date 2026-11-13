@@ -1,132 +1,41 @@
-# Linear Search (Python)
+# Linear Search -- Python Implementation
 
-**Linear Search** is a simple searching algorithm that sequentially checks each element in a list until a match is found or the entire list has been searched.
+Iterative, recursive and all-occurrences linear search on a list. For the idea and the trace see the [topic README](../README.md).
 
----
+## Files
 
-## Overview
+- `linear_search.py` - the three search functions.
+- `linear_search_test.py` - 16 unit tests: found and missing, ends, empty and single-element lists, duplicates, strings and all occurrences.
 
-Linear Search, also known as Sequential Search, is the simplest searching algorithm. It works by checking each element one by one from the beginning until the target is found or the end is reached.
+## API
 
----
-
-## Algorithm
-
-1. Start from the first element
-2. Compare current element with target
-3. If match found, return index
-4. If not, move to next element
-5. Repeat until end of array
-6. If not found, return -1
-
----
-
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Best Case** | O(1) | O(1) |
-| **Average Case** | O(n) | O(1) |
-| **Worst Case** | O(n) | O(1) |
-
-**Note**: Best case O(1) occurs when target is at the first position.
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`linear_search(arr, target)`**
-   - Iterative implementation
-   - Returns index of first occurrence
-   - Returns -1 if not found
-
-2. **`linear_search_recursive(arr, target, index=0)`**
-   - Recursive implementation
-   - Uses recursion stack
-   - Space complexity: O(n)
-
-3. **`linear_search_all_occurrences(arr, target)`**
-   - Finds all occurrences of target
-   - Returns list of indices
-   - Useful when duplicates exist
-
----
-
-## Usage
+- `linear_search(arr, target)` - index of the first match, or -1.
+- `linear_search_recursive(arr, target, index=0)` - the same, recursively.
+- `linear_search_all_occurrences(arr, target)` - the list of all matching indexes (empty if none).
 
 ```python
-from linear_search import linear_search, linear_search_recursive, linear_search_all_occurrences
+from linear_search import linear_search, linear_search_all_occurrences
 
-# Basic search
-arr = [10, 20, 30, 40, 50]
-index = linear_search(arr, 30)
-print(index)  # Output: 2
-
-# Not found
-index = linear_search(arr, 25)
-print(index)  # Output: -1
-
-# Recursive search
-index = linear_search_recursive(arr, 40)
-print(index)  # Output: 3
-
-# Find all occurrences
-arr = [10, 20, 30, 20, 40, 20]
-indices = linear_search_all_occurrences(arr, 20)
-print(indices)  # Output: [1, 3, 5]
+linear_search([10, 20, 30, 40, 50], 30)          # 2
+linear_search_all_occurrences([4, 7, 4, 9, 4], 4)  # [0, 2, 4]
 ```
 
----
+## Python-Specific Notes
 
-## Advantages
+- Works on any list of elements that support `==`; the list need not be sorted.
+- `linear_search_recursive` uses one stack frame per element and raises `RecursionError` on a list of about a thousand elements or more (the default limit). Use the loop version in real code.
+- The built-in `list.index(x)` does the same job (it raises `ValueError` on a miss instead of returning -1).
 
-1. ✅ **Simple**: Easy to understand and implement
-2. ✅ **No prerequisites**: Works on any data structure
-3. ✅ **No sorting required**: Works on unsorted arrays
-4. ✅ **Flexible**: Can find first, last, or all occurrences
+## How to Run
 
----
-
-## Disadvantages
-
-1. ❌ **Slow**: O(n) time complexity
-2. ❌ **Inefficient**: Must check every element in worst case
-3. ❌ **Not optimal**: Better algorithms exist for sorted data
-
----
-
-## When to Use
-
-- ✅ Unsorted arrays
-- ✅ Small datasets
-- ✅ Simple implementation needed
-- ✅ Need to find all occurrences
-- ❌ Large sorted datasets (use Binary Search instead)
-
----
-
-## Testing
-
-Run the test suite:
+From this folder:
 
 ```bash
-python linear_search_test.py
+python3 -m unittest linear_search_test
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **Binary Search**: O(log n) for sorted arrays
-- **Interpolation Search**: O(log log n) for uniformly distributed sorted arrays
-- **Hash Table**: O(1) average case searching
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
+- The first match wins; use the all-occurrences function for every index.
+- The recursive form is an exercise, not a tool.
+- Prefer `list.index` or `in` for everyday code.

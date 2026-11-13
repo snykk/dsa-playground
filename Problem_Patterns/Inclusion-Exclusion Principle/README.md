@@ -1,150 +1,101 @@
-# Inclusion-Exclusion Principle Pattern
+# Inclusion-Exclusion Principle
 
-The **Inclusion-Exclusion Principle** is a counting technique used to find the size of the union of sets. It systematically includes and excludes intersections to avoid double-counting, providing an elegant solution to many combinatorial counting problems.
+Inclusion-exclusion counts the elements that satisfy at least one of several conditions: add the sizes of the sets, subtract the pairwise intersections, add the triple intersections, and so on. It costs 2^k terms for k conditions, so it is for small k.
 
----
+## Intuition
 
-## Overview
+A plain sum counts an element once for every set it belongs to. The alternating sum corrects that layer by layer. An element lying in exactly m sets is counted C(m,1) - C(m,2) + C(m,3) - ... times, which equals 1 for every m >= 1, so each element of the union is counted exactly once.
 
-The inclusion-exclusion principle states that for sets A₁, A₂, ..., Aₙ:
-
-|A₁ ∪ A₂ ∪ ... ∪ Aₙ| = Σ|Aᵢ| - Σ|Aᵢ ∩ Aⱼ| + Σ|Aᵢ ∩ Aⱼ ∩ Aₖ| - ... + (-1)^(n+1)|A₁ ∩ A₂ ∩ ... ∩ Aₙ|
-
-This formula alternates between inclusion and exclusion, ensuring each element is counted exactly once.
-
-The principle is particularly useful for:
-- Counting elements in union of sets
-- Problems with "at least one" constraints
-- Divisibility problems
-- Combinatorial counting
-
----
-
-## Key Characteristics
-
-1. **Alternating Signs**: Alternates between addition and subtraction
-2. **Systematic**: Covers all possible intersections
-3. **Exact Counting**: Ensures each element counted exactly once
-4. **Exponential**: Requires 2^n iterations for n sets
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity | Space Complexity |
-|-----------|-------------|----------------|------------------|
-| `count_divisible(n, divisors)` | Count numbers divisible by any divisor | O(2^k × f(n)) | O(k) |
-| `count_union_sets(sets)` | Count elements in union of sets | O(2^n × m) | O(m) |
-| `gcd(a, b)` | Greatest common divisor (helper) | O(log(min(a,b))) | O(1) |
-
-Where k is number of divisors, n is number of sets, m is average set size.
-
----
-
-## Implementation Approaches
-
-### 1. Bitmask Enumeration
-- **Pros**: Systematic, covers all subsets
-- **Cons**: Exponential time complexity
-- **Use Case**: Small number of sets (n ≤ 20)
-
-### 2. Recursive Inclusion-Exclusion
-- **Pros**: More intuitive for some problems
-- **Cons**: Similar complexity, more stack space
-- **Use Case**: When recursion is natural
-
-### 3. Iterative with LCM
-- **Pros**: Efficient for divisibility problems
-- **Cons**: Requires LCM calculation
-- **Use Case**: Divisibility and number theory problems
-
----
-
-## Applications
-
-1. **Divisibility Problems**: Count numbers divisible by any of given divisors
-2. **Set Union**: Count elements in union of multiple sets
-3. **Combinatorial Counting**: Count objects satisfying "at least one" condition
-4. **Number Theory**: Problems involving multiples and divisors
-5. **Probability**: Calculating probabilities with multiple events
-
----
-
-## Example Use Cases
-
-### Count Divisible Numbers
-```python
-n = 100
-divisors = [2, 3, 5]
-result = count_divisible(n, divisors)
-# Counts numbers from 1 to 100 divisible by 2, 3, or 5
+```text
+|A1 u ... u Ak| = sum over non-empty subsets S of (-1)^(|S|+1) * |intersection of the sets in S|
 ```
 
-### Count Union of Sets
-```python
-sets = [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
-result = count_union_sets(sets)
-# Counts unique elements in union: {1, 2, 3, 4, 5} = 5
+Signals: "divisible by at least one of", "size of the union", "none of these properties" (total minus the union), and a small number of conditions.
+
+## Visual
+
+```text
+Numbers 1..30 divisible by 4 or 6:
+
+multiples of 4:  4  8 12 16 20 24 28        7 numbers
+multiples of 6:  6 12 18 24 30              5 numbers
+both (lcm 12):  12 24                       2 numbers
+
+union = 7 + 5 - 2 = 10:  4 6 8 12 16 18 20 24 28 30
 ```
 
----
+## How It Works
 
-## Implementations
+1. Loop `mask` from 1 to 2^k - 1; bit j means condition j is in the subset.
+2. Count the intersection of the subset. For divisibility it is `n / lcm` of the chosen divisors; for explicit sets, intersect the sets, starting from the first set in the subset.
+3. Add the term when the subset size is odd, subtract it when even.
+4. For divisors, build the lcm with `lcm = lcm / gcd(lcm, d) * d`, and skip the subset once the lcm exceeds `n` (its term is 0 and the product could overflow).
 
-This folder contains implementations in three languages:
+## Step-by-Step Trace
 
-- **Python** (`Python/`) - List and set-based implementation
-- **C++** (`C++/`) - Vector and set-based implementation
-- **Go** (`Go/`) - Slice and map-based implementation
+`count_divisible(100, [2, 3, 5])` returns 74.
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+| Subset | lcm | n / lcm | Sign | Running total |
+|--------|-----|---------|------|---------------|
+| {2} | 2 | 50 | + | 50 |
+| {3} | 3 | 33 | + | 83 |
+| {2, 3} | 6 | 16 | - | 67 |
+| {5} | 5 | 20 | + | 87 |
+| {2, 5} | 10 | 10 | - | 77 |
+| {3, 5} | 15 | 6 | - | 71 |
+| {2, 3, 5} | 30 | 3 | + | 74 |
 
----
+For sets A={1,2,3}, B={2,3,4}, C={3,4,5}: 9 (singles) - 5 (pairs: 2+1+2) + 1 (triple) = 5, which `count_union_sets` returns.
 
-## Complexity Summary
+## Complexity
 
-| Problem Type | Time Complexity | Space Complexity |
-|--------------|----------------|------------------|
-| **Divisibility** | O(2^k × log(max)) | O(k) |
-| **Set Union** | O(2^n × m) | O(m) |
-| **General** | O(2^n × f(n)) | O(n) |
+| Function | Time | Space |
+|----------|------|-------|
+| `count_divisible(n, divisors)` | O(2^k * k log n) | O(1) |
+| `count_union_sets(sets)` | O(2^m * m * s) for m sets of up to s elements | O(s) |
+| `gcd(a, b)` | O(log min(a, b)) | O(1) |
 
-Where k is number of divisors, n is number of sets, m is average set size.
-
----
+The 2^k factor dominates: k = 20 is about a million subsets, k = 40 is infeasible.
 
 ## When to Use
 
-- **Set Union Problems**: When need to count union of multiple sets
-- **Divisibility**: Problems involving "divisible by any of"
-- **"At Least One"**: Problems with "at least one condition satisfied"
-- **Small Number of Sets**: When n is small enough for 2^n to be feasible
-- **Combinatorial Counting**: Counting problems with multiple constraints
+Use it when conditions overlap, intersections are easy to count and k is small (about 20 or fewer). Do not use it for large k, or when the conditions are independent and a product formula exists.
 
----
+## Inclusion-Exclusion vs. Alternatives
 
-## Related Patterns
+| Approach | Good for | Cost |
+|----------|----------|------|
+| Inclusion-exclusion | overlapping conditions, small k | O(2^k) terms |
+| Direct enumeration | small n | O(n) checks |
+| Sieve / marking | all numbers up to a moderate n | O(n log log n) |
+| Complement and product | independent conditions | O(k) |
 
-- **Combinatorics**: Fundamental counting technique
-- **Number Theory**: Often used with GCD/LCM
-- **Set Theory**: Core set operation counting
+## Common Pitfalls
 
----
+- Starting each intersection from `sets[0]` instead of the first set in the subset (the bug this code used to have).
+- Using the product of the divisors instead of the lcm.
+- Integer overflow while building the lcm; C++ and Go here skip a subset once the lcm exceeds `n`.
+- Wrong sign: the union adds odd subsets; the complement count has the opposite sign and starts from the total.
+- Divisors must be at least 1; zero divides by zero.
+- `1 << k` on a 32-bit int in C++ and Go limits k to below 31.
 
-## Further Reading
+## Implementations
 
-- "Concrete Mathematics" by Graham, Knuth, Patashnik
-- "Competitive Programming" by Halim & Halim
-- "Introduction to Algorithms" by CLRS
-- LeetCode problems: Count Numbers With Unique Digits
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `inclusion_exclusion.py` | big ints; no overflow |
+| C++ | [C++/](C++/) | `inclusion_exclusion.cpp` | `long long` lcm, 64-bit running total |
+| Go | [Go/](Go/) | `main.go` | `int` lcm with pruning; maps as sets |
 
----
+## Practice Problems
 
-**Note**: The inclusion-exclusion principle is most effective when the number of sets is relatively small (n ≤ 20) due to exponential complexity. For larger problems, consider alternative approaches or optimizations.
+- LeetCode 1201, Ugly Number III
+- Count the integers in 1..n that are coprime to m, using the prime factors of m
+- Count derangements of n items with inclusion-exclusion
+- Count the integers in 1..n divisible by none of a given list of numbers
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Bit Manipulation](../Bit%20Manipulation/)
+- [Bitmasking](../../Utilities/Optimization_Techniques/Bitmasking/)
+- [Euclidean Algorithm](../../Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean%20Algorithm/)

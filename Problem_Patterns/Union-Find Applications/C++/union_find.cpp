@@ -30,7 +30,7 @@ public:
         std::iota(parent.begin(), parent.end(), 0);
     }
 
-    // Find with Path Compression: O(α(n))
+    // Find with Path Compression: O(alpha(n))
     int find(int x) {
         if (x < 0 || x >= static_cast<int>(parent.size())) {
             throw std::out_of_range("Element index out of bounds");
@@ -42,7 +42,7 @@ public:
         return parent[x];
     }
 
-    // Union by Rank: O(α(n))
+    // Union by Rank: O(alpha(n))
     bool unite(int x, int y) {
         int rootX = find(x);
         int rootY = find(y);

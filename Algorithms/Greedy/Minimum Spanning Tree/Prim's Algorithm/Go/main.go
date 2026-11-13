@@ -59,7 +59,9 @@ func PrimMST(graph map[int][]Edge, start int) ([][]int, int) {
 		To     int
 	}{0, start, start})
 
-	for pq.Len() > 0 && len(mst) < len(graph)-1 {
+	// No vertex-count guard: a vertex that appears only as a neighbor is not a
+	// key of graph, so len(graph) would stop the loop before it was added.
+	for pq.Len() > 0 {
 		item := heap.Pop(&pq).(struct {
 			Weight int
 			From   int

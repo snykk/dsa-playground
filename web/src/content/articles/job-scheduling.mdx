@@ -1,0 +1,221 @@
+---
+topic: Algorithms/Greedy/Job Scheduling
+title: Job Scheduling
+lead: Job scheduling asks for the best order for jobs on one machine. The classic form gives every unit-time job a deadline and a profit and wants the most profit. Take jobs by profit and give each the latest free slot before its deadline. Two Python variants cover lateness and weighted completion time.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Deadline version
+    value: O(n log n + n * min(D, n))
+    hint: D is the largest deadline
+  - label: Extra space
+    value: O(n + D)
+    hint: the sorted jobs, plus one slot per time unit up to the largest deadline
+    tone: warn
+  - label: Approach
+    value: Greedy
+    hint: highest profit first, latest free slot
+  - label: Variants
+    value: 3 rules
+    hint: profit with deadlines, EDF, weighted completion time
+properties:
+  - { label: Greedy, value: true }
+  - { label: Unit-time jobs (deadline version), value: true }
+  - { label: Always optimal, value: true }
+  - { label: C++ and Go have all variants, value: false }
+prerequisites:
+  - Algorithms/Greedy
+  - Algorithms/Sorting/Merge Sort
+related:
+  - Algorithms/Greedy/Activity Selection
+  - Algorithms/Greedy/Fractional Knapsack
+  - Algorithms/Greedy/Huffman Coding
+  - Data Structures/Advanced_Structures/Disjoint Set Union
+---
+
+## How job scheduling works
+
+The main problem in this folder is **job sequencing with deadlines**. Each job takes exactly one unit of time and has a `deadline` (it must run in a slot numbered at most that value) and a `profit` that you earn only if it finishes in time. One machine runs one job per slot (slots are numbered 1, 2, 3, &hellip;). Choose which jobs to run, and when, to maximize the total profit.
+
+<Steps>
+  <Step title="Sort the jobs by profit">
+    Highest profit first. The most valuable job gets the first chance at a slot.
+  </Step>
+  <Step title="Find the largest deadline">
+    Make one slot for each time unit from 1 to that deadline, all empty.
+  </Step>
+  <Step title="Place each job in the latest free slot">
+    For a job with deadline `d`, look at slot `d`, then `d - 1`, and so on down to slot 1. Put the job in the first free slot. Taking the latest slot keeps the earlier slots free for jobs with tighter deadlines.
+  </Step>
+  <Step title="Drop jobs that find no slot">
+    If every slot from `d` down to 1 is taken, the job is rejected. The answer is the sum of the profits of the placed jobs.
+  </Step>
+</Steps>
+
+<Callout title="Why this is optimal">
+A set of jobs can all be finished exactly when, for every time `t`, at most `t` of them have a deadline of `t` or earlier. Sets with this property satisfy an exchange rule (they form what is called a matroid), and for such sets, going through the elements by decreasing weight and keeping each one that leaves the set feasible always gives a maximum-weight set. A rejected job is one that could not be added without breaking the rule. The tests also compare the result with brute force over every subset on small random inputs.
+</Callout>
+
+## Worked example
+
+Five jobs, written `(id, deadline, profit)`: `a (2, 100)`, `b (1, 19)`, `c (2, 27)`, `d (1, 25)`, `e (3, 15)`. The largest deadline is 3, so there are three slots. The code receives ids 1 to 5 for a to e and returns `(142, [1, 3, 5])`.
+
+<ArrayDiagram
+  legend={{ f: 'slot holds a job' }}
+  rows={[
+    { label: 'start', values: ['empty', 'empty', 'empty'], marks: { 0: 'slot 1', 1: 'slot 2', 2: 'slot 3' }, note: 'Jobs by profit: a 100, c 27, d 25, b 19, e 15.' },
+    { label: 'a', values: ['empty', 'a', 'empty'], tones: '.f.', note: 'Deadline 2: slot 2 is free. Place a (profit 100).' },
+    { label: 'c', values: ['c', 'a', 'empty'], tones: 'ff.', note: 'Deadline 2: slot 2 is taken, slot 1 is free. Place c (profit 27).' },
+    { label: 'd', values: ['c', 'a', 'empty'], tones: 'ff.', note: 'Deadline 1: slot 1 is taken. Reject d (profit 25).' },
+    { label: 'b', values: ['c', 'a', 'empty'], tones: 'ff.', note: 'Deadline 1: slot 1 is taken. Reject b (profit 19).' },
+    { label: 'e', values: ['c', 'a', 'e'], tones: 'fff', note: 'Deadline 3: slot 3 is free. Place e (profit 15).' },
+  ]}
+/>
+
+The run order is `c`, `a`, `e` in time, for a profit of 100 + 27 + 15 = 142. Notice that the returned list `[1, 3, 5]` is the order in which jobs were **accepted** (by decreasing profit), not the order of the time slots.
+
+## Pseudocode
+
+```text
+jobSchedulingDeadline(jobs):                    # jobs: (id, deadline, profit)
+    if jobs is empty: return (0, [])
+    sort jobs by profit, highest first
+    maxDeadline = largest deadline
+    slot[1 .. maxDeadline] = all empty          # a separate "empty" marker, not an id
+    scheduled = []
+    total = 0
+    for each job (id, deadline, profit):
+        for s = deadline down to 1:
+            if slot[s] is empty:
+                slot[s] = id
+                append id to scheduled
+                total = total + profit
+                break
+    return (total, scheduled)
+```
+
+## Implementation
+
+The Python file has all three variants. C++ and Go have only the deadline version (`jobSchedulingDeadline`, and a profit-only wrapper in C++, `JobSchedulingDeadline` in Go). In Python, jobs are tuples; in C++ they are `std::tuple<int, int, int>`; in Go they are `[]int{id, deadline, profit}`.
+
+<TopicCode topic="Algorithms/Greedy/Job Scheduling" />
+
+**Differences to know.**
+
+- Python sorts a copy. C++ and Go sort the vector or slice you pass in, so the caller's order changes.
+- Among jobs with equal profit, the order is stable in Python (`sorted`) and unspecified in C++ and Go, so the chosen jobs among ties can differ.
+- Slots hold an explicit "empty" marker (`None` in Python, a `bool` array in C++ and Go). An earlier version used -1 for empty, which broke when a job's id was -1.
+
+## The other two variants (Python)
+
+<DataTable
+  columns={['Function', 'Input tuple', 'Rule', 'Returns']}
+  rows={[
+    ['`job_scheduling_deadline`', '(id, deadline, profit)', 'profit descending, latest free slot', 'total profit and the accepted ids'],
+    ['`job_scheduling_earliest_deadline`', '(id, deadline, processing_time)', 'sort by deadline, earliest first', 'the order of ids only'],
+    ['`job_scheduling_weighted_completion_time`', '(id, processing_time, weight)', 'sort by weight / processing_time, highest first', 'the order and the sum of weight * completion time'],
+  ]}
+/>
+
+**Earliest deadline first (EDF)** minimizes the maximum lateness when every job is available from time 0 on one machine. The function sorts by deadline and returns the order; it ignores `processing_time` and does not compute any lateness.
+
+**Weighted completion time** (Smith's rule): run jobs in order of decreasing `weight / processing_time`. For jobs `(J1, 3, 1)`, `(J2, 1, 2)`, `(J3, 2, 3)`, written `(id, processing_time, weight)`:
+
+<DataTable
+  columns={['Order', 'Completion times', 'Sum of weight * completion']}
+  rows={[
+    ['J1, J2, J3 (input order)', '3, 4, 6', '1*3 + 2*4 + 3*6 = 29'],
+    ['J2, J3, J1 (Smith)', '1, 3, 6', '2*1 + 3*3 + 1*6 = 17'],
+  ]}
+/>
+
+The function returns `(['J2', 'J3', 'J1'], 17)`. Smith's order puts short, heavy jobs first, because a job delays every job behind it by its own processing time.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Sort', time: 'O(n log n)', space: 'O(n)', when: 'Sorting by profit (deadline version), deadline (EDF) or ratio (weighted completion).' },
+    { case: 'Slot search', time: 'O(n * min(D, n))', space: 'O(D)', when: 'Each job scans down from its deadline; it can scan up to D slots, but at most n slots are ever taken. D is the largest deadline.' },
+    { case: 'Deadline version, total', time: 'O(n log n + n * min(D, n))', space: 'O(n + D)', when: 'Worst case O(n^2) when deadlines are about n and the early slots fill up.' },
+  ]}
+/>
+
+The slot array has one entry per time unit up to the largest deadline, so memory grows with the **value** of the largest deadline, not with `n`: a single job with deadline 1,000,000,000 would allocate a billion slots. The repository does not clamp deadlines to `n`, which would be safe because at most `n` slots can ever be used.
+
+**Faster in theory.** A union-find structure over the slots that points each slot to the next free one below it makes every placement almost constant time, for a total of <BigO of="n log n" /> (the sort) plus O(n &alpha;(n)). The repository does not implement it.
+
+## Variants and related problems
+
+<DataTable
+  columns={['Problem', 'Rule', 'Optimal?']}
+  highlight={0}
+  rows={[
+    ['Unit jobs, deadlines, profits', 'profit descending, latest free slot', 'Yes'],
+    ['Single machine, minimize maximum lateness', 'earliest deadline first', 'Yes'],
+    ['Single machine, minimize weighted completion time', 'weight / time descending', 'Yes'],
+    ['Intervals with fixed start and finish, maximum count', 'earliest finish first (Activity Selection)', 'Yes'],
+    ['Jobs with arbitrary lengths, deadlines and profits', 'no simple greedy', 'No: needs dynamic programming'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Optimal for the unit-time deadline problem, and checked against brute force in the tests.',
+    'Short code: a sort and a nested loop.',
+    'Related rules (EDF, Smith) are one-line sorts.',
+  ]}
+  cons={[
+    'The deadline version needs O(n + D) memory and can be O(n^2); the union-find speed-up is not implemented.',
+    'Only unit-time jobs; with different job lengths the problem is harder.',
+    'C++ and Go implement only the deadline version, and they sort the caller\'s input in place.',
+    'Profits are assumed non-negative: a job with a negative profit is still scheduled if a slot is free.',
+  ]}
+/>
+
+## Applications
+
+- **Order processing.** Choosing which of many time-limited tasks to accept on one worker when each earns a different payoff.
+- **Ordering with deadlines.** EDF is the classic rule for ordering tasks on one processor.
+- **Minimizing average waiting.** Smith's rule with equal weights reduces to "shortest job first".
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using a real value as the "empty slot" marker.** The slot array must not use an id value for "empty". A job with id -1 once left its slot looking free.
+- **Reading the returned list as a timetable.** It lists accepted jobs in profit order, not slot order.
+- **Starting the slot search above the deadline** or running it below slot 1. A job with deadline 0 or less is never scheduled.
+- **Huge deadlines.** The slot array has one entry per time unit; clamp deadlines to `n` if they can be very large.
+- **Dividing by zero in Smith's rule.** A job with `processing_time` 0 raises `ZeroDivisionError` in `job_scheduling_weighted_completion_time`.
+- **Assuming EDF reports lateness.** `job_scheduling_earliest_deadline` ignores `processing_time` and only returns an order.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why take the latest free slot instead of the earliest?">
+    A job with a late deadline can run late, which leaves the early slots for jobs with tight deadlines. Taking the earliest free slot would waste exactly the slots that urgent jobs need.
+  </FaqItem>
+  <FaqItem question="Is the set of scheduled jobs unique?">
+    The total profit is unique. The set can differ when profits tie, and C++ and Go do not specify which tied job comes first.
+  </FaqItem>
+  <FaqItem question="What if jobs take different amounts of time?">
+    Then deadline scheduling with profits is a harder problem and this greedy no longer applies. The weighted completion time and EDF variants do handle different lengths, but they have different goals: they schedule every job.
+  </FaqItem>
+  <FaqItem question="How is this different from Activity Selection?">
+    Activity Selection has fixed start and finish times and wants the most jobs. Here jobs are flexible: any free slot before the deadline works, and each job has a profit.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['LeetCode 630, Course Schedule III', 'sort by deadline, keep a max-heap of durations, drop the longest course when you run over a deadline'],
+    ['LeetCode 1353, Maximum Number of Events That Can Be Attended', 'each day, attend the open event that ends first (a min-heap of end days)'],
+    ['LeetCode 1235, Maximum Profit in Job Scheduling', 'the weighted interval version, solved with dynamic programming'],
+  ]}
+/>

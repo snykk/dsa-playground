@@ -1,57 +1,35 @@
-# Interpolation Search (Go)
+# Interpolation Search -- Go Implementation
 
-**Interpolation Search** is an improved variant of Binary Search for uniformly distributed sorted arrays.
+Interpolation search over `[]int`, iterative and recursive. For the idea, the formula and the traces see the [topic README](../README.md).
 
----
+## Files
 
-## Overview
+- `main.go` - the two search functions and the `interpolationOffset` helper (`package main`, no `main` function).
+- `main_test.go` - 5 test functions, including all-equal, duplicate and full-range (`MinInt64` to `MaxInt64`) inputs.
+- `go.mod` - the module `interpolationsearch`.
 
-Interpolation Search estimates the position of the target value based on the values at the boundaries. It works best when the data is uniformly distributed, achieving O(log log n) average time complexity.
+## API
 
----
+- `InterpolationSearch(arr []int, target int) int` - index or -1.
+- `InterpolationSearchRecursive(arr []int, target int, left int, right int) int` - the recursive form; the caller passes the bounds, for example `0` and `len(arr)-1`.
 
-## Complexity Analysis
+## Go-Specific Notes
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Best Case** | O(1) | O(1) |
-| **Average Case** | O(log log n) | O(1) |
-| **Worst Case** | O(n) | O(1) |
+- `interpolationOffset` takes the differences as `uint64`: they are non-negative and always fit, while `int` subtraction can overflow for `math.MaxInt64 - math.MinInt64`.
+- The result is then computed in `float64`, so for very wide values the estimate is approximate; this affects only speed.
+- A flat window (`arr[left] == arr[right]`) returns before the division.
+- The package is `main` without a `main` function, so `go test` works but `go run .` and `go build` do not.
 
----
+## How to Run
 
-## Usage
-
-```go
-arr := []int{10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
-index := InterpolationSearch(arr, 50)
-// index = 4
-```
-
----
-
-## Testing
+From this folder:
 
 ```bash
-go test
+go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## When to Use
-
-- ✅ Uniformly distributed sorted arrays
-- ✅ Large datasets with uniform distribution
-- ❌ Non-uniformly distributed data (use Binary Search instead)
-
----
-
-## Related Algorithms
-
-- **Binary Search**: O(log n) for any sorted array
-- **Linear Search**: O(n) for unsorted arrays
-
----
-
-_Last Updated: December 2025_
-
+- Do the subtraction in an unsigned type to avoid overflow.
+- Guard the flat window before dividing.
+- Prefer binary search unless the keys are close to uniform.

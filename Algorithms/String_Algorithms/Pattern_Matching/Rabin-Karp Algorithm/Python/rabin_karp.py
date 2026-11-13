@@ -8,9 +8,11 @@ of characters directly.
 
 from typing import List
 
-# Base for hash function (prime number)
+# Base of the hash: the number of byte values (256 is not a prime).
 BASE = 256
-# Modulus to prevent overflow (large prime)
+# Modulus of the hash: a small prime, so about 1 window in 101 collides by chance.
+# Collisions are harmless to correctness (every hash hit is verified) but slow the
+# search down; use a large prime for real inputs.
 MOD = 101
 
 
@@ -22,12 +24,12 @@ def rabin_karp_search(text: str, pattern: str, base: int = BASE, mod: int = MOD)
         text: The text string to search in
         pattern: The pattern string to search for
         base: Base for hash function (default: 256)
-        mod: Modulus for hash function (default: 101)
+        mod: Modulus for hash function (default: 101, a small prime)
         
     Returns:
         List of starting indices where pattern is found
         
-    Time Complexity: O(n + m) average, O(n × m) worst case
+    Time Complexity: O(n + m) average, O(n * m) worst case
     Space Complexity: O(1)
     """
     if not pattern:

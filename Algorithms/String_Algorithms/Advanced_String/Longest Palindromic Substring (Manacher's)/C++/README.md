@@ -1,89 +1,36 @@
-# Manacher's Algorithm (C++)
+# Manacher's Algorithm -- C++ Implementation
 
-**Manacher's Algorithm** finds the longest palindromic substring in a string in linear time.
+Longest palindromic substring in O(n).
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `manacher.cpp` | `manacher` |
+| `manacher_test.cpp` | `assert`-based tests: basic, single character, all equal, no palindrome, long palindrome, empty string, two characters, inputs containing `^` and `$` (regression), tie-breaking |
 
-Manacher's algorithm is the optimal algorithm for finding the longest palindromic substring. It uses a clever technique with a transformed string and maintains a palindrome radius array to achieve linear time complexity.
+## API
 
-**Key Characteristics:**
-- Finds longest palindromic substring in linear time
-- Time: O(n) time complexity
-- Space: O(n)
-- Optimal algorithm for palindrome detection
-
----
-
-## Complexity Analysis
-
-| Aspect | Complexity |
-|--------|------------|
-| **Time** | O(n) |
-| **Space** | O(n) |
-
-Where:
-- n = length of string
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`manacher(s)`**
-   - Find longest palindromic substring using Manacher's algorithm
-   - Returns the longest palindromic substring
-   - Time: O(n), Space: O(n)
-
----
-
-## Usage
+- `std::string manacher(const std::string& s)`: the first longest palindromic substring (the earliest on ties); `""` for an empty string.
 
 ```cpp
-#include <string>
-#include <iostream>
-#include "manacher.cpp"
-
-int main() {
-    std::string s = "babad";
-    
-    std::string result = manacher(s);
-    // result = "bab" or "aba"
-    
-    return 0;
-}
+manacher("babad");   // "bab"
 ```
 
----
+## C++-Specific Notes
 
-## Testing
+- Works on bytes. A multi-byte UTF-8 palindrome such as a word of accented letters is found only when its bytes form a palindrome; decode to code points first for character-level results.
+- The transformed `std::string` uses `#` between bytes and no sentinels; expansion is bounds-checked, so `^`, `$` and `#` are safe in the input.
+- `int` is used for sizes, which is fine for any string that fits in memory comfortably with the 2n + 1 buffer.
 
-Run tests with:
+## How to Run
 
 ```bash
-# Compile
-g++ -o manacher_test manacher_test.cpp
-
-# Run
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD manacher_test.cpp -o manacher_test
 ./manacher_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ manacher_test.cpp -o manacher_test && ./manacher_test
-```
-
----
-
-## References
-
-- Manacher, G. (1975). "A new linear-time algorithm for finding the maximum palindrome"
-- "Introduction to Algorithms" by CLRS
-
----
-
-_Last Updated: December 2025_
-
+1. Bounds-checked expansion replaces sentinels.
+2. The answer starts at `(i - p[i]) / 2` in the original string.
