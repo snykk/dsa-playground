@@ -29,7 +29,7 @@ void testBellmanFordBasic() {
     assert(distances[3] == 3);
     assert(distances.size() == 4);
     
-    cout << "✓ testBellmanFordBasic passed" << endl;
+    cout << "[ok] testBellmanFordBasic passed" << endl;
 }
 
 void testBellmanFordNegativeEdge() {
@@ -49,7 +49,7 @@ void testBellmanFordNegativeEdge() {
     assert(distances[2] == 2);
     assert(distances[3] == -1);  // 0 -> 1 -> 3 = 4 + (-5) = -1
     
-    cout << "✓ testBellmanFordNegativeEdge passed" << endl;
+    cout << "[ok] testBellmanFordNegativeEdge passed" << endl;
 }
 
 void testBellmanFordNegativeCycle() {
@@ -64,7 +64,7 @@ void testBellmanFordNegativeCycle() {
     
     assert(distances.empty());  // Negative cycle detected
     
-    cout << "✓ testBellmanFordNegativeCycle passed" << endl;
+    cout << "[ok] testBellmanFordNegativeCycle passed" << endl;
 }
 
 void testBellmanFordMultipleNegativeEdges() {
@@ -82,7 +82,7 @@ void testBellmanFordMultipleNegativeEdges() {
     assert(distances[0] == 0);
     assert(distances[3] == 0);  // 0 -> 1 -> 2 -> 3 = 3 + (-2) + (-1) = 0
     
-    cout << "✓ testBellmanFordMultipleNegativeEdges passed" << endl;
+    cout << "[ok] testBellmanFordMultipleNegativeEdges passed" << endl;
 }
 
 void testBellmanFordSingleVertex() {
@@ -94,7 +94,7 @@ void testBellmanFordSingleVertex() {
     assert(distances[0] == 0);
     assert(distances.size() == 1);
     
-    cout << "✓ testBellmanFordSingleVertex passed" << endl;
+    cout << "[ok] testBellmanFordSingleVertex passed" << endl;
 }
 
 void testBellmanFordEmptyGraph() {
@@ -104,7 +104,7 @@ void testBellmanFordEmptyGraph() {
     
     assert(distances.empty());
     
-    cout << "✓ testBellmanFordEmptyGraph passed" << endl;
+    cout << "[ok] testBellmanFordEmptyGraph passed" << endl;
 }
 
 void testBellmanFordNoPath() {
@@ -122,7 +122,32 @@ void testBellmanFordNoPath() {
     assert(distances[2] == INT_MAX);
     assert(distances[3] == INT_MAX);
     
-    cout << "✓ testBellmanFordNoPath passed" << endl;
+    cout << "[ok] testBellmanFordNoPath passed" << endl;
+}
+
+void testBellmanFordRejectsOutOfRangeEdge() {
+    /**An edge endpoint outside 0..numVertices-1 is an error, not a phantom vertex at distance 0.*/
+    vector<vector<Edge>> badInputs = {
+        {{5, 1, 1}},             // source endpoint out of range (was read as distance 0)
+        {{0, 1, 1}, {1, 7, 2}},  // target endpoint out of range
+        {{-1, 1, 1}}             // negative vertex id
+    };
+    for (const auto& edges : badInputs) {
+        bool threw = false;
+        try {
+            bellmanFord(edges, 3, 0);
+        } catch (const out_of_range&) {
+            threw = true;
+        }
+        assert(threw);
+    }
+
+    // Valid edges are unaffected; vertex 1 is unreachable from 0 here.
+    unordered_map<int, int> distances = bellmanFord({{2, 1, 1}}, 3, 0);
+    assert(distances[0] == 0);
+    assert(distances[1] == INT_MAX);
+
+    cout << "[ok] testBellmanFordRejectsOutOfRangeEdge passed" << endl;
 }
 
 int main() {
@@ -133,6 +158,7 @@ int main() {
     testBellmanFordSingleVertex();
     testBellmanFordEmptyGraph();
     testBellmanFordNoPath();
+    testBellmanFordRejectsOutOfRangeEdge();
     
     cout << "\nAll tests passed!" << endl;
     return 0;

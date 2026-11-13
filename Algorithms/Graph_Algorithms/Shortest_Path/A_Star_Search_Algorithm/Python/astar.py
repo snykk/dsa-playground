@@ -25,13 +25,16 @@ def astar(graph: Dict[int, List[Tuple[int, int]]],
     Returns:
         Tuple of (distance, path) or None if no path exists
         
+    The path is optimal for any admissible heuristic (one that never
+    overestimates) on non-negative edge weights: a vertex is re-expanded when a
+    cheaper route to it is found later, so no closed set can lock in a worse g.
+        
     Time Complexity: O(b^d) where b is branching factor, d is depth
     Space Complexity: O(b^d)
     """
     # Priority queue: (f_score, g_score, vertex, path)
     # f_score = g_score + h_score
-    pq = [(0, 0, start, [start])]
-    visited = set()
+    pq = [(heuristic(start), 0, start, [start])]
     g_scores = {start: 0}
     
     while pq:
@@ -40,15 +43,10 @@ def astar(graph: Dict[int, List[Tuple[int, int]]],
         if current == goal:
             return (g_score, path)
         
-        if current in visited:
-            continue
-        
-        visited.add(current)
+        if g_score > g_scores[current]:
+            continue  # stale entry: a cheaper route to current was found after this push
         
         for neighbor, weight in graph.get(current, []):
-            if neighbor in visited:
-                continue
-            
             tentative_g = g_score + weight
             
             if neighbor not in g_scores or tentative_g < g_scores[neighbor]:

@@ -64,7 +64,7 @@ func main() {
     
     // Basic DFS
     result := DFSAdjacencyList(graph, 1)
-    fmt.Println(result)  // [1, 4, 2, 3] (order may vary)
+    fmt.Println(result)  // [1, 2, 3, 4]
     
     // Recursive DFS
     result = DFSRecursive(graph, 1)

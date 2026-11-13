@@ -36,6 +36,15 @@ func ComputeLPS(pattern string) []int {
 
 func KMPSearch(text, pattern string) []int {
 	n, m := len(text), len(pattern)
+	// The empty pattern occurs at every position 0..n, as in NaiveSearch;
+	// without this guard pattern[0] would panic.
+	if m == 0 {
+		indices := make([]int, n+1)
+		for i := range indices {
+			indices[i] = i
+		}
+		return indices
+	}
 	lps := ComputeLPS(pattern)
 	indices := []int{}
 	i, j := 0, 0

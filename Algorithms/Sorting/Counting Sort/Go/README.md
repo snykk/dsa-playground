@@ -25,5 +25,5 @@ go test
 ## Complexity
 
 - **Time**: O(n + k) where k is the range
-- **Space**: O(k)
+- **Space**: O(n + k)
 

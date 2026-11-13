@@ -17,9 +17,16 @@ def climbing_stairs_naive(n):
     Returns:
         Number of distinct ways to climb
         
+    Raises:
+        ValueError: if n is negative
+
     Time Complexity: O(2^n)
     Space Complexity: O(n)
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
+    if n == 0:
+        return 1  # one way to climb zero stairs: take no step
     if n <= 2:
         return n
     return climbing_stairs_naive(n - 1) + climbing_stairs_naive(n - 2)
@@ -36,15 +43,22 @@ def climbing_stairs_memoization(n, memo=None):
     Returns:
         Number of distinct ways
         
+    Raises:
+        ValueError: if n is negative
+
     Time Complexity: O(n)
     Space Complexity: O(n)
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
     if memo is None:
         memo = {}
     
     if n in memo:
         return memo[n]
     
+    if n == 0:
+        return 1  # one way to climb zero stairs: take no step
     if n <= 2:
         return n
     
@@ -63,9 +77,16 @@ def climbing_stairs_tabulation(n):
     Returns:
         Number of distinct ways
         
+    Raises:
+        ValueError: if n is negative
+
     Time Complexity: O(n)
     Space Complexity: O(n)
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
+    if n == 0:
+        return 1  # one way to climb zero stairs: take no step
     if n <= 2:
         return n
     
@@ -89,9 +110,16 @@ def climbing_stairs_optimized(n):
     Returns:
         Number of distinct ways
         
+    Raises:
+        ValueError: if n is negative
+
     Time Complexity: O(n)
     Space Complexity: O(1)
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
+    if n == 0:
+        return 1  # one way to climb zero stairs: take no step
     if n <= 2:
         return n
     
@@ -117,13 +145,16 @@ def climbing_stairs_variable_steps(n, steps):
     Returns:
         Number of distinct ways
         
-    Time Complexity: O(n × k) where k is number of step sizes
+    Raises:
+        ValueError: if n is negative
+
+    Time Complexity: O(n * k) where k is number of step sizes
     Space Complexity: O(n)
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
     if n == 0:
         return 1
-    if n < 0:
-        return 0
     
     dp = [0] * (n + 1)
     dp[0] = 1

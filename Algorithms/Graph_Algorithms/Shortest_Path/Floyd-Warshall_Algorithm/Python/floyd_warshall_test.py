@@ -126,6 +126,40 @@ class TestFloydWarshall(unittest.TestCase):
         path = reconstruct_path(next_vertex, 0, 3)
         self.assertIsNone(path)
 
+    def test_parallel_edges_keep_cheapest(self):
+        """Parallel edges keep the cheapest weight, whatever their order."""
+        for edges in ([(1, 3), (1, 7)], [(1, 7), (1, 3)]):
+            graph = {0: edges, 1: []}
+            self.assertEqual(floyd_warshall(graph, 2)[0][1], 3)
+            dist, next_vertex = floyd_warshall_path(graph, 2)
+            self.assertEqual(dist[0][1], 3)
+            self.assertEqual(reconstruct_path(next_vertex, 0, 1), [0, 1])
+
+    def test_positive_self_loop_keeps_zero_diagonal(self):
+        """A positive self-loop never makes dist[i][i] larger than 0."""
+        self.assertEqual(floyd_warshall({0: [(0, 5)]}, 1), [[0]])
+        dist, next_vertex = floyd_warshall_path({0: [(0, 5), (1, 2)], 1: []}, 2)
+        self.assertEqual(dist[0][0], 0)
+        self.assertEqual(reconstruct_path(next_vertex, 0, 0), [0])
+
+    def test_negative_self_loop_is_negative_cycle(self):
+        """A negative self-loop is a negative cycle."""
+        self.assertIsNone(floyd_warshall({0: [(0, -1)]}, 1))
+        self.assertIsNone(floyd_warshall_path({0: [(0, -1)]}, 1))
+
+    def test_negative_cycle(self):
+        """Both functions report a negative cycle with None (no hang, no bogus matrix)."""
+        graph = {0: [(1, 1)], 1: [(2, -3)], 2: [(1, 1), (3, 1)], 3: []}
+        self.assertIsNone(floyd_warshall(graph, 4))
+        self.assertIsNone(floyd_warshall_path(graph, 4))
+
+    def test_reconstruct_path_cyclic_next_pointers(self):
+        """reconstruct_path stops after V - 1 steps instead of looping forever."""
+        # 1 -> 2 -> 1 -> ... never reaches 3 (what a negative cycle leaves behind).
+        next_vertex = [[0, 1, 1, 1], [2, 1, 2, 2], [1, 1, 2, 1], [3, 3, 3, 3]]
+        self.assertIsNone(reconstruct_path(next_vertex, 0, 3))
+        self.assertEqual(reconstruct_path(next_vertex, 0, 2), [0, 1, 2])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -51,7 +51,7 @@ Step 3: Check arr[2] = 30 = 30, found! Return 2
 1. ✅ **Simple**: Easy to understand and implement
 2. ✅ **No prerequisites**: Works on any data structure
 3. ✅ **No sorting required**: Works on unsorted arrays
-4. ✅ **Flexible**: Can find first, last, or all occurrences
+4. ✅ **Flexible**: Can find the first or all occurrences
 5. ✅ **In-place**: O(1) extra space
 
 ---

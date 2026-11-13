@@ -40,7 +40,7 @@ Given a chain of matrices A₁, A₂, ..., Aₙ with dimensions p₀×p₁, p₁
 
 Where `n` = number of matrices.
 
-**Note**: O(n³) is optimal for this problem. Cannot be improved further.
+**Note**: O(n³) is the classic DP bound, not the best possible: Hu and Shing's algorithm solves the problem in O(n log n).
 
 ---
 
@@ -54,28 +54,12 @@ Where `n` = number of matrices.
    - Returns minimum number of scalar multiplications
    - Time: O(n³), Space: O(n²)
 
-2. **`matrix_chain_with_parenthesization(dims)`**
-   - Returns minimum cost and optimal parenthesization
-   - Uses additional table to store split points
-   - Returns (min_cost, parenthesization_string)
-   - Time: O(n³), Space: O(n²)
-
-3. **`matrix_chain_recursive(dims, i, j, memo=None)`**
-   - Recursive memoized version
-   - Top-down DP approach
-   - Returns minimum cost
-   - Time: O(n³), Space: O(n²)
-
 ---
 
 ## Usage
 
 ```python
-from matrix_chain import (
-    matrix_chain_multiplication,
-    matrix_chain_with_parenthesization,
-    matrix_chain_recursive
-)
+from matrix_chain import matrix_chain_multiplication
 
 # Example: 4 matrices
 # A₁(1×2), A₂(2×3), A₃(3×4), A₄(4×3)
@@ -83,16 +67,7 @@ dims = [1, 2, 3, 4, 3]
 
 # Minimum cost only
 min_ops = matrix_chain_multiplication(dims)
-print(min_ops)  # Output: minimum scalar multiplications
-
-# With parenthesization
-min_ops, paren = matrix_chain_with_parenthesization(dims)
-print(min_ops)  # Output: minimum cost
-print(paren)    # Output: "((A1×A2)×A3)×A4" or similar
-
-# Recursive version
-min_ops = matrix_chain_recursive(dims, 1, len(dims)-1)
-print(min_ops)
+print(min_ops)  # Output: 30
 
 # Real example from overview
 dims = [10, 20, 30, 40]  # 3 matrices
@@ -109,13 +84,14 @@ print(min_ops)  # Output: 18000
 3. **Associativity**: Matrix multiplication is associative, so result is same
 4. **Cost calculation**: Cost of multiplying A(p×q) × B(q×r) is p×q×r
 5. **Optimal substructure**: Optimal solution contains optimal solutions to subproblems
+6. **Fewer than two matrices**: if `dims` has fewer than 3 entries (`[]`, `[5]`, `[5, 10]`) the function returns 0
 
 ---
 
 ## Advantages
 
 1. ✅ **Optimal**: DP guarantees optimal solution
-2. ✅ **Efficient**: O(n³) time complexity (optimal for this problem)
+2. ✅ **Efficient**: O(n³) time complexity (the classic DP bound; Hu-Shing reaches O(n log n))
 3. ✅ **Practical**: Significant speedup for large matrix chains
 4. ✅ **Parenthesization**: Can reconstruct optimal order
 
@@ -140,7 +116,7 @@ print(min_ops)  # Output: 18000
 
 ## Practical Impact
 
-For a chain of 10 matrices, naive approach tries ~2^9 = 512 parenthesizations, while DP solves in O(10³) = 1000 operations. For 20 matrices, naive tries ~2^19 = 524,288 while DP needs only O(20³) = 8,000 operations.
+For a chain of 10 matrices there are Catalan(9) = 4,862 possible parenthesizations, while DP solves it in O(10³) = 1000 operations. For 20 matrices there are Catalan(19) = 1,767,263,190, while DP needs only O(20³) = 8,000 operations.
 
 ---
 

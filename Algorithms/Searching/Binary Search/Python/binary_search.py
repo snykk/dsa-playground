@@ -151,13 +151,17 @@ def binary_search_closest(arr, target):
         target: Target value
         
     Returns:
-        Index of closest element
-        
+        Index of closest element (the larger one on a tie), -1 if arr is empty
+
     Time Complexity: O(log n)
     Space Complexity: O(1)
     """
+    # An empty list has no closest element (the code below would return 0)
+    if not arr:
+        return -1
+
     left, right = 0, len(arr) - 1
-    
+
     while left < right:
         mid = left + (right - left) // 2
         

@@ -147,7 +147,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++11 prim.cpp prim_test.cpp -o prim_test
+g++ -std=c++17 prim_test.cpp -o prim_test
 ./prim_test
 ```
 
@@ -158,7 +158,7 @@ g++ -std=c++11 prim.cpp prim_test.cpp -o prim_test
 Run the test suite:
 
 ```bash
-g++ -std=c++11 prim_test.cpp -o test && ./test
+g++ -std=c++17 prim_test.cpp -o test && ./test
 ```
 
 ---

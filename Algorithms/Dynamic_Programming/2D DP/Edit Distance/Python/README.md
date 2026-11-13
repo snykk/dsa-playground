@@ -60,17 +60,7 @@ Where:
    - Returns minimum edit distance
    - Time: O(mn), Space: O(mn)
 
-2. **`edit_distance_optimized(s1, s2)`**
-   - Space-optimized version
-   - Uses only O(min(m,n)) space
-   - Returns minimum edit distance
-   - Time: O(mn), Space: O(min(m,n))
-
-3. **`edit_distance_with_operations(s1, s2)`**
-   - Returns edit distance and sequence of operations
-   - Uses backtracking through DP table
-   - Returns (distance, operations_list)
-   - Time: O(mn), Space: O(mn)
+The space-optimized two-row version and the traceback of operations are described above but not implemented here.
 
 ---
 
@@ -87,11 +77,7 @@ Where:
 ## Usage
 
 ```python
-from edit_distance import (
-    edit_distance,
-    edit_distance_optimized,
-    edit_distance_with_operations
-)
+from edit_distance import edit_distance
 
 # Basic usage
 dist = edit_distance("kitten", "sitting")
@@ -104,15 +90,6 @@ print(dist)  # Output: 0
 # One empty string
 dist = edit_distance("abc", "")
 print(dist)  # Output: 3 (delete all)
-
-# Space-optimized
-dist = edit_distance_optimized("kitten", "sitting")
-print(dist)  # Output: 3
-
-# With operations
-dist, ops = edit_distance_with_operations("kitten", "sitting")
-print(dist)  # Output: 3
-print(ops)   # Output: [('replace', 0, 'k', 's'), ...]
 
 # Real-world examples
 dist = edit_distance("intention", "execution")

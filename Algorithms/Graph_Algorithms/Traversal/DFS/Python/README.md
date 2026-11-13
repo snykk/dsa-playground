@@ -18,11 +18,11 @@ DFS is a fundamental graph traversal algorithm that:
 
 ## Algorithm
 
-1. **Start**: Add starting vertex to stack and mark as visited
+1. **Start**: Push the starting vertex onto the stack
 2. **Process**: While stack is not empty:
-   - Pop a vertex
-   - Visit all unvisited neighbors
-   - Add neighbors to stack and mark as visited
+   - Pop a vertex; skip it if it is already visited
+   - Otherwise mark it visited (a vertex is marked when popped, not when pushed)
+   - Push its unvisited neighbors (in reverse, so the first neighbor is popped first)
 3. **Repeat**: Continue until stack is empty
 
 ---
@@ -50,8 +50,8 @@ DFS is a fundamental graph traversal algorithm that:
    - Time: O(V + E), Space: O(V)
 
 2. **`dfs_recursive(graph, start)`**
-   - Recursive DFS traversal
-   - More intuitive but uses recursion stack
+   - DFS in recursive order
+   - Simulates the recursion with an explicit stack, so deep graphs do not hit Python's recursion limit
    - Time: O(V + E), Space: O(V)
 
 3. **`dfs_with_path(graph, start, target)`**
@@ -96,7 +96,7 @@ graph = {
     4: []
 }
 result = dfs_adjacency_list(graph, 1)
-print(result)  # [1, 4, 2, 3] (order may vary)
+print(result)  # [1, 2, 3, 4]
 
 # Recursive DFS
 result = dfs_recursive(graph, 1)
@@ -132,7 +132,7 @@ print(topo_order)  # [1, 3, 2, 4] (one possible order)
 1. **Stack-based**: Uses list as stack for iterative version
 2. **Visited tracking**: Must track visited vertices to avoid cycles
 3. **Order may vary**: DFS order depends on neighbor order
-4. **Recursion limit**: Recursive version may hit recursion limit for deep graphs
+4. **No recursion limit**: The recursive-order functions simulate recursion with an explicit stack, so deep graphs do not raise `RecursionError`
 
 ---
 

@@ -7,7 +7,7 @@
 ## Complexity
 
 - **Time**: O(n log n) average, O(n²) worst
-- **Space**: O(log n) average
+- **Space**: O(log n) stack, also in the worst case (it recurses into the smaller part and loops on the larger one)
 
 ---
 

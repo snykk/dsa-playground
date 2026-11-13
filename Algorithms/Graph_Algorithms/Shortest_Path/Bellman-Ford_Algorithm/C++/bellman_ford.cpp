@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <climits>
 #include <algorithm>
+#include <stdexcept>
+#include <string>
 
 using namespace std;
 
@@ -19,7 +21,15 @@ unordered_map<int, int> bellmanFord(
     /**
      * Bellman-Ford algorithm to find shortest distances
      * Returns empty map if negative cycle exists
+     * Throws std::out_of_range if an edge endpoint is outside 0..numVertices-1
      */
+    for (const auto& edge : edges) {
+        if (edge.u < 0 || edge.u >= numVertices || edge.v < 0 || edge.v >= numVertices) {
+            throw out_of_range("bellmanFord: edge (" + to_string(edge.u) + ", " + to_string(edge.v) +
+                               ") has an endpoint outside 0.." + to_string(numVertices - 1));
+        }
+    }
+
     unordered_map<int, int> distances;
 
     if (numVertices == 0) {

@@ -86,7 +86,7 @@ go test -v
 
 1. **Priority queue**: Uses `container/heap` for efficient minimum extraction
 2. **Graph representation**: Uses struct for edge representation
-3. **MaxInt32**: Uses `math.MaxInt32` for infinity
+3. **MaxInt**: Uses `math.MaxInt` for infinity
 
 ---
 

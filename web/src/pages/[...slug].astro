@@ -1,0 +1,30 @@
+---
+import DocPage from '../components/templates/DocPage.astro';
+import { renderMarkdown } from '../lib/markdown';
+import { getContent } from '../lib/repo';
+
+/** One page per repository folder with a README, plus the root documents. */
+export function getStaticPaths() {
+  const content = getContent();
+  return [
+    ...content.nodes.map((n) => ({ params: { slug: n.slug }, props: { kind: 'node' as const, rel: n.rel } })),
+    ...content.standalone.map((d) => ({ params: { slug: d.slug }, props: { kind: 'doc' as const, rel: d.rel } })),
+  ];
+}
+
+interface Props {
+  kind: 'node' | 'doc';
+  rel: string;
+}
+
+const { kind, rel } = Astro.props;
+const content = getContent();
+const node = kind === 'node' ? content.byRel.get(rel) : undefined;
+const doc = kind === 'doc' ? content.standalone.find((d) => d.rel === rel) : undefined;
+if (!node && !doc) throw new Error(`Unknown page ${kind}:${rel}`);
+
+const source = node?.readme ?? (doc ? { rel: doc.rel, source: doc.source } : undefined);
+const rendered = source ? await renderMarkdown(source.source, source.rel) : { html: '', headings: [] };
+---
+
+<DocPage node={node} doc={doc} rendered={rendered} />

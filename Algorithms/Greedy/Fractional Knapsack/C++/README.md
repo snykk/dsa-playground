@@ -138,7 +138,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++11 fractional_knapsack.cpp fractional_knapsack_test.cpp -o test
+g++ -std=c++17 fractional_knapsack_test.cpp -o test
 ./test
 ```
 
@@ -149,7 +149,7 @@ g++ -std=c++11 fractional_knapsack.cpp fractional_knapsack_test.cpp -o test
 Run the test suite:
 
 ```bash
-g++ -std=c++11 fractional_knapsack_test.cpp -o test && ./test
+g++ -std=c++17 fractional_knapsack_test.cpp -o test && ./test
 ```
 
 ---

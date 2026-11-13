@@ -96,7 +96,7 @@ class TestBinarySearch(unittest.TestCase):
         """Test finding closest element"""
         arr = [1, 3, 5, 7, 9]
         result = binary_search_closest(arr, 4)
-        self.assertEqual(result, 2)  # 5 is closest to 4
+        self.assertEqual(result, 2)  # 3 and 5 are both 1 away; the larger one wins
     
     def test_closest_element_at_end(self):
         """Test closest element at end"""
@@ -109,6 +109,15 @@ class TestBinarySearch(unittest.TestCase):
         arr = [1, 3, 5, 7, 9]
         result = binary_search_closest(arr, 0)
         self.assertEqual(result, 0)  # 1 is closest
+
+    def test_closest_element_empty_array(self):
+        """Regression: an empty array used to return 0, which is not a valid index"""
+        self.assertEqual(binary_search_closest([], 5), -1)
+
+    def test_closest_element_single(self):
+        """A single element is always the closest one"""
+        self.assertEqual(binary_search_closest([42], -100), 0)
+        self.assertEqual(binary_search_closest([42], 100), 0)
 
 
 if __name__ == '__main__':

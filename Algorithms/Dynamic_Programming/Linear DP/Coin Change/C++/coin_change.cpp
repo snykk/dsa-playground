@@ -1,13 +1,19 @@
 /**
  * Coin Change (C++)
- * Time Complexity: O(n × amount)
+ * Time Complexity: O(n * amount)
  */
 
 #include <vector>
 #include <algorithm>
 #include <climits>
+#include <stdexcept>
 
+// Minimum number of coins that sum to amount, or -1 if it cannot be made.
+// Throws std::invalid_argument for a negative amount.
 int coinChangeMinCoins(const std::vector<int>& coins, int amount) {
+    if (amount < 0) {
+        throw std::invalid_argument("amount must be non-negative");
+    }
     if (amount == 0) {
         return 0;
     }
@@ -25,4 +31,3 @@ int coinChangeMinCoins(const std::vector<int>& coins, int amount) {
     
     return (dp[amount] == INT_MAX) ? -1 : dp[amount];
 }
-

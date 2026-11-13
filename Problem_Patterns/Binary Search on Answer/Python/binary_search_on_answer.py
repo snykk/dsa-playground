@@ -15,15 +15,17 @@ def binary_search_answer(left: int, right: int, check: Callable[[int], bool]) ->
     Args:
         left: Left bound of answer space
         right: Right bound of answer space
-        check: Function that returns True if answer is valid
-        
+        check: Function that returns True if answer is valid; it must be
+            monotone (False ... False True ... True) over [left, right]
+
     Returns:
-        Optimal answer value
-        
+        Smallest value in [left, right] for which check is True, or -1 if
+        there is none (same as the C++ and Go versions)
+
     Time Complexity: O(log(max_answer) * T(check))
     Space Complexity: O(1)
     """
-    result = right
+    result = -1  # stays -1 when no candidate is feasible
     
     while left <= right:
         mid = left + (right - left) // 2
@@ -46,8 +48,8 @@ def find_min_capacity(weights: List[int], days: int) -> int:
         days: Number of days available
         
     Returns:
-        Minimum ship capacity needed
-        
+        Minimum ship capacity needed, or -1 if no capacity works (days < 1)
+
     Time Complexity: O(n log(sum(weights)))
     Space Complexity: O(1)
     """
@@ -81,8 +83,9 @@ def find_kth_smallest_distance(nums: List[int], k: int) -> int:
         k: k-th smallest distance
         
     Returns:
-        k-th smallest distance
-        
+        k-th smallest distance, or -1 if there are fewer than k pairs
+        (same as the C++ and Go versions)
+
     Time Complexity: O(n log(max_distance))
     Space Complexity: O(1)
     """
@@ -105,8 +108,9 @@ def find_kth_smallest_distance(nums: List[int], k: int) -> int:
             left = mid + 1
         else:
             right = mid
-    
-    return left
+
+    # The loop always lands on a value; it is only an answer if k pairs exist.
+    return left if count_pairs_with_distance(left) >= k else -1
 
 
 def split_array_largest_sum(nums: List[int], m: int) -> int:
@@ -118,8 +122,8 @@ def split_array_largest_sum(nums: List[int], m: int) -> int:
         m: Number of subarrays
         
     Returns:
-        Minimum largest sum
-        
+        Minimum largest sum, or -1 if no split works (m < 1)
+
     Time Complexity: O(n log(sum(nums)))
     Space Complexity: O(1)
     """

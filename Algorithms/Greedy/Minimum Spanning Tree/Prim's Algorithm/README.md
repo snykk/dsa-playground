@@ -22,8 +22,8 @@
 ## Implementations
 
 - **Python** (`Python/`) - Complete with multiple representations
-- **C++** (`C++/`) - Basic
-- **Go** (`Go/`) - Basic
+- **C++** (`C++/`) - Complete (lazy Prim, binary heap)
+- **Go** (`Go/`) - Complete (lazy Prim, binary heap)
 
 ---
 

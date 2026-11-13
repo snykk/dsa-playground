@@ -17,7 +17,7 @@ A* implementation in Go using:
 
 | Complexity | Time | Space |
 |------------|------|-------|
-| **Best Case** | O(b^d) | O(b^d) |
+| **Worst Case** | O(b^d) | O(b^d) |
 
 ---
 

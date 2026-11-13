@@ -1,0 +1,31 @@
+{
+  "name": "dsa-playground-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive visualizations that accompany the DSA Playground READMEs",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "6.3.11",
+    "@astrojs/react": "4.4.2",
+    "astro": "5.18.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "unist-util-visit": "5.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

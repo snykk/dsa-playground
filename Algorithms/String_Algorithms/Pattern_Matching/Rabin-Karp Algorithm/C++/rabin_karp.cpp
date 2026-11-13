@@ -8,6 +8,13 @@
 const int BASE = 256;
 const int MOD = 101;
 
+// Hash bytes as unsigned values 0..255. char is signed on common platforms, so a
+// byte >= 0x80 would make the initial hashes negative while the rolled hash is
+// normalized into [0, MOD): equal windows would then get different hashes.
+inline int byteValue(char c) {
+    return static_cast<unsigned char>(c);
+}
+
 std::vector<int> rabinKarpSearch(const std::string& text, const std::string& pattern) {
     std::vector<int> result;
     
@@ -33,8 +40,8 @@ std::vector<int> rabinKarpSearch(const std::string& text, const std::string& pat
     
     // Calculate initial hash values
     for (int i = 0; i < m; i++) {
-        patternHash = (BASE * patternHash + pattern[i]) % MOD;
-        textHash = (BASE * textHash + text[i]) % MOD;
+        patternHash = (BASE * patternHash + byteValue(pattern[i])) % MOD;
+        textHash = (BASE * textHash + byteValue(text[i])) % MOD;
     }
     
     // Slide the pattern over text
@@ -54,7 +61,7 @@ std::vector<int> rabinKarpSearch(const std::string& text, const std::string& pat
         
         // Calculate hash for next window
         if (i < n - m) {
-            textHash = (BASE * (textHash - text[i] * h) + text[i + m]) % MOD;
+            textHash = (BASE * (textHash - byteValue(text[i]) * h) + byteValue(text[i + m])) % MOD;
             if (textHash < 0) {
                 textHash += MOD;
             }

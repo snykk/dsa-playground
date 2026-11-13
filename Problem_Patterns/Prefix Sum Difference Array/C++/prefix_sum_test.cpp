@@ -9,7 +9,7 @@ void testPrefixSum() {
     vector<int> arr = {1, 2, 3, 4, 5};
     PrefixSum ps(arr);
     assert(ps.query(0, 4) == 15);
-    cout << "✓ testPrefixSum passed" << endl;
+    cout << "testPrefixSum passed" << endl;
 }
 
 int main() {

@@ -57,7 +57,7 @@ Binary Search is a divide-and-conquer algorithm that works on sorted arrays. It 
    - O(log n) time complexity
 
 5. **`binary_search_closest(arr, target)`**
-   - Finds index of element closest to target
+   - Finds index of element closest to target (the larger one on a tie; -1 for an empty list)
    - Useful when exact match may not exist
    - O(log n) time complexity
 
@@ -99,7 +99,7 @@ print(index)  # Output: 3
 # Closest element
 arr = [1, 3, 5, 7, 9]
 index = binary_search_closest(arr, 4)
-print(index)  # Output: 2 (5 is closest)
+print(index)  # Output: 2 (3 and 5 are both 1 away; the larger one wins)
 ```
 
 ---
@@ -107,7 +107,7 @@ print(index)  # Output: 2 (5 is closest)
 ## Important Notes
 
 1. **Array must be sorted**: Binary Search only works on sorted arrays
-2. **Use `left + (right - left) // 2`**: Prevents integer overflow
+2. **Use `left + (right - left) // 2`**: Python ints cannot overflow, but in C++/Go this form avoids the overflow of `(left + right) / 2`
 3. **Boundary conditions**: Always check `left <= right` in while loop
 4. **First/Last occurrence**: Useful for problems with duplicate elements
 

@@ -3,7 +3,8 @@ package main
 import "math"
 
 // FloydWarshall finds shortest distances between all pairs of vertices
-// Time Complexity: O(V³), Space Complexity: O(V²)
+// Returns nil if a negative cycle exists
+// Time Complexity: O(V^3), Space Complexity: O(V^2)
 func FloydWarshall(graph map[int][]struct {
 	Neighbor int
 	Weight   int
@@ -20,10 +21,13 @@ func FloydWarshall(graph map[int][]struct {
 		}
 	}
 	
-	// Initialize with direct edges
+	// Initialize with direct edges; keep the cheapest of parallel edges, and a
+	// positive self-loop never raises dist[u][u] above 0
 	for u := 0; u < numVertices; u++ {
 		for _, edge := range graph[u] {
-			dist[u][edge.Neighbor] = edge.Weight
+			if edge.Weight < dist[u][edge.Neighbor] {
+				dist[u][edge.Neighbor] = edge.Weight
+			}
 		}
 	}
 	
@@ -36,6 +40,12 @@ func FloydWarshall(graph map[int][]struct {
 						dist[i][j] = dist[i][k] + dist[k][j]
 					}
 				}
+			}
+		}
+		// Check for negative cycles after every round, before values can run away
+		for i := 0; i < numVertices; i++ {
+			if dist[i][i] < 0 {
+				return nil // Negative cycle detected
 			}
 		}
 	}

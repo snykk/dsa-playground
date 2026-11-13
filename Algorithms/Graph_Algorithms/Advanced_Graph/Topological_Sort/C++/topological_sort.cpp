@@ -65,8 +65,13 @@ std::vector<int> topologicalSortKahn(
 }
 
 bool isDAG(const std::unordered_map<int, std::vector<int>>& graph) {
-    auto result = topologicalSortKahn(graph);
-    return !result.empty() && result.size() == graph.size();
+    // The empty graph is a DAG. Otherwise Kahn's algorithm returns every vertex
+    // (including vertices that only appear as neighbors, which are not keys of
+    // `graph`) for a DAG and an empty vector for a cyclic graph.
+    if (graph.empty()) {
+        return true;
+    }
+    return !topologicalSortKahn(graph).empty();
 }
 
 // Example usage (uncomment to use)

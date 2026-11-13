@@ -1,0 +1,81 @@
+.viz-input label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+.viz-input-row {
+  display: flex;
+  gap: 8px;
+}
+.viz-input-row input {
+  flex: 1;
+  min-width: 0;
+  font: 14px var(--font-mono);
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+}
+.viz-input-row input[aria-invalid='true'] {
+  border-color: var(--viz-bad);
+}
+.viz-btn {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.viz-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.viz-examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.viz-chip {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+}
+.viz-chip:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.viz-help {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.viz-error {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--viz-bad) 12%, transparent);
+  color: var(--text);
+  font-size: 14px;
+}
+.viz-error-icon {
+  color: var(--viz-bad);
+  font-weight: 700;
+  margin-right: 6px;
+}

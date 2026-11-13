@@ -1,5 +1,7 @@
 package main
 
+import "slices"
+
 // BFSAdjacencyList performs BFS traversal using adjacency list
 // Returns vertices in BFS order
 // Time Complexity: O(V + E), Space Complexity: O(V)
@@ -38,37 +40,36 @@ func BFSWithPath(graph map[int][]int, start, target int) []int {
 		return []int{start}
 	}
 
+	// The target does not have to be a key: a vertex without outgoing edges
+	// may appear only in neighbor lists.
 	if _, exists := graph[start]; !exists {
 		return []int{}
 	}
-	if _, exists := graph[target]; !exists {
-		return []int{}
-	}
 
-	type pathNode struct {
-		vertex int
-		path   []int
-	}
-
-	queue := []pathNode{{vertex: start, path: []int{start}}}
-	visited := make(map[int]bool)
-	visited[start] = true
+	// parent[v] is the vertex that discovered v (the map doubles as the
+	// visited set). One entry per vertex instead of a copy of the whole path
+	// per queue entry keeps this O(V + E); the path is rebuilt once at the end.
+	parent := map[int]int{start: start}
+	queue := []int{start}
 
 	for len(queue) > 0 {
-		current := queue[0]
+		vertex := queue[0]
 		queue = queue[1:]
 
-		for _, neighbor := range graph[current.vertex] {
+		for _, neighbor := range graph[vertex] {
 			if neighbor == target {
-				return append(current.path, neighbor)
+				path := []int{neighbor, vertex}
+				for node := vertex; node != start; {
+					node = parent[node]
+					path = append(path, node)
+				}
+				slices.Reverse(path)
+				return path
 			}
 
-			if !visited[neighbor] {
-				visited[neighbor] = true
-				newPath := make([]int, len(current.path))
-				copy(newPath, current.path)
-				newPath = append(newPath, neighbor)
-				queue = append(queue, pathNode{vertex: neighbor, path: newPath})
+			if _, seen := parent[neighbor]; !seen {
+				parent[neighbor] = vertex
+				queue = append(queue, neighbor)
 			}
 		}
 	}

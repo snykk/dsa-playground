@@ -1,6 +1,6 @@
 # Matrix Chain Multiplication (C++)
 
-C++ implementation of the Matrix Chain Multiplication problem using 2D interval DP to find the optimal parenthesization that minimizes the total number of scalar multiplications.
+C++ implementation of the Matrix Chain Multiplication problem using 2D interval DP to find the minimum total number of scalar multiplications (the cost only; the optimal parenthesization itself is not returned).
 
 ## Files
 
@@ -34,7 +34,8 @@ g++ -std=c++17 -DTESTING -o test matrix_chain_test.cpp
 - Input `dims` is a vector of length n+1 where matrix i has dimensions `dims[i-1] x dims[i]`.
 - Uses interval DP: iterates over chain lengths, then starting positions, then split points.
 - `dp[i][j]` stores the minimum scalar multiplications to compute matrices i through j.
-- Initializes costs to `INT_MAX` before searching for optimal splits.
+- Costs are `long long` and start at `LLONG_MAX` before searching for optimal splits, so totals above `INT_MAX` (e.g. `{2000, 2000, 2000}` = 8,000,000,000) are exact.
+- Returns 0 when there are fewer than two matrices (`dims.size() < 3`).
 
 ---
 

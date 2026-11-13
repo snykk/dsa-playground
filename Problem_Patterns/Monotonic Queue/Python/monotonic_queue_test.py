@@ -1,7 +1,23 @@
 """Unit tests for Monotonic Queue helpers."""
+import random
 import unittest
 
 from monotonic_queue import MonotonicDeque, sliding_window_max, sliding_window_min
+
+
+def window_via_class(arr, k, should_pop, evict_first):
+    """Sliding-window extreme built on MonotonicDeque, evicting before or after the push."""
+    dq = MonotonicDeque(should_pop)
+    out = []
+    for i, value in enumerate(arr):
+        if evict_first and i >= k:
+            dq.pop_front_if(arr[i - k])
+        dq.push(value)
+        if not evict_first and i >= k:
+            dq.pop_front_if(arr[i - k])
+        if i >= k - 1:
+            out.append(dq.front())
+    return out
 
 
 class TestSlidingWindowMax(unittest.TestCase):
@@ -69,6 +85,34 @@ class TestMonotonicDeque(unittest.TestCase):
         for v in [3, 1, 4, 1, 5]:
             dq.push(v)
         self.assertEqual(dq.front(), 1)
+
+    def test_repeated_values_in_window(self):
+        # Regression: equal values collapsed and eviction went by value, so
+        # evicting the outgoing 5 also removed the newer 5 still in the window
+        # (window max of [5, 5, 1] with k = 2 came out as [5, 1]).
+        for evict_first in (True, False):
+            self.assertEqual(window_via_class([5, 5, 1], 2, lambda b, n: b <= n, evict_first), [5, 5])
+            self.assertEqual(window_via_class([3, 3, 3, 1, 1], 3, lambda b, n: b <= n, evict_first), [3, 3, 3])
+            self.assertEqual(window_via_class([1, 1, 5], 2, lambda b, n: b >= n, evict_first), [1, 1])
+
+    def test_matches_brute_force_with_duplicates(self):
+        rng = random.Random(11)
+        rules = [
+            (lambda b, n: b <= n, max),
+            (lambda b, n: b < n, max),
+            (lambda b, n: b >= n, min),
+            (lambda b, n: b > n, min),
+        ]
+        for _ in range(300):
+            arr = [rng.randint(0, 3) for _ in range(rng.randint(1, 12))]
+            k = rng.randint(1, len(arr))
+            windows = [arr[i:i + k] for i in range(len(arr) - k + 1)]
+            for should_pop, pick in rules:
+                expected = [pick(w) for w in windows]
+                for evict_first in (True, False):
+                    self.assertEqual(window_via_class(arr, k, should_pop, evict_first), expected)
+            self.assertEqual(sliding_window_max(arr, k), [max(w) for w in windows])
+            self.assertEqual(sliding_window_min(arr, k), [min(w) for w in windows])
 
 
 if __name__ == "__main__":

@@ -51,7 +51,7 @@ Floyd-Warshall algorithm is a dynamic programming approach that:
 
 2. **`floyd_warshall_path(graph, num_vertices)`**
    - Finds distances and path reconstruction matrix
-   - Returns (distance matrix, next matrix)
+   - Returns (distance matrix, next matrix), or None if a negative cycle exists
    - Time: O(V³), Space: O(V²)
 
 3. **`reconstruct_path(next_vertex, start, end)`**
