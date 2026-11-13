@@ -1,0 +1,162 @@
+---
+category: Data_Structures/Non_Linear/Graph
+title: Graphs
+lead: A graph is stored in one of three ways, an adjacency list, an adjacency matrix or an edge list, and the choice sets memory and the cost of every query. Directed and weighted are properties of the edges, and they work the same way in all three.
+updated: 2026-11-13
+facts:
+  - label: Adjacency list space
+    value: O(V + E)
+    hint: the default for sparse graphs
+  - label: Adjacency matrix space
+    value: O(V^2)
+    hint: whatever the number of edges
+    tone: warn
+  - label: Edge list space
+    value: O(E)
+    hint: the smallest of the three
+  - label: Has edge (u, v)
+    value: O(1)
+    hint: matrix only; list O(deg(u)), edge list O(E)
+  - label: Neighbors of u
+    value: O(deg(u))
+    hint: adjacency list; matrix O(V), edge list O(E)
+  - label: BFS or DFS
+    value: O(V + E)
+    hint: on an adjacency list; matrix O(V^2)
+contents:
+  - folder: Adjacency_List
+    note: A list of neighbors per vertex. O(V + E) space, and the default way to hold a sparse graph.
+  - folder: Adjacency_Matrix
+    note: A V-by-V table. O(1) edge lookup, paid for with O(V^2) space and an O(V) row scan for neighbors.
+  - folder: Edge_List
+    note: A flat list of edges. The smallest form and the natural input for Kruskal, but every query scans O(E).
+  - folder: Directed_and_Undirected
+    note: What an edge direction changes for reachability, degree and connectivity, and how an undirected edge is stored.
+  - folder: Weighted_and_Unweighted
+    note: Numbers on edges, and why they decide whether BFS, Dijkstra or Bellman-Ford finds the shortest path.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Graph_Algorithms
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
+---
+
+## The problem
+
+A graph has `V` vertices and `E` edges. Before any graph algorithm can run, the graph has to live in memory, and the layout decides what is cheap. The questions an algorithm asks are few:
+
+- Is there an edge from `u` to `v`?
+- Which vertices does `u` lead to?
+- What are all the edges?
+
+Each representation answers one of these in constant or near-constant time and pays for it on the others. The two remaining topics are not layouts. They describe the edges: whether an edge has a direction, and whether it carries a weight. In this repository both are kept on top of an adjacency list.
+
+## At a glance
+
+<DataTable
+  columns={['Representation', 'Idea', 'Stores', { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['Adjacency list', 'for each vertex, the vertices it is joined to', 'a map of lists, one entry per edge end', 'O(V + E)'],
+    ['Adjacency matrix', 'cell `(i, j)` says whether the edge `i -> j` exists', 'a V-by-V table, plus a presence table when weighted', 'O(V^2)'],
+    ['Edge list', 'one entry for every edge and nothing else', 'a flat list of `(from, to)` or `(from, to, weight)`', 'O(E)'],
+  ]}
+/>
+
+An undirected edge is stored once per direction in all three: two list entries, two mirrored matrix cells, two edge-list entries. The edge list counts it once in `get_edge_count()`.
+
+## One graph, three layouts
+
+Take the weighted undirected graph with edges `0-1` (weight 4), `0-2` (1), `1-2` (2) and `2-3` (5). The structures below come from running the Python classes on it.
+
+<DataTable
+  columns={['Layout', 'Contents', 'Entries stored']}
+  rows={[
+    ['Adjacency list', '`0: (1,4) (2,1)`, `1: (0,4) (2,2)`, `2: (0,1) (1,2) (3,5)`, `3: (2,5)`', '8 pairs in 4 lists'],
+    ['Adjacency matrix', 'rows `[0, 4, 1, inf]`, `[4, 0, 2, inf]`, `[1, 2, 0, 5]`, `[inf, inf, 5, 0]`', '16 cells'],
+    ['Edge list', '`(0,1,4) (1,0,4) (0,2,1) (2,0,1) (1,2,2) (2,1,2) (2,3,5) (3,2,5)`', '8 entries'],
+  ]}
+/>
+
+On this graph the three classes agree: `get_neighbors(2)` is `[0, 1, 3]`, `has_edge(3, 0)` is false, the weight of `1-2` is 2, and BFS from 0 visits `[0, 1, 2, 3]`.
+
+The matrix stores `inf` for a missing weighted edge and 0 on the diagonal. The size gap grows with V. Run on a path of 100 vertices (99 edges) and on the complete graph of 10 vertices (45 edges), the same classes store this much:
+
+<DataTable
+  columns={['Graph', 'V', 'E', 'List pairs', 'Matrix cells', 'Edge-list entries']}
+  rows={[
+    ['path (sparse)', '100', '99', '198', '10000', '198'],
+    ['complete (dense)', '10', '45', '90', '100', '90'],
+  ]}
+/>
+
+The path needs 198 list pairs against 10000 matrix cells. In the complete graph the list and the edge list hold 90 entries against the matrix's 100, so the matrix costs little there and gives O(1) lookups in exchange. The list column counts neighbor entries only; each of the V lists adds its own header.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Adjacency list', kind: 'mono' }, { label: 'Adjacency matrix', kind: 'mono' }, { label: 'Edge list', kind: 'mono' }]}
+  rows={[
+    ['space', 'O(V + E)', 'O(V^2)', 'O(E)'],
+    ['has edge (u, v)', 'O(deg(u))', 'O(1)', 'O(E)'],
+    ['neighbors of u', 'O(deg(u))', 'O(V)', 'O(E)'],
+    ['add edge, as coded here', 'O(deg(u) + deg(v))', 'O(1)', 'O(E)'],
+    ['remove edge', 'O(deg(u) + deg(v))', 'O(1)', 'O(E)'],
+    ['BFS or DFS', 'O(V + E)', 'O(V^2)', 'O(V*E)'],
+    ['iterate all edges', 'O(V + E)', 'O(V^2)', 'O(E)'],
+  ]}
+/>
+
+Adding an edge to a list or an edge list is not an O(1) append here: both first replace an existing edge between the same pair, so a repeated call updates the weight instead of creating a parallel edge. The edge list's BFS is O(V*E) because each visited vertex scans the whole list; convert it to an adjacency list first to get O(V + E).
+
+## Choosing a representation
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['A sparse graph and a traversal such as BFS, DFS or Dijkstra', 'Adjacency list', 'memory grows with the edges, and neighbors cost only their own degree'],
+    ['A dense graph, or many edge-existence queries', 'Adjacency matrix', 'O(1) lookup, and the table is mostly filled anyway'],
+    ['An algorithm that sorts or scans every edge once', 'Edge list', 'Kruskal and Bellman-Ford want exactly the flat list'],
+    ['All-pairs shortest paths on a small graph', 'Adjacency matrix', 'Floyd-Warshall updates the V-by-V table in place'],
+    ['One-way relationships such as dependencies', 'a directed graph', 'u to v says nothing about v to u'],
+    ['Costs, distances or times on the edges', 'a weighted graph', 'then BFS is the wrong tool, since it minimizes edges, not cost'],
+  ]}
+/>
+
+## Applications
+
+- **Social and road networks.** Mostly sparse, so adjacency lists.
+- **Minimum spanning trees.** Kruskal sorts an edge list by weight.
+- **Shortest paths.** BFS for unweighted graphs, Dijkstra for non-negative weights, Bellman-Ford when weights can be negative.
+- **Dependency ordering.** A directed graph and a topological sort.
+- **Small dense problems.** Matrix form for Floyd-Warshall and bitmask dynamic programming.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using a matrix for a large sparse graph.** It always takes O(V^2) memory, even with no edges.
+- **Running BFS or DFS directly on an edge list.** Each vertex scans the whole list, which is O(V*E).
+- **Treating `add_edge` as O(1).** Here it scans for an existing edge first, so building a large graph edge by edge is slower than it looks.
+- **Removing one direction of an undirected edge.** The other entry stays and `has_edge` still answers true.
+- **Calling `is_connected` on a directed graph.** It is defined for undirected graphs only and raises an error on a directed one.
+- **Using BFS on weighted edges.** It finds the path with the fewest edges, not the cheapest one.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with the adjacency list, the most common layout. Then the adjacency matrix, which is its opposite in cost. Then the edge list. After those, read Directed and Undirected, and finish with Weighted and Unweighted, which builds on both.
+  </FaqItem>
+  <FaqItem question="Which representation should I default to?">
+    The adjacency list. It uses memory in proportion to the graph and makes traversals O(V + E). Choose the matrix when the graph is dense or lookups dominate, and the edge list when the algorithm works on the edges as a set.
+  </FaqItem>
+  <FaqItem question="Do directed and weighted need their own data structure?">
+    Not here. The graph classes take a `directed` flag and a `weighted` flag. A directed edge is stored in one direction, an undirected edge in two, and a weighted graph keeps the weight beside each neighbor.
+  </FaqItem>
+  <FaqItem question="Can I get O(1) edge lookup without a matrix?">
+    Yes. Keep a hash set of neighbors for each vertex instead of a list. Edge lookup is then O(1) on average, at the cost of neighbor order. The adjacency list here uses plain lists, so lookup scans one list.
+  </FaqItem>
+</Faq>

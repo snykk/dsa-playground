@@ -1,0 +1,93 @@
+---
+category: Data_Structures/Non_Linear
+title: Non-Linear Data Structures
+lead: In a non-linear structure an element can have several successors, and sometimes several predecessors. Trees add a hierarchy, heaps add a priority order on top of a tree, and graphs allow any connection at all.
+updated: 2026-11-13
+facts:
+  - label: Sub-areas
+    value: "3"
+    hint: trees, heaps and graphs
+  - label: Trees
+    value: "17"
+    hint: topics, from binary trees to suffix trees
+  - label: Heaps
+    value: "3"
+    hint: min, max and Fibonacci
+  - label: Graph topics
+    value: "5"
+    hint: three layouts and two edge properties
+contents:
+  - folder: Trees
+    note: A hierarchy with one root. Search trees, range-query structures, multiway trees for disks and string trees.
+  - folder: Heaps
+    note: A tree with a priority order between parent and child. The smallest or largest element is at the root.
+  - folder: Graph
+    note: Vertices joined by arbitrary edges. How to store them and what direction and weight change.
+prerequisites:
+  - Data_Structures/Linear
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Data_Structures/Linear
+  - Algorithms/Graph_Algorithms
+  - Algorithms/Sorting/Heap_Sort
+---
+
+## What this area covers
+
+A linear structure, such as an array or a linked list, puts its elements in one sequence. Every element has at most one successor, so most questions about the data end in a scan. The structures here drop the sequence. That is what lets a single step discard a large part of the data.
+
+The three sub-areas differ in how much structure they impose:
+
+- **Trees** have one root and no cycles. Each node has one parent, so there is exactly one path between any two nodes.
+- **Heaps** are trees, usually stored in an array, with a single rule between parent and child. They keep the best element at the root and do not keep the rest sorted.
+- **Graphs** allow any pattern of connections, including cycles. Most of the work is deciding how to store them.
+
+## At a glance
+
+<DataTable
+  columns={['Sub-area', 'Shape', 'What it is for', 'Typical cost']}
+  rows={[
+    ['Trees', 'hierarchy, one parent per node', 'ordered search, range queries, prefix and substring lookup', 'O(log n) when balanced'],
+    ['Heaps', 'complete binary tree in an array', 'the minimum or the maximum, priority queues, heap sort', 'peek O(1), insert and extract O(log n)'],
+    ['Graph', 'vertices and edges, cycles allowed', 'networks and relations; the base of the graph algorithms', 'depends on the layout: O(V + E) space for a list'],
+  ]}
+/>
+
+## A path through them
+
+1. **Start with Trees**, and read the Binary Tree and the Binary Search Tree first. Every other tree, and every heap, builds on the binary tree.
+2. **Then Heaps.** The min heap is short and shows how a tree can live in an array. It also leads into priority queues and heap sort.
+3. **Then Graph.** The adjacency list is the most common layout. The rest of the folder compares it with the matrix and the edge list.
+4. **Return to Trees for the specialist topics**, such as the range-query structures, the B-tree and the tries, when a problem calls for them.
+
+A tree is a graph with no cycles, so the graph topics also explain why a tree needs no visited set when you traverse it.
+
+## Choosing a sub-area
+
+<DataTable
+  columns={['Situation', 'Look at', 'Why']}
+  rows={[
+    ['Keys that must stay sorted under inserts and deletes', 'Trees', 'a balanced search tree keeps every operation O(log n)'],
+    ['Sums or minimums over a range of an array', 'Trees', 'Fenwick, segment tree and sparse table answer them'],
+    ['Words, prefixes or substrings', 'Trees', 'the trie and the suffix tree'],
+    ['Always take the best element next', 'Heaps', 'O(1) peek and O(log n) extract'],
+    ['Relations that are not a hierarchy, such as roads or links', 'Graph', 'a tree cannot hold cycles or several parents'],
+  ]}
+/>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is a heap a kind of tree?">
+    A binary heap is a complete binary tree with an order between parent and child, stored in an array. It differs from a search tree because siblings are not ordered, so a heap cannot search for a value in less than O(n).
+  </FaqItem>
+  <FaqItem question="Is a tree a kind of graph?">
+    Yes. A tree is a connected graph with no cycles. The tree topics use pointers between nodes and the graph topics use vertices and edges, but the idea is the same.
+  </FaqItem>
+  <FaqItem question="Where does sorting come into this?">
+    Heap sort comes from the heaps. In-order traversal of a binary search tree also gives sorted keys, but it is not a sorting algorithm in this repository.
+  </FaqItem>
+  <FaqItem question="Where do the graph algorithms live?">
+    In the graph algorithms area under Algorithms. This section covers how a graph is stored; BFS, DFS, shortest paths and spanning trees run on top of those layouts.
+  </FaqItem>
+</Faq>
