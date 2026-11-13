@@ -295,6 +295,11 @@ dsa-playground/
 - [x] **Reservoir Sampling** — uniform sampling from a stream of unknown length
 - [x] **Randomized Quickselect** — O(n) expected k-th smallest
 
+#### 🔹 Coding Theory (Error Correction)
+
+- [x] **Galois Field GF(2^8)** — finite field arithmetic for AES/Reed-Solomon
+- [x] **Reed-Solomon** — encode + Berlekamp-Massey decode + Forney + Chien, with combined error + erasure decoding and configurable fcr (e.g., RS(255, 223) Voyager code)
+
 ---
 
 ### 3. Problem Solving Patterns
