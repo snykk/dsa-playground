@@ -1,0 +1,236 @@
+---
+topic: Data Structures/Non_Linear/Trees/Trie
+title: Trie
+lead: A trie (prefix tree) stores strings one character per edge, so words with a common prefix share a path. Insert, search and prefix search cost O(L) for a word of length L, independent of how many words are stored.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Insert
+    value: O(L)
+    hint: L = word length
+  - label: Search / starts with
+    value: O(L)
+  - label: Delete
+    value: O(L)
+    hint: with pruning of unused nodes
+  - label: Space
+    value: O(total characters)
+    hint: hash-map children; worst case one node per character
+    tone: warn
+properties:
+  - { label: Prefix queries, value: true }
+  - { label: Shared prefixes stored once, value: true }
+  - { label: Sorted iteration, value: false }
+  - { label: Compact for few long words, value: false }
+prerequisites:
+  - Data Structures/Non_Linear/Trees/Binary Tree
+related:
+  - Data Structures/Non_Linear/Trees/Suffix Tree
+  - Data Structures/Non_Linear/Trees/Suffix Array
+  - Algorithms/String_Algorithms/Advanced_String/Aho-Corasick
+  - Data Structures/Non_Linear/Trees/Binary Search Tree
+---
+
+## What a trie is
+
+A trie is a rooted tree where each edge carries one character and each node stands for the prefix spelled by the path from the root. A node also carries a flag, `is_end_of_word`, that says whether that prefix is a stored word. Two words that start the same way share the nodes of their common prefix.
+
+The trie holding `app`, `apple`, `apt`, `bat` and `bath`:
+
+<TreeDiagram
+  root={{
+    children: [
+      { edge: 'a', children: [
+        { edge: 'p', children: [
+          { edge: 'p', tone: 'f', children: [
+            { edge: 'l', children: [
+              { edge: 'e', tone: 'f' },
+            ] },
+          ] },
+          { edge: 't', tone: 'f' },
+        ] },
+      ] },
+      { edge: 'b', children: [
+        { edge: 'a', children: [
+          { edge: 't', tone: 'f', children: [
+            { edge: 'h', tone: 'f' },
+          ] },
+        ] },
+      ] },
+    ],
+  }}
+  legend={{ f: 'end of a stored word' }}
+  caption="Eleven nodes (the root plus ten characters) hold five words. The path a-p-p ends a word and also continues, so app is stored inside apple."
+/>
+
+The word marker is essential. `app` is a prefix of `apple`, and only the flag tells `search('app')` (true) apart from `search('ap')` (false).
+
+<Callout title="The path is the key">
+There is no key stored in a node. The key is the sequence of edges leading to it, so equal prefixes cost nothing extra and a prefix lookup is just a walk down the tree.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`insert(word)`', 'walk down, creating missing nodes, and set the end flag on the last node', 'O(L)'],
+    ['`search(word)`', 'walk down; true only if the path exists and its last node is flagged', 'O(L)'],
+    ['`starts_with(prefix)`', 'walk down; true if the path exists, flag or not', 'O(L)'],
+    ['`delete(word)`', 'clear the flag; prune nodes that no longer lead to a word; return whether the word was stored', 'O(L)'],
+    ['`get_all_words()`', 'depth-first traversal collecting flagged paths', 'O(total characters)'],
+    ['`count_words()`', 'count flagged nodes (Python and Go; C++ `countWords`)', 'O(nodes)'],
+    ['`is_empty()`', 'true when no word is stored', 'O(1)'],
+  ]}
+/>
+
+Names differ by language: C++ uses `startsWith`, `deleteWord`, `getAllWords`, `countWords` and `isEmpty`, and Go uses `Insert`, `Search`, `StartsWith`, `Delete`, `GetAllWords`, `CountWords` and `IsEmpty`. The empty string is a valid word: after `insert("")` the trie is not empty and `count_words()` is 1.
+
+### Insert
+
+Follow the word from the root. When the next character has no child, create one. After the last character, set the end flag. Inserting `apple` into a trie that holds `app` creates only two nodes, `l` and `e`:
+
+<DataTable
+  columns={['Step', 'Character', 'Action']}
+  rows={[
+    ['1', 'a', 'child exists, move down'],
+    ['2', 'p', 'child exists, move down'],
+    ['3', 'p', 'child exists, move down (this node already ends `app`)'],
+    ['4', 'l', 'no child: create it'],
+    ['5', 'e', 'no child: create it, then set the end flag'],
+  ]}
+/>
+
+### Search and prefix search
+
+Both walk the same path. They differ only at the end: `search` also needs the end flag. In the example trie:
+
+<DataTable
+  columns={['Query', 'Path exists', 'End flag', 'search', 'starts_with']}
+  rows={[
+    ['`app`', 'yes', 'yes', 'true', 'true'],
+    ['`ap`', 'yes', 'no', 'false', 'true'],
+    ['`apple`', 'yes', 'yes', 'true', 'true'],
+    ['`bax`', 'no (x missing)', '-', 'false', 'false'],
+  ]}
+/>
+
+To list every word with a prefix (autocomplete), walk to the prefix node and run a depth-first traversal from there. For `ap` that gives `app`, `apple`, `apt`.
+
+### Delete
+
+Deleting is two steps. First clear the end flag of the last node. Then walk back up and remove every node that now has no children and is not a word itself, stopping at the first node that is a word or still has another child. The return value is true exactly when the word was stored. Deleting from the trie above, one word at a time:
+
+<DataTable
+  columns={['Delete', 'Flag cleared at', 'Nodes pruned', 'Why it stops', 'Nodes left']}
+  rows={[
+    ['`apple`', 'e', '`e`, `l`', 'the node `app` is itself a word', '9'],
+    ['`bath`', 'h', '`h`', 'the node `bat` is itself a word', '8'],
+    ['`app`', 'second p', 'second `p`', 'the node `ap` still has the child `t`', '7'],
+  ]}
+/>
+
+Each row counts the nodes including the root. Deleting `appl`, a prefix that is not a word, or a word that was never stored, changes nothing and returns false.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['insert, search, starts with, delete', 'O(L)', 'one hash-map step per character, independent of the number of words'],
+    ['list all words', 'O(total characters)', 'every node is visited once'],
+    ['space', 'O(total characters)', 'at most one node per inserted character, fewer when prefixes are shared'],
+  ]}
+/>
+
+The cost is a function of the word length, not of n, the number of words: a binary search tree of strings would pay O(L log n) because every comparison reads up to L characters.
+
+The repository tries store children in hash maps keyed by character, so a node costs memory in proportion to its actual children. Textbook tries often use an array of 26 pointers per node; that gives O(1) child access without hashing but uses O(26 &times; nodes) space, which is wasteful for sparse tries.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Trade-off']}
+  rows={[
+    ['Hash-map children (this repo)', 'one map per node', 'any alphabet, memory follows real children'],
+    ['Array children', 'fixed array per node, such as 26 letters', 'fast, but large per node'],
+    ['Compressed (radix) trie', 'chains of single-child nodes become one edge', 'fewer nodes; the suffix tree is built this way'],
+    ['Ternary search tree', 'each node has less/equal/greater children', 'compact with ordered traversal'],
+    ['Bitwise trie', 'edges are 0 and 1 bits of numbers', 'maximum XOR pair, IP prefix tables'],
+  ]}
+/>
+
+## Trie vs alternatives
+
+<DataTable
+  columns={['', 'Trie', 'Hash set', 'Balanced BST of strings', 'Sorted array']}
+  highlight={0}
+  rows={[
+    ['Exact search', 'O(L)', 'O(L) average', 'O(L log n)', 'O(L log n)'],
+    ['Prefix search', 'O(L), plus the matches', 'not supported', 'O(L log n)', 'O(L log n)'],
+    ['Insert', 'O(L)', 'O(L) average', 'O(L log n)', 'O(n)'],
+    ['Space', 'O(total characters)', 'O(total characters)', 'O(total characters)', 'O(total characters)'],
+    ['Sorted order', 'not by default', 'no', 'yes', 'yes'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Operations depend on the word length, not on the number of words.',
+    'Prefix queries and autocomplete are natural: walk to the prefix, then traverse.',
+    'Shared prefixes are stored once.',
+    'No hashing collisions or rebalancing.',
+  ]}
+  cons={[
+    'Many small nodes and pointers: heavy on memory compared with a hash set.',
+    'Poor cache behaviour from pointer chasing.',
+    'Words come back in arbitrary order unless children are sorted while traversing.',
+    'Sparse sets of long words waste nodes; a compressed trie fixes that.',
+  ]}
+/>
+
+## Applications
+
+- **Autocomplete and spell suggestions:** all words under a prefix node.
+- **Dictionary lookups and word games:** Boggle-style searches prune a branch as soon as a prefix has no child.
+- **IP routing:** longest-prefix match on a bitwise trie.
+- **Word frequency and prefix counts:** store a counter per node.
+- **Multi-pattern search:** the trie is the skeleton of the Aho-Corasick automaton.
+- **Maximum XOR of two numbers:** a bitwise trie of the numbers.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Confusing prefix and word.** `search('ap')` is false when only `app` is stored. Always check the end flag.
+- **Deleting without pruning**, or pruning too far. Stop at a node that is itself a word or has another child, or you remove words you meant to keep.
+- **Returning the wrong value from delete.** The result must say whether the word was stored, not whether the parent may remove the node.
+- **Mixing bytes and characters.** Python walks code points, Go walks runes, and C++ walks bytes, so a multi-byte UTF-8 character is several nodes in C++. Use one view for insert, search and delete (Go once indexed bytes in delete and broke on non-ASCII words).
+- **Forgetting the empty word.** `insert("")` flags the root, so `is_empty` must look at the root flag too.
+- **Recursing per character** on very long words. The implementations here use loops and explicit stacks.
+- **Sharing a trie by copying it in C++.** Nodes are owned through raw pointers, so the class deletes copying.
+</Callout>
+
+## Implementation
+
+All three versions have a node with a map of children and an end flag. Python and Go walk code points and runes, while C++ walks bytes. `delete` is iterative in all three: it records the path on the way down, clears the flag, then prunes back up. In C++ the destructor frees every node with an explicit stack. `get_all_words` returns insertion order in Python and map order (unspecified) in C++ and Go.
+
+<TopicCode topic="Data Structures/Non_Linear/Trees/Trie" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What is the difference between search and starts_with?">
+    `search(word)` returns true only if the path exists and its last node is marked as the end of a stored word. `starts_with(prefix)` returns true if the path exists at all. After inserting `apple`, `starts_with('app')` is true but `search('app')` is false.
+  </FaqItem>
+  <FaqItem question="Why is a trie O(L) and not O(L log n)?">
+    Each step follows one edge chosen directly by the next character, so the number of steps equals the word length and does not grow with the number of stored words. A comparison-based structure must compare whole strings at each of its log n levels.
+  </FaqItem>
+  <FaqItem question="Array or hash map for the children?">
+    An array of 26 slots is fastest for lowercase letters but costs 26 pointers per node even for leaves. A hash map costs memory in proportion to the children that exist and handles any alphabet, which is what these implementations do.
+  </FaqItem>
+  <FaqItem question="How do I get words in sorted order?">
+    Keep the children sorted (an ordered map, or sort the characters while traversing) and do a depth-first traversal that emits a word when it meets a flagged node, before descending into its children.
+  </FaqItem>
+</Faq>

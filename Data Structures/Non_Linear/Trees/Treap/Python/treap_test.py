@@ -95,6 +95,24 @@ class TestTreap(unittest.TestCase):
             t.insert(k)
         self.assertTrue(t.check_heap_property())
 
+    def test_delete_with_non_integer_keys(self):
+        """Regression: delete used key + 1, which breaks for float keys."""
+        t = Treap()
+        for k in [1.0, 1.5, 2.0]:
+            t.insert(k)
+        self.assertTrue(t.delete(1.0))
+        self.assertEqual(t.inorder(), [1.5, 2.0])
+        self.assertEqual(len(t), 2)
+
+    def test_delete_large_keys(self):
+        t = Treap()
+        big = 2 ** 62
+        t.insert(1)
+        t.insert(big)
+        self.assertTrue(t.delete(big))
+        self.assertEqual(t.inorder(), [1])
+        self.assertNotIn(big, t)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,13 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <set>
+#include <type_traits>
 using namespace std;
+
+// Regression: copying would free the same nodes twice, so it must not compile.
+static_assert(!is_copy_constructible<SkipList>::value, "SkipList must not be copyable");
+static_assert(!is_copy_assignable<SkipList>::value, "SkipList must not be copy-assignable");
 
 int main() {
     // Test empty list
@@ -114,6 +120,26 @@ int main() {
         assert(sl.deleteNode(500));
         assert(!sl.search(500));
         assert((int)sl.display().size() == 999);
+    }
+
+    // Randomized check against std::set, including negative keys (-1 is the header key)
+    {
+        SkipList sl;
+        set<int> model;
+        mt19937 gen(1);
+        for (int i = 0; i < 20000; i++) {
+            int key = (int)(gen() % 101) - 50;
+            if (gen() % 10 < 6) {
+                sl.insert(key);
+                model.insert(key);
+            } else {
+                assert(sl.deleteNode(key) == (model.count(key) == 1));
+                model.erase(key);
+            }
+            assert(sl.search(key) == (model.count(key) == 1));
+        }
+        vector<int> expected(model.begin(), model.end());
+        assert(sl.display() == expected);
     }
 
     cout << "All tests passed!" << endl;

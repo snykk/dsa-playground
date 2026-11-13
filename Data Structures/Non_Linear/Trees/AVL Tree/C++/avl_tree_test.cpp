@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cassert>
 #include <vector>
+#include <set>
+#include <type_traits>
 #include "avl_tree.cpp"
 
 bool compareVectors(const vector<int>& a, const vector<int>& b) {
@@ -105,6 +107,34 @@ void testDeleteMaintainsBalance() {
     cout << "testDeleteMaintainsBalance passed" << endl;
 }
 
+// Regression: the class owns raw pointers; copying used to double free.
+static_assert(!is_copy_constructible<AVLTree>::value, "AVLTree must not be copyable");
+static_assert(!is_copy_assignable<AVLTree>::value, "AVLTree must not be copyable");
+
+void testRandomOpsMatchSet() {
+    AVLTree avl;
+    set<int> ref;
+    unsigned seed = 12345;
+    for (int i = 0; i < 3000; i++) {
+        seed = seed * 1103515245u + 12345u;
+        int key = (int)((seed >> 16) % 200);
+        if ((seed >> 8) % 3 == 0) {
+            avl.deleteNode(key);
+            ref.erase(key);
+        } else {
+            avl.insert(key);
+            ref.insert(key);
+        }
+        assert(avl.isBalanced());
+    }
+    vector<int> expected(ref.begin(), ref.end());
+    assert(compareVectors(avl.inorderTraversal(), expected));
+    assert(avl.size() == (int)ref.size());
+    // 200 distinct keys fit in height <= 1.44 * log2(202), i.e. at most 11 nodes deep.
+    assert(avl.height() <= 11);
+    cout << "testRandomOpsMatchSet passed" << endl;
+}
+
 int main() {
     cout << "Running AVL Tree tests..." << endl;
     testInsertAndSearch();
@@ -115,7 +145,8 @@ int main() {
     testFindMax();
     testInorderTraversalSorted();
     testDeleteMaintainsBalance();
-    cout << "\nAll tests passed! ✓" << endl;
+    testRandomOpsMatchSet();
+    cout << "\nAll tests passed!" << endl;
     return 0;
 }
 

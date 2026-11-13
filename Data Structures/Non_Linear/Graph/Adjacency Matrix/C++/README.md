@@ -1,128 +1,34 @@
-# Adjacency Matrix - C++
+# Adjacency Matrix -- C++ Implementation
 
-This folder contains a C++ implementation of **Adjacency Matrix** graph representation.
+`vector<vector<double>>` graph with optional direction and weights. See the [topic README](../README.md) for the theory, the trace and the complexity table.
 
-An **Adjacency Matrix** is a 2D array representation of a graph where `matrix[i][j]` represents an edge from vertex `i` to vertex `j`.
+## Files
 
----
+- `adjacency_matrix.cpp`: the `AdjacencyMatrix` class
+- `adjacency_matrix_test.cpp`: assert-based tests, including zero, negative and very large weights
 
-## Concept
+## API
 
-- **2D Vector**: `V × V` matrix where V is the number of vertices
-- **Unweighted**: Values are `0` (no edge) or `1` (edge exists)
-- **Weighted**: Values are edge weights or `INT_MAX` (infinity) if no edge
-- **Fast Lookups**: O(1) to check if edge exists
-- **Space**: O(V²) - always uses V² space
+- `AdjacencyMatrix(int n, bool directed = false, bool weighted = false)`
+- `add_edge(u, v, weight = 1.0)`, `remove_edge(u, v)`: out-of-range vertices are ignored
+- `has_edge(u, v)`: O(1)
+- `get_weight(u, v)`: -1.0 when absent or unweighted (ambiguous with a real -1.0 weight)
+- `try_get_weight(u, v, double& out)`: returns false when absent; use this one
+- `get_neighbors(u)`, `bfs(start)`, `dfs(start)`
 
----
+## C++-Specific Notes
 
-## Operations
+Weights are `double` for both kinds of graph. A `vector<vector<bool>>` presence table decides whether an edge exists, and absent weight cells hold `infinity()` rather than `INT_MAX`, so even an edge of weight 2147483647 is found. There is no destructor or manual memory: every member is a standard container, so copies are safe.
 
-| Operation | Description | Time Complexity |
-| --------- | ----------- | --------------- |
-| `add_edge(from, to, weight)` | Add an edge between vertices | O(1) |
-| `remove_edge(from, to)` | Remove an edge | O(1) |
-| `has_edge(from, to)` | Check if edge exists | O(1) |
-| `get_weight(from, to)` | Get edge weight | O(1) |
-| `get_neighbors(vertex)` | Get all neighbors of a vertex | O(V) |
-| `bfs(start)` | Breadth-First Search traversal | O(V²) |
-| `dfs(start)` | Depth-First Search traversal | O(V²) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Initialize | O(V²) | O(V²) |
-| Add Edge | O(1) | O(1) |
-| Remove Edge | O(1) | O(1) |
-| Check Edge | O(1) | O(1) |
-| Get Neighbors | O(V) | O(V) |
-| BFS/DFS | O(V²) | O(V) |
-| Space | O(V²) | O(V²) |
-
----
-
-## Usage
-
-```cpp
-#include "adjacency_matrix.cpp"
-#include <iostream>
-using namespace std;
-
-int main() {
-    // Unweighted undirected graph
-    AdjacencyMatrix graph(5, false, false);
-    graph.add_edge(0, 1);
-    graph.add_edge(1, 2);
-
-    cout << graph.has_edge(0, 1) << endl;  // 1 (true)
-    vector<int> neighbors = graph.get_neighbors(1);
-    // neighbors: [0, 2]
-
-    // Weighted directed graph
-    AdjacencyMatrix weighted(5, true, true);
-    weighted.add_edge(0, 1, 5.0);
-    weighted.add_edge(1, 2, 3.0);
-
-    double weight = weighted.get_weight(0, 1);  // 5.0
-    vector<int> bfs_result = weighted.bfs(0);
-
-    return 0;
-}
-```
-
----
-
-## Example: Unweighted Undirected Graph
-
-```cpp
-AdjacencyMatrix graph(4, false, false);
-
-// Add edges
-graph.add_edge(0, 1);
-graph.add_edge(1, 2);
-graph.add_edge(2, 3);
-graph.add_edge(3, 0);
-
-// Matrix representation:
-//     0  1  2  3
-//  0 [0  1  0  1]
-//  1 [1  0  1  0]
-//  2 [0  1  0  1]
-//  3 [1  0  1  0]
-
-// Traverse
-vector<int> bfs_result = graph.bfs(0);
-vector<int> dfs_result = graph.dfs(0);
-```
-
----
-
-## Compile and Run
+## How to Run
 
 ```bash
-# Compile
-g++ -o adjacency_matrix_test adjacency_matrix_test.cpp
-
-# Run
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD adjacency_matrix_test.cpp -o adjacency_matrix_test
 ./adjacency_matrix_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ adjacency_matrix_test.cpp -o adjacency_matrix_test && ./adjacency_matrix_test
-```
-
----
-
-## Notes
-
-- Matrix uses `INT_MAX` from `<climits>` for infinity in weighted graphs
-- Diagonal is set to `0` (no self-loops by default)
-- For undirected graphs, matrix is symmetric
-- Vertices are 0-indexed
-- Uses `vector<vector<double>>` for matrix storage
-
+- O(1) edge lookup, O(V) neighbors, O(V^2) space.
+- Presence and weight are separate, so 0 and negative weights are valid edges.
+- Prefer `try_get_weight` over `get_weight`.

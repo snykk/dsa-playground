@@ -1,43 +1,39 @@
-# Collision Handling — Go Implementation
+# Collision Handling -- Go Implementation
 
-When two distinct keys hash to the same bucket, that's a **collision**. This folder shows two mainstream strategies side-by-side:
-
-- **Separate Chaining** — each bucket holds a slice (or linked list) of entries.
-- **Open Addressing** — probe to another slot in the same array (linear / quadratic / double hashing).
-
-For the conceptual overview and "when to pick which" decision tree, see the parent README: [../README.md](../README.md)
-
----
+Chaining and linear probing over `interface{}` keys. See the [topic README](../README.md).
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | Both `ChainingHashTable` and `OpenAddressingHashTable` types |
-| `main_test.go` | Tests for insert / lookup / delete plus load-factor stress |
-| `go.mod` | Module definition |
+- `main.go`: `HashTableChaining`, `HashTableOpenAddressing`, `KeyValue` and the shared `hashKey`.
+- `main_test.go`: plain unit tests, including forced collisions, a full table, wrap-around, negative keys and other key types.
+- `go.mod`: module file.
 
----
+## API
+
+| Function | Description |
+|----------|-------------|
+| `NewHashTableChaining(capacity)` | capacity 0 or less becomes 16 |
+| `(*HashTableChaining).Put(key, value)`, `Get(key) (value, found)` | insert or update; lookup |
+| `NewHashTableOpenAddressing(capacity)` | linear probing; capacity 0 or less becomes 16 |
+| `(*HashTableOpenAddressing).Put(key, value)` | panics for a new key when the table is full |
+| `(*HashTableOpenAddressing).Get(key)` | probes at most `capacity` slots |
+
+There is no remove, no size and no quadratic probing.
 
 ## Go-Specific Notes
 
-- **Built-in `map` already uses chaining** (with extra runtime tricks). This implementation is educational — in real code you should almost always use `map[string]V`.
-- **Chaining with slices, not `container/list`**: modern Go style prefers `[]Entry` per bucket. Slices have better cache behavior and simpler semantics than the linked-list package.
-- **Open addressing needs a tombstone state**: we use `enum`-style constants (`slotEmpty`, `slotOccupied`, `slotDeleted`) because deleting an occupied slot naively would break every probe sequence that _used_ to pass through it.
-- **Hashing with `hash/fnv`**: fast, stdlib, good enough for non-adversarial input. For user-controlled keys under DoS concerns, use `maphash` (Go 1.14+) which is keyed per process.
-
----
+- `hashKey` folds negative ints into range and hashes any other key through `fmt.Sprintf("%T:%v")`, so `int64(7)` and `int(7)` are different keys.
+- Keys are compared with `==`, so a key type that is not comparable (a slice, for example) panics at runtime.
+- Go's built-in `map` is not implemented with these schemes (Go 1.24 and later use a Swiss-table design).
 
 ## How to Run
 
 ```bash
-go test -v ./...
+go test ./...
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Tombstones are not optional.** Without them, `Delete` silently corrupts `Lookup` for any key that collides with the deleted slot. It's subtle and catastrophic.
-2. **Load factor governs everything.** Chaining stays O(1) average up to α ≈ 1. Open addressing's expected probe count is `1/(1-α)` — it degrades rapidly past α = 0.7.
-3. **Go's runtime `map` picks neither extreme.** It uses a variant of open addressing with buckets of 8 entries, incremental rehashing, and internal tombstone management. Reading the reference implementation in `runtime/map.go` is a great next step.
+- A full table must stop a probe loop explicitly.
+- A negative remainder is a bug waiting in any `% capacity`.
+- Use the built-in `map` in real code.

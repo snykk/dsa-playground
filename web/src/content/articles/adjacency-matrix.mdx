@@ -1,0 +1,220 @@
+---
+topic: Data Structures/Non_Linear/Graph/Adjacency Matrix
+title: Adjacency Matrix
+lead: An adjacency matrix stores a graph as a V-by-V table where cell (i, j) says whether an edge from i to j exists. Edge lookup is O(1), but the table always takes O(V^2) space and listing neighbors costs O(V).
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Space
+    value: O(V^2)
+    hint: whatever the number of edges
+    tone: warn
+  - label: Has edge (u, v)
+    value: O(1)
+  - label: Neighbors of u
+    value: O(V)
+    hint: scan a whole row
+  - label: BFS / DFS
+    value: O(V^2)
+properties:
+  - { label: O(1) edge lookup, value: true }
+  - { label: Good for dense graphs, value: true }
+  - { label: Good for sparse graphs, value: false }
+  - { label: Fixed vertex count, value: true }
+prerequisites:
+  - Data Structures/Non_Linear/Graph/Adjacency List
+related:
+  - Data Structures/Non_Linear/Graph/Edge List
+  - Data Structures/Non_Linear/Graph/Directed & Undirected
+  - Data Structures/Non_Linear/Graph/Weighted & Unweighted
+  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
+  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm
+---
+
+## What an adjacency matrix is
+
+Number the vertices `0..V-1` and keep a V &times; V table. Row `i`, column `j` describes the edge from `i` to `j`. In an unweighted graph the cell is 1 for an edge and 0 for none. In a weighted graph it holds the weight.
+
+<GraphDiagram
+  edges="0-1 4, 0-2 1, 1-2 2, 2-3 5"
+  positions={{ 0: [8, 50], 1: [42, 8], 2: [50, 92], 3: [92, 50] }}
+  caption="The same four-vertex graph as in the Adjacency List article."
+/>
+
+<GridDiagram
+  corner="from \ to"
+  colLabels={[0, 1, 2, 3]}
+  rowLabels={[0, 1, 2, 3]}
+  rows={[
+    [0, 1, 1, 0],
+    [1, 0, 1, 0],
+    [1, 1, 0, 1],
+    [0, 0, 1, 0],
+  ]}
+  tones={['.pp.', 'p.p.', 'pp.p', '..p.']}
+  legend={{ p: 'an edge' }}
+  caption="The unweighted matrix. An undirected graph gives a symmetric matrix: cell (i, j) equals cell (j, i). Row 2 has three 1s, so vertex 2 has degree 3."
+/>
+
+<Callout title="Row = out-edges, column = in-edges">
+Reading row `i` lists the neighbors of `i`. Reading column `j` lists the vertices with an edge into `j`. For an undirected graph the two agree, so you only ever need one of them.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`AdjacencyMatrix(n, directed, weighted)`', 'allocate the table and mark every edge absent', 'O(V^2)'],
+    ['`add_edge(u, v, w)`', 'set cell `(u, v)` (and `(v, u)` when undirected)', 'O(1)'],
+    ['`remove_edge(u, v)`', 'clear the cell (and its mirror when undirected)', 'O(1)'],
+    ['`has_edge(u, v)`', 'read one cell', 'O(1)'],
+    ['`get_neighbors(u)`', 'scan row `u` for present edges', 'O(V)'],
+    ['`bfs(s)`, `dfs(s)`', 'traverse, scanning a full row per vertex', 'O(V^2)'],
+  ]}
+/>
+
+Python also has `get_weight`, `get_degree`, `dfs_recursive`, `is_connected` and `get_matrix`. C++ has `get_weight` and `try_get_weight`, `bfs` and `dfs`. Go has `AddEdge`, `HasEdge`, `GetNeighbors` and `BFS`. The vertex count is fixed at construction. An out-of-range vertex makes Python `add_edge` raise `ValueError`, while C++ and Go ignore it silently.
+
+### Add and look up an edge
+
+Adding `add_edge(1, 3)` on an undirected graph writes two cells. The lookup `has_edge(1, 3)` is then one array read, no scan:
+
+<GridDiagram
+  corner="from \ to"
+  colLabels={[0, 1, 2, 3]}
+  rowLabels={[0, 1, 2, 3]}
+  rows={[
+    [0, 1, 1, 0],
+    [1, 0, 1, 1],
+    [1, 1, 0, 1],
+    [0, 1, 1, 0],
+  ]}
+  tones={['....', '...p', '....', '.p..']}
+  legend={{ p: 'cells written by add_edge(1, 3)' }}
+/>
+
+### Weights and "no edge"
+
+A weighted matrix needs a value for "no edge", and the natural choices collide with real weights. Infinity is a common marker, but zero is a legal weight, and so are negative numbers and very large ones. This implementation keeps a separate presence table next to the weights, so `has_edge` reads the presence table and the weight cell can hold any value, including 0. Unused cells hold infinity and the diagonal 0, the usual convention for shortest-path matrices.
+
+<GridDiagram
+  corner="from \ to"
+  colLabels={[0, 1, 2, 3]}
+  rowLabels={[0, 1, 2, 3]}
+  rows={[
+    [0, 4, 1, 'inf'],
+    [4, 0, 2, 'inf'],
+    [1, 2, 0, 5],
+    ['inf', 'inf', 5, 0],
+  ]}
+  tones={['.pp.', 'p.p.', 'pp.p', '..p.']}
+  legend={{ p: 'edge present (weight shown)' }}
+  caption="The weighted matrix as stored by the Python version. The 0s on the diagonal are not edges; the presence table says so."
+/>
+
+### Neighbors and traversal
+
+`get_neighbors(u)` scans all V cells of row `u`, even when `u` has two neighbors. BFS does that once per visited vertex, which totals O(V<sup>2</sup>) regardless of E. On `[0, 1, 2, 3]` from vertex 0 the BFS scans rows 0, 1, 2 and 3 in turn and returns `[0, 1, 2, 3]`.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['space', 'O(V^2)', 'V rows of V cells, plus a V x V presence table for weighted graphs'],
+    ['add / remove / has edge', 'O(1)', 'direct indexing by `(u, v)`'],
+    ['neighbors of u', 'O(V)', 'a whole row must be scanned'],
+    ['degree of u', 'O(V)', 'count the present cells in the row'],
+    ['BFS / DFS', 'O(V^2)', 'one row scan per vertex'],
+  ]}
+/>
+
+In the repository's Python version `get_degree` on a **directed** graph returns in-degree plus out-degree, which needs a column scan as well.
+
+The table is the cost: 10<sup>4</sup> vertices already mean 10<sup>8</sup> cells. That is only reasonable when the graph is dense (E close to V<sup>2</sup>) or V is small.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'When to use it']}
+  rows={[
+    ['Bit matrix', 'one bit per cell', 'far less memory than one number per cell; fast set operations on rows'],
+    ['Upper triangle only', 'store cells with `i <= j`', 'undirected graphs, halves the memory'],
+    ['Weight matrix with infinity', 'distance table, diagonal 0', 'Floyd-Warshall and other all-pairs algorithms'],
+    ['Presence plus weight tables', 'what this repository does', 'weights may be 0, negative or huge'],
+  ]}
+/>
+
+## Adjacency matrix vs other representations
+
+<DataTable
+  columns={['', 'Adjacency matrix', 'Adjacency list', 'Edge list']}
+  highlight={0}
+  rows={[
+    ['Space', 'O(V^2)', 'O(V + E)', 'O(E)'],
+    ['Has edge (u, v)', 'O(1)', 'O(deg(u))', 'O(E)'],
+    ['Neighbors of u', 'O(V)', 'O(deg(u))', 'O(E)'],
+    ['Add edge', 'O(1)', 'O(deg) here', 'O(E) here'],
+    ['Best for', 'dense graphs, many lookups', 'sparse graphs, traversal', 'sorting edges'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Edge lookup, insertion and removal take O(1).',
+    'Very simple: no per-edge objects or pointers.',
+    'Works naturally with matrix algorithms such as Floyd-Warshall.',
+    'Compact and fast for dense graphs, and a bit matrix is smaller still.',
+  ]}
+  cons={[
+    'O(V^2) memory even for a graph with no edges.',
+    'Listing neighbors or traversing the graph costs O(V) per vertex.',
+    'The number of vertices is fixed up front, and growing the table copies it.',
+    'Parallel edges (two edges between the same vertices) cannot be represented.',
+  ]}
+/>
+
+## Applications
+
+- **All-pairs shortest paths:** Floyd-Warshall works directly on a weight matrix.
+- **Dense graphs and small graphs:** tournaments, complete graphs, graphs of a few hundred vertices.
+- **Fast adjacency tests:** checking whether two vertices are joined inside a tight loop.
+- **Bitmask DP over small graphs:** a row stored as an integer mask lets you intersect neighbor sets with one operation.
+- **Graph theory by linear algebra:** powers of the matrix count walks of a given length.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using 0 for "no edge" in a weighted graph.** A zero-weight edge then disappears. Keep a separate presence flag or a different marker, and remember that a negative weight or a huge one must stay valid too.
+- **Updating only one cell of an undirected edge.** The matrix must stay symmetric.
+- **Assuming a sentinel like `INT_MAX` is safe.** An edge with exactly that weight would vanish. Infinity from floating point or a presence table avoids it.
+- **Treating the diagonal as edges.** Distance-matrix convention puts 0 on the diagonal. It means "distance to itself", not a self-loop.
+- **Using it for a large sparse graph.** A million-vertex graph needs 10<sup>12</sup> cells.
+- **Forgetting that `get_weight` can be ambiguous in C++.** It returns -1.0 for "absent", which is also a legal weight. Use `try_get_weight` when negative weights are possible.
+</Callout>
+
+## Implementation
+
+All three versions allocate a V &times; V table of numbers. Python stores 0/1 for unweighted graphs and weights (infinity for absent) for weighted graphs. C++ and Go store `double` values in both cases. Each version also keeps the boolean presence table described above.
+
+<TopicCode topic="Data Structures/Non_Linear/Graph/Adjacency Matrix" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="When is an adjacency matrix better than an adjacency list?">
+    When the graph is dense, V is small, or edge-existence queries dominate. Then O(1) lookup is worth more than the extra memory. For sparse graphs and traversal-heavy code, a list is better.
+  </FaqItem>
+  <FaqItem question="Why is the matrix symmetric for undirected graphs?">
+    Edge `{u, v}` is the same edge as `{v, u}`, so both cells `(u, v)` and `(v, u)` are set. A directed graph has no such rule: `(u, v)` can be set while `(v, u)` is not.
+  </FaqItem>
+  <FaqItem question="How do I represent a missing edge in a weighted graph?">
+    Use a separate presence table, as this repository does, or a marker no weight can equal, such as floating-point infinity. Do not use 0 unless zero weights are forbidden.
+  </FaqItem>
+  <FaqItem question="Can an adjacency matrix store parallel edges?">
+    Not directly: one cell holds one value. Store a count or a list in each cell, or use an adjacency list.
+  </FaqItem>
+</Faq>

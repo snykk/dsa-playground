@@ -1,42 +1,41 @@
-# Go Arrays & Slices - Implementation & Insights
+# Array -- Go Implementation
 
-This folder contains Go implementations:
+The Go code shows arrays and slices. Slices are Go's built-in dynamic array, so there is no custom type to import.
 
-1. **Static Array** → `static_array.go`
-2. **Dynamic Array** → `dynamic_array.go`
-3. **Multi-dimensional Array** → `multi_dimensional_array.go`
+## Files
 
-Go notes:
+Each subfolder is its own module with its own `go.mod`.
 
-- **Array `[N]T`** → fixed size, stack allocated, rarely used directly.
-- **Slice `[]T`** → dynamic, built-in growth management.
-- Multi-dimensional slices → `[][]T`, can be jagged or uniform.
+| Path | Contents |
+| --- | --- |
+| `static_array/main.go` | a fixed-size `[5]int`: print, read, update |
+| `dynamic_array/main.go` | a slice: `append`, insert at index 1, remove at index 2, `len` and `cap` |
+| `multi_dimensional_array/main.go` | a 2D slice and a row-major flatten |
+| `*/main_test.go` | tests in `package main_test` that check slice and array behaviour (they do not import the demos) |
 
----
+## API
 
-## 📖 Insights
+There is no exported API: each `main.go` is a demo program. The idioms used are `append(s, x)`, `append(s[:i], s[i+1:]...)` for removal, and the pair `append(s[:i], append([]T{x}, s[i:]...)...)` for insertion.
 
-### Static Array
+## Go-Specific Notes
 
-- Fixed size: compile-time constant.
-- Useful for **small buffers or constants**.
+- An array `[N]T` is a value: assigning or passing it copies all elements. A slice is a small header (pointer, length, capacity) over an array.
+- `append` reuses the backing array while capacity allows and otherwise allocates a larger one, so other slices of the old array stop seeing new writes. A sub-slice `b := a[:2]` shares storage with `a`, and `append(b, x)` can overwrite `a[2]`.
+- Growth roughly doubles for small slices and grows more slowly for large ones; do not rely on exact capacities.
+- `[][]T` is idiomatic for grids but each row is a separate allocation. Use one flat slice and `i*cols + j` for a contiguous layout.
 
-### Dynamic Array
+## How to Run
 
-- Slices wrap an underlying array, track length & capacity.
-- `append()` automatically grows the slice.
-- Avoid holding references to old slices after append — underlying array may change.
+There is no `go.mod` at `Go/`, so run the tests inside each subfolder:
 
-### Multi-dimensional Array
+```bash
+cd "Data Structures/Linear/Array/Go/dynamic_array" && go test ./... && go run .
+cd "../static_array" && go test ./... && go run .
+cd "../multi_dimensional_array" && go test ./... && go run .
+```
 
-- `[][]T` is idiomatic for 2D grids.
-- Memory may not be contiguous, affecting cache performance.
-- Flatten slices manually for numeric-heavy computation.
+## Key Takeaways
 
----
-
-## ⚡ Tips
-
-- Preallocate slices using `make([]T, len, cap)` for better performance.
-- For matrix/grid problems, consider a **flat slice** for inner loops.
-- Always check bounds; Go panics on out-of-range access.
+- Slices are the dynamic array; arrays are values with a size fixed in the type.
+- Watch aliasing: slices can share a backing array.
+- Flatten grids when cache behaviour matters.

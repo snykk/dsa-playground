@@ -1,38 +1,41 @@
-# Segment Tree with Lazy Propagation (Go)
+# Segment Tree (Lazy Propagation) -- Go Implementation
 
-Go implementation of a segment tree supporting efficient range updates and range queries.
+A recursive segment tree with lazy tags: range add and range sum. See the [topic README](../README.md) for the idea and a trace.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `main.go` | Main implementation |
-| `main_test.go` | Test cases |
+| File | Contents |
+| ---- | -------- |
+| `main.go` | `LazySegmentTree` and a small demo `main` |
+| `main_test.go` | unit tests and a randomized test against brute force |
+| `go.mod` | module `segmenttreelazy` (Go 1.24.2) |
+
+## API
+
+| Call | Result |
+| ---- | ------ |
+| `NewLazySegmentTree(arr []int) *LazySegmentTree` | builds the tree in O(n) |
+| `UpdateRange(left, right int, val int64)` | adds `val` to every element of `left..right` (inclusive) |
+| `Query(left, right int) int64` | sum of elements `left..right` (inclusive) |
+
+There is no index validation: a range partly outside the array is clipped, and a range outside does nothing.
+
+## Go-Specific Notes
+
+- Sums, tags and update values are `int64`, independent of the platform `int` width.
+- `tree` and `lazy` are `[]int64` of length `4n`.
+- Everything is in `package main`; the demo `main` is not run by `go test`.
 
 ## How to Run
 
 ```bash
-go run main.go      # Run demo
-go test ./...        # Run tests
+cd "Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)/Go"
+go test ./...
+go run .
 ```
 
-## Key Methods
+## Key Takeaways
 
-| Method | Description | Time |
-|--------|-------------|------|
-| `NewLazySegmentTree(arr)` | Build segment tree from slice | O(n) |
-| `Query(left, right)` | Range sum query with lazy propagation | O(log n) |
-| `UpdateRange(left, right, val)` | Add val to all elements in [left, right] | O(log n) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Build | O(n) |
-| Range Query | O(log n) |
-| Range Update | O(log n) |
-| Space | O(n) |
-
----
-
-_Last Updated: April 2026_
+- Tags rest only on fully covered nodes.
+- Push down before recursing into a partial node.
+- A push scales the tag by each child's own length.

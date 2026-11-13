@@ -31,7 +31,7 @@ func (el *EdgeList) AddEdge(fromVertex, toVertex int, weight float64) {
 	el.vertices[fromVertex] = true
 	el.vertices[toVertex] = true
 
-	el.RemoveEdge(fromVertex, toVertex)
+	el.removeOneWay(fromVertex, toVertex)
 
 	if el.weighted {
 		el.edges = append(el.edges, Edge{From: fromVertex, To: toVertex, Weight: weight})
@@ -40,7 +40,7 @@ func (el *EdgeList) AddEdge(fromVertex, toVertex int, weight float64) {
 	}
 
 	if !el.directed {
-		el.RemoveEdge(toVertex, fromVertex)
+		el.removeOneWay(toVertex, fromVertex)
 		if el.weighted {
 			el.edges = append(el.edges, Edge{From: toVertex, To: fromVertex, Weight: weight})
 		} else {
@@ -49,7 +49,16 @@ func (el *EdgeList) AddEdge(fromVertex, toVertex int, weight float64) {
 	}
 }
 
+// RemoveEdge removes fromVertex -> toVertex and, on an undirected graph,
+// toVertex -> fromVertex as well.
 func (el *EdgeList) RemoveEdge(fromVertex, toVertex int) {
+	el.removeOneWay(fromVertex, toVertex)
+	if !el.directed {
+		el.removeOneWay(toVertex, fromVertex)
+	}
+}
+
+func (el *EdgeList) removeOneWay(fromVertex, toVertex int) {
 	newEdges := []Edge{}
 	for _, edge := range el.edges {
 		if !(edge.From == fromVertex && edge.To == toVertex) {
@@ -98,7 +107,14 @@ func (el *EdgeList) GetEdgeCount() int {
 	if el.directed {
 		return len(el.edges)
 	}
-	return len(el.edges) / 2
+	// An undirected edge u-v is stored twice, but a self-loop u-u only once.
+	loops := 0
+	for _, edge := range el.edges {
+		if edge.From == edge.To {
+			loops++
+		}
+	}
+	return (len(el.edges)-loops)/2 + loops
 }
 
 func (el *EdgeList) BFS(startVertex int) []int {
@@ -142,4 +158,3 @@ func main() {
 	fmt.Println("Weight 1->2:", graph.GetWeight(1, 2))
 	fmt.Println("Edge count:", graph.GetEdgeCount())
 }
-

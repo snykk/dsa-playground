@@ -1,48 +1,40 @@
-# Disjoint Set Union (DSU) -- Python
+# Disjoint Set Union -- Python Implementation
 
-Python implementation of the Disjoint Set Union data structure with path compression and union by rank.
+Union by rank plus path compression, with a `size` array and a component counter.
 
----
+## Files
+
+- `dsu.py`: the `DSU` class and a small demo under `__main__`.
+- `dsu_test.py`: unit tests (init, union, find, path compression, connected, components, sizes, bad input).
 
 ## API
 
 | Method | Description | Time |
 |--------|-------------|------|
-| `DSU(n)` | Create n singleton sets (0 to n-1) | O(n) |
-| `find(x)` | Root of set containing x (path compression) | O(alpha(n)) |
-| `union(x, y)` | Merge sets; returns True if merged | O(alpha(n)) |
-| `connected(x, y)` | Whether x and y share a set | O(alpha(n)) |
-| `get_component_count()` | Number of disjoint sets | O(1) |
-| `get_components()` | Dict mapping root to member list | O(n) |
-| `get_size(x)` | Size of set containing x | O(alpha(n)) |
+| `DSU(n)` | n singleton sets; `ValueError` if `n < 0` | O(n) |
+| `find(x)` | root of x with path compression; `IndexError` if x is outside `[0, n)` | O(alpha(n)) |
+| `union(x, y)` | merge by rank; True if merged | O(alpha(n)) |
+| `connected(x, y)` | same set? | O(alpha(n)) |
+| `get_size(x)` | size of the set of x | O(alpha(n)) |
+| `get_component_count()` | number of sets | O(1) |
+| `get_components()` | dict root to member list | O(n alpha(n)) |
+| `get_parent(x)` | raw parent, no compression | O(1) |
 
----
+## Python-Specific Notes
 
-## Usage
+- `find` is recursive. Union by rank limits the depth to log2(n), so the recursion limit is not a concern.
+- Negative indices would silently alias in a list (`parent[-1]`), so `find` checks the range explicitly.
+- `get_components()` returns members in increasing order.
 
-```python
-from dsu import DSU
-
-dsu = DSU(6)
-dsu.union(0, 1)
-dsu.union(2, 3)
-dsu.union(3, 4)
-
-print(dsu.connected(0, 1))            # True
-print(dsu.connected(0, 2))            # False
-print(dsu.get_component_count())      # 3
-print(dsu.get_size(2))                # 3
-print(dsu.get_components())           # {root: [members], ...}
-```
-
----
-
-## Testing
+## How to Run
 
 ```bash
-python dsu_test.py
+python3 -m unittest dsu_test
+python3 dsu.py
 ```
 
----
+## Key Takeaways
 
-_Last Updated: April 2026_
+- Two small optimizations turn a slow forest into near-constant time operations.
+- `find(x)` is the set id; `parent[x]` is not.
+- Only merging is supported.

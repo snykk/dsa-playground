@@ -1,0 +1,244 @@
+---
+topic: Data Structures/Non_Linear/Trees/Interval Tree
+title: Interval Tree
+lead: An interval tree stores intervals in a binary search tree ordered by their left end, and keeps in every node the largest right end found below it. That one extra number lets an overlap query skip whole subtrees that cannot contain a match.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Insert
+    value: O(h)
+    hint: h = height, log n on random input
+  - label: Overlap query
+    value: O(h + k)
+    hint: typical; O(n) worst case
+  - label: Balanced
+    value: no
+    tone: warn
+    hint: sorted input makes a chain
+  - label: Extra per node
+    value: max
+    hint: largest high in the subtree
+properties:
+  - { label: Stores intervals, value: true }
+  - { label: Self-balancing, value: false }
+  - { label: Delete supported, value: true }
+  - { label: Closed intervals, value: true }
+prerequisites:
+  - Data Structures/Non_Linear/Trees/Binary Search Tree
+related:
+  - Data Structures/Non_Linear/Trees/Segment Tree
+  - Data Structures/Non_Linear/Trees/AVL Tree
+  - Data Structures/Non_Linear/Trees/Binary Search Tree
+---
+
+## What an interval tree is
+
+The problem: store a set of closed intervals `[low, high]` and answer "which stored intervals overlap this query interval?" Scanning all of them is O(n). The interval tree in this repository is an **augmented binary search tree**:
+
+- Each node holds one interval and is ordered by `low` (smaller `low` to the left, equal or larger to the right).
+- Each node also stores `max`, the largest `high` anywhere in its subtree (its own interval included).
+
+Two closed intervals overlap exactly when neither ends before the other begins: `a.high >= b.low` and `b.high >= a.low`. Touching endpoints count, so `[1, 5]` and `[5, 9]` overlap.
+
+Inserting `[15, 20]`, `[10, 30]`, `[17, 19]`, `[5, 20]`, `[12, 15]`, `[30, 40]` in that order gives this tree:
+
+<TreeDiagram
+  root={{
+    label: '15,20',
+    badge: 'max 40',
+    children: [
+      {
+        label: '10,30',
+        badge: 'max 30',
+        children: [
+          { label: '5,20', badge: 'max 20' },
+          { label: '12,15', badge: 'max 15' },
+        ],
+      },
+      {
+        label: '17,19',
+        badge: 'max 40',
+        children: [null, { label: '30,40', badge: 'max 40' }],
+      },
+    ],
+  }}
+  caption="Ordered by low, so the first inserted interval is the root. Every badge is the largest high in that subtree."
+/>
+
+<Callout title="max is what makes pruning possible">
+If a subtree's `max` is smaller than the query's `low`, no interval in it reaches the query, so the whole subtree is skipped. Keeping `max` correct is the only extra work an update has to do.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`insert(interval)`', 'walk down by `low`, raising `max` on the path', 'O(h)'],
+    ['`search_overlapping(q)`', 'all stored intervals that overlap `q`, pruned by `max` and `low`', 'about O(h + k), O(n) worst'],
+    ['`search_containing_point(x)`', 'overlap query with `[x, x]`', 'same'],
+    ['`search_contained_in(q)`', 'intervals lying fully inside `q`', 'same'],
+    ['`delete(interval)`', 'remove one interval equal to the argument, fix `max` on the way back', 'O(h)'],
+    ['`inorder_traversal()`, `size()`', 'all intervals sorted by low; count', 'O(n)'],
+  ]}
+/>
+
+`h` is the tree height. All three languages have the same operations under their naming conventions (`delete` is `remove` in C++ and `Delete` in Go). Python raises `ValueError` for `Interval(5, 1)`; C++ and Go silently swap the bounds. Python also accepts plain `(low, high)` tuples.
+
+### Overlap query
+
+At a node, with query `q`:
+
+<Steps>
+  <Step title="Report">
+    If the node's interval overlaps `q`, add it to the result.
+  </Step>
+  <Step title="Left subtree">
+    Visit it only if `left.max >= q.low`. Otherwise every interval there ends before `q` begins.
+  </Step>
+  <Step title="Right subtree">
+    Visit it only if `node.low <= q.high`. Every interval to the right has `low >= node.low`, so if that already exceeds `q.high` none can overlap.
+  </Step>
+</Steps>
+
+Querying `[22, 26]` on the tree above:
+
+<TreeDiagram
+  legend={{ f: 'overlaps the query', l: 'visited, no match', m: 'pruned: max 20 < 22' }}
+  root={{
+    label: '15,20',
+    tone: 'l',
+    children: [
+      {
+        label: '10,30',
+        tone: 'f',
+        children: [
+          { label: '5,20', tone: 'm', edgeTone: 'm' },
+          { label: '12,15', tone: 'l' },
+        ],
+      },
+      {
+        label: '17,19',
+        tone: 'l',
+        children: [null, { label: '30,40', tone: 'l' }],
+      },
+    ],
+  }}
+  caption="[10, 30] is the only match. The subtree under [5, 20] is skipped because its max is 20, which is below 22."
+/>
+
+Pruning saves little in this tiny example; on a larger tree whole branches disappear. It does not guarantee O(log n + k) though: a subtree can pass the `max` test and still hold no match (for example, a long interval far to the left raises `max` but is not near the query), so the worst case is O(n). A *centered* interval tree, a different structure, does give O(log n + k).
+
+### Delete
+
+Delete finds the node by `low` (equal lows lie to the right, so it keeps going right until the `high` also matches) and then removes it like a BST node: zero or one child is replaced by that child, two children take the in-order successor's interval. Afterwards `max` is recomputed on each node along the way back up. Deleting `[10, 30]` copies in `[12, 15]`, the smallest interval of the right subtree:
+
+<TreeDiagram
+  legend={{ p: 'max changed' }}
+  root={{
+    label: '15,20',
+    badge: 'max 40',
+    children: [
+      { label: '12,15', badge: 'max 20', tone: 'p', children: [{ label: '5,20', badge: 'max 20' }] },
+      { label: '17,19', badge: 'max 40', children: [null, { label: '30,40', badge: 'max 40' }] },
+    ],
+  }}
+  caption="[10, 30] had two children. Its in-order successor [12, 15] took its place and [5, 20] stayed on the left. The max of that node fell from 30 to 20."
+/>
+
+## Implementation
+
+The three versions share the same structure: an `Interval`, a node with `max`, and recursive insert, delete and search. Insert only raises `max` along its path; delete recomputes it on the way back up. Tests compare overlap and containment queries and deletes with a brute-force list on hundreds of random runs and check every `max`. The C++ tree frees its nodes and cannot be copied.
+
+<TopicCode topic="Data Structures/Non_Linear/Trees/Interval Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['insert', 'O(h)', 'one root-to-leaf path'],
+    ['delete', 'O(h)', 'one path to the node, one more to the successor'],
+    ['overlap query', 'O(h + k) typical, O(n) worst', 'pruning by max and low; unmatched subtrees can still be entered'],
+    ['space', 'O(n)', 'one node per interval'],
+  ]}
+/>
+
+The height `h` is about log n for random input but up to **n** for input sorted by `low`: inserting `[0, 1], [1, 2], [2, 3], ...` builds a chain. The recursive code then also risks deep recursion (Python raises `RecursionError` at roughly a thousand levels). Use an AVL or red-black tree as the base, with `max` repaired in the rotations, if worst-case bounds matter.
+
+An earlier version recomputed `max` over the whole tree after every insert and delete, making each operation O(n). That is fixed: updates now touch only the path.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea']}
+  rows={[
+    ['Augmented BST (this code)', 'order by low, store subtree max'],
+    ['Balanced augmented tree', 'same, on an AVL or red-black tree: O(log n) height'],
+    ['Centered interval tree', 'each node stores the intervals crossing its center point; O(log n + k) queries'],
+    ['Segment tree / sweep line', 'for static sets or offline problems'],
+  ]}
+/>
+
+## Interval tree vs alternatives
+
+<DataTable
+  columns={['Approach', 'Insert', 'Overlap query', 'Notes']}
+  highlight={0}
+  rows={[
+    ['Augmented BST (this code)', 'O(h)', 'about O(h + k)', 'dynamic set, unbalanced'],
+    ['Sorted list of intervals', 'O(n)', 'O(n)', 'simplest; fine for small sets'],
+    ['Segment tree', 'static', 'O(log n + k)', 'fixed coordinate range'],
+    ['Sort and sweep', 'offline', 'O(n log n) total', 'when all intervals are known upfront'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Handles a dynamic set: intervals can be inserted and removed at any time.',
+    'Supports overlap, point and containment queries from one structure.',
+    'Small change to a BST: one extra field per node.',
+  ]}
+  cons={[
+    'Not self-balancing here, so sorted input degrades to O(n) per operation.',
+    'The overlap query has no O(log n + k) guarantee.',
+    'Recursive code can overflow the stack on a degenerate tree.',
+    'Every rotation (if you balance it) must also repair max.',
+  ]}
+/>
+
+## Applications
+
+- **Scheduling:** detect conflicting bookings (LeetCode 729 My Calendar I and 731 My Calendar II ask for exactly this).
+- **Computational geometry:** reporting which segments cover a coordinate.
+- **Genomics and databases:** which stored ranges contain a position.
+- **Merging ranges:** LeetCode 56 (Merge Intervals) and 57 (Insert Interval) are usually solved with sorting, but the tree answers the same "who overlaps" question online.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forgetting to update `max` on insert or delete.** A stale `max` silently hides matches.
+- **Pruning the left subtree with `node.low`.** The test is `left.max >= q.low`, not `node.low >= q.low`.
+- **Treating half-open and closed intervals alike.** This code uses closed intervals: `[1, 5]` and `[5, 9]` overlap.
+- **Assuming balance.** Sorted or nearly sorted input produces a chain.
+- **Passing a reversed interval.** Python raises; C++ and Go swap the bounds without telling you.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why store max in every node?">
+    It bounds how far right any interval in the subtree extends. If that bound is below the query's start, nothing inside can overlap, so the search skips the subtree.
+  </FaqItem>
+  <FaqItem question="Why is the overlap query not O(log n + k)?">
+    The prune rules are sufficient but not exact: a subtree can have a large `max` because of one far-reaching interval, so the search enters it even if nothing matches. A centered interval tree avoids this.
+  </FaqItem>
+  <FaqItem question="How do I make it balanced?">
+    Build the same augmentation on an AVL or red-black tree and recompute `max` for the two nodes involved in each rotation. The repository's tree does not rebalance.
+  </FaqItem>
+  <FaqItem question="Do duplicate intervals work?">
+    Yes. Equal intervals are stored as separate nodes, and `delete` removes one of them.
+  </FaqItem>
+</Faq>

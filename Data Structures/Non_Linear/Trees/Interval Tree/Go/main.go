@@ -6,7 +6,7 @@ type Interval struct {
 	High int
 }
 
-// NewInterval creates a new interval
+// NewInterval creates a new interval (a low greater than high swaps the bounds)
 func NewInterval(low, high int) Interval {
 	if low > high {
 		low, high = high, low
@@ -32,7 +32,9 @@ type IntervalNode struct {
 	right    *IntervalNode
 }
 
-// IntervalTree represents an Interval Tree
+// IntervalTree is an augmented binary search tree (not self-balancing) keyed by low,
+// each node storing the maximum high of its subtree. Insert and delete cost O(h),
+// h = height: about log n on random input, up to n on sorted input.
 type IntervalTree struct {
 	root *IntervalNode
 }
@@ -45,7 +47,6 @@ func NewIntervalTree() *IntervalTree {
 // Insert inserts an interval into the tree
 func (it *IntervalTree) Insert(interval Interval) {
 	it.root = it.insertRecursive(it.root, interval)
-	it.updateMax(it.root)
 }
 
 // insertRecursive is a helper for insertion
@@ -67,15 +68,8 @@ func (it *IntervalTree) insertRecursive(node *IntervalNode, interval Interval) *
 	return node
 }
 
-// updateMax updates max values in the tree
-func (it *IntervalTree) updateMax(node *IntervalNode) {
-	if node == nil {
-		return
-	}
-
-	it.updateMax(node.left)
-	it.updateMax(node.right)
-
+// recomputeMax recomputes node.max from its own interval and its children.
+func recomputeMax(node *IntervalNode) {
 	node.max = node.interval.High
 	if node.left != nil && node.left.max > node.max {
 		node.max = node.left.max
@@ -117,8 +111,94 @@ func (it *IntervalTree) SearchContainingPoint(point int) []Interval {
 	return it.SearchOverlapping(query)
 }
 
+// SearchContainedIn finds all intervals completely inside query
+func (it *IntervalTree) SearchContainedIn(query Interval) []Interval {
+	result := []Interval{}
+	it.searchContainedRecursive(it.root, query, &result)
+	return result
+}
+
+func (it *IntervalTree) searchContainedRecursive(node *IntervalNode, query Interval, result *[]Interval) {
+	if node == nil {
+		return
+	}
+	if query.Low <= node.interval.Low && node.interval.High <= query.High {
+		*result = append(*result, node.interval)
+	}
+	if node.left != nil && node.left.max >= query.Low {
+		it.searchContainedRecursive(node.left, query, result)
+	}
+	if node.right != nil && node.interval.Low <= query.High {
+		it.searchContainedRecursive(node.right, query, result)
+	}
+}
+
+// Delete removes one interval equal to the argument and reports whether one existed.
+func (it *IntervalTree) Delete(interval Interval) bool {
+	removed := false
+	it.root = it.deleteRecursive(it.root, interval, &removed)
+	return removed
+}
+
+func (it *IntervalTree) deleteRecursive(node *IntervalNode, interval Interval, removed *bool) *IntervalNode {
+	if node == nil {
+		return nil
+	}
+	if interval.Low < node.interval.Low {
+		node.left = it.deleteRecursive(node.left, interval, removed)
+	} else if interval.Low > node.interval.Low || node.interval.High != interval.High {
+		// equal lows go right, so a same-low interval with another high is on the right
+		node.right = it.deleteRecursive(node.right, interval, removed)
+	} else {
+		*removed = true
+		if node.left == nil {
+			return node.right
+		}
+		if node.right == nil {
+			return node.left
+		}
+		successor := node.right
+		for successor.left != nil {
+			successor = successor.left
+		}
+		node.interval = successor.interval
+		unused := false
+		node.right = it.deleteRecursive(node.right, successor.interval, &unused)
+	}
+	recomputeMax(node)
+	return node
+}
+
+// InorderTraversal returns all intervals sorted by low (ties in insertion order).
+func (it *IntervalTree) InorderTraversal() []Interval {
+	result := []Interval{}
+	var walk func(*IntervalNode)
+	walk = func(n *IntervalNode) {
+		if n == nil {
+			return
+		}
+		walk(n.left)
+		result = append(result, n.interval)
+		walk(n.right)
+	}
+	walk(it.root)
+	return result
+}
+
+// Size returns the number of stored intervals.
+func (it *IntervalTree) Size() int {
+	return len(it.InorderTraversal())
+}
+
 // IsEmpty checks if tree is empty
 func (it *IntervalTree) IsEmpty() bool {
 	return it.root == nil
 }
 
+func main() {
+	tree := NewIntervalTree()
+	for _, iv := range [][2]int{{15, 20}, {10, 30}, {17, 19}, {5, 20}, {12, 15}, {30, 40}} {
+		tree.Insert(NewInterval(iv[0], iv[1]))
+	}
+	println("Overlaps [14,16]:", len(tree.SearchOverlapping(NewInterval(14, 16)))) // 4
+}

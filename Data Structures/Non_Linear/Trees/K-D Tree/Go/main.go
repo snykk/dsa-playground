@@ -101,6 +101,9 @@ func (t *KDTree) Nearest(query Point) Point {
 	if t.root == nil {
 		return nil
 	}
+	if len(query) != t.k {
+		panic(fmt.Sprintf("expected %d-dim query, got %d", t.k, len(query)))
+	}
 	best := t.root.point
 	bestDist := squaredDistance(query, best)
 	t.nearestHelper(t.root, query, &best, &bestDist)
@@ -131,6 +134,9 @@ func (t *KDTree) nearestHelper(n *node, q Point, best *Point, bestDist *float64)
 
 // RangeSearch returns every point p with lo[i] <= p[i] <= hi[i] for all i.
 func (t *KDTree) RangeSearch(lo, hi Point) []Point {
+	if t.root != nil && (len(lo) != t.k || len(hi) != t.k) {
+		panic(fmt.Sprintf("bounds must be %d-dim", t.k))
+	}
 	var out []Point
 	t.rangeHelper(t.root, lo, hi, &out)
 	return out

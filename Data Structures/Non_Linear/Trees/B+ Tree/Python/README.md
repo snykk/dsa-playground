@@ -1,105 +1,41 @@
-# B+ Tree - Python
+# B+ Tree -- Python Implementation
 
-This folder contains a Python implementation of a **B+ Tree**.
+A B+ tree of minimum degree `t`: all data in linked leaves, internal nodes hold separators only. See the [topic README](../README.md) for the algorithms.
 
-A **B+ Tree** is a variant of B-Tree where all data is stored in leaf nodes, internal nodes only store keys for navigation, and leaf nodes are linked for sequential access. B+ Trees are better for range queries and database indexing.
+## Files
 
----
+| File | Contents |
+| ---- | -------- |
+| `b_plus_tree.py` | `BPlusTreeNode` and `BPlusTree` |
+| `b_plus_tree_test.py` | unit tests, regression tests (duplicate keys, string keys) and a randomized test against a dict with an invariant checker |
 
-## Concept
+## API
 
-- **Data in Leaves**: All values stored only in leaf nodes
-- **Internal Nodes**: Only store keys for navigation
-- **Linked Leaves**: Leaf nodes linked for sequential access
-- **Range Queries**: Efficient range search operations
-- **Database Indexing**: Used in MySQL InnoDB, PostgreSQL
+| Call | Result |
+| ---- | ------ |
+| `BPlusTree(min_degree=3)` | empty tree |
+| `insert(key, value)` | stores the pair; an existing key has its value overwritten |
+| `search(key)` | the value, or `None` |
+| `range_search(start_key, end_key)` | list of `(key, value)` with `start_key <= key <= end_key`, in key order |
+| `traverse()` | list of all `(key, value)` pairs in key order |
 
----
+There is no delete.
 
-## Operations
+## Python-Specific Notes
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------- | ------------------------------------ | --------------- |
-| `search(key)`            | Search for a key                     | O(log n)        |
-| `insert(key, value)`     | Insert a key-value pair              | O(log n)        |
-| `range_search(start, end)` | Search for keys in range          | O(log n + k)    |
-| `traverse()`             | Get all keys in sorted order         | O(n)            |
+- Keys can be any mutually comparable values (numbers, strings). `traverse` starts at the leftmost leaf by following `children[0]`, so it does not depend on numeric keys.
+- A stored value of `None` cannot be told apart from a missing key by `search`.
+- Leaf `next` pointers are plain object references; there is nothing to free.
 
-Where `n` = number of keys, `k` = number of keys in range.
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Search    | O(log n)        | O(1)             |
-| Insert    | O(log n)        | O(log n)         |
-| Range Search | O(log n + k)  | O(k)             |
-| Space     | O(n)            | O(n)             |
-
----
-
-## B+ Tree vs B-Tree
-
-| Feature         | B-Tree | B+ Tree |
-| --------------- | ------ | ------- |
-| Data Storage    | All nodes | Leaf only |
-| Range Queries   | Slower | Faster |
-| Sequential Access | Slower | Faster (linked leaves) |
-| Internal Nodes | Store data | Keys only |
-
----
-
-## Usage
-
-```python
-from b_plus_tree import BPlusTree
-
-# Create B+ Tree
-bptree = BPlusTree(min_degree=3)
-
-# Insert key-value pairs
-bptree.insert(10, "value10")
-bptree.insert(20, "value20")
-bptree.insert(5, "value5")
-
-# Search
-value = bptree.search(10)
-print(value)  # "value10"
-
-# Range search
-result = bptree.range_search(5, 15)
-print(result)  # [(5, 'value5'), (10, 'value10')]
-
-# Traverse all
-all_items = bptree.traverse()
-print(all_items)  # All (key, value) pairs in sorted order
-```
-
----
-
-## Applications
-
-- **Database Indexing**: MySQL InnoDB, PostgreSQL
-- **File Systems**: Efficient file indexing
-- **Range Queries**: Fast range search operations
-- **Sequential Access**: Linked leaf nodes enable fast traversal
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-python -m unittest b_plus_tree_test.py
+cd "Data Structures/Non_Linear/Trees/B+ Tree/Python"
+python3 -m unittest b_plus_tree_test
 ```
 
----
+## Key Takeaways
 
-## Notes
-
-- Better than B-Tree for range queries
-- Linked leaf nodes enable efficient sequential access
-- Used extensively in database systems
-- All data stored in leaves simplifies structure
-
+- Leaf splits copy the separator up; internal splits push the median up.
+- Equal keys descend to the right, and a search always ends in a leaf.
+- Range queries are one descent plus a walk along `next`.

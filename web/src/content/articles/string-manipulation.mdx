@@ -1,0 +1,219 @@
+---
+topic: Data Structures/Linear/String/String Manipulation
+title: String Manipulation
+lead: Reversing, palindrome checks, counting, replacing, case conversion, splitting and joining are the everyday string operations. Each is a single O(n) pass, and the two-pointer idea behind reverse and palindrome carries over to many interview problems.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Every operation
+    value: O(n)
+    hint: one pass over the characters
+  - label: Palindrome space
+    value: O(1) in C++
+    hint: Python and Go build an O(n) copy
+  - label: Key technique
+    value: Two pointers
+    hint: start at both ends, move inward
+  - label: Main trap
+    value: Bytes vs characters
+    hint: C++ works on bytes
+    tone: warn
+properties:
+  - { label: Single pass, value: true }
+  - { label: Strings immutable in Python and Go, value: true }
+  - { label: Unicode-safe in C++, value: false }
+prerequisites:
+  - Data Structures/Linear/String/Introduction
+related:
+  - Data Structures/Linear/String/Pattern Matching
+  - Data Structures/Linear/String/Rope
+  - Problem_Patterns/Two Pointers
+  - Data Structures/Linear/Array
+---
+
+## What this topic covers
+
+The repository implements seven operations in each language. They are thin and idiomatic: Python and Go mostly call the standard library, and the C++ version works with `std::string` algorithms. What differs is the unit each language works on: code points in Python, runes in Go and bytes in C++.
+
+<DataTable
+  columns={['Operation', 'What it does', 'Python', 'C++', 'Go']}
+  rows={[
+    ['reverse', 'characters in opposite order', '`reverse_string`', '`reverse_string`', '`ReverseString`'],
+    ['palindrome', 'reads the same both ways', '`is_palindrome`', '`is_palindrome`', '`IsPalindrome`'],
+    ['count vowels', 'number of `aeiouAEIOU`', '`count_vowels`', '`count_vowels`', '`CountVowels`'],
+    ['replace', 'swap one thing for another', '`replace_char`', '`replace_char`', '`ReplaceChar`'],
+    ['case', 'upper or lower case', '`to_upper`, `to_lower`', '`to_upper`, `to_lower`', '`ToUpper`, `ToLower`'],
+    ['split', 'cut at a separator', '`split_string`', '`split_string`', '`SplitString`'],
+    ['join', 'glue pieces with a separator', '`join_string`', '`join_string`', '`JoinString`'],
+  ]}
+/>
+
+All seven take O(n) time, where n is the string length (or the total length for join). Strings are immutable in Python and Go, so each operation returns a new string. C++ takes its arguments by value or by reference and returns a new string as well.
+
+## Two pointers: reverse and palindrome
+
+Put one index `i` at the start and another `j` at the end, then move them toward each other. For reversing, swap the two characters at each step. For a palindrome check, compare them and stop at the first mismatch. Reversing `hello`:
+
+<ArrayDiagram
+  legend={{ p: 'the pair about to be swapped', f: 'settled' }}
+  rows={[
+    { label: 'start', values: ['h', 'e', 'l', 'l', 'o'], tones: 'p...p', marks: { 0: 'i', 4: 'j' } },
+    { label: 'after swap 1', values: ['o', 'e', 'l', 'l', 'h'], tones: 'fp.pf', marks: { 1: 'i', 3: 'j' }, note: 'The outer pair is swapped and settled. Next pair: `e` and `l`.' },
+    { label: 'after swap 2', values: ['o', 'l', 'l', 'e', 'h'], tones: 'ff.ff', marks: { 2: 'i = j' }, note: 'The pointers meet. The middle character stays where it is.' },
+  ]}
+/>
+
+The result of the last swap is `olleh`. The loop runs while `i < j`, so about n/2 swaps in total: O(n) time. An in-place version needs O(1) extra space, but Python and Go strings are immutable, so they build a new string anyway (`s[::-1]` in Python, a rune slice in Go).
+
+A palindrome check uses the same walk and compares instead of swapping:
+
+<ArrayDiagram
+  legend={{ f: 'pair matches', p: 'mismatch found: not a palindrome' }}
+  rows={[
+    { label: '"racecar"', values: ['r', 'a', 'c', 'e', 'c', 'a', 'r'], tones: 'f.....f', marks: { 0: 'i', 6: 'j' }, note: '`r` = `r`.' },
+    { label: 'next pair', values: ['r', 'a', 'c', 'e', 'c', 'a', 'r'], tones: 'ff...ff', marks: { 1: 'i', 5: 'j' }, note: '`a` = `a`.' },
+    { label: 'last pair', values: ['r', 'a', 'c', 'e', 'c', 'a', 'r'], tones: 'fff.fff', marks: { 2: 'i', 4: 'j' }, note: '`c` = `c`. Then i = 3 = j: all pairs matched, so it is a palindrome.' },
+    { label: '"abca"', values: ['a', 'b', 'c', 'a'], tones: 'f..f', marks: { 0: 'i', 3: 'j' }, note: '`a` = `a`.' },
+    { label: 'next pair', values: ['a', 'b', 'c', 'a'], tones: 'fppf', marks: { 1: 'i', 2: 'j' }, note: '`b` is not `c`: return false after one comparison of the inner pair.' },
+  ]}
+/>
+
+How each language does it:
+
+<DataTable
+  columns={['Language', 'Reverse', 'Palindrome', 'Extra space']}
+  rows={[
+    ['Python', '`s[::-1]`', '`s == s[::-1]`: reverse and compare', 'O(n)'],
+    ['C++', '`std::reverse` on a copy', 'two pointers over the bytes', 'O(1) for the check'],
+    ['Go', 'swap runes in a `[]rune`', 'two pointers over a `[]rune`', 'O(n) for the rune slice'],
+  ]}
+/>
+
+<Callout title="Palindromes here are exact">
+The checks are case sensitive and treat every character as significant: `Aa` is not a palindrome and neither is `A man, a plan`. Interview versions usually ask you to lower-case the text and skip non-alphanumeric characters; add that filtering inside the two-pointer loop, by moving `i` and `j` past characters you ignore.
+</Callout>
+
+## Split and join
+
+`split(s, sep)` cuts at every occurrence of `sep` and keeps **empty fields**. `join(parts, sep)` is the inverse: it puts `sep` between the parts, so `join(split(s, sep), sep) == s`. All three languages now agree on the edge cases:
+
+<DataTable
+  columns={['Call', 'Result', 'Why']}
+  rows={[
+    ['`split("a b c", " ")`', '`["a", "b", "c"]`', 'two separators, three fields'],
+    ['`split("a b ", " ")`', '`["a", "b", ""]`', 'a trailing separator leaves an empty last field'],
+    ['`split("a  b", " ")`', '`["a", "", "b"]`', 'two adjacent separators leave an empty field'],
+    ['`split("", " ")`', '`[""]`', 'an empty string is one empty field'],
+    ['`join([], "-")`', '`""`', 'nothing to join'],
+    ['`join(["x"], "-")`', '`"x"`', 'no separator with one item'],
+  ]}
+/>
+
+Python's `str.split()` with no argument behaves differently: it splits on runs of whitespace and drops empty fields. `split_string` here passes the separator (a space by default), so it does not. The C++ version used to drop a trailing empty field and return no parts for an empty string. It now keeps them, like Python and Go.
+
+## Replace, case and vowels
+
+- **Replace:** the three languages mean different things by `replace_char`. Python replaces every occurrence of a **substring** (`replace_char("hello", "ll", "L")` is `heLo`); an empty `old` inserts the new text between every character (`"-a-b-c-"` for `abc` and `-`). C++ replaces one **byte**. Go replaces one **rune**.
+- **Case:** `to_upper` and `to_lower` map each character. In C++ the cast to `unsigned char` before `toupper` is required, because a plain `char` with the high bit set is negative, which is undefined behaviour for the C library function. The C++ version leaves bytes above 127 (UTF-8 continuation bytes) alone, so only ASCII letters change. Python and Go apply Unicode case rules.
+- **Vowels:** a pass that tests each character against `aeiouAEIOU`. Vowels with accents are not counted.
+
+## Unicode: where the languages differ
+
+<ArrayDiagram
+  legend={{ p: 'one character, two bytes' }}
+  rows={[
+    { label: 'UTF-8 bytes of "h" + e-acute (hex)', values: ['68', 'C3', 'A9'], tones: '.pp', note: 'C++ `reverse_string` reverses bytes.' },
+    { label: 'after a byte reversal', values: ['A9', 'C3', '68'], tones: 'pp.', note: 'The two bytes of the accented letter are now in the wrong order: this is not valid UTF-8.' },
+  ]}
+/>
+
+Python reverses code points and Go reverses runes, so `hello` with an accented e reverses correctly. C++ `std::string` reverses bytes and corrupts any multi-byte character. If you need Unicode in C++, decode to code points first (or use a library); this repository documents the byte behaviour rather than hiding it. A string of invalid UTF-8 bytes also cannot round-trip through a rune conversion in Go, which replaces bad bytes with the replacement character. The Go palindrome check compares runes directly, so a single invalid byte is its own mirror image.
+
+## Implementation
+
+<TopicCode topic="Data Structures/Linear/String/String Manipulation" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Why']}
+  rows={[
+    ['reverse', 'O(n)', 'O(n)', 'a new string, n/2 swaps'],
+    ['palindrome', 'O(n)', 'O(1) C++, O(n) Python and Go', 'at most n/2 comparisons; the copies are the extra space'],
+    ['count vowels', 'O(n)', 'O(1)', 'one test per character against 10 vowels'],
+    ['replace', 'O(n)', 'O(n)', 'one pass writing a new string'],
+    ['case conversion', 'O(n)', 'O(n)', 'one mapping per character'],
+    ['split', 'O(n)', 'O(n)', 'each character is examined once, the pieces together are n characters'],
+    ['join', 'O(total)', 'O(total)', 'the output is the total length'],
+  ]}
+/>
+
+The lower bound for each of them is &Omega;(n) because every character may matter, so these implementations are optimal in time.
+
+## Building strings efficiently
+
+Because strings are immutable in Python and Go, building a result with `+=` in a loop copies the growing string each time and costs O(n<sup>2</sup>) in total. Collect pieces in a list (or a `strings.Builder`) and join once. In C++, `std::string::operator+=` is amortized O(1), because the string grows like a dynamic array, so a loop of appends is already linear. `join_string` in C++ builds its result with `+=`.
+
+## String Manipulation vs related tools
+
+<DataTable
+  columns={['Need', 'Use', 'Why']}
+  highlight={0}
+  rows={[
+    ['simple per-character transformations', 'the functions in this topic', 'one pass, simple'],
+    ['find a pattern in a text', 'Pattern Matching (KMP, Boyer-Moore, Rabin-Karp)', 'avoids the O(nm) naive search'],
+    ['many edits to a huge text', 'Rope', 'edits in O(log n) instead of O(n)'],
+    ['regular-language matching', 'a regular expression library', 'handles classes, repetition and alternatives'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Each operation is a short, linear pass that is easy to reason about.',
+    'Standard libraries provide fast, tested versions of all of them.',
+    'The two-pointer pattern generalises to many array and string problems.',
+  ]}
+  cons={[
+    'Immutable strings mean every change allocates a new string.',
+    'Byte-based code (C++ `std::string`) breaks on multi-byte characters.',
+    'The same function name means slightly different things in different languages.',
+  ]}
+/>
+
+## Applications
+
+- **Input cleaning and parsing:** split lines and fields, join them back, normalise case.
+- **Validation:** palindrome-style checks, counting character classes.
+- **Interview problems:** reverse words, valid palindrome, string compression.
+- **Text processing pipelines** that combine a few of these steps.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming bytes are characters.** `reverse_string` in C++ corrupts UTF-8; Python and Go reverse whole characters.
+- **`split()` versus `split(" ")`.** The first collapses runs of whitespace and drops empty fields; the second keeps empty fields. Know which one you want.
+- **Forgetting the trailing empty field** when splitting `"a b "`.
+- **Building strings with `+=` in a loop** in Python or Go: O(n<sup>2</sup>).
+- **Off-by-one in two-pointer loops.** Run while `i < j` and start `j` at `n - 1`, not `n`. For an empty string `n - 1` is `-1` (or wraps around for an unsigned index), so test for the empty string first.
+- **Calling `toupper` on a signed `char`.** Cast to `unsigned char` first.
+- **Using `replace_char` with an empty `old`** in Python: it inserts the text between every character.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Can I reverse a string in place?">
+    In C++ yes: `std::reverse` swaps characters in the `std::string` buffer. In Python and Go strings are immutable, so an in-place reversal is impossible; you build a new string or work on a mutable copy (a rune slice in Go).
+  </FaqItem>
+  <FaqItem question="Why is the C++ palindrome check O(1) space but the Python one is not?">
+    The C++ version compares `s[i]` with `s[j]` while walking inward and never copies the string. The Python version compares `s` with the reversed copy `s[::-1]`, which needs O(n) extra space. A two-pointer loop in Python would be O(1) extra space too.
+  </FaqItem>
+  <FaqItem question="Why does the C++ version cast to unsigned char for case conversion?">
+    `toupper` takes an `int` that must be either `EOF` or a value representable as `unsigned char`. A plain `char` holding a byte above 127 is negative, so passing it is undefined behaviour. The cast makes the call well defined.
+  </FaqItem>
+  <FaqItem question="What does join do with an empty list?">
+    It returns the empty string in all three languages, and `join` of a single item returns that item with no separator.
+  </FaqItem>
+</Faq>

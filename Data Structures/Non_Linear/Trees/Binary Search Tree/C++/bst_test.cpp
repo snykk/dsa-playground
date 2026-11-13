@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cassert>
 #include <vector>
+#include <set>
+#include <type_traits>
 #include "bst.cpp"
 
 bool compareVectors(const vector<int>& a, const vector<int>& b) {
@@ -125,6 +127,38 @@ void testDeleteTwoChildren() {
     cout << "testDeleteTwoChildren passed" << endl;
 }
 
+// Regression: the class owns raw pointers; copying used to double free.
+static_assert(!is_copy_constructible<BinarySearchTree>::value, "BST must not be copyable");
+static_assert(!is_copy_assignable<BinarySearchTree>::value, "BST must not be copyable");
+
+void testRandomOpsMatchSet() {
+    BinarySearchTree bst;
+    set<int> ref;
+    unsigned seed = 99;
+    for (int i = 0; i < 3000; i++) {
+        seed = seed * 1103515245u + 12345u;
+        int key = (int)((seed >> 16) % 120);
+        if ((seed >> 8) % 5 < 2) {
+            bst.deleteNode(key);
+            ref.erase(key);
+        } else {
+            bst.insert(key);
+            ref.insert(key);
+        }
+    }
+    assert(compareVectors(bst.inorderTraversal(), vector<int>(ref.begin(), ref.end())));
+    assert(bst.size() == (int)ref.size());
+    cout << "testRandomOpsMatchSet passed" << endl;
+}
+
+void testSortedChain() {
+    BinarySearchTree bst;
+    for (int i = 0; i < 3000; i++) bst.insert(i);
+    assert(bst.height() == 2999);
+    assert(bst.size() == 3000);
+    cout << "testSortedChain passed" << endl;
+}
+
 int main() {
     cout << "Running Binary Search Tree tests..." << endl;
     testInsertAndSearch();
@@ -137,7 +171,9 @@ int main() {
     testDeleteLeaf();
     testDeleteOneChild();
     testDeleteTwoChildren();
-    cout << "\nAll tests passed! ✓" << endl;
+    testRandomOpsMatchSet();
+    testSortedChain();
+    cout << "\nAll tests passed!" << endl;
     return 0;
 }
 

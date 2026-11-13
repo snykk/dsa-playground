@@ -1,50 +1,42 @@
-# 🚀 Go - Static Array-Based Stack (Fixed Size)
+# Static Size Array Stack -- Go Implementation
 
-This folder contains a **Go implementation of a static (fixed-size) array-based stack** using arrays.
+A LIFO stack of `int` with a fixed capacity. See the [topic README](../README.md) for the concept.
 
----
+## Files
 
-## ⚙️ Features
+| File | Contents |
+| --- | --- |
+| `main.go` | the `ArrayStack` type, `DefaultCapacity` and a small `main` demo |
+| `main_test.go` | tests for basic behaviour, overflow, invalid capacity, empty errors and the default capacity |
+| `go.mod` | module definition |
 
-- Core operations:
-  - `Push(value int)` → add element to top (panics if full)
-  - `Pop() int` → remove and return top element (panics if empty)
-  - `Peek() int` → view top element (panics if empty)
-  - `IsEmpty() bool` → check if stack is empty
-  - `Size() int` → current number of elements
-- Fixed capacity defined at initialization
-- Simple, memory-efficient
+## API
 
----
+| Function | Description | Time |
+| --- | --- | --- |
+| `NewStack() *ArrayStack` | a stack with `DefaultCapacity` (100) | O(capacity) |
+| `NewArrayStack(capacity int) (*ArrayStack, error)` | a stack with the given capacity; error if `capacity < 1` | O(capacity) |
+| `Push(value int) error` | add on top; error ("stack overflow") when full | O(1) |
+| `Pop() (int, error)` | remove and return the top; error if empty | O(1) |
+| `Peek() (int, error)` | return the top; error if empty | O(1) |
+| `IsEmpty()`, `Size()` | state queries | O(1) |
 
-## 📝 Example Usage
+## Go-Specific Notes
 
-```go
-package main
+- The backing slice is `make([]int, 0, capacity)` and `Push` checks `len(data) == capacity` before `append`, so the array is never reallocated.
+- `Push` returns an error: check it, because a dropped error silently loses the item.
+- `Pop` and `Peek` return `(int, error)`: `fmt.Println(s.Peek())` prints the value and `<nil>`.
+- `Pop` reslices and does not clear the slot; the next `Push` overwrites it.
 
-import "fmt"
-
-func main() {
-    stack := NewArrayStack(3) // max size 3
-    stack.Push(10)
-    stack.Push(20)
-    stack.Push(30)
-
-    fmt.Println(stack.Peek())    // 30
-    fmt.Println(stack.Pop())     // 30
-    fmt.Println(stack.Pop())     // 20
-    fmt.Println(stack.IsEmpty()) // false
-    fmt.Println(stack.Pop())     // 10
-    fmt.Println(stack.IsEmpty()) // true
-
-    // stack.Push(40) // Would panic if stack is full
-}
-```
-
----
-
-## ▶️ Running Tests
+## How to Run
 
 ```bash
-go test
+cd "Data Structures/Linear/Stack/Array Based/Static Size/Go"
+go test ./...
+go run main.go
 ```
+
+## Key Takeaways
+
+- Capacity plus a length check turns a slice into a bounded stack.
+- Always handle the error from `Push`.

@@ -1,183 +1,112 @@
 # Interval Tree
 
-An **Interval Tree** is a data structure for storing intervals and efficiently querying intervals that overlap with a given interval or point.
+An interval tree stores closed intervals `[low, high]` in a binary search tree ordered by `low`, and keeps in every node the largest `high` of its subtree. That `max` lets an overlap query skip subtrees that cannot match. In this repository the tree is not self-balancing: insert and delete cost O(h), where h is the height.
 
----
+## Intuition
 
-## Overview
+To find the stored intervals that overlap a query `q`, a plain BST on `low` is not enough: an interval far to the left can still reach `q`. Storing `max` (the largest `high` below a node) fixes that. If `left.max < q.low`, nothing in the left subtree reaches `q` and the whole subtree is skipped. On the right side, every interval has `low >= node.low`, so if `node.low > q.high` nothing there can start early enough.
 
-Interval Trees are specialized binary search trees designed to store intervals and answer queries like:
-- Find all intervals that overlap with a given interval
-- Find all intervals that contain a point
-- Find all intervals that are contained in a given interval
+Two closed intervals overlap exactly when `a.high >= b.low` and `b.high >= a.low`; touching endpoints count.
 
----
+## Visual
 
-## Key Characteristics
+Intervals inserted in this order: `[15,20]`, `[10,30]`, `[17,19]`, `[5,20]`, `[12,15]`, `[30,40]`:
 
-- **Efficient Overlap Queries**: O(log n + k) time where k is number of results
-- **Point Queries**: Find all intervals containing a point
-- **Containment Queries**: Find intervals contained in a range
-- **BST Structure**: Based on balanced BST for efficient operations
-- **Max Tracking**: Each node stores max high value in subtree
+```text
+               [15,20] max=40
+              /               \
+      [10,30] max=30        [17,19] max=40
+      /           \                  \
+ [5,20] max=20  [12,15] max=15      [30,40] max=40
+```
 
----
-
-## Structure
-
-Each node in the Interval Tree stores:
-- **Interval**: [low, high] range
-- **Max**: Maximum high value in the subtree rooted at this node
-- **Left/Right**: Child nodes
-
-The tree is organized as a BST based on the low value of intervals.
-
----
+Query `[22,26]` visits every node except `[5,20]` (its `max` 20 is below 22) and matches only `[10,30]`.
 
 ## Operations
 
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| **Insert** | Insert an interval | O(log n) |
-| **Search Overlapping** | Find intervals overlapping query | O(log n + k) |
-| **Search Point** | Find intervals containing point | O(log n + k) |
-| **Search Contained** | Find intervals in query range | O(log n + k) |
-| **Delete** | Delete an interval | O(log n) |
-| **Traversal** | Inorder traversal | O(n) |
+| Operation | What it does | Time |
+| --------- | ------------ | ---- |
+| `insert(interval)` | walk down by `low` (equal lows go right), raising `max` on the path | O(h) |
+| `search_overlapping(q)` | all intervals overlapping `q` | about O(h + k), O(n) worst case |
+| `search_containing_point(x)` | overlap query with `[x, x]` | same |
+| `search_contained_in(q)` | intervals lying fully inside `q` | same |
+| `delete(interval)` | remove one equal interval, recompute `max` on the way back up | O(h) |
+| `inorder_traversal()`, `size()` | all intervals sorted by `low`; count | O(n) |
 
-Where `k` is the number of results.
+### Overlap query rules
 
----
+1. If the node's interval overlaps `q`, report it.
+2. Visit the left subtree only if `left.max >= q.low`.
+3. Visit the right subtree only if `node.low <= q.high`.
 
-## Complexity Analysis
+### Delete
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Insert    | O(log n)       | O(1)             |
-| Search Overlapping | O(log n + k) | O(k) |
-| Search Point | O(log n + k) | O(k) |
-| Delete    | O(log n)       | O(1)             |
-| Traversal | O(n)           | O(n)             |
+Find the node by `low` (equal lows are on the right, so keep going right until `high` matches too). A node with at most one child is replaced by that child; with two children it takes the in-order successor's interval (smallest in the right subtree). Recompute `max` on every node along the way back up.
 
----
+## Step-by-Step Trace
 
-## Search Algorithm
+Query `[14,16]` on the tree above:
 
-The overlap search uses the max value to prune subtrees:
+| Step | Node | Overlaps? | Next |
+| ---- | ---- | --------- | ---- |
+| 1 | `[15,20]` | yes (15 <= 16 and 20 >= 14) | left.max 30 >= 14: go left; node.low 15 <= 16: go right later |
+| 2 | `[10,30]` | yes | left.max 20 >= 14: go left; 10 <= 16: go right |
+| 3 | `[5,20]` | yes | leaf |
+| 4 | `[12,15]` | yes | leaf |
+| 5 | `[17,19]` | no (17 > 16) | no left child; right child skipped because 17 > 16 |
 
-1. Check if current interval overlaps with query
-2. If left child exists and `left.max >= query.low`, search left
-3. If right child exists and `node.low <= query.high`, search right
+Result, in visit order: `[15,20]`, `[10,30]`, `[5,20]`, `[12,15]`. (All traces come from running the Python implementation.)
 
-This ensures we only explore subtrees that might contain overlapping intervals.
+## Complexity
 
----
+| Operation | Time | Why |
+| --------- | ---- | --- |
+| insert, delete | O(h) | one root-to-leaf path (plus one path to the successor on delete) |
+| overlap query | O(h + k) typical, O(n) worst | the prune rules are sufficient, not exact: a subtree with a large `max` may be entered and hold no match |
+| space | O(n) | one node per interval |
 
-## Advantages
-
-1. ✅ **Efficient Queries**: O(log n + k) for overlap queries
-2. ✅ **Multiple Query Types**: Overlap, point, containment
-3. ✅ **BST Structure**: Familiar and well-understood
-4. ✅ **Space Efficient**: O(n) space
-
----
-
-## Disadvantages
-
-1. ❌ **Not Self-Balancing**: Can degrade to O(n) if unbalanced
-2. ❌ **Complex Deletion**: Requires careful handling
-3. ❌ **Update Overhead**: Max values need updating
-
----
-
-## Applications
-
-1. **Scheduling Systems**: Find conflicting appointments
-2. **Computational Geometry**: Line segment intersection
-3. **Database Systems**: Range queries on intervals
-4. **Resource Allocation**: Overlapping resource usage
-5. **Genomics**: Finding overlapping gene sequences
-6. **Network Routing**: Overlapping time slots
-
----
+The height h is about log n for random input and up to n for input sorted by `low`, where the tree becomes a chain. The code is recursive, so a very deep tree also risks a stack overflow (Python raises `RecursionError` near its default limit of 1000).
 
 ## When to Use
 
-### ✅ Use Interval Tree when:
-- You need to store and query intervals
-- You need efficient overlap queries
-- You need point containment queries
-- You have many intervals and frequent queries
+- A dynamic set of intervals with overlap, point or containment queries.
+- Not for static data (sort and sweep, or a segment tree, is simpler), and not when you need worst-case guarantees unless you build the same augmentation on a balanced tree.
 
-### ❌ Avoid Interval Tree when:
-- You only need simple range queries
-- You need to update intervals frequently
-- You have very few intervals
-- You need guaranteed O(log n) worst case
+## Interval Tree vs. Alternatives
 
----
+| Approach | Insert | Overlap query | Notes |
+| -------- | ------ | ------------- | ----- |
+| Augmented BST (this code) | O(h) | about O(h + k) | dynamic, unbalanced |
+| Sorted list | O(n) | O(n) | simplest |
+| Segment tree | static | O(log n + k) | fixed coordinate range |
+| Sort and sweep | offline | O(n log n) total | all intervals known upfront |
 
-## Comparison with Other Structures
+## Common Pitfalls
 
-| Feature | Interval Tree | Segment Tree | Range Tree |
-|---------|---------------|--------------|------------|
-| Data Type | Intervals | Array ranges | Points/Ranges |
-| Overlap Query | O(log n + k) | O(log n + k) | O(log n + k) |
-| Point Query | O(log n + k) | O(log n) | O(log n) |
-| Updates | O(log n) | O(log n) | O(log n) |
-| Space | O(n) | O(n) | O(n log n) |
-
----
+- Not updating `max` after an insert or delete: stale values hide matches.
+- Pruning left with `node.low` instead of `left.max >= q.low`.
+- Mixing closed and half-open intervals: this code is closed, so `[1,5]` and `[5,9]` overlap.
+- Assuming balance: sorted input creates a chain.
+- Reversed intervals: Python raises `ValueError`; C++ and Go swap the bounds silently.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+| Language | Folder | Main file | Notes |
+| -------- | ------ | --------- | ----- |
+| Python | `Python/` | `interval_tree.py` | accepts `Interval` objects or `(low, high)` tuples |
+| C++ | `C++/` | `interval_tree.cpp` | `remove`, `searchContainedIn`, `inorderTraversal`, `size`, `validateMax`; frees nodes, not copyable |
+| Go | `Go/` | `main.go` | `Delete`, `SearchContainedIn`, `InorderTraversal`, `Size`; small demo `main` |
 
-- **Python** (`Python/`) - Object-oriented implementation with comprehensive tests
-- **C++** (`C++/`) - Efficient implementation with proper memory management
-- **Go** (`Go/`) - Clean implementation with Go idioms
+## Practice Problems
 
-Each implementation includes:
-- Complete source code with all operations
-- Comprehensive test suite
-- Detailed README with usage examples
+- [LeetCode 729: My Calendar I](https://leetcode.com/problems/my-calendar-i/)
+- [LeetCode 731: My Calendar II](https://leetcode.com/problems/my-calendar-ii/)
+- [LeetCode 56: Merge Intervals](https://leetcode.com/problems/merge-intervals/)
+- [LeetCode 57: Insert Interval](https://leetcode.com/problems/insert-interval/)
+- [LeetCode 253: Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/)
 
----
+## Related
 
-## Visual Example
-
-```
-Intervals: [15,20], [10,30], [17,19], [5,20], [12,15], [30,40]
-
-Interval Tree (sorted by low):
-         [10,30] (max=40)
-        /        \
-    [5,20]      [15,20] (max=40)
-   (max=20)    /        \
-           [12,15]   [17,19] (max=40)
-           (max=15)         \
-                          [30,40]
-                          (max=40)
-
-Query [14,16] overlaps with:
-- [10,30] (contains query)
-- [15,20] (overlaps)
-- [12,15] (overlaps)
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 14)
-- "Computational Geometry" by de Berg et al.
-
----
-
-## Related Data Structures
-
-- **Segment Tree**: For range queries on arrays
-- **Range Tree**: For multi-dimensional range queries
-- **R-Tree**: For spatial indexing
-- **Binary Search Tree**: Basic sorted tree structure
-
+- [Segment Tree](../Segment%20Tree/README.md)
+- [AVL Tree](../AVL%20Tree/README.md)
+- [Binary Search Tree](../Binary%20Search%20Tree/README.md)

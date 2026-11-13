@@ -1,96 +1,33 @@
-# Min Heap - C++
+# Min Heap -- C++ Implementation
 
-This folder contains a C++ implementation of a **Min Heap**.
+Array-backed binary min heap. See the [topic README](../README.md) for the theory, the trace and the complexity table.
 
-A **Min Heap** is a complete binary tree where the parent node is always less than or equal to its children. The minimum element is always at the root.
+## Files
 
----
+- `min_heap.cpp`: the `MinHeap` class (included directly by the test)
+- `min_heap_test.cpp`: assert-based tests (duplicates, 1000 random values, empty heap throws)
 
-## Concept
+## API
 
-- **Complete Binary Tree**: All levels are filled except possibly the last
-- **Heap Property**: Parent ≤ Children (min heap property)
-- **Array Representation**: Efficient storage using vector
-- **Root is Minimum**: Smallest element is always at root
-- **O(log n) Operations**: Insert and extract operations are O(log n)
+- `MinHeap()` and `MinHeap(const vector<int>&)` (heapify a copy)
+- `void insert(int)`: O(log n)
+- `int extract_min()`: throws `std::runtime_error` when empty
+- `int peek()`: throws `std::runtime_error` when empty
+- `int size() const`, `bool is_empty() const`, `void clear()`
 
----
+## C++-Specific Notes
 
-## Operations
+Values are `int`. Storage is a `std::vector`, so the class is safely copyable. `std::priority_queue` is the standard library equivalent (a max heap by default).
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------ | ------------------------------------ | --------------- |
-| `insert(value)`         | Insert value into heap               | O(log n)        |
-| `extract_min()`          | Remove and return minimum element    | O(log n)        |
-| `peek()`                 | Get minimum element without removing | O(1)            |
-| `is_empty()`             | Check if heap is empty               | O(1)            |
-| `size()`                 | Get number of elements               | O(1)            |
-| `clear()`                | Remove all elements                 | O(n)            |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Insert    | O(log n)        | O(1)             |
-| Extract   | O(log n)        | O(1)             |
-| Peek      | O(1)            | O(1)             |
-| Heapify   | O(n)            | O(1)             |
-| Space     | O(n)            | O(n)             |
-
----
-
-## Usage
-
-```cpp
-#include "min_heap.cpp"
-#include <vector>
-using namespace std;
-
-// Create empty heap
-MinHeap heap;
-
-// Insert elements
-heap.insert(5);
-heap.insert(3);
-heap.insert(7);
-heap.insert(1);
-
-// Peek minimum
-cout << heap.peek() << endl;  // 1
-
-// Extract minimum
-cout << heap.extract_min() << endl;  // 1
-cout << heap.extract_min() << endl;  // 3
-
-// Build heap from array
-vector<int> arr = {5, 3, 7, 1, 9, 2};
-MinHeap heap2(arr);
-while (!heap2.is_empty()) {
-    cout << heap2.extract_min() << endl;  // 1, 2, 3, 5, 7, 9
-}
-```
-
----
-
-## Compile and Run
+## How to Run
 
 ```bash
-# Compile
-g++ -o min_heap_test min_heap_test.cpp
-
-# Run
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD min_heap_test.cpp -o min_heap_test
 ./min_heap_test
 ```
 
----
+## Key Takeaways
 
-## Applications
-
-- Priority Queues
-- Heap Sort algorithm
-- Finding k smallest elements
-- Graph algorithms (Dijkstra's, Prim's)
-- Task scheduling
-
+- The minimum is always at index 0; insert sifts up, extract min sifts down.
+- Building from an array with bottom-up heapify is O(n), cheaper than n inserts.
+- Only the root is ordered: the array is not sorted.

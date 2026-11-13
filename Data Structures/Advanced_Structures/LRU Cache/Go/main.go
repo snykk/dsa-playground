@@ -100,7 +100,7 @@ func main() {
 	cache.Put(2, 20)
 	cache.Put(3, 30)
 	fmt.Printf("get(1) = %d\n", cache.Get(1)) // 10
-	cache.Put(4, 40)                            // evicts key 2
+	cache.Put(4, 40)                          // evicts key 2
 	fmt.Printf("get(2) = %d\n", cache.Get(2)) // -1
 	fmt.Printf("get(3) = %d\n", cache.Get(3)) // 30
 	fmt.Printf("size   = %d\n", cache.Size()) // 3

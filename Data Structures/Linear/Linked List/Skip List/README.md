@@ -1,47 +1,110 @@
 # Skip List
 
-A Skip List is a probabilistic data structure that allows efficient search, insertion, and deletion operations on a sorted sequence of elements. It extends a standard linked list by adding multiple layers of forward pointers, enabling elements to be "skipped" during traversal.
+A skip list is a sorted linked list with extra "express lane" pointers above it. Each key gets a random tower height, so a search skips many nodes at once: search, insert and delete take expected O(log n) time, with no rotations or rebalancing.
 
-## How It Works
+## Intuition
 
-- The bottom level (level 0) is a regular sorted linked list containing all elements.
-- Each higher level acts as an "express lane" that skips over elements.
-- A new element's level is determined randomly using a coin-flip probability (typically p=0.5).
-- Search starts from the top level and moves right until overshooting, then drops down a level.
+Think of a subway line with local and express trains. The local train stops at every station (level 0, every key). Express lines stop at fewer stations (higher levels). To travel far you ride the express as long as it does not overshoot, then switch to a slower line. Each key joins the next higher line with probability `p` (0.5 here), decided by a coin flip when the key is inserted.
 
-## Visual Example
+Invariants: every level is a sorted linked list; every key on level `i` is also on level `i - 1`; level 0 holds all keys; `level` equals the highest non-empty level.
 
+## Visual
+
+```text
+Level 3: H -------------------------------------> 25 -> nil
+Level 2: H ----------------> 6 ------------------> 25 -> nil
+Level 1: H ------> 3 ------> 6 ------> 12 ------> 25 -> nil
+Level 0: H -> 3 -> 6 -> 9 -> 12 -> 19 -> 25 -> nil
+
+Search 19: level 3: next is 25 (too big), drop
+           level 2: move to 6, next is 25, drop
+           level 1: move to 12, next is 25, drop
+           level 0: next is 19 -> found
 ```
-Level 3: header ────────────────────────────────────→ 25 ──→ NIL
-Level 2: header ──────────→ 6 ──────────────────────→ 25 ──→ NIL
-Level 1: header ──→ 3 ──→ 6 ────────→ 12 ──────────→ 25 ──→ NIL
-Level 0: header ──→ 3 ──→ 6 ──→ 9 ──→ 12 ──→ 19 ──→ 25 ──→ NIL
-```
+
+H is the header, a sentinel node with a pointer on every level. The tower heights above (2, 3, 1, 2, 1, 4 levels) are one possible outcome of the coin flips.
 
 ## Operations
 
-1. **Search** - Start at the highest level, move right while the next key is smaller, drop down when overshooting.
-2. **Insert** - Search for the correct position, generate a random level, insert at each level up to that level.
-3. **Delete** - Locate the node at each level and remove it from each linked list.
-4. **Display** - Traverse the bottom level to collect all elements in sorted order.
+| Operation | What it does | Time |
+| --- | --- | --- |
+| `search(key)` | descend from the top level, move right while the next key is smaller, then check the node after the stop | O(log n) expected |
+| `insert(key)` | search recording `update[i]` (the last node on each level), draw a random height, splice the tower in; an existing key is ignored | O(log n) expected |
+| `delete(key)` | search with `update`, unlink the node on every level it appears, lower `level` while the top level is empty; returns whether the key was present | O(log n) expected |
+| `display()` | walk level 0 | O(n) |
 
-## Time Complexity
+Names: `insert`, `search`, `delete`, `display` (Python); `insert`, `search`, `deleteNode`, `display` (C++); `Insert`, `Search`, `Delete`, `Display` (Go). Python and C++ default to `max_level = 16`, `p = 0.5`; Go's `NewSkipList(maxLevel, p)` requires both.
 
-| Operation | Average  | Worst Case |
-|-----------|----------|------------|
-| Search    | O(log n) | O(n)       |
-| Insert    | O(log n) | O(n)       |
-| Delete    | O(log n) | O(n)       |
-| Space     | O(n)     | O(n log n) |
+### Random height
 
-## Advantages
+Start at 0; while a coin with probability `p` comes up heads and the height is below `max_level`, add one. So `P(height >= k) = p^k`, and a key has `height + 1` forward pointers.
 
-- Simpler to implement than balanced BSTs (AVL, Red-Black Trees)
-- Probabilistic balancing requires no rotations or restructuring
-- Efficient concurrent access (easier to lock individual levels)
+## Step-by-Step Trace
 
-## Disadvantages
+Insert `15` into the list above with a drawn height of 1:
 
-- Uses more memory than a simple linked list due to multiple forward pointers
-- Worst-case performance is O(n), though this is extremely unlikely
-- Performance depends on random number generator quality
+| Level | `update[level]` | Action |
+| --- | --- | --- |
+| 3 | header | not spliced (height 1 < 3) |
+| 2 | 6 | not spliced |
+| 1 | 12 | splice: 12 -> 15 -> 25 |
+| 0 | 12 | splice: 12 -> 15 -> 19 |
+
+Then `delete(6)` unlinks 6 on levels 2, 1 and 0. `delete(25)` unlinks 25 on levels 3, 2, 1 and 0; levels 3 and 2 become empty, so `level` drops from 3 to 1.
+
+## Complexity
+
+| Quantity | Value | Why |
+| --- | --- | --- |
+| search, insert, delete | O(log n) expected | about `(1/p) * log2(n)` moves |
+| worst case | O(n) | every height unlucky; vanishingly unlikely |
+| pointers per key | `1 / (1 - p)` = 2 expected | `P(height >= k) = p^k`, sum 1 + p + p^2 + ... |
+| space | O(n) expected | about 2n pointers, plus the header's `max_level + 1` |
+
+Heights are capped at `max_level`, so with the default 16 and `p = 0.5` the list stays efficient up to roughly 2^16 = 65,536 keys. Choose `max_level` near `log(n) / log(1/p)`. The worst-case space is O(n * max_level), not O(n log n).
+
+## When to Use
+
+Use it for an ordered set or map where you want simple code, ordered iteration, neighbour or range queries and easy concurrency. Do not use it when you need a hard worst-case bound (use a balanced tree) or the best memory locality (use a sorted array or B-tree).
+
+## Skip List vs. Alternatives
+
+| Structure | Search | Balancing | Notes |
+| --- | --- | --- | --- |
+| Skip list | O(log n) expected | random heights | ordered walk on level 0 |
+| AVL / red-black tree | O(log n) worst case | rotations | hard bounds, more code |
+| Treap | O(log n) expected | random priorities and rotations | also randomized, but a tree |
+| Sorted array | O(log n) | none | inserts shift O(n) elements |
+| Sorted linked list | O(n) | none | what the skip list improves on |
+
+Skip lists are used in practice: Redis sorted sets, the LevelDB memtable and Java's `ConcurrentSkipListMap` are examples.
+
+## Common Pitfalls
+
+- Not lowering `level` after a delete: searches stay correct but start on empty levels.
+- Mixing up the per-level predecessors in `update`.
+- Re-seeding the random generator for each list: lists made in the same second share heights, and global `rand()` users are disturbed. The C++ class has a per-instance generator.
+- A `max_level` too small for the data size.
+- The header's key `-1` is a placeholder that is never compared; negative keys, including `-1`, work.
+- C++: copying a list double-frees its nodes, so the copy operations are deleted.
+
+## Implementations
+
+| Language | Folder | Main file | Notes |
+| --- | --- | --- | --- |
+| Python | [`Python/`](./Python) | `skip_list.py` | `random.random()`; defaults (16, 0.5) |
+| C++ | [`C++/`](./C++) | `skip_list.cpp` | destructor; copy deleted; per-instance `mt19937`; `deleteNode` |
+| Go | [`Go/`](./Go) | `main.go` | `NewSkipList(maxLevel, p)`; global `math/rand` |
+
+## Practice Problems
+
+- [Design Skiplist](https://leetcode.com/problems/design-skiplist/)
+- [Design Linked List](https://leetcode.com/problems/design-linked-list/)
+- [Search in a Sorted Array of Unknown Size](https://leetcode.com/problems/search-in-a-sorted-array-of-unknown-size/)
+
+## Related
+
+- [Singly Linked List](../Singly)
+- [Binary Search Tree](../../../Non_Linear/Trees/Binary%20Search%20Tree)
+- [Treap](../../../Non_Linear/Trees/Treap)
+- [AVL Tree](../../../Non_Linear/Trees/AVL%20Tree)

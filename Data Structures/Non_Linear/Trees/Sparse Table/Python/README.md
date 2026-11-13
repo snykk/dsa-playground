@@ -1,78 +1,39 @@
-# Sparse Table - Python
+# Sparse Table -- Python Implementation
 
-This folder contains a Python implementation of a **Sparse Table**.
+A static range minimum or maximum table: O(n log n) build, O(1) query. See the [topic README](../README.md) for the idea and a trace.
 
-A **Sparse Table** is a static data structure that supports O(1) range minimum/maximum queries (RMQ) after O(n log n) preprocessing. It does not support updates.
+## Files
 
----
+| File | Contents |
+| ---- | -------- |
+| `sparse_table.py` | `SparseTable` |
+| `sparse_table_test.py` | unit tests, empty-input and invalid-kind tests, and an exhaustive comparison with brute force on random arrays |
 
-## Concept
+## API
 
-- **Static Structure**: Array cannot be modified after construction
-- **O(1) Queries**: Fastest query time for RMQ (Range Minimum/Maximum Query)
-- **O(n log n) Preprocessing**: Build time is O(n log n)
-- **No Updates**: Cannot update array elements (use Segment Tree if updates needed)
+| Call | Result |
+| ---- | ------ |
+| `SparseTable(arr, query_type='min')` | builds the table from a copy of `arr`; `ValueError` unless `query_type` is `'min'` or `'max'` |
+| `query(left, right)` | min or max of `left..right` (inclusive); swapped bounds are reordered |
+| `get(index)` | the original element |
 
----
+An empty array is allowed. Any query or `get` with an index outside `0..n-1` (including every call on an empty table) raises `IndexError`.
 
-## Operations
+## Python-Specific Notes
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------ | ------------------------------------ | --------------- |
-| `query(left, right)`     | Get min/max in range [left, right]   | O(1)            |
-| `get(index)`             | Get value at index                   | O(1)            |
+- The number of levels and the query exponent come from `int.bit_length()`, not from `math.log2`.
+- `table[i][j]` is a list of `n` rows; cells beyond a valid window stay 0 and are never read.
+- The input list is copied, so later changes to it do not affect the table.
 
----
-
-## Complexity
-
-| Operation     | Time Complexity | Space Complexity |
-| ------------- | --------------- | ---------------- |
-| Build         | O(n log n)      | O(n log n)       |
-| Query         | O(1)            | O(1)             |
-| Update        | Not supported   | -                |
-| Space         | O(n log n)      | O(n log n)       |
-
----
-
-## Usage
-
-```python
-from sparse_table import SparseTable
-
-# Initialize with array (min query)
-arr = [1, 3, 5, 7, 9, 11, 2, 4, 6, 8]
-st_min = SparseTable(arr, 'min')
-
-# Range minimum query
-print(st_min.query(0, 2))   # 1 (min of 1, 3, 5)
-print(st_min.query(1, 3))   # 3 (min of 3, 5, 7)
-
-# Initialize with array (max query)
-st_max = SparseTable(arr, 'max')
-
-# Range maximum query
-print(st_max.query(0, 2))   # 5 (max of 1, 3, 5)
-print(st_max.query(1, 3))   # 7 (max of 3, 5, 7)
-
-# Get single value
-print(st_min.get(0))        # 1
-```
-
----
-
-## Applications
-
-- Range minimum/maximum queries (RMQ)
-- Static array queries (no updates)
-- Competitive programming (when updates are not needed)
-- LCA (Lowest Common Ancestor) in trees
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-python -m unittest sparse_table_test.py
+cd "Data Structures/Non_Linear/Trees/Sparse Table/Python"
+python3 -m unittest sparse_table_test
 ```
 
+## Key Takeaways
+
+- Two overlapping power-of-two windows answer any range.
+- Only idempotent operations (min, max, gcd) work this way.
+- Use integer bit tricks for `floor(log2)`.

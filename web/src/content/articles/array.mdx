@@ -1,0 +1,239 @@
+---
+topic: Data Structures/Linear/Array
+title: Array
+lead: An array stores elements back to back in one block of memory, so the element at any index is found by one multiplication and one addition. That makes reads and writes O(1) and iteration cache-friendly, at the price of O(n) inserts and deletes in the middle.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Access by index
+    value: O(1)
+  - label: Append (dynamic)
+    value: O(1)
+    hint: amortized; one resize costs O(n)
+  - label: Insert or delete in the middle
+    value: O(n)
+    hint: later elements must shift
+    tone: warn
+  - label: Memory
+    value: Contiguous
+    hint: one block, no per-element pointers
+properties:
+  - { label: Random access, value: true }
+  - { label: Contiguous memory, value: true }
+  - { label: Resizable, value: false }
+  - { label: Cheap middle insert, value: false }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Data Structures/Linear/Linked List/Singly
+  - Data Structures/Linear/Stack/Array Based/Dynamic Size
+  - Data Structures/Linear/Queue/Circular Queue
+  - Data Structures/Hashing/Hash Table
+  - Algorithms/Searching/Binary Search
+---
+
+## What an array is
+
+An array is a fixed number of slots of equal size, laid out one after another. If the first slot sits at address `base` and each slot takes `w` bytes, slot `i` sits at `base + i * w`. No search is needed: the address is computed, so reading `a[i]` costs the same for `i = 0` as for `i = 10^9`.
+
+<ArrayDiagram
+  legend={{ p: 'the slot being read', f: 'the base address (index 0)' }}
+  rows={[
+    { label: 'int a[5], w = 4 bytes, base = 1000', values: [10, 20, 30, 40, 50], tones: 'f.p..', marks: { 0: '1000', 1: '1004', 2: '1008', 3: '1012', 4: '1016' }, note: '`a[2]` is at 1000 + 2 * 4 = 1008. One multiply, one add, one memory read.' },
+  ]}
+/>
+
+Because neighbours share cache lines, scanning an array is also the fastest way to walk through data on real hardware.
+
+<Callout title="Why the size is fixed">
+The block must be contiguous, and whatever sits after it in memory may already be in use. A plain array therefore cannot grow in place. Growing means allocating a bigger block and copying, which is what a dynamic array automates.
+</Callout>
+
+## Three flavours
+
+<DataTable
+  columns={['Kind', 'What it is', 'Capacity', 'Notes']}
+  rows={[
+    ['Static array', 'fixed length chosen up front', 'fixed', '`int arr[5]` in C++, `[5]int` in Go, `array.array` in Python (typed, fixed element type)'],
+    ['Dynamic array', 'an array plus a length counter and a resize rule', 'grows (and may shrink)', 'Python `list`, C++ `std::vector`, Go slices'],
+    ['Multi-dimensional array', 'a grid stored in one flat block', 'fixed', 'cell `(i, j)` lives at `i * cols + j` (row-major)'],
+  ]}
+/>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`a[i]` read or write', 'compute the address, touch one slot', 'O(1)'],
+    ['`append(x)`', 'write at index `n`; resize first if full', 'O(1) amortized, O(n) worst'],
+    ['`pop()`', 'return and drop the last element', 'O(1)'],
+    ['`insert(i, x)`', 'shift `a[i..n-1]` right by one, write `x`', 'O(n)'],
+    ['`remove(i)`', 'shift `a[i+1..n-1]` left by one', 'O(n)'],
+    ['search (unsorted)', 'scan until found', 'O(n)'],
+    ['search (sorted)', 'binary search', 'O(log n)'],
+  ]}
+/>
+
+The Python `DynamicArray` in this repository implements `len()`, `a[k]` (no negative indexes), `append` and `pop`. Insert and remove are not implemented; the walk-through below shows what they cost.
+
+### Insert in the middle: shift right
+
+To insert `25` at index 2 of `[10, 20, 30, 40]` every element from index 2 onward moves one slot to the right, starting from the last one so nothing is overwritten:
+
+<ArrayDiagram
+  legend={{ l: 'elements that move', p: 'the new element', f: 'result' }}
+  rows={[
+    { label: 'start', values: [10, 20, 30, 40, '-'], tones: '..ll.', marks: { 2: 'i' }, note: 'There must be a free slot at the end (grow first if not).' },
+    { label: 'shift 40', values: [10, 20, 30, 40, 40], tones: '..l.l', note: 'Copy `a[3]` to `a[4]`.' },
+    { label: 'shift 30', values: [10, 20, 30, 30, 40], tones: '..ll.', note: 'Copy `a[2]` to `a[3]`.' },
+    { label: 'write', values: [10, 20, 25, 30, 40], tones: '..pff', note: 'Store 25 in the gap. Moving n - i elements: O(n) in the worst case (i = 0).' },
+  ]}
+/>
+
+Removing index 2 runs the same loop in the other direction (shift left, front to back).
+
+### Append and the doubling rule
+
+The repository's `DynamicArray` starts with capacity 1. When `append` finds the array full it allocates a block of twice the capacity, copies every element and then writes the new one. Nine appends of `10, 20, ..., 90`:
+
+<ArrayDiagram
+  legend={{ p: 'element just written', l: 'resize happened on this append', m: 'unused capacity' }}
+  rows={[
+    { label: 'n = 1', values: [10], tones: 'p', note: 'capacity 1' },
+    { label: 'n = 2', values: [10, 20], tones: 'lp', note: 'full: copy 1 element into capacity 2' },
+    { label: 'n = 3', values: [10, 20, 30, '-'], tones: 'llpm', note: 'full: copy 2 elements into capacity 4' },
+    { label: 'n = 5', values: [10, 20, 30, 40, 50, '-', '-', '-'], tones: 'lllllmmm', note: 'append 4 fits; append 5 copies 4 elements into capacity 8' },
+    { label: 'n = 9', values: [10, 20, 30, 40, 50, 60, 70, 80, 90, '-', '-', '-', '-', '-', '-', '-'], tones: 'llllllllpmmmmmmm', note: 'append 9 copies 8 elements into capacity 16' },
+  ]}
+/>
+
+### Shrinking
+
+`pop` clears the vacated slot (`None`), so the array does not keep the popped object alive. When the length falls to a quarter of the capacity the array halves its capacity. Popping everything from the nine-element array above:
+
+<ArrayDiagram
+  legend={{ l: 'live elements', m: 'unused capacity' }}
+  rows={[
+    { label: 'n = 5, capacity 16', values: [10, 20, 30, 40, 50, '-', '-', '-'], tones: 'lllllmmm', note: 'shown: the first 8 of 16 slots. After popping 90, 80, 70, 60 the capacity is still 16.' },
+    { label: 'n = 4, capacity 8', values: [10, 20, 30, 40, '-', '-', '-', '-'], tones: 'llllmmmm', note: 'pop 50: 4 elements = 16 / 4, so halve to 8.' },
+    { label: 'n = 2, capacity 4', values: [10, 20, '-', '-'], tones: 'llmm', note: 'pop 30: 2 elements = 8 / 4, so halve to 4.' },
+  ]}
+/>
+
+Shrinking at one half would be a trap. A full array of capacity 8 that appends (grows to 16) and pops (falls to 8 elements, half of 16, shrinks to 8) would copy all elements on every operation. Waiting for one quarter leaves a gap, so after any resize at least `capacity / 4` cheap operations must happen before the next one.
+
+### Two dimensions in one block
+
+A 3 by 3 grid is stored as 9 consecutive slots, row after row. Cell `(i, j)` is at flat index `i * cols + j`:
+
+<GridDiagram
+  rows={[[1, 2, 3], [4, 5, 6], [7, 8, 9]]}
+  tones={['...', '..p', '...']}
+  rowLabels={[0, 1, 2]}
+  colLabels={[0, 1, 2]}
+  corner="i \ j"
+  legend={{ p: 'cell (1, 2)' }}
+  caption="Cell (1, 2) holds 6 and sits at flat index 1 * 3 + 2 = 5."
+/>
+
+<ArrayDiagram
+  legend={{ p: 'cell (1, 2)', l: 'row 1' }}
+  rows={[
+    { label: 'flat, row-major', values: [1, 2, 3, 4, 5, 6, 7, 8, 9], tones: '...llp...', marks: { 3: '1*3+0', 5: '1*3+2' } },
+  ]}
+/>
+
+Walking the grid row by row touches consecutive addresses; walking it column by column jumps `cols` slots each time and loses the cache advantage. A list of lists (nested slices, nested vectors) allows rows of different lengths but stores each row in its own block.
+
+## See it in the code
+
+The Python folder has three files: `static_array.py`, `multi_dimensional_array.py` (both demonstrations built on `array.array` and nested lists) and `dynamic_array.py`, the only reusable type. In C++ and Go all three files are small demonstration programs over `std::vector`, C arrays and slices, because those languages already ship a dynamic array. Their tests therefore exercise the language built-ins, not repository code. Only `dynamic_array_test.py` tests repository code.
+
+## Implementation
+
+<TopicCode topic="Data Structures/Linear/Array" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Static', kind: 'mono' }, { label: 'Dynamic', kind: 'mono' }, 'Why']}
+  rows={[
+    ['access `a[i]`', 'O(1)', 'O(1)', 'address arithmetic'],
+    ['append', 'n/a', 'O(1) amortized', 'a resize copies n elements but happens rarely (below)'],
+    ['insert / remove at `i`', 'O(n)', 'O(n)', 'shift up to n elements'],
+    ['search, unsorted', 'O(n)', 'O(n)', 'nothing to skip'],
+    ['space', 'O(n)', 'O(n)', 'a dynamic array may hold up to a constant factor of unused slots'],
+  ]}
+/>
+
+**Why append is amortized O(1).** With doubling, the resizes copy 1, 2, 4, ..., n/2 elements, which sums to less than n. Over n appends that is fewer than n extra copies, so the total is under 2n writes and the average per append is a constant. For example, 1000 appends from capacity 1 perform 1023 element copies in resizes (the last resize at append 513 copies 512 elements), about one per append. A single append can still cost O(n), so this is an average over a sequence, not a bound on each call.
+
+<Equation label="Total copy work for n = 2^k appends" expr="1 + 2 + 4 + ... + 2^{k-1}" result="2^k - 1 < n" />
+
+The growth factor only needs to be greater than 1 for the amortized argument to hold. CPython lists grow by about 12.5 percent, C++ libraries typically double, and Go slices roughly double for small sizes and grow more slowly for large ones. The exact factor is an implementation detail.
+
+## Array vs alternatives
+
+<DataTable
+  columns={['Structure', { label: 'Access', kind: 'mono' }, { label: 'Insert at front', kind: 'mono' }, { label: 'Append', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Dynamic array', 'O(1)', 'O(n)', 'O(1) amortized', 'best default; cache-friendly'],
+    ['Singly linked list', 'O(n)', 'O(1)', 'O(n) without a tail pointer', 'no shifting, but pointer chasing and a pointer per node'],
+    ['Hash table', 'O(1) by key', 'n/a', 'O(1) average', 'unordered, keys instead of positions'],
+    ['Circular buffer', 'O(1)', 'O(1)', 'O(1)', 'fixed capacity, queue-like'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Constant-time access by index.',
+    'Compact: no pointers, so little overhead per element.',
+    'Cache-friendly traversal, usually the fastest in practice.',
+    'Simple model that other structures (stacks, queues, heaps, hash tables) are built on.',
+  ]}
+  cons={[
+    'Inserting or removing anywhere but the end shifts elements: O(n).',
+    'A static array cannot grow; a dynamic one pays an occasional O(n) resize.',
+    'A resize moves the data, which invalidates pointers and iterators into it.',
+    'Searching an unsorted array needs a full scan.',
+  ]}
+/>
+
+## Applications
+
+- **Storage for other structures:** stack, queue, binary heap and hash table buckets are arrays underneath.
+- **Matrices and images** as flat row-major buffers; **DP tables** and **grids** in algorithm problems.
+- **Prefix sums, frequency counts and sieves** that index by value.
+- **Binary search** on sorted data, which needs random access.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Off-by-one at the end.** Valid indexes are `0` to `n - 1`. Python `DynamicArray` raises `IndexError` for `a[n]` and does not accept `a[-1]`, unlike a built-in `list`.
+- **Keeping references across growth.** After a resize the old block is gone. In C++ a pointer or iterator into a `vector` is invalid after `push_back` may reallocate.
+- **Go slice aliasing.** `b := a[:2]` shares the backing array with `a`; `append(b, x)` can overwrite `a[2]`.
+- **Shrinking at half full.** It makes alternating append and pop copy the whole array every time. Shrink at a quarter.
+- **Forgetting to clear popped slots** in a language with garbage collection: the array keeps the object alive.
+- **Inserting in a loop at the front.** n inserts at index 0 cost O(n<sup>2</sup>). Append and reverse, or use a deque.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is a Python list a linked list?">
+    No. A Python `list` is a dynamic array of references. `lst[i]` is O(1), `lst.append` is amortized O(1), and `lst.insert(0, x)` is O(n).
+  </FaqItem>
+  <FaqItem question="Why is append O(1) if resizing copies everything?">
+    Resizes are rare and their cost is spread out. With doubling, the copies of all resizes up to n elements add up to less than n, so the average per append is constant. This is amortized analysis, not a per-call guarantee.
+  </FaqItem>
+  <FaqItem question="Why do arrays start at index 0?">
+    The index is an offset from the base address: `base + i * w`. The first element is zero slots away from the start.
+  </FaqItem>
+  <FaqItem question="When is a linked list better than an array?">
+    When you insert or remove at known positions in the middle very often and never need random access. In practice arrays win for most sizes because of cache locality, so measure before choosing a list.
+  </FaqItem>
+</Faq>

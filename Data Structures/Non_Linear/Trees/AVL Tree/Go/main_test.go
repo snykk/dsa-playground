@@ -132,6 +132,53 @@ func TestDeleteMaintainsBalance(t *testing.T) {
 	}
 }
 
+func trueHeight(t *testing.T, n *AVLNode) int {
+	if n == nil {
+		return 0
+	}
+	l, r := trueHeight(t, n.left), trueHeight(t, n.right)
+	if l-r > 1 || r-l > 1 {
+		t.Fatalf("node %d unbalanced: %d vs %d", n.data, l, r)
+	}
+	h := 1
+	if l > r {
+		h += l
+	} else {
+		h += r
+	}
+	if n.height != h {
+		t.Fatalf("node %d stored height %d, true height %d", n.data, n.height, h)
+	}
+	return h
+}
+
+func TestRandomOpsKeepTrueBalance(t *testing.T) {
+	avl := NewAVLTree()
+	ref := map[int]bool{}
+	seed := uint32(7)
+	for i := 0; i < 3000; i++ {
+		seed = seed*1664525 + 1013904223
+		k := int((seed >> 8) % 200)
+		if (seed>>4)%3 == 0 {
+			avl.Delete(k)
+			delete(ref, k)
+		} else {
+			avl.Insert(k)
+			ref[k] = true
+		}
+		trueHeight(t, avl.root)
+	}
+	got := avl.InorderTraversal()
+	if len(got) != len(ref) {
+		t.Fatalf("size mismatch: %d vs %d", len(got), len(ref))
+	}
+	for i := 1; i < len(got); i++ {
+		if got[i-1] >= got[i] {
+			t.Fatal("inorder not strictly increasing")
+		}
+	}
+}
+
 func compareSlices(a, b []int) bool {
 	if len(a) != len(b) {
 		return false

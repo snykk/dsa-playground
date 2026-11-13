@@ -131,6 +131,24 @@ class TestWeightedGraph(unittest.TestCase):
         disconnected.add_vertex(3)  # Isolated vertex
         self.assertFalse(disconnected.is_connected())
 
+    def test_neighbors_with_weights_returns_copy(self):
+        """Editing the returned list must not change the graph."""
+        g = WeightedGraph(directed=False)
+        g.add_edge(1, 2, 5.0)
+        result = g.get_neighbors_with_weights(1)
+        result.append((99, 1.0))
+        self.assertFalse(g.has_edge(1, 99))
+        self.assertEqual(g.get_neighbors_with_weights(1), [(2, 5.0)])
+
+    def test_zero_and_negative_weights(self):
+        """Zero and negative weights are stored as given."""
+        g = WeightedGraph(directed=True)
+        g.add_edge(1, 2, 0.0)
+        g.add_edge(2, 3, -4.0)
+        self.assertEqual(g.get_weight(1, 2), 0.0)
+        self.assertEqual(g.get_weight(2, 3), -4.0)
+        self.assertTrue(g.has_edge(1, 2))
+        self.assertIsNone(g.get_weight(3, 2))
 
 if __name__ == '__main__':
     unittest.main()

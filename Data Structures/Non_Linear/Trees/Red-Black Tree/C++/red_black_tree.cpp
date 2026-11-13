@@ -110,6 +110,23 @@ class RedBlackTree {
         }
     }
 
+    bool validate(RBNode* node, const int* lo, const int* hi, int& blackHeight) {
+        if (node == NIL) { blackHeight = 1; return true; }
+        if (lo && node->data < *lo) return false;
+        if (hi && node->data > *hi) return false;
+        if (node->color == RED &&
+            (node->left->color == RED || node->right->color == RED)) return false;
+        if (node->left != NIL && node->left->parent != node) return false;
+        if (node->right != NIL && node->right->parent != node) return false;
+        int lh = 0, rh = 0;
+        // Equal keys may sit on either side after rotations, so bounds are inclusive.
+        if (!validate(node->left, lo, &node->data, lh)) return false;
+        if (!validate(node->right, &node->data, hi, rh)) return false;
+        if (lh != rh) return false;
+        blackHeight = lh + (node->color == BLACK ? 1 : 0);
+        return true;
+    }
+
 public:
     RedBlackTree() {
         NIL = new RBNode(0, BLACK);
@@ -120,6 +137,10 @@ public:
         deleteTree(root);
         delete NIL;
     }
+
+    // The tree owns raw nodes, so a shallow copy would free them twice.
+    RedBlackTree(const RedBlackTree&) = delete;
+    RedBlackTree& operator=(const RedBlackTree&) = delete;
 
     void insert(int data) {
         RBNode* z = new RBNode(data, RED);
@@ -159,6 +180,13 @@ public:
 
     bool isEmpty() {
         return root == NIL;
+    }
+
+    // Checks the five red-black rules, BST order and parent links.
+    bool isValid() {
+        if (root->color != BLACK) return false;
+        int bh = 0;
+        return validate(root, nullptr, nullptr, bh);
     }
 };
 

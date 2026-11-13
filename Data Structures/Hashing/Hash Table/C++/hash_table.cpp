@@ -5,11 +5,11 @@
  * mapping keys to values using a hash function.
  */
 
-#include <iostream>
 #include <vector>
 #include <list>
 #include <string>
 #include <functional>
+#include <stdexcept>
 
 template<typename K, typename V>
 class HashTable {
@@ -31,15 +31,18 @@ private:
     }
     
     void resize() {
-        std::vector<std::list<KeyValue>> old_buckets = buckets;
+        std::vector<std::list<KeyValue>> old_buckets = std::move(buckets);
         capacity *= 2;
         buckets.clear();
         buckets.resize(capacity);
-        size = 0;
-        
+
+        // Splice the existing list nodes into their new buckets instead of
+        // copying them: pointers returned by get() stay valid across a resize,
+        // as with std::unordered_map, and no node is allocated or destroyed.
         for (auto& bucket : old_buckets) {
-            for (auto& kv : bucket) {
-                put(kv.key, kv.value);
+            while (!bucket.empty()) {
+                auto& target = buckets[hash(bucket.front().key)];
+                target.splice(target.end(), bucket, bucket.begin());
             }
         }
     }
@@ -47,6 +50,7 @@ private:
 public:
     HashTable(size_t cap = 16) 
         : capacity(cap), size(0), load_factor_threshold(0.75) {
+        if (cap == 0) throw std::invalid_argument("capacity must be positive");
         buckets.resize(capacity);
     }
     
@@ -118,9 +122,11 @@ public:
     }
 };
 
-// Specialization for string keys
+// Specialization of hash() for <std::string, std::string> tables only (other
+// key/value types, such as <std::string, int>, use std::hash). It is inline so
+// that including this file from several translation units links.
 template<>
-size_t HashTable<std::string, std::string>::hash(const std::string& key) {
+inline size_t HashTable<std::string, std::string>::hash(const std::string& key) {
     size_t hash_value = 0;
     for (char c : key) {
         hash_value = (hash_value * 31 + c) % capacity;

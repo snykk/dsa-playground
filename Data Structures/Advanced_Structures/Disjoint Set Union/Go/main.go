@@ -108,9 +108,9 @@ func main() {
 	dsu.Union(0, 1)
 	dsu.Union(2, 3)
 	dsu.Union(3, 4)
-	fmt.Printf("After unions: count=%d\n", dsu.GetComponentCount())   // 3
-	fmt.Printf("connected(0,1)=%v\n", dsu.Connected(0, 1))           // true
-	fmt.Printf("connected(0,2)=%v\n", dsu.Connected(0, 2))           // false
-	fmt.Printf("size of set containing 2: %d\n", dsu.GetSize(2))     // 3
+	fmt.Printf("After unions: count=%d\n", dsu.GetComponentCount()) // 3
+	fmt.Printf("connected(0,1)=%v\n", dsu.Connected(0, 1))          // true
+	fmt.Printf("connected(0,2)=%v\n", dsu.Connected(0, 2))          // false
+	fmt.Printf("size of set containing 2: %d\n", dsu.GetSize(2))    // 3
 	fmt.Printf("Components: %v\n", dsu.GetComponents())
 }

@@ -1,188 +1,105 @@
 # Binary Tree
 
-A **Binary Tree** is a fundamental hierarchical data structure where each node has at most two children, referred to as the **left child** and **right child**. Unlike Binary Search Trees (BST), Binary Trees don't enforce any ordering constraint on the nodes.
+A binary tree is a hierarchy in which every node has at most two children, a left one and a right one. It carries no ordering rule: that is what separates it from a binary search tree.
 
----
+## Intuition
 
-## Overview
+Picture a family tree where everyone has at most two children, or a file of nested yes/no decisions. Each node owns two smaller trees, so almost every algorithm on it is a short recursion: handle this node, then ask the left and right subtrees to do the same.
 
-Binary Trees are the foundation for many advanced tree data structures:
+**Invariant:** the structure is just "root + left subtree + right subtree"; the tree in this repository is additionally always **complete** (every level full except possibly the last, filled left to right) because `insert` places each value in the first free slot in level order. So its height is floor(log2 n).
 
-- **No Ordering**: Unlike BST, nodes can be in any order
-- **Hierarchical Structure**: Parent-child relationships form a tree
-- **Maximum 2 Children**: Each node can have 0, 1, or 2 children
-- **Root Node**: Topmost node with no parent
-- **Leaf Nodes**: Nodes with no children
+Height is counted in edges: an empty tree is -1, a single node 0.
 
----
+## Visual
 
-## Key Characteristics
-
-1. **Node Structure**: Each node contains data and references to left/right children
-2. **Tree Properties**: Height, size, depth, level
-3. **Traversal Methods**: Multiple ways to visit all nodes
-4. **Flexible Structure**: Can be balanced or unbalanced, complete or incomplete
-
----
-
-## Tree Terminology
-
-- **Root**: The topmost node (no parent)
-- **Parent**: A node with one or more children
-- **Child**: A node directly below another node
-- **Leaf**: A node with no children
-- **Internal Node**: A node with at least one child
-- **Height**: Number of edges from root to deepest leaf
-- **Depth**: Number of edges from root to a specific node
-- **Level**: Depth + 1 (root is at level 1)
-
----
-
-## Operations
-
-| Operation                | Description                                    | Time Complexity |
-| ------------------------- | ---------------------------------------------- | --------------- |
-| `insert(data)`           | Insert data using level-order insertion        | O(n)            |
-| `search(data)`           | Search for data in the tree                    | O(n)            |
-| `inorder_traversal()`    | Traverse: Left, Root, Right                    | O(n)            |
-| `preorder_traversal()`   | Traverse: Root, Left, Right                    | O(n)            |
-| `postorder_traversal()`  | Traverse: Left, Right, Root                    | O(n)            |
-| `level_order_traversal()`| Traverse level by level (BFS)                  | O(n)            |
-| `height()`               | Calculate height of the tree                   | O(n)            |
-| `size()`                 | Get total number of nodes                      | O(n)            |
-| `is_empty()`             | Check if tree is empty                         | O(1)            |
-
----
-
-## Traversal Methods
-
-### 1. Inorder Traversal (Left, Root, Right)
-- Visit left subtree → root → right subtree
-- **Use Case**: Produces sorted output for BST, expression evaluation
-
-### 2. Preorder Traversal (Root, Left, Right)
-- Visit root → left subtree → right subtree
-- **Use Case**: Copying tree structure, prefix notation
-
-### 3. Postorder Traversal (Left, Right, Root)
-- Visit left subtree → right subtree → root
-- **Use Case**: Deleting tree, postfix notation
-
-### 4. Level-Order Traversal (Breadth-First)
-- Visit nodes level by level from top to bottom
-- **Use Case**: Printing tree structure, finding level-specific nodes
-
----
-
-## Example Tree Structure
-
-```
-        1
-       / \
-      2   3
-     / \
-    4   5
+```text
+        1            in-order    4 2 5 1 6 3 7
+      /   \          pre-order   1 2 4 5 3 6 7
+     2     3         post-order  4 5 2 6 7 3 1
+    / \   / \        level-order 1 2 3 4 5 6 7
+   4   5 6   7
 ```
 
-**Traversal Results:**
-- **Inorder**: 4, 2, 5, 1, 3
-- **Preorder**: 1, 2, 4, 5, 3
-- **Postorder**: 4, 5, 2, 3, 1
-- **Level-order**: 1, 2, 3, 4, 5
+## How It Works / Operations
 
----
+| Operation | Description | Time |
+|-----------|-------------|------|
+| `insert(x)` | breadth-first search for the first node with a free child, attach there | O(n) |
+| `search(x)` | node, then left subtree, then right subtree | O(n) |
+| `inorder`, `preorder`, `postorder` | recursive depth-first traversals | O(n) |
+| `level_order` | queue-based breadth-first traversal | O(n) |
+| `height()`, `size()` | visit every node | O(n) |
+| `is_empty()` | check the root | O(1) |
 
-## Complexity Summary
+The traversals differ only in when the node is visited: pre-order before its subtrees, in-order between them, post-order after them. In-order output is sorted only for a binary search tree. There is no delete, no iterative traversal and no build-from-traversals in any language.
 
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| insert    | O(n)            | O(n)             |
-| search    | O(n)            | O(h)             |
-| Traversal | O(n)            | O(h)             |
-| height    | O(n)            | O(h)             |
-| size      | O(n)            | O(h)             |
-| Space     | O(n)            | O(n)             |
+## Step-by-Step Trace
 
-Where:
-- `n` = number of nodes
-- `h` = height of tree (O(log n) for balanced, O(n) for skewed)
+In-order on the 7-node tree: node 1 calls node 2, which calls leaf 4 (emit 4). Node 2 emits itself (2), then goes right to leaf 5 (emit 5). Node 2 returns, node 1 emits itself (1) and goes right: 6, 3, 7.
 
----
+| Step | Output so far |
+|------|---------------|
+| emit 4 | 4 |
+| emit 2 | 4 2 |
+| emit 5 | 4 2 5 |
+| emit 1 | 4 2 5 1 |
+| right subtree | 4 2 5 1 6 3 7 |
 
-## Applications
+Insert 6 into `[1, 2, 3, 4, 5]`: node 1 has two children (queue 2, 3), node 2 has two children (queue 3, 4, 5), node 3 has a free left slot, so 6 becomes the left child of 3.
 
-1. **Expression Trees**: Represent mathematical expressions
-2. **File System**: Directory structure representation
-3. **Decision Trees**: Machine learning and AI
-4. **Syntax Trees**: Compiler design
-5. **Huffman Coding**: Data compression
-6. **Game Trees**: Game AI and decision making
-7. **Heap Implementation**: Priority queues
+## Complexity
 
----
+| Operation | Time | Extra space |
+|-----------|------|-------------|
+| insert | O(n) | O(n) queue |
+| search | O(n) | O(h) |
+| DFS traversal | O(n) | O(h) stack |
+| level-order | O(n) | O(n) queue (up to about n / 2 nodes) |
+| height, size | O(n) | O(h) |
 
-## Tree Types
+Here h = floor(log2 n) because of level-order insertion. A chain would have h = n - 1.
 
-Binary Trees can be classified into various types:
+## When to Use
 
-- **Full Binary Tree**: Every node has 0 or 2 children
-- **Complete Binary Tree**: All levels filled except possibly the last, filled left to right
-- **Perfect Binary Tree**: All internal nodes have 2 children, all leaves at same level
-- **Balanced Binary Tree**: Height difference between left and right subtrees ≤ 1
-- **Skewed Binary Tree**: All nodes have only one child (left or right)
+Use a plain binary tree to model hierarchy (expression trees, parse trees, decision trees) and as the base for other trees. Do not use it for lookups by value: search is O(n). Add ordering (BST) for lookups or a heap rule for priorities.
 
----
+## Binary Tree vs. Alternatives
 
-## Implementation Approaches
+| Structure | Order | Search | Best for |
+|-----------|-------|--------|----------|
+| Binary tree | none | O(n) | hierarchy, expression trees |
+| [Binary Search Tree](../Binary%20Search%20Tree/README.md) | sorted by key | O(h) | ordered lookups |
+| [Min Heap](../../Heaps/Min%20Heap/README.md) | parent vs children | O(n) | priority queue |
+| Array | by index | O(n) | compact sequences |
 
-### 1. Level-Order Insertion (Current Implementation)
-- Fills tree from left to right, level by level
-- Simple and predictable structure
-- Good for complete binary trees
+## Common Pitfalls
 
-### 2. Recursive Insertion
-- More flexible insertion based on conditions
-- Used in BST and specialized trees
-
-### 3. Array Representation
-- Store tree in array using index relationships
-- Efficient for complete binary trees
-- Parent at index `i`, children at `2i+1` and `2i+2`
-
----
+- Calling in-order output sorted; that holds only for a BST.
+- Mixing height in edges (empty = -1) with height in nodes (empty = 0).
+- Quoting O(h) space for level-order; the queue can hold a whole level.
+- Recursing on a skewed tree; very deep chains overflow stacks (not an issue for this complete tree).
+- Expecting insert to keep search order; it fills slots in level order and ignores key values.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+- [Python](Python/README.md)
+- [C++](C++/README.md)
+- [Go](Go/README.md)
 
-- **Python** (`Python/`) - Uses `collections.deque` for queue operations
-- **C++** (`C++/`) - Uses `std::queue` and proper memory management
-- **Go** (`Go/`) - Uses `container/list` for queue operations
+Tree kinds: full (0 or 2 children), complete (filled left to right), perfect (all leaves at one depth, 2^(h+1) - 1 nodes), balanced (subtree heights differ by at most 1 everywhere).
 
-Each implementation includes:
-- Complete source code with all traversal methods
-- Comprehensive test suite
-- Detailed README with usage examples
+## Practice Problems
 
----
+- LeetCode 94, Binary Tree Inorder Traversal.
+- LeetCode 144, Binary Tree Preorder Traversal.
+- LeetCode 145, Binary Tree Postorder Traversal.
+- LeetCode 102, Binary Tree Level Order Traversal.
+- LeetCode 104, Maximum Depth of Binary Tree.
+- LeetCode 226, Invert Binary Tree.
 
-## Related Data Structures
+## Related
 
-- **Binary Search Tree (BST)**: Binary tree with ordering constraint
-- **AVL Tree**: Self-balancing BST
-- **Red-Black Tree**: Another self-balancing BST
-- **Heap**: Complete binary tree with heap property
-- **Trie**: Tree for string operations
-
----
-
-## Further Reading
-
-- [Binary Tree on Wikipedia](https://en.wikipedia.org/wiki/Binary_tree)
-- Tree visualization: [Visualgo](https://visualgo.net/en/binarytree)
-- [Tree Traversal Techniques](https://www.geeksforgeeks.org/tree-traversals-inorder-preorder-and-postorder/)
-
----
-
-**Note**: This implementation uses level-order insertion for simplicity. For more specialized use cases, consider Binary Search Tree (BST) which maintains ordering constraints for efficient search operations.
-
+- [Binary Search Tree](../Binary%20Search%20Tree/README.md): a binary tree with an ordering rule.
+- [AVL Tree](../AVL%20Tree/README.md): a self-balancing BST.
+- [Min Heap](../../Heaps/Min%20Heap/README.md): a complete binary tree with the heap rule, stored in an array.
+- [Cartesian Tree](../Cartesian%20Tree/README.md): a binary tree built from an array.

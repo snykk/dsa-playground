@@ -26,7 +26,12 @@ class CircularQueue:
 
         Args:
             capacity: The maximum number of items the queue can hold.
+
+        Raises:
+            ValueError: If capacity is less than 1.
         """
+        if capacity < 1:
+            raise ValueError("Capacity must be at least 1")
         self.capacity = capacity
         self.queue = [None] * capacity
         self.front = -1
@@ -66,6 +71,7 @@ class CircularQueue:
         if self.is_empty():
             raise IndexError("Queue is empty")
         item = self.queue[self.front]
+        self.queue[self.front] = None  # do not keep the dequeued object alive
         if self.front == self.rear:
             self.front = self.rear = -1
         else:

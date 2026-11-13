@@ -25,7 +25,7 @@ func TestEvictionLeastFrequentFirst(t *testing.T) {
 	c := NewLFUCache(2)
 	c.Put(1, 10)
 	c.Put(2, 20)
-	c.Get(1)    // freq(1)=2, freq(2)=1
+	c.Get(1)     // freq(1)=2, freq(2)=1
 	c.Put(3, 30) // evicts 2
 	if got := c.Get(2); got != -1 {
 		t.Errorf("expected 2 evicted, got %d", got)
@@ -42,7 +42,7 @@ func TestEvictionTieBrokenByLRU(t *testing.T) {
 	c := NewLFUCache(2)
 	c.Put(1, 10)
 	c.Put(2, 20)
-	c.Put(3, 30) // both freq=1, 1 is LRU → evict 1
+	c.Put(3, 30) // both freq=1, 1 is LRU -> evict 1
 	if got := c.Get(1); got != -1 {
 		t.Errorf("expected 1 evicted, got %d", got)
 	}

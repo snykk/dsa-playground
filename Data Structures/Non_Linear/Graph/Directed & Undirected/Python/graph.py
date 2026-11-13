@@ -15,10 +15,10 @@ class Graph:
     
     Supports:
     - Add vertex: O(1)
-    - Add edge: O(1)
-    - Remove edge: O(V)
-    - Check edge: O(V)
-    - Get neighbors: O(V)
+    - Add edge: O(deg(u) + deg(v)) (duplicate check)
+    - Remove edge: O(deg(u) + deg(v))
+    - Check edge: O(deg(u))
+    - Get neighbors: O(deg(u)) (returns a copy)
     - BFS/DFS traversal: O(V + E)
     """
     
@@ -100,7 +100,7 @@ class Graph:
         Returns:
             List of neighbor vertices
         """
-        return self.adjacency_list.get(vertex, [])
+        return list(self.adjacency_list.get(vertex, []))
     
     def get_vertices(self) -> Set[int]:
         """Get all vertices in the graph.

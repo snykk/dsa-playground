@@ -1,31 +1,42 @@
-# C++ Implementation
+# Rope -- C++ Implementation
 
-This folder contains a **Rope data structure** implemented in C++ using `shared_ptr` for memory safety.
+## Files
 
-#### Classes
+| File | Contents |
+| --- | --- |
+| `rope.cpp` | `RopeNode`, the free helpers (`ropeJoin`, `ropeSplit`, `ropeBuild`, ...) and class `Rope` (no `main()`) |
+| `rope_test.cpp` | assert-based tests, a randomized comparison with `std::string` and tree-invariant checks |
 
-- `RopeNode` - Binary tree node managed via `shared_ptr`
-- `Rope` - Main class wrapping the tree with value semantics
+## API
 
-#### Operations
+- `Rope()`, `Rope(const string&)`: empty rope or a balanced rope (leaves of at most 10 bytes).
+- `char index(int i) const`: throws `std::out_of_range` out of range. O(log n).
+- `Rope concat(const Rope&) const`: a new rope; sources unchanged. O(log n).
+- `pair<Rope, Rope> split(int i) const`: `i` is clamped.
+- `void insert(int i, const string&)`, `void deleteStr(int i, int length)`: modify in place.
+- `string toString() const`: the whole text. O(n).
+- `int length() const`: O(1) (cached).
+- `int height() const`: 0 for one leaf, -1 for an empty rope.
 
-- `Rope(text)` - Build a rope from a string
-- `index(i)` - Get character at position i
-- `concat(other)` - Concatenate two ropes
-- `split(i)` - Split rope at position i
-- `insert(i, text)` - Insert string at position i
-- `deleteStr(i, length)` - Delete substring
-- `toString()` - Collect all leaves into a string
-- `length()` - Get total length
+## C++-Specific Notes
 
-#### Compile and Run Tests
+- Nodes are `shared_ptr<RopeNode>`; subtrees shared between ropes are freed when the last rope releases them. No manual `delete`, and the default copy of a `Rope` is safe because nodes are immutable.
+- Positions are bytes (`std::string`), so non-ASCII text can be cut mid-character.
+- Recursion depth is the tree height, O(log n), so neither traversal nor the `shared_ptr` destructor chain can overflow the stack. Before the AVL-style join, 500,000 appends at the end crashed with a stack overflow.
+- A leaf is recognised by a non-empty `data`; internal nodes have empty `data`.
+- Weights, lengths and heights are `int`, which limits a rope to about 2 billion bytes.
+
+## How to Run
 
 ```bash
-g++ -std=c++17 -o test rope_test.cpp && ./test
+cd "Data Structures/Linear/String/Rope/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD rope_test.cpp -o /tmp/rope && /tmp/rope
+# with AddressSanitizer:
+g++ -std=c++17 -g -fsanitize=address,undefined -DIS_TEST_BUILD rope_test.cpp -o /tmp/rope_asan && /tmp/rope_asan
 ```
 
-#### Notes
+## Key Takeaways
 
-- Uses `shared_ptr<RopeNode>` for automatic memory management
-- No raw `new`/`delete` calls needed
-- Structured bindings (C++17) used in split operations
+- Immutable shared nodes make persistence free.
+- The join keeps the height logarithmic, which also keeps recursion safe.
+- Positions are bytes.

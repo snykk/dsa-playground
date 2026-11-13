@@ -6,7 +6,6 @@ type code. Covers basic operations: creation, element access, and
 element update.
 """
 
-# Python/Linear/Array/static_array.py
 import array
 
 def main():

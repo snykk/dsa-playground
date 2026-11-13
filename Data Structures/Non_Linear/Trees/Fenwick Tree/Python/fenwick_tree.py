@@ -23,6 +23,11 @@ class FenwickTree:
         for i in range(self.n):
             self.update(i, arr[i])
 
+    def _check(self, index):
+        """Raise IndexError unless 0 <= index < n (negative indices are rejected)."""
+        if not 0 <= index < self.n:
+            raise IndexError("index %d out of range for size %d" % (index, self.n))
+
     def _lsb(self, index):
         """Get least significant bit (lowest set bit).
         
@@ -40,7 +45,11 @@ class FenwickTree:
         Args:
             index: Index to update (0-indexed)
             delta: Value to add (can be negative for subtraction)
+
+        Raises:
+            IndexError: if index is not in [0, n)
         """
+        self._check(index)
         index += 1  # Convert to 1-indexed
         while index <= self.n:
             self.tree[index] += delta
@@ -54,7 +63,11 @@ class FenwickTree:
             
         Returns:
             Sum of elements from index 0 to index
+
+        Raises:
+            IndexError: if index is not in [0, n)
         """
+        self._check(index)
         index += 1  # Convert to 1-indexed
         result = 0
         while index > 0:
@@ -71,7 +84,14 @@ class FenwickTree:
             
         Returns:
             Sum of elements in range [left, right]
+
+        Raises:
+            IndexError: unless 0 <= left <= right < n
         """
+        self._check(left)
+        self._check(right)
+        if left > right:
+            raise IndexError("left %d is greater than right %d" % (left, right))
         if left == 0:
             return self.prefix_sum(right)
         return self.prefix_sum(right) - self.prefix_sum(left - 1)

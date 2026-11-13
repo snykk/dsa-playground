@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <queue>
+#include <stdexcept>
+#include <cstdlib>
 #include <algorithm>
 using namespace std;
 
@@ -177,11 +178,6 @@ class AVLTree {
         }
     }
 
-    int heightRecursive(AVLNode* node) {
-        if (node == nullptr) return 0;
-        return 1 + max(heightRecursive(node->left), heightRecursive(node->right));
-    }
-
     int sizeRecursive(AVLNode* node) {
         if (node == nullptr) return 0;
         return 1 + sizeRecursive(node->left) + sizeRecursive(node->right);
@@ -204,6 +200,10 @@ class AVLTree {
 
 public:
     AVLTree() : root(nullptr) {}
+
+    // Nodes are owned through raw pointers, so a copy would double free.
+    AVLTree(const AVLTree&) = delete;
+    AVLTree& operator=(const AVLTree&) = delete;
 
     ~AVLTree() {
         deleteTree(root);

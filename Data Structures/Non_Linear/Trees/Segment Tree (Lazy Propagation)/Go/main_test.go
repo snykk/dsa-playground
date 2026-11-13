@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"math/rand"
+	"testing"
+)
 
 func TestBuildAndQuery(t *testing.T) {
 	arr := []int{1, 3, 5, 7, 9, 11}
@@ -121,5 +124,37 @@ func TestNegativeValues(t *testing.T) {
 	st.UpdateRange(0, 5, -1)
 	if st.Query(0, 5) != 30 {
 		t.Errorf("Expected 30, got %d", st.Query(0, 5))
+	}
+}
+
+func TestRandomAgainstBruteForce(t *testing.T) {
+	rng := rand.New(rand.NewSource(5))
+	for n := 1; n <= 40; n++ {
+		init := make([]int, n)
+		ref := make([]int64, n)
+		for i := range init {
+			init[i] = rng.Intn(101) - 50
+			ref[i] = int64(init[i])
+		}
+		st := NewLazySegmentTree(init)
+		for step := 0; step < 60; step++ {
+			l := rng.Intn(n)
+			r := l + rng.Intn(n-l)
+			if rng.Intn(2) == 0 {
+				v := int64(rng.Intn(41) - 20)
+				for i := l; i <= r; i++ {
+					ref[i] += v
+				}
+				st.UpdateRange(l, r, v)
+			} else {
+				var want int64
+				for _, x := range ref[l : r+1] {
+					want += x
+				}
+				if st.Query(l, r) != want {
+					t.Fatalf("n=%d query(%d,%d) mismatch", n, l, r)
+				}
+			}
+		}
 	}
 }

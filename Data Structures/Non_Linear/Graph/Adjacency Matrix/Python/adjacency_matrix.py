@@ -8,7 +8,6 @@ For weighted graphs, values are edge weights (or infinity if no edge).
 
 from typing import List, Optional, Set
 from collections import deque
-import sys
 
 
 class AdjacencyMatrix:
@@ -22,7 +21,7 @@ class AdjacencyMatrix:
     - Remove edge: O(1)
     - Check edge: O(1)
     - Get neighbors: O(V)
-    - Space: O(V²)
+    - Space: O(V^2) (plus a V x V presence table)
     """
     
     def __init__(self, num_vertices: int, directed: bool = False, weighted: bool = False):
@@ -48,7 +47,9 @@ class AdjacencyMatrix:
             # For unweighted: use 0 for no edge, 1 for edge
             self.matrix = [[0] * num_vertices for _ in range(num_vertices)]
         
-        self.vertices = set(range(num_vertices))
+        # Weighted graphs need a separate presence table: weight 0 (or any value)
+        # must stay distinguishable from "no edge".
+        self.present = [[False] * num_vertices for _ in range(num_vertices)]
     
     def add_edge(self, from_vertex: int, to_vertex: int, weight: float = 1.0) -> None:
         """Add an edge to the graph.
@@ -61,17 +62,22 @@ class AdjacencyMatrix:
         if not (0 <= from_vertex < self.num_vertices and 0 <= to_vertex < self.num_vertices):
             raise ValueError(f"Vertices must be in range [0, {self.num_vertices})")
         
-        if self.weighted:
-            self.matrix[from_vertex][to_vertex] = weight
-        else:
-            self.matrix[from_vertex][to_vertex] = 1
-        
+        self._set_cell(from_vertex, to_vertex, weight)
+
         # For undirected graph, add reverse edge
         if not self.directed:
-            if self.weighted:
-                self.matrix[to_vertex][from_vertex] = weight
-            else:
-                self.matrix[to_vertex][from_vertex] = 1
+            self._set_cell(to_vertex, from_vertex, weight)
+
+    def _set_cell(self, u: int, v: int, weight: float) -> None:
+        self.present[u][v] = True
+        self.matrix[u][v] = weight if self.weighted else 1
+
+    def _clear_cell(self, u: int, v: int) -> None:
+        self.present[u][v] = False
+        if self.weighted:
+            self.matrix[u][v] = 0 if u == v else float('inf')
+        else:
+            self.matrix[u][v] = 0
     
     def remove_edge(self, from_vertex: int, to_vertex: int) -> None:
         """Remove an edge from the graph.
@@ -83,17 +89,11 @@ class AdjacencyMatrix:
         if not (0 <= from_vertex < self.num_vertices and 0 <= to_vertex < self.num_vertices):
             return
         
-        if self.weighted:
-            self.matrix[from_vertex][to_vertex] = float('inf')
-        else:
-            self.matrix[from_vertex][to_vertex] = 0
-        
+        self._clear_cell(from_vertex, to_vertex)
+
         # For undirected graph, remove reverse edge
         if not self.directed:
-            if self.weighted:
-                self.matrix[to_vertex][from_vertex] = float('inf')
-            else:
-                self.matrix[to_vertex][from_vertex] = 0
+            self._clear_cell(to_vertex, from_vertex)
     
     def has_edge(self, from_vertex: int, to_vertex: int) -> bool:
         """Check if an edge exists between two vertices.
@@ -108,11 +108,7 @@ class AdjacencyMatrix:
         if not (0 <= from_vertex < self.num_vertices and 0 <= to_vertex < self.num_vertices):
             return False
         
-        if self.weighted:
-            return self.matrix[from_vertex][to_vertex] != float('inf') and \
-                   self.matrix[from_vertex][to_vertex] != 0
-        else:
-            return self.matrix[from_vertex][to_vertex] == 1
+        return self.present[from_vertex][to_vertex]
     
     def get_weight(self, from_vertex: int, to_vertex: int) -> Optional[float]:
         """Get the weight of an edge.
@@ -130,11 +126,10 @@ class AdjacencyMatrix:
         if not (0 <= from_vertex < self.num_vertices and 0 <= to_vertex < self.num_vertices):
             return None
         
-        weight = self.matrix[from_vertex][to_vertex]
-        if weight == float('inf') or weight == 0:
+        if not self.present[from_vertex][to_vertex]:
             return None
-        
-        return weight
+
+        return self.matrix[from_vertex][to_vertex]
     
     def get_neighbors(self, vertex: int) -> List[int]:
         """Get all neighbors of a vertex.

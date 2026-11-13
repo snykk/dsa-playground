@@ -1,3 +1,3 @@
 module kd_tree
 
-go 1.24
+go 1.24.2

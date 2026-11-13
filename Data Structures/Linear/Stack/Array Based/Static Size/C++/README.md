@@ -1,50 +1,40 @@
-# ⚡ C++ - Static Array-Based Stack (Fixed Size)
+# Static Size Array Stack -- C++ Implementation
 
-This folder contains a **C++ implementation of a static array-based stack** using a fixed-size array.
+A LIFO stack of `int` over a raw `new int[capacity]` array. See the [topic README](../README.md) for the concept.
 
----
+## Files
 
-## ⚙️ Features
+| File | Contents |
+| --- | --- |
+| `array_stack.cpp` | the `ArrayStack` class |
+| `array_stack_test.cpp` | assert-based tests, built with `-DIS_TEST_BUILD` |
 
-- Core operations:
-  - `push(int value)` → add element to top (throws `overflow_error` if full)
-  - `pop()` → remove and return top element (throws `underflow_error` if empty)
-  - `peek()` → view top element (throws `underflow_error` if empty)
-  - `is_empty()` → check if stack is empty
-  - `size()` → current number of elements
-- Fixed capacity defined at compile or initialization
-- Simple, efficient, no dynamic memory allocation
+## API
 
----
+| Member | Description | Time |
+| --- | --- | --- |
+| `explicit ArrayStack(int size = 100)` | create a stack; throws `std::invalid_argument` if `size < 1` | O(capacity) |
+| `void push(int value)` | add on top; throws `std::overflow_error` when full | O(1) |
+| `int pop()` | remove and return the top; throws `std::underflow_error` if empty | O(1) |
+| `int peek()` | return the top by value; throws `std::underflow_error` if empty | O(1) |
+| `bool isEmpty()`, `int size()` | state queries | O(1) |
 
-## 📝 Example Usage
+## C++-Specific Notes
 
-```cpp
-#include "array_stack.cpp"
-#include <iostream>
+- The class allocates with `new int[capacity]` (dynamic memory, once) and frees it in the destructor.
+- Copy constructor and copy assignment are deleted: a copy would share the array and free it twice.
+- The method is `isEmpty()` here and in the Linked List stack, while the Dynamic Size stack uses `is_empty()`.
+- `<stdexcept>` is included for the exceptions.
 
-int main() {
-    ArrayStack stack(3); // max size 3
-    stack.push(10);
-    stack.push(20);
-    stack.push(30);
-
-    std::cout << stack.peek() << std::endl; // 30
-    std::cout << stack.pop() << std::endl;  // 30
-    std::cout << stack.pop() << std::endl;  // 20
-    std::cout << stack.is_empty() << std::endl; // 0 (false)
-    std::cout << stack.pop() << std::endl;  // 10
-    std::cout << stack.is_empty() << std::endl; // 1 (true)
-
-    // stack.push(40); // Would throw overflow_error if full
-}
-```
-
----
-
-## ▶️ Running Tests
+## How to Run
 
 ```bash
-g++ array_stack_test.cpp -o test && ./test
-
+cd "Data Structures/Linear/Stack/Array Based/Static Size/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD array_stack_test.cpp -o array_stack_test
+./array_stack_test
 ```
+
+## Key Takeaways
+
+- A class that owns a raw array needs a destructor and a copy policy.
+- Reject a capacity below 1 in the constructor.

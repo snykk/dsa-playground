@@ -1,82 +1,33 @@
-# Fibonacci Heap - Python
+# Fibonacci Heap -- Python Implementation
 
-This folder contains a Python implementation of a **Fibonacci Heap**.
+Lazy forest of heap-ordered trees with a circular root list. See the [topic README](../README.md) for the theory.
 
-A **Fibonacci Heap** is an advanced heap data structure with amortized O(1) insert and O(log n) extract min. It's more complex than binary heaps but offers better performance for certain operations.
+## Files
 
----
+- `fibonacci_heap.py`: `FibonacciHeapNode` and `FibonacciHeap`
+- `fibonacci_heap_test.py`: unit tests (10), including 2000 random keys and an interleaved comparison with `heapq`
 
-## Concept
+## API
 
-- **Collection of Trees**: Multiple min-heap ordered trees
-- **Amortized O(1) Insert**: Very fast insertion
-- **Lazy Consolidation**: Trees are consolidated only when needed
-- **More Complex**: More complex than binary heaps
-- **Better for Many Inserts**: Better when you have many insertions
+- `insert(key)`: O(1)
+- `extract_min()`: O(log n) amortized, raises `IndexError` when empty
+- `peek()`: raises `IndexError` when empty
+- `size()`, `is_empty()`, `clear()` (O(1))
 
----
+None of the three versions has `decrease_key`, `delete` or `merge`; the `marked` flag is stored but unused.
 
-## Operations
+## Python-Specific Notes
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------ | ------------------------------------ | --------------- |
-| `insert(key)`            | Insert key into heap                 | O(1) amortized  |
-| `extract_min()`          | Remove and return minimum element    | O(log n) amortized |
-| `peek()`                 | Get minimum element without removing | O(1)            |
-| `is_empty()`             | Check if heap is empty               | O(1)            |
-| `size()`                 | Get number of elements               | O(1)            |
-| `clear()`                | Remove all elements                 | O(n)            |
+Keys can be any mutually comparable values. The degree table in consolidation is a `dict`. Memory is garbage collected, so `clear()` just drops the root.
 
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Insert    | O(1) amortized  | O(1)             |
-| Extract   | O(log n) amortized | O(1)             |
-| Peek      | O(1)            | O(1)             |
-| Space     | O(n)            | O(n)             |
-
----
-
-## Usage
-
-```python
-from fibonacci_heap import FibonacciHeap
-
-# Create empty heap
-heap = FibonacciHeap()
-
-# Insert elements
-heap.insert(5)
-heap.insert(3)
-heap.insert(7)
-heap.insert(1)
-
-# Peek minimum
-print(heap.peek())  # 1
-
-# Extract minimum
-print(heap.extract_min())  # 1
-print(heap.extract_min())  # 3
-print(heap.extract_min())  # 5
-print(heap.extract_min())  # 7
-```
-
----
-
-## Applications
-
-- Graph algorithms (Dijkstra's with many edges)
-- Priority queues with many insertions
-- Advanced algorithms requiring fast inserts
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-python -m unittest fibonacci_heap_test.py
+python3 -m unittest fibonacci_heap_test
 ```
 
+## Key Takeaways
+
+- Insert is a list splice; `extract_min` consolidates equal-degree trees.
+- This is the lazy core, not a complete Fibonacci heap (no decrease-key).
+- Empty-heap reads are errors, not sentinel values.

@@ -1,50 +1,42 @@
-# Interval Tree (C++)
+# Interval Tree -- C++ Implementation
 
-An **Interval Tree** is a data structure for storing intervals and efficiently querying intervals that overlap with a given interval or point.
+An augmented binary search tree of closed `int` intervals. See the [topic README](../README.md) for the algorithms.
 
----
+## Files
 
-## Operations
+| File | Contents |
+| ---- | -------- |
+| `interval_tree.cpp` | `Interval`, `IntervalNode`, `IntervalTree` (included directly by the tests) |
+| `interval_tree_test.cpp` | unit tests with exact results, a 100000-insert scaling test and a randomized test against brute force |
 
-### 1. Insert
+## API
 
-```cpp
-IntervalTree tree;
-tree.insert(Interval(10, 20));
-tree.insert(Interval(15, 25));
-```
+| Call | Result |
+| ---- | ------ |
+| `Interval(int low, int high)` | closed interval; a low greater than high swaps the bounds |
+| `void insert(const Interval&)` | adds an interval |
+| `bool remove(const Interval&)` | removes one equal interval; false if none |
+| `vector<Interval> searchOverlapping(const Interval&)` | overlapping intervals |
+| `vector<Interval> searchContainingPoint(int)` | intervals containing a point |
+| `vector<Interval> searchContainedIn(const Interval&)` | intervals fully inside the query |
+| `vector<Interval> inorderTraversal() const`, `int size() const`, `bool isEmpty()` | sorted by low, count, emptiness |
+| `bool validateMax() const` | every node's `max` is correct |
 
-**Time Complexity**: O(log n)
+## C++-Specific Notes
 
-### 2. Search Overlapping
+- The destructor frees every node and copying is deleted, because a shallow copy would double free.
+- The recursion follows the tree height; a chain of very many sorted intervals can exhaust the stack.
+- Results are returned by value.
 
-```cpp
-std::vector<Interval> result = tree.searchOverlapping(Interval(14, 16));
-```
-
-**Time Complexity**: O(log n + k)
-
-### 3. Search Point
-
-```cpp
-std::vector<Interval> result = tree.searchContainingPoint(15);
-```
-
-**Time Complexity**: O(log n + k)
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++11 interval_tree.cpp interval_tree_test.cpp -o interval_tree_test
-./interval_tree_test
+cd "Data Structures/Non_Linear/Trees/Interval Tree/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD interval_tree_test.cpp -o interval_tree_test && ./interval_tree_test
 ```
 
----
+## Key Takeaways
 
-## Related Data Structures
-
-- **Segment Tree**: For range queries on arrays
-- **Range Tree**: For multi-dimensional range queries
-
+- Update `max` on the path only; a global recomputation made every insert O(n).
+- Own nodes in one place and forbid copies.
+- `validateMax()` lets tests check the augmentation.

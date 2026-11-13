@@ -1,99 +1,34 @@
-# Directed & Undirected Graph - C++
+# Directed & Undirected Graphs -- C++ Implementation
 
-This folder contains a C++ implementation of **Graph** that supports both directed and undirected graphs.
+One `Graph` class for both kinds, stored as `unordered_map<int, vector<int>>`. See the [topic README](../README.md) for the theory, the trace and the complexity table.
 
-A **Graph** is a collection of vertices (nodes) connected by edges. Graphs can be classified based on the direction of their edges.
+## Files
 
----
+- `graph.cpp`: the `Graph` class
+- `graph_test.cpp`: assert-based tests (add, remove, traversals, connectivity)
 
-## Concept
+## API
 
-- **Directed Graph**: Edges have direction (A → B)
-- **Undirected Graph**: Edges are bidirectional (A ↔ B)
-- **Adjacency List**: Uses `unordered_map<int, vector<int>>` for storage
-- **Dynamic**: Can add vertices dynamically
+- `Graph(bool directed = false)`
+- `add_vertex(v)`, `add_edge(u, v)`, `remove_edge(u, v)`
+- `has_edge(u, v)`, `get_neighbors(u)`, `get_vertices()`, `get_edges()`
+- `bfs(start)`, `dfs(start)`
+- `is_connected()`: throws `std::invalid_argument` on a directed graph
+- `get_degree(u)`: directed graphs return in-degree plus out-degree
 
----
+## C++-Specific Notes
 
-## Operations
+All storage is standard containers, so copying a `Graph` is safe. `get_neighbors` returns a copy. There is no recursive DFS in this version. `get_edges()` removes the mirror copy of an undirected edge by remembering a string key for each pair.
 
-| Operation | Description | Time Complexity |
-| --------- | ----------- | --------------- |
-| `add_vertex(vertex)` | Add a vertex to the graph | O(1) |
-| `add_edge(from, to)` | Add an edge between vertices | O(1) |
-| `remove_edge(from, to)` | Remove an edge | O(V) |
-| `has_edge(from, to)` | Check if edge exists | O(V) |
-| `get_neighbors(vertex)` | Get all neighbors of a vertex | O(1) |
-| `get_edges()` | Get all edges in the graph | O(E) |
-| `get_degree(vertex)` | Get degree of a vertex | O(V) |
-| `bfs(start)` | Breadth-First Search traversal | O(V + E) |
-| `dfs(start)` | Depth-First Search traversal | O(V + E) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Add Vertex | O(1) | O(1) |
-| Add Edge | O(1) | O(1) |
-| Remove Edge | O(V) | O(1) |
-| Check Edge | O(V) | O(1) |
-| Get Neighbors | O(1) | O(degree) |
-| BFS/DFS | O(V + E) | O(V) |
-| Space | O(V + E) | O(V + E) |
-
----
-
-## Usage
-
-```cpp
-#include "graph.cpp"
-#include <iostream>
-using namespace std;
-
-int main() {
-    // Undirected graph
-    Graph undirected(false);
-    undirected.add_edge(1, 2);
-    undirected.add_edge(2, 3);
-
-    cout << undirected.has_edge(1, 2) << endl;  // 1 (true)
-    cout << undirected.has_edge(2, 1) << endl;  // 1 (true, bidirectional)
-
-    // Directed graph
-    Graph directed(true);
-    directed.add_edge(1, 2);
-    directed.add_edge(2, 3);
-
-    cout << directed.has_edge(1, 2) << endl;  // 1 (true)
-    cout << directed.has_edge(2, 1) << endl;  // 0 (false, not bidirectional)
-
-    vector<int> bfs_result = undirected.bfs(1);
-
-    return 0;
-}
-```
-
----
-
-## Compile and Run
+## How to Run
 
 ```bash
-# Compile
-g++ -o graph_test graph_test.cpp
-
-# Run
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD graph_test.cpp -o graph_test
 ./graph_test
 ```
 
----
+## Key Takeaways
 
-## Notes
-
-- Uses `unordered_map<int, vector<int>>` for adjacency list
-- For undirected graphs, edges are stored in both directions
-- Supports dynamic vertex addition
-- Requires `<unordered_map>`, `<vector>`, `<queue>`, `<stack>` headers
-- BFS uses `queue`, DFS uses `stack` from STL
-
+- The `directed` flag controls only whether the reverse entry is stored.
+- Edge updates and lookups scan a vector: O(deg).
+- `is_connected()` is defined only for undirected graphs.

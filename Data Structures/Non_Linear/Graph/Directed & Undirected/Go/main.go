@@ -61,26 +61,27 @@ func (g *Graph) AddEdge(fromVertex, toVertex int) {
 }
 
 func (g *Graph) RemoveEdge(fromVertex, toVertex int) {
-	neighbors := g.adjacencyList[fromVertex]
-	newNeighbors := []int{}
-	for _, v := range neighbors {
-		if v != toVertex {
-			newNeighbors = append(newNeighbors, v)
-		}
-	}
-	g.adjacencyList[fromVertex] = newNeighbors
+	g.removeOneWay(fromVertex, toVertex)
 
 	// For undirected graph, remove reverse edge
 	if !g.directed {
-		reverseNeighbors := g.adjacencyList[toVertex]
-		newReverseNeighbors := []int{}
-		for _, v := range reverseNeighbors {
-			if v != fromVertex {
-				newReverseNeighbors = append(newReverseNeighbors, v)
-			}
-		}
-		g.adjacencyList[toVertex] = newReverseNeighbors
+		g.removeOneWay(toVertex, fromVertex)
 	}
+}
+
+// removeOneWay ignores unknown vertices so it never creates empty map entries.
+func (g *Graph) removeOneWay(fromVertex, toVertex int) {
+	neighbors, ok := g.adjacencyList[fromVertex]
+	if !ok {
+		return
+	}
+	kept := []int{}
+	for _, v := range neighbors {
+		if v != toVertex {
+			kept = append(kept, v)
+		}
+	}
+	g.adjacencyList[fromVertex] = kept
 }
 
 func (g *Graph) HasEdge(fromVertex, toVertex int) bool {
@@ -101,7 +102,7 @@ func (g *Graph) GetNeighbors(vertex int) []int {
 	if !exists {
 		return []int{}
 	}
-	return neighbors
+	return append([]int{}, neighbors...)
 }
 
 func (g *Graph) GetVertices() []int {
@@ -286,4 +287,3 @@ func main() {
 
 	fmt.Println("\nDirected Graph BFS from 1:", directedGraph.BFS(1))
 }
-

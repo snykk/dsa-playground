@@ -1,9 +1,11 @@
 class RopeNode:
     """A node in the rope binary tree.
 
-    Leaf nodes store a string fragment in `data`.
+    Leaf nodes store a non-empty string fragment in `data` (height 0).
     Internal nodes store `weight` (total length of left subtree)
     and pointers to `left` and `right` children.
+    Every node caches its total `length` and its `height` (the longest
+    path down to a leaf), so neither has to be recomputed by walking.
     """
 
     def __init__(self, data=None):
@@ -11,15 +13,29 @@ class RopeNode:
         self.right = None
         self.data = data
         self.weight = len(data) if data else 0
+        self.length = self.weight
+        self.height = 0
 
 
 def _length(node):
     """Compute total length of string stored in the subtree rooted at node."""
-    if node is None:
-        return 0
-    if node.data is not None:
-        return len(node.data)
-    return node.weight + _length(node.right)
+    return 0 if node is None else node.length
+
+
+def _height(node):
+    """Height of the subtree rooted at node (an empty tree has height -1)."""
+    return -1 if node is None else node.height
+
+
+def _make(left, right):
+    """A new internal node over two non-empty subtrees, with its cached fields set."""
+    parent = RopeNode()
+    parent.left = left
+    parent.right = right
+    parent.weight = left.length
+    parent.length = left.length + right.length
+    parent.height = 1 + max(left.height, right.height)
+    return parent
 
 
 def _index(node, i):
@@ -51,15 +67,15 @@ def _build(text, leaf_size=10):
     if len(text) <= leaf_size:
         return RopeNode(text)
     mid = len(text) // 2
-    parent = RopeNode()
-    parent.left = _build(text[:mid], leaf_size)
-    parent.right = _build(text[mid:], leaf_size)
-    parent.weight = _length(parent.left)
-    return parent
+    return _make(_build(text[:mid], leaf_size), _build(text[mid:], leaf_size))
 
 
 def _split(node, i):
-    """Split the subtree at position i, returning (left_tree, right_tree)."""
+    """Split the subtree at position i, returning (left_tree, right_tree).
+
+    The pieces are put back together with _join, so both stay balanced.
+    The original tree is not modified.
+    """
     if node is None:
         return (None, None)
 
@@ -68,48 +84,73 @@ def _split(node, i):
             return (None, node)
         if i >= len(node.data):
             return (node, None)
-        left_leaf = RopeNode(node.data[:i])
-        right_leaf = RopeNode(node.data[i:])
-        return (left_leaf, right_leaf)
+        return (RopeNode(node.data[:i]), RopeNode(node.data[i:]))
 
     if i < node.weight:
         left_part, right_part = _split(node.left, i)
-        new_right = RopeNode()
-        new_right.left = right_part
-        new_right.right = node.right
-        new_right.weight = _length(right_part)
-        return (left_part, new_right)
+        return (left_part, _join(right_part, node.right))
 
     if i > node.weight:
         left_part, right_part = _split(node.right, i - node.weight)
-        new_left = RopeNode()
-        new_left.left = node.left
-        new_left.right = left_part
-        new_left.weight = node.weight
-        return (new_left, right_part)
+        return (_join(node.left, left_part), right_part)
 
     # i == node.weight
     return (node.left, node.right)
 
 
-def _concat_nodes(left, right):
-    """Concatenate two rope subtrees under a new root."""
+def _join(left, right):
+    """Concatenate two rope subtrees, keeping the heights of siblings within 1.
+
+    Like AVL join: if one side is more than one level taller, walk down its
+    spine until the heights match, then rebalance with rotations on the way up.
+    Costs O(|height(left) - height(right)| + 1).
+    """
     if left is None:
         return right
     if right is None:
         return left
-    parent = RopeNode()
-    parent.left = left
-    parent.right = right
-    parent.weight = _length(left)
-    return parent
+    if left.height > right.height + 1:
+        return _join_right(left, right)
+    if right.height > left.height + 1:
+        return _join_left(left, right)
+    return _make(left, right)
+
+
+def _join_right(left, right):
+    """left is taller: attach right somewhere down left's right spine."""
+    joined = _join(left.right, right)
+    if joined.height <= left.left.height + 1:
+        return _make(left.left, joined)
+    # joined is two levels taller than left.left: rotate it up
+    if joined.left.height <= joined.right.height:
+        return _make(_make(left.left, joined.left), joined.right)
+    return _make(
+        _make(left.left, joined.left.left),
+        _make(joined.left.right, joined.right),
+    )
+
+
+def _join_left(left, right):
+    """right is taller: attach left somewhere down right's left spine."""
+    joined = _join(left, right.left)
+    if joined.height <= right.right.height + 1:
+        return _make(joined, right.right)
+    if joined.right.height <= joined.left.height:
+        return _make(joined.left, _make(joined.right, right.right))
+    return _make(
+        _make(joined.left, joined.right.left),
+        _make(joined.right.right, right.right),
+    )
 
 
 class Rope:
     """Rope data structure for efficient string manipulation.
 
-    A rope stores a string as a balanced binary tree of fragments,
-    enabling O(log n) insert and delete operations.
+    A rope stores a string as a binary tree of fragments. Concatenation and
+    splitting rebalance the tree (AVL-style join), so its height stays
+    O(log n) and index, concat, split, insert and delete are O(log n)
+    (plus the cost of building the inserted text). Positions count Python
+    code points.
     """
 
     def __init__(self, text=""):
@@ -125,7 +166,7 @@ class Rope:
     def concat(self, other):
         """Concatenate this rope with another, returning a new Rope."""
         result = Rope()
-        result._root = _concat_nodes(self._root, other._root)
+        result._root = _join(self._root, other._root)
         return result
 
     def split(self, i):
@@ -156,6 +197,10 @@ class Rope:
         parts = []
         _collect(self._root, parts)
         return "".join(parts)
+
+    def height(self):
+        """Height of the tree (0 for a single leaf, -1 for an empty rope)."""
+        return _height(self._root)
 
     def __len__(self):
         """Return total length of the string stored in this rope."""

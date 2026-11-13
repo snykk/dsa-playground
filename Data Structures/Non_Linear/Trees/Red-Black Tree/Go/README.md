@@ -1,37 +1,37 @@
-# Red-Black Tree - Go
+# Red-Black Tree -- Go Implementation
 
-This folder contains a Go implementation of a **Red-Black Tree**.
+## Files
 
-A **Red-Black Tree** is a self-balancing Binary Search Tree that guarantees O(log n) time complexity.
+- `main.go`: `RBNode`, `RedBlackTree`, an unexported `checkInvariants` helper and a small demo `main`.
+- `main_test.go`: tests, including random invariant checks.
+- `go.mod`: module `red_black_tree`.
 
----
+## API
 
-## Operations
+- `NewRedBlackTree() *RedBlackTree`
+- `Insert(data int)`: duplicates allowed. O(log n).
+- `Search(data int) bool`: O(log n).
+- `InorderTraversal() []int`: sorted keys. O(n).
+- `Size() int`, `IsEmpty() bool`.
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------- | ------------------------------------ | --------------- |
-| `Insert(data)`           | Insert data with auto-balancing      | O(log n)        |
-| `Search(data)`           | Search for data                      | O(log n)        |
-| `InorderTraversal()`     | Traverse in sorted order             | O(n)            |
-| `Size()`                 | Get total number of nodes            | O(n)            |
-| `IsEmpty()`              | Check if tree is empty               | O(1)            |
+There is no delete, height, min or max in Go.
 
----
+## Go-Specific Notes
 
-## Usage
+- Keys are `int`.
+- The shared sentinel is stored in a struct field named `nil` (legal, because the field is accessed as `rbt.nil`).
+- `checkInvariants()` returns an empty string when all rules hold, otherwise a message naming the broken rule. It is used by the tests.
+- Garbage collection handles node memory; there is no destructor.
 
-```go
-rbt := NewRedBlackTree()
-rbt.Insert(10)
-rbt.Insert(20)
-rbt.Insert(30)
-fmt.Println(rbt.Search(20))  // true
+## How to Run
+
+```bash
+cd "Data Structures/Non_Linear/Trees/Red-Black Tree/Go"
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Notes
-
-- Guarantees O(log n) for all operations
-- Fewer rotations than AVL Tree
-
+- Insert is iterative; the tree height stays within 2 log2(n + 1).
+- The same five rules are checked in all three languages.

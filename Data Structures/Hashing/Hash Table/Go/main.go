@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // HashTable represents a hash table with chaining
 type HashTable struct {
 	buckets             [][]KeyValue
@@ -27,21 +29,26 @@ func NewHashTable(capacity int) *HashTable {
 	}
 }
 
-// hash computes hash value for a key
+// hash computes the bucket index for a key. Negative ints are folded into
+// range, and every other key type is hashed through its printed form (type
+// name plus value), so int64, float64, bool and friends work too.
 func (ht *HashTable) hash(key interface{}) int {
 	switch k := key.(type) {
 	case int:
-		return k % ht.capacity
+		return ((k % ht.capacity) + ht.capacity) % ht.capacity
 	case string:
-		hashValue := 0
-		for _, char := range k {
-			hashValue = (hashValue*31 + int(char)) % ht.capacity
-		}
-		return hashValue
+		return hashString(k, ht.capacity)
 	default:
-		// Use type assertion to get hash code
-		return int(uintptr(interface{}(key).(uintptr))) % ht.capacity
+		return hashString(fmt.Sprintf("%T:%v", key, key), ht.capacity)
 	}
+}
+
+func hashString(s string, capacity int) int {
+	hashValue := 0
+	for _, char := range s {
+		hashValue = (hashValue*31 + int(char)) % capacity
+	}
+	return hashValue
 }
 
 // Put inserts or updates a key-value pair

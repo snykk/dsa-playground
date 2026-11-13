@@ -1,60 +1,38 @@
-# Hash Map (Python)
+# Hash Map -- Python Implementation
 
-A **Hash Map** is similar to a Hash Table but provides additional features like iteration support and convenience methods.
+`HashMap` subclasses the Hash Table class and adds iteration and helpers. See the [topic README](../README.md).
 
----
+## Files
 
-## Overview
+- `hash_map.py`: the `HashMap` class. It imports `HashTable` from `../../Hash Table/Python` by adding that folder to `sys.path`.
+- `hash_map_test.py`: unit tests (inherited operations, iteration, repr, defaults, insert if absent with None values, update, copy).
 
-Hash Map extends Hash Table functionality with:
-- Iterator support for easy iteration
-- Additional convenience methods
-- Better integration with Python features
+## API
 
----
+| Member | Description | Time |
+|--------|-------------|------|
+| everything in `HashTable` | `put`, `get`, `remove`, `contains`, `keys`, `values`, `items`, `clear`, `len`, `in`, `[]` | see Hash Table |
+| `get_or_default(key, default)` | value or default | O(1) average |
+| `put_if_absent(key, value)` | True if stored, False if the key exists (even with a None value) | O(1) average |
+| `update(other)` | put all pairs of a `dict` or `HashMap`; other types are ignored | O(m) |
+| `copy()` | independent map with the same capacity and pairs | O(m) |
+| `for pair in map` | iterates `(key, value)` tuples | O(capacity + n) |
+| `repr(map)` | `{key: value, ...}` | O(n) |
 
-## Additional Features
+## Python-Specific Notes
 
-### 1. Iteration
+- Iteration yields `(key, value)` tuples, unlike `dict`, which yields keys.
+- `update` does not accept a list of pairs or keyword arguments, and does not complain.
+- `capacity <= 0` raises `ValueError` (from `HashTable`).
 
-```python
-map = HashMap()
-map.put("apple", 5)
-map.put("banana", 10)
+## How to Run
 
-for key, value in map:
-    print(f"{key}: {value}")
+```bash
+python3 -m unittest hash_map_test
 ```
 
-### 2. Get or Default
+## Key Takeaways
 
-```python
-value = map.get_or_default("key", default=0)
-```
-
-### 3. Put If Absent
-
-```python
-if map.put_if_absent("key", value):
-    print("Value inserted")
-```
-
-### 4. Update
-
-```python
-map.update({"key1": 1, "key2": 2})
-```
-
-### 5. Copy
-
-```python
-new_map = map.copy()
-```
-
----
-
-## Related Data Structures
-
-- **Hash Table**: Basic hash table implementation
-- **Hash Set**: Stores only keys
-
+- A map helper is a thin layer over lookup and insert.
+- "Absent" is not the same as "stored as None".
+- Iteration order follows buckets.

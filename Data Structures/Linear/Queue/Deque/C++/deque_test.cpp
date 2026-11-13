@@ -80,7 +80,7 @@ int main() {
     test_pop_back();
     test_is_empty();
     test_size();
-    cout << "\nAll tests passed! ✓" << endl;
+    cout << "\nAll tests passed!" << endl;
     return 0;
 }
 

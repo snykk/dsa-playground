@@ -1,0 +1,234 @@
+---
+topic: Data Structures/Non_Linear/Trees/Red-Black Tree
+title: Red-Black Tree
+lead: A red-black tree is a binary search tree whose nodes carry a color bit. Five color rules keep the longest root-to-leaf path at most twice the shortest, so search and insert stay O(log n) with at most two rotations per insert.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Search
+    value: O(log n)
+  - label: Insert
+    value: O(log n)
+    hint: at most 2 rotations
+  - label: Height
+    value: "<= 2 log2(n+1)"
+  - label: Delete
+    value: not implemented
+    hint: in this repository
+    tone: warn
+properties:
+  - { label: Self-balancing, value: true }
+  - { label: Sorted iteration, value: true }
+  - { label: Duplicates allowed, value: true }
+  - { label: Delete implemented, value: false }
+prerequisites:
+  - Data Structures/Non_Linear/Trees/Binary Search Tree
+related:
+  - Data Structures/Non_Linear/Trees/AVL Tree
+  - Data Structures/Non_Linear/Trees/Splay Tree
+  - Data Structures/Non_Linear/Trees/Treap
+  - Data Structures/Non_Linear/Trees/B-Tree
+---
+
+## What a red-black tree is
+
+A plain binary search tree degrades to a linked list when keys arrive in sorted order. A red-black tree prevents that by coloring every node red or black and enforcing five rules:
+
+1. Every node is red or black.
+2. The root is black.
+3. Every NIL leaf (the empty child slots) is black.
+4. A red node has two black children, so there are never two reds in a row.
+5. Every path from a node down to a NIL leaf has the same number of black nodes (the node's *black height*).
+
+The code uses one shared sentinel node as every NIL leaf and as the root's parent, which removes null checks from the rotation and fix-up code.
+
+<TreeDiagram
+  levelOrder={[20, 10, 40, null, null, 30, 50, 25]}
+  tones="rrp..rrp"
+  legend={{ p: 'red node', r: 'black node' }}
+  caption="The tree built by inserting 10, 20, 30, 40, 50, 25. Every root-to-NIL path has two black nodes, and no red node has a red child."
+/>
+
+### Why the rules bound the height
+
+Rule 5 makes every path from a node to a leaf cross the same number of black nodes, `bh`. Rule 4 means at most every second node on a path is red, so the height satisfies `h <= 2 * bh`. A subtree with black height `bh` contains at least 2<sup>bh</sup> - 1 internal nodes, so:
+
+<Equation label="Height bound" expr="n >= 2^{h/2} - 1" result="h <= 2 log2(n + 1)" />
+
+The shortest path is all black and the longest alternates red and black, so no path is more than twice as long as another. This is looser than an AVL tree (height about 1.44 log<sub>2</sub> n) but cheaper to maintain.
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`insert(x)`', 'ordinary BST insert as a red node, then fix colors and rotate upward', 'O(log n)'],
+    ['`search(x)`', 'walk down comparing keys; returns true or false', 'O(log n)'],
+    ['`inorder_traversal()`', 'all keys in sorted order', 'O(n)'],
+    ['`find_min()`, `find_max()`', 'follow left or right links to the end (Python only)', 'O(log n)'],
+    ['`height()`', 'height in nodes, empty tree is 0 (Python only)', 'O(n)'],
+    ['`size()`, `is_empty()`', 'count nodes, or check for the sentinel root', 'O(n), O(1)'],
+  ]}
+/>
+
+There is **no delete** in any of the three languages. Delete is the harder half of a red-black tree (it needs a "double black" fix-up with four cases), and this repository only covers insertion.
+
+### Rotations
+
+A rotation changes the shape of two nodes without breaking the search order. A left rotation on `x` lifts its right child `y`. The subtree between them (`y`'s old left child) becomes `x`'s right child, which is valid because its keys lie between `x` and `y`.
+
+<TreeDiagram
+  root={{ label: 'x', tone: 'p', children: [{ label: 'A' }, { label: 'y', tone: 'l', children: [{ label: 'B', tone: 'f' }, { label: 'C' }] }] }}
+  legend={{ p: 'x, rotated down', l: 'y, rotated up', f: 'subtree B changes parent' }}
+  caption="Before a left rotation on x. After it, y is the root, x is y's left child, and B is x's right child. A, B and C keep their order."
+/>
+
+### Insert and fix-up
+
+New nodes start **red**, because adding a red node cannot change any black height. It can only break rule 4 (a red node under a red parent) or rule 2 (a red root). Let `z` be the new node, `p` its parent and `u` its uncle (the parent's sibling). While `p` is red:
+
+<Steps>
+  <Step title="Uncle is red">
+    Recolor `p` and `u` black and the grandparent red, then continue from the grandparent. No rotation, but the violation may move up two levels.
+  </Step>
+  <Step title="Uncle is black, z is an inner child (triangle)">
+    Rotate at `p` so that `z` becomes the outer child. This reduces the case to the next one.
+  </Step>
+  <Step title="Uncle is black, z is an outer child (line)">
+    Color `p` black and the grandparent red, then rotate at the grandparent. The loop ends: the subtree root is black again.
+  </Step>
+  <Step title="Finish">
+    Color the root black. This repairs a red root left by case 1 reaching the top.
+  </Step>
+</Steps>
+
+Case 1 can repeat up the tree, but it only recolors. Cases 2 and 3 run at most once, so an insert does at most two rotations.
+
+### Worked example: inserting 10, 20, 30, 40
+
+These states come from running the Python implementation.
+
+<TreeDiagram
+  levelOrder={[10, null, 20, null, 30]}
+  tones="r.p.p"
+  legend={{ p: 'red node', r: 'black node' }}
+  caption="After inserting 10, 20, 30 and before fix-up: 30 is red under red 20, and the uncle (NIL) is black. This is the line case."
+/>
+
+Rotating left at 10 (case 3) and recoloring gives a balanced tree:
+
+<TreeDiagram
+  levelOrder={[20, 10, 30]}
+  tones="rpp"
+  legend={{ p: 'red node', r: 'black node' }}
+  caption="After the fix-up: 20 is black, with red children 10 and 30."
+/>
+
+Inserting 40 puts a red node under red 30, but this time the uncle (10) is red, so case 1 recolors:
+
+<TreeDiagram
+  levelOrder={[20, 10, 30, null, null, null, 40]}
+  tones="rrr...p"
+  legend={{ p: 'red node', r: 'black node' }}
+  caption="After inserting 40: 10 and 30 turned black, 20 stayed the black root (it was recolored red, then black again). 40 is red."
+/>
+
+## Implementation
+
+The Python version has `find_min`, `find_max` and `height`; the C++ and Go versions have insert, search, inorder traversal, size and `is_empty`. C++ also has an `isValid()` method that checks all five rules, and the Go tests use an equivalent helper. Duplicate keys are inserted as extra nodes (a multiset): equal keys go to the right on insert, though rotations may later place an equal key on either side.
+
+The C++ `RedBlackTree` owns raw nodes, so its copy constructor and copy assignment are deleted. Search and traversal are recursive, which is safe because the height is at most about 2 log<sub>2</sub> n.
+
+<TopicCode topic="Data Structures/Non_Linear/Trees/Red-Black Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['search', 'O(log n)', 'height is at most 2 log2(n + 1)'],
+    ['insert', 'O(log n)', 'one descent, then at most one fix-up step per level; at most 2 rotations'],
+    ['traversal, size', 'O(n)', 'visits every node'],
+    ['space', 'O(n)', 'one color bit per node; insert needs O(1) extra space (it is iterative)'],
+  ]}
+/>
+
+Sorted input is the stress test: inserting 10000 ascending keys leaves a valid tree whose height stays under the bound, where a plain BST would reach height 10000.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Note']}
+  rows={[
+    ['Left-leaning red-black', 'red links may lean only left', 'fewer cases, same bound'],
+    ['AA tree', 'only right children may be red', 'simpler delete'],
+    ['2-3-4 tree view', 'a black node with its red children is one 2-, 3- or 4-key node', 'explains why the rules hold'],
+  ]}
+/>
+
+## Red-black tree vs alternatives
+
+<DataTable
+  columns={['Structure', 'Height bound', 'Rebalancing per insert', 'Best for']}
+  highlight={0}
+  rows={[
+    ['Red-black tree', '2 log2(n+1)', 'at most 2 rotations', 'mixed inserts, deletes and lookups'],
+    ['AVL tree', '1.44 log2(n+2)', 'at most 1 single or double rotation', 'lookup-heavy workloads'],
+    ['Splay tree', 'none (amortized)', 'rotates on every access', 'skewed access patterns'],
+    ['Treap', 'expected O(log n)', 'expected O(1) rotations or split/merge', 'simple code, randomized'],
+    ['Plain BST', 'up to n', 'none', 'random input only'],
+  ]}
+/>
+
+For inserts both red-black and AVL trees need at most one single or double rotation. For deletes an AVL tree may rotate O(log n) times, while a red-black tree needs at most three rotations.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Worst-case O(log n) search and insert, not just on average.',
+    'Few rotations per update, with insert fix-up that is O(1) extra space.',
+    'Stores one bit of balance data per node.',
+    'Sorted iteration and predecessor queries come for free.',
+  ]}
+  cons={[
+    'Taller than an AVL tree, so lookups touch slightly more nodes.',
+    'Delete is intricate (and absent from this repository).',
+    'Many cases to remember, and they are easy to mirror incorrectly.',
+    'Pointer-based, so less cache-friendly than an array structure.',
+  ]}
+/>
+
+## Applications
+
+- Ordered maps and sets: C++ `std::map` and `std::set` are commonly implemented as red-black trees, and Java `TreeMap` and `TreeSet` are.
+- The Linux kernel contains a generic red-black tree library.
+- Any place that needs worst-case guarantees together with ordered iteration, such as interval bookkeeping or schedulers.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Inserting black.** New nodes must start red; a black node would break black heights on every path through it.
+- **Only checking the parent.** After a case 1 recolor the grandparent may now be red under a red node, so the loop must continue from it.
+- **Forgetting the final root recolor.** Case 1 can turn the root red.
+- **Mixing up the mirror cases.** The left-parent and right-parent branches must be exact mirrors, including which rotation direction each uses.
+- **Assuming delete exists.** This repository has insert and search only.
+- **Rotating when the uncle is red.** A red uncle needs only recoloring.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is the new node red and not black?">
+    A red node adds no black node to any path, so rule 5 still holds. Only rule 4 can break, and that is repaired locally by the fix-up cases.
+  </FaqItem>
+  <FaqItem question="Is a red-black tree perfectly balanced?">
+    No. It guarantees only that the longest path is at most twice the shortest. The tree in the first diagram has depth 4 on one side and 2 on the other.
+  </FaqItem>
+  <FaqItem question="Red-black or AVL?">
+    AVL is stricter, so lookups are a little faster. Red-black does less work per update, especially on delete. Both are O(log n) in the worst case.
+  </FaqItem>
+  <FaqItem question="How do duplicates behave here?">
+    Each duplicate becomes a separate node, so `size()` counts it and the inorder traversal lists it. `search` only reports whether at least one copy exists.
+  </FaqItem>
+</Faq>

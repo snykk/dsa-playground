@@ -35,10 +35,10 @@ class MaxHeap {
             int left = left_child(index);
             int right = right_child(index);
 
-            if (left < heap.size() && heap[left] > heap[largest]) {
+            if (left < size() && heap[left] > heap[largest]) {
                 largest = left;
             }
-            if (right < heap.size() && heap[right] > heap[largest]) {
+            if (right < size() && heap[right] > heap[largest]) {
                 largest = right;
             }
 
@@ -52,7 +52,7 @@ class MaxHeap {
     }
 
     void build_heap() {
-        int n = heap.size();
+        int n = size();
         for (int i = n / 2 - 1; i >= 0; i--) {
             heapify_down(i);
         }
@@ -61,7 +61,7 @@ class MaxHeap {
 public:
     MaxHeap() {}
 
-    MaxHeap(vector<int>& arr) {
+    MaxHeap(const vector<int>& arr) {
         heap = arr;
         build_heap();
     }
@@ -94,12 +94,12 @@ public:
         return heap[0];
     }
 
-    bool is_empty() {
+    bool is_empty() const {
         return heap.empty();
     }
 
-    int size() {
-        return heap.size();
+    int size() const {
+        return static_cast<int>(heap.size());
     }
 
     void clear() {

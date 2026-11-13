@@ -1,7 +1,7 @@
 /**
  * Cartesian Tree Implementation (C++)
  * 
- * A binary tree derived from a sequence with min-heap property
+ * A binary tree derived from a sequence with min-heap property (parent <= children)
  * and inorder traversal that produces the original sequence.
  */
 
@@ -28,90 +28,90 @@ public:
 private:
     std::vector<int> originalArray;
     
-    void inorderRecursive(CartesianNode* node, std::vector<int>& result) {
-        if (node != nullptr) {
-            inorderRecursive(node->left, result);
+    // The helpers below are iterative: sorted input builds a chain of n
+    // nodes, and recursion on it would overflow the native stack.
+    void inorderIterative(CartesianNode* node, std::vector<int>& result) {
+        std::vector<CartesianNode*> stack;
+        while (!stack.empty() || node != nullptr) {
+            while (node != nullptr) {
+                stack.push_back(node);
+                node = node->left;
+            }
+            node = stack.back();
+            stack.pop_back();
             result.push_back(node->value);
-            inorderRecursive(node->right, result);
+            node = node->right;
         }
     }
-    
-    void preorderRecursive(CartesianNode* node, std::vector<int>& result) {
-        if (node != nullptr) {
+
+    void preorderIterative(CartesianNode* node, std::vector<int>& result) {
+        std::vector<CartesianNode*> stack;
+        if (node != nullptr) stack.push_back(node);
+        while (!stack.empty()) {
+            node = stack.back();
+            stack.pop_back();
             result.push_back(node->value);
-            preorderRecursive(node->left, result);
-            preorderRecursive(node->right, result);
+            if (node->right != nullptr) stack.push_back(node->right);
+            if (node->left != nullptr) stack.push_back(node->left);
         }
     }
-    
-    void postorderRecursive(CartesianNode* node, std::vector<int>& result) {
-        if (node != nullptr) {
-            postorderRecursive(node->left, result);
-            postorderRecursive(node->right, result);
+
+    void postorderIterative(CartesianNode* node, std::vector<int>& result) {
+        std::vector<CartesianNode*> stack;
+        size_t start = result.size();
+        if (node != nullptr) stack.push_back(node);
+        while (!stack.empty()) {
+            node = stack.back();
+            stack.pop_back();
             result.push_back(node->value);
+            if (node->left != nullptr) stack.push_back(node->left);
+            if (node->right != nullptr) stack.push_back(node->right);
         }
+        std::reverse(result.begin() + start, result.end());
     }
-    
-    int heightRecursive(CartesianNode* node) {
-        if (node == nullptr) return -1;
-        return 1 + std::max(heightRecursive(node->left), 
-                           heightRecursive(node->right));
+
+    int heightIterative(CartesianNode* node) {
+        int height = -1;
+        std::vector<CartesianNode*> level;
+        if (node != nullptr) level.push_back(node);
+        while (!level.empty()) {
+            height++;
+            std::vector<CartesianNode*> next;
+            for (CartesianNode* n : level) {
+                if (n->left != nullptr) next.push_back(n->left);
+                if (n->right != nullptr) next.push_back(n->right);
+            }
+            level.swap(next);
+        }
+        return height;
     }
-    
-    int sizeRecursive(CartesianNode* node) {
-        if (node == nullptr) return 0;
-        return 1 + sizeRecursive(node->left) + sizeRecursive(node->right);
+
+    int sizeIterative(CartesianNode* node) {
+        int count = 0;
+        std::vector<CartesianNode*> stack;
+        if (node != nullptr) stack.push_back(node);
+        while (!stack.empty()) {
+            node = stack.back();
+            stack.pop_back();
+            count++;
+            if (node->left != nullptr) stack.push_back(node->left);
+            if (node->right != nullptr) stack.push_back(node->right);
+        }
+        return count;
     }
-    
+
     void deleteTree(CartesianNode* node) {
-        if (node != nullptr) {
-            deleteTree(node->left);
-            deleteTree(node->right);
+        std::vector<CartesianNode*> stack;
+        if (node != nullptr) stack.push_back(node);
+        while (!stack.empty()) {
+            node = stack.back();
+            stack.pop_back();
+            if (node->left != nullptr) stack.push_back(node->left);
+            if (node->right != nullptr) stack.push_back(node->right);
             delete node;
         }
     }
-    
-    CartesianNode* findNodeByIndex(CartesianNode* node, int index) {
-        if (node == nullptr) return nullptr;
-        if (node->index == index) return node;
-        if (index < node->index) {
-            return findNodeByIndex(node->left, index);
-        } else {
-            return findNodeByIndex(node->right, index);
-        }
-    }
-    
-    int findMinInRange(CartesianNode* node, int left, int right) {
-        if (node == nullptr) return -1;
-        
-        int candidate = -1;
-        if (left <= node->index && node->index <= right) {
-            candidate = node->index;
-        }
-        
-        if (node->left != nullptr && node->index > left) {
-            int leftCandidate = findMinInRange(node->left, left, right);
-            if (leftCandidate != -1) {
-                if (candidate == -1 || 
-                    originalArray[candidate] > originalArray[leftCandidate]) {
-                    candidate = leftCandidate;
-                }
-            }
-        }
-        
-        if (node->right != nullptr && node->index < right) {
-            int rightCandidate = findMinInRange(node->right, left, right);
-            if (rightCandidate != -1) {
-                if (candidate == -1 || 
-                    originalArray[candidate] > originalArray[rightCandidate]) {
-                    candidate = rightCandidate;
-                }
-            }
-        }
-        
-        return candidate;
-    }
-    
+
 public:
     CartesianTree() : root(nullptr) {}
     
@@ -119,11 +119,17 @@ public:
         buildFromArray(array);
     }
     
+    // Nodes are owned through raw pointers, so a copy would double free.
+    CartesianTree(const CartesianTree&) = delete;
+    CartesianTree& operator=(const CartesianTree&) = delete;
+
     ~CartesianTree() {
         deleteTree(root);
     }
     
     void buildFromArray(const std::vector<int>& array) {
+        deleteTree(root);  // free any previous tree instead of leaking it
+        root = nullptr;
         originalArray = array;
         if (array.empty()) {
             root = nullptr;
@@ -133,7 +139,7 @@ public:
         std::stack<CartesianNode*> stack;
         
         for (size_t i = 0; i < array.size(); ++i) {
-            CartesianNode* node = new CartesianNode(array[i], i);
+            CartesianNode* node = new CartesianNode(array[i], (int)i);
             CartesianNode* lastPopped = nullptr;
             
             while (!stack.empty() && stack.top()->value > array[i]) {
@@ -161,39 +167,50 @@ public:
     
     std::vector<int> inorderTraversal() {
         std::vector<int> result;
-        inorderRecursive(root, result);
+        inorderIterative(root, result);
         return result;
     }
     
     std::vector<int> preorderTraversal() {
         std::vector<int> result;
-        preorderRecursive(root, result);
+        preorderIterative(root, result);
         return result;
     }
     
     std::vector<int> postorderTraversal() {
         std::vector<int> result;
-        postorderRecursive(root, result);
+        postorderIterative(root, result);
         return result;
     }
     
+    // Index of the minimum in array[left..right] (leftmost on ties): the
+    // lowest common ancestor of the two end positions. O(h). -1 if invalid.
     int getMinIndex(int left, int right) {
-        if (root == nullptr || left < 0 || right >= (int)originalArray.size()) {
+        if (root == nullptr || left < 0 || right >= (int)originalArray.size() || left > right) {
             return -1;
         }
-        return findMinInRange(root, left, right);
+        CartesianNode* node = root;
+        while (true) {
+            if (node->index < left) {
+                node = node->right;
+            } else if (node->index > right) {
+                node = node->left;
+            } else {
+                return node->index;
+            }
+        }
     }
-    
+
     bool isEmpty() {
         return root == nullptr;
     }
     
     int height() {
-        return heightRecursive(root);
+        return heightIterative(root);
     }
     
     int size() {
-        return sizeRecursive(root);
+        return sizeIterative(root);
     }
     
     int getRootValue() {

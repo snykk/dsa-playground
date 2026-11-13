@@ -1,47 +1,36 @@
-# LRU Cache -- C++
+# LRU Cache -- C++ Implementation
 
-C++ implementation of the LRU Cache using `std::unordered_map` for O(1) lookup and `std::list` as the doubly linked list for O(1) reordering.
+An O(1) least recently used cache. See the [topic README](../README.md) for the idea.
 
----
+## Files
+
+- `lru_cache.cpp`: the `LRUCache` class (included directly by the test).
+- `lru_cache_test.cpp`: assert-based tests, including capacity 0 and negative, and a not-copyable check.
 
 ## API
 
-| Method | Description | Time |
+| Member | Description | Time |
 |--------|-------------|------|
-| `LRUCache(capacity)` | Create cache with given capacity | O(1) |
-| `get(key)` | Return value or -1; marks key as most recently used | O(1) |
-| `put(key, value)` | Insert or update; evicts LRU entry if at capacity | O(1) |
-| `size()` | Return current number of entries | O(1) |
+| `explicit LRUCache(int capacity)` | capacity 0 or less stores nothing | O(1) |
+| `int get(int key)` | value, or -1; moves the key to the front | O(1) |
+| `void put(int key, int value)` | insert or update; evicts the back entry when full | O(1) |
+| `int size() const` | number of entries | O(1) |
 
----
+## C++-Specific Notes
 
-## Usage
+- Entries are `std::list<std::pair<int,int>>` (front is the MRU); the map stores a list iterator per key.
+- `std::list::splice` moves a node to the front in O(1) and keeps every iterator valid.
+- `put` returns at once when the capacity is 0 or less. Before that fix, capacity 0 popped an empty list and a negative capacity never evicted.
+- The map holds iterators into the object's own list, so the copy constructor and copy assignment are deleted. Moves are defaulted and safe.
 
-```cpp
-#include "lru_cache.cpp"
-
-int main() {
-    LRUCache cache(3);
-    cache.put(1, 10);
-    cache.put(2, 20);
-    cache.put(3, 30);
-
-    cache.get(1);        // 10
-    cache.put(4, 40);    // evicts key 2
-    cache.get(2);        // -1
-    cache.size();        // 3
-    return 0;
-}
-```
-
----
-
-## Compilation and Testing
+## How to Run
 
 ```bash
-g++ -std=c++17 -o test lru_cache_test.cpp && ./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD lru_cache_test.cpp -o lru_cache_test && ./lru_cache_test
 ```
 
----
+## Key Takeaways
 
-_Last Updated: April 2026_
+- `splice` plus stable iterators is the idiomatic C++ LRU.
+- Guard capacity 0 before touching the back of the list.
+- Do not copy a structure that keeps iterators into itself.

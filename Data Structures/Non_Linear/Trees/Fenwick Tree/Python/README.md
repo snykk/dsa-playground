@@ -1,106 +1,41 @@
-# Fenwick Tree (Binary Indexed Tree) - Python
+# Fenwick Tree -- Python Implementation
 
-This folder contains a Python implementation of a **Fenwick Tree** (also known as Binary Indexed Tree).
+A Fenwick tree (binary indexed tree) over a list of numbers. See the [topic README](../README.md) for the idea.
 
-A **Fenwick Tree** is a data structure that supports efficient range sum queries and point updates. It is simpler and more memory-efficient than Segment Tree for range sum operations.
+## Files
 
----
+| File | Contents |
+| ---- | -------- |
+| `fenwick_tree.py` | `FenwickTree` |
+| `fenwick_tree_test.py` | unit tests, index-error tests, negative values and a randomized test against brute force |
 
-## Concept
+## API
 
-- **1-indexed internally**: Tree uses 1-indexed array internally
-- **LSB (Least Significant Bit)**: Uses bit manipulation for efficient traversal
-- **Prefix Sum**: Efficiently calculates prefix sums
-- **Range Query**: Range sum = prefix_sum(right) - prefix_sum(left-1)
-- **Point Update**: Updates propagate to parent nodes using LSB
+| Call | Result |
+| ---- | ------ |
+| `FenwickTree(arr)` | builds from a list with `n` updates, O(n log n) |
+| `update(index, delta)` | adds `delta` (negative allowed) to element `index` |
+| `prefix_sum(index)` | sum of elements `0..index` |
+| `query(left, right)` | sum of elements `left..right`, inclusive |
+| `get(index)` | one element |
 
----
+Indices outside `0..n-1`, and `left > right`, raise `IndexError`.
 
-## Operations
+## Python-Specific Notes
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------- | ------------------------------------ | --------------- |
-| `query(left, right)`     | Get sum in range [left, right]       | O(log n)        |
-| `prefix_sum(index)`      | Get sum from 0 to index              | O(log n)        |
-| `update(index, delta)`    | Add delta to value at index          | O(log n)        |
-| `get(index)`             | Get value at index                   | O(log n)        |
+- Python integers do not overflow, and any numeric type that supports `+=` works (floats accumulate rounding error).
+- Negative indices are rejected instead of wrapping around as in a list; `update(-1, x)` used to loop forever.
+- Internal cells live in `self.tree`, 1-based with cell 0 unused.
 
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Build     | O(n log n)      | O(n)            |
-| Query     | O(log n)        | O(1)            |
-| Update    | O(log n)        | O(1)            |
-| Space     | O(n)            | O(n)            |
-
----
-
-## Usage
-
-```python
-from fenwick_tree import FenwickTree
-
-# Initialize with array
-arr = [1, 3, 5, 7, 9, 11]
-ft = FenwickTree(arr)
-
-# Range sum query
-print(ft.query(0, 2))   # 9 (1 + 3 + 5)
-print(ft.query(1, 3))   # 15 (3 + 5 + 7)
-
-# Prefix sum
-print(ft.prefix_sum(2)) # 9 (1 + 3 + 5)
-
-# Point update (add delta)
-ft.update(2, 5)  # Add 5 to index 2
-print(ft.query(0, 2))   # 14 (1 + 3 + 10)
-
-# Get single value
-print(ft.get(0))        # 1
-```
-
----
-
-## How It Works
-
-Fenwick Tree uses the concept of **Least Significant Bit (LSB)**:
-- To update: Add LSB to index (move to parent)
-- To query: Subtract LSB from index (move to previous segment)
-
-Example: index = 6 (binary: 110)
-- LSB(6) = 2 (binary: 10)
-- Update: 6 → 8 → 16 → ...
-- Query: 6 → 4 → 0
-
----
-
-## Applications
-
-- Range sum queries
-- Point updates
-- Inversion count problems
-- Competitive programming
-
----
-
-## Comparison with Segment Tree
-
-| Feature         | Segment Tree | Fenwick Tree |
-| --------------- | ------------ | ------------ |
-| Memory          | 4n           | n            |
-| Code Complexity | More complex | Simpler      |
-| Range Updates   | Yes (lazy)   | No           |
-| Range Min/Max   | Yes          | No           |
-| Range Sum       | Yes          | Yes          |
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-python -m unittest fenwick_tree_test.py
+cd "Data Structures/Non_Linear/Trees/Fenwick Tree/Python"
+python3 -m unittest fenwick_tree_test
 ```
 
+## Key Takeaways
+
+- `i & -i` isolates the lowest set bit; adding it climbs, subtracting it descends.
+- `update` adds a delta; it does not assign.
+- Validate indices before converting to 1-based.

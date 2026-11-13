@@ -93,3 +93,56 @@ func TestSize(t *testing.T) {
 	}
 }
 
+
+func TestMinIndexMatchesBruteForce(t *testing.T) {
+	seed := uint32(17)
+	next := func() uint32 {
+		seed = seed*1664525 + 1013904223
+		return seed >> 8
+	}
+	for round := 0; round < 60; round++ {
+		n := 1 + int(next()%25)
+		array := make([]int, n)
+		for i := range array {
+			array[i] = int(next()%11) - 5
+		}
+		tree := NewCartesianTreeFromArray(array)
+		for l := 0; l < n; l++ {
+			for r := l; r < n; r++ {
+				best := l
+				for k := l; k <= r; k++ {
+					if array[k] < array[best] {
+						best = k
+					}
+				}
+				if got := tree.GetMinIndex(l, r); got != best {
+					t.Fatalf("%v [%d,%d]: got %d want %d", array, l, r, got, best)
+				}
+			}
+		}
+	}
+}
+
+func TestMinIndexInvalidRanges(t *testing.T) {
+	tree := NewCartesianTreeFromArray([]int{4, 2, 6})
+	if tree.GetMinIndex(2, 1) != -1 || tree.GetMinIndex(-1, 1) != -1 || tree.GetMinIndex(0, 3) != -1 {
+		t.Error("expected -1 for invalid ranges")
+	}
+	if NewCartesianTree().GetMinIndex(0, 0) != -1 {
+		t.Error("expected -1 on an empty tree")
+	}
+}
+
+func TestSortedInputIsAChain(t *testing.T) {
+	array := make([]int, 100000)
+	for i := range array {
+		array[i] = i
+	}
+	tree := NewCartesianTreeFromArray(array)
+	if tree.Height() != len(array)-1 || tree.Size() != len(array) {
+		t.Errorf("height %d size %d", tree.Height(), tree.Size())
+	}
+	if tree.GetMinIndex(500, 99999) != 500 {
+		t.Error("expected 500")
+	}
+}

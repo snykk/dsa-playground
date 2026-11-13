@@ -1,4 +1,4 @@
-// LFU (Least Frequently Used) Cache — O(1) get and put.
+// LFU (Least Frequently Used) Cache - O(1) get and put.
 //
 // Internals:
 //   key -> iterator into a per-frequency std::list<pair<key, value>>
@@ -19,6 +19,13 @@ class LFUCache {
             throw std::invalid_argument("capacity must be non-negative");
         }
     }
+
+    // The entries hold iterators into freq_lists_, so a copy would point into the
+    // source object. Copying is disabled; moves are fine (list nodes do not move).
+    LFUCache(const LFUCache&) = delete;
+    LFUCache& operator=(const LFUCache&) = delete;
+    LFUCache(LFUCache&&) = default;
+    LFUCache& operator=(LFUCache&&) = default;
 
     int get(int key) {
         if (capacity_ == 0) return -1;

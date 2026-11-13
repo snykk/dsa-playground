@@ -1,79 +1,42 @@
-# Sparse Table - Go
+# Sparse Table -- Go Implementation
 
-This folder contains a Go implementation of a **Sparse Table**.
+A static range minimum or maximum table: O(n log n) build, O(1) query. See the [topic README](../README.md) for the idea and a trace.
 
-A **Sparse Table** is a static data structure that supports O(1) range minimum/maximum queries (RMQ) after O(n log n) preprocessing. It does not support updates.
+## Files
 
----
+| File | Contents |
+| ---- | -------- |
+| `main.go` | `SparseTable` and a small demo `main` |
+| `main_test.go` | unit tests, empty-input, invalid-kind and range tests, and an exhaustive comparison with brute force |
+| `go.mod` | module `sparse_table` (Go 1.24.2) |
 
-## Concept
+## API
 
-- **Static Structure**: Array cannot be modified after construction
-- **O(1) Queries**: Fastest query time for RMQ (Range Minimum/Maximum Query)
-- **O(n log n) Preprocessing**: Build time is O(n log n)
-- **No Updates**: Cannot update array elements (use Segment Tree if updates needed)
+| Call | Result |
+| ---- | ------ |
+| `NewSparseTable(arr []int, queryType string) *SparseTable` | builds from a copy of `arr`; panics unless `queryType` is `"min"` or `"max"` |
+| `Query(left, right int) int` | min or max of `left..right`; swapped bounds are reordered; panics outside `0..n-1` |
+| `Get(index int) int` | the original element; panics outside `0..n-1` |
 
----
+An empty slice is allowed; every query on it panics.
 
-## Operations
+## Go-Specific Notes
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------ | ------------------------------------ | --------------- |
-| `Query(left, right)`     | Get min/max in range [left, right]   | O(1)            |
-| `Get(index)`             | Get value at index                   | O(1)            |
+- The level count and the query exponent use `math/bits.Len`, not `math.Log2`.
+- The input slice is copied (earlier versions kept the caller's slice).
+- The built-in `min` and `max` (Go 1.21 and later) are used for the combine step.
+- Errors are panics, like an out-of-range slice index.
 
----
-
-## Complexity
-
-| Operation     | Time Complexity | Space Complexity |
-| ------------- | --------------- | ---------------- |
-| Build         | O(n log n)      | O(n log n)       |
-| Query         | O(1)            | O(1)             |
-| Update        | Not supported   | -                |
-| Space         | O(n log n)      | O(n log n)       |
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // Initialize with array (min query)
-    arr := []int{1, 3, 5, 7, 9, 11, 2, 4, 6, 8}
-    stMin := NewSparseTable(arr, "min")
-    
-    // Range minimum query
-    fmt.Println(stMin.Query(0, 2))   // 1
-    fmt.Println(stMin.Query(1, 3))   // 3
-    
-    // Initialize with array (max query)
-    stMax := NewSparseTable(arr, "max")
-    
-    // Range maximum query
-    fmt.Println(stMax.Query(0, 2))   // 5
-    fmt.Println(stMax.Query(1, 3))   // 7
-}
-```
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-go test
+cd "Data Structures/Non_Linear/Trees/Sparse Table/Go"
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Applications
-
-- Range minimum/maximum queries (RMQ)
-- Static array queries (no updates)
-- Competitive programming (when updates are not needed)
-- LCA (Lowest Common Ancestor) in trees
-
+- Two overlapping power-of-two windows answer any range.
+- Copy the input so the table stays a valid snapshot.
+- Use `bits.Len` for integer logarithms.

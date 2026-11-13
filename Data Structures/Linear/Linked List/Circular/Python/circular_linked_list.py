@@ -103,6 +103,10 @@ class CircularLinkedList:
         """
         if not self.head:
             return
+        if self.head.next is self.head:  # a single node: it is also the tail
+            if self.head.data == key:
+                self.head = None
+            return
         curr = self.head
         prev = None
         while True:
@@ -121,20 +125,21 @@ class CircularLinkedList:
             if curr == self.head:
                 break
 
-    def traverse(self, limit=10):
+    def traverse(self, limit=None):
         """
-        Collect all elements in the circular list up to a given limit.
+        Collect all elements in the circular list, optionally up to a limit.
 
         Traverses from the head and stops when it returns to the head
-        or the limit is reached, preventing infinite loops.
+        or the limit is reached.
 
         Args:
-            limit: Maximum number of elements to collect (default 10).
+            limit: Maximum number of elements to collect (default: no limit,
+                the walk ends when it returns to the head).
 
         Returns:
             A list of element values in traversal order.
 
-        Time Complexity: O(min(n, limit))
+        Time Complexity: O(n), or O(limit) when a limit is given
         """
         elements = []
         if not self.head:
@@ -145,6 +150,6 @@ class CircularLinkedList:
             elements.append(temp.data)
             temp = temp.next
             count += 1
-            if temp == self.head or count >= limit:
+            if temp == self.head or (limit is not None and count >= limit):
                 break
         return elements

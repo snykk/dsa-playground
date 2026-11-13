@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <type_traits>
 
 void testMissReturnsMinusOne() {
     LFUCache cache(2);
@@ -31,7 +32,7 @@ void testEvictionTieBrokenByLRU() {
     LFUCache cache(2);
     cache.put(1, 10);
     cache.put(2, 20);
-    cache.put(3, 30);       // both freq=1; 1 is LRU → evict 1
+    cache.put(3, 30);       // both freq=1; 1 is LRU -> evict 1
     assert(cache.get(1) == -1);
     assert(cache.get(2) == 20);
     assert(cache.get(3) == 30);
@@ -85,6 +86,17 @@ void testLeetCodeOfficial() {
     assert(cache.get(4) == 4);
 }
 
+void testNotCopyable() {
+    // A copy would keep iterators into the source's lists (use-after-free).
+    static_assert(!std::is_copy_constructible<LFUCache>::value, "LFUCache must not be copyable");
+    static_assert(!std::is_copy_assignable<LFUCache>::value, "LFUCache must not be copy-assignable");
+    static_assert(std::is_move_constructible<LFUCache>::value, "LFUCache stays movable");
+    LFUCache a(2);
+    a.put(1, 10);
+    LFUCache b = std::move(a);
+    assert(b.get(1) == 10);
+}
+
 int main() {
     testMissReturnsMinusOne();
     testBasicPutGet();
@@ -95,6 +107,7 @@ int main() {
     testCapacityZero();
     testCapacityOne();
     testLeetCodeOfficial();
-    std::cout << "All 9 tests passed!" << std::endl;
+    testNotCopyable();
+    std::cout << "All 10 tests passed!" << std::endl;
     return 0;
 }

@@ -2,8 +2,19 @@
 Test cases for Interval Tree
 """
 
+import random
+import time
 import unittest
 from interval_tree import IntervalTree, Interval
+
+
+def check_max(node):
+    """Every node.max equals the largest high in its subtree; returns it."""
+    if node is None:
+        return float("-inf")
+    best = max(node.interval.high, check_max(node.left), check_max(node.right))
+    assert node.max == best
+    return best
 
 
 class TestIntervalTree(unittest.TestCase):
@@ -166,6 +177,64 @@ class TestIntervalTree(unittest.TestCase):
         
         result = self.tree.search_overlapping((12, 18))
         self.assertGreater(len(result), 0)
+
+
+    def test_exact_results_for_overlap_query(self):
+        for iv in [(15, 20), (10, 30), (17, 19), (5, 20), (12, 15), (30, 40)]:
+            self.tree.insert(iv)
+        result = self.tree.search_overlapping((14, 16))
+        self.assertEqual(
+            sorted((i.low, i.high) for i in result),
+            [(5, 20), (10, 30), (12, 15), (15, 20)],
+        )
+
+    def test_touching_endpoints_overlap(self):
+        self.tree.insert((1, 5))
+        self.assertEqual(len(self.tree.search_overlapping((5, 9))), 1)
+        self.assertEqual(len(self.tree.search_overlapping((6, 9))), 0)
+
+    def test_duplicate_intervals_delete_one_at_a_time(self):
+        for _ in range(3):
+            self.tree.insert((4, 8))
+        self.tree.delete((4, 8))
+        self.assertEqual(self.tree.size(), 2)
+
+    def test_insert_does_not_rescan_whole_tree(self):
+        # Regression: every insert used to recompute max over the whole tree,
+        # so n inserts cost O(n^2) (2000 inserts took ~1 s, 10000 took ~30 s).
+        rng = random.Random(1)
+        start = time.time()
+        for _ in range(10000):
+            low = rng.randrange(0, 1000000)
+            self.tree.insert((low, low + rng.randrange(0, 1000)))
+        self.assertLess(time.time() - start, 10.0)
+        check_max(self.tree.root)
+
+    def test_random_against_brute_force(self):
+        for seed in range(100):
+            rng = random.Random(seed)
+            tree = IntervalTree()
+            ref = []
+            for _ in range(80):
+                low = rng.randrange(0, 40)
+                iv = (low, low + rng.randrange(0, 15))
+                if ref and rng.random() < 0.3:
+                    victim = rng.choice(ref)
+                    tree.delete(victim)
+                    ref.remove(victim)
+                else:
+                    tree.insert(iv)
+                    ref.append(iv)
+                check_max(tree.root)
+                lo = rng.randrange(0, 50)
+                q = (lo, lo + rng.randrange(0, 15))
+                got = sorted((i.low, i.high) for i in tree.search_overlapping(q))
+                want = sorted(iv for iv in ref if not (iv[1] < q[0] or q[1] < iv[0]))
+                self.assertEqual(got, want)
+                got = sorted((i.low, i.high) for i in tree.search_contained_in(q))
+                want = sorted(iv for iv in ref if q[0] <= iv[0] and iv[1] <= q[1])
+                self.assertEqual(got, want)
+            self.assertEqual(tree.size(), len(ref))
 
 
 if __name__ == '__main__':

@@ -62,49 +62,49 @@ class Trie:
     def delete(self, word):
         """Delete a word from the trie.
         
+        Nodes that no longer lead to any word are removed, walking back up from the
+        end of the word; the walk stops at a node that is itself a word or has
+        another child.
+        
         Args:
             word: The word to delete
             
         Returns:
             True if word was deleted, False if word doesn't exist
         """
-        def _delete_recursive(node, word, index):
-            if index == len(word):
-                if not node.is_end_of_word:
-                    return False
-                node.is_end_of_word = False
-                return len(node.children) == 0
-            
-            char = word[index]
-            if char not in node.children:
+        path = []  # (parent, character) pairs from the root down to the word's node
+        node = self.root
+        for char in word:
+            child = node.children.get(char)
+            if child is None:
                 return False
-            
-            child_node = node.children[char]
-            should_delete_child = _delete_recursive(child_node, word, index + 1)
-            
-            if should_delete_child:
-                del node.children[char]
-                return len(node.children) == 0 and not node.is_end_of_word
-            
+            path.append((node, char))
+            node = child
+
+        if not node.is_end_of_word:
             return False
-        
-        return _delete_recursive(self.root, word, 0)
+        node.is_end_of_word = False
+
+        while path and not node.children and not node.is_end_of_word:
+            parent, char = path.pop()
+            del parent.children[char]
+            node = parent
+        return True
 
     def get_all_words(self):
         """Get all words stored in the trie.
         
         Returns:
-            List of all words
+            List of all words, in depth-first order of insertion
         """
         words = []
-        
-        def _traverse(node, prefix):
+        stack = [(self.root, "")]
+        while stack:
+            node, prefix = stack.pop()
             if node.is_end_of_word:
                 words.append(prefix)
-            for char, child_node in node.children.items():
-                _traverse(child_node, prefix + char)
-        
-        _traverse(self.root, "")
+            for char, child_node in reversed(list(node.children.items())):
+                stack.append((child_node, prefix + char))
         return words
 
     def count_words(self):
@@ -114,22 +114,19 @@ class Trie:
             Number of words
         """
         count = 0
-        
-        def _count_recursive(node):
-            nonlocal count
+        stack = [self.root]
+        while stack:
+            node = stack.pop()
             if node.is_end_of_word:
                 count += 1
-            for child_node in node.children.values():
-                _count_recursive(child_node)
-        
-        _count_recursive(self.root)
+            stack.extend(node.children.values())
         return count
 
     def is_empty(self):
         """Check if the trie is empty.
         
         Returns:
-            True if empty, False otherwise
+            True if no word is stored (the empty word counts as a word)
         """
-        return len(self.root.children) == 0
+        return len(self.root.children) == 0 and not self.root.is_end_of_word
 

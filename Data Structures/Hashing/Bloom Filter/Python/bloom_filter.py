@@ -6,6 +6,7 @@ whether an element is a member of a set.
 """
 
 import hashlib
+import math
 
 
 class BloomFilter:
@@ -22,17 +23,25 @@ class BloomFilter:
         Args:
             capacity: Expected number of elements
             error_rate: Desired false positive rate (default: 0.01)
+
+        Raises:
+            ValueError: If capacity is not positive or error_rate is not in (0, 1).
         """
+        if capacity <= 0:
+            raise ValueError("capacity must be positive")
+        if not 0 < error_rate < 1:
+            raise ValueError("error_rate must be strictly between 0 and 1")
         self.capacity = capacity
         self.error_rate = error_rate
         
         # Calculate optimal number of bits and hash functions
-        import math
-        self.num_bits = int(-capacity * math.log(error_rate) / (math.log(2) ** 2))
-        self.num_hashes = int(self.num_bits * math.log(2) / capacity)
+        # (round the bits up and keep at least one hash, so a tiny filter still
+        # rejects non-members instead of answering True for everything)
+        self.num_bits = math.ceil(-capacity * math.log(error_rate) / (math.log(2) ** 2))
+        self.num_hashes = max(1, round(self.num_bits * math.log(2) / capacity))
         
-        # Initialize bit array
-        self.bits = [False] * self.num_bits
+        # Initialize bit array (one byte per bit)
+        self.bits = bytearray(self.num_bits)
     
     def _hash_functions(self, item):
         """
@@ -65,7 +74,7 @@ class BloomFilter:
         Time Complexity: O(k) where k is number of hash functions
         """
         for hash_value in self._hash_functions(item):
-            self.bits[hash_value] = True
+            self.bits[hash_value] = 1
     
     def contains(self, item):
         """

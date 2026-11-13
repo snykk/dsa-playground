@@ -1,41 +1,35 @@
-# LFU Cache — C++ Implementation
+# LFU Cache -- C++ Implementation
 
-An O(1) **Least Frequently Used** cache. Evicts the least-frequently-accessed entry first; on ties, the least-recently-used.
-
-For the full conceptual overview, visuals, and LFU vs. LRU comparison, see the parent README: [../README.md](../README.md)
-
----
+An O(1) least frequently used cache. Ties are broken by evicting the least recently used key. See the [topic README](../README.md) for the idea.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `lfu_cache.h` | Header-only `LFUCache` class |
-| `lfu_cache_test.cpp` | Assertion-based test cases |
+- `lfu_cache.h`: header-only `LFUCache` class.
+- `lfu_cache_test.cpp`: assert-based tests, including capacity 0 and 1, the LeetCode 460 trace and a not-copyable check.
 
----
+## API
+
+| Member | Description | Time |
+|--------|-------------|------|
+| `explicit LFUCache(int capacity)` | throws `std::invalid_argument` if capacity is negative | O(1) |
+| `int get(int key)` | value, or -1 on a miss; promotes the key | O(1) |
+| `void put(int key, int value)` | insert or update; evicts the LFU key when full | O(1) |
 
 ## C++-Specific Notes
 
-- **`std::list<std::pair<int,int>>` per frequency bucket.** `std::list` is a doubly linked list with **stable iterators** — the one critical guarantee we need. We stash each entry's iterator in the key→entry map; splicing never invalidates that iterator.
-- **`std::unordered_map<int, std::list<...>>`** maps frequency → bucket. On Python the equivalent is `defaultdict(OrderedDict)`; in C++ we use the `[]` operator, which default-inserts empty lists.
-- **Single-file header** with inline methods. Including it pulls in `<list>` + `<unordered_map>`, nothing heavy.
-- **No SSO / allocator magic required** — correctness is already O(1). If you need higher performance, swap `std::list` for a hand-rolled intrusive DLL to avoid node-per-entry heap allocation.
-- **Rule of Zero**: we don't write destructor/copy/move. The stdlib containers handle cleanup automatically, so we don't need to.
-
----
+- Buckets are `std::list<std::pair<int,int>>` with the MRU at the front. Each key stores an iterator into its bucket; `std::list` iterators stay valid when other nodes change.
+- A promotion erases the node and pushes a new one into the next bucket (it does not `splice`), then stores the new iterator.
+- Because entries hold iterators into the object's own lists, the copy constructor and copy assignment are deleted. A copy would point into the source and dangle. Moves are defaulted and safe.
+- The class is header-only, so the test includes `lfu_cache.h`.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall lfu_cache_test.cpp -o lfu_cache_test
-./lfu_cache_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD lfu_cache_test.cpp -o lfu_cache_test && ./lfu_cache_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **`std::list`'s stable iterators are the trick.** Unlike `std::vector` / `std::deque`, inserting or erasing elsewhere doesn't invalidate iterators. This is what makes "store an iterator in a hash map" safe.
-2. **Two hash maps + a min_freq int.** Don't overthink it — the data structure _looks_ like it should need a balanced tree or priority queue, but it doesn't.
-3. **LeetCode 460 is a classic interview question.** Implementing LFU in O(1) (not O(log n) with a heap) demonstrates you understand the "hash map + linked list" combo that underlies most O(1) cache structures.
+- Stable list iterators are what make "store a handle in a hash map" work.
+- Copying a structure that stores iterators into itself is a bug; delete the copy.
+- Two maps plus an integer give O(1) with no heap.

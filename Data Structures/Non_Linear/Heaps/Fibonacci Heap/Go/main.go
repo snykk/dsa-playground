@@ -167,9 +167,8 @@ func (h *FibonacciHeap) Peek() int {
 }
 
 func (h *FibonacciHeap) Clear() {
-	for !h.IsEmpty() {
-		h.ExtractMin()
-	}
+	h.minNode = nil
+	h.count = 0
 }
 
 func main() {

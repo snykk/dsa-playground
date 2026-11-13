@@ -59,8 +59,15 @@ class BPlusTree:
         
         Args:
             key: The key to insert
-            value: The value associated with the key
+            value: The value associated with the key (an existing key is
+                overwritten: the tree is a map)
         """
+        leaf = self._find_leaf(key)
+        for i, k in enumerate(leaf.keys):
+            if k == key:
+                leaf.values[i] = value
+                return
+
         root = self.root
         
         # If root is full, split it
@@ -158,7 +165,9 @@ class BPlusTree:
             List of (key, value) tuples
         """
         result = []
-        leaf = self._find_leaf(float('-inf'))
+        leaf = self.root
+        while not leaf.is_leaf:
+            leaf = leaf.children[0]
         
         while leaf:
             for i in range(len(leaf.keys)):

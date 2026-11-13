@@ -1,72 +1,108 @@
-# LRU Cache
+# LRU Cache (Least Recently Used)
 
-The **LRU (Least Recently Used) Cache** is a data structure that stores a fixed number of key-value pairs and evicts the **least recently used** entry when the cache reaches capacity. It combines a **hash map** for O(1) key lookup with a **doubly linked list** for O(1) insertion, deletion, and reordering -- delivering constant-time `get` and `put` operations.
+A fixed-capacity cache that evicts the least recently used entry when it is full. A hash map gives O(1) lookup and a doubly linked list keeps entries in recency order, so `get` and `put` both run in O(1).
 
----
+## Intuition
 
-## Core Operations
+Think of a desk with room for three books. Each time you read a book it goes on top of the pile; when you need space you put away the book at the bottom, the one untouched the longest. The bet is temporal locality: what you used recently you will probably use again.
 
-| Operation | Description | Time | Space |
-|-----------|-------------|------|-------|
-| `LRUCache(capacity)` | Initialize cache with given capacity | O(1) | O(capacity) |
-| `get(key)` | Return value for key (or -1); mark as most recently used | O(1) | O(1) |
-| `put(key, value)` | Insert or update key-value pair; evict LRU if at capacity | O(1) | O(1) |
+The list gives the order and the map gives direct access to any node, so a hit can move its node to the front without searching. Each node stores its own key, because evicting the back node must also delete that key from the map.
 
----
+Invariant: the map and the list always hold exactly the same keys, and list order is recency order.
 
-## How It Works
+## Visual
 
-The cache maintains two complementary structures:
+```text
+capacity 3, after put(1,A) put(2,B) put(3,C)
 
-1. **Hash map** (`key -> node`): provides O(1) lookup by key.
-2. **Doubly linked list**: orders entries from most recently used (front) to least recently used (back).
+map:   1 -> node1   2 -> node2   3 -> node3
 
-On `get(key)`: look up the node, move it to the front of the list, return its value.
-On `put(key, value)`: if the key exists, update the value and move it to the front. Otherwise, create a new node at the front. If the cache exceeds capacity, remove the node at the back (the LRU entry) and delete its hash map entry.
-
----
-
-## Visual Example
-
-```
-Capacity: 3
-
-put(1,A)  ->  [1:A]
-put(2,B)  ->  [2:B] <-> [1:A]
-put(3,C)  ->  [3:C] <-> [2:B] <-> [1:A]
-get(1)    ->  [1:A] <-> [3:C] <-> [2:B]       (1 moves to front)
-put(4,D)  ->  [4:D] <-> [1:A] <-> [3:C]       (2 evicted -- LRU)
-get(2)    ->  -1                                (2 was evicted)
+front (MRU)                           back (LRU)
+  [3:C] <-> [2:B] <-> [1:A]
+                         ^ next victim
 ```
 
----
+## Operations
 
-## Use Cases
+| Operation | Description | Time |
+|-----------|-------------|------|
+| `LRUCache(capacity)` | empty cache; capacity 0 or less stores nothing | O(1) |
+| `get(key)` | value (or -1 on a miss); moves the node to the front | O(1) |
+| `put(key, value)` | insert or update at the front; evict from the back if over capacity | O(1) |
+| `size` | number of entries | O(1) |
 
-- **Browser cache**: Keep recently visited pages in memory; evict oldest on memory pressure.
-- **Database query cache**: Cache frequent query results; discard stale entries automatically.
-- **OS page replacement**: The LRU policy guides which memory pages to swap out.
-- **DNS resolution cache**: Store recent domain lookups for fast repeated resolution.
-- **Content delivery networks**: Cache popular content close to users.
+`get(key)`: look up the node; on a miss return -1; otherwise unlink it, insert it at the front, return its value.
 
----
+`put(key, value)`: if the key exists, update it and move it to the front. Otherwise insert a new node at the front; if the size exceeds capacity, remove the back node and delete its key from the map.
+
+A stored -1 looks like a miss, because -1 is the miss marker.
+
+## Step-by-Step Trace
+
+Capacity 3, front of the list first:
+
+| Call | Returns | List |
+|------|---------|------|
+| `put(1,A)` | - | 1 |
+| `put(2,B)` | - | 2, 1 |
+| `put(3,C)` | - | 3, 2, 1 |
+| `get(1)` | A | 1, 3, 2 |
+| `put(4,D)` | - | 4, 1, 3 (2 evicted) |
+| `get(2)` | -1 | 4, 1, 3 |
+| `put(3,C2)` | - | 3, 4, 1 (update, nothing evicted) |
+
+## Complexity
+
+| Operation | Time | Space |
+|-----------|------|-------|
+| `get` | O(1) | O(1) |
+| `put` | O(1) | O(1) |
+| Whole cache | - | O(capacity) |
+
+Every step is one hash lookup plus a constant number of pointer changes. The hash lookup is O(1) on average.
+
+## When to Use
+
+- A cache where recent use predicts future use: pages, query results, lookups.
+- Not when a scan over many cold keys is common, because the scan evicts the hot keys (try [LFU](../LFU%20Cache/README.md) or 2Q).
+- Not as is for concurrent code: even `get` changes the list, so it needs a lock.
+
+## LRU vs. Alternatives
+
+| Policy | Evicts | Weakness |
+|--------|--------|----------|
+| LRU | least recently used | a scan flushes the cache |
+| LFU | least frequently used | slow to forget old popularity |
+| FIFO | oldest inserted | ignores reuse |
+| CLOCK | approximates LRU with a reference bit | not exact |
+
+Python's `OrderedDict.move_to_end` and `functools.lru_cache` do the same job in the standard library.
+
+## Common Pitfalls
+
+- Map and list falling out of sync (deleting from only one).
+- Not storing the key in the node, so eviction cannot find the map entry.
+- Treating `get` as read-only: it must move the node to the front.
+- Capacity 0 or negative: the C++ version used to crash or never evict; it now ignores `put`.
+- Copying the C++ cache: the map holds iterators into the original list, so copying is deleted.
 
 ## Implementations
 
-| Language | Source | Tests |
-|----------|--------|-------|
-| Python | [`Python/lru_cache.py`](Python/lru_cache.py) | [`Python/lru_cache_test.py`](Python/lru_cache_test.py) |
-| C++ | [`C++/lru_cache.cpp`](C++/lru_cache.cpp) | [`C++/lru_cache_test.cpp`](C++/lru_cache_test.cpp) |
-| Go | [`Go/main.go`](Go/main.go) | [`Go/main_test.go`](Go/main_test.go) |
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [`Python/`](Python/) | `lru_cache.py` | hand-written list with sentinel head and tail |
+| C++ | [`C++/`](C++/) | `lru_cache.cpp` | `std::list` plus `splice`; not copyable |
+| Go | [`Go/`](Go/) | `main.go` | hand-written list with sentinels |
 
----
+## Practice Problems
+
+- [LeetCode 146 - LRU Cache](https://leetcode.com/problems/lru-cache/)
+- [LeetCode 460 - LFU Cache](https://leetcode.com/problems/lfu-cache/)
 
 ## Related
 
-- **[LFU Cache](../LFU%20Cache/README.md)** — evicts the _least frequently_ used entry (with LRU as tiebreak) instead of the least recently used. Better when your workload has a stable popularity distribution; LRU suffers from "cache pollution" on sequential scans.
-- **[Doubly Linked List](../../Linear/Linked%20List/Doubly/README.md)** — the O(1)-splice backbone this structure depends on.
-- **[Hash Map](../../Hashing/Hash%20Map/README.md)** — for O(1) key → node lookup.
+- [LFU Cache](../LFU%20Cache/README.md)
+- [Doubly Linked List](../../Linear/Linked%20List/Doubly/README.md)
+- [Hash Map](../../Hashing/Hash%20Map/README.md)
 
----
-
-_Last Updated: April 2026_
+Part of [Advanced Structures](../README.md).

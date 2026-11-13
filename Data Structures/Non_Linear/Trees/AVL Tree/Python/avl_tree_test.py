@@ -186,6 +186,37 @@ class TestAVLTree(unittest.TestCase):
         self.assertIn(5, result)
         self.assertIn(15, result)
 
+    def _check(self, node):
+        """Recompute heights and return the true height; assert BST order bounds are checked elsewhere."""
+        if node is None:
+            return 0
+        lh, rh = self._check(node.left), self._check(node.right)
+        self.assertLessEqual(abs(lh - rh), 1)
+        self.assertEqual(node.height, 1 + max(lh, rh))
+        return 1 + max(lh, rh)
+
+    def test_random_ops_keep_true_balance(self):
+        import random
+        rng = random.Random(7)
+        ref = set()
+        for _ in range(2000):
+            k = rng.randrange(150)
+            if rng.random() < 0.4:
+                self.avl.delete(k)
+                ref.discard(k)
+            else:
+                self.avl.insert(k)
+                ref.add(k)
+            self._check(self.avl.root)
+        self.assertEqual(self.avl.inorder_traversal(), sorted(ref))
+
+    def test_traversal_orders(self):
+        for k in (10, 5, 15, 3):
+            self.avl.insert(k)
+        self.assertEqual(self.avl.preorder_traversal(), [10, 5, 3, 15])
+        self.assertEqual(self.avl.postorder_traversal(), [3, 5, 15, 10])
+        self.assertEqual(self.avl.level_order_traversal(), [10, 5, 15, 3])
+
 if __name__ == "__main__":
     unittest.main()
 

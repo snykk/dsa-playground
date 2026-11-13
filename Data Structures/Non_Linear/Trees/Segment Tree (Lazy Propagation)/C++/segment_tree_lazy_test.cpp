@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cassert>
 #include <vector>
+#include <random>
+#include <numeric>
 #include "segment_tree_lazy.cpp"
 
 void testBuildAndQuery() {
@@ -83,6 +85,28 @@ void testNegativeValues() {
     cout << "testNegativeValues passed" << endl;
 }
 
+void testRandomAgainstBruteForce() {
+    mt19937 rng(5);
+    for (int n = 1; n <= 40; n++) {
+        vector<int> init(n);
+        for (int& v : init) v = (int)(rng() % 101) - 50;
+        vector<long long> ref(init.begin(), init.end());
+        LazySegmentTree st(init);
+        for (int step = 0; step < 60; step++) {
+            int l = rng() % n;
+            int r = l + rng() % (n - l);
+            if (rng() % 2) {
+                long long v = (long long)(rng() % 41) - 20;
+                for (int i = l; i <= r; i++) ref[i] += v;
+                st.updateRange(l, r, v);
+            } else {
+                assert(st.query(l, r) == accumulate(ref.begin() + l, ref.begin() + r + 1, 0LL));
+            }
+        }
+    }
+    cout << "testRandomAgainstBruteForce passed" << endl;
+}
+
 int main() {
     cout << "Running Segment Tree (Lazy Propagation) tests..." << endl;
     testBuildAndQuery();
@@ -93,6 +117,7 @@ int main() {
     testFullRangeUpdate();
     testSingleElementArray();
     testNegativeValues();
+    testRandomAgainstBruteForce();
     cout << "\nAll tests passed!" << endl;
     return 0;
 }

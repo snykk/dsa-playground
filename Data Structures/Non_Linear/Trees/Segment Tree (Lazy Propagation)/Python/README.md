@@ -1,38 +1,39 @@
-# Segment Tree with Lazy Propagation (Python)
+# Segment Tree (Lazy Propagation) -- Python Implementation
 
-Python implementation of a segment tree supporting efficient range updates and range queries.
+A recursive segment tree with lazy tags: range add and range sum. See the [topic README](../README.md) for the idea and a trace.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `segment_tree_lazy.py` | Main implementation |
-| `segment_tree_lazy_test.py` | Test cases |
+| File | Contents |
+| ---- | -------- |
+| `segment_tree_lazy.py` | `LazySegmentTree` |
+| `segment_tree_lazy_test.py` | unit tests, an empty-array test and a randomized test against brute force |
+
+## API
+
+| Call | Result |
+| ---- | ------ |
+| `LazySegmentTree(arr)` | builds the tree in O(n) |
+| `update_range(left, right, val)` | adds `val` to every element of `left..right` (inclusive) |
+| `query(left, right)` | sum of elements `left..right` (inclusive) |
+
+There is no index validation: a range partly outside the array is clipped, and a range outside does nothing.
+
+## Python-Specific Notes
+
+- Python integers are unbounded, so `val * length` cannot overflow.
+- `tree` and `lazy` are lists of length `4 * n`; the module has no demo block, so running the file prints nothing.
+- The recursion depth is about `log2(n)`.
 
 ## How to Run
 
 ```bash
-python segment_tree_lazy.py       # Run demo
-python segment_tree_lazy_test.py  # Run tests
+cd "Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)/Python"
+python3 -m unittest segment_tree_lazy_test
 ```
 
-## Key Methods
+## Key Takeaways
 
-| Method | Description | Time |
-|--------|-------------|------|
-| `__init__(arr)` | Build segment tree from array | O(n) |
-| `query(left, right)` | Range sum query with lazy propagation | O(log n) |
-| `update_range(left, right, val)` | Add val to all elements in [left, right] | O(log n) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Build | O(n) |
-| Range Query | O(log n) |
-| Range Update | O(log n) |
-| Space | O(n) |
-
----
-
-_Last Updated: April 2026_
+- Tags rest only on fully covered nodes.
+- Push down before recursing into a partial node.
+- A push scales the tag by each child's own length.

@@ -51,6 +51,7 @@ func main() {
 	stack := NewStack()
 	stack.Push(10)
 	stack.Push(20)
-	fmt.Println(stack.Peek()) // 20
+	top, _ := stack.Peek()
+	fmt.Println(top)          // 20
 	fmt.Println(stack.Size()) // 2
 }

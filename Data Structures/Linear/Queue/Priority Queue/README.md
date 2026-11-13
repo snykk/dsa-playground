@@ -1,174 +1,110 @@
 # Priority Queue
 
-A **Priority Queue** is an abstract data type where each element has a priority associated with it. Elements are served based on priority rather than insertion order. Elements with higher priority are served before elements with lower priority.
+A **priority queue** serves the item with the best priority first instead of the one that arrived first. This folder builds it on a binary min heap: enqueue and dequeue are O(log n), peek is O(1), and equal priorities leave in insertion order.
 
----
+## Intuition
 
-## Overview
+A simple queue answers "who came first?", a priority queue answers "who matters most?". Each entry carries a priority, and `dequeue` returns the entry with the best one.
 
-Unlike a regular queue (FIFO), a Priority Queue processes elements based on their priority:
+In this folder a **lower number is a higher priority**: `dequeue` returns the item with the smallest priority value. For the largest first, negate the priority when enqueueing.
 
-- **High Priority First**: Elements with higher priority are processed before lower priority elements
-- **Heap-Based**: Typically implemented using a heap data structure for efficiency
-- **Flexible Ordering**: Can be configured as min heap or max heap
+The structure behind it is a binary min heap in an array (see the [Min Heap](../../../Non_Linear/Heaps/Min%20Heap) topic for sift up, sift down and the index formulas). Each entry is `(priority, counter, item)`, where the counter is the insertion number. The heap orders entries by priority and then by counter, so equal priorities come out first in, first out.
 
-This makes priority queues essential for:
-- Task scheduling systems
-- Dijkstra's shortest path algorithm
-- Huffman coding
-- Event-driven simulation
-- Operating system process scheduling
+## Visual
 
----
+Heap after enqueueing `write report` (3), `fix bug` (1), `email` (3), `deploy` (2), `review` (1). Each node shows `priority #counter`:
 
-## Key Characteristics
+```text
+                1 #1            <- next to leave (fix bug)
+              /      \
+          1 #4        3 #2
+         /    \
+     3 #0      2 #3
 
-1. **Priority-Based Ordering**: Elements are ordered by priority, not insertion order
-2. **Heap Implementation**: Uses heap data structure for O(log n) insert/extract operations
-3. **Min/Max Heap**: Can be configured as min heap (lower value = higher priority) or max heap
-4. **Efficient Operations**: O(log n) for insert and extract, O(1) for peek
-
----
+array: [1 #1, 1 #4, 3 #2, 3 #0, 2 #3]
+```
 
 ## Operations
 
-| Operation      | Description                                    | Time Complexity |
-| -------------- | ---------------------------------------------- | --------------- |
-| `enqueue(item, priority)` | Add element with given priority              | O(log n)        |
-| `dequeue()`    | Remove and return element with highest priority | O(log n)        |
-| `peek()`       | View highest priority element without removing  | O(1)            |
-| `is_empty()`   | Check if the queue is empty                     | O(1)            |
-| `size()`       | Get the number of elements                      | O(1)            |
-| `clear()`      | Remove all elements from the queue              | O(n)            |
+| Operation | Description | Time |
+| --- | --- | --- |
+| `enqueue(item, priority)` | append an entry, sift it up | O(log n) |
+| `dequeue()` | remove the root, move the last entry to the root, sift it down; returns the item only | O(log n) |
+| `peek()` | the root item | O(1) |
+| `is_empty()` / `size()` | length checks | O(1) |
+| `clear()` | drop all entries, reset the counter | O(1) in Python and Go, O(n) in C++ |
 
----
+Dequeue or peek on an empty queue raises `IndexError` (Python), throws `std::runtime_error` (C++) or returns an error (Go).
 
-## Implementation Approaches
+Sift up: swap the new entry with its parent while it is smaller (by priority, then counter). Sift down: swap the sinking entry with its smaller child while it is larger. A heap of n entries has about log2(n) levels, which bounds both loops.
 
-### 1. Min Heap (Current Implementation)
-- **Priority**: Lower priority value = higher priority
-- **Use Case**: When lower numbers represent higher priority (e.g., task urgency 1-10)
-- **Example**: Priority 1 tasks are processed before priority 10 tasks
+## Step-by-Step Trace
 
-### 2. Max Heap
-- **Priority**: Higher priority value = higher priority
-- **Implementation**: Negate priority values when using min heap
-- **Use Case**: When higher numbers represent higher priority
+Python run, enqueueing in this order: `write report` (3), `fix bug` (1), `email` (3), `deploy` (2), `review` (1).
 
-### 3. Array-Based (Simple)
-- **Pros**: Simple to understand
-- **Cons**: O(n) for insert/extract operations
-- **Use Case**: Small datasets or educational purposes
+| Enqueue | Heap array (`priority #counter`) |
+| --- | --- |
+| `write report` | `[3 #0]` |
+| `fix bug` | `[1 #1, 3 #0]` (swapped with the root) |
+| `email` | `[1 #1, 3 #0, 3 #2]` |
+| `deploy` | `[1 #1, 2 #3, 3 #2, 3 #0]` (swapped with its parent `3 #0`) |
+| `review` | `[1 #1, 1 #4, 3 #2, 3 #0, 2 #3]` (swapped with `2 #3`, stopped under `1 #1`) |
 
----
+Dequeuing everything returns `fix bug`, `review`, `deploy`, `write report`, `email`. The two priority-1 items leave in insertion order, as do the two priority-3 items.
 
-## Applications
+## Complexity
 
-1. **Task Scheduling**: Operating system process scheduling, job queues
-2. **Graph Algorithms**: Dijkstra's algorithm, Prim's MST algorithm
-3. **Data Compression**: Huffman coding
-4. **Event Simulation**: Discrete event simulation systems
-5. **Bandwidth Management**: Network packet prioritization
-6. **A\* Search**: Pathfinding algorithms in AI/games
+| Operation | Time | Why |
+| --- | --- | --- |
+| enqueue | O(log n) | one swap per level at most |
+| dequeue | O(log n) | one sift down |
+| peek | O(1) | the best entry is at index 0 |
+| search for an arbitrary item | O(n) | a heap is ordered only along parent-child paths |
 
----
+Space is O(n), plus one counter per entry.
 
-## Example Use Cases
+## When to Use
 
-### Task Scheduling
-```python
-pq = PriorityQueue()
-pq.enqueue("Backup database", priority=3)
-pq.enqueue("Process payment", priority=1)  # High priority
-pq.enqueue("Send email", priority=5)       # Low priority
+Use it when the next item to process depends on a priority: schedulers, shortest-path algorithms, event simulation, top-k selection, merging sorted lists. Do not use it when you need sorted iteration, or to change the priority of an item already queued (this implementation has no decrease-key).
 
-# Tasks processed in order: payment, backup, email
-```
+## Priority Queue vs. Other Representations
 
-### Dijkstra's Algorithm
-Priority queues are essential for finding shortest paths in graphs, where nodes are processed based on their current distance from the source.
+| Representation | Enqueue | Dequeue | Notes |
+| --- | --- | --- | --- |
+| Binary heap (here) | O(log n) | O(log n) | standard choice |
+| Unsorted array | O(1) | O(n) | scan on every dequeue |
+| Sorted array | O(n) | O(1) | inserts shift items |
+| Balanced BST | O(log n) | O(log n) | also gives sorted order |
 
-### Huffman Coding
-Used to build optimal prefix codes by repeatedly combining the two least frequent symbols.
+Against the other queues in this section ([Simple Queue](../Simple%20Queue), [Circular Queue](../Circular%20Queue), [Deque](../Deque)), which all remove in arrival order or from an end, a priority queue removes by priority.
 
----
+## Common Pitfalls
 
-## Heap Structure
-
-Priority queues are typically implemented using a **binary heap**:
-
-```
-        1 (highest priority)
-       / \
-      3   2
-     / \ / \
-    5  4 6  7
-```
-
-- **Complete Binary Tree**: All levels filled except possibly the last
-- **Heap Property**: Parent priority ≤ child priorities (min heap)
-- **Array Representation**: Efficient storage using array indexing
-
----
-
-## Complexity Summary
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| enqueue   | O(log n)        | O(1)             |
-| dequeue   | O(log n)        | O(1)             |
-| peek      | O(1)            | O(1)             |
-| is_empty  | O(1)            | O(1)             |
-| size      | O(1)            | O(1)             |
-| build     | O(n)            | O(n)             |
-| Space     | O(n)            | O(n)             |
-
----
+- Treating a bigger number as higher priority. For a max priority queue negate the priority: after enqueueing -10, -5, -1 the first `dequeue` returns the item with priority -10.
+- Expecting `dequeue` to return the priority; it returns the item only.
+- Expecting sorted iteration; only the root is guaranteed.
+- Relying on tie order from a plain heap: a bare heap is not stable, the counter is what keeps equal priorities in insertion order.
+- Dequeuing from an empty queue without checking `is_empty()`.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+| Language | Folder | Main file | Notes |
+| --- | --- | --- | --- |
+| Python | [Python](Python) | `priority_queue.py` | `heapq` on `(priority, counter, item)` tuples; any item type |
+| C++ | [C++](C++) | `priority_queue.cpp` | hand-written sift up and sift down on a `std::vector`; `int` items; 64-bit counter |
+| Go | [Go](Go) | `main.go` | `container/heap`; use `PriorityQueueWrapper`; `int` items |
 
-- **Python** (`Python/`) - Uses `heapq` module for efficient heap operations
-- **C++** (`C++/`) - Custom min heap implementation using vector
-- **Go** (`Go/`) - Uses `container/heap` package
+## Practice Problems
 
-Each implementation includes:
-- Complete source code with heap operations
-- Comprehensive test suite
-- Detailed README with usage examples
+- LeetCode 215: Kth Largest Element in an Array.
+- LeetCode 347: Top K Frequent Elements.
+- LeetCode 23: Merge k Sorted Lists.
+- LeetCode 1046: Last Stone Weight.
+- LeetCode 703: Kth Largest Element in a Stream.
 
----
+## Related
 
-## Comparison with Other Queue Types
-
-| Queue Type        | Ordering        | Use Case                    |
-| ----------------- | --------------- | --------------------------- |
-| Simple Queue      | FIFO            | Task processing, BFS         |
-| Circular Queue    | FIFO (fixed)    | Fixed-size buffers          |
-| Deque             | Both ends       | Sliding windows, palindromes |
-| Priority Queue    | Priority-based  | Scheduling, graph algorithms |
-
----
-
-## Standard Library Implementations
-
-For production use, consider standard library implementations:
-
-- **Python**: `queue.PriorityQueue` (thread-safe) or `heapq`
-- **C++**: `std::priority_queue` from `<queue>`
-- **Go**: `container/heap` package
-- **Java**: `java.util.PriorityQueue`
-
----
-
-## Further Reading
-
-- [Priority Queue on Wikipedia](https://en.wikipedia.org/wiki/Priority_queue)
-- [Binary Heap on Wikipedia](https://en.wikipedia.org/wiki/Binary_heap)
-- Heap visualization: [Visualgo](https://visualgo.net/en/heap)
-
----
-
-**Note**: The implementations in this folder use min heap by default. Lower priority values represent higher priority. To use as max heap, negate priority values when enqueueing.
-
+- [Min Heap](../../../Non_Linear/Heaps/Min%20Heap)
+- [Max Heap](../../../Non_Linear/Heaps/Max%20Heap)
+- [Simple Queue](../Simple%20Queue)
+- [Queue overview](../README.md)

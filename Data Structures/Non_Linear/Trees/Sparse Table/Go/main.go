@@ -1,7 +1,7 @@
 package main
 
 import (
-	"math"
+	"math/bits"
 )
 
 type SparseTable struct {
@@ -12,9 +12,16 @@ type SparseTable struct {
 	queryType string
 }
 
+// NewSparseTable builds the table. queryType must be "min" or "max" (anything else
+// panics). An empty slice is allowed; every Query on it panics. The slice is copied.
 func NewSparseTable(arr []int, queryType string) *SparseTable {
+	if queryType != "min" && queryType != "max" {
+		panic("sparse table: queryType must be \"min\" or \"max\"")
+	}
+	arr = append([]int(nil), arr...)
 	n := len(arr)
-	logN := int(math.Floor(math.Log2(float64(n)))) + 1
+	// Number of levels: floor(log2(n)) + 1, with integers (0 for n = 0)
+	logN := bits.Len(uint(n))
 
 	// Build sparse table
 	// table[i][j] = min/max of range starting at i with length 2^j
@@ -50,14 +57,19 @@ func NewSparseTable(arr []int, queryType string) *SparseTable {
 	}
 }
 
+// Query returns the min or max of left..right (inclusive). Swapped bounds are
+// reordered; an index outside [0, n) panics.
 func (st *SparseTable) Query(left int, right int) int {
 	if left > right {
 		left, right = right, left
 	}
+	if left < 0 || right >= st.n {
+		panic("sparse table: range out of bounds")
+	}
 
-	// Find largest power of 2 that fits in range length
+	// Largest k with 2^k <= length
 	length := right - left + 1
-	k := int(math.Floor(math.Log2(float64(length))))
+	k := bits.Len(uint(length)) - 1
 
 	// Query two overlapping ranges of length 2^k
 	if st.queryType == "min" {
@@ -74,6 +86,9 @@ func (st *SparseTable) Query(left int, right int) int {
 }
 
 func (st *SparseTable) Get(index int) int {
+	if index < 0 || index >= st.n {
+		panic("sparse table: index out of range")
+	}
 	return st.arr[index]
 }
 
@@ -82,4 +97,3 @@ func main() {
 	st := NewSparseTable(arr, "min")
 	println("Query [0,2]:", st.Query(0, 2)) // 1
 }
-

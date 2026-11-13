@@ -1,41 +1,39 @@
-# K-D Tree — C++ Implementation
+# K-D Tree -- C++ Implementation
 
-Template-based K-D Tree with compile-time dimensionality: `KDTree<2>`, `KDTree<3>`, etc. Uses `std::unique_ptr` for memory management.
-
-For the conceptual overview and visuals, see the parent README: [../README.md](../README.md)
-
----
+A header-only K-D tree with compile-time dimensionality. See the [topic README](../README.md) for the idea and a trace.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `kd_tree.h` | Header-only `KDTree<K>` template with `insert`, `nearest`, `rangeSearch` |
-| `kd_tree_test.cpp` | 8 tests: textbook example, random cross-check against brute force, 2D & 3D range queries |
+| File | Contents |
+| ---- | -------- |
+| `kd_tree.h` | `KDTree<K>` with build, `insert`, `nearest`, `rangeSearch` |
+| `kd_tree_test.cpp` | tests: textbook example, random cross-checks against brute force, 2D and 3D range queries |
 
----
+## API
+
+| Call | Result |
+| ---- | ------ |
+| `KDTree<K>()`, `KDTree<K>(vector<Point>)` | empty tree, or a balanced build from points (`Point` is `std::array<double, K>`) |
+| `void insert(const Point&)` | adds a point as a leaf; no rebalancing |
+| `optional<Point> nearest(const Point&) const` | the closest stored point, or an empty optional |
+| `vector<Point> rangeSearch(const Point& lo, const Point& hi) const` | points inside the box |
 
 ## C++-Specific Notes
 
-- **`template <size_t K>`** gives compile-time dimensionality. `std::array<double, K>` for points is stack-allocated with no heap overhead and enables loop unrolling.
-- **`std::nth_element` for median pivoting during build**: O(n) per level expected, giving O(n log n) total build time. Much faster than `std::sort`.
-- **`std::unique_ptr<Node>`** for automatic cleanup. Move semantics during insert avoid copies.
-- **`std::optional<Point>`** as `nearest` return type: cleaner than sentinel values when the tree is empty.
-- **Squared distance** to avoid `sqrt` in the inner loop — the correctness property `a < b ⟺ a² < b²` holds for non-negative values.
-
----
+- `template <size_t K>` fixes the dimensionality at compile time, so a wrong-sized point does not compile.
+- The build uses `std::nth_element` to find each median: linear per level on average, O(n log n) in total (Python and Go sort at every level instead).
+- Nodes are owned by `std::unique_ptr`. The destructor, `insert` and the queries are recursive, so a very deep chain (many sorted inserts) can exhaust the stack. Build from the full list to stay balanced.
+- Squared distances are compared; there is no `sqrt`.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall kd_tree_test.cpp -o kd_tree_test
-./kd_tree_test
+cd "Data Structures/Non_Linear/Trees/K-D Tree/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD kd_tree_test.cpp -o kd_tree_test && ./kd_tree_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Template dimensionality** is C++'s answer to runtime polymorphism here: the compiler unrolls the K-dimension loops, giving assembly equivalent to hand-written 2D or 3D code.
-2. **`std::nth_element` beats `std::sort` for median finding** — O(n) vs O(n log n). Every K-D Tree build should use it.
-3. **The prune-by-squared-distance trick** (`diff * diff < bestDist`) is what makes NN search O(log n) expected. Skip it and you visit every node.
+- Template dimensionality lets the compiler unroll the per-axis loops.
+- `nth_element` is the right tool for a median pivot.
+- The plane test prunes the far subtree.

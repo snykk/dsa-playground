@@ -22,10 +22,18 @@ private:
 public:
     /**
      * Initialize the cache with a fixed capacity.
+     * A capacity of 0 or less gives a cache that stores nothing.
      * Time:  O(1)
      * Space: O(capacity)
      */
-    LRUCache(int capacity) : capacity(capacity) {}
+    explicit LRUCache(int capacity) : capacity(capacity) {}
+
+    // The map stores iterators into this object's own list, so a copy would
+    // point into the source. Copying is disabled; moves keep the list nodes.
+    LRUCache(const LRUCache&) = delete;
+    LRUCache& operator=(const LRUCache&) = delete;
+    LRUCache(LRUCache&&) = default;
+    LRUCache& operator=(LRUCache&&) = default;
 
     /**
      * Return the value for key, or -1 if not present.
@@ -49,6 +57,10 @@ public:
      * Time: O(1)
      */
     void put(int key, int value) {
+        // A cache that holds nothing stores nothing (also guards negative capacity).
+        if (capacity <= 0) {
+            return;
+        }
         auto it = cache.find(key);
 
         if (it != cache.end()) {
@@ -59,7 +71,7 @@ public:
         }
 
         // Evict the LRU entry if at capacity.
-        if ((int)cache.size() == capacity) {
+        if ((int)cache.size() >= capacity) {
             int lruKey = dll.back().first;
             dll.pop_back();
             cache.erase(lruKey);

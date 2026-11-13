@@ -101,6 +101,20 @@ class TestBinaryTree(unittest.TestCase):
         self.assertTrue(self.tree.search(7))
         self.assertFalse(self.tree.search(8))
 
+    def test_seven_nodes_all_traversals(self):
+        for i in range(1, 8):
+            self.tree.insert(i)
+        self.assertEqual(self.tree.preorder_traversal(), [1, 2, 4, 5, 3, 6, 7])
+        self.assertEqual(self.tree.inorder_traversal(), [4, 2, 5, 1, 6, 3, 7])
+        self.assertEqual(self.tree.postorder_traversal(), [4, 5, 2, 6, 7, 3, 1])
+        self.assertEqual(self.tree.level_order_traversal(), [1, 2, 3, 4, 5, 6, 7])
+
+    def test_height_stays_logarithmic(self):
+        for i in range(1, 1001):
+            self.tree.insert(i)
+        self.assertEqual(self.tree.size(), 1000)
+        self.assertEqual(self.tree.height(), 9)
+
 if __name__ == "__main__":
     unittest.main()
 

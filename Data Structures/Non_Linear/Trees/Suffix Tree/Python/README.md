@@ -1,100 +1,30 @@
-# Suffix Tree - Python
+# Suffix Tree -- Python Implementation
 
-This folder contains a Python implementation of a **Suffix Tree**.
+Compressed suffix tree built suffix by suffix. See the [topic README](../README.md) for the theory, the trace and the complexity table.
 
-A **Suffix Tree** is a compressed trie containing all suffixes of a given string. It allows O(m) pattern search where m is pattern length, making it faster than Suffix Array for pattern matching.
+## Files
 
----
+- `suffix_tree.py`: `SuffixTreeNode` and `SuffixTree`
+- `suffix_tree_test.py`: exact-result tests plus a randomized comparison with brute-force search
 
-## Concept
+## API
 
-- **Compressed Trie**: All suffixes stored in tree structure
-- **O(m) Pattern Search**: Linear time pattern matching
-- **Space Efficient**: Compressed representation
-- **Complex Construction**: O(n) with Ukkonen's algorithm
+- `SuffixTree(text)`: raises `ValueError` if the text contains the NUL character
+- `search(pattern)`: sorted list of start indices (code points); `[]` for an empty or absent pattern
+- `get_all_suffixes()`: sorted list of the non-empty suffixes of the text
 
----
+## Python-Specific Notes
 
-## Operations
+The terminator is `TERMINATOR = '\0'`, appended internally; a `$` in the text is an ordinary character. Edges store `start` and `end` indices into the text. Leaf collection and `get_all_suffixes` use an explicit stack, so a text of 1500 identical characters (a chain of depth 1500) does not hit the recursion limit. The node still carries unused `suffix_link` and `global_end` fields left over from Ukkonen's algorithm.
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------- | ------------------------------------ | --------------- |
-| `search(pattern)`        | Search for pattern in text           | O(m)            |
-| `get_all_suffixes()`     | Get all suffixes stored in tree      | O(n)            |
-
-Where `m` = pattern length, `n` = text length.
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Build     | O(n) with Ukkonen's | O(n)      |
-| Search    | O(m)            | O(1)             |
-| Space     | O(n)            | O(n)             |
-
-**Note**: This implementation uses simplified O(n²) construction for clarity. For production, use Ukkonen's algorithm for O(n) construction.
-
----
-
-## Usage
-
-```python
-from suffix_tree import SuffixTree
-
-# Create suffix tree
-text = "banana"
-st = SuffixTree(text)
-
-# Search for pattern
-result = st.search("ana")
-print(result)  # [1, 3] - positions where "ana" appears
-
-# Get all suffixes
-suffixes = st.get_all_suffixes()
-print(suffixes)  # All suffixes in sorted order
-```
-
----
-
-## Comparison with Suffix Array
-
-| Feature         | Suffix Tree | Suffix Array |
-| --------------- | ----------- | ------------ |
-| Construction    | O(n)        | O(n log n)   |
-| Pattern Search  | **O(m)**    | O(m log n)   |
-| Space           | O(n)        | O(n)         |
-| Implementation  | Complex     | Simpler      |
-| Use Case        | Fast search | Simpler code |
-
-**Use Suffix Tree when**: You need fast pattern matching (O(m))
-**Use Suffix Array when**: You want simpler implementation
-
----
-
-## Applications
-
-- Pattern matching in strings
-- Longest common substring
-- String compression
-- Bioinformatics (DNA sequence analysis)
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-python -m unittest suffix_tree_test.py
+python3 -m unittest suffix_tree_test
 ```
 
----
+## Key Takeaways
 
-## Notes
-
-- More complex than Suffix Array but faster for pattern search
-- O(n) construction with Ukkonen's algorithm
-- O(m) pattern search vs O(m log n) for Suffix Array
-- Used in advanced string algorithms
-
-
+- Every suffix gets its own leaf because the terminator is unique.
+- A mismatch inside an edge label splits the edge.
+- Build is O(n^2); search is O(m + occ).

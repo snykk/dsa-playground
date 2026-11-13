@@ -1,5 +1,6 @@
 from collections import deque
 
+
 class TreeNode:
     """Node class for Binary Search Tree."""
     def __init__(self, data):
@@ -7,236 +8,180 @@ class TreeNode:
         self.left = None
         self.right = None
 
+
 class BinarySearchTree:
     """Binary Search Tree (BST) implementation.
-    
-    BST Property: For each node, all values in left subtree < node.data < all values in right subtree
+
+    BST Property: for every node, ALL values in its left subtree are < node.data
+    and ALL values in its right subtree are > node.data. Duplicates are ignored.
+
+    Every operation is iterative, so a degenerate tree (for example sorted
+    input, a chain of n nodes) never hits Python's recursion limit.
     """
-    
+
     def __init__(self):
         self.root = None
 
     def insert(self, data):
-        """Insert data into the BST maintaining BST property.
-        
-        Args:
-            data: The data to insert
-        """
-        self.root = self._insert_recursive(self.root, data)
-    
-    def _insert_recursive(self, node, data):
-        """Helper method for recursive insertion."""
-        if node is None:
-            return TreeNode(data)
-        
-        if data < node.data:
-            node.left = self._insert_recursive(node.left, data)
-        elif data > node.data:
-            node.right = self._insert_recursive(node.right, data)
-        # If data == node.data, we don't insert duplicates (or can be modified)
-        
-        return node
+        """Insert data into the BST (a duplicate is ignored)."""
+        if self.root is None:
+            self.root = TreeNode(data)
+            return
+        node = self.root
+        while True:
+            if data < node.data:
+                if node.left is None:
+                    node.left = TreeNode(data)
+                    return
+                node = node.left
+            elif data > node.data:
+                if node.right is None:
+                    node.right = TreeNode(data)
+                    return
+                node = node.right
+            else:
+                return
 
     def search(self, data):
-        """Search for data in the BST.
-        
-        Args:
-            data: The data to search for
-            
-        Returns:
-            True if found, False otherwise
-        """
-        return self._search_recursive(self.root, data)
-    
-    def _search_recursive(self, node, data):
-        """Helper method for recursive search."""
-        if node is None:
-            return False
-        if node.data == data:
-            return True
-        if data < node.data:
-            return self._search_recursive(node.left, data)
-        else:
-            return self._search_recursive(node.right, data)
+        """Return True if data is in the BST."""
+        node = self.root
+        while node is not None:
+            if data == node.data:
+                return True
+            node = node.left if data < node.data else node.right
+        return False
 
     def delete(self, data):
-        """Delete data from the BST.
-        
-        Args:
-            data: The data to delete
-        """
-        self.root = self._delete_recursive(self.root, data)
-    
-    def _delete_recursive(self, node, data):
-        """Helper method for recursive deletion."""
+        """Delete data from the BST (a missing key is ignored)."""
+        parent = None
+        node = self.root
+        while node is not None and node.data != data:
+            parent = node
+            node = node.left if data < node.data else node.right
         if node is None:
-            return None
-        
-        if data < node.data:
-            node.left = self._delete_recursive(node.left, data)
-        elif data > node.data:
-            node.right = self._delete_recursive(node.right, data)
+            return
+
+        if node.left is not None and node.right is not None:
+            # Two children: copy the in-order successor here, then remove it.
+            succ_parent = node
+            succ = node.right
+            while succ.left is not None:
+                succ_parent = succ
+                succ = succ.left
+            node.data = succ.data
+            parent, node = succ_parent, succ
+
+        # Now node has at most one child: splice it out.
+        child = node.left if node.left is not None else node.right
+        if parent is None:
+            self.root = child
+        elif parent.left is node:
+            parent.left = child
         else:
-            # Node to delete found
-            # Case 1: No child
-            if node.left is None and node.right is None:
-                return None
-            # Case 2: One child
-            elif node.left is None:
-                return node.right
-            elif node.right is None:
-                return node.left
-            # Case 3: Two children - find inorder successor
-            else:
-                successor = self._find_min(node.right)
-                node.data = successor.data
-                node.right = self._delete_recursive(node.right, successor.data)
-        
-        return node
+            parent.right = child
 
     def find_min(self):
-        """Find the minimum value in the BST.
-        
-        Returns:
-            Minimum value, or None if tree is empty
-        """
+        """Return the minimum value, or None if the tree is empty."""
         if self.root is None:
             return None
-        min_node = self._find_min(self.root)
-        return min_node.data
-    
+        return self._find_min(self.root).data
+
     def _find_min(self, node):
-        """Helper method to find minimum node."""
         while node.left is not None:
             node = node.left
         return node
 
     def find_max(self):
-        """Find the maximum value in the BST.
-        
-        Returns:
-            Maximum value, or None if tree is empty
-        """
+        """Return the maximum value, or None if the tree is empty."""
         if self.root is None:
             return None
-        max_node = self._find_max(self.root)
-        return max_node.data
-    
+        return self._find_max(self.root).data
+
     def _find_max(self, node):
-        """Helper method to find maximum node."""
         while node.right is not None:
             node = node.right
         return node
 
     def inorder_traversal(self):
-        """Perform inorder traversal (Left, Root, Right) - produces sorted order.
-        
-        Returns:
-            List of nodes in inorder sequence (sorted)
-        """
+        """Left, Root, Right: values in sorted order."""
         result = []
-        self._inorder_recursive(self.root, result)
-        return result
-    
-    def _inorder_recursive(self, node, result):
-        """Helper method for recursive inorder traversal."""
-        if node:
-            self._inorder_recursive(node.left, result)
+        stack = []
+        node = self.root
+        while stack or node is not None:
+            while node is not None:
+                stack.append(node)
+                node = node.left
+            node = stack.pop()
             result.append(node.data)
-            self._inorder_recursive(node.right, result)
+            node = node.right
+        return result
 
     def preorder_traversal(self):
-        """Perform preorder traversal (Root, Left, Right).
-        
-        Returns:
-            List of nodes in preorder sequence
-        """
+        """Root, Left, Right."""
         result = []
-        self._preorder_recursive(self.root, result)
-        return result
-    
-    def _preorder_recursive(self, node, result):
-        """Helper method for recursive preorder traversal."""
-        if node:
+        stack = [self.root] if self.root is not None else []
+        while stack:
+            node = stack.pop()
             result.append(node.data)
-            self._preorder_recursive(node.left, result)
-            self._preorder_recursive(node.right, result)
+            if node.right is not None:
+                stack.append(node.right)
+            if node.left is not None:
+                stack.append(node.left)
+        return result
 
     def postorder_traversal(self):
-        """Perform postorder traversal (Left, Right, Root).
-        
-        Returns:
-            List of nodes in postorder sequence
-        """
+        """Left, Right, Root."""
         result = []
-        self._postorder_recursive(self.root, result)
-        return result
-    
-    def _postorder_recursive(self, node, result):
-        """Helper method for recursive postorder traversal."""
-        if node:
-            self._postorder_recursive(node.left, result)
-            self._postorder_recursive(node.right, result)
+        stack = [self.root] if self.root is not None else []
+        while stack:
+            node = stack.pop()
             result.append(node.data)
+            if node.left is not None:
+                stack.append(node.left)
+            if node.right is not None:
+                stack.append(node.right)
+        result.reverse()
+        return result
 
     def level_order_traversal(self):
-        """Perform level-order (breadth-first) traversal.
-        
-        Returns:
-            List of nodes in level-order sequence
-        """
+        """Breadth-first traversal."""
         if self.root is None:
             return []
-        
         result = []
         queue = deque([self.root])
-        
         while queue:
             node = queue.popleft()
             result.append(node.data)
-            
             if node.left:
                 queue.append(node.left)
             if node.right:
                 queue.append(node.right)
-        
         return result
 
     def height(self):
-        """Calculate the height of the BST.
-        
-        Returns:
-            Height of the tree (number of edges from root to deepest leaf)
-        """
-        return self._height_recursive(self.root)
-    
-    def _height_recursive(self, node):
-        """Helper method for recursive height calculation."""
-        if node is None:
+        """Height in edges: -1 for an empty tree, 0 for a single node."""
+        if self.root is None:
             return -1
-        return 1 + max(self._height_recursive(node.left),
-                      self._height_recursive(node.right))
+        height = -1
+        level = [self.root]
+        while level:
+            height += 1
+            level = [c for n in level for c in (n.left, n.right) if c is not None]
+        return height
 
     def size(self):
-        """Get the total number of nodes in the tree.
-        
-        Returns:
-            Number of nodes
-        """
-        return self._size_recursive(self.root)
-    
-    def _size_recursive(self, node):
-        """Helper method for recursive size calculation."""
-        if node is None:
-            return 0
-        return 1 + self._size_recursive(node.left) + \
-               self._size_recursive(node.right)
+        """Number of nodes."""
+        count = 0
+        stack = [self.root] if self.root is not None else []
+        while stack:
+            node = stack.pop()
+            count += 1
+            if node.left is not None:
+                stack.append(node.left)
+            if node.right is not None:
+                stack.append(node.right)
+        return count
 
     def is_empty(self):
-        """Check if the tree is empty.
-        
-        Returns:
-            True if empty, False otherwise
-        """
+        """True if the tree has no nodes."""
         return self.root is None
-

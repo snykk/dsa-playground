@@ -1,4 +1,3 @@
-module cartesiantree
+module cartesian_tree
 
-go 1.21
-
+go 1.24.2

@@ -96,6 +96,10 @@ public:
         clear();
     }
 
+    // Nodes are owned through raw pointers: copying would double free.
+    FibonacciHeap(const FibonacciHeap&) = delete;
+    FibonacciHeap& operator=(const FibonacciHeap&) = delete;
+
     bool is_empty() {
         return min_node == nullptr;
     }

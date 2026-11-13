@@ -1,50 +1,38 @@
-# Hash Set — C++ Implementation
+# Hash Set -- C++ Implementation
 
-A **Hash Set** stores **unique** elements and supports expected O(1) `add`, `remove`, and `contains`. Think of it as a hash map where we only care about the keys — values don't exist.
-
-For the conceptual overview (internal hash tables, load-factor behavior, iteration ordering), see the parent README: [../README.md](../README.md)
-
----
+A template chaining hash set that doubles its buckets at load 0.75. See the [topic README](../README.md).
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `hash_set.cpp` | Hash set built on top of chaining (buckets of linked lists) |
-| `hash_set_test.cpp` | Unit tests for `add`, `remove`, `contains`, size, and duplicates |
+- `hash_set.cpp`: `HashSet<K>` (included directly by the test).
+- `hash_set_test.cpp`: assert-based tests (add, remove, resize, invalid capacity).
 
----
+## API
 
-## Core Operations
+| Member | Description | Time |
+|--------|-------------|------|
+| `HashSet(size_t cap = 16)` | throws `std::invalid_argument` if `cap` is 0 | O(cap) |
+| `bool add(key)` | true if new; resizes when load exceeds 0.75 | O(1) amortized |
+| `bool remove(key)` | true if removed | O(1) average |
+| `bool contains(key)` | membership | O(1) average |
+| `getSize()`, `bucketCount()`, `isEmpty()`, `clear()` | bookkeeping | O(1) |
 
-| Operation | Average | Worst case | Notes |
-|-----------|---------|------------|-------|
-| `add(key)` | O(1) | O(n) | Worst case when every element collides |
-| `contains(key)` | O(1) | O(n) | Same bucket-walk bound |
-| `remove(key)` | O(1) | O(n) | |
-
----
+No iteration. Elements use `std::hash<K>` and `==`.
 
 ## C++-Specific Notes
 
-- **`std::unordered_set<T>`** is the stdlib equivalent. This implementation exists for learning — in production you would reach for `std::unordered_set` or a flat hash set (e.g. Abseil's `flat_hash_set`, which is usually faster due to open addressing and cache locality).
-- **Hash function via `std::hash<T>`**: `<functional>` provides specializations for primitives and `std::string`. For custom structs you must specialize `std::hash` yourself or pass a functor as the second template argument.
-- **Rehashing** happens at load factor threshold (commonly 1.0 for chaining). We double the bucket count and re-insert every element — expensive O(n) operation, amortized O(1) per insert.
-- **Iterator invalidation**: after a rehash, all iterators become invalid. Keep this in mind when iterating while modifying.
-
----
+- Buckets are `std::vector<std::list<K>>`. A resize splices the existing list nodes into the new buckets, with no copies.
+- An earlier version initialised a load-factor field but never read it, so the set stayed at 16 buckets and chains grew with n.
+- The bucket count and size are separate members, so `bucketCount()` shows the effect of a resize.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall hash_set_test.cpp -o hash_set_test
-./hash_set_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD hash_set_test.cpp -o hash_set_test && ./hash_set_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **A hash set _is_ a hash map without values.** Implementing one after a hash map is a small step — strip out the value type and `Get` / `Put` become `Contains` / `Add`.
-2. **Uniqueness comes from the `contains` check before insert.** No magic — every `add` does a probe-or-walk first, and only writes on miss.
-3. **Iteration order is not guaranteed.** If you iterate and later add, the bucket layout may change completely due to rehashing. If you need stable order, use `std::set` (ordered, O(log n)) or a hash set paired with a linked list (LRU-style).
+- A load factor that is never checked does nothing.
+- Splicing list nodes avoids copying elements on a resize.
+- Validate the capacity before taking `% capacity`.

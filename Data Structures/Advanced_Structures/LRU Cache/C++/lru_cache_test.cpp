@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <cassert>
+#include <type_traits>
 #include "lru_cache.cpp"
 
 void testBasicGetPut() {
@@ -152,6 +153,29 @@ void testSizeDoesNotExceedCapacity() {
     std::cout << "  [PASS] Size does not exceed capacity" << std::endl;
 }
 
+void testCapacityZeroAndNegative() {
+    LRUCache zero(0);
+    zero.put(1, 10);
+    assert(zero.size() == 0);
+    assert(zero.get(1) == -1);
+    LRUCache neg(-1);
+    for (int i = 0; i < 10; i++) neg.put(i, i);
+    assert(neg.size() == 0);
+    assert(neg.get(5) == -1);
+    std::cout << "  [PASS] Capacity 0 and negative store nothing" << std::endl;
+}
+
+void testNotCopyable() {
+    // A copy would keep iterators into the source's list (use-after-free).
+    static_assert(!std::is_copy_constructible<LRUCache>::value, "LRUCache must not be copyable");
+    static_assert(!std::is_copy_assignable<LRUCache>::value, "LRUCache must not be copy-assignable");
+    LRUCache a(2);
+    a.put(1, 10);
+    LRUCache b = std::move(a);
+    assert(b.get(1) == 10);
+    std::cout << "  [PASS] Not copyable, movable" << std::endl;
+}
+
 int main() {
     std::cout << "Running LRU Cache tests..." << std::endl;
     testBasicGetPut();
@@ -167,6 +191,8 @@ int main() {
     testCapacityOne();
     testSizeGrows();
     testSizeDoesNotExceedCapacity();
+    testCapacityZeroAndNegative();
+    testNotCopyable();
     std::cout << "\nAll tests passed!" << std::endl;
     return 0;
 }
