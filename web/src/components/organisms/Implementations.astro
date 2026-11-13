@@ -6,9 +6,13 @@ import SectionTitle from '../atoms/SectionTitle.astro';
 
 interface Props {
   node: DocNode;
+  /** Show the "Implementations" section title (articles bring their own heading). */
+  titled?: boolean;
+  /** Show each language README above its code (articles explain the code themselves). */
+  readmes?: boolean;
 }
 
-const { node } = Astro.props;
+const { node, titled = true, readmes = true } = Astro.props;
 
 /**
  * Language READMEs sit inside a section of the topic page, so demote their
@@ -25,14 +29,18 @@ function nestReadme(html: string, prefix: string): string {
 const panels = await Promise.all(
   node.languages.map(async (lang) => ({
     lang,
-    readme: lang.readme ? nestReadme((await renderMarkdown(lang.readme.source, lang.readme.rel)).html, lang.id) : '',
+    readme: readmes && lang.readme ? nestReadme((await renderMarkdown(lang.readme.source, lang.readme.rel)).html, lang.id) : '',
   })),
 );
 const lineCount = (code: string) => code.replace(/\n$/, '').split('\n').length;
 ---
 
-<section class="implementations" aria-labelledby="implementations-title">
-  <SectionTitle id="implementations-title">Implementations</SectionTitle>
+<section
+  class="implementations"
+  aria-labelledby={titled ? 'implementations-title' : undefined}
+  aria-label={titled ? undefined : 'Implementations'}
+>
+  {titled && <SectionTitle id="implementations-title">Implementations</SectionTitle>}
   <div class="impl-tabs" data-impl-tabs>
     <div class="impl-tablist" role="tablist" aria-label="Implementation language">
       {

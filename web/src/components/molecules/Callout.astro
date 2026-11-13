@@ -1,0 +1,69 @@
+---
+import Icon from '../atoms/Icon.astro';
+
+/** A boxed aside in an article: a note, a tip or a warning. The body is the slot (markdown in MDX). */
+interface Props {
+  tone?: 'note' | 'tip' | 'warning';
+  title?: string;
+}
+
+const { tone = 'note', title } = Astro.props;
+const ICONS = { note: 'info', tip: 'tip', warning: 'warning' } as const;
+const TITLES = { note: 'Note', tip: 'Tip', warning: 'Watch out' };
+---
+
+<aside class:list={['callout', tone]}>
+  <span class="callout-icon"><Icon name={ICONS[tone]} size={20} /></span>
+  <div class="callout-body">
+    <p class="callout-title">{title ?? TITLES[tone]}</p>
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .callout {
+    --tone: var(--accent);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    margin: 24px 0;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--tone) 30%, transparent);
+    background: color-mix(in srgb, var(--tone) 7%, var(--surface));
+  }
+  .callout.tip {
+    --tone: var(--viz-done);
+  }
+  .callout.warning {
+    --tone: var(--viz-active);
+  }
+  .callout-icon {
+    color: var(--tone);
+    padding-top: 3px;
+  }
+  .callout-title {
+    margin: 0 0 4px;
+    font-weight: 650;
+  }
+  .callout-body {
+    min-width: 0;
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+  .callout-body :global(p),
+  .callout-body :global(ul),
+  .callout-body :global(ol) {
+    margin: 0 0 8px;
+  }
+  .callout-body :global(ul),
+  .callout-body :global(ol) {
+    padding-left: 20px;
+  }
+  .callout-body :global(li + li) {
+    margin-top: 6px;
+  }
+  .callout-body > :global(:last-child) {
+    margin-bottom: 0;
+  }
+</style>

@@ -1,0 +1,55 @@
+---
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import type { ArticleData } from '../../lib/article';
+import { githubUrl, type DocNode } from '../../lib/repo';
+import '../../styles/article.css';
+import '../../styles/diagrams.css';
+import { vizForTopic } from '../../viz/catalog';
+import ArticleHeader from '../organisms/ArticleHeader.astro';
+import KeyFacts from '../organisms/KeyFacts.astro';
+import RelatedTopics from '../organisms/RelatedTopics.astro';
+import BaseLayout from './BaseLayout.astro';
+
+/**
+ * Page for a topic with a hand-written article: header, key facts, the MDX body
+ * (the slot) and related topics. Topics without an article use DocPage instead.
+ */
+interface Props {
+  node: DocNode;
+  article: ArticleData;
+  headings: MarkdownHeading[];
+}
+
+const { node, article, headings } = Astro.props;
+---
+
+<BaseLayout title={article.title} description={article.lead} currentSlug={node.slug} toc={headings}>
+  <article class="article">
+    <ArticleHeader
+      node={node}
+      title={article.title}
+      lead={article.lead}
+      level={article.level}
+      updated={article.updated}
+      prerequisites={article.prerequisites}
+      hasViz={vizForTopic(node.rel).length > 0}
+    />
+    <KeyFacts facts={article.facts} properties={article.properties} />
+    <div class="article-body">
+      <slot />
+    </div>
+    <RelatedTopics title="Related topics" topics={article.related} />
+    <p class="article-foot">
+      Spotted a mistake or something unclear?
+      <a href={githubUrl(node.rel, true)} target="_blank" rel="noopener noreferrer">See the source on GitHub</a>.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-foot {
+    margin: 48px 0 0;
+    font-size: 14px;
+    color: var(--text-3);
+  }
+</style>

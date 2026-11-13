@@ -1,4 +1,5 @@
 // @ts-check
+import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import { defineConfig } from 'astro/config';
 
@@ -11,7 +12,16 @@ export default defineConfig({
   site,
   base,
   trailingSlash: 'always',
-  integrations: [react()],
+  integrations: [react(), mdx()],
+  // Topic articles (src/content/articles/*.mdx) use the same code style as the README pages.
+  markdown: {
+    smartypants: false,
+    shikiConfig: {
+      themes: { light: 'github-light', dark: 'github-dark' },
+      defaultColor: 'light',
+      wrap: false,
+    },
+  },
   // The floating dev toolbar covers page content while reviewing locally.
   devToolbar: { enabled: false },
   build: { format: 'directory' },

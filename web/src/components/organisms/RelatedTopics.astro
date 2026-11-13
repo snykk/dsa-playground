@@ -1,0 +1,44 @@
+---
+import { getContent, joinBase } from '../../lib/repo';
+import Card from '../molecules/Card.astro';
+import CardGrid from '../molecules/CardGrid.astro';
+
+/** "Where to go next" cards at the end of an article. */
+interface Props {
+  title: string;
+  topics: string[];
+}
+
+const { title, topics } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const content = getContent();
+const nodes = topics.map((rel) => {
+  const n = content.byRel.get(rel);
+  if (!n) throw new Error(`RelatedTopics: unknown topic folder "${rel}"`);
+  return n;
+});
+const id = `related-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+---
+
+{
+  nodes.length > 0 && (
+    <section class="related" aria-labelledby={id}>
+      <h2 id={id}>{title}</h2>
+      <CardGrid min={200}>
+        {nodes.map((n) => (
+          <Card href={joinBase(base, n.slug)} title={n.title} meta={n.parent ? [n.parent.title] : []} />
+        ))}
+      </CardGrid>
+    </section>
+  )
+}
+
+<style>
+  .related {
+    margin-top: 56px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 0 0 14px;
+  }
+</style>
