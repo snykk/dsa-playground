@@ -2,19 +2,32 @@
 #include <stdexcept>
 using namespace std;
 
-struct Node {
-    int data;
-    Node* next;
-    Node(int val) : data(val), next(nullptr) {}
-};
-
 class LinkedListStack {
 private:
+    struct Node {
+        int data;
+        Node* next;
+        Node(int val) : data(val), next(nullptr) {}
+    };
+
     Node* topNode;
     int count;
 
 public:
     LinkedListStack() : topNode(nullptr), count(0) {}
+
+    // Free every node still on the stack.
+    ~LinkedListStack() {
+        while (topNode) {
+            Node* temp = topNode;
+            topNode = topNode->next;
+            delete temp;
+        }
+    }
+
+    // A copy would share the nodes and free them twice.
+    LinkedListStack(const LinkedListStack&) = delete;
+    LinkedListStack& operator=(const LinkedListStack&) = delete;
 
     void push(int value) {
         Node* newNode = new Node(value);

@@ -107,6 +107,32 @@ func TestLevelOrderTraversal(t *testing.T) {
 	}
 }
 
+func TestSevenNodesAllTraversals(t *testing.T) {
+	tree := NewBinaryTree()
+	for i := 1; i <= 7; i++ {
+		tree.Insert(i)
+	}
+	if !compareSlices(tree.PreorderTraversal(), []int{1, 2, 4, 5, 3, 6, 7}) {
+		t.Error("preorder wrong")
+	}
+	if !compareSlices(tree.InorderTraversal(), []int{4, 2, 5, 1, 6, 3, 7}) {
+		t.Error("inorder wrong")
+	}
+	if !compareSlices(tree.PostorderTraversal(), []int{4, 5, 2, 6, 7, 3, 1}) {
+		t.Error("postorder wrong")
+	}
+}
+
+func TestHeightStaysLogarithmic(t *testing.T) {
+	tree := NewBinaryTree()
+	for i := 1; i <= 1000; i++ {
+		tree.Insert(i)
+	}
+	if tree.Size() != 1000 || tree.Height() != 9 {
+		t.Errorf("size %d height %d, want 1000 and 9", tree.Size(), tree.Height())
+	}
+}
+
 func compareSlices(a, b []int) bool {
 	if len(a) != len(b) {
 		return false

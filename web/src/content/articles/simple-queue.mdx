@@ -1,0 +1,205 @@
+---
+topic: Data Structures/Linear/Queue/Simple Queue
+title: Simple Queue
+lead: A queue serves items in first-in, first-out order, so the item that has waited longest leaves first. This simple array-backed version enqueues at the back in O(1), but dequeueing from the front costs O(n) in Python and C++ because the remaining items shift.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Enqueue
+    value: O(1)
+    hint: amortized
+  - label: Dequeue
+    value: O(n)
+    hint: Python and C++ shift items; Go reslices in O(1)
+    tone: warn
+  - label: Peek
+    value: O(1)
+  - label: Order
+    value: FIFO
+properties:
+  - { label: FIFO order, value: true }
+  - { label: Array-backed, value: true }
+  - { label: Bounded, value: false }
+  - { label: O(1) dequeue everywhere, value: false }
+prerequisites:
+  - Data Structures/Linear/Array
+related:
+  - Data Structures/Linear/Queue/Circular Queue
+  - Data Structures/Linear/Queue/Deque
+  - Data Structures/Linear/Queue/Priority Queue
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+---
+
+## What a queue is
+
+A queue is a line. New items join at the **back** (`enqueue`) and the item at the **front** leaves first (`dequeue`). Nothing in the middle can be touched. This first-in, first-out (FIFO) rule is what makes queues the natural tool for anything that must be handled in arrival order.
+
+<ArrayDiagram
+  legend={{ f: 'front: next to leave', p: 'back: last to arrive', l: 'waiting items' }}
+  caption="A queue holding 10, 20 and 30. Items enter at the back and leave from the front."
+  rows={[
+    { label: 'queue', values: [10, 20, 30], tones: 'flp', marks: { 0: 'front', 2: 'back' } },
+  ]}
+/>
+
+The repository stores the items in a growable array: a Python `list`, a C++ `std::vector<int>` and a Go `[]int` slice. The front is index 0 and the back is the last index.
+
+<Callout title="The invariant">
+Items leave in exactly the order they arrived. `enqueue` only ever touches the back and `dequeue` and `peek` only ever touch the front, so no operation can reorder the line.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`enqueue(x)`', 'append `x` at the back', 'O(1) amortized'],
+    ['`dequeue()`', 'remove and return the front item; fails when empty', 'O(n) in Python and C++, O(1) in Go'],
+    ['`peek()`', 'return the front item without removing it; fails when empty', 'O(1)'],
+    ['`is_empty()`, `size()`', 'length checks', 'O(1)'],
+  ]}
+/>
+
+Go names them `Enqueue`, `Dequeue`, `Peek`, `IsEmpty` and `Size`. Dequeue and peek on an empty queue raise `IndexError` in Python, throw `std::runtime_error` in C++ and return an error in Go. `Enqueue` never fails, because the array grows as needed.
+
+### Enqueue and dequeue
+
+Enqueue `10`, `20`, `30`, then dequeue once, then enqueue `40`:
+
+<ArrayDiagram
+  legend={{ f: 'front', p: 'back', l: 'waiting items', m: 'removed' }}
+  rows={[
+    { label: 'enqueue 10', values: [10], tones: 'f', marks: { 0: 'front, back' }, note: 'The first item is both front and back.' },
+    { label: 'enqueue 20', values: [10, 20], tones: 'fp', marks: { 0: 'front', 1: 'back' } },
+    { label: 'enqueue 30', values: [10, 20, 30], tones: 'flp', marks: { 0: 'front', 2: 'back' } },
+    { label: 'dequeue', values: [20, 30], tones: 'fp', marks: { 0: 'front', 1: 'back' }, note: 'Returns 10. In Python and C++ the other items shift left to refill index 0.' },
+    { label: 'enqueue 40', values: [20, 30, 40], tones: 'flp', marks: { 0: 'front', 2: 'back' }, note: 'Dequeueing now returns 20, 30, 40 in that order.' },
+  ]}
+/>
+
+### Why dequeue costs O(n)
+
+Python's `list.pop(0)` and C++ `vector::erase(begin())` close the gap at index 0 by moving every remaining item one slot to the left. With n items that is n - 1 moves.
+
+<ArrayDiagram
+  legend={{ m: 'removed item', l: 'item that has to move' }}
+  rows={[
+    { label: 'before', values: [10, 20, 30, 40], tones: 'mlll' },
+    { label: 'after', values: [20, 30, 40], tones: 'lll', note: 'Three moves to remove one item. A queue of 100000 items would need 99999.' },
+  ]}
+/>
+
+Go's `Dequeue` instead reslices: `q.queue = q.queue[1:]`. That only moves the start of the slice view, so nothing is copied and the cost is O(1). The dropped slot stays in the backing array until a later `append` has to reallocate, and the new array then holds only the live items. The three versions behave the same, and only the cost differs.
+
+## Pseudocode
+
+```text
+enqueue(x):
+    items.append(x)
+
+dequeue():
+    if items is empty: error
+    x = items[0]
+    remove items[0]          # shifts the rest in Python and C++, reslices in Go
+    return x
+
+peek():
+    if items is empty: error
+    return items[0]
+```
+
+## Implementation
+
+All three versions are a thin wrapper around the built-in growable array. The Go version is the odd one out because of the reslice.
+
+<TopicCode topic="Data Structures/Linear/Queue/Simple Queue" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Python list', kind: 'mono' }, { label: 'C++ vector', kind: 'mono' }, { label: 'Go slice', kind: 'mono' }]}
+  rows={[
+    ['enqueue', 'O(1) amortized', 'O(1) amortized', 'O(1) amortized'],
+    ['dequeue', 'O(n)', 'O(n)', 'O(1)'],
+    ['peek', 'O(1)', 'O(1)', 'O(1)'],
+    ['is_empty, size', 'O(1)', 'O(1)', 'O(1)'],
+    ['space', 'O(n)', 'O(n)', 'O(n)'],
+  ]}
+/>
+
+Enqueue is amortized O(1) because an append occasionally reallocates the array and copies it, and growing the capacity geometrically makes the average cost per append constant. Draining a queue of n items one by one costs O(n<sup>2</sup>) in Python and C++ but O(n) in Go.
+
+## Ways to build a queue
+
+<DataTable
+  columns={['Design', { label: 'Enqueue', kind: 'mono' }, { label: 'Dequeue', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Array with shifting (Python, C++ here)', 'O(1)', 'O(n)', 'simplest'],
+    ['Array with a head index', 'O(1)', 'O(1)', 'dead slots at the front are reclaimed on growth; Go behaves this way'],
+    ['Circular array', 'O(1)', 'O(1)', 'bounded, reuses freed slots, see Circular Queue'],
+    ['Linked list with head and tail', 'O(1)', 'O(1)', 'unbounded, one node per item'],
+  ]}
+/>
+
+## Simple queue vs other structures
+
+<DataTable
+  columns={['Structure', 'Order of removal', 'See']}
+  rows={[
+    ['Queue', 'oldest first (FIFO)', 'this article'],
+    ['Stack', 'newest first (LIFO)', 'Stack articles'],
+    ['Deque', 'either end', 'Deque'],
+    ['Priority queue', 'best priority first', 'Priority Queue'],
+    ['Circular queue', 'oldest first, bounded, O(1) dequeue', 'Circular Queue'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Very small: a handful of lines over a built-in array.',
+    'Enqueue and peek are cheap, and the order guarantee is easy to reason about.',
+    'Grows as needed, with no capacity to choose.',
+    'Contiguous storage is cache-friendly.',
+  ]}
+  cons={[
+    'Dequeue is O(n) in Python and C++, so large queues get slow.',
+    'The Go reslice leaves a dead prefix until the next reallocation.',
+    'No access to the middle in the queue API.',
+    'Not thread-safe.',
+  ]}
+/>
+
+## Applications
+
+- **Breadth-first search:** the frontier is a queue, so vertices are explored level by level.
+- **Task and request handling** in arrival order, such as a print queue.
+- **Buffers** between a producer and a consumer.
+- **Simulations** that process events in the order they were created.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming dequeue is O(1).** In Python and C++ here it shifts every item. Draining a large queue is quadratic. For real work use `collections.deque` or `std::queue`, or the Circular Queue.
+- **Dequeueing or peeking an empty queue.** Check `is_empty()` first, or handle the exception or error.
+- **Using a stack by accident.** Removing from the back (`pop()`) gives LIFO, not FIFO.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What does FIFO mean?">
+    First in, first out. The item that has been in the queue the longest is the next one removed.
+  </FaqItem>
+  <FaqItem question="Why is Go's dequeue faster than Python's here?">
+    Go reslices (`queue[1:]`) and moves no data, while Python's `pop(0)` and C++ `erase(begin())` shift every remaining item. The results are identical, only the cost differs.
+  </FaqItem>
+  <FaqItem question="How do I get an O(1) dequeue?">
+    Keep a head index instead of shifting, use a circular array, or use a linked list with head and tail pointers. In practice use `collections.deque` in Python or `std::queue` in C++.
+  </FaqItem>
+  <FaqItem question="What is the difference between peek and dequeue?">
+    Peek returns the front item and leaves it in the queue. Dequeue returns it and removes it.
+  </FaqItem>
+</Faq>

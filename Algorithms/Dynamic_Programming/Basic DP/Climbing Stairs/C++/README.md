@@ -17,6 +17,7 @@ This problem is essentially the Fibonacci sequence! The number of ways to reach 
 ## Algorithm
 
 1. **Base Cases**: 
+   - Ways(0) = 1 (one way: the empty climb, take no step)
    - Ways(1) = 1 (only one way: take 1 step)
    - Ways(2) = 2 (two ways: 1+1 or 2)
 2. **Recurrence Relation**: 
@@ -45,45 +46,27 @@ This problem is essentially the Fibonacci sequence! The number of ways to reach 
 
 ### Functions
 
-1. **`climbingStairsTabulation(n)`**
-   - Bottom-up Dynamic Programming
-   - Fills array iteratively
-   - Returns number of ways
-   - Time: O(n), Space: O(n)
-
-2. **`climbingStairsOptimized(n)`**
-   - Space-optimized version
-   - Only stores last two values
-   - Returns number of ways
+1. **`climbingStairs(n)`**
+   - Space-optimized bottom-up loop (only stores the last two values)
+   - Returns the number of ways as `long long`
    - Time: O(n), Space: O(1)
 
-3. **`climbingStairsVariableSteps(n, steps)`**
-   - Generalization: can take steps from list
-   - Steps can be [1, 2, 3, ...] or any combination
-   - Uses DP with different recurrence
-   - Time: O(n × k) where k is number of step sizes
+The tabulation, memoization and variable-step versions exist only in the Python implementation.
 
 ---
 
 ## Usage
 
 ```cpp
-#include <vector>
+#include <iostream>
 #include "climbing_stairs.cpp"
 
 int main() {
-    // Standard tabulation (recommended)
-    int ways = climbingStairsTabulation(5);
+    long long ways = climbingStairs(5);
     std::cout << ways << "\n";  // Output: 8
 
-    // Space-optimized (best for large n)
-    ways = climbingStairsOptimized(10);
+    ways = climbingStairs(10);
     std::cout << ways << "\n";  // Output: 89
-
-    // Variable steps (can take 1, 2, or 3 steps)
-    std::vector<int> steps = {1, 2, 3};
-    ways = climbingStairsVariableSteps(5, steps);
-    std::cout << ways << "\n";  // Output: 13 (more ways than 1 or 2 steps only)
 
     return 0;
 }
@@ -93,10 +76,10 @@ int main() {
 
 ## Important Notes
 
-1. **Fibonacci Connection**: This is exactly the Fibonacci sequence starting from F(1)=1, F(2)=2
+1. **Fibonacci Connection**: Ways(n) = F(n+1), the Fibonacci numbers shifted by one: Ways(0..5) = 1, 1, 2, 3, 5, 8 = F(1..6)
 2. **Integer Overflow**: For very large n, use big integers or modulo arithmetic
 3. **Space Optimization**: Use optimized version when space is constrained
-4. **Base Cases**: Always handle n=1 and n=2 correctly
+4. **Base Cases**: Always handle n=0 (1 way), n=1 and n=2 correctly; `climbingStairs` throws `std::invalid_argument` for n < 0
 5. **Variable Steps**: Generalization allows any step sizes, not just 1 and 2
 
 ---
@@ -130,8 +113,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++11 climbing_stairs.cpp climbing_stairs_test.cpp -o test
-./test
+g++ -std=c++17 -DIS_TEST_BUILD climbing_stairs_test.cpp -o climbing_stairs_test && ./climbing_stairs_test
 ```
 
 ---

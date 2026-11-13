@@ -171,6 +171,41 @@ func (rbt *RedBlackTree) IsEmpty() bool {
 	return rbt.root == rbt.nil
 }
 
+// checkInvariants verifies the five red-black rules, BST order and parent
+// links. It returns an empty string when the tree is valid.
+func (rbt *RedBlackTree) checkInvariants() string {
+	if rbt.root.color != BLACK {
+		return "root is not black"
+	}
+	msg := ""
+	var walk func(n *RBNode, lo, hi *int) int
+	walk = func(n *RBNode, lo, hi *int) int {
+		if n == rbt.nil || msg != "" {
+			return 1
+		}
+		if (lo != nil && n.data < *lo) || (hi != nil && n.data > *hi) {
+			msg = "BST order violated"
+		}
+		if n.color == RED && (n.left.color == RED || n.right.color == RED) {
+			msg = "red node with red child"
+		}
+		if (n.left != rbt.nil && n.left.parent != n) || (n.right != rbt.nil && n.right.parent != n) {
+			msg = "bad parent link"
+		}
+		lh := walk(n.left, lo, &n.data)
+		rh := walk(n.right, &n.data, hi)
+		if lh != rh && msg == "" {
+			msg = "black heights differ"
+		}
+		if n.color == BLACK {
+			return lh + 1
+		}
+		return lh
+	}
+	walk(rbt.root, nil, nil)
+	return msg
+}
+
 func main() {
 	rbt := NewRedBlackTree()
 	rbt.Insert(10)

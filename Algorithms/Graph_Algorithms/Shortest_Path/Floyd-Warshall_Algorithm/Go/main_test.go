@@ -139,3 +139,57 @@ func TestFloydWarshallEmptyGraph(t *testing.T) {
 }
 
 
+
+// TestFloydWarshallParallelEdgesAndSelfLoop: parallel edges keep the cheapest
+// weight (in either order) and a positive self-loop keeps dist[i][i] = 0.
+func TestFloydWarshallParallelEdgesAndSelfLoop(t *testing.T) {
+	cheapFirst := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{0: {{Neighbor: 1, Weight: 3}, {Neighbor: 1, Weight: 7}}, 1: {}}
+	cheapLast := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{0: {{Neighbor: 1, Weight: 7}, {Neighbor: 1, Weight: 3}}, 1: {}}
+	for _, graph := range []map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{cheapFirst, cheapLast} {
+		if d := FloydWarshall(graph, 2); d[0][1] != 3 {
+			t.Errorf("Expected dist[0][1] = 3 (cheapest parallel edge), got %d", d[0][1])
+		}
+	}
+
+	selfLoop := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{0: {{Neighbor: 0, Weight: 5}}}
+	if d := FloydWarshall(selfLoop, 1); d == nil || d[0][0] != 0 {
+		t.Errorf("Expected [[0]] for a positive self-loop, got %v", d)
+	}
+}
+
+// TestFloydWarshallNegativeCycle: a negative cycle (including a negative
+// self-loop) returns nil instead of a matrix with a negative diagonal.
+func TestFloydWarshallNegativeCycle(t *testing.T) {
+	graph := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{
+		0: {{Neighbor: 1, Weight: 1}},
+		1: {{Neighbor: 2, Weight: -3}},
+		2: {{Neighbor: 1, Weight: 1}, {Neighbor: 3, Weight: 1}},
+		3: {},
+	}
+	if d := FloydWarshall(graph, 4); d != nil {
+		t.Errorf("Expected nil (negative cycle), got %v", d)
+	}
+
+	negativeSelfLoop := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{0: {{Neighbor: 0, Weight: -1}}}
+	if d := FloydWarshall(negativeSelfLoop, 1); d != nil {
+		t.Errorf("Expected nil for a negative self-loop, got %v", d)
+	}
+}

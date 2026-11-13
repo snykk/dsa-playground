@@ -167,6 +167,14 @@ class TestEdgeList(unittest.TestCase):
         self.assertIn((2, 5.0), adj_list[1])
         self.assertIn((3, 3.0), adj_list[1])
 
+    def test_edge_count_with_self_loop(self):
+        """An undirected self-loop is one edge."""
+        g = EdgeList(directed=False, weighted=False)
+        g.add_edge(1, 2)
+        g.add_edge(3, 3)
+        self.assertEqual(g.get_edge_count(), 2)
+        g.remove_edge(3, 3)
+        self.assertEqual(g.get_edge_count(), 1)
 
 if __name__ == '__main__':
     unittest.main()

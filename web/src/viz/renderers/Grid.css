@@ -1,0 +1,45 @@
+/* ---------- DP table ---------- */
+
+.dp-wrap {
+  overflow-x: auto;
+}
+.dp-table {
+  border-collapse: separate;
+  border-spacing: 3px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin: 0 auto;
+}
+.dp-table th {
+  color: var(--text-3);
+  font-weight: 600;
+  padding: 2px 6px;
+  text-align: center;
+}
+.dp-table td {
+  min-width: 34px;
+  height: 30px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid var(--grid);
+  background: var(--viz-surface);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.dp-table td.empty {
+  color: transparent;
+}
+.dp-table td.role-compare {
+  border: 2px solid var(--viz-compare);
+  background: color-mix(in srgb, var(--viz-compare) 16%, var(--viz-surface));
+}
+.dp-table td.role-active,
+.dp-table td.role-done {
+  background: var(--role);
+  border-color: var(--role);
+  color: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.dp-table td.role-active {
+  animation: viz-pop 0.3s ease;
+}

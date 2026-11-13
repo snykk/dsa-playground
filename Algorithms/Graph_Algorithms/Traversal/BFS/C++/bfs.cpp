@@ -56,32 +56,40 @@ vector<int> bfsWithPath(const unordered_map<int, vector<int>>& graph,
         return {start};
     }
     
-    if (graph.find(start) == graph.end() || graph.find(target) == graph.end()) {
+    // The target does not have to be a key: a vertex without outgoing edges
+    // may appear only in neighbor lists.
+    if (graph.find(start) == graph.end()) {
         return {};
     }
     
-    queue<pair<int, vector<int>>> q;
-    unordered_set<int> visited;
+    // parent[v] is the vertex that discovered v (the map doubles as the
+    // visited set). One entry per vertex instead of a copy of the whole path
+    // per queue entry keeps this O(V + E); the path is rebuilt once at the end.
+    unordered_map<int, int> parent;
+    queue<int> q;
     
-    q.push({start, {start}});
-    visited.insert(start);
+    parent[start] = start;
+    q.push(start);
     
     while (!q.empty()) {
-        auto [vertex, path] = q.front();
+        int vertex = q.front();
         q.pop();
         
         if (graph.find(vertex) != graph.end()) {
             for (int neighbor : graph.at(vertex)) {
                 if (neighbor == target) {
-                    path.push_back(neighbor);
+                    vector<int> path = {neighbor, vertex};
+                    for (int node = vertex; node != start; ) {
+                        node = parent[node];
+                        path.push_back(node);
+                    }
+                    reverse(path.begin(), path.end());
                     return path;
                 }
                 
-                if (visited.find(neighbor) == visited.end()) {
-                    visited.insert(neighbor);
-                    vector<int> newPath = path;
-                    newPath.push_back(neighbor);
-                    q.push({neighbor, newPath});
+                if (parent.find(neighbor) == parent.end()) {
+                    parent[neighbor] = vertex;
+                    q.push(neighbor);
                 }
             }
         }

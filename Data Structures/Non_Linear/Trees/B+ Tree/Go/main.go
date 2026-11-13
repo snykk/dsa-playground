@@ -36,6 +36,7 @@ func (bpt *BPlusTree) findLeaf(key int) *BPlusTreeNode {
 	return node
 }
 
+// Search returns the value, or "" when the key is missing (also what an empty stored value returns).
 func (bpt *BPlusTree) Search(key int) string {
 	leaf := bpt.findLeaf(key)
 	for i, k := range leaf.keys {
@@ -46,7 +47,21 @@ func (bpt *BPlusTree) Search(key int) string {
 	return ""
 }
 
+// KeyValue is one stored pair.
+type KeyValue struct {
+	Key   int
+	Value string
+}
+
+// Insert stores value under key. An existing key is overwritten: the tree is a map.
 func (bpt *BPlusTree) Insert(key int, value string) {
+	leaf := bpt.findLeaf(key)
+	for i, k := range leaf.keys {
+		if k == key {
+			leaf.values[i] = value
+			return
+		}
+	}
 	if len(bpt.root.keys) == bpt.maxKeys {
 		newRoot := &BPlusTreeNode{isLeaf: false}
 		newRoot.children = append(newRoot.children, bpt.root)
@@ -65,7 +80,7 @@ func (bpt *BPlusTree) insertNonFull(node *BPlusTreeNode, key int, value string) 
 		node.keys = append(node.keys, 0)
 		copy(node.keys[i+1:], node.keys[i:])
 		node.keys[i] = key
-		
+
 		node.values = append(node.values, "")
 		copy(node.values[i+1:], node.values[i:])
 		node.values[i] = value
@@ -74,14 +89,14 @@ func (bpt *BPlusTree) insertNonFull(node *BPlusTreeNode, key int, value string) 
 		for i < len(node.keys) && key >= node.keys[i] {
 			i++
 		}
-		
+
 		if len(node.children[i].keys) == bpt.maxKeys {
 			bpt.splitChild(node, i)
 			if key >= node.keys[i] {
 				i++
 			}
 		}
-		
+
 		bpt.insertNonFull(node.children[i], key, value)
 	}
 }
@@ -89,18 +104,18 @@ func (bpt *BPlusTree) insertNonFull(node *BPlusTreeNode, key int, value string) 
 func (bpt *BPlusTree) splitChild(parent *BPlusTreeNode, index int) {
 	fullChild := parent.children[index]
 	newChild := &BPlusTreeNode{isLeaf: fullChild.isLeaf}
-	
+
 	mid := bpt.minKeys
-	
+
 	if fullChild.isLeaf {
 		newChild.keys = append(newChild.keys, fullChild.keys[mid:]...)
 		newChild.values = append(newChild.values, fullChild.values[mid:]...)
 		fullChild.keys = fullChild.keys[:mid]
 		fullChild.values = fullChild.values[:mid]
-		
+
 		newChild.next = fullChild.next
 		fullChild.next = newChild
-		
+
 		parent.keys = append(parent.keys, 0)
 		copy(parent.keys[index+1:], parent.keys[index:])
 		parent.keys[index] = newChild.keys[0]
@@ -110,15 +125,46 @@ func (bpt *BPlusTree) splitChild(parent *BPlusTreeNode, index int) {
 		promoteKey := fullChild.keys[mid]
 		fullChild.keys = fullChild.keys[:mid]
 		fullChild.children = fullChild.children[:mid+1]
-		
+
 		parent.keys = append(parent.keys, 0)
 		copy(parent.keys[index+1:], parent.keys[index:])
 		parent.keys[index] = promoteKey
 	}
-	
+
 	parent.children = append(parent.children, nil)
 	copy(parent.children[index+2:], parent.children[index+1:])
 	parent.children[index+1] = newChild
+}
+
+// RangeSearch returns all pairs with start <= key <= end, in key order.
+func (bpt *BPlusTree) RangeSearch(start, end int) []KeyValue {
+	result := []KeyValue{}
+	for leaf := bpt.findLeaf(start); leaf != nil; leaf = leaf.next {
+		for i, k := range leaf.keys {
+			if k > end {
+				return result
+			}
+			if k >= start {
+				result = append(result, KeyValue{k, leaf.values[i]})
+			}
+		}
+	}
+	return result
+}
+
+// Traverse returns every pair in key order by walking the leaf chain.
+func (bpt *BPlusTree) Traverse() []KeyValue {
+	leaf := bpt.root
+	for !leaf.isLeaf {
+		leaf = leaf.children[0]
+	}
+	result := []KeyValue{}
+	for ; leaf != nil; leaf = leaf.next {
+		for i, k := range leaf.keys {
+			result = append(result, KeyValue{k, leaf.values[i]})
+		}
+	}
+	return result
 }
 
 func main() {
@@ -127,4 +173,3 @@ func main() {
 	bptree.Insert(20, "value20")
 	println("Search 10:", bptree.Search(10))
 }
-

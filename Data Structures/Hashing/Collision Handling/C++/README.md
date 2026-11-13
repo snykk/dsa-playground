@@ -1,43 +1,40 @@
-# Collision Handling — C++ Implementation
+# Collision Handling -- C++ Implementation
 
-When two distinct keys hash to the same bucket, we have a **collision**. This folder demonstrates the two mainstream strategies side-by-side in C++:
-
-- **Separate Chaining** — each bucket holds a linked list (or `std::vector`) of colliding entries.
-- **Open Addressing** — on collision, probe to another slot within the same array (linear / quadratic / double hashing).
-
-For the conceptual overview, load-factor analysis, and decision tree ("when to pick which"), see the parent README: [../README.md](../README.md)
-
----
+Chaining and linear probing as class templates. See the [topic README](../README.md).
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `collision_handling.cpp` | Both chaining and open-addressing implementations |
-| `collision_handling_test.cpp` | Assertion-based tests covering insert / find / erase |
+- `collision_handling.cpp`: `HashTableChaining<K, V>` and `HashTableOpenAddressing<K, V>` (included directly by the test).
+- `collision_handling_test.cpp`: assert-based tests, including forced collisions, a full table, wrap-around, deep copy and invalid capacity.
 
----
+## API
+
+| Member | Description |
+|--------|-------------|
+| `HashTableChaining(size_t cap = 16)` | throws `std::invalid_argument` if `cap` is 0 |
+| `put(key, value)`, `V* get(key)` | insert or update; pointer or `nullptr` |
+| `size_t longestChain() const` | longest bucket (chaining only) |
+| `HashTableOpenAddressing(size_t cap = 16)` | linear probing; throws `std::invalid_argument` if `cap` is 0 |
+| `put(key, value)` | throws `std::runtime_error` for a new key in a full table |
+| `V* get(key)` | pointer to the value or `nullptr`; probes at most `cap` slots |
+
+There is no `remove`, no `size()`, no quadratic probing and no resizing.
 
 ## C++-Specific Notes
 
-- **Chaining**: we use `std::vector<std::list<Entry>>` rather than `std::vector<std::vector<Entry>>`. `std::list` avoids iterator invalidation when entries are inserted mid-chain; if you need better cache behavior, switch to `std::vector` but accept occasional reallocations.
-- **Open addressing sentinel**: C++ has no null in `std::string`, so we use an explicit `enum class SlotState { Empty, Occupied, Tombstone }`. **Tombstones are mandatory** — without them, `erase` breaks subsequent probe sequences.
-- **Probing strategies**: the implementation shows linear probing (`h + i`) and quadratic probing (`h + i²`). Double hashing (`h1 + i·h2`) gives the best cluster avoidance but needs two independent hash functions.
-- **Rehash at load factor ~0.75 (chaining)** or **~0.5 (open addressing)** — open addressing degrades much faster as the table fills because every collision requires a probe walk.
-
----
+- Slots are `std::optional<std::pair<K, V>>` held by value. An earlier version used `new`-ed pairs that were never freed and were shared by copies; now the table owns nothing by hand and copies are deep.
+- Keys hash with `std::hash<K>`. For `int` this is the identity on common standard libraries, which is what the collision tests rely on.
+- A pointer returned by `get` stays valid until that key's table is destroyed (there is no resize).
+- Needs `<optional>`, so compile with C++17.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall collision_handling_test.cpp -o collision_handling_test
-./collision_handling_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD collision_handling_test.cpp -o collision_handling_test && ./collision_handling_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Open addressing needs tombstones for correct deletion.** Forgetting this is the #1 bug in hand-rolled hash tables.
-2. **Load factor dictates everything.** Chaining stays useful up to `α ≈ 1` (~O(1) average), while open addressing's expected probes blow up as `1/(1-α)` — doubling at α=0.75 vs α=0.5.
-3. **`std::unordered_map` uses chaining** in every major stdlib. It's the safer default. Open addressing wins for small, fixed-size tables and tight cache locality (e.g. symbol tables in compilers, Swiss tables in modern hash map implementations).
+- Bound every probe loop by the capacity.
+- Hold slots by value and the destructor problem disappears.
+- Without a remove there are no tombstones to manage.

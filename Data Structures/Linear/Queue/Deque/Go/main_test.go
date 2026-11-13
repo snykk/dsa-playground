@@ -122,4 +122,3 @@ func TestPopBackEmpty(t *testing.T) {
 		t.Error("Expected error when popping from empty deque")
 	}
 }
-

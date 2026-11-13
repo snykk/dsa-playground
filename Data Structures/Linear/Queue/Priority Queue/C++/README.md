@@ -1,119 +1,41 @@
-# Priority Queue - C++
+# Priority Queue -- C++ Implementation
 
-This folder contains a C++ implementation of a **Priority Queue** using a min heap.
+A min-heap priority queue with hand-written sift up and sift down over a `std::vector`. See the [topic README](../README.md) for the concept.
 
-A **Priority Queue** is an abstract data type where each element has a priority. Elements are served based on priority rather than insertion order. Elements with higher priority (lower priority value in min heap) are served before elements with lower priority.
+## Files
 
----
+| File | Contents |
+| --- | --- |
+| `priority_queue.cpp` | `PQItem` (priority, counter, item) and the `PriorityQueue` class |
+| `priority_queue_test.cpp` | assert-based tests, built with `-DIS_TEST_BUILD` |
 
-## Concept
+## API
 
-- Priority Queue uses a **min heap** internally
-- Lower priority values = higher priority (served first)
-- For max heap behavior, negate priority values
-- Maintains insertion order for elements with the same priority
-- Custom heap implementation for educational purposes
+| Member | Description | Time |
+| --- | --- | --- |
+| `void enqueue(int item, int priority)` | add an item; lower priority value leaves first | O(log n) |
+| `int dequeue()` | remove and return the best item; throws `std::runtime_error` if empty | O(log n) |
+| `int peek()` | return the best item; throws `std::runtime_error` if empty | O(1) |
+| `bool is_empty()`, `int size()` | length checks | O(1) |
+| `void clear()` | remove everything and reset the counter | O(n) |
 
----
+## C++-Specific Notes
 
-## Operations
+- `PQItem::operator<` compares priority first and then the insertion counter, which makes equal priorities first in, first out.
+- The counter is a `uint64_t`; a 32-bit signed counter would overflow (undefined behaviour) after 2^31 enqueues without a `clear()`.
+- `heapify_up` and `heapify_down` are the same loops as in the Min Heap topic.
+- `std::priority_queue` is a max heap by default and is not stable.
+- Items and priorities are `int`.
 
-| Operation              | Description                                    | Time Complexity |
-| ---------------------- | ---------------------------------------------- | --------------- |
-| `enqueue(item, priority)` | Add item with given priority                  | O(log n)        |
-| `dequeue()`           | Remove and return item with highest priority    | O(log n)        |
-| `peek()`              | Return item with highest priority without removing | O(1)         |
-| `is_empty()`          | Check if the queue is empty                     | O(1)            |
-| `size()`              | Return the number of elements                   | O(1)            |
-| `clear()`             | Remove all elements from the queue              | O(n)            |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| enqueue   | O(log n)        | O(1)             |
-| dequeue   | O(log n)        | O(1)             |
-| peek      | O(1)            | O(1)             |
-| is_empty  | O(1)            | O(1)             |
-| size      | O(1)            | O(1)             |
-| Space     | O(n)            | O(n)             |
-
----
-
-## Usage
-
-```cpp
-#include "priority_queue.cpp"
-#include <iostream>
-using namespace std;
-
-int main() {
-    PriorityQueue pq;
-
-    // Add items with priorities
-    pq.enqueue(10, 1);  // item=10, priority=1 (high priority)
-    pq.enqueue(20, 5);  // item=20, priority=5 (medium priority)
-    pq.enqueue(30, 10); // item=30, priority=10 (low priority)
-
-    // Items are dequeued based on priority (lower number = higher priority)
-    cout << pq.dequeue() << endl;  // Output: 10
-    cout << pq.dequeue() << endl;  // Output: 20
-    cout << pq.dequeue() << endl;  // Output: 30
-
-    return 0;
-}
-```
-
-### Max Heap Behavior
-
-To use as a max heap (higher priority value = higher priority):
-
-```cpp
-PriorityQueue pq;
-pq.enqueue(1, -10);  // Negate for max heap
-pq.enqueue(2, -5);
-pq.enqueue(3, -1);
-// Now item 3 (priority -1) will be dequeued first
-```
-
-### Same Priority Handling
-
-Items with the same priority maintain insertion order:
-
-```cpp
-PriorityQueue pq;
-pq.enqueue(1, 1);
-pq.enqueue(2, 1);
-pq.enqueue(3, 1);
-// Dequeued in order: 1, 2, 3
-```
-
----
-
-## Compile and Run
+## How to Run
 
 ```bash
-# Compile
-g++ -o priority_queue_test priority_queue_test.cpp
-
-# Run
+cd "Data Structures/Linear/Queue/Priority Queue/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD priority_queue_test.cpp -o priority_queue_test
 ./priority_queue_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ priority_queue_test.cpp -o priority_queue_test && ./priority_queue_test
-```
-
----
-
-## Notes
-
-- This implementation uses a custom min heap for educational purposes
-- The implementation maintains a counter to preserve insertion order for items with equal priority
-- For production use, consider using `std::priority_queue` from the C++ standard library
-- The heap is implemented using a vector with heapify operations
-
+- A comparison on `(priority, counter)` gives a stable priority queue.
+- Use a 64-bit counter for the tie-break.

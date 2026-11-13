@@ -62,7 +62,7 @@ int main() {
     
     // Basic DFS
     vector<int> result = dfsAdjacencyList(graph, 1);
-    // result: [1, 4, 2, 3] (order may vary)
+    // result: [1, 2, 3, 4]
     
     // Find path
     vector<int> path = dfsWithPath(graph, 1, 3);
@@ -81,7 +81,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++17 dfs.cpp dfs_test.cpp -o dfs_test
+g++ -std=c++17 dfs_test.cpp -o dfs_test
 ./dfs_test
 ```
 
@@ -98,7 +98,7 @@ g++ -std=c++17 dfs.cpp dfs_test.cpp -o dfs_test
 ## Testing
 
 ```bash
-g++ -std=c++17 dfs.cpp dfs_test.cpp -o dfs_test && ./dfs_test
+g++ -std=c++17 dfs_test.cpp -o dfs_test && ./dfs_test
 ```
 
 ---

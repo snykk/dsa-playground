@@ -54,6 +54,7 @@ Where d is number of digits, k is base (usually 10).
 - ✅ Sorting integers with fixed number of digits
 - ✅ When range is large but digits are few
 - ✅ Stable sorting of integers
+- ✅ Negative integers too: when the minimum is negative, the digits are taken from value - min
 - ❌ Floating point numbers
 - ❌ Variable-length integers
 
@@ -62,7 +63,7 @@ Where d is number of digits, k is base (usually 10).
 ## Implementations
 
 - **Python** (`Python/`) - LSD (Least Significant Digit) version
-- **C++** (`C++/`) - Template-based implementation
+- **C++** (`C++/`) - `radixSort(std::vector<int>&)` with 64-bit keys, so the whole `int` range works
 - **Go** (`Go/`) - Clean implementation
 
 ---

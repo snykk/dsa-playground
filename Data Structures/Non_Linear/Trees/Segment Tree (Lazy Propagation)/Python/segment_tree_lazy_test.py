@@ -2,6 +2,7 @@
 Unit tests for Segment Tree with Lazy Propagation.
 """
 
+import random
 import unittest
 from segment_tree_lazy import LazySegmentTree
 
@@ -87,6 +88,28 @@ class TestLazySegmentTree(unittest.TestCase):
         # After second update: arr=[6,11,13,10,9,11]
         self.assertEqual(self.st.query(1, 3), 34)  # 11+13+10
         self.assertEqual(self.st.query(0, 5), 60)  # 6+11+13+10+9+11
+
+    def test_random_against_brute_force(self):
+        rng = random.Random(5)
+        for n in range(1, 41):
+            ref = [rng.randint(-50, 50) for _ in range(n)]
+            st = LazySegmentTree(ref)
+            for _ in range(60):
+                l = rng.randrange(n)
+                r = rng.randrange(l, n)
+                if rng.random() < 0.5:
+                    v = rng.randint(-20, 20)
+                    for i in range(l, r + 1):
+                        ref[i] += v
+                    st.update_range(l, r, v)
+                else:
+                    self.assertEqual(st.query(l, r), sum(ref[l:r + 1]))
+
+    def test_empty_array(self):
+        st = LazySegmentTree([])
+        self.assertEqual(st.query(0, 0), 0)
+        st.update_range(0, 0, 5)
+        self.assertEqual(st.query(0, 0), 0)
 
 
 if __name__ == "__main__":

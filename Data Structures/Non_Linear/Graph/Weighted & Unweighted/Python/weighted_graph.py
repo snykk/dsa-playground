@@ -15,11 +15,11 @@ class WeightedGraph:
     
     Supports:
     - Add vertex: O(1)
-    - Add edge: O(1)
-    - Remove edge: O(V)
-    - Check edge: O(V)
-    - Get neighbors: O(V)
-    - Get edge weight: O(V)
+    - Add edge: O(deg(u) + deg(v)) (an existing edge is replaced first)
+    - Remove edge: O(deg(u) + deg(v))
+    - Check edge: O(deg(u))
+    - Get neighbors: O(deg(u))
+    - Get edge weight: O(deg(u))
     - BFS/DFS traversal: O(V + E)
     """
     
@@ -150,7 +150,7 @@ class WeightedGraph:
         Returns:
             List of (neighbor, weight) tuples
         """
-        return self.adjacency_list.get(vertex, [])
+        return list(self.adjacency_list.get(vertex, []))
     
     def get_vertices(self) -> set:
         """Get all vertices in the graph.

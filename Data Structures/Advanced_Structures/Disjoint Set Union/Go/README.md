@@ -1,52 +1,41 @@
-# Disjoint Set Union (DSU) -- Go
+# Disjoint Set Union -- Go Implementation
 
-Go implementation of the Disjoint Set Union data structure with path compression and union by rank.
+Union by rank plus path compression, with a size slice and a component counter.
 
----
+## Files
+
+- `main.go`: the `DSU` type and a demo `main`.
+- `main_test.go`: unit tests.
+- `go.mod`: module file.
 
 ## API
 
 | Method | Description | Time |
 |--------|-------------|------|
-| `NewDSU(n)` | Create n singleton sets (0 to n-1) | O(n) |
-| `Find(x)` | Root of set containing x (path compression) | O(alpha(n)) |
-| `Union(x, y)` | Merge sets; returns true if merged | O(alpha(n)) |
-| `Connected(x, y)` | Whether x and y share a set | O(alpha(n)) |
-| `GetComponentCount()` | Number of disjoint sets | O(1) |
-| `GetComponents()` | Map from root to member slice | O(n) |
-| `GetSize(x)` | Size of set containing x | O(alpha(n)) |
+| `NewDSU(n)` | n singleton sets (panics if `n < 0`) | O(n) |
+| `Find(x)` | root with path compression (panics outside `[0, n)`) | O(alpha(n)) |
+| `Union(x, y)` | merge by rank; true if merged | O(alpha(n)) |
+| `Connected(x, y)` | same set? | O(alpha(n)) |
+| `GetSize(x)` | size of the set of x | O(alpha(n)) |
+| `GetComponentCount()` | number of sets | O(1) |
+| `GetComponents()` | map root to member slice | O(n alpha(n)) |
+| `GetParent(x)` | raw parent, no compression | O(1) |
 
----
+## Go-Specific Notes
 
-## Usage
+- Bad input is not checked by the code: a negative size or an out-of-range element panics through Go's own slice bounds checks.
+- `GetComponents` returns a map, so iteration order is random.
+- `Find` is recursive, with depth at most log2(n).
 
-```go
-package main
-
-import "fmt"
-
-func main() {
-    dsu := NewDSU(6)
-    dsu.Union(0, 1)
-    dsu.Union(2, 3)
-    dsu.Union(3, 4)
-
-    fmt.Println(dsu.Connected(0, 1))        // true
-    fmt.Println(dsu.Connected(0, 2))        // false
-    fmt.Println(dsu.GetComponentCount())    // 3
-    fmt.Println(dsu.GetSize(2))             // 3
-    fmt.Println(dsu.GetComponents())
-}
-```
-
----
-
-## Testing
+## How to Run
 
 ```bash
-go test -v ./...
+go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-_Last Updated: April 2026_
+- Two small optimizations make find and union almost constant.
+- Go panics on bad input rather than returning an error.
+- `Find(x)` identifies the set; `GetParent` is for tests.

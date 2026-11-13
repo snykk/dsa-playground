@@ -1,0 +1,180 @@
+---
+topic: Data Structures/Linear/Stack/Array Based/Static Size
+title: Static Size Array Stack
+lead: A static-size stack keeps its items in an array of fixed capacity, allocated once. Push, pop and peek are O(1) with no resizing, and pushing onto a full stack fails with an overflow error instead of growing.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Push
+    value: O(1)
+    hint: worst case, never copies
+  - label: Pop
+    value: O(1)
+  - label: Peek
+    value: O(1)
+  - label: Capacity
+    value: Fixed
+    hint: push fails when full
+    tone: warn
+properties:
+  - { label: LIFO order, value: true }
+  - { label: Array-backed, value: true }
+  - { label: Grows when full, value: false }
+  - { label: Bounded memory, value: true }
+prerequisites:
+  - Data Structures/Linear/Array
+related:
+  - Data Structures/Linear/Stack/Array Based/Dynamic Size
+  - Data Structures/Linear/Stack/Linked List Based
+  - Problem_Patterns/Monotonic Stack
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+---
+
+## What it is
+
+A stack adds and removes items at one end only, the **top**, so the last item pushed is the first one popped (LIFO). A static-size stack stores its items in an array whose length, the **capacity**, is chosen when the stack is created. A separate `top` index records the last used slot, with `-1` meaning empty.
+
+<ArrayDiagram
+  legend={{ p: 'top (last pushed)', l: 'items on the stack', m: 'free slot' }}
+  caption="A stack of capacity 5 holding 10, 20 and 30. `top = 2` and `size = top + 1 = 3`."
+  rows={[
+    { label: 'array', values: [10, 20, 30, '', ''], tones: 'llpmm', marks: { 2: 'top' } },
+  ]}
+/>
+
+Items never move. Push writes to slot `top + 1` and pop reads slot `top`, so both just add or subtract one from `top`.
+
+<Callout title="The invariant">
+The stack is the slots `0 .. top`. Everything above `top` is garbage that may be overwritten. The stack is empty when `top == -1` and full when `top == capacity - 1`.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`push(x)`', 'increment `top`, store `x`; fails when full (overflow)', 'O(1)'],
+    ['`pop()`', 'return the item at `top`, decrement `top`; fails when empty (underflow)', 'O(1)'],
+    ['`peek()`', 'return the item at `top`; fails when empty', 'O(1)'],
+    ['`is_empty()`, `size()`', '`top == -1` and `top + 1`', 'O(1)'],
+  ]}
+/>
+
+The capacity is a constructor argument that must be at least 1, with a default of 100: `ArrayStack(capacity=100)` in Python, `ArrayStack(int size = 100)` in C++, and `NewArrayStack(capacity)` or `NewStack()` in Go. Errors by language:
+
+- **Python:** `OverflowError` on a full push, `IndexError` on an empty pop or peek, `ValueError` for a bad capacity.
+- **C++:** `std::overflow_error`, `std::underflow_error` and `std::invalid_argument`. The C++ method is `isEmpty()`.
+- **Go:** `Push` returns an `error` (overflow), `Pop` and `Peek` return `(int, error)`, and `NewArrayStack` returns an error for a bad capacity.
+
+### Push until full, then overflow
+
+Capacity 3. These states come from running the Python version:
+
+<ArrayDiagram
+  legend={{ p: 'top', l: 'items on the stack', m: 'free slot' }}
+  rows={[
+    { label: 'push 10', values: [10, '', ''], tones: 'pmm', marks: { 0: 'top = 0' } },
+    { label: 'push 20', values: [10, 20, ''], tones: 'lpm', marks: { 1: 'top = 1' } },
+    { label: 'push 30', values: [10, 20, 30], tones: 'llp', marks: { 2: 'top = 2' }, note: '`top == capacity - 1`: the stack is full.' },
+    { label: 'push 40', values: [10, 20, 30], tones: 'llp', marks: { 2: 'top = 2' }, note: 'Overflow: the push is rejected and nothing changes.' },
+    { label: 'pop', values: [10, 20, ''], tones: 'lpm', marks: { 1: 'top = 1' }, note: 'Returns 30. The slot is free again and the next push may use it.' },
+  ]}
+/>
+
+## Pseudocode
+
+```text
+push(x):
+    if top == capacity - 1: error "overflow"
+    top = top + 1
+    arr[top] = x
+
+pop():
+    if top == -1: error "underflow"
+    x = arr[top]
+    top = top - 1
+    return x
+```
+
+Python keeps the same scheme on a preallocated list `[None] * capacity` and sets a popped slot back to `None`, so the removed object can be garbage collected. C++ uses a raw `new int[capacity]` array freed by the destructor, and the copy operations are deleted because a copy would free the array twice. Go creates the slice with `make([]int, 0, capacity)` and checks `len(data) == capacity` before each `append`, so the backing array is never reallocated.
+
+## Implementation
+
+<TopicCode topic="Data Structures/Linear/Stack/Array Based/Static Size" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['push', 'O(1)', 'one bounds check and one write, never a copy'],
+    ['pop, peek', 'O(1)', 'read slot `top`'],
+    ['is_empty, size', 'O(1)', 'arithmetic on `top`'],
+    ['create', 'O(capacity)', 'the array is allocated (and filled with `None` or zero values) once'],
+  ]}
+/>
+
+Space is O(capacity) whether the stack is empty or full. Unlike the dynamic stack, no push ever costs more than constant time.
+
+## Static vs dynamic and linked stacks
+
+<DataTable
+  columns={['Stack', { label: 'Push', kind: 'mono' }, 'Capacity', 'Memory']}
+  highlight={0}
+  rows={[
+    ['Static array (this article)', 'O(1), fails when full', 'fixed at creation', 'O(capacity), allocated up front'],
+    ['Dynamic array', 'O(1) amortized', 'grows by a factor', 'O(n) with spare room'],
+    ['Linked list', 'O(1)', 'limited by memory', 'one node per item, no spare room'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Every operation is O(1) in the worst case, with no hidden copies.',
+    'Memory use is known and fixed, with no allocation after construction.',
+    'Contiguous storage is cache-friendly.',
+    'The overflow rule makes the bound explicit.',
+  ]}
+  cons={[
+    'The capacity must be guessed in advance: too small fails, too large wastes memory.',
+    'A full stack cannot take more items without a new, bigger stack.',
+    'Memory for the full capacity is reserved even when the stack is empty.',
+    'The raw array in C++ needs a destructor and no copying.',
+  ]}
+/>
+
+## Applications
+
+- **Systems with a hard memory limit,** such as embedded code that must not allocate at run time.
+- **Bounded recursion depth:** an explicit stack with a known maximum depth.
+- **Expression evaluation and parenthesis matching** when the maximum nesting is known.
+- **Undo history with a cap,** where overflow is a design decision.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Off-by-one on the full test.** Full is `top == capacity - 1`, not `top == capacity`.
+- **Reading above `top`.** Slots past `top` hold old or default values. Use `size()` and `peek()` instead of the raw array.
+- **Ignoring the overflow error.** In Go, `Push` returns an `error`, and dropping it loses the item silently.
+- **Capacity 0 or negative.** All three constructors reject a capacity below 1.
+- **Copying the C++ stack.** The class owns a raw array, so its copy operations are deleted.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why have a fixed capacity at all?">
+    It gives constant-time pushes with no copying and a predictable memory footprint. That matters when memory is tight or when latency spikes from a resize are not acceptable.
+  </FaqItem>
+  <FaqItem question="What happens when I push onto a full stack?">
+    The push is rejected: Python raises `OverflowError`, C++ throws `std::overflow_error` and Go returns an error. The stack is left unchanged.
+  </FaqItem>
+  <FaqItem question="Does pop clear the slot?">
+    Only Python resets it (to `None`, so the object can be collected). C++ and Go just move `top` or reslice, and the old value is overwritten by the next push.
+  </FaqItem>
+  <FaqItem question="How is this different from the dynamic size stack?">
+    The dynamic version grows by replacing its array with a bigger one, so a push never fails but occasionally copies. This one never grows and never copies.
+  </FaqItem>
+</Faq>

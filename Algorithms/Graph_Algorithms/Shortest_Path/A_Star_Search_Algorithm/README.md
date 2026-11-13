@@ -33,7 +33,7 @@ A* is a best-first search algorithm that:
 
 | Complexity | Time | Space |
 |------------|------|-------|
-| **Best Case** | O(b^d) | O(b^d) |
+| **Worst Case** | O(b^d) | O(b^d) |
 
 **Note**: 
 - b = branching factor

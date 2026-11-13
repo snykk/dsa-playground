@@ -6,11 +6,16 @@ class CircularQueue {
     int* queue;
     int front, rear, capacity;
 public:
-    CircularQueue(int size) : capacity(size), front(-1), rear(-1) {
+    explicit CircularQueue(int size) : queue(nullptr), front(-1), rear(-1), capacity(size) {
+        if (size < 1) throw invalid_argument("Capacity must be at least 1");
         queue = new int[capacity];
     }
 
     ~CircularQueue() { delete[] queue; }
+
+    // The queue owns a raw array, so a copy would free it twice.
+    CircularQueue(const CircularQueue&) = delete;
+    CircularQueue& operator=(const CircularQueue&) = delete;
 
     void enqueue(int x) {
         if (is_full()) throw overflow_error("Queue is full");

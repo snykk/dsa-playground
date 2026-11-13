@@ -1,53 +1,36 @@
-# Bloom Filter (Python)
+# Bloom Filter -- Python Implementation
 
-A **Bloom Filter** is a probabilistic data structure that tests whether an element is a member of a set.
+A Bloom filter with k hash functions derived from MD5. See the [topic README](../README.md).
 
----
+## Files
 
-## Overview
+- `bloom_filter.py`: the `BloomFilter` class.
+- `bloom_filter_test.py`: tests for add/contains, no false negatives, sizing, invalid arguments, tiny filters and the measured false positive rate.
 
-Bloom Filters provide space-efficient membership testing:
-- **False positives**: Possible (may say item is present when it's not)
-- **False negatives**: Never (if item is present, it will always be found)
+## API
 
----
+| Member | Description | Time |
+|--------|-------------|------|
+| `BloomFilter(capacity, error_rate=0.01)` | `ValueError` if capacity <= 0 or error_rate not in (0, 1) | O(m) |
+| `add(item)` | set k bits for `str(item)` | O(k) |
+| `contains(item)` / `item in bf` | maybe present (True) or definitely not (False) | O(k) |
+| `get_stats()` | dict: capacity, num_bits, num_hashes, set_bits, load | O(m) |
 
-## Operations
+## Python-Specific Notes
 
-### 1. Add
+- Items are converted with `str(item)`, so `add(1)` makes `contains("1")` true.
+- Position i is `md5(str(item) + str(i)) mod m`. Slower than double hashing but simple.
+- Bits live in a `bytearray` (one byte per bit), not a packed bitset.
+- `m = ceil(-n ln p / (ln 2)^2)` and `k = max(1, round(m ln 2 / n))`.
 
-```python
-bf = BloomFilter(100, error_rate=0.01)
-bf.add("apple")
-bf.add("banana")
+## How to Run
+
+```bash
+python3 -m unittest bloom_filter_test
 ```
 
-**Time Complexity**: O(k) where k is number of hash functions
+## Key Takeaways
 
-### 2. Contains
-
-```python
-if bf.contains("apple"):
-    print("Might be present")
-if "apple" in bf:
-    print("Might be present")
-```
-
-**Time Complexity**: O(k)
-
----
-
-## Applications
-
-1. **Database Systems**: Avoid expensive disk lookups
-2. **Web Caching**: Check if URL is in cache
-3. **Network Routers**: Packet routing
-4. **Spell Checkers**: Check if word is in dictionary
-
----
-
-## Related Data Structures
-
-- **Hash Set**: Exact membership testing
-- **Hash Table**: Key-value storage
-
+- "No" is certain, "yes" is only "maybe".
+- Size the filter for the expected item count.
+- There is no delete.

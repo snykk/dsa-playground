@@ -1,31 +1,40 @@
-# Python Implementation
+# Rope -- Python Implementation
 
-This folder contains a **Rope data structure** implemented in Python.
+## Files
 
-#### Classes
+| File | Contents |
+| --- | --- |
+| `rope.py` | `RopeNode`, `Rope` and the helpers (`_join`, `_split`, `_build`, ...) |
+| `rope_test.py` | unit tests, a randomized comparison with a plain `str`, and tree-invariant checks |
 
-- `RopeNode` - Binary tree node (leaf stores string fragment, internal stores weight)
-- `Rope` - Main class wrapping the tree
+## API
 
-#### Operations
+- `Rope(text="")`: build a balanced rope (leaves of at most 10 characters); an empty string gives an empty rope.
+- `index(i)`: the character at `i`; raises `IndexError` out of range. O(log n).
+- `concat(other)`: a new `Rope`; sources unchanged. O(log n).
+- `split(i)`: a pair of new ropes (positions before `i`, positions from `i`). `i` is clamped.
+- `insert(i, text)`, `delete(i, length)`: modify this rope in place (by replacing its root).
+- `to_string()`: the whole text. O(n).
+- `len(r)`: total length, O(1).
+- `height()`: tree height; 0 for one leaf, -1 for an empty rope.
 
-- `Rope(text)` - Build a rope from a string
-- `index(i)` - Get character at position i
-- `concat(other)` - Concatenate two ropes
-- `split(i)` - Split rope at position i
-- `insert(i, text)` - Insert string at position i
-- `delete(i, length)` - Delete substring
-- `to_string()` - Collect all leaves into a string
-- `len(rope)` - Get total length
+## Python-Specific Notes
 
-#### Run Tests
+- Positions are code points because Python strings are sequences of code points.
+- Nodes are never modified after creation, so ropes share subtrees safely.
+- `_join` is an AVL-style join: it walks the taller rope's spine and rotates on the way back, keeping sibling heights within 1. `_split` uses `_join` to reassemble its pieces.
+- Recursion depth is the tree height, O(log n), so Python's recursion limit is not a concern. Before the join was added, 1,000 appends at the end exceeded it.
+- Leaves are non-empty strings; internal nodes have `data = None`.
+
+## How to Run
 
 ```bash
-python -m unittest rope_test.py
+cd "Data Structures/Linear/String/Rope/Python"
+python3 -m unittest rope_test
 ```
 
-Or directly:
+## Key Takeaways
 
-```bash
-python rope_test.py
-```
+- Weights guide the search; cached `length` and `height` make everything else cheap.
+- Balance comes from the join, not from rebuilding.
+- `split` and `concat` never change their inputs.

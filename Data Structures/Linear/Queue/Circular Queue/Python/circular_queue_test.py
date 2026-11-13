@@ -28,5 +28,32 @@ class TestCircularQueue(unittest.TestCase):
         with self.assertRaises(OverflowError):
             self.q.enqueue(4)
 
+    def test_invalid_capacity(self):
+        for bad in (0, -2):
+            with self.assertRaises(ValueError):
+                CircularQueue(bad)
+
+    def test_wrap_around_many_laps(self):
+        q = CircularQueue(3)
+        for i in range(20):
+            q.enqueue(i)
+            self.assertEqual(q.dequeue(), i)
+        for i in range(3):
+            q.enqueue(i)
+        self.assertEqual([q.dequeue() for _ in range(3)], [0, 1, 2])
+
+    def test_capacity_one(self):
+        q = CircularQueue(1)
+        q.enqueue(7)
+        self.assertTrue(q.is_full())
+        with self.assertRaises(OverflowError):
+            q.enqueue(8)
+        self.assertEqual(q.dequeue(), 7)
+        self.assertTrue(q.is_empty())
+
+    def test_peek_empty(self):
+        with self.assertRaises(IndexError):
+            self.q.peek()
+
 if __name__ == "__main__":
     unittest.main()

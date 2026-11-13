@@ -1,45 +1,38 @@
-# 🐍 Linked List-Based Stack (Python)
+# Linked List Stack -- Python Implementation
 
-This folder contains the **Python implementation** of a stack using a **singly linked list**.
+A LIFO stack on a singly linked list. See the [topic README](../README.md) for the concept.
 
----
+## Files
 
-## 📌 Files
+| File | Contents |
+| --- | --- |
+| `linked_list_stack.py` | the `Node` and `LinkedListStack` classes |
+| `linked_list_stack_test.py` | unit tests (`unittest`) |
 
-- `linked_list_stack.py` → Implementation of stack using linked list
-- `linked_list_stack_test.py` → Unit tests using `unittest`
+## API
 
----
+| Method | Description | Time |
+| --- | --- | --- |
+| `LinkedListStack()` | create an empty stack | O(1) |
+| `push(value)` | new node becomes the top | O(1) |
+| `pop()` | remove and return the top; raises `IndexError` if empty | O(1) |
+| `peek()` | return the top; raises `IndexError` if empty | O(1) |
+| `is_empty()`, `size()` | state queries | O(1) |
 
-## ⚡ Example Usage
+## Python-Specific Notes
 
-```python
-from linked_list_stack import LinkedListStack
+- Popped nodes are reclaimed by the garbage collector; nothing is freed by hand.
+- `size()` returns a counter (`_size`), so it does not walk the list.
+- Each node is a Python object, so the per-item memory is much larger than one pointer. A plain `list` is the practical choice for a Python stack.
 
-s = LinkedListStack()
-s.push(10)
-s.push(20)
-print(s.peek())   # 20
-print(s.pop())    # 20
-print(s.is_empty())  # False
-```
-
----
-
-## 🧪 Run Tests
+## How to Run
 
 ```bash
-python3 -m unittest linked_list_stack_test.py
+cd "Data Structures/Linear/Stack/Linked List Based/Python"
+python3 -m unittest linked_list_stack_test
 ```
 
----
+## Key Takeaways
 
-## ⏱️ Complexity
-
-| Operation | Time Complexity |
-| --------- | --------------- |
-| Push      | O(1)            |
-| Pop       | O(1)            |
-| Peek      | O(1)            |
-| isEmpty   | O(1)            |
-| Size      | O(1)            |
+- Link the new node to the old top before moving `top`.
+- All operations touch only the head, so all are O(1).

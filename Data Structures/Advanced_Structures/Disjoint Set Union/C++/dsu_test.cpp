@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <stdexcept>
 #include "dsu.cpp"
 
 void testInitialization() {
@@ -75,17 +76,30 @@ void testAllInOneSet() {
 
 void testPathCompression() {
     DSU dsu(5);
+    // union by rank: {0,1} and {2,3}, then roots 0 and 2 -> 2 hangs under 0
     dsu.unite(0, 1);
-    dsu.unite(1, 2);
     dsu.unite(2, 3);
-
-    int root = dsu.find(3);
-    // After path compression, 3 should point directly to root
-    assert(dsu.getParent(3) == root);
-    for (int i = 0; i < 4; i++) {
-        assert(dsu.find(i) == root);
-    }
+    dsu.unite(0, 2);
+    // 3 is a grandchild of the root, so it is not flat yet
+    assert(dsu.getParent(3) == 2);
+    assert(dsu.find(3) == 0);
+    // after find, 3 points directly to the root
+    assert(dsu.getParent(3) == 0);
     std::cout << "  [PASS] Path compression" << std::endl;
+}
+
+void testOutOfRange() {
+    DSU dsu(3);
+    bool threw = false;
+    try { dsu.find(-1); } catch (const std::out_of_range&) { threw = true; }
+    assert(threw);
+    threw = false;
+    try { dsu.find(3); } catch (const std::out_of_range&) { threw = true; }
+    assert(threw);
+    threw = false;
+    try { DSU bad(-2); } catch (const std::invalid_argument&) { threw = true; }
+    assert(threw);
+    std::cout << "  [PASS] Out-of-range elements rejected" << std::endl;
 }
 
 void testConnected() {
@@ -173,6 +187,7 @@ int main() {
     testMultipleUnionsLargerSet();
     testAllInOneSet();
     testPathCompression();
+    testOutOfRange();
     testConnected();
     testComponentCountDecreases();
     testGetComponents();

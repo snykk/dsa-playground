@@ -68,17 +68,28 @@ class TestDSUFind(unittest.TestCase):
 
     def test_path_compression(self):
         dsu = DSU(5)
-        # Build a chain: 0 <- 1 <- 2 <- 3
+        # union by rank: {0,1} and {2,3} first, then the roots 0 and 2 -> 2 hangs under 0
         dsu.union(0, 1)
-        dsu.union(1, 2)
         dsu.union(2, 3)
+        dsu.union(0, 2)
+        # 3 is a grandchild of the root, so it is not yet flat
+        self.assertEqual(dsu.get_parent(3), 2)
+        self.assertEqual(dsu.find(3), 0)
+        # after find, 3 points directly to the root
+        self.assertEqual(dsu.get_parent(3), 0)
 
-        root = dsu.find(3)
-        # After path compression, 3 should point directly to root
-        self.assertEqual(dsu.parent[3], root)
-        # All elements should share the same root
-        for i in range(4):
-            self.assertEqual(dsu.find(i), root)
+    def test_negative_element_rejected(self):
+        dsu = DSU(3)
+        with self.assertRaises(IndexError):
+            dsu.find(-1)
+        with self.assertRaises(IndexError):
+            dsu.connected(-1, 2)
+        with self.assertRaises(IndexError):
+            dsu.find(3)
+
+    def test_negative_size_rejected(self):
+        with self.assertRaises(ValueError):
+            DSU(-2)
 
 
 class TestDSUConnected(unittest.TestCase):

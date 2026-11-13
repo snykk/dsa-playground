@@ -69,6 +69,12 @@ class TestBubbleSort(unittest.TestCase):
         result = bubble_sort_recursive(arr.copy())
         self.assertEqual(result, expected)
     
+    def test_recursive_empty_and_single(self):
+        """Regression: the recursive version used to recurse forever on []"""
+        self.assertEqual(bubble_sort_recursive([]), [])
+        self.assertEqual(bubble_sort_recursive([7]), [7])
+        self.assertEqual(bubble_sort_recursive([2, 1]), [1, 2])
+
     def test_in_place_sorting(self):
         """Test that original array is modified"""
         arr = [3, 1, 4, 1, 5]

@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"math/rand"
+	"sort"
+	"testing"
+)
 
 func TestInsertAndPeek(t *testing.T) {
 	heap := NewMaxHeap()
@@ -103,3 +107,40 @@ func TestSingleElement(t *testing.T) {
 	}
 }
 
+
+func TestRandomWithDuplicatesMatchesSort(t *testing.T) {
+	rng := rand.New(rand.NewSource(5))
+	ref := make([]int, 1000)
+	for i := range ref {
+		ref[i] = rng.Intn(201) - 100
+	}
+	heap := NewMaxHeapFromArray(ref)
+	sort.Sort(sort.Reverse(sort.IntSlice(ref)))
+	for i, want := range ref {
+		if got := heap.ExtractMax(); got != want {
+			t.Fatalf("pop %d: expected %d, got %d", i, want, got)
+		}
+	}
+}
+
+func TestFromArrayDoesNotModifyInput(t *testing.T) {
+	in := []int{3, 1, 2}
+	NewMaxHeapFromArray(in)
+	if in[0] != 3 || in[1] != 1 || in[2] != 2 {
+		t.Errorf("input modified: %v", in)
+	}
+}
+
+func TestEmptyHeapPanics(t *testing.T) {
+	heap := NewMaxHeap()
+	for name, f := range map[string]func(){"Peek": func() { heap.Peek() }, "ExtractMax": func() { heap.ExtractMax() }} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Errorf("%s on empty heap should panic", name)
+				}
+			}()
+			f()
+		}()
+	}
+}

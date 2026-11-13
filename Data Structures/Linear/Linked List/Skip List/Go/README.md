@@ -1,34 +1,38 @@
-# Skip List - Go
+# Skip List -- Go Implementation
 
-This folder contains a Go implementation of **Skip List** with unit tests.
+## Files
 
-**Files:**
+| File | Contents |
+| --- | --- |
+| `main.go` | `Node`, `SkipList`, `NewSkipList` and a demo `main()` |
+| `main_test.go` | tests in `package main`, including a randomized check of the level invariants |
+| `go.mod` | module definition |
 
-- `main.go` - Core implementation
-- `main_test.go` - Unit tests using Go's `testing` package
+## API
 
-**How to run:**
+- `NewSkipList(maxLevel int, p float64) *SkipList`: both arguments are required (the demo uses 16 and 0.5).
+- `Insert(key int)`: an existing key is ignored.
+- `Search(key int) bool`
+- `Delete(key int) bool`: `true` if the key was present.
+- `Display() []int`: sorted keys; `nil` when empty.
+
+## Go-Specific Notes
+
+- Heights come from the global `math/rand`; Go 1.20 and later seed it randomly unless you call `rand.Seed`.
+- The garbage collector frees removed nodes, so `Delete` only unlinks them.
+- The header key `-1` is a placeholder that is never compared.
+- The unexported fields are read directly by the tests (same package) to check each level.
+
+## How to Run
 
 ```bash
-go run main.go
+cd "Data Structures/Linear/Linked List/Skip List/Go"
+go test ./...
+go run .
 ```
 
-**How to test:**
+## Key Takeaways
 
-```bash
-go test
-```
-
-**Key Operations**
-
-- Insert element (maintains sorted order)
-- Search for element
-- Delete element by key
-- Display all elements in sorted order
-
-**Implementation Details**
-
-- `Node` struct with `key` and `forward` slice of pointers
-- `SkipList` struct with configurable `maxLevel` and probability `p`
-- `NewSkipList` constructor function for initialization
-- Random level generation using coin-flip probability (default p=0.5)
+- Search, insert and delete all share the same right-then-down walk.
+- Heights are geometric: `P(height >= k) = p^k`.
+- The structure behaves as a set; duplicates are ignored.

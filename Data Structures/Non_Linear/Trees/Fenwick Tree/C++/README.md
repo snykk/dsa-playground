@@ -1,30 +1,41 @@
-# Fenwick Tree (Binary Indexed Tree) - C++
+# Fenwick Tree -- C++ Implementation
 
-This folder contains a C++ implementation of a **Fenwick Tree**.
+A Fenwick tree over `int` input with `long long` sums. See the [topic README](../README.md) for the idea.
 
----
+## Files
 
-## Operations
+| File | Contents |
+| ---- | -------- |
+| `fenwick_tree.cpp` | `FenwickTree` (included directly by the tests) |
+| `fenwick_tree_test.cpp` | unit tests, overflow and range-error tests, a randomized test against brute force |
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------- | ------------------------------------ | --------------- |
-| `query(left, right)`     | Get sum in range [left, right]       | O(log n)        |
-| `prefixSum(index)`       | Get sum from 0 to index              | O(log n)        |
-| `update(index, delta)`   | Add delta to value at index          | O(log n)        |
-| `get(index)`             | Get value at index                   | O(log n)        |
+## API
 
----
+| Call | Result |
+| ---- | ------ |
+| `FenwickTree(const vector<int>& arr)` | builds with `n` updates; accepts temporaries |
+| `void update(int index, long long delta)` | adds `delta` to element `index` |
+| `long long prefixSum(int index) const` | sum of `0..index` |
+| `long long query(int left, int right) const` | sum of `left..right`, inclusive |
+| `long long get(int index) const` | one element |
 
-## Usage
+Bad indices and `left > right` throw `std::out_of_range`.
 
-```cpp
-#include "fenwick_tree.cpp"
-#include <vector>
+## C++-Specific Notes
 
-vector<int> arr = {1, 3, 5, 7, 9, 11};
-FenwickTree ft(arr);
-cout << ft.query(0, 2) << endl;  // 9
-ft.update(2, 5);
-cout << ft.query(0, 2) << endl;  // 14
+- The tree stores `long long`, so sums of `int` values do not overflow (`{2000000000, 2000000000}` sums to 4000000000).
+- Input elements are `int`; deltas are `long long`.
+- Indices are `int`; the range check is what prevents the infinite loop at index -1.
+
+## How to Run
+
+```bash
+cd "Data Structures/Non_Linear/Trees/Fenwick Tree/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD fenwick_tree_test.cpp -o fenwick_tree_test && ./fenwick_tree_test
 ```
 
+## Key Takeaways
+
+- Use a 64-bit accumulator for sums.
+- Validate before the loop: `lowbit(0)` is 0.
+- A `const` reference constructor lets you pass a braced list.

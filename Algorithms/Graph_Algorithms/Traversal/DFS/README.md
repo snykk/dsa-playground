@@ -18,11 +18,11 @@ DFS is a fundamental graph traversal algorithm that:
 
 ## Algorithm
 
-1. **Start**: Add starting vertex to stack and mark as visited
+1. **Start**: Push the starting vertex onto the stack
 2. **Process**: While stack is not empty:
-   - Pop a vertex
-   - Visit all unvisited neighbors
-   - Add neighbors to stack and mark as visited
+   - Pop a vertex; skip it if it is already visited
+   - Otherwise mark it visited (a vertex is marked when popped, not when pushed)
+   - Push its unvisited neighbors (in reverse, so the first neighbor is popped first)
 3. **Repeat**: Continue until stack is empty
 
 ---

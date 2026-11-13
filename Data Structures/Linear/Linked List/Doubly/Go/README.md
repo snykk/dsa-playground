@@ -1,29 +1,40 @@
-# 🚀 Doubly Linked List - Go
+# Doubly Linked List -- Go Implementation
 
-This folder contains a Go implementation of **Doubly Linked List** with unit tests.
+## Files
 
-**Files:**
+| File | Contents |
+| --- | --- |
+| `main.go` | `Node`, `DoublyLinkedList` and a small demo `main()` |
+| `main_test.go` | tests in `package main` |
+| `go.mod` | module definition |
 
-- `main.go` → Core implementation
-- `main_test.go` → Unit tests using `testing` package
+## API
 
-**Run the program:**
+- `DoublyLinkedList{}`: the zero value is an empty list.
+- `InsertAtHead(data int)`: O(1).
+- `InsertAtTail(data int)`: O(n).
+- `DeleteValue(data int)`: removes the first match; returns nothing. O(n).
+- `TraverseForward()`, `TraverseBackward()`: print values (`10 <-> 20 <-> nil`).
+
+Fields `data`, `prev`, `next` and `head` are unexported; tests in the same package read them directly.
+
+## Go-Specific Notes
+
+- Garbage collection reclaims removed nodes, so there is no destructor. `DeleteValue` only needs to rewire the neighbours.
+- Pointer receivers make the zero value usable.
+- The stdlib `container/list` is a ready-made doubly linked list, exposing `*list.Element` handles for O(1) removal.
+- The tests are sequential tests and walk the list in both directions through a small helper.
+
+## How to Run
 
 ```bash
-go run main.go
+cd "Data Structures/Linear/Linked List/Doubly/Go"
+go test ./...
+go run .
 ```
 
-**Run the tests:**
+## Key Takeaways
 
-```bash
-go test
-```
-
-**Key Operations**
-
-- Insert at head
-- Insert at tail
-- Delete by value
-- Traverse forward
-- Traverse backward
-- vSearch element
+- Update `prev` and `next` together.
+- No tail pointer: insert at tail is O(n).
+- `container/list` is the production alternative.

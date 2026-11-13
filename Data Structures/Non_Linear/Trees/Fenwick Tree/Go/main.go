@@ -20,7 +20,15 @@ func (ft *FenwickTree) lsb(index int) int {
 	return index & (-index)
 }
 
+// check panics unless 0 <= index < n (a negative index would loop forever).
+func (ft *FenwickTree) check(index int) {
+	if index < 0 || index >= ft.n {
+		panic("fenwick tree: index out of range")
+	}
+}
+
 func (ft *FenwickTree) Update(index int, delta int) {
+	ft.check(index)
 	index++
 	for index <= ft.n {
 		ft.tree[index] += delta
@@ -29,6 +37,7 @@ func (ft *FenwickTree) Update(index int, delta int) {
 }
 
 func (ft *FenwickTree) PrefixSum(index int) int {
+	ft.check(index)
 	index++
 	result := 0
 	for index > 0 {
@@ -39,6 +48,11 @@ func (ft *FenwickTree) PrefixSum(index int) int {
 }
 
 func (ft *FenwickTree) Query(left int, right int) int {
+	ft.check(left)
+	ft.check(right)
+	if left > right {
+		panic("fenwick tree: left is greater than right")
+	}
 	if left == 0 {
 		return ft.PrefixSum(right)
 	}
@@ -54,4 +68,3 @@ func main() {
 	ft := NewFenwickTree(arr)
 	println("Query [0,2]:", ft.Query(0, 2)) // 9
 }
-

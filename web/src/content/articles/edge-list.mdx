@@ -1,0 +1,211 @@
+---
+topic: Data Structures/Non_Linear/Graph/Edge List
+title: Edge List
+lead: An edge list stores a graph as a flat list of edges and nothing else. It is the smallest and simplest representation, O(E) space, and the natural input for algorithms that sort or scan all edges, such as Kruskal. Neighbor and edge lookups cost O(E).
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Space
+    value: O(E)
+    hint: no per-vertex structure
+  - label: Has edge / neighbors
+    value: O(E)
+    hint: scan the whole list
+    tone: warn
+  - label: Iterate all edges
+    value: O(E)
+  - label: Add edge here
+    value: O(E)
+    hint: an existing edge is replaced first
+properties:
+  - { label: Smallest representation, value: true }
+  - { label: Fast edge lookup, value: false }
+  - { label: Easy to sort by weight, value: true }
+  - { label: Directed or undirected, value: true }
+prerequisites:
+  - Data Structures/Non_Linear/Graph/Adjacency List
+related:
+  - Data Structures/Non_Linear/Graph/Adjacency List
+  - Data Structures/Non_Linear/Graph/Adjacency Matrix
+  - Data Structures/Non_Linear/Graph/Weighted & Unweighted
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm
+---
+
+## What an edge list is
+
+An edge list is one list of `(from, to)` pairs, or `(from, to, weight)` triples for a weighted graph. There is no table and no per-vertex list: a vertex exists because some edge mentions it, and the repository classes also keep a set of vertices so that `bfs` can tell whether a start vertex is known.
+
+<GraphDiagram
+  edges="0-1 4, 0-2 1, 1-2 2, 2-3 5"
+  positions={{ 0: [8, 50], 1: [42, 8], 2: [50, 92], 3: [92, 50] }}
+  caption="The weighted undirected graph used across this category."
+/>
+
+This repository stores an undirected edge as two entries, one per direction, so the structure matches the directed one and `has_edge(2, 0)` finds the reverse entry directly. The list for the graph above, in insertion order:
+
+<DataTable
+  columns={['#', 'from', 'to', { label: 'weight', kind: 'mono' }]}
+  rows={[
+    ['0', '0', '1', '4'],
+    ['1', '1', '0', '4'],
+    ['2', '0', '2', '1'],
+    ['3', '2', '0', '1'],
+    ['4', '1', '2', '2'],
+    ['5', '2', '1', '2'],
+    ['6', '2', '3', '5'],
+    ['7', '3', '2', '5'],
+  ]}
+/>
+
+Four undirected edges give eight stored entries, and `get_edge_count()` reports 4.
+
+<Callout title="Nothing is indexed">
+Because there is no lookup structure, every question that is not "give me all edges" has to read the list. That is the price of the minimal size, and the reason BFS and DFS convert to an adjacency list first or scan repeatedly.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`add_edge(u, v, w)`', 'record the vertices, remove an existing `u -> v` entry, append the new one (and the reverse when undirected)', 'O(E)'],
+    ['`remove_edge(u, v)`', 'filter the entry out (and the reverse when undirected)', 'O(E)'],
+    ['`has_edge(u, v)`', 'scan for a matching entry', 'O(E)'],
+    ['`get_weight(u, v)`', 'scan for the entry and return its weight', 'O(E)'],
+    ['`get_neighbors(u)`', 'scan for entries starting at `u`, without duplicates', 'O(E)'],
+    ['`get_edge_count()`', 'number of edges; an undirected edge counts once', 'O(E)'],
+    ['`bfs(s)`', 'breadth-first order; each vertex scans the whole list', 'O(V E)'],
+  ]}
+/>
+
+Python also has `get_edges`, `get_vertices`, `dfs`, `dfs_recursive`, `is_connected` (undirected only) and `to_adjacency_list`. C++ and Go have the six operations above plus `bfs`.
+
+### Add an edge
+
+`add_edge` is not an O(1) append here. It first removes any existing entry for the same pair, which is what lets a repeated call update the weight instead of creating a parallel edge, and that removal is a full scan. In Python, 2000, 4000 and 8000 calls measured 0.14, 0.54 and 1.99 seconds, which is quadratic. A bare append to a list is O(1) if you can accept duplicates.
+
+### Remove an edge
+
+Removing `1-2` filters out both `(1, 2)` and `(2, 1)` in an undirected graph, leaving six of the eight entries. On a directed graph only `(u, v)` goes. In all three languages `remove_edge` on an undirected graph now removes both entries, so `has_edge(2, 1)` is false afterwards and the edge count drops from 4 to 3.
+
+### Count edges and self-loops
+
+Edges are stored twice when undirected, so the count is half the list. A self-loop `u-u` is stored once, because the reverse entry would be the same pair. The count is therefore `(stored - loops) / 2 + loops`: with edge `1-2` and loop `3-3` the list has 3 entries and the count is 2.
+
+### Sort for Kruskal
+
+The reason to keep an edge list is that sorting is trivial. Take one entry per undirected edge and sort by weight:
+
+<DataTable
+  columns={['Order', 'Edge', { label: 'Weight', kind: 'mono' }]}
+  rows={[
+    ['1', '0 - 2', '1'],
+    ['2', '1 - 2', '2'],
+    ['3', '0 - 1', '4'],
+    ['4', '2 - 3', '5'],
+  ]}
+/>
+
+Kruskal's algorithm walks this order and keeps an edge when it joins two different components. Here it keeps 0-2, 1-2 and 2-3, and skips 0-1 because 0 and 1 are already connected.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['space', 'O(E)', 'one entry per edge (two per undirected edge)'],
+    ['iterate all edges', 'O(E)', 'the list is the edge set'],
+    ['add / remove / has edge', 'O(E)', 'no index: scan the list'],
+    ['neighbors of u', 'O(E)', 'every entry is checked'],
+    ['BFS with this class', 'O(V E)', 'one neighbor scan of the whole list per vertex'],
+    ['sort by weight', 'O(E log E)', 'a comparison sort of the list'],
+  ]}
+/>
+
+For BFS or DFS in O(V + E), call `to_adjacency_list()` (Python) once and traverse the result.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Use']}
+  rows={[
+    ['One entry per undirected edge', 'store `(u, v)` once', 'half the space; the usual form for Kruskal'],
+    ['Both directions (this repository)', 'store `(u, v)` and `(v, u)`', 'uniform with directed graphs, simpler lookup'],
+    ['Struct of arrays', 'separate `from[]`, `to[]`, `w[]` arrays', 'cache-friendly scans'],
+    ['Sorted edge list', 'kept ordered by weight', 'Kruskal without re-sorting'],
+  ]}
+/>
+
+## Edge list vs other representations
+
+<DataTable
+  columns={['', 'Edge list', 'Adjacency list', 'Adjacency matrix']}
+  highlight={0}
+  rows={[
+    ['Space', 'O(E)', 'O(V + E)', 'O(V^2)'],
+    ['Has edge (u, v)', 'O(E)', 'O(deg(u))', 'O(1)'],
+    ['Neighbors of u', 'O(E)', 'O(deg(u))', 'O(V)'],
+    ['All edges', 'O(E)', 'O(V + E)', 'O(V^2)'],
+    ['Best for', 'sorting and scanning edges', 'traversal', 'dense graphs'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Smallest representation: O(E) with no per-vertex overhead.',
+    'Trivial to build from input, to store in a file and to sort by weight.',
+    'Ideal for algorithms that look at each edge once: Kruskal, Bellman-Ford.',
+    'Converting to an adjacency list is a single pass.',
+  ]}
+  cons={[
+    'Edge lookup and neighbor queries scan the whole list: O(E).',
+    'Traversals such as BFS are slow unless converted first.',
+    'In this repository `add_edge` is O(E) because it replaces duplicates.',
+    'No quick way to find the degree of a vertex.',
+  ]}
+/>
+
+## Applications
+
+- **Kruskal's minimum spanning tree:** sort edges, then join components with union-find.
+- **Bellman-Ford:** relax every edge V - 1 times, which is a loop over the list.
+- **Graph input and storage:** edge files and datasets are edge lists.
+- **Conversion step:** build an adjacency list or matrix from the list.
+- **Counting and filtering edges:** degree sequences, edges above a weight.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Treating `add_edge` as O(1)** when it replaces duplicates. Building a big graph edge by edge is quadratic; append directly if duplicates cannot occur.
+- **Halving the list to count undirected edges** without handling self-loops, which are stored once.
+- **Removing one direction only** from an undirected edge: the other entry lingers and `has_edge` still answers true.
+- **Running BFS or DFS directly on the list** for a large graph instead of converting to an adjacency list.
+- **Forgetting that `get_edges` returns both directions** for an undirected graph in Python. Filter on `u < v` when you want each edge once.
+- **Using `get_weight` in C++ or Go** where an absent edge returns -1.0, which can be a legal weight.
+</Callout>
+
+## Implementation
+
+All three versions keep a vector or list of edges plus a vertex set. Python stores tuples (two or three fields depending on `weighted`). C++ keeps two vectors, one of triples and one of pairs. Go stores `Edge{From, To, Weight}` structs and gives unweighted graphs weight 1.0.
+
+<TopicCode topic="Data Structures/Non_Linear/Graph/Edge List" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why use an edge list at all if lookups are O(E)?">
+    Because many algorithms never look up a single edge. Kruskal sorts all edges and Bellman-Ford relaxes all edges, and for both the flat list is exactly the right shape and the smallest one.
+  </FaqItem>
+  <FaqItem question="How do I convert an edge list to an adjacency list?">
+    Make an empty list per vertex, then append `v` to `u`'s list for each edge `(u, v)`. It takes O(V + E). Python's `to_adjacency_list()` does this.
+  </FaqItem>
+  <FaqItem question="Does an undirected graph need two entries per edge?">
+    Not necessarily. One entry is enough if every query accounts for both orientations. This implementation stores two so that lookups stay symmetric and the code matches the directed case.
+  </FaqItem>
+  <FaqItem question="How many edges does a self-loop count as?">
+    One. It is stored once, so the repository subtracts loops before halving the list.
+  </FaqItem>
+</Faq>

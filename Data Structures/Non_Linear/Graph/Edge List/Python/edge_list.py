@@ -16,11 +16,11 @@ class EdgeList:
     Supports both directed/undirected and weighted/unweighted graphs.
     
     Supports:
-    - Add edge: O(1)
+    - Add edge: O(E) (an existing edge is replaced first)
     - Remove edge: O(E)
     - Check edge: O(E)
     - Get neighbors: O(E)
-    - Get all edges: O(1) (already stored)
+    - Get all edges: O(E) (a copy is returned)
     """
     
     def __init__(self, directed: bool = False, weighted: bool = False):
@@ -179,8 +179,9 @@ class EdgeList:
         if self.directed:
             return len(self.edges)
         else:
-            # For undirected, each edge appears twice
-            return len(self.edges) // 2
+            # An undirected edge u-v is stored twice, but a self-loop u-u only once
+            loops = sum(1 for e in self.edges if e[0] == e[1])
+            return (len(self.edges) - loops) // 2 + loops
     
     def bfs(self, start_vertex: int) -> List[int]:
         """Breadth-First Search traversal.

@@ -1,0 +1,228 @@
+---
+topic: Algorithms/Sorting/Quick Sort
+title: Quick Sort
+lead: Quick Sort picks one element as a pivot, moves every smaller element to its left and every larger one to its right, then sorts both sides the same way. It sorts in place, it is fast in practice, and it is the core of most standard-library sorts.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Average time
+    value: O(n log n)
+  - label: Worst time
+    value: O(n^2)
+    hint: every pivot is the smallest or largest element
+    tone: warn
+  - label: Extra space
+    value: O(log n)
+    hint: recursion stack, smaller side first
+  - label: Approach
+    value: Divide and conquer
+properties:
+  - { label: In-place, value: true }
+  - { label: Stable, value: false }
+  - { label: Comparison sort, value: true }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Algorithms/Divide_and_Conquer
+related:
+  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Sorting/Heap Sort
+  - Algorithms/Randomized_Algorithms/Randomized_Quickselect
+  - Algorithms/Sorting/Insertion Sort
+---
+
+## How Quick Sort works
+
+Quick Sort is a divide-and-conquer algorithm, but unlike Merge Sort it does all of its work **before** it recurses. One pass splits the range around a pivot. After that pass the two sides are independent: no element ever crosses from one side to the other again.
+
+<Steps>
+  <Step title="Pick a pivot">
+    Any element can serve as the pivot. The implementations in this repository take the last element of the range, `arr[high]`.
+  </Step>
+  <Step title="Partition around it">
+    Rearrange the range so that every element `<=` the pivot comes first, then the pivot, then every element `>` the pivot. The pivot now sits exactly where it belongs in the sorted output.
+  </Step>
+  <Step title="Sort both sides">
+    Apply the same procedure to the part left of the pivot and to the part right of it. A range with zero or one element is already sorted, which ends the recursion.
+  </Step>
+</Steps>
+
+<Callout title="Why the pivot never moves again">
+After partitioning, everything to the left of the pivot is `<=` it and everything to the right is `>` it. No later step can change that, so every partition settles at least one element for good and the algorithm always makes progress.
+</Callout>
+
+## See it in action
+
+Press play, or step through one comparison at a time. Blue bars are being compared, orange bars are moving, and aqua bars have reached their final position. The caption under the chart explains every step, and you can type your own array.
+
+<ArticleViz ids={['quick-sort']} />
+
+## The Lomuto partition, step by step
+
+The partition is the heart of the algorithm. The Lomuto scheme used here keeps a boundary index `i`: everything in `arr[low..i]` is known to be `<=` the pivot. A second index `j` scans the range once, from left to right:
+
+- if `arr[j] <= pivot`, the left part grows by one (`i = i + 1`) and `arr[j]` is swapped into it;
+- otherwise `arr[j]` stays where it is, because it already belongs to the right part.
+
+When the scan ends, one last swap puts the pivot between the two parts. Here is the partition of `[10, 80, 30, 90, 40, 50, 70]` around the pivot `70`:
+
+<ArrayDiagram
+  legend={{ p: 'pivot', l: 'left part (<= pivot)', c: 'compared and left alone (> pivot)', f: 'pivot in its final place' }}
+  rows={[
+    { label: 'start', values: [10, 80, 30, 90, 40, 50, 70], tones: '......p', marks: { 6: 'pivot' }, note: '`i = -1`: the left part is still empty.' },
+    { label: 'j = 0', values: [10, 80, 30, 90, 40, 50, 70], tones: 'l.....p', marks: { 0: 'i, j' }, note: '10 <= 70: `i` moves to 0 and `arr[0]` is swapped with itself.' },
+    { label: 'j = 1', values: [10, 80, 30, 90, 40, 50, 70], tones: 'lc....p', marks: { 0: 'i', 1: 'j' }, note: '80 > 70: nothing to do, 80 stays in the right part.' },
+    { label: 'j = 2', values: [10, 30, 80, 90, 40, 50, 70], tones: 'll....p', marks: { 1: 'i', 2: 'j' }, note: '30 <= 70: `i` moves to 1, then swap `arr[1]` and `arr[2]`.' },
+    { label: 'j = 3', values: [10, 30, 80, 90, 40, 50, 70], tones: 'll.c..p', marks: { 1: 'i', 3: 'j' }, note: '90 > 70: nothing to do.' },
+    { label: 'j = 4', values: [10, 30, 40, 90, 80, 50, 70], tones: 'lll...p', marks: { 2: 'i', 4: 'j' }, note: '40 <= 70: `i` moves to 2, then swap `arr[2]` and `arr[4]`.' },
+    { label: 'j = 5', values: [10, 30, 40, 50, 80, 90, 70], tones: 'llll..p', marks: { 3: 'i', 5: 'j' }, note: '50 <= 70: `i` moves to 3, then swap `arr[3]` and `arr[5]`.' },
+    { label: 'finish', values: [10, 30, 40, 50, 70, 90, 80], tones: 'llllf..', marks: { 4: 'i + 1' }, note: 'Swap the pivot into `arr[i + 1]`. 70 is final; next, sort `[10, 30, 40, 50]` and `[90, 80]`.' },
+  ]}
+/>
+
+The scan touches each element once, so one partition of `n` elements costs <BigO of="n" /> time and no extra memory.
+
+## Pseudocode
+
+```text
+quickSort(arr, low, high):
+    while low < high:
+        p = partition(arr, low, high)
+        # recurse into the smaller side, loop on the larger one
+        if p - low < high - p:
+            quickSort(arr, low, p - 1)
+            low = p + 1
+        else:
+            quickSort(arr, p + 1, high)
+            high = p - 1
+
+partition(arr, low, high):          # Lomuto, last element as pivot
+    pivot = arr[high]
+    i = low - 1
+    for j = low to high - 1:
+        if arr[j] <= pivot:
+            i = i + 1
+            swap(arr[i], arr[j])
+    swap(arr[i + 1], arr[high])
+    return i + 1
+```
+
+The `while` loop is the textbook "recurse on both sides", rewritten so that only the smaller side gets a new stack frame. It sorts in exactly the same way, but the recursion depth can never exceed log<sub>2</sub>(n).
+
+## Implementation
+
+The Python version follows the pseudocode above and also includes Hoare's partition (`quick_sort_hoare`). The C++ and Go versions use the same Lomuto partition with the plain two-call recursion. Each language comes with its tests.
+
+<TopicCode topic="Algorithms/Sorting/Quick Sort" />
+
+## Complexity analysis
+
+The ranges on one level of the recursion do not overlap, so partitioning a whole level costs <BigO of="n" />. The total time is therefore <BigO of="n" /> times the number of levels, and the number of levels depends only on how evenly the pivots split their ranges.
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n log n)', when: 'Every pivot lands in the middle, so each level halves the ranges: log2(n) levels of O(n) work.' },
+    { case: 'Average case', time: 'O(n log n)', when: 'On random input the splits are uneven but balanced on average. Quick Sort makes about 1.39 n log2(n) comparisons.' },
+    { case: 'Worst case', time: 'O(n^2)', when: 'Every pivot is the smallest or largest element, so one side is empty and there are n levels. With a last-element pivot this happens on sorted, reverse-sorted and all-equal input.' },
+  ]}
+/>
+
+The two extremes as recurrences:
+
+<Equation label="Balanced split" expr="T(n) = 2 T(n/2) + O(n)" result="O(n log n)" />
+<Equation label="Lopsided split" expr="T(n) = T(n - 1) + O(n)" result="O(n^2)" />
+
+<Callout title="Space is O(log n) only if you recurse into the smaller side">
+Quick Sort needs no buffer, only the recursion stack. Recursing into the smaller part and looping on the larger one, as the Python version does, keeps the depth at most log<sub>2</sub>(n). The plain version with two recursive calls (the C++ and Go versions here) nests up to n calls on sorted input, so its worst-case stack is <BigO of="n" />. In Python that is a `RecursionError` at around 1,000 elements.
+</Callout>
+
+## Choosing a pivot
+
+The pivot rule decides which inputs hit the worst case.
+
+<DataTable
+  columns={['Strategy', 'How it picks', 'Worst case on', 'Good for']}
+  rows={[
+    ['Last element', '`arr[high]` (used here)', 'sorted, reverse-sorted or all-equal input', 'teaching, or input that is already random'],
+    ['Random element', 'swaps a random index into `arr[high]` first', 'no fixed input: expected O(n log n) on every input', 'general use; defeats adversarial input'],
+    ['Median of three', 'median of `arr[low]`, `arr[mid]` and `arr[high]`', 'rare, specially crafted inputs', 'nearly sorted data; common in libraries'],
+    ['Median of medians', 'the true median, found in O(n)', 'none: O(n log n) guaranteed', 'theory; the constant factor is too high in practice'],
+  ]}
+/>
+
+## Lomuto vs Hoare partition
+
+Hoare's original scheme from 1961 moves two indices towards each other and swaps the pairs that are on the wrong side. It is harder to get right, but it does less work.
+
+<DataTable
+  columns={['', 'Lomuto', 'Hoare']}
+  rows={[
+    ['Pivot in this repository', 'last element', 'first element'],
+    ['Scanning', 'one index, left to right', 'two indices, from both ends'],
+    ['Swaps on average', 'about three times as many', 'fewer'],
+    ['Returns', 'the final index of the pivot', 'a split point; the pivot can end up on either side'],
+    ['Recursive calls', '`(low, p - 1)` and `(p + 1, high)`', '`(low, p)` and `(p + 1, high)`'],
+    ['All keys equal', 'O(n^2): every key goes to the left part', 'O(n log n): the indices meet in the middle'],
+  ]}
+/>
+
+## Quick Sort vs other O(n log n) sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Average', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Best for']}
+  highlight={0}
+  rows={[
+    ['Quick Sort', 'O(n log n)', 'O(n^2)', 'O(log n)', 'No', 'arrays in memory; usually the fastest in practice'],
+    ['Merge Sort', 'O(n log n)', 'O(n log n)', 'O(n)', 'Yes', 'linked lists, external sorting, keeping equal keys in order'],
+    ['Heap Sort', 'O(n log n)', 'O(n log n)', 'O(1)', 'No', 'a hard O(n log n) bound without extra memory'],
+    ['Introsort', 'O(n log n)', 'O(n log n)', 'O(log n)', 'No', 'library sorts: Quick Sort that falls back to Heap Sort'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Fast in practice: a tight inner loop and sequential memory access keep the cache warm.',
+    'In place: the only extra memory is the recursion stack.',
+    'The two sides are independent, so they can be sorted in parallel.',
+    'The partition step is useful on its own: Quickselect finds the k-th smallest element in O(n) on average.',
+  ]}
+  cons={[
+    'O(n^2) worst case with a fixed pivot rule, for example on sorted or all-equal input.',
+    'Not stable: equal keys can change their relative order.',
+    'The plain two-call recursion can overflow the stack on bad input.',
+    'Slower than Insertion Sort on tiny ranges, so libraries switch below a small cutoff (16 elements in GCC).',
+  ]}
+/>
+
+## Applications
+
+- **Standard libraries.** C++ `std::sort` is usually introsort, Java sorts arrays of primitives with Dual-Pivot Quicksort, and Go's `slices.Sort` uses pattern-defeating quicksort (pdqsort).
+- **Selection.** Quickselect reuses `partition` to find the median or the k-th smallest element without sorting the whole array.
+- **Many duplicate keys.** A three-way partition into `< pivot`, `= pivot` and `> pivot` (the Dutch national flag problem) handles them in a single pass.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Wrong recursion bounds with Hoare.** Hoare returns a split point, not the pivot's index. Recursing on `(low, p - 1)` and `(p + 1, high)` skips an element and can leave the array unsorted.
+- **Overflow when picking the middle.** With fixed-width integers, `(low + high) / 2` can overflow on very large arrays. Write `low + (high - low) / 2` instead.
+- **Forgetting duplicates.** With `<=` in the Lomuto test, an all-equal array is the worst case. Use a random pivot plus a three-way partition when duplicates are common.
+- **Unbounded recursion.** Recurse into the smaller side first, otherwise the stack grows to <BigO of="n" /> on sorted input.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is Quick Sort stable?">
+    No. Partitioning swaps elements over long distances, so equal keys can change their order: sorting `[2a, 2b, 1]` with the Lomuto scheme returns `[1, 2b, 2a]`. If you need stability, use Merge Sort, or sort `(key, original index)` pairs.
+  </FaqItem>
+  <FaqItem question="Why is Quick Sort usually faster than Merge Sort when both are O(n log n)?">
+    Big-O hides constant factors. Quick Sort works in place, scans memory sequentially and moves fewer elements. Merge Sort copies every element into a buffer and back on every level.
+  </FaqItem>
+  <FaqItem question="How do I avoid the O(n^2) worst case?">
+    Pick the pivot at random: then no fixed input is bad, and the expected time is <BigO of="n log n" /> on every input. Library sorts go further with introsort, which switches to Heap Sort when the recursion gets too deep, so even the worst case stays <BigO of="n log n" />.
+  </FaqItem>
+  <FaqItem question="When should I not use Quick Sort?">
+    When equal keys must keep their order (use Merge Sort), when you need a hard worst-case bound and have no fallback (Heap Sort or Merge Sort), and for linked lists, where Merge Sort needs no random access.
+  </FaqItem>
+</Faq>

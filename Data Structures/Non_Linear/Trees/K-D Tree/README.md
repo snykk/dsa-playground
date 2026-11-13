@@ -1,148 +1,131 @@
 # K-D Tree (k-Dimensional Binary Search Tree)
 
-> A **K-D Tree** is a binary search tree generalized to **k dimensions**: at each level, points are split by one coordinate axis (cycling through x, y, z, ...). Supports nearest-neighbor search and range queries in O(log n) expected time on balanced trees.
+A K-D tree is a binary search tree for points in k dimensions: each level splits the space by one coordinate, cycling through the axes. It answers nearest-neighbour and rectangular range queries by skipping regions that cannot contain an answer: O(log n) average for nearest neighbour on a balanced tree in low dimensions, about O(sqrt n + k) for a 2D range query.
 
----
+## Intuition
 
-## 🎯 Intuition
+A BST splits the number line: smaller keys left, larger keys right. A K-D tree does the same for points in space. Depth 0 splits on x, depth 1 on y, depth 2 on x again (or on z in 3D), so the split axis at depth `d` is `d mod k`. Each node stores one point and owns a rectangular region of space that its point cuts in two.
 
-A regular BST splits the number line: everything left of the root is smaller, everything right is larger. A K-D Tree does the same thing for **points in space**: at depth 0, split by x-coordinate. At depth 1, split by y. At depth 2, split by x again (or z, for 3D). And so on, cycling through dimensions.
+For nearest-neighbour search the payoff is the pruning rule: after searching the query's own side of a split, the other side only matters if the splitting line is closer to the query than the best point found so far. Otherwise the whole subtree is skipped.
 
-Why? Because "find the nearest neighbor to a query point" is asked all the time:
-- Autocomplete by distance ("what's the closest word to my typo?")
-- Databases: "find stores within 5 km of this location"
-- Machine learning: k-NN classification
-- Graphics & physics: collision detection, ray tracing
-- Robotics: motion planning
+Typical uses are spatial lookups ("nearest store"), k-NN on low-dimensional data, and geometry problems on point sets. Brute force is O(n) per query.
 
-Brute force is O(n) per query. K-D Tree is O(log n) _expected_ on balanced data.
+## Visual
 
----
+Points `(7,2) (5,4) (9,6) (2,3) (4,7) (8,1)` built with the median builder:
 
-## 📊 Visual (2D)
-
-```
-Points: (7,2), (5,4), (9,6), (2,3), (4,7), (8,1)
-Tree (cycling x, y, x, y, ...):
-
-                  (7, 2)          ← depth 0, split by x
-                 /      \
-             (5, 4)      (9, 6)   ← depth 1, split by y
-             /    \        /
-        (2, 3)  (4, 7)  (8, 1)    ← depth 2, split by x again
+```text
+                (7,2)            depth 0, split on x
+               /     \
+          (5,4)       (9,6)      depth 1, split on y
+          /    \       /
+     (2,3)  (4,7)  (8,1)         depth 2, split on x again
 ```
 
-At each level, the split axis is `depth % k`:
-- **Depth 0 (split x):** left subtree has x < 7, right subtree has x ≥ 7.
-- **Depth 1 (split y):** within the left subtree, left child has y < 4, right child has y ≥ 4.
-- **Depth 2 (split x again):** and so on.
-
-```
-Spatially:
-    10│        (4,7)             (9,6)
-      │    (5,4) |                │
-     5│──────────┼────────────────┤       ← x=7 vertical split (root)
-      │ (2,3)    │          (8,1) │
-      │          │                │
-      0└─────────┴────────────────┘
-                 7                10
+```text
+ y
+ 7 |            E
+ 6 |                          C
+ 5 |
+ 4 |         B
+ 3 |    D
+ 2 |                    A       <- root splits on x = 7
+ 1 |                       F
+ 0 +--0--1--2--3--4--5--6--7--8--9-- x
 ```
 
----
+A = (7,2), B = (5,4), C = (9,6), D = (2,3), E = (4,7), F = (8,1). The left subtree (x < 7) is split by y = 4, the right subtree (x > 7) by y = 6.
 
-## 🧮 Core Operations
+## Operations
 
-### Build O(n log n)
-Recursive construction: find the median along the current axis (use Quickselect for O(n) expected per level), place it as the root, recursively build left and right subtrees with the axis cycled.
+| Operation | What it does | Time |
+| --------- | ------------ | ---- |
+| build from points | sort by the current axis, take the median as the node, recurse | O(n log n) in C++, O(n log^2 n) in Python and Go |
+| `insert(p)` | walk down by each level's axis, attach a leaf; no rebalancing | O(h) |
+| `nearest(q)` | closest stored point (Euclidean) | O(log n) average, O(n) worst |
+| `range_search(lo, hi)` | all points with `lo[i] <= p[i] <= hi[i]` on every axis | about O(sqrt n + k) in 2D |
 
-### Insert O(log n) expected
-Walk down from root, comparing at each level by the appropriate axis. Insert where you find a null child. Does **not** rebalance — repeated inserts on ordered data produce a degenerate tree.
+### Nearest neighbour
 
-### Nearest Neighbor O(log n) expected
-Recursively search the subtree on the "query's side" of the split. Then check: could a point on the _other_ side be closer than the best we've found? If the perpendicular distance from the query to the splitting plane is less than the current best distance, yes — recurse into the other subtree too. Otherwise, prune.
+1. Compute the distance (squared) from `q` to the node's point; keep the best so far.
+2. Let `diff = q[axis] - node.point[axis]`. The near side is left if `diff < 0`, else right. Search it first.
+3. Search the far side only if `diff^2 < best_squared_distance`.
 
-### Range Search (rectangular region) O(√n + k)
-Recurse into subtrees whose bounding boxes overlap the query rectangle. Report every stored point inside.
+### Range search
 
----
+Report the node's point if it is inside the box. Go left if `lo[axis] <= point[axis]`, right if `hi[axis] >= point[axis]`.
 
-## ⏱️ Complexity
+## Step-by-Step Trace
 
-| Operation | Best / Average | Worst |
-|-----------|----------------|-------|
-| Build (balanced) | O(n log n) | O(n log n) |
-| Insert | O(log n) | O(n) — unbalanced |
-| Nearest Neighbor | O(log n) | O(n) — adversarial queries / high dimension |
-| Range Search | O(√n + k) 2D / O(n^{1-1/k} + k) general | O(n + k) |
+Nearest to `(1, 3)` on the tree above (produced by running the Python implementation):
 
-Note the **curse of dimensionality**: K-D Tree degrades fast as `k` grows. Past ~20 dimensions, performance is close to linear scan. For high-dim nearest-neighbor, use Ball Trees, Approximate NN (ANN / HNSW), or LSH instead.
+| Step | Node | Distance squared | Decision |
+| ---- | ---- | ---------------- | -------- |
+| 1 | `(7,2)` | 37 | best; 1 < 7, go left |
+| 2 | `(5,4)` | 17 | best; y 3 < 4, go left |
+| 3 | `(2,3)` | 1 | new best; leaf |
+| 4 | back at `(5,4)` | plane distance squared 1 | 1 is not less than 1: skip `(4,7)` |
+| 5 | back at `(7,2)` | plane distance squared 36 | skip the whole right subtree `(9,6)`, `(8,1)` |
 
----
+Answer: `(2,3)`, with three of the six nodes visited.
 
-## 🎯 When to Use
+Range search box `(3,3)` to `(8,7)`: the root `(7,2)` is outside (y = 2) but both sides are searched; `(5,4)` and `(4,7)` are inside. Result: `(5,4)`, `(4,7)`.
 
-✅ **Use K-D Trees when:**
-- Low-to-moderate dimensional points (k ≤ 10)
-- Nearest-neighbor or range queries dominate
-- Data is reasonably balanced (or you rebuild periodically)
-- You need exact answers (not approximate)
+## Complexity
 
-❌ **Avoid when:**
-- **High dimensional** (k ≥ 20) — use ANN-based structures (FAISS, HNSW)
-- Data is very dynamic — K-D Trees don't rebalance on insert
-- You only need nearest neighbor approximately — LSH is much faster at scale
-- Range queries are always rectangular on axis-aligned grids — a grid-based index may be simpler
+| Operation | Average | Worst |
+| --------- | ------- | ----- |
+| build | O(n log n) (C++), O(n log^2 n) (Python, Go) | same |
+| insert | O(log n) | O(n), a chain after sorted inserts |
+| nearest | O(log n) | O(n), adversarial queries or high dimension |
+| range search | O(sqrt n + k) in 2D, O(n^(1-1/d) + k) in d dimensions | O(n) |
 
----
+Python and Go sort at every level (O(n log n) each), giving O(n log^2 n); C++ uses `std::nth_element`, linear per level on average. Space is O(n).
 
-## ⚔️ K-D Tree vs. Alternatives
+The curse of dimensionality: with many dimensions the plane test prunes little and queries approach a linear scan. K-D trees suit roughly 2 to 10 dimensions.
 
-| Structure | Dim | NN Query | Good for |
-|-----------|-----|----------|----------|
-| **K-D Tree** | Low (≤ 10) | O(log n) expected | 2D/3D spatial search |
-| **Ball Tree** | Medium (≤ 100) | O(log n) expected | Higher-dim, non-Euclidean metrics |
-| **R-Tree** | Low | O(log n) | Range queries on rectangular objects (GIS) |
-| **Octree / Quadtree** | Fixed 2D/3D | O(log n) | Grid-aligned subdivision, game engines |
-| **HNSW / FAISS** | Any | Approximate, O(log n) | Web-scale embeddings (millions of points, k=768) |
-| **Grid / Hash** | Any | O(1) per cell | Uniform point distribution, fixed-size queries |
+## When to Use
 
----
+- Static or mostly static point sets in low dimensions, with many nearest-neighbour or box queries.
+- Not for very high dimensions (use approximate indexes), not for heavy streaming inserts (no rebalancing, no delete here), and not for tiny n (brute force is simpler).
 
-## ⚠️ Common Pitfalls
+## K-D Tree vs. Alternatives
 
-1. **Insert-only trees become unbalanced.** If you insert random points, expected depth is O(log n). If you insert in sorted order by first axis, you get a left-spine degenerate tree. Rebuild periodically.
-2. **Forgetting to check the other subtree in NN search.** The algorithm's correctness depends on "could a closer point exist on the other side of the split?" Drop that check and you get incorrect results.
-3. **Axis cycling off-by-one.** At depth 0 you split by dim 0; at depth 1 by dim 1; at depth `d` by `d % k`. Swapping or shifting one index silently breaks search pruning.
-4. **Distance function mismatch.** Usually Euclidean, but the split comparison must also be consistent with the metric. For Manhattan distance (L1), splits should still be axis-aligned but distance pruning uses |x - x'| rather than (x - x')².
-5. **Curse of dimensionality sneaks up.** A tree that works beautifully in 3D may be no better than linear scan in 20D. Benchmark on realistic data.
+| Structure | Dimensions | Good for |
+| --------- | ---------- | -------- |
+| K-D tree | low (about 2 to 10) | exact nearest and box queries |
+| Quadtree / octree | fixed 2D / 3D | regular subdivision |
+| R-tree | low | boxes and shapes, disk-friendly |
+| Grid / hash | any, uniform data | O(1) cell lookup |
+| HNSW, LSH | high | approximate nearest neighbours |
+| Brute force | any | simplest, fine for small n |
 
----
+## Common Pitfalls
 
-## 🔧 Implementations
+- Skipping the far-side test: the search then returns a good point, not the nearest one.
+- Mixing squared and plain distances in the plane test.
+- Off-by-one in the axis (`depth mod k`).
+- Inserting sorted points: the tree becomes a chain; build from the full list instead.
+- Mixed dimensionality: Python raises `ValueError`, Go panics, C++ rejects it at compile time.
+- Python's queries are iterative, but C++ and Go recurse; a chain of very many nodes can overflow the C++ stack.
 
-| Language | Folder | Notes |
-|----------|--------|-------|
-| Python | [Python/](Python/) | Supports arbitrary k via `Tuple[float, ...]`; includes nearest-neighbor and range-rect search |
-| C++ | [C++/](C++/) | Template `<int K>` for compile-time dimensionality |
-| Go | [Go/](Go/) | Runtime-variable dimensionality via `[]float64` |
+## Implementations
 
----
+| Language | Folder | Main file | Notes |
+| -------- | ------ | --------- | ----- |
+| Python | `Python/` | `kd_tree.py` | any k via tuples; iterative queries |
+| C++ | `C++/` | `kd_tree.h` | template `size_t K`; `std::optional` result; `nth_element` build |
+| Go | `Go/` | `main.go` | any k via `[]float64`; panics on wrong-sized queries |
 
-## 📝 Practice Problems
+## Practice Problems
 
-- [LeetCode 973. K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/) — doable with K-D Tree
-- [Codeforces 119D. String Transformation 2](https://codeforces.com/problemset/problem/119/D)
-- [Kaggle KNN notebooks](https://www.kaggle.com/code/prashant111/k-nearest-neighbors-knn-classifier) — K-D Tree is what scikit-learn uses under the hood for `KNeighborsClassifier(algorithm='kd_tree')`
-- [Range search / nearest-neighbor tutorials on CP-Algorithms](https://cp-algorithms.com/geometry/kd-trees.html)
+- [LeetCode 973: K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/) (usually a heap or quickselect; a K-D tree also works)
+- Extend `nearest` to return the k nearest points with a bounded max-heap.
+- Add delete (replace by the minimum along the node's axis from a subtree).
+- Build with the widest-spread axis instead of cycling and compare query counts.
 
----
+## Related
 
-## 🔗 Related
-
-- [Binary Search Tree](../Binary%20Search%20Tree/README.md) — 1D ancestor
-- [Segment Tree](../Segment%20Tree/README.md) — range queries on a single axis
-- [Computational Geometry — Closest Pair](../../../../Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points/README.md) — alternative approach for the pair-closest-pair problem
-
----
-
-_Part of [Non-Linear Data Structures — Trees](../README.md)._
+- [Binary Search Tree](../Binary%20Search%20Tree/README.md)
+- [Segment Tree](../Segment%20Tree/README.md)
+- [Closest Pair of Points](../../../../Algorithms/Computational_Geometry/Advanced_Geometry/Closest%20Pair%20of%20Points/README.md)

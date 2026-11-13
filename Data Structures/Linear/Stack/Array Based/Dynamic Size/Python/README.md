@@ -1,42 +1,38 @@
-# 🐍 Python - Dynamic Array-Based Stack (Dynamic Size)
+# Dynamic Size Array Stack -- Python Implementation
 
-This folder contains a **Python implementation of a dynamic array-based stack** using a Python list that automatically resizes.
+A LIFO stack backed by a Python `list`. See the [topic README](../README.md) for the concept.
 
----
+## Files
 
-## ⚙️ Features
+| File | Contents |
+| --- | --- |
+| `array_stack.py` | the `ArrayStack` class |
+| `array_stack_test.py` | unit tests (`unittest`) |
 
-- Core operations:
-  - `push(value)` → add element to the top
-  - `pop()` → remove and return the top element
-  - `peek()` → view the top element without removing
-  - `is_empty()` → check if stack is empty
-  - `size()` → get the number of elements
-- Raises `IndexError` when popping or peeking an empty stack
-- Dynamic resizing handled by Python lists
+## API
 
----
+| Method | Description | Time |
+| --- | --- | --- |
+| `ArrayStack()` | create an empty stack | O(1) |
+| `push(value)` | `list.append` | O(1) amortized |
+| `pop()` | remove and return the top; raises `IndexError` if empty | O(1) |
+| `peek()` | return the top; raises `IndexError` if empty | O(1) |
+| `is_empty()`, `size()` | length checks | O(1) |
 
-## 📝 Example Usage
+## Python-Specific Notes
 
-````python
-from array_stack import ArrayStack
+- The list resizes itself; the class stores no capacity.
+- Any Python object can be pushed.
+- A plain `list` with `append` and `pop` is already a stack; this class adds the error messages and the names.
 
-stack = ArrayStack()
-stack.push(10)
-stack.push(20)
-stack.push(30)
+## How to Run
 
-print(stack.peek())    # 30
-print(stack.pop())     # 30
-print(stack.pop())     # 20
-print(stack.is_empty())# False
-print(stack.pop())     # 10
-print(stack.is_empty())# True
-
---
-
-## ▶️ Running Tests
 ```bash
-python -m unittest array_stack_test.py
-````
+cd "Data Structures/Linear/Stack/Array Based/Dynamic Size/Python"
+python3 -m unittest array_stack_test
+```
+
+## Key Takeaways
+
+- Push and pop at the end of a list are O(1).
+- The list grows by a factor, which gives the amortized bound.

@@ -31,7 +31,7 @@ void testAStarBasic() {
     assert(path[0] == 0);
     assert(path.back() == 3);
 
-    cout << "✓ testAStarBasic passed" << endl;
+    cout << "[ok] testAStarBasic passed" << endl;
 }
 
 void testAStarMultiplePaths() {
@@ -53,7 +53,7 @@ void testAStarMultiplePaths() {
     assert(path[0] == 0);
     assert(path.back() == 3);
     
-    cout << "✓ testAStarMultiplePaths passed" << endl;
+    cout << "[ok] testAStarMultiplePaths passed" << endl;
 }
 
 void testAStarSameVertex() {
@@ -75,7 +75,7 @@ void testAStarSameVertex() {
     assert(path.size() == 1);
     assert(path[0] == 0);
     
-    cout << "✓ testAStarSameVertex passed" << endl;
+    cout << "[ok] testAStarSameVertex passed" << endl;
 }
 
 void testAStarNoPath() {
@@ -95,7 +95,7 @@ void testAStarNoPath() {
     assert(distance == -1);
     assert(path.empty());
     
-    cout << "✓ testAStarNoPath passed" << endl;
+    cout << "[ok] testAStarNoPath passed" << endl;
 }
 
 void testAStarZeroHeuristic() {
@@ -116,7 +116,7 @@ void testAStarZeroHeuristic() {
     assert(distance == 3);
     assert((path == vector<int>{0, 2, 3}));
 
-    cout << "✓ testAStarZeroHeuristic passed" << endl;
+    cout << "[ok] testAStarZeroHeuristic passed" << endl;
 }
 
 void testAStarEmptyGraph() {
@@ -132,7 +132,7 @@ void testAStarEmptyGraph() {
     assert(distance == -1);
     assert(path.empty());
     
-    cout << "✓ testAStarEmptyGraph passed" << endl;
+    cout << "[ok] testAStarEmptyGraph passed" << endl;
 }
 
 void testAStarSingleVertex() {
@@ -149,7 +149,32 @@ void testAStarSingleVertex() {
     assert(path.size() == 1);
     assert(path[0] == 0);
     
-    cout << "✓ testAStarSingleVertex passed" << endl;
+    cout << "[ok] testAStarSingleVertex passed" << endl;
+}
+
+void testAStarAdmissibleInconsistentHeuristic() {
+    /**An admissible but inconsistent heuristic must still give the optimal path.*/
+    // S=0, A=1, B=2, C=3, G=4. h(A) = 4 equals the true cost A -> C -> G (admissible)
+    // but h(A) > w(A, C) + h(C) (inconsistent). C is first expanded via B with g = 3;
+    // the cheaper route via A (g = 2) must re-open it.
+    unordered_map<int, vector<pair<int, int>>> graph = {
+        {0, {{1, 1}, {2, 1}}},
+        {1, {{3, 1}}},
+        {2, {{3, 2}}},
+        {3, {{4, 3}}},
+        {4, {}}
+    };
+
+    function<int(int)> heuristic = [](int node) {
+        return node == 1 ? 4 : 0;
+    };
+
+    auto [distance, path] = astar(graph, 0, 4, heuristic);
+
+    assert(distance == 5);
+    assert((path == vector<int>{0, 1, 3, 4}));
+
+    cout << "[ok] testAStarAdmissibleInconsistentHeuristic passed" << endl;
 }
 
 int main() {
@@ -160,6 +185,7 @@ int main() {
     testAStarZeroHeuristic();
     testAStarEmptyGraph();
     testAStarSingleVertex();
+    testAStarAdmissibleInconsistentHeuristic();
     
     cout << "\nAll tests passed!" << endl;
     return 0;

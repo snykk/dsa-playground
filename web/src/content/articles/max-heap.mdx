@@ -1,0 +1,169 @@
+---
+topic: Data Structures/Non_Linear/Heaps/Max Heap
+title: Max Heap
+lead: A max heap is the mirror image of a min heap. It keeps the largest element at the root of a complete binary tree stored in an array, so you read the maximum in O(1) and insert or remove in O(log n). It is the engine of in-place heap sort and of largest-first priority queues.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Find max
+    value: O(1)
+  - label: Insert
+    value: O(log n)
+  - label: Extract max
+    value: O(log n)
+  - label: Build from array
+    value: O(n)
+    hint: bottom-up heapify
+properties:
+  - { label: Array-backed, value: true }
+  - { label: Duplicates allowed, value: true }
+  - { label: Sorted iteration, value: false }
+prerequisites:
+  - Data Structures/Non_Linear/Heaps/Min Heap
+related:
+  - Data Structures/Non_Linear/Heaps/Min Heap
+  - Algorithms/Sorting/Heap Sort
+  - Data Structures/Linear/Queue/Priority Queue
+---
+
+## What a max heap is
+
+A max heap is a *complete* binary tree in which every parent is `>=` its children, so the maximum sits at index 0. The array layout, the index formulas (children `2i + 1` and `2i + 2`, parent `(i - 1) / 2`) and the cost analysis are identical to the Min Heap article (linked under related topics), which explains them in detail. Only the comparison flips: sift **up** while the parent is *smaller*, and sift **down** by swapping with the *larger* child.
+
+<TreeDiagram
+  levelOrder={[10, 5, 8, 4, 1, 3]}
+  badges={['0', '1', '2', '3', '4', '5']}
+  tones="f....."
+  legend={{ f: 'the maximum, always at index 0' }}
+  caption="The max heap `[10, 5, 8, 4, 1, 3]`, built by inserting 4, 10, 3, 5, 1, 8 in that order. Badges are array indices."
+/>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`peek()`', 'return the root', 'O(1)'],
+    ['`insert(x)`', 'append, then sift up while the parent is smaller', 'O(log n)'],
+    ['`extract_max()`', 'take the root, move the last element to the root, sift down', 'O(log n)'],
+    ['`MaxHeap(array)`', 'bottom-up heapify from index `n / 2 - 1` down to 0', 'O(n)'],
+    ['`size()`, `is_empty()`, `clear()`', 'bookkeeping', 'O(1)'],
+  ]}
+/>
+
+In Go the constructors are `NewMaxHeap()` and `NewMaxHeapFromArray(arr)`. The constructors copy the input, so the original array is never modified.
+
+### Insert: sift up
+
+Inserting `10` into `[4]`, then `3`, `5`, `1` and `8` (a real run of the Python code):
+
+<ArrayDiagram
+  legend={{ p: 'the new element', l: 'its parent', f: 'heap order restored' }}
+  rows={[
+    { label: 'insert 4, 10', values: [10, 4], tones: 'f.', note: '10 was appended at index 1, was larger than its parent 4, and swapped to the root.' },
+    { label: 'insert 3', values: [10, 4, 3], tones: 'f..', note: '3 is below its parent 10: nothing to do.' },
+    { label: 'insert 5', values: [10, 5, 3, 4], tones: '.p.l', marks: { 1: 'i', 3: 'old parent' }, note: '5 landed at index 3, parent 4 is smaller, swap; then parent 10 is larger: stop.' },
+    { label: 'insert 1', values: [10, 5, 3, 4, 1], tones: '....p', note: 'Parent 5 is larger: no swap.' },
+    { label: 'insert 8', values: [10, 5, 8, 4, 1, 3], tones: '..p..l', marks: { 2: 'i', 5: 'old parent' }, note: '8 at index 5 has parent 3 (index 2): swap. Then the parent 10 is larger: stop.' },
+  ]}
+/>
+
+### Extract max: sift down
+
+Take the root `10`, move the last element `3` to index 0, then swap it with its **larger** child until it settles:
+
+<ArrayDiagram
+  legend={{ p: 'element sinking', l: 'its children', f: 'settled' }}
+  rows={[
+    { label: 'before', values: [10, 5, 8, 4, 1, 3], tones: 'f.....' },
+    { label: 'move last', values: [3, 5, 8, 4, 1], tones: 'pll..', note: 'Return 10. The children of 3 are 5 and 8.' },
+    { label: 'swap', values: [8, 5, 3, 4, 1], tones: 'f.p..', note: 'The larger child is 8, so swap. Index 2 has no children left: stop.' },
+  ]}
+/>
+
+### Heap sort uses a max heap
+
+Heap sort heapifies the array into a max heap and then repeatedly swaps the root with the last unsorted slot and sifts down within the shrinking prefix. The largest values accumulate at the **end**, so the result is **ascending**. (A *descending* result only appears if you extract the maximum into a new list.) From `[10, 5, 8, 4, 1, 3]`:
+
+<ArrayDiagram
+  legend={{ f: 'sorted suffix' }}
+  rows={[
+    { label: 'swap, sift', values: [8, 5, 3, 4, 1, 10], tones: '.....f' },
+    { label: 'swap, sift', values: [5, 4, 3, 1, 8, 10], tones: '....ff' },
+    { label: 'swap, sift', values: [4, 1, 3, 5, 8, 10], tones: '...fff' },
+    { label: 'swap, sift', values: [3, 1, 4, 5, 8, 10], tones: '..ffff' },
+    { label: 'swap, sift', values: [1, 3, 4, 5, 8, 10], tones: 'ffffff' },
+  ]}
+/>
+
+The repository's `MaxHeap` class does not sort in place; see the Heap Sort topic for that algorithm.
+
+## Complexity
+
+The costs are exactly those of the min heap: peek O(1), insert and extract O(log n) (one swap per level of a tree of height about log<sub>2</sub>(n)), heapify O(n) (most nodes are near the bottom and sink only a short way), search for an arbitrary value O(n). Extra space is the array, O(n).
+
+## Max heap vs min heap
+
+<DataTable
+  columns={['', 'Max heap', 'Min heap']}
+  rows={[
+    ['Root', 'largest', 'smallest'],
+    ['Order rule', 'parent `>=` children', 'parent `<=` children'],
+    ['Sift down swaps with', 'the larger child', 'the smaller child'],
+    ['Typical use', 'largest-first queue, heap sort, k smallest', 'smallest-first queue, Dijkstra, k largest'],
+  ]}
+/>
+
+A max heap of numbers behaves like a min heap of their negations, which is how Python's `heapq` (min only) is used as a max heap. C++ `std::priority_queue` is a max heap by default.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'O(1) access to the maximum, O(log n) updates.',
+    'One contiguous array, no pointers.',
+    'Heapify builds it in linear time.',
+  ]}
+  cons={[
+    'Only the maximum is cheap; any other lookup is O(n).',
+    'Not sorted: iterating in order costs n extractions.',
+    'No cheap priority change without an extra index map.',
+  ]}
+/>
+
+## Applications
+
+- **Largest-first priority queues**, such as highest-priority task scheduling.
+- **Heap sort:** the max heap pushes the maximum to the end of the array, giving ascending order.
+- **K smallest elements:** keep a max heap of size k; when a new value is smaller than the root, replace the root. The root is the k-th smallest, and the cost is O(n log k). For example with k = 3 over `5, 1, 9, 3, 7, 8` the heap ends holding `1, 3, 5`.
+- **Running median:** a max heap for the lower half plus a min heap for the upper half.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Swapping with the smaller child** during sift down. Always pick the larger one.
+- **Starting heapify at the root** or going upward. Start at `n / 2 - 1` and go down to 0.
+- **Mixing 0-based and 1-based index formulas.**
+- **Claiming heap sort is descending.** In place with a max heap it is ascending.
+- **Reading from an empty heap.** Python raises `IndexError`, C++ throws `std::runtime_error`, Go panics.
+</Callout>
+
+## Implementation
+
+The three versions mirror the Min Heap code with the comparisons reversed.
+
+<TopicCode topic="Data Structures/Non_Linear/Heaps/Max Heap" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is a max heap just a reversed min heap?">
+    Structurally yes: same shape, same index formulas, same costs. Only the order rule is flipped.
+  </FaqItem>
+  <FaqItem question="Why does heap sort use a max heap for ascending order?">
+    Each extraction puts the current maximum into the last free slot, so the sorted part grows from the right. A min heap would need an extra array or would yield descending order in place.
+  </FaqItem>
+  <FaqItem question="How do I find the k smallest values with a heap?">
+    Keep a max heap of size k. A new value smaller than the root replaces it. After one pass the heap holds the k smallest.
+  </FaqItem>
+</Faq>

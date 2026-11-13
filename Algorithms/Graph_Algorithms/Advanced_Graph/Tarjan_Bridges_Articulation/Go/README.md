@@ -22,7 +22,7 @@ For the conceptual overview, visuals, and walkthrough, see the parent README: [.
 - **`map[Edge]struct{}` as a set**: Go has no built-in set; `map[T]struct{}{}` is the zero-byte-value idiom. Works directly with our `Edge` struct because it's `comparable`.
 - **Edge IDs via adjacency struct** (`adjEntry{to, edgeID}`): correct handling of parallel edges — track which edge we came in on, not which vertex.
 - **Sorted output for deterministic tests**: Go's map iteration is randomized, so we sort at the end. Without sorting, tests using `reflect.DeepEqual` would be flaky.
-- **No recursion-depth bump**: Go's goroutine stacks grow dynamically (starting at 8KB, up to 1GB). Pathological inputs need iterative DFS, but typical graphs (millions of vertices) are fine.
+- **No recursion-depth bump**: Go's goroutine stacks grow dynamically (starting at 2KB, up to 1GB). Pathological inputs need iterative DFS, but typical graphs (millions of vertices) are fine.
 
 ---
 

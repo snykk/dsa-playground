@@ -23,9 +23,10 @@ class Treap {
 
     bool erase(int key) {
         if (!contains(key)) return false;
+        // `rest` holds keys >= key and key is present, so key is its minimum.
+        // Dropping the minimum avoids key + 1, which overflows at INT_MAX.
         auto [left, rest] = split(std::move(root_), key);
-        auto [mid, right] = split(std::move(rest), key + 1);
-        root_ = merge(std::move(left), std::move(right));
+        root_ = merge(std::move(left), dropMin(std::move(rest)));
         --size_;
         return true;
     }
@@ -74,6 +75,12 @@ class Treap {
             node->left = std::move(R);
             return {std::move(L), std::move(node)};
         }
+    }
+
+    static std::unique_ptr<Node> dropMin(std::unique_ptr<Node> node) {
+        if (!node->left) return std::move(node->right);
+        node->left = dropMin(std::move(node->left));
+        return node;
     }
 
     static std::unique_ptr<Node> merge(std::unique_ptr<Node> a,

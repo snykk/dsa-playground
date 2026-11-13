@@ -1,124 +1,34 @@
-# Adjacency List - C++
+# Adjacency List -- C++ Implementation
 
-This folder contains a C++ implementation of **Adjacency List** graph representation.
+Hash-map-of-vectors graph with optional direction and weights. See the [topic README](../README.md) for the theory, the trace and the complexity table.
 
-An **Adjacency List** is a collection of lists where each list represents the neighbors of a vertex. This is the most common and efficient representation for graphs.
+## Files
 
----
+- `adjacency_list.cpp`: the `AdjacencyList` class
+- `adjacency_list_test.cpp`: assert-based tests, including removal on directed and undirected graphs
 
-## Concept
+## API
 
-- **Unordered Map of Vectors**: Each vertex maps to a vector of neighbors
-- **Unweighted**: Vector contains vertex IDs
-- **Weighted**: Vector contains `pair<int, double>` (neighbor, weight)
-- **Dynamic**: Can add vertices dynamically
-- **Space Efficient**: O(V + E) - only stores existing edges
+- `AdjacencyList(bool directed = false, bool weighted = false)`
+- `add_vertex(v)`, `add_edge(u, v, weight = 1.0)`: O(deg(u) + deg(v))
+- `remove_edge(u, v)`: removes both directions when undirected
+- `has_edge(u, v)`: O(deg(u))
+- `get_neighbors(v)`: returns a copy
+- `bfs(start)`: empty vector for an unknown start vertex
 
----
+## C++-Specific Notes
 
-## Operations
+Two maps are kept, `unordered_map<int, vector<int>>` for unweighted graphs and `unordered_map<int, vector<pair<int, double>>>` for weighted ones; only the one matching `weighted` is used. The one-way removal used by `add_edge` is a private helper (`remove_one_way`) so the public `remove_edge` can keep both directions in sync. Only the operations above exist; DFS, degrees and connectivity are in the Python version only.
 
-| Operation | Description | Time Complexity |
-| --------- | ----------- | --------------- |
-| `add_vertex(vertex)` | Add a vertex to the graph | O(1) |
-| `add_edge(from, to, weight)` | Add an edge between vertices | O(1) |
-| `remove_edge(from, to)` | Remove an edge | O(V) |
-| `has_edge(from, to)` | Check if edge exists | O(V) |
-| `get_neighbors(vertex)` | Get all neighbors of a vertex | O(1) |
-| `bfs(start)` | Breadth-First Search traversal | O(V + E) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Initialize | O(V) | O(V) |
-| Add Edge | O(1) | O(1) |
-| Remove Edge | O(V) | O(1) |
-| Check Edge | O(V) | O(1) |
-| Get Neighbors | O(1) | O(degree) |
-| BFS | O(V + E) | O(V) |
-| Space | O(V + E) | O(V + E) |
-
----
-
-## Usage
-
-```cpp
-#include "adjacency_list.cpp"
-#include <iostream>
-using namespace std;
-
-int main() {
-    // Unweighted undirected graph
-    AdjacencyList graph(false, false);
-    graph.add_edge(1, 2);
-    graph.add_edge(2, 3);
-
-    cout << graph.has_edge(1, 2) << endl;  // 1 (true)
-    vector<int> neighbors = graph.get_neighbors(2);
-    // neighbors: [1, 3]
-
-    // Weighted directed graph
-    AdjacencyList weighted(true, true);
-    weighted.add_edge(1, 2, 5.0);
-    weighted.add_edge(2, 3, 3.0);
-
-    vector<int> bfs_result = weighted.bfs(1);
-
-    return 0;
-}
-```
-
----
-
-## Example: Unweighted Undirected Graph
-
-```cpp
-AdjacencyList graph(false, false);
-
-// Add edges
-graph.add_edge(0, 1);
-graph.add_edge(1, 2);
-graph.add_edge(2, 3);
-graph.add_edge(3, 0);
-
-// Adjacency List representation:
-// 0: [1, 3]
-// 1: [0, 2]
-// 2: [1, 3]
-// 3: [0, 2]
-
-// Traverse
-vector<int> bfs_result = graph.bfs(0);
-```
-
----
-
-## Compile and Run
+## How to Run
 
 ```bash
-# Compile
-g++ -o adjacency_list_test adjacency_list_test.cpp
-
-# Run
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD adjacency_list_test.cpp -o adjacency_list_test
 ./adjacency_list_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ adjacency_list_test.cpp -o adjacency_list_test && ./adjacency_list_test
-```
-
----
-
-## Notes
-
-- Uses `unordered_map<int, vector<int>>` for unweighted graphs
-- Uses `unordered_map<int, vector<pair<int, double>>>` for weighted graphs
-- Supports dynamic vertex addition
-- Requires `<unordered_map>`, `<vector>`, `<queue>` headers
-- BFS uses `queue` from STL
-
+- One vector per vertex, space O(V + E).
+- Undirected edges are stored twice; `remove_edge` removes both copies.
+- Edge lookup is a linear scan of one vector.

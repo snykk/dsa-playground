@@ -1,42 +1,37 @@
-# Hash Set (Python)
+# Hash Set -- Python Implementation
 
-A **Hash Set** is a data structure that stores unique elements using a hash table internally.
+A chaining hash set that doubles its buckets at load 0.75. See the [topic README](../README.md).
 
----
+## Files
 
-## Operations
+- `hash_set.py`: the `HashSet` class.
+- `hash_set_test.py`: unit tests (add, remove, contains, iteration, clear, a chain longer than one, resize, invalid capacity).
 
-### 1. Add
+## API
 
-```python
-set = HashSet()
-set.add("apple")
-set.add("banana")
+| Member | Description | Time |
+|--------|-------------|------|
+| `HashSet(capacity=16)` | `ValueError` if capacity is not positive | O(capacity) |
+| `add(x)` | True if new, False if already present | O(1) amortized |
+| `remove(x)` | True if removed | O(1) average |
+| `contains(x)` / `x in s` | membership | O(1) average |
+| `clear()`, `is_empty()`, `len(s)` | bookkeeping | O(1) |
+| `to_list()`, `for x in s`, `repr(s)` | elements in bucket order | O(capacity + n) |
+
+## Python-Specific Notes
+
+- Buckets are lists, and membership inside a bucket uses `==`.
+- Integers hash as `x mod capacity`, strings as `h*31 + c`, others with `hash()`.
+- For real code use the built-in `set`.
+
+## How to Run
+
+```bash
+python3 -m unittest hash_set_test
 ```
 
-**Time Complexity**: O(1) average
+## Key Takeaways
 
-### 2. Remove
-
-```python
-set.remove("apple")
-```
-
-**Time Complexity**: O(1) average
-
-### 3. Contains
-
-```python
-if "apple" in set:
-    print("Found!")
-```
-
-**Time Complexity**: O(1) average
-
----
-
-## Related Data Structures
-
-- **Hash Table**: Stores key-value pairs
-- **Hash Map**: Extended hash table
-
+- `add` returning a boolean gives duplicate detection for free.
+- Resizing keeps the chains short.
+- No order is guaranteed.

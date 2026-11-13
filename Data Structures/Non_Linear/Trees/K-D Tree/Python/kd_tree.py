@@ -85,26 +85,31 @@ class KDTree:
             return None
         if len(query) != self._k:
             raise ValueError(f"expected {self._k}-dim query, got {len(query)}-dim")
-        best = [self._root.point, _squared_distance(query, self._root.point)]
-        self._nearest(self._root, query, best)
-        return best[0]
+        best_point = self._root.point
+        best_dist = _squared_distance(query, best_point)
 
-    def _nearest(self, node: Optional[_Node], query: Point, best: list) -> None:
-        if node is None:
-            return
-        d = _squared_distance(query, node.point)
-        if d < best[1]:
-            best[0] = node.point
-            best[1] = d
+        # Explicit stack (a degenerate tree built by sorted inserts can be
+        # thousands of levels deep). Entries are (node, bound): bound is None
+        # for a near child, or the squared distance to the splitting plane for
+        # a far child, which is only visited if the plane could hide a closer point.
+        stack: List[Tuple[_Node, Optional[float]]] = [(self._root, None)]
+        while stack:
+            node, bound = stack.pop()
+            if bound is not None and bound >= best_dist:
+                continue
+            d = _squared_distance(query, node.point)
+            if d < best_dist:
+                best_point = node.point
+                best_dist = d
 
-        diff = query[node.axis] - node.point[node.axis]
-        near = node.left if diff < 0 else node.right
-        far = node.right if diff < 0 else node.left
-
-        self._nearest(near, query, best)
-        # Only recurse into `far` if the splitting plane could hide a closer point.
-        if diff * diff < best[1]:
-            self._nearest(far, query, best)
+            diff = query[node.axis] - node.point[node.axis]
+            near = node.left if diff < 0 else node.right
+            far = node.right if diff < 0 else node.left
+            if far is not None:
+                stack.append((far, diff * diff))
+            if near is not None:
+                stack.append((near, None))
+        return best_point
 
     def range_search(self, lower: Point, upper: Point) -> List[Point]:
         """Return all points `p` with lower[i] <= p[i] <= upper[i] for every axis."""
@@ -113,20 +118,18 @@ class KDTree:
         if len(lower) != self._k or len(upper) != self._k:
             raise ValueError(f"bounds must be {self._k}-dim")
         result: List[Point] = []
-        self._range(self._root, lower, upper, result)
+        stack: List[_Node] = [self._root]
+        while stack:
+            node = stack.pop()
+            p = node.point
+            if all(lower[i] <= p[i] <= upper[i] for i in range(self._k)):
+                result.append(p)
+            # push right first so the left subtree is visited first
+            if upper[node.axis] >= p[node.axis] and node.right is not None:
+                stack.append(node.right)
+            if lower[node.axis] <= p[node.axis] and node.left is not None:
+                stack.append(node.left)
         return result
-
-    def _range(self, node: Optional[_Node], lo: Point, hi: Point,
-               out: List[Point]) -> None:
-        if node is None:
-            return
-        p = node.point
-        if all(lo[i] <= p[i] <= hi[i] for i in range(self._k)):
-            out.append(p)
-        if lo[node.axis] <= p[node.axis]:
-            self._range(node.left, lo, hi, out)
-        if hi[node.axis] >= p[node.axis]:
-            self._range(node.right, lo, hi, out)
 
 
 if __name__ == "__main__":

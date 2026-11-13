@@ -6,7 +6,6 @@ creation, element access by row and column indices, and flattening
 a matrix into a one-dimensional list.
 """
 
-# Python/Linear/Array/multi_dimensional_array.py
 def main():
     """
     Demonstrate multi-dimensional array operations.

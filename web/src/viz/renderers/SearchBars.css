@@ -1,0 +1,121 @@
+/* Search renderer: bars, the search-range band, the target line, gliding pointers and the interpolation guide. */
+
+.search-bars .search-band {
+  fill: var(--surface-3);
+  transition: transform 0.4s ease;
+}
+.search-bars .search-baseline {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+
+/* ---------- bars ---------- */
+
+.search-bars .search-bar path {
+  fill: var(--role);
+  transition: fill 0.2s ease, opacity 0.3s ease;
+}
+.search-bars .search-bar.role-compare path,
+.search-bars .search-bar.role-good path,
+.search-bars .search-bar.role-bad path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: viz-pop 0.35s ease;
+}
+.search-bars .search-value {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-anchor: middle;
+  transition: opacity 0.3s ease;
+}
+.search-bars .search-bar.role-compare .search-value,
+.search-bars .search-bar.role-good .search-value,
+.search-bars .search-bar.role-bad .search-value {
+  fill: var(--text);
+  font-weight: 700;
+}
+/* Ruled-out values fade but stay readable. */
+.search-bars .search-bar.role-muted path {
+  opacity: 0.25;
+}
+.search-bars .search-bar.role-muted .search-value {
+  opacity: 0.45;
+}
+.search-bars .search-glyph {
+  fill: var(--role);
+  font-size: 15px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.search-bars .search-index {
+  fill: var(--text-3);
+  font-size: 10px;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- target line ---------- */
+
+.search-bars .search-target {
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+.search-bars .search-target-label {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+}
+
+/* ---------- pointers ---------- */
+
+.search-bars .search-pointer {
+  transition: transform 0.4s ease;
+}
+.search-bars .search-pointer text {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.search-bars .search-pointer.probe text {
+  text-anchor: middle;
+}
+.search-bars .search-pointer.high text {
+  text-anchor: end;
+}
+.search-bars .search-pointer .caret {
+  fill: var(--viz-compare);
+}
+.search-bars .search-pointer .bracket {
+  fill: none;
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+}
+
+/* ---------- interpolation guide ---------- */
+
+.search-bars .search-guide line {
+  stroke: var(--viz-active);
+  vector-effect: non-scaling-stroke;
+  transition: transform 0.4s ease;
+}
+.search-bars .search-guide .guide-line {
+  stroke-width: 2.5;
+}
+.search-bars .search-guide .guide-drop {
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.search-bars .search-guide .guide-snap {
+  stroke-width: 2.5;
+}
+.search-bars .search-guide .guide-dot {
+  fill: var(--viz-active);
+  stroke: var(--bg);
+  stroke-width: 2;
+  transition: transform 0.4s ease;
+}

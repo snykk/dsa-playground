@@ -1,0 +1,197 @@
+---
+topic: Data Structures/Linear/Stack/Linked List Based
+title: Linked List Stack
+lead: A linked-list stack keeps each item in a node that points to the node below it, and the stack is just a pointer to the top node. Push, pop and peek are O(1) in the worst case, there is no capacity limit and no resizing, at the cost of one pointer and one allocation per item.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Push
+    value: O(1)
+    hint: worst case, no copying
+  - label: Pop
+    value: O(1)
+  - label: Peek
+    value: O(1)
+  - label: Memory per item
+    value: value + pointer
+    hint: one node allocation each
+    tone: warn
+properties:
+  - { label: LIFO order, value: true }
+  - { label: Pointer-based, value: true }
+  - { label: Fixed capacity, value: false }
+  - { label: Contiguous memory, value: false }
+prerequisites:
+  - Data Structures/Linear/Linked List/Singly
+related:
+  - Data Structures/Linear/Stack/Array Based/Dynamic Size
+  - Data Structures/Linear/Stack/Array Based/Static Size
+  - Data Structures/Linear/Linked List/Singly
+  - Problem_Patterns/Monotonic Stack
+---
+
+## What it is
+
+A stack adds and removes items at one end only, the **top**, so the last item pushed is the first one popped (LIFO). Here the stack is a singly linked list used only at its head. Each node holds a value and a `next` pointer to the node pushed before it. The stack itself keeps two fields: `top`, the first node, and a `size` counter.
+
+<ListDiagram
+  values={[30, 20, 10]}
+  pointers={{ 0: 'top' }}
+  tones="pl."
+  legend={{ p: 'top node', l: 'node below it' }}
+  caption="A stack holding 10, 20 and 30, pushed in that order. `top` points at 30 and the last node points to null."
+/>
+
+Because every operation works on the head, nothing ever walks the list. That is why each one is O(1) regardless of how many items there are.
+
+<Callout title="The invariant">
+`top` is `null` exactly when the stack is empty, and otherwise `top` is the most recently pushed node. Following `next` from `top` visits the items from newest to oldest.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`push(x)`', 'allocate a node, point it at the current top, make it the new top', 'O(1)'],
+    ['`pop()`', 'return the top value, move `top` to the next node; fails when empty', 'O(1)'],
+    ['`peek()`', 'return the top value without removing it; fails when empty', 'O(1)'],
+    ['`is_empty()`, `size()`', '`top == null` and the stored counter', 'O(1)'],
+  ]}
+/>
+
+Python uses `is_empty()` and C++ uses `isEmpty()`, while Go uses `IsEmpty()`. Empty-stack behaviour:
+
+- Python raises `IndexError`.
+- C++ throws `std::underflow_error`.
+- Go returns `(int, error)` from `Pop` and `Peek`.
+
+### Push
+
+Pushing `40` onto the stack above takes three steps, and the **order matters**:
+
+<ListDiagram
+  values={[40, 30, 20, 10]}
+  pointers={{ 0: 'new', 1: 'top' }}
+  tones="pl.."
+  legend={{ p: 'the new node', l: 'the old top' }}
+  caption="Step 1: create the node. Step 2: `new.next = top`, linking it to the old top. Step 3: `top = new`."
+/>
+
+If you did step 3 before step 2, `top` would point at a node whose `next` is still null, and the old stack (30, 20, 10) would be unreachable: lost and leaked. Link first, then move `top`.
+
+### Pop
+
+Popping saves the top value, moves `top` to `top.next` and frees the old top node (explicitly with `delete` in C++, by the garbage collector in Python and Go).
+
+<ListDiagram
+  values={[30, 20, 10]}
+  pointers={{ 0: 'top (was 40)', 1: 'next' }}
+  tones="fl."
+  legend={{ f: 'the new top after the pop', l: 'the node under it' }}
+  caption="`pop()` on `40, 30, 20, 10` returns 40. `top` moves to the node holding 30, and the 40 node is unlinked."
+/>
+
+## Pseudocode
+
+```text
+push(x):
+    node = new Node(x)
+    node.next = top            # link first ...
+    top = node                 # ... then move top
+    size = size + 1
+
+pop():
+    if top == null: error "empty"
+    x = top.value
+    old = top
+    top = top.next
+    free(old)                  # C++ only; Python and Go collect it
+    size = size - 1
+    return x
+```
+
+## Implementation
+
+The C++ class owns raw `new` allocations, so it has a destructor that frees every node still on the stack, and its copy operations are deleted (a copy would share the nodes and free them twice). The node type is private to the class, so it cannot collide with another `Node`. Python and Go rely on garbage collection.
+
+<TopicCode topic="Data Structures/Linear/Stack/Linked List Based" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['push', 'O(1)', 'one allocation and two pointer writes, never a copy'],
+    ['pop, peek', 'O(1)', 'read or move `top`'],
+    ['is_empty, size', 'O(1)', 'the size is kept in a counter'],
+    ['destroy (C++)', 'O(n)', 'every remaining node is freed once'],
+    ['search for a value', 'O(n)', 'walk from the top'],
+  ]}
+/>
+
+Space is O(n): each item costs a node with the value and one pointer, plus the allocator overhead. There is no spare capacity, so memory tracks the number of items exactly, but the per-item overhead is larger than in an array.
+
+## Linked list vs array stacks
+
+<DataTable
+  columns={['Stack', { label: 'Push', kind: 'mono' }, 'Memory', 'Cache behaviour']}
+  highlight={0}
+  rows={[
+    ['Linked list', 'O(1) worst case', 'value + pointer per item, no spare room', 'nodes are scattered in memory'],
+    ['Dynamic array', 'O(1) amortized, an occasional O(n) copy', 'contiguous, with spare capacity', 'good'],
+    ['Static array', 'O(1), fails when full', 'fixed block up front', 'good'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Every push and pop is O(1) in the worst case, with no resize spikes.',
+    'No capacity to choose and no overflow other than running out of memory.',
+    'Memory grows and shrinks one node at a time.',
+    'References to other nodes stay valid across pushes.',
+  ]}
+  cons={[
+    'One pointer and one allocation per item, so more memory and slower pushes than an array in practice.',
+    'Nodes are scattered in memory, which is unfriendly to the CPU cache.',
+    'Manual memory management in C++: destructor, no naive copying.',
+    'No indexed access to items below the top.',
+  ]}
+/>
+
+## Applications
+
+- **Undo and redo:** each action is pushed, and undo pops it.
+- **Expression evaluation and parenthesis matching.**
+- **Depth-first search** with an explicit stack.
+- **Backtracking:** push each choice, pop to undo it.
+- **Stacks whose size swings widely,** where array resizing would waste time or memory.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Moving `top` before linking the new node.** Always set `node.next = top` first, or the old stack is lost.
+- **Forgetting to free nodes in C++.** Without the destructor, every node left on the stack leaks. Free the popped node in `pop()` as well.
+- **Copying a C++ stack.** A shallow copy shares nodes, and both stacks free them. The copy operations are deleted.
+- **Popping or peeking an empty stack.** Check `is_empty()` first, or handle the exception or error.
+- **Forgetting to update `size`.** Push and pop must both adjust the counter.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why push at the head of the list?">
+    Adding or removing at the head is O(1) in a singly linked list, since only `top` changes. Pushing at the tail would need a walk or a tail pointer, and popping from the tail needs the previous node.
+  </FaqItem>
+  <FaqItem question="When is a linked-list stack better than an array stack?">
+    When every operation must be constant time in the worst case, or when the size varies wildly. Otherwise the array stack is usually faster, because it is contiguous and allocates less.
+  </FaqItem>
+  <FaqItem question="Does size need a counter?">
+    The counter makes `size()` O(1). Without it you would walk the list, which is O(n).
+  </FaqItem>
+  <FaqItem question="What happens to the popped node?">
+    In C++ the code `delete`s it. In Python and Go nothing points at it any more, so the garbage collector reclaims it.
+  </FaqItem>
+</Faq>

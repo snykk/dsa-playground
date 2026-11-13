@@ -46,9 +46,9 @@ LIS is a fundamental problem in dynamic programming and binary search. A subsequ
 | **Naive Recursive** | O(2^n) | O(n) | Exponential, not practical |
 | **DP Tabulation** | O(n²) | O(n) | Standard DP approach |
 | **Binary Search** | O(n log n) | O(n) | Optimal for length only |
-| **With Sequence** | O(n²) | O(n) | Need DP to reconstruct |
+| **With Sequence** | O(n²) | O(n) | DP plus parent pointers |
 
-**Note**: Binary search approach is optimal for finding length, but DP is needed to reconstruct the actual sequence.
+**Note**: Binary search approach is optimal for finding length. `lis_binary_search` returns only the length, but the same method can also rebuild the sequence if each element remembers the index of its predecessor (the current tail one pile to its left).
 
 ---
 
@@ -73,8 +73,8 @@ LIS is a fundamental problem in dynamic programming and binary search. A subsequ
    - Returns (length, sequence)
    - Time: O(n²), Space: O(n)
 
-4. **`lis_naive_recursive(arr, prev=-1, curr=0)`**
-   - Naive recursive implementation
+4. **`lis_naive(arr)`**
+   - Naive recursive implementation (take-or-skip each element)
    - O(2^n) time complexity
    - For educational purposes only
 
@@ -87,7 +87,7 @@ from lis import (
     lis_dp,
     lis_binary_search,
     lis_with_sequence,
-    lis_naive_recursive
+    lis_naive
 )
 
 arr = [10, 9, 2, 5, 3, 7, 101, 18]
@@ -122,7 +122,7 @@ length = lis_dp(arr)  # Output: 1 (each element is LIS of length 1)
    - Subarray: contiguous (different problem)
 2. **Strictly increasing**: Usually means `arr[i] < arr[j]` (can be modified to `<=`)
 3. **Multiple LIS**: There may be multiple LIS of same length
-4. **Binary search optimization**: Only works for length, not sequence reconstruction
+4. **Binary search optimization**: `lis_binary_search` returns only the length; storing a predecessor index for each element lets the O(n log n) method reconstruct the sequence too
 5. **Patience sorting**: Binary search approach is related to patience card game
 
 ---
@@ -139,7 +139,7 @@ length = lis_dp(arr)  # Output: 1 (each element is LIS of length 1)
 ## Disadvantages
 
 1. ❌ **Quadratic time**: DP approach is O(n²) which can be slow for large n
-2. ❌ **Sequence reconstruction**: Need O(n²) DP to get actual sequence
+2. ❌ **Sequence reconstruction**: Here only the O(n²) `lis_with_sequence` returns the sequence (the O(n log n) method would need extra predecessor indices)
 3. ❌ **Memory**: O(n) space for both approaches
 
 ---
@@ -159,7 +159,7 @@ length = lis_dp(arr)  # Output: 1 (each element is LIS of length 1)
 |--------|------------|---------------|
 | **Time** | O(n²) | O(n log n) |
 | **Space** | O(n) | O(n) |
-| **Sequence** | Can reconstruct | Length only |
+| **Sequence** | Can reconstruct | Length only here (predecessor indices would recover it) |
 | **Best For** | Small-medium n, need sequence | Large n, length only |
 
 ---

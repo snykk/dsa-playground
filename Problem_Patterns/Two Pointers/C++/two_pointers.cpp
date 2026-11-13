@@ -30,14 +30,16 @@ vector<int> twoSumSorted(const vector<int>& arr, int target) {
 
 /**
  * Find all unique triplets that sum to target.
- * Time Complexity: O(n²)
+ * Time Complexity: O(n^2)
  * Space Complexity: O(1) excluding output
  */
 vector<vector<int>> threeSum(vector<int>& arr, int target) {
     sort(arr.begin(), arr.end());
     vector<vector<int>> result;
     
-    for (int i = 0; i < arr.size() - 2; i++) {
+    // i + 2 < size, not i < size - 2: size() is unsigned, so size - 2 wraps
+    // around for fewer than two values and the loop would read past the end.
+    for (int i = 0; i + 2 < (int)arr.size(); i++) {
         if (i > 0 && arr[i] == arr[i - 1]) continue;
         
         int left = i + 1, right = arr.size() - 1;

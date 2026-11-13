@@ -1,0 +1,196 @@
+---
+topic: Data Structures/Linear/Queue/Deque
+title: Deque
+lead: A deque (double-ended queue, said "deck") lets you add and remove items at both the front and the back. It works as a stack, a queue or both. The versions in this repository are array-backed, so the back is O(1) and the front is the costly end.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Push or pop at the back
+    value: O(1)
+  - label: Push at the front
+    value: O(n)
+    hint: array-backed, shifts every item
+    tone: warn
+  - label: Pop at the front
+    value: O(n)
+    hint: O(1) in Go, which reslices
+    tone: warn
+  - label: Peek either end
+    value: O(1)
+properties:
+  - { label: Array-backed, value: true }
+  - { label: Works as a stack, value: true }
+  - { label: Works as a queue, value: true }
+  - { label: O(1) at both ends, value: false }
+prerequisites:
+  - Data Structures/Linear/Queue/Simple Queue
+  - Data Structures/Linear/Array
+related:
+  - Data Structures/Linear/Queue/Circular Queue
+  - Data Structures/Linear/Linked List/Doubly
+  - Data Structures/Linear/Stack/Array Based/Dynamic Size
+  - Problem_Patterns/Monotonic Queue
+---
+
+## What a deque is
+
+A queue adds at one end and removes at the other. A stack adds and removes at the same end. A deque allows all four moves: push or pop at the front, push or pop at the back. Using only the back gives a stack, and using the back to push and the front to pop gives a queue.
+
+<ArrayDiagram
+  legend={{ f: 'front end', p: 'back end', l: 'items' }}
+  caption="A deque holding [3, 1, 2, 4]. Items enter and leave at either end."
+  rows={[
+    { label: 'deque', values: [3, 1, 2, 4], tones: 'fllp', marks: { 0: 'front', 3: 'back' } },
+  ]}
+/>
+
+The repository stores the items in a growable array: a Python `list`, a C++ `std::vector<int>` and a Go `[]int` slice. The front of the deque is index 0 and the back is the last index.
+
+<Callout title="The array makes one end expensive">
+Growable arrays are built for changes at the end. Anything at index 0 forces the other items to move, so the front operations cost O(n) in Python and C++, and `push_front` costs O(n) in Go as well.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time here', kind: 'mono' }]}
+  rows={[
+    ['`push_back(x)`', 'append at the back', 'O(1) amortized'],
+    ['`pop_back()`', 'remove and return the back item', 'O(1)'],
+    ['`push_front(x)`', 'insert at index 0, shifting the rest right', 'O(n)'],
+    ['`pop_front()`', 'remove and return index 0, shifting the rest left', 'O(n) in Python and C++, O(1) in Go'],
+    ['`peek_front()`, `peek_back()`', 'read an end without removing it', 'O(1)'],
+    ['`is_empty()`, `size()`', 'length checks', 'O(1)'],
+  ]}
+/>
+
+Python and C++ use snake_case names; Go uses `PushFront`, `PopBack` and so on. Popping or peeking an empty deque raises `IndexError` in Python, throws `std::runtime_error` in C++ and returns an error in Go. Python also has `display()`, which returns a copy of the items as a list.
+
+### Push at the front
+
+Pushing `3` to the front of `[1, 2]` must open slot 0, so every existing item moves one place to the right:
+
+<ArrayDiagram
+  legend={{ p: 'new item', l: 'item that has to move' }}
+  rows={[
+    { label: 'before', values: [1, 2], tones: 'll', marks: { 0: 'front', 1: 'back' } },
+    { label: 'shift right', values: ['', 1, 2], tones: '.ll', note: 'Each of the n existing items moves one slot: n moves.' },
+    { label: 'store', values: [3, 1, 2], tones: 'pll', marks: { 0: 'front', 2: 'back' }, note: 'The new item goes into the freed slot 0.' },
+  ]}
+/>
+
+In Go, `append([]int{item}, dq.deque...)` builds a brand new slice, which also copies all n items.
+
+### Pop at the front
+
+Python's `list.pop(0)` and C++ `vector::erase(begin())` shift every remaining item left by one. Go's `PopFront` just reslices with `dq.deque[1:]`, which moves nothing, so it is O(1). The skipped slot stays in the backing array until a later `append` reallocates it.
+
+<ArrayDiagram
+  legend={{ m: 'removed item', l: 'item that has to move' }}
+  rows={[
+    { label: 'before', values: [3, 1, 2, 4], tones: 'mlll', marks: { 0: 'front' } },
+    { label: 'Python / C++', values: [1, 2, 4], tones: 'lll', note: 'Returns 3. The three remaining items each move one slot left.' },
+    { label: 'Go', values: ['', 1, 2, 4], tones: 'mlll', marks: { 1: 'front' }, note: 'Returns 3. The slice now starts at index 1: no item moves.' },
+  ]}
+/>
+
+## Design choices
+
+The repository's array version is the simplest design. Two others give O(1) at both ends:
+
+<DataTable
+  columns={['Design', 'Both ends', 'Trade-off']}
+  highlight={0}
+  rows={[
+    ['Array (this repository)', 'back O(1), front O(n)', 'simplest and cache-friendly, but the front is slow'],
+    ['Ring buffer that grows', 'O(1) amortized', 'indices wrap around, and the array doubles when full (see Circular Queue)'],
+    ['Doubly linked list', 'O(1)', 'a node and two pointers per item, poor cache behaviour'],
+  ]}
+/>
+
+A growable ring buffer keeps `front` and `size`, pushes at the front by moving `front` back one slot with wrap-around, and copies the items in order into a bigger array when it is full. Java's `ArrayDeque` is built this way. Python's `collections.deque` and C++ `std::deque` store items in blocks instead, and both give O(1) at both ends.
+
+## Implementation
+
+All three versions share the same API. Because they wrap a plain array, they are honest about the cost: the front operations really do shift items.
+
+<TopicCode topic="Data Structures/Linear/Queue/Deque" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Array-backed', kind: 'mono' }, { label: 'Ring buffer', kind: 'mono' }, { label: 'Doubly linked', kind: 'mono' }]}
+  highlight={0}
+  rows={[
+    ['push_back', 'O(1) amortized', 'O(1) amortized', 'O(1)'],
+    ['pop_back', 'O(1)', 'O(1)', 'O(1)'],
+    ['push_front', 'O(n)', 'O(1) amortized', 'O(1)'],
+    ['pop_front', 'O(n), O(1) in Go', 'O(1)', 'O(1)'],
+    ['peek either end', 'O(1)', 'O(1)', 'O(1)'],
+    ['space', 'O(n)', 'O(n)', 'O(n) plus pointers'],
+  ]}
+/>
+
+The back is amortized because an append sometimes reallocates and copies the array, but doubling the capacity makes the average cost per append constant.
+
+## Deque vs other structures
+
+<DataTable
+  columns={['Structure', 'Add / remove', 'Use it when']}
+  rows={[
+    ['Stack', 'one end', 'last in, first out is enough'],
+    ['Simple queue', 'add at the back, remove at the front', 'first in, first out is enough'],
+    ['Circular queue', 'same as a queue, bounded', 'the size has a hard limit'],
+    ['Deque', 'both ends', 'you need both ends, such as a sliding window'],
+    ['Priority queue', 'smallest or largest first', 'order depends on a priority, not on arrival'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'One structure covers stack, queue and double-ended use.',
+    'Simple array storage is easy to read and cache-friendly.',
+    'Back operations and peeks are O(1).',
+    'A fast version is a small step away (ring buffer or the standard library).',
+  ]}
+  cons={[
+    'The array version is O(n) at the front, which defeats the idea of a deque.',
+    'No access to the middle in constant time through the API.',
+    'Linked-list versions pay memory and cache costs.',
+  ]}
+/>
+
+## Applications
+
+- **Sliding window maximum or minimum:** a deque of candidate indices drops stale items from the front and dominated ones from the back (see the Monotonic Queue article).
+- **Palindrome check:** compare the front and back item, pop both, repeat.
+- **Undo history with a limit:** push new actions at the back and drop the oldest at the front.
+- **0-1 BFS:** push zero-cost edges at the front and unit-cost edges at the back of the frontier.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming both ends are O(1).** In this repository's array versions the front is O(n). Loops that call `push_front` or `pop_front` n times cost O(n<sup>2</sup>).
+- **Popping from an empty deque.** Check `is_empty()` first, or handle the exception or error.
+- **Mixing up which end is which.** Here the front is index 0 and the back is the last index.
+- **Using a deque where a stack suffices.** If only one end is used, the simpler structure is clearer.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is a deque a queue or a stack?">
+    Both. Pushing and popping at the back behaves as a stack. Pushing at the back and popping at the front behaves as a queue.
+  </FaqItem>
+  <FaqItem question="Why is the front slow in this implementation?">
+    The items live in an array with the front at index 0. Opening or closing slot 0 moves all other items. A ring buffer avoids this by moving a `front` index instead of the items.
+  </FaqItem>
+  <FaqItem question="Should I use my own deque in real code?">
+    Rarely. Python has `collections.deque`, C++ has `std::deque`, and Go programs usually use a slice or a ring buffer. The implementations here are for learning.
+  </FaqItem>
+  <FaqItem question="Why is Go's pop_front O(1) but push_front O(n)?">
+    Dropping the first element is just `slice[1:]`, a new view of the same array. Inserting before the first element needs space that does not exist, so Go allocates a new slice and copies.
+  </FaqItem>
+</Faq>

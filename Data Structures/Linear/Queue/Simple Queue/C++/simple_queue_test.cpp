@@ -22,6 +22,17 @@ int main() {
         std::cout << "Empty queue test passed." << std::endl;
     }
 
+    try {
+        q.peek();
+        assert(false);
+    } catch (const std::runtime_error&) {
+    }
+
+    // FIFO order over many items.
+    for (int i = 0; i < 50; i++) q.enqueue(i);
+    for (int i = 0; i < 50; i++) assert(q.dequeue() == i);
+    assert(q.is_empty());
+
     std::cout << "All Simple Queue tests passed." << std::endl;
     return 0;
 }

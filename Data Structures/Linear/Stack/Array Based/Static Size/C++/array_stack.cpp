@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <stdexcept>
 using namespace std;
 
 class ArrayStack {
@@ -9,15 +10,20 @@ private:
     int topIndex;
 
 public:
-    ArrayStack(int size = 100) {
-        capacity = size;
+    explicit ArrayStack(int size = 100) : arr(nullptr), capacity(size), topIndex(-1) {
+        if (size < 1) {
+            throw invalid_argument("Capacity must be at least 1");
+        }
         arr = new int[capacity];
-        topIndex = -1;
     }
 
     ~ArrayStack() {
         delete[] arr;
     }
+
+    // The stack owns a raw array, so a copy would free it twice.
+    ArrayStack(const ArrayStack&) = delete;
+    ArrayStack& operator=(const ArrayStack&) = delete;
 
     void push(int value) {
         if (topIndex == capacity - 1) {

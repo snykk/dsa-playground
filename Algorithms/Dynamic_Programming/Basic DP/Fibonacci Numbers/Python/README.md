@@ -30,7 +30,7 @@ The naive recursive approach has exponential time complexity because it recalcul
 | **Memoization** | O(n) | O(n) | Top-down DP, stores computed values |
 | **Tabulation** | O(n) | O(n) | Bottom-up DP, fills table iteratively |
 | **Space-Optimized** | O(n) | O(1) | Only stores last two values |
-| **Matrix Exponentiation** | O(log n) | O(1) | Uses matrix power for fast computation |
+| **Matrix Exponentiation** | O(log n) | O(log n) | Uses matrix power for fast computation; the recursive power keeps O(log n) stack frames |
 
 **Note**: Matrix exponentiation is optimal for very large n (e.g., n > 10^9).
 
@@ -139,6 +139,7 @@ Fibonacci perfectly demonstrates core DP concepts:
 2. **Matrix Exponentiation**: Best for n > 10^6 or when modulo is needed
 3. **Space Optimization**: Use optimized version when space is constrained
 4. **Base Cases**: Always handle F(0) and F(1) correctly
+5. **Negative n**: every function that computes F(n) raises `ValueError` for n < 0; `fibonacci_sequence(n)` returns `[]` for n <= 0
 
 ---
 

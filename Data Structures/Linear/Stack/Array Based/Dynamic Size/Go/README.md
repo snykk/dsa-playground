@@ -1,47 +1,41 @@
-# 🚀 Go - Dynamic Array-Based Stack (Dynamic Size)
+# Dynamic Size Array Stack -- Go Implementation
 
-This folder contains a **Go implementation of a dynamic array-based stack** using slices.
+A LIFO stack of `int` backed by a slice. See the [topic README](../README.md) for the concept.
 
----
+## Files
 
-## ⚙️ Features
+| File | Contents |
+| --- | --- |
+| `main.go` | the `ArrayStack` type and a small `main` demo |
+| `main_test.go` | tests for basic behaviour, panics on an empty stack, and growth over 1000 pushes |
+| `go.mod` | module definition |
 
-- Core operations:
-  - `Push(value int)` → add element to top
-  - `Pop() int` → remove and return top element (panics if empty)
-  - `Peek() int` → view top element (panics if empty)
-  - `IsEmpty() bool` → check if stack is empty
-  - `Size() int` → get current number of elements
-- Automatic resizing handled by Go slices
+## API
 
----
+| Function | Description | Time |
+| --- | --- | --- |
+| `Push(value int)` | `append` | O(1) amortized |
+| `Pop() int` | remove and return the top; panics if empty | O(1) |
+| `Peek() int` | return the top; panics if empty | O(1) |
+| `IsEmpty()`, `Size()` | length checks | O(1) |
 
-## 📝 Example Usage
+The zero value `ArrayStack{}` is an empty stack ready to use.
 
-```go
-package main
+## Go-Specific Notes
 
-import "fmt"
+- `Pop` and `Peek` panic on an empty stack and return a single `int`, not `(int, error)`. The Static Size and Linked List Based stacks return an error instead, so check `IsEmpty()` first here.
+- `append` reallocates with a larger capacity when needed, so the cost is amortized.
+- `Pop` reslices (`s.stack[:len-1]`) and does not shrink the backing array.
 
-func main() {
-    stack := ArrayStack{}
-    stack.Push(10)
-    stack.Push(20)
-    stack.Push(30)
-
-    fmt.Println(stack.Peek())    // 30
-    fmt.Println(stack.Pop())     // 30
-    fmt.Println(stack.Pop())     // 20
-    fmt.Println(stack.IsEmpty()) // false
-    fmt.Println(stack.Pop())     // 10
-    fmt.Println(stack.IsEmpty()) // true
-}
-```
-
----
-
-## ▶️ Running Tests
+## How to Run
 
 ```bash
-go test
+cd "Data Structures/Linear/Stack/Array Based/Dynamic Size/Go"
+go test ./...
+go run main.go
 ```
+
+## Key Takeaways
+
+- A slice with `append` and reslicing is a complete stack.
+- Guard `Pop` and `Peek` with `IsEmpty()`.

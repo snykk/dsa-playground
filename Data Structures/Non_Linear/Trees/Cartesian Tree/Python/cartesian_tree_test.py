@@ -163,7 +163,52 @@ class TestCartesianTree(unittest.TestCase):
         result = empty_tree.get_min_index(0, 0)
         self.assertEqual(result, -1)
 
+    def test_min_index_matches_brute_force(self):
+        """Every range, with duplicates and negatives: leftmost minimum"""
+        import random
+        rng = random.Random(5)
+        for _ in range(60):
+            array = [rng.randint(-5, 5) for _ in range(rng.randint(1, 25))]
+            tree = CartesianTree(array)
+            for left in range(len(array)):
+                for right in range(left, len(array)):
+                    window = array[left:right + 1]
+                    expected = left + window.index(min(window))
+                    self.assertEqual(tree.get_min_index(left, right), expected)
+
+    def test_min_index_inverted_range(self):
+        tree = CartesianTree([4, 2, 6])
+        self.assertEqual(tree.get_min_index(2, 1), -1)
+
+    def test_min_index_visits_only_one_path(self):
+        """A query walks one root-to-LCA path, not the whole tree"""
+        n = 2000
+        tree = CartesianTree(list(range(n)))  # a right chain of n nodes
+        # Count steps by replaying the walk
+        steps, node = 0, tree.root
+        while node.index < 1500:
+            node = node.right
+            steps += 1
+        self.assertEqual(tree.get_min_index(1500, 1999), 1500)
+        self.assertEqual(steps, 1500)
+
+    def test_sorted_input_is_a_deep_chain(self):
+        """Regression: traversals, height and size used to hit the recursion limit"""
+        n = 5000
+        tree = CartesianTree(list(range(n)))
+        self.assertEqual(tree.inorder_traversal(), list(range(n)))
+        self.assertEqual(tree.preorder_traversal(), list(range(n)))
+        self.assertEqual(tree.postorder_traversal(), list(range(n - 1, -1, -1)))
+        self.assertEqual(tree.size(), n)
+        self.assertEqual(tree.height(), n - 1)
+
+    def test_traversal_orders(self):
+        tree = CartesianTree([3, 1, 4, 1, 5])
+        # Built tree: root 1 (index 1); left 3; right 1 (index 3) with left 4 and right 5
+        self.assertEqual(tree.preorder_traversal(), [1, 3, 1, 4, 5])
+        self.assertEqual(tree.postorder_traversal(), [3, 4, 5, 1, 1])
+        self.assertEqual(tree.inorder_traversal(), [3, 1, 4, 1, 5])
+
 
 if __name__ == '__main__':
     unittest.main()
-

@@ -17,9 +17,14 @@ def coin_change_min_coins(coins, amount):
     Returns:
         Minimum number of coins, or -1 if impossible
         
-    Time Complexity: O(n × amount)
+    Raises:
+        ValueError: if amount is negative
+
+    Time Complexity: O(n * amount)
     Space Complexity: O(amount)
     """
+    if amount < 0:
+        raise ValueError("amount must be non-negative")
     if amount == 0:
         return 0
     
@@ -44,9 +49,14 @@ def coin_change_ways(coins, amount):
     Returns:
         Number of ways
         
-    Time Complexity: O(n × amount)
+    Raises:
+        ValueError: if amount is negative
+
+    Time Complexity: O(n * amount)
     Space Complexity: O(amount)
     """
+    if amount < 0:
+        raise ValueError("amount must be non-negative")
     dp = [0] * (amount + 1)
     dp[0] = 1
     
@@ -66,11 +76,16 @@ def coin_change_01(coins, amount):
         amount: Target amount
         
     Returns:
-        Minimum number of coins
+        Minimum number of coins, or -1 if impossible
         
-    Time Complexity: O(n × amount)
+    Raises:
+        ValueError: if amount is negative
+
+    Time Complexity: O(n * amount)
     Space Complexity: O(amount)
     """
+    if amount < 0:
+        raise ValueError("amount must be non-negative")
     dp = [float('inf')] * (amount + 1)
     dp[0] = 0
     

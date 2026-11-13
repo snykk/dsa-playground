@@ -33,7 +33,7 @@ public:
         add_vertex(from_vertex);
         add_vertex(to_vertex);
 
-        remove_edge(from_vertex, to_vertex);
+        remove_one_way(from_vertex, to_vertex);
 
         if (weighted) {
             adjacency_list_weighted[from_vertex].push_back({to_vertex, weight});
@@ -46,7 +46,7 @@ public:
         }
 
         if (!directed) {
-            remove_edge(to_vertex, from_vertex);
+            remove_one_way(to_vertex, from_vertex);
             if (weighted) {
                 adjacency_list_weighted[to_vertex].push_back({from_vertex, weight});
             } else {
@@ -59,7 +59,8 @@ public:
         }
     }
 
-    void remove_edge(int from_vertex, int to_vertex) {
+private:
+    void remove_one_way(int from_vertex, int to_vertex) {
         if (weighted) {
             if (adjacency_list_weighted.find(from_vertex) != adjacency_list_weighted.end()) {
                 adjacency_list_weighted[from_vertex].erase(
@@ -77,6 +78,15 @@ public:
                     adjacency_list_unweighted[from_vertex].end()
                 );
             }
+        }
+    }
+
+public:
+    // Removes from -> to and, on an undirected graph, to -> from as well.
+    void remove_edge(int from_vertex, int to_vertex) {
+        remove_one_way(from_vertex, to_vertex);
+        if (!directed) {
+            remove_one_way(to_vertex, from_vertex);
         }
     }
 

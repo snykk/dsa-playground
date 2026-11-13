@@ -2,9 +2,9 @@
 //
 // Internals:
 //
-//	keyToEntry : map[int]*entry          — O(1) key lookup
-//	freqLists  : map[int]*list.List      — per-frequency DLL, MRU at front
-//	minFreq    : int                     — smallest non-empty freq
+//	keyToEntry : map[int]*entry          - O(1) key lookup
+//	freqLists  : map[int]*list.List      - per-frequency DLL, MRU at front
+//	minFreq    : int                     - smallest non-empty freq
 package main
 
 import (

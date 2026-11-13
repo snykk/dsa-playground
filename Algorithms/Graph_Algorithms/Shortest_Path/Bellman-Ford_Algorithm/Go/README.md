@@ -9,7 +9,7 @@
 Bellman-Ford implementation in Go using:
 - Edge list representation
 - `map[int]int` for distances
-- `math.MaxInt32` for infinity
+- `math.MaxInt` for infinity
 
 ---
 
@@ -28,6 +28,7 @@ Bellman-Ford implementation in Go using:
 1. **`BellmanFord(edges, numVertices, start)`**
    - Finds shortest distances from start to all vertices
    - Returns `map[int]int` or nil if negative cycle exists
+   - Panics if an edge endpoint is outside `0..numVertices-1`
    - Time: O(V * E), Space: O(V)
 
 ---

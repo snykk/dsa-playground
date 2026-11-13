@@ -11,9 +11,9 @@ class TestMultiDimensionalArray(unittest.TestCase):
         ]
 
     def test_shape(self):
-        self.assertEqual(len(self.matrix), 3)          # jumlah baris
+        self.assertEqual(len(self.matrix), 3)          # number of rows
         for row in self.matrix:
-            self.assertEqual(len(row), 3)             # jumlah kolom per baris
+            self.assertEqual(len(row), 3)             # number of columns per baris
 
     def test_element_access(self):
         self.assertEqual(self.matrix[0][0], 1)

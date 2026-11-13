@@ -13,17 +13,21 @@ int interpolationSearch(const std::vector<T>& arr, const T& target) {
     int right = static_cast<int>(arr.size()) - 1;
     
     while (left <= right && arr[left] <= target && target <= arr[right]) {
-        // If search space has only one element
-        if (left == right) {
+        // If search space has only one element, or all of its values are equal
+        // (a run of duplicates): there is nothing to interpolate, and the
+        // formula below would divide by zero (arr[right] - arr[left] == 0)
+        if (left == right || arr[left] == arr[right]) {
             if (arr[left] == target) {
                 return left;
             }
             return -1;
         }
-        
-        // Calculate position using interpolation formula
-        int pos = left + static_cast<int>(((target - arr[left]) * 
-            static_cast<double>(right - left)) / (arr[right] - arr[left]));
+
+        // Calculate position using interpolation formula. The differences are
+        // taken in double because in T they can overflow (INT_MAX - INT_MIN)
+        double num = static_cast<double>(target) - static_cast<double>(arr[left]);
+        double den = static_cast<double>(arr[right]) - static_cast<double>(arr[left]);
+        int pos = left + static_cast<int>(num * (right - left) / den);
         
         // Check if target is at calculated position
         if (arr[pos] == target) {
@@ -52,17 +56,21 @@ int interpolationSearchRecursive(const std::vector<T>& arr, const T& target,
         return -1;
     }
     
-    // If search space has only one element
-    if (left == right) {
+    // If search space has only one element, or all of its values are equal
+    // (a run of duplicates): there is nothing to interpolate, and the
+    // formula below would divide by zero (arr[right] - arr[left] == 0)
+    if (left == right || arr[left] == arr[right]) {
         if (arr[left] == target) {
             return left;
         }
         return -1;
     }
-    
-    // Calculate position using interpolation formula
-    int pos = left + static_cast<int>(((target - arr[left]) * 
-        static_cast<double>(right - left)) / (arr[right] - arr[left]));
+
+    // Calculate position using interpolation formula. The differences are
+    // taken in double because in T they can overflow (INT_MAX - INT_MIN)
+    double num = static_cast<double>(target) - static_cast<double>(arr[left]);
+    double den = static_cast<double>(arr[right]) - static_cast<double>(arr[left]);
+    int pos = left + static_cast<int>(num * (right - left) / den);
     
     // Check if target is at calculated position
     if (arr[pos] == target) {

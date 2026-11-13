@@ -35,6 +35,14 @@ def _split(node: Optional[_Node], key: int) -> Tuple[Optional[_Node], Optional[_
         return left, node
 
 
+def _drop_min(node: _Node) -> Optional[_Node]:
+    """Remove the smallest key of a non-empty treap and return the new root."""
+    if node.left is None:
+        return node.right
+    node.left = _drop_min(node.left)
+    return node
+
+
 def _merge(a: Optional[_Node], b: Optional[_Node]) -> Optional[_Node]:
     """Merge two treaps with a.keys < b.keys into one."""
     if a is None:
@@ -81,9 +89,11 @@ class Treap:
         """Delete key; return True if present and removed."""
         if key not in self:
             return False
+        # `rest` holds the keys >= key, and key is present, so key is its minimum.
+        # Dropping the minimum avoids computing key + 1 (overflow-prone, and
+        # meaningless for non-integer keys).
         left, rest = _split(self._root, key)
-        _, right = _split(rest, key + 1)  # extract exactly {key}
-        self._root = _merge(left, right)
+        self._root = _merge(left, _drop_min(rest))
         self._size -= 1
         return True
 

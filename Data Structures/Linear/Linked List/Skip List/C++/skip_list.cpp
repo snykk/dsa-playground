@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <cstdlib>
-#include <ctime>
+#include <random>
 using namespace std;
 
 struct Node {
@@ -15,20 +14,26 @@ class SkipList {
     float p;
     int level;
     Node* header;
+    mt19937 rng;  // per-instance generator: does not touch the global rand() state
 
     int randomLevel() {
+        bernoulli_distribution coin(p);
         int lvl = 0;
-        while ((float)rand() / RAND_MAX < p && lvl < max_level)
+        while (lvl < max_level && coin(rng))
             lvl++;
         return lvl;
     }
 
 public:
     SkipList(int max_level = 16, float p = 0.5)
-        : max_level(max_level), p(p), level(0) {
+        : max_level(max_level), p(p), level(0), rng(random_device{}()) {
+        // The header key is a placeholder: it is never compared with a real key.
         header = new Node(-1, max_level);
-        srand(time(nullptr));
     }
+
+    // The destructor frees the nodes, so a shallow copy would free them twice.
+    SkipList(const SkipList&) = delete;
+    SkipList& operator=(const SkipList&) = delete;
 
     ~SkipList() {
         Node* current = header;

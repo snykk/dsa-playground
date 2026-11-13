@@ -107,9 +107,9 @@ print(ways)  # Output: 11 (multiple combinations)
 
 # 0/1 variant (each coin once)
 min_coins_01 = coin_change_01(coins, amount)
-print(min_coins_01)  # Output: 3 (5 + 2 + 1 + 1 + 1 + 1, but only one of each)
+print(min_coins_01)  # Output: -1 (one of each coin reaches at most 1 + 2 + 5 = 8)
 
-# Impossible case
+# Greedy fails here (4 first leaves 2), but DP finds 3 + 3
 coins = [3, 4]
 amount = 6
 min_coins = coin_change_min_coins(coins, amount)
@@ -126,9 +126,10 @@ print(min_coins_01)  # Output: -1 (impossible with one of each)
 
 1. **Greedy doesn't work**: For minimum coins, greedy may not give optimal (e.g., coins=[3, 4], amount=6)
 2. **Unbounded vs 0/1**: Unbounded allows multiple uses, 0/1 allows at most one use
-3. **Order matters for ways**: Different orders count as same way in standard problem
+3. **Order does not matter for ways**: `coin_change_ways` counts combinations (1+2 and 2+1 are one way) because the outer loop runs over coins
 4. **Impossible cases**: Return -1 when amount cannot be made
 5. **Base cases**: dp[0] = 0 for min coins, dp[0] = 1 for ways
+6. **Negative amount**: all three functions raise `ValueError`
 
 ---
 

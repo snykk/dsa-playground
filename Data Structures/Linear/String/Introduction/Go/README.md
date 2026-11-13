@@ -1,53 +1,38 @@
-# String Introduction — Go Implementation
-
-This folder covers the **fundamental operations** on strings in Go: indexing, length, traversal, concatenation, and substring. Go's strings are immutable byte sequences — and the distinction between `byte` and `rune` is where most beginner bugs live.
-
-For the conceptual overview and cross-language comparison, see the parent README: [../README.md](../README.md)
-
----
+# Introduction to Strings -- Go Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | Reference implementations of the five core operations |
-| `main_test.go` | Table-driven tests |
-| `go.mod` | Module definition |
+| File | Contents |
+| --- | --- |
+| `main.go` | package `intro` with the five string functions |
+| `main_test.go` | tests in package `intro` |
+| `go.mod` | module `introduction` |
 
----
+## API
 
-## Operations Covered
-
-| Operation | Complexity | Caveat |
-|-----------|------------|--------|
-| `AccessChar(s, i)` | O(1) | Returns a **byte**, not a rune — see below |
-| `StringLength(s)` | O(1) | `len(s)` returns byte count, not rune count |
-| `TraverseString(s)` | O(n) | `for i, r := range s` decodes UTF-8 into runes |
-| `Concatenate(s1, s2)` | O(n + m) | Always allocates; use `strings.Builder` in loops |
-| `Substring(s, l, r)` | O(1) | Slicing **shares** the backing array — no copy |
-
----
+- `AccessChar(s string, index int) byte`: `s[index]`; panics out of range. O(1).
+- `StringLength(s string) int`: `len(s)`, in bytes. O(1).
+- `TraverseString(s string) []rune`: the code points of `s`. O(n).
+- `Concatenate(s1, s2 string) string`. O(n + m).
+- `Substring(s string, start, end int) string`: bytes `s[start:end]`, with both ends clamped to `[0, len(s)]`; an empty range gives `""`. O(1), no copy.
 
 ## Go-Specific Notes
 
-- **Strings are immutable `[]byte` with a length.** Slicing (`s[i:j]`) is O(1) and aliases the same memory; appending (`s += t`) always allocates.
-- **`byte` vs `rune`**: `s[i]` returns a `byte` (uint8). Ranging with `for i, r := range s` returns runes (int32) and correctly steps over multi-byte UTF-8 sequences. Mixing these up is the #1 string bug in Go.
-- **`strings.Builder` is the idiomatic string-builder.** Linear concatenation (`s += x` in a loop) is O(n²); `strings.Builder` is O(n). It's in the stdlib and zero-allocation after initial sizing.
-- **No null-termination.** Go strings carry their length explicitly — you can safely embed `\0` bytes.
-- **Substring aliasing gotcha:** if you take a small substring from a huge string, the original string's memory stays alive as long as the substring lives. Clone with `string([]byte(sub))` if you need to release the big buffer.
-
----
+- A Go string is an immutable byte sequence, usually UTF-8. `len(s)` and `s[i]` work on bytes; `[]rune(s)` or `for range` decode code points.
+- `Substring`, `AccessChar` and `StringLength` use bytes; `TraverseString` returns runes. For ASCII the two agree; for other text a byte cut can split a character, and `len(TraverseString(s))` differs from `StringLength(s)`.
+- Slicing shares the original bytes, so a small substring of a huge string keeps the huge string alive.
+- Build long strings with `strings.Builder`, not `+=` in a loop.
+- The tests are sequential tests with a small table for the bounds cases.
 
 ## How to Run
 
 ```bash
-go test -v ./...
+cd "Data Structures/Linear/String/Introduction/Go"
+go test ./...
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **`len(s)` is byte count, not character count.** For rune count, use `utf8.RuneCountInString(s)`. This matters for any UTF-8 input (emojis, accented letters, non-ASCII scripts).
-2. **Range gives you runes for free.** `for _, r := range s` is the right way to iterate Unicode text. Indexing with `s[i]` is the right way to iterate _bytes_.
-3. **Use `strings.Builder` for concatenation in loops.** It's the canonical solution to the O(n²) string-growth trap — mandatory reading.
+- Strings are bytes; runes are an explicit decoding step.
+- Clamp ranges before slicing to avoid a panic.
+- Slices of strings are O(1) and share memory.

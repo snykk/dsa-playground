@@ -6,16 +6,42 @@ import (
 )
 
 // RopeNode represents a node in the rope binary tree.
-// Leaf nodes store a string fragment in Data.
+// Leaf nodes store a non-empty string fragment in Data (height 0).
 // Internal nodes store Weight (total length of the left subtree).
+// Every node caches its total length and its height, so neither is
+// recomputed by walking the tree.
 type RopeNode struct {
 	Left   *RopeNode
 	Right  *RopeNode
 	Weight int
 	Data   string
+	length int
+	height int
+}
+
+func newLeaf(data string) *RopeNode {
+	return &RopeNode{Data: data, Weight: len(data), length: len(data)}
+}
+
+// newInternal makes an internal node over two non-nil subtrees.
+func newInternal(left, right *RopeNode) *RopeNode {
+	h := left.height
+	if right.height > h {
+		h = right.height
+	}
+	return &RopeNode{
+		Left:   left,
+		Right:  right,
+		Weight: left.length,
+		length: left.length + right.length,
+		height: h + 1,
+	}
 }
 
 // Rope wraps a rope tree root for efficient string manipulation.
+// Concat and Split rebalance the tree, so its height stays O(log n).
+// Positions are byte offsets, so a Split inside a multi-byte character
+// produces two invalid UTF-8 halves.
 type Rope struct {
 	Root *RopeNode
 }
@@ -30,26 +56,29 @@ func NewRope(text string) *Rope {
 
 func buildNode(text string, leafSize int) *RopeNode {
 	if len(text) <= leafSize {
-		return &RopeNode{Data: text, Weight: len(text)}
+		return newLeaf(text)
 	}
 	mid := len(text) / 2
-	left := buildNode(text[:mid], leafSize)
-	right := buildNode(text[mid:], leafSize)
-	return &RopeNode{
-		Left:   left,
-		Right:  right,
-		Weight: nodeLength(left),
-	}
+	return newInternal(buildNode(text[:mid], leafSize), buildNode(text[mid:], leafSize))
 }
 
 func nodeLength(node *RopeNode) int {
 	if node == nil {
 		return 0
 	}
-	if node.Data != "" {
-		return len(node.Data)
+	return node.length
+}
+
+func nodeHeight(node *RopeNode) int {
+	if node == nil {
+		return -1
 	}
-	return node.Weight + nodeLength(node.Right)
+	return node.height
+}
+
+// Height returns the height of the tree: 0 for a single leaf, -1 for an empty rope.
+func (r *Rope) Height() int {
+	return nodeHeight(r.Root)
 }
 
 // Len returns the total length of the string stored in the rope.
@@ -97,23 +126,58 @@ func collectNode(node *RopeNode, sb *strings.Builder) {
 	collectNode(node.Right, sb)
 }
 
-func concatNodes(left, right *RopeNode) *RopeNode {
+// joinNodes concatenates two subtrees, keeping the heights of siblings within 1
+// (AVL join): O(|height(left) - height(right)| + 1).
+func joinNodes(left, right *RopeNode) *RopeNode {
 	if left == nil {
 		return right
 	}
 	if right == nil {
 		return left
 	}
-	return &RopeNode{
-		Left:   left,
-		Right:  right,
-		Weight: nodeLength(left),
+	if left.height > right.height+1 {
+		return joinRight(left, right)
 	}
+	if right.height > left.height+1 {
+		return joinLeft(left, right)
+	}
+	return newInternal(left, right)
+}
+
+// joinRight: left is taller, so attach right somewhere down left's right spine.
+func joinRight(left, right *RopeNode) *RopeNode {
+	joined := joinNodes(left.Right, right)
+	if joined.height <= left.Left.height+1 {
+		return newInternal(left.Left, joined)
+	}
+	// joined is two levels taller than left.Left: rotate it up
+	if joined.Left.height <= joined.Right.height {
+		return newInternal(newInternal(left.Left, joined.Left), joined.Right)
+	}
+	return newInternal(
+		newInternal(left.Left, joined.Left.Left),
+		newInternal(joined.Left.Right, joined.Right),
+	)
+}
+
+// joinLeft: right is taller, so attach left somewhere down right's left spine.
+func joinLeft(left, right *RopeNode) *RopeNode {
+	joined := joinNodes(left, right.Left)
+	if joined.height <= right.Right.height+1 {
+		return newInternal(joined, right.Right)
+	}
+	if joined.Right.height <= joined.Left.height {
+		return newInternal(joined.Left, newInternal(joined.Right, right.Right))
+	}
+	return newInternal(
+		newInternal(joined.Left, joined.Right.Left),
+		newInternal(joined.Right.Right, right.Right),
+	)
 }
 
 // Concat concatenates this rope with another, returning a new Rope.
 func (r *Rope) Concat(other *Rope) *Rope {
-	return &Rope{Root: concatNodes(r.Root, other.Root)}
+	return &Rope{Root: joinNodes(r.Root, other.Root)}
 }
 
 func splitNode(node *RopeNode, i int) (*RopeNode, *RopeNode) {
@@ -128,29 +192,17 @@ func splitNode(node *RopeNode, i int) (*RopeNode, *RopeNode) {
 		if i >= len(node.Data) {
 			return node, nil
 		}
-		leftLeaf := &RopeNode{Data: node.Data[:i], Weight: i}
-		rightLeaf := &RopeNode{Data: node.Data[i:], Weight: len(node.Data) - i}
-		return leftLeaf, rightLeaf
+		return newLeaf(node.Data[:i]), newLeaf(node.Data[i:])
 	}
 
 	if i < node.Weight {
 		lp, rp := splitNode(node.Left, i)
-		newRight := &RopeNode{
-			Left:   rp,
-			Right:  node.Right,
-			Weight: nodeLength(rp),
-		}
-		return lp, newRight
+		return lp, joinNodes(rp, node.Right)
 	}
 
 	if i > node.Weight {
 		lp, rp := splitNode(node.Right, i-node.Weight)
-		newLeft := &RopeNode{
-			Left:   node.Left,
-			Right:  lp,
-			Weight: node.Weight,
-		}
-		return newLeft, rp
+		return joinNodes(node.Left, lp), rp
 	}
 
 	// i == node.Weight

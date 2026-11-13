@@ -1,54 +1,41 @@
-# Hash Table (Go)
+# Hash Table -- Go Implementation
 
-A **Hash Table** is a data structure that implements an associative array, mapping keys to values using a hash function.
+A chaining hash table over `interface{}` keys, with a doubling resize. See the [topic README](../README.md).
 
----
+## Files
 
-## Operations
+- `main.go`: `HashTable` and `KeyValue`.
+- `main_test.go`: plain unit tests, including a chain longer than one, resize, negative keys and other key types.
+- `go.mod`: module file.
 
-### 1. Put
+## API
 
-```go
-table := NewHashTable(16)
-table.Put("apple", 5)
-table.Put("banana", 10)
-```
+| Function | Description | Time |
+|----------|-------------|------|
+| `NewHashTable(capacity)` | capacity 0 or less becomes 16 | O(capacity) |
+| `Put(key, value)` | insert or update; resize at load > 0.75 | O(1) amortized |
+| `Get(key) (value, found)` | lookup | O(1) average |
+| `Remove(key) bool` | true if removed | O(1) average |
+| `Contains(key) bool` | presence | O(1) average |
+| `Size()`, `IsEmpty()`, `Clear()` | bookkeeping | O(1) |
 
-**Time Complexity**: O(1) average
+No iteration.
 
-### 2. Get
+## Go-Specific Notes
 
-```go
-value, found := table.Get("apple")
-if found {
-    fmt.Println(value)
-}
-```
+- Ints hash as `key mod capacity`, folded into `[0, capacity)` for negative keys. Strings use `h*31 + c`. Any other key type is hashed through `fmt.Sprintf("%T:%v")`, so `int64(7)` and `int(7)` are different keys.
+- Keys are compared with `==`: a non-comparable key (a slice) panics at runtime.
+- `Remove` shifts the bucket slice with `append`; pairs are stored by value, not by pointer.
+- In real code use the built-in `map`.
 
-**Time Complexity**: O(1) average
-
-### 3. Remove
-
-```go
-removed := table.Remove("apple")
-```
-
-**Time Complexity**: O(1) average
-
----
-
-## Testing
-
-Run the test suite:
+## How to Run
 
 ```bash
-go test
+go test ./...
 ```
 
----
+## Key Takeaways
 
-## Related Data Structures
-
-- **Hash Map**: Similar structure with additional features
-- **Hash Set**: Stores only keys
-
+- A negative remainder needs folding back into range.
+- `interface{}` keys need a hash for every type, not just int and string.
+- Resizing re-puts every pair, which costs O(n) but is rare.

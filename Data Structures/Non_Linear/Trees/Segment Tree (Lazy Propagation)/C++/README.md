@@ -1,38 +1,39 @@
-# Segment Tree with Lazy Propagation (C++)
+# Segment Tree (Lazy Propagation) -- C++ Implementation
 
-C++ implementation of a segment tree supporting efficient range updates and range queries.
+A recursive segment tree with lazy tags: range add and range sum. See the [topic README](../README.md) for the idea and a trace.
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `segment_tree_lazy.cpp` | Main implementation |
-| `segment_tree_lazy_test.cpp` | Test cases |
+| File | Contents |
+| ---- | -------- |
+| `segment_tree_lazy.cpp` | `LazySegmentTree` (included directly by the tests) |
+| `segment_tree_lazy_test.cpp` | unit tests and a randomized test against brute force |
+
+## API
+
+| Call | Result |
+| ---- | ------ |
+| `LazySegmentTree(const vector<int>& arr)` | builds the tree in O(n); accepts temporaries |
+| `void updateRange(int left, int right, long long val)` | adds `val` to every element of `left..right` (inclusive) |
+| `long long query(int left, int right)` | sum of elements `left..right` (inclusive) |
+
+There is no index validation: a range partly outside the array is clipped, and a range outside does nothing.
+
+## C++-Specific Notes
+
+- Sums, tags and updates are `long long`, so `val * length` does not overflow for ordinary inputs.
+- Storage is two `vector<long long>` of length `4n`; no raw pointers, so copying is safe.
+- The private recursive helpers share names with the public methods; the public ones start the recursion at node 1.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -o test segment_tree_lazy_test.cpp
-./test
+cd "Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD segment_tree_lazy_test.cpp -o segment_tree_lazy_test && ./segment_tree_lazy_test
 ```
 
-## Key Methods
+## Key Takeaways
 
-| Method | Description | Time |
-|--------|-------------|------|
-| `LazySegmentTree(arr)` | Build segment tree from vector | O(n) |
-| `query(left, right)` | Range sum query with lazy propagation | O(log n) |
-| `updateRange(left, right, val)` | Add val to all elements in [left, right] | O(log n) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Build | O(n) |
-| Range Query | O(log n) |
-| Range Update | O(log n) |
-| Space | O(n) |
-
----
-
-_Last Updated: April 2026_
+- Tags rest only on fully covered nodes.
+- Push down before recursing into a partial node.
+- Use 64-bit arithmetic for `value * length`.

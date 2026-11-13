@@ -24,8 +24,9 @@ def fractional_knapsack(items, capacity):
     if not items or capacity <= 0:
         return 0, []
     
-    # Calculate value/weight ratio and sort by ratio (descending)
-    items_with_ratio = [(v, w, v/w) for v, w in items]
+    # Calculate value/weight ratio and sort by ratio (descending).
+    # A zero-weight item uses no capacity: its ratio is infinite, so it is taken first.
+    items_with_ratio = [(v, w, v / w if w else float('inf')) for v, w in items]
     items_with_ratio.sort(key=lambda x: x[2], reverse=True)
     
     total_value = 0
@@ -65,8 +66,8 @@ def fractional_knapsack_value_only(items, capacity):
     if not items or capacity <= 0:
         return 0
     
-    # Sort by value/weight ratio
-    items_with_ratio = [(v, w, v/w) for v, w in items]
+    # Sort by value/weight ratio (a zero-weight item is free: infinite ratio)
+    items_with_ratio = [(v, w, v / w if w else float('inf')) for v, w in items]
     items_with_ratio.sort(key=lambda x: x[2], reverse=True)
     
     total_value = 0
@@ -77,7 +78,7 @@ def fractional_knapsack_value_only(items, capacity):
             break
         
         take = min(weight, remaining)
-        total_value += value * (take / weight)
+        total_value += value * (take / weight) if weight else value
         remaining -= take
     
     return total_value

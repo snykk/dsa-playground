@@ -1,0 +1,73 @@
+name: Pages
+
+# Builds the visualizer site from web/ (it renders the repository READMEs and
+# source files, so most content changes trigger a rebuild) and deploys it to
+# GitHub Pages at https://snykk.github.io/dsa-playground/.
+#
+# One-time setup once the repository is public:
+#   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+# While the repository is private the deploy job is skipped (Pages for private
+# repositories needs a paid plan), so pushes do not fail.
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "web/**"
+      - "**/*.md"
+      - "**/*.py"
+      - "**/*.cpp"
+      - "**/*.h"
+      - "**/*.go"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

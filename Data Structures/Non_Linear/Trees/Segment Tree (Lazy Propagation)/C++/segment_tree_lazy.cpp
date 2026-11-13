@@ -58,8 +58,8 @@ class LazySegmentTree {
     }
 
 public:
-    LazySegmentTree(vector<int>& arr) {
-        n = arr.size();
+    LazySegmentTree(const vector<int>& arr) {
+        n = (int)arr.size();
         tree.resize(4 * n, 0);
         lazy.resize(4 * n, 0);
         if (n > 0) {

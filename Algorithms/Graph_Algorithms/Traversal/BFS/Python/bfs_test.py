@@ -2,6 +2,7 @@
 Test suite for BFS implementation
 """
 
+import time
 import unittest
 from bfs import (
     bfs_adjacency_list,
@@ -192,6 +193,32 @@ class TestBFS(unittest.TestCase):
         """Test path finding when target not in graph."""
         path = bfs_with_path(self.graph1, 1, 99)
         self.assertIsNone(path)
+
+    def test_bfs_with_path_neighbor_only_target(self):
+        """A target that only appears in neighbor lists (no key) is still reachable."""
+        self.assertEqual(bfs_with_path({0: [1]}, 0, 1), [0, 1])
+        self.assertEqual(bfs_with_path({0: [1], 1: [2]}, 0, 2), [0, 1, 2])
+        # Agrees with the other BFS functions on the same graph
+        self.assertIn(1, bfs_shortest_distance({0: [1]}, 0))
+
+    def test_bfs_with_path_long_path_linear_time(self):
+        """No path copy per enqueue: a 50000-vertex path takes well under a second."""
+        n = 50000
+        graph = {i: [i + 1] for i in range(n - 1)}
+        graph[n - 1] = []
+        started = time.perf_counter()
+        path = bfs_with_path(graph, 0, n - 1)
+        elapsed = time.perf_counter() - started
+        self.assertEqual(path, list(range(n)))
+        # The old path-copying version needed several seconds here (O(V^2)).
+        self.assertLess(elapsed, 1.0)
+
+    def test_bfs_connected_components_directed_no_overlap(self):
+        """One shared visited set: no vertex is reported in two components."""
+        components = bfs_connected_components({0: [1], 1: [], 2: [1]})
+        self.assertEqual(components, [[0, 1], [2]])
+        flat = [v for component in components for v in component]
+        self.assertEqual(len(flat), len(set(flat)))
 
 
 if __name__ == '__main__':

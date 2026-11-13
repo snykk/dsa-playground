@@ -1,0 +1,267 @@
+---
+topic: Data Structures/Non_Linear/Trees/AVL Tree
+title: AVL Tree
+lead: An AVL tree is a binary search tree that rebalances itself with rotations after every insert and delete, so the two subtrees of any node differ in height by at most 1. That keeps the height near log n and makes search, insert and delete O(log n) in the worst case.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Search
+    value: O(log n)
+    hint: worst case, not just average
+  - label: Insert
+    value: O(log n)
+    hint: at most one single or double rotation
+  - label: Delete
+    value: O(log n)
+    hint: may rotate on every level up
+    tone: warn
+  - label: Height
+    value: "< 1.44 log2(n+2)"
+  - label: Extra space
+    value: O(1) per node
+    hint: one stored height
+properties:
+  - { label: Self-balancing, value: true }
+  - { label: Duplicates allowed, value: false }
+  - { label: Sorted iteration, value: true }
+prerequisites:
+  - Data Structures/Non_Linear/Trees/Binary Search Tree
+related:
+  - Data Structures/Non_Linear/Trees/Red-Black Tree
+  - Data Structures/Non_Linear/Trees/Treap
+  - Data Structures/Non_Linear/Trees/Splay Tree
+  - Data Structures/Non_Linear/Trees/B-Tree
+---
+
+## What an AVL tree is
+
+An AVL tree is a binary search tree with one extra rule, the **AVL property**: for every node, the heights of its left and right subtrees differ by at most 1. The difference `height(left) - height(right)` is the node's **balance factor**, and it must be -1, 0 or +1.
+
+Each node stores its own height (a leaf has height 1 in this repository, an empty subtree 0), so the balance factor costs two lookups. Whenever an insert or delete pushes some balance factor to +2 or -2, a **rotation** restores the property without breaking the search order.
+
+<TreeDiagram
+  levelOrder={[30, 20, 40, 10, 25, null, 50]}
+  badges={['h3', 'h2', 'h2', 'h1', 'h1', null, 'h1']}
+  tones="r.l...."
+  legend={{ r: 'root of the tree', l: 'node 40: balance factor -1, still legal' }}
+  caption="An AVL tree. Badges show the stored height. Node 40 has no left child (height 0) and a right child of height 1, so its balance factor is -1."
+/>
+
+<Callout title="Why balanced means logarithmic">
+Let N(h) be the fewest nodes an AVL tree of height h can have. The sparsest tree has one subtree of height h - 1 and the other of height h - 2, so N(h) = N(h - 1) + N(h - 2) + 1. That is a Fibonacci-style recurrence (N = 1, 2, 4, 7, 12, 20, ...) which grows exponentially, so n nodes force a height of at most about 1.44 log<sub>2</sub>(n + 2). A plain BST has no such bound: sorted input turns it into a chain of height n.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`search(x)`', 'walk down from the root, left or right by comparison', 'O(log n)'],
+    ['`insert(x)`', 'BST insert, then update heights and rebalance on the way back up', 'O(log n)'],
+    ['`delete(x)`', 'BST delete (successor for two children), then rebalance up to the root', 'O(log n)'],
+    ['`find_min()`, `find_max()`', 'follow left (or right) links', 'O(log n)'],
+    ['`inorder_traversal()`', 'visit in sorted order', 'O(n)'],
+    ['`height()`, `is_empty()`', 'read the stored height of the root', 'O(1)'],
+    ['`size()`, `is_balanced()`', 'visit every node', 'O(n)'],
+  ]}
+/>
+
+Inserting a key that is already present changes nothing. Deleting a missing key changes nothing either.
+
+## Rotations
+
+A rotation is a local change of three links that lifts one node above its parent. Take the right rotation at `z`, whose left child is `y`. The subtree `T2` between them moves from `y` to `z`, which is safe because every key in `T2` is greater than `y` and smaller than `z`.
+
+<TreeDiagram
+  root={{ label: 'z', badge: 'bf +2', tone: 'p', children: [
+    { label: 'y', tone: 'l', children: [ { label: 'x', children: [ { label: 'T0', tone: 'm' }, { label: 'T1', tone: 'm' } ] }, { label: 'T2', tone: 'r' } ] },
+    { label: 'T3', tone: 'm' }
+  ] }}
+  legend={{ p: 'unbalanced node z', l: 'its left child y', r: 'T2, the subtree that changes parent', m: 'untouched subtrees' }}
+  caption="Before: z is two levels heavier on the left."
+/>
+
+<TreeDiagram
+  root={{ label: 'y', tone: 'f', children: [
+    { label: 'x', children: [ { label: 'T0', tone: 'm' }, { label: 'T1', tone: 'm' } ] },
+    { label: 'z', tone: 'p', children: [ { label: 'T2', tone: 'r' }, { label: 'T3', tone: 'm' } ] }
+  ] }}
+  legend={{ f: 'new root of the subtree', p: 'z, now the right child', r: 'T2, now the left child of z', m: 'untouched subtrees' }}
+  caption="After a right rotation at z: y is on top, T2 has moved from y to z, and the order T0 x T1 y T2 z T3 is unchanged."
+/>
+
+After the insert or delete, the first node on the way back up with balance factor +2 or -2 falls into one of four cases:
+
+<DataTable
+  columns={['Case', 'Condition', 'Fix']}
+  rows={[
+    ['Left-Left', 'bf(node) > 1 and the left child leans left or is even (bf >= 0)', 'rotate right at the node'],
+    ['Right-Right', 'bf(node) < -1 and the right child leans right or is even (bf <= 0)', 'rotate left at the node'],
+    ['Left-Right', 'bf(node) > 1 and the left child leans right (bf < 0)', 'rotate left at the left child, then right at the node'],
+    ['Right-Left', 'bf(node) < -1 and the right child leans left (bf > 0)', 'rotate right at the right child, then left at the node'],
+  ]}
+/>
+
+The "even" sub-case (child balance factor 0) never happens after an insert, but it does after a delete, and it needs a single rotation. Treating it as a double rotation is a classic bug.
+
+## Insert walk-through
+
+Insert 10, 20, 30, 40, 50, 25 into an empty tree. Python gives these level-order snapshots:
+
+<DataTable
+  columns={['Insert', 'Tree after (level order)', 'What happened']}
+  rows={[
+    ['10, 20', '10, 20', 'no rotation: 20 is the right child of 10'],
+    ['30', '20, 10, 30', '10 has bf -2 and its right child leans right (Right-Right): rotate left'],
+    ['40', '20, 10, 30, 40', 'heights 3 / 1 / 2 / 1: every bf is in range'],
+    ['50', '20, 10, 40, 30, 50', '30 has bf -2, Right-Right: rotate left at 30'],
+    ['25', '30, 20, 40, 10, 25, 50', '20 has bf -2 and its right child 40 leans left (Right-Left): double rotation'],
+  ]}
+/>
+
+The last step is the interesting one. Before it, the right side of the tree is `40` with children `30` and `50`; 25 lands as the left child of 30:
+
+<TreeDiagram
+  levelOrder={[20, 10, 40, null, null, 30, 50, 25]}
+  tones="p.l..r.p"
+  legend={{ p: 'node 20 (bf -2) and the new key 25', l: 'node 40, leans left (bf +1)', r: '30, the node that becomes the new root' }}
+  caption="Right-Left case. The new key 25 sits below 30, under the right child of 20."
+/>
+
+<TreeDiagram
+  levelOrder={[30, 20, 40, 10, 25, null, 50]}
+  tones="f......"
+  legend={{ f: 'new root after rotate-right at 40, then rotate-left at 20' }}
+  caption="After the double rotation the subtree is rooted at 30 and every height is within 1."
+/>
+
+Insertion needs at most one rebalancing (a single or a double rotation): once the lowest unbalanced node is fixed, its subtree has the height it had before the insert, so the ancestors above are fine again.
+
+## Delete walk-through
+
+Delete is a plain BST delete (zero, one or two children, with the in-order successor replacing a two-child node), followed by the same rebalancing on every ancestor. Unlike insert, a fix can shorten the subtree, which can unbalance the parent too, so rotations may repeat up to the root.
+
+Insert 2, 1, 3, 4 and then delete 1:
+
+<TreeDiagram
+  levelOrder={[2, null, 3, null, 4]}
+  tones="p.l.."
+  legend={{ p: 'node 2 after the delete: left height 0, right height 2 (bf -2)', l: 'its right child 3 leans right: Right-Right' }}
+  caption="After removing 1, node 2 is out of balance."
+/>
+
+<TreeDiagram
+  levelOrder={[3, 2, 4]}
+  tones="f.."
+  legend={{ f: 'rotate left at 2 makes 3 the root' }}
+  caption="Result: `[3, 2, 4]`, height 2."
+/>
+
+## See it in action
+
+<ArticleViz ids={['avl']} />
+
+Type operations such as `30 20 10` to insert, `-20` to delete and `?20` to search, then press Apply. Random builds an input, and the transport buttons step through every comparison, height update and rotation. The examples include one run per rotation case, and sorted keys that stay balanced.
+
+## Implementation
+
+The Python, C++ and Go versions are line-for-line the same recursive design: `insert` and `delete` recurse down, then update the height and rebalance as the calls return. Rotations are `rotate_left` and `rotate_right`. Differences:
+
+- Python also has pre-order, post-order and level-order traversals; C++ and Go have in-order only.
+- Empty-tree `find_min` and `find_max`: Python returns `None`, C++ throws `std::runtime_error`, Go returns an error.
+- The C++ class owns raw pointers, so it is not copyable (copy constructor and assignment are deleted).
+- Recursion depth is the tree height, about log n, so deep recursion is not a concern.
+
+<TopicCode topic="Data Structures/Non_Linear/Trees/AVL Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['search, insert, delete', 'O(log n)', 'one root-to-leaf path of at most 1.44 log2(n + 2) nodes, constant work per node'],
+    ['rotation', 'O(1)', 'three pointer changes and two height updates'],
+    ['insert rotations', 'at most 2', 'the fix restores the pre-insert height'],
+    ['delete rotations', 'O(log n)', 'a fix can shorten the subtree and unbalance the next ancestor'],
+    ['traversal, size', 'O(n)', 'every node is visited'],
+  ]}
+/>
+
+Space is O(n) for the nodes (one extra integer each) and O(log n) for the recursion stack.
+
+## Variants
+
+<DataTable
+  columns={['Tree', 'Balance rule', 'Rebalancing']}
+  rows={[
+    ['AVL', 'subtree heights differ by at most 1', 'rotations, up to O(log n) on delete'],
+    ['Red-Black', 'colors bound the longest path by 2x the shortest', 'at most 2 rotations on insert, 3 on delete'],
+    ['Treap', 'random priorities give a balanced tree in expectation', 'split and merge'],
+    ['Splay', 'recently used keys move to the root', 'amortized O(log n) only'],
+  ]}
+/>
+
+## AVL tree vs alternatives
+
+<DataTable
+  columns={['Structure', { label: 'Search', kind: 'mono' }, { label: 'Insert', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['AVL tree', 'O(log n)', 'O(log n)', 'tightest balance: height at most 1.44 log2(n)'],
+    ['Red-Black tree', 'O(log n)', 'O(log n)', 'looser (height up to 2 log2(n)) but fewer rotations per update'],
+    ['Plain BST', 'O(n) worst', 'O(n) worst', 'simplest; sorted input gives a chain'],
+    ['Sorted array', 'O(log n)', 'O(n)', 'binary search, but inserts shift elements'],
+    ['Hash table', 'O(1) average', 'O(1) average', 'no order, no range queries'],
+  ]}
+/>
+
+AVL trees are more rigidly balanced than Red-Black trees, so lookups are slightly faster and updates slightly more expensive.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Worst-case O(log n) for search, insert and delete.',
+    'Shallower than other balanced trees, so lookups are fast.',
+    'Keeps keys sorted: in-order traversal, min, max.',
+  ]}
+  cons={[
+    'Every node stores a height, and every update rebalances.',
+    'Delete can trigger rotations all the way up.',
+    'More code than a plain BST, and four rotation cases to get right.',
+    'Poor cache behaviour compared with a B-Tree when data lives on disk.',
+  ]}
+/>
+
+## Applications
+
+- Ordered maps and sets where lookups far outnumber updates.
+- In-memory indexes and dictionaries that need a worst-case guarantee.
+- A reference point for learning other balanced trees (Red-Black, Treap, Splay).
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Reading stale heights.** Update the height of a node after its children changed and before computing its balance factor, and in rotations update the lower node first.
+- **Wrong case after a delete.** When the heavy child has balance factor 0, use a single rotation, not a double one.
+- **Choosing the case by the inserted key only.** That works for insert but not for delete, where no key has been added. Look at the heavy child's balance factor.
+- **Stopping at the first rotation on delete.** Keep walking to the root; the recursive code does this by checking every ancestor.
+- **Testing balance with stored heights.** A test that trusts the stored `height` field cannot catch a stale height. Recompute heights from scratch.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is the height bound about 1.44 log2(n)?">
+    The thinnest AVL tree of height h has N(h) = N(h - 1) + N(h - 2) + 1 nodes, which grows like the Fibonacci numbers, about 1.618<sup>h</sup>. Taking logarithms gives h &lt; 1.44 log<sub>2</sub>(n + 2).
+  </FaqItem>
+  <FaqItem question="Does insert ever need more than one rotation?">
+    No. It needs at most one single or one double rotation, because that fix brings the subtree back to its old height. Delete can need one rotation per level.
+  </FaqItem>
+  <FaqItem question="AVL or Red-Black?">
+    AVL is stricter, so it has faster lookups and slower updates. Red-Black does less rebalancing work per update. For read-heavy data AVL tends to win; for write-heavy data Red-Black does.
+  </FaqItem>
+  <FaqItem question="What happens when I insert a duplicate key?">
+    Nothing: the tree stores each key once and returns without changing it.
+  </FaqItem>
+</Faq>

@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <vector>
 #include <stdexcept>
 #include <algorithm>
@@ -5,7 +6,7 @@ using namespace std;
 
 struct PQItem {
     int priority;
-    int count;
+    uint64_t count;  // insertion order; 64-bit so it cannot overflow in practice
     int item;
     
     bool operator<(const PQItem& other) const {
@@ -18,7 +19,7 @@ struct PQItem {
 
 class PriorityQueue {
     vector<PQItem> heap;
-    int count;
+    uint64_t count;
 
     void heapify_up(int index) {
         while (index > 0) {

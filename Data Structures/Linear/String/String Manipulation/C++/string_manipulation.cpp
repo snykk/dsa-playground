@@ -1,7 +1,7 @@
 #include <string>
 #include <algorithm>
 #include <vector>
-#include <sstream>
+#include <cctype>
 using namespace std;
 
 string reverse_string(const string &s){
@@ -10,8 +10,13 @@ string reverse_string(const string &s){
     return res;
 }
 
+// Two pointers walk towards the middle: O(n) time, O(1) extra space.
+// It compares bytes, so a multi-byte UTF-8 character is not treated as one unit.
 bool is_palindrome(const string &s){
-    return s == reverse_string(s);
+    if(s.empty()) return true;
+    for(size_t i = 0, j = s.size() - 1; i < j; i++, j--)
+        if(s[i] != s[j]) return false;
+    return true;
 }
 
 int count_vowels(const string &s){
@@ -27,20 +32,31 @@ string replace_char(string s, char oldc, char newc){
 }
 
 string to_upper(string s){
-    transform(s.begin(), s.end(), s.begin(), ::toupper);
+    transform(s.begin(), s.end(), s.begin(),
+              [](unsigned char c){ return (char)toupper(c); });
     return s;
 }
 
 string to_lower(string s){
-    transform(s.begin(), s.end(), s.begin(), ::tolower);
+    transform(s.begin(), s.end(), s.begin(),
+              [](unsigned char c){ return (char)tolower(c); });
     return s;
 }
 
+// Like Python's split(sep) and Go's strings.Split: empty fields are kept, so
+// "a b " gives {"a", "b", ""} and "" gives {""}.
 vector<string> split_string(const string &s, char sep=' '){
     vector<string> res;
-    stringstream ss(s);
-    string word;
-    while(getline(ss, word, sep)) res.push_back(word);
+    size_t start = 0;
+    while(true){
+        size_t pos = s.find(sep, start);
+        if(pos == string::npos){
+            res.push_back(s.substr(start));
+            break;
+        }
+        res.push_back(s.substr(start, pos - start));
+        start = pos + 1;
+    }
     return res;
 }
 

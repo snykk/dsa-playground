@@ -1,8 +1,8 @@
 package main
 
 type TrieNode struct {
-	children      map[rune]*TrieNode
-	isEndOfWord   bool
+	children    map[rune]*TrieNode
+	isEndOfWord bool
 }
 
 type Trie struct {
@@ -46,34 +46,40 @@ func (t *Trie) StartsWith(prefix string) bool {
 	return true
 }
 
+// Delete reports whether the word was stored and has been removed. Nodes that no longer
+// lead to a word are pruned, walking back up until a word or a branching node is reached.
 func (t *Trie) Delete(word string) bool {
-	return t.deleteRecursive(t.root, word, 0)
-}
-
-func (t *Trie) deleteRecursive(node *TrieNode, word string, index int) bool {
-	if index == len(word) {
-		if !node.isEndOfWord {
+	type step struct {
+		parent *TrieNode
+		char   rune
+	}
+	path := []step{}
+	node := t.root
+	for _, char := range word {
+		child, exists := node.children[char]
+		if !exists {
 			return false
 		}
-		node.isEndOfWord = false
-		return len(node.children) == 0
+		path = append(path, step{node, char})
+		node = child
 	}
 
-	char := rune(word[index])
-	child, exists := node.children[char]
-	if !exists {
+	if !node.isEndOfWord {
 		return false
 	}
+	node.isEndOfWord = false
 
-	shouldDelete := t.deleteRecursive(child, word, index+1)
-	if shouldDelete {
-		delete(node.children, char)
-		return len(node.children) == 0 && !node.isEndOfWord
+	for len(path) > 0 && len(node.children) == 0 && !node.isEndOfWord {
+		last := path[len(path)-1]
+		path = path[:len(path)-1]
+		delete(last.parent.children, last.char)
+		node = last.parent
 	}
-
-	return false
+	return true
 }
 
+// GetAllWords returns every stored word. The order follows map iteration, so it is
+// unspecified.
 func (t *Trie) GetAllWords() []string {
 	words := []string{}
 	t.traverse(t.root, "", &words)
@@ -104,8 +110,9 @@ func (t *Trie) countRecursive(node *TrieNode) int {
 	return count
 }
 
+// IsEmpty reports whether no word is stored (the empty word counts as a word).
 func (t *Trie) IsEmpty() bool {
-	return len(t.root.children) == 0
+	return len(t.root.children) == 0 && !t.root.isEndOfWord
 }
 
 func main() {
@@ -115,4 +122,3 @@ func main() {
 	println("Search apple:", trie.Search("apple"))
 	println("StartsWith app:", trie.StartsWith("app"))
 }
-

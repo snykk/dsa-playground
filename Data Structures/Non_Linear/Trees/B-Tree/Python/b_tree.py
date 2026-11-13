@@ -148,7 +148,7 @@ class BTree:
             if len(node.children[i].keys) == self.min_keys:
                 self._fill_child(node, i)
             
-            # After fill, child might have merged, so update i
+            # After fill, the last child may have merged into its left sibling
             if i > len(node.keys):
                 i -= 1
             
@@ -194,12 +194,12 @@ class BTree:
         elif (index < len(parent.children) - 1 and 
               len(parent.children[index + 1].keys) > self.min_keys):
             self._borrow_from_right(parent, index)
-        # Merge with sibling
+        # Merge with the right sibling; the last child merges with its left one
         else:
-            if index > 0:
-                self._merge_children(parent, index - 1)
-            else:
+            if index < len(parent.keys):
                 self._merge_children(parent, index)
+            else:
+                self._merge_children(parent, index - 1)
 
     def _borrow_from_left(self, parent, index):
         """Borrow key from left sibling."""

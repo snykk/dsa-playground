@@ -22,7 +22,7 @@ Given n activities with start and finish times, select the maximum number of act
 
 | Complexity | Time | Space |
 |------------|------|-------|
-| **All Cases** | O(n log n) | O(1) |
+| **All Cases** | O(n log n) | O(n) |
 
 ---
 
@@ -35,7 +35,7 @@ Given n activities with start and finish times, select the maximum number of act
 ## Implementations
 
 - **Python** (`Python/`) - Complete with variants
-- **C++** (`C++/`) - Template-based
+- **C++** (`C++/`) - Earliest-finish greedy (returns indices)
 - **Go** (`Go/`) - Clean implementation
 
 ---

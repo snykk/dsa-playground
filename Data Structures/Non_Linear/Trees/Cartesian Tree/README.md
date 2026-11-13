@@ -1,161 +1,119 @@
 # Cartesian Tree
 
-A **Cartesian Tree** is a binary tree derived from a sequence of numbers with two key properties:
-1. **Min-heap property**: Parent value ≤ children values
-2. **Inorder traversal**: Produces the original sequence
+A Cartesian tree turns an array into a binary tree that is a min heap by value and returns the original array when read in-order. It is built in O(n) with a stack, and the minimum of any range is the lowest common ancestor (LCA) of the range's two ends.
 
----
+## Intuition
 
-## Overview
+Two rules pin the tree down. Reading in-order must give the array back, so everything left of a node in the array lies in its left subtree. And every node is `<=` its children, so the root must be the array minimum. Pick the minimum as the root, then solve the part to its left and the part to its right the same way.
 
-Cartesian Trees are built from arrays such that the inorder traversal returns the original array, while maintaining a min-heap structure. This makes them useful for range minimum queries (RMQ) and other applications.
+**Invariant:** in-order = original array, and parent `<=` child. For ties, a later equal value becomes a descendant of the earlier one, so the leftmost minimum is the ancestor.
 
----
+A treap is exactly the Cartesian tree of its keys (sorted) with random priorities as the values.
 
-## Key Characteristics
+## Visual
 
-- **Min-Heap Property**: Parent value ≤ children values
-- **Inorder = Original Array**: Inorder traversal gives the original sequence
-- **O(n) Construction**: Can be built in linear time using a stack
-- **Range Queries**: Efficient for finding minimum in a range
+```text
+array: 9 3 7 1 8 12 10 20 15 18 5      index 0..10
 
----
+                 1
+              /     \
+            3         5
+          /   \      /
+         9     7    8
+                      \
+                       10
+                      /  \
+                    12    15
+                         /  \
+                       20    18
 
-## Construction Algorithm
-
-The tree is built using a stack-based approach:
-
-1. Process array elements left to right
-2. For each element, pop nodes from stack until finding a smaller value
-3. Attach popped nodes as left child of current node
-4. Attach current node as right child of stack top
-5. Push current node to stack
-
-**Example**: Building from `[9, 3, 7, 1, 8]`
-
-```
-Step 1: 9
-Step 2: 3 (9 becomes left child of 3)
-Step 3: 7 (attached as right child of 3)
-Step 4: 1 (3, 7 become left subtree of 1)
-Step 5: 8 (attached as right child of 1)
-
-Final Tree:
-        1
-       / \
-      3   8
-     / \
-    9   7
+RMQ(4, 8): root 1 (index 3 < 4) -> right; 5 (index 10 > 8) -> left;
+           8 (index 4 in [4, 8]) -> answer: index 4, value 8
 ```
 
----
+## How It Works / Operations
 
-## Operations
+Build with a stack that holds the right spine. For each value `v`, left to right:
 
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| **Build** | Build tree from array | O(n) |
-| **Inorder** | Get original array sequence | O(n) |
-| **RMQ** | Find minimum in range | O(log n) avg |
-| **Height** | Calculate tree height | O(n) |
-| **Size** | Get number of nodes | O(n) |
+1. Pop while the top is strictly greater than `v`; remember the last popped node.
+2. The last popped node becomes the left child of the new node.
+3. If the stack is not empty, the new node becomes the right child of the top.
+4. Push the new node. The root is the bottom of the stack.
 
----
+| Operation | Description | Time |
+|-----------|-------------|------|
+| build | stack construction | O(n) |
+| `get_min_index(l, r)` | walk from the root: go right if the node index is below `l`, left if above `r`, otherwise it is the answer (leftmost minimum); -1 for an empty tree or an invalid range | O(h) |
+| traversals | in-order returns the original array | O(n) |
+| `height()`, `size()`, `is_empty()` | shape information (height in edges, empty = -1) | O(n), O(n), O(1) |
 
-## Complexity Analysis
+## Step-by-Step Trace
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Build     | O(n)           | O(n)             |
-| Inorder   | O(n)           | O(n)             |
-| RMQ       | O(log n) avg   | O(1)             |
-| Height    | O(n)           | O(h)             |
-| Size      | O(n)           | O(h)             |
+Stack (values, bottom to top) while building `[9, 3, 7, 1, 8, 12, 10, 20, 15, 18, 5]`:
 
-Where:
-- `n` = number of elements
-- `h` = height of tree (O(log n) average, O(n) worst case)
+| Read | Popped | Stack after |
+|------|--------|-------------|
+| 9 | none | 9 |
+| 3 | 9 | 3 |
+| 7 | none | 3, 7 |
+| 1 | 7, 3 | 1 |
+| 8 | none | 1, 8 |
+| 12 | none | 1, 8, 12 |
+| 10 | 12 | 1, 8, 10 |
+| 20 | none | 1, 8, 10, 20 |
+| 15 | 20 | 1, 8, 10, 15 |
+| 18 | none | 1, 8, 10, 15, 18 |
+| 5 | 18, 15, 10, 8 | 1, 5 |
 
----
+Queries (checked against the code): `[0, 2]` gives index 1 (value 3), `[4, 8]` gives index 4 (value 8), `[5, 9]` gives index 6 (value 10), `[6, 10]` gives index 10 (value 5).
 
-## Advantages
+## Complexity
 
-1. ✅ **Fast Construction**: O(n) time using stack
-2. ✅ **Range Queries**: Efficient for finding minimum in range
-3. ✅ **Preserves Order**: Inorder traversal gives original sequence
-4. ✅ **Simple Structure**: Binary tree with heap property
+| Operation | Time | Why |
+|-----------|------|-----|
+| build | O(n) | each element is pushed and popped at most once |
+| range minimum | O(h) | one root-to-LCA path |
+| traversals, size, height | O(n) | every node visited |
 
----
-
-## Disadvantages
-
-1. ❌ **Worst Case Height**: Can be O(n) for certain arrays
-2. ❌ **Not Self-Balancing**: No automatic balancing mechanism
-3. ❌ **Limited Operations**: Primarily for range minimum queries
-
----
-
-## Applications
-
-1. **Range Minimum Query (RMQ)**: Find minimum in a range efficiently
-2. **Treap Construction**: Used in building treaps
-3. **Expression Parsing**: Can represent expressions
-4. **Competitive Programming**: Useful for certain problems
-
----
+h is O(log n) for random data but n - 1 for sorted input (a chain). Space is O(n) for the nodes plus a copy of the array. For O(1) queries, compute the LCA with an Euler tour and a sparse table; this code does not.
 
 ## When to Use
 
-### ✅ Use Cartesian Tree when:
-- You need range minimum queries
-- You need to preserve array order in traversal
-- You need O(n) construction time
-- You're working with static arrays
+Use it for static range-minimum queries when you also want the tree structure (LCA, treaps, nearest-smaller-element problems). Avoid it when values change often (use a segment tree) or when you need worst-case O(1) queries on sorted-like data (use a sparse table).
 
-### ❌ Avoid Cartesian Tree when:
-- You need frequent updates
-- You need guaranteed balanced tree
-- You need more general range queries
+## Cartesian Tree vs. Alternatives
 
----
+| Structure | Build | Query | Notes |
+|-----------|-------|-------|-------|
+| Cartesian tree (this code) | O(n) | O(h) | static |
+| [Sparse Table](../Sparse%20Table/README.md) | O(n log n) | O(1) | static, more memory |
+| [Segment Tree](../Segment%20Tree/README.md) | O(n) | O(log n) | supports updates |
+| Scan the range | none | O(n) | fine for few queries |
 
-## Comparison with Other Structures
+## Common Pitfalls
 
-| Feature | Cartesian Tree | Segment Tree | Sparse Table |
-|---------|---------------|--------------|--------------|
-| Construction | O(n) | O(n) | O(n log n) |
-| RMQ Query | O(log n) | O(log n) | O(1) |
-| Updates | Not supported | O(log n) | Not supported |
-| Space | O(n) | O(n) | O(n log n) |
-
----
+- Searching both children after a node is already inside the range; by heap order it is already the minimum of its subtree.
+- Popping on `>=` instead of `>`: this changes the tie-breaking. This code returns the leftmost minimum.
+- Recursing on sorted input: the tree is a chain, so recursive traversal or destruction overflows the stack (the Python and C++ versions here are iterative).
+- Assuming the tree is balanced.
+- Quoting O(log n) per query: it is O(h) here.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+- [Python](Python/README.md)
+- [C++](C++/README.md)
+- [Go](Go/README.md)
 
-- **Python** (`Python/`) - Object-oriented implementation with comprehensive tests
-- **C++** (`C++/`) - Efficient implementation with proper memory management
-- **Go** (`Go/`) - Clean implementation with Go idioms
+## Practice Problems
 
-Each implementation includes:
-- Complete source code with all operations
-- Comprehensive test suite
-- Detailed README with usage examples
+- LeetCode 654, Maximum Binary Tree (the max version of this tree).
+- LeetCode 84, Largest Rectangle in Histogram (same stack idea).
+- LeetCode 239, Sliding Window Maximum (related monotonic structure).
 
----
+## Related
 
-## Related Data Structures
-
-- **Segment Tree**: Another structure for range queries
-- **Sparse Table**: Static RMQ with O(1) queries
-- **Treap**: Combination of BST and heap
-- **Heap**: Min/max heap data structure
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Competitive Programming" by Steven Halim
-
+- [Treap](../Treap/README.md): the Cartesian tree of (key, priority) pairs.
+- [Sparse Table](../Sparse%20Table/README.md): O(1) static range minimum.
+- [Segment Tree](../Segment%20Tree/README.md): range queries with updates.
+- [Binary Tree](../Binary%20Tree/README.md): the underlying shape.
+- [Min Heap](../../Heaps/Min%20Heap/README.md): the same ordering rule, but position-free.

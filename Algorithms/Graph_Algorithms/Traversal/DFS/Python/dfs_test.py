@@ -2,6 +2,8 @@
 Test suite for DFS implementation
 """
 
+import random
+import time
 import unittest
 from dfs import (
     dfs_adjacency_list,
@@ -241,6 +243,88 @@ class TestDFS(unittest.TestCase):
         """Test DFS when start vertex not in graph."""
         result = dfs_adjacency_list(self.graph1, 99)
         self.assertEqual(result, [])
+
+    def test_dfs_with_path_neighbor_only_target(self):
+        """A target that only appears in neighbor lists (no key) is still reachable."""
+        self.assertEqual(dfs_with_path({0: [1]}, 0, 1), [0, 1])
+        self.assertEqual(dfs_with_path({0: [1, 2], 1: [3]}, 0, 3), [0, 1, 3])
+        self.assertIsNone(dfs_with_path({0: [1]}, 0, 2))
+
+    def test_dfs_with_path_follows_dfs_order(self):
+        """The returned path is the one DFS actually walked, not the first edge seen."""
+        # 4 is first pushed from 1, but DFS reaches it through 2 first.
+        self.assertEqual(dfs_with_path({1: [2, 4], 2: [4], 4: []}, 1, 4), [1, 2, 4])
+        self.assertEqual(dfs_with_path({1: [2, 4], 2: [3], 3: [4], 4: []}, 1, 4), [1, 2, 3, 4])
+
+    def test_dfs_with_path_long_path_linear_time(self):
+        """No path copy per push: a 50000-vertex path takes well under a second."""
+        n = 50000
+        graph = {i: [i + 1] for i in range(n - 1)}
+        graph[n - 1] = []
+        started = time.perf_counter()
+        path = dfs_with_path(graph, 0, n - 1)
+        elapsed = time.perf_counter() - started
+        self.assertEqual(path, list(range(n)))
+        # The old path-copying version needed several seconds here (O(V^2)).
+        self.assertLess(elapsed, 1.0)
+
+    def test_dfs_recursive_deep_path(self):
+        """A 5000-vertex path is deeper than Python's default recursion limit."""
+        n = 5000
+        graph = {i: [i + 1] for i in range(n - 1)}
+        graph[n - 1] = []
+        self.assertEqual(dfs_recursive(graph, 0), list(range(n)))
+
+    def test_dfs_recursive_matches_true_recursion(self):
+        """The explicit stack visits vertices in exactly the recursive order."""
+        def reference(graph, start):
+            visited, order = set(), []
+
+            def go(u):
+                visited.add(u)
+                order.append(u)
+                for v in graph.get(u, []):
+                    if v not in visited:
+                        go(v)
+            go(start)
+            return order
+
+        rng = random.Random(7)
+        for _ in range(300):
+            n = rng.randint(1, 8)
+            graph = {i: [rng.randrange(n + 1) for _ in range(rng.randint(0, 4))] for i in range(n)}
+            start = rng.randrange(n)
+            self.assertEqual(dfs_recursive(graph, start), reference(graph, start))
+
+    def test_dfs_connected_components_deep_path(self):
+        """Components of a 5000-vertex undirected path: one component, no RecursionError."""
+        n = 5000
+        graph = {i: [j for j in (i - 1, i + 1) if 0 <= j < n] for i in range(n)}
+        self.assertEqual(dfs_connected_components(graph), [list(range(n))])
+
+    def test_dfs_detect_cycle_deep_path(self):
+        """Cycle detection on 5000-vertex paths, with and without a closing edge."""
+        n = 5000
+        directed = {i: [i + 1] for i in range(n - 1)}
+        directed[n - 1] = []
+        self.assertFalse(dfs_detect_cycle(directed, directed=True))
+        directed[n - 1] = [0]
+        self.assertTrue(dfs_detect_cycle(directed, directed=True))
+
+        undirected = {i: [j for j in (i - 1, i + 1) if 0 <= j < n] for i in range(n)}
+        self.assertFalse(dfs_detect_cycle(undirected, directed=False))
+        undirected[0].append(n - 1)
+        undirected[n - 1].append(0)
+        self.assertTrue(dfs_detect_cycle(undirected, directed=False))
+
+    def test_dfs_topological_sort_deep_path(self):
+        """Topological sort of a 5000-vertex chain, and None once it is closed."""
+        n = 5000
+        chain = {i: [i + 1] for i in range(n - 1)}
+        chain[n - 1] = []
+        self.assertEqual(dfs_topological_sort(chain), list(range(n)))
+        chain[n - 1] = [0]
+        self.assertIsNone(dfs_topological_sort(chain))
 
 
 if __name__ == '__main__':

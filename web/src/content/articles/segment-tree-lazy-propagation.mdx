@@ -1,0 +1,227 @@
+---
+topic: Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)
+title: Segment Tree (Lazy Propagation)
+lead: A lazy segment tree adds a pending-update tag to each node, so adding a value to a whole range costs O(log n) instead of touching every element. A tag waits on a node that is fully covered and is pushed to its children only when a later operation has to look inside.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Range add
+    value: O(log n)
+  - label: Range sum
+    value: O(log n)
+  - label: Build
+    value: O(n)
+  - label: Space
+    value: 2 arrays of 4n
+    hint: sums and lazy tags
+properties:
+  - { label: Range update, value: true }
+  - { label: Range query, value: true }
+  - { label: Recursive, value: true }
+  - { label: Works for min / max, value: false }
+prerequisites:
+  - Data Structures/Non_Linear/Trees/Segment Tree
+related:
+  - Data Structures/Non_Linear/Trees/Segment Tree
+  - Data Structures/Non_Linear/Trees/Fenwick Tree
+  - Data Structures/Non_Linear/Trees/Sparse Table
+---
+
+## What lazy propagation is
+
+A plain segment tree answers range sums fast but can only change one element at a time: adding 3 to a range of 1000 elements takes 1000 updates. A lazy segment tree handles the whole range in O(log n) by **postponing** work.
+
+Each node holds two numbers: `tree[node]`, the sum of its segment (correct as long as no ancestor still holds a tag), and `lazy[node]`, an amount that still has to be added to *each element* of its segment but has not yet been passed to the children. When an update covers a node's whole segment, the node's sum is fixed immediately (`sum += value * length`), the tag is recorded, and the recursion stops there. The children are now stale, and they only catch up when somebody needs them.
+
+This repository's tree is **recursive**: node 1 is the root and covers `[0, n - 1]`, a node `[s, e]` splits at `mid = (s + e) / 2`, and children are `2 * node` and `2 * node + 1`. Arrays hold `4n` cells. It supports **range add** and **range sum**.
+
+<Callout title="The invariant">
+A tag on a node means "everything below me still owes this much per element". The node's own sum already includes it. Before any operation looks into a node's children, the tag is **pushed down** (applied to both children and cleared), so a child's sum can be trusted whenever its parent has no tag.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`LazySegmentTree(arr)`', 'recursive build of the sums; all tags zero', 'O(n)'],
+    ['`update_range(l, r, v)`', 'add `v` to every element of `l..r` (inclusive)', 'O(log n)'],
+    ['`query(l, r)`', 'sum of elements `l..r` (inclusive)', 'O(log n)'],
+  ]}
+/>
+
+The method names are `update_range` and `query` in Python, `updateRange` and `query` in C++, `UpdateRange` and `Query` in Go. The Go and C++ versions take the update value as a 64-bit integer and return 64-bit sums, and Python integers are unbounded. Ranges are 0-based and inclusive. There is no point-assignment and no index validation: a range outside the array is simply clipped by the recursion.
+
+### Range update
+
+At a node `[s, e]` with update range `[l, r]`:
+
+<Steps>
+  <Step title="No overlap">
+    If `r < s` or `e < l`, return: nothing below changes.
+  </Step>
+  <Step title="Full cover">
+    If `l <= s` and `e <= r`, add `v * (e - s + 1)` to the node's sum, add `v` to its tag, and return. The children are not visited.
+  </Step>
+  <Step title="Partial overlap">
+    Push the node's tag down, recurse into both children, then recompute the node's sum from them.
+  </Step>
+</Steps>
+
+Adding 3 to `[1, 4]` of `[1, 3, 5, 7, 9, 11]` (sum 36) puts tags on the **maximal fully covered nodes**: `[1]`, `[2]` and `[3-4]`. The nodes `[0-5]`, `[0-2]`, `[0-1]` and `[3-5]` are only partially covered, so they are recursed into and rebuilt from their children.
+
+<TreeDiagram
+  legend={{ p: 'node holding a +3 tag', m: 'stale: has not seen the tag yet', l: 'partially covered, recomputed' }}
+  root={{
+    label: '0-5',
+    badge: 'sum 48',
+    tone: 'l',
+    children: [
+      {
+        label: '0-2',
+        badge: 'sum 15',
+        tone: 'l',
+        children: [
+          {
+            label: '0-1',
+            badge: 'sum 7',
+            tone: 'l',
+            children: [{ label: '0-0', badge: 'sum 1' }, { label: '1-1', badge: 'sum 6 (+3)', tone: 'p' }],
+          },
+          { label: '2-2', badge: 'sum 8 (+3)', tone: 'p' },
+        ],
+      },
+      {
+        label: '3-5',
+        badge: 'sum 33',
+        tone: 'l',
+        children: [
+          {
+            label: '3-4',
+            badge: 'sum 22 (+3)',
+            tone: 'p',
+            children: [{ label: '3-3', badge: 'sum 7', tone: 'm' }, { label: '4-4', badge: 'sum 9', tone: 'm' }],
+          },
+          { label: '5-5', badge: 'sum 11' },
+        ],
+      },
+    ],
+  }}
+  caption="After update_range(1, 4, 3). Only 3 tags were written; the leaves 3-3 and 4-4 still show the old sums 7 and 9, but their parent's tag says they owe +3 each."
+/>
+
+### Query and push-down
+
+A query works like the update: skip non-overlapping nodes, return a fully covered node's sum, and for a partial overlap push the tag down first and then add the two children's answers. The push-down is what makes children trustworthy. Reading element 3 (`query(3, 3)`) walks `[0-5]`, `[3-5]`, `[3-4]`, `[3-3]`. At `[3-4]` the tag +3 is pushed: each child gets `sum += 3 * length` and `tag += 3`, and the parent's tag is cleared.
+
+<TreeDiagram
+  legend={{ f: 'child that received the push (sum corrected)', p: 'tag cleared by the push' }}
+  root={{
+    label: '3-4',
+    badge: 'sum 22 (no tag)',
+    tone: 'p',
+    children: [
+      { label: '3-3', badge: 'sum 10 (+3)', tone: 'f' },
+      { label: '4-4', badge: 'sum 12 (+3)', tone: 'f' },
+    ],
+  }}
+  caption="Pushing the +3 tag of node [3-4] down. query(3, 3) now reads 7 + 3 = 10. The pushed tags sit on leaves, where they are never used again."
+/>
+
+Running the repository code on this input confirms the numbers: `query(3, 3)` returns 10, and the full range now sums to 48.
+
+## Implementation
+
+The three versions are the same: a recursive `build`, a `push_down` that applies a tag to both children (scaling by each child's length) and clears it, and recursive update and query functions with the three cases above. The tests cover the examples here, single-element arrays, negative values, repeated overlapping updates and a random differential test against brute force.
+
+<TopicCode topic="Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['build', 'O(n)', 'every node is created once'],
+    ['update_range', 'O(log n)', 'at most 4 nodes per level are visited: two partial ones and up to two full ones'],
+    ['query', 'O(log n)', 'the same shape of recursion'],
+    ['space', 'O(n)', 'two arrays of 4n numbers'],
+  ]}
+/>
+
+Without lazy tags a range add costs O(n log n) (one point update per element, each O(log n)).
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Needs']}
+  rows={[
+    ['Range add, range sum (this code)', 'tag = pending add, applied as `add * length`'],
+    ['Range add, range min or max', 'tag applied as `+add` with no length factor'],
+    ['Range assign', 'tag = pending assignment; must override older tags'],
+    ['Assign and add together', 'a composition rule: assign resets add, add after assign adds to the assigned value'],
+  ]}
+/>
+
+Only the first row is implemented in the repository.
+
+## Lazy segment tree vs alternatives
+
+<DataTable
+  columns={['Structure', 'Range update', 'Range query', 'Notes']}
+  highlight={0}
+  rows={[
+    ['Lazy segment tree', 'O(log n)', 'O(log n)', 'general; most code'],
+    ['Segment tree (plain)', 'O(n log n) for a range', 'O(log n)', 'point updates only'],
+    ['Two Fenwick trees', 'O(log n)', 'O(log n)', 'range add and range sum only, short code'],
+    ['Difference array', 'O(1)', 'O(n) to rebuild sums', 'offline, queries after all updates'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Range updates and range queries both in O(log n).',
+    'Generalises to min, max, assignment and other tag types.',
+    'Same recursion shape as the plain tree.',
+  ]}
+  cons={[
+    'More memory: two arrays of 4n.',
+    'Subtle: forgetting one push-down corrupts results silently.',
+    'Tag composition is easy to get wrong for mixed update types.',
+    'Recursive, with a larger constant than a Fenwick tree.',
+  ]}
+/>
+
+## Applications
+
+- **Range add with range sum:** add a value to a whole interval, then ask for interval totals.
+- **Range assignment, flips and "paint" operations** with a different tag.
+- **Competitive programming** problems that interleave range updates and queries.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Not pushing down before recursing.** A partial node must push its tag first; otherwise children are updated twice or not at all.
+- **Applying a tag without the segment length.** For sums the update is `value * length`, and the push-down must scale by each child's own length (left and right can differ).
+- **Putting tags on partially covered nodes.** Tags only rest on fully covered nodes.
+- **Forgetting to recompute the parent** after recursing into the children.
+- **Overflow of `value * length`.** C++ and Go use 64-bit integers here; Python is unbounded.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is it called lazy?">
+    A fully covered node does not pass the update on; it just records it. The work for the children is done later, only if a query or another update needs to go through them.
+  </FaqItem>
+  <FaqItem question="Why does the push-down use the child length?">
+    The tag is a per-element amount. The sum of a segment grows by the tag times the number of elements in it, and the two children can have different lengths.
+  </FaqItem>
+  <FaqItem question="Does a query change the tree?">
+    Yes, in the sense that push-downs move tags toward the leaves. The answers never change, but the tags move.
+  </FaqItem>
+  <FaqItem question="Can I use it for range minimum with range add?">
+    Yes, with a min combine and tags applied without the length factor. This repository only implements range add with range sum.
+  </FaqItem>
+</Faq>

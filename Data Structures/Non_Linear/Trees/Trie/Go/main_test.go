@@ -50,3 +50,50 @@ func TestGetAllWords(t *testing.T) {
 	}
 }
 
+func TestDeleteReturnValueAndPruning(t *testing.T) {
+	trie := NewTrie()
+	trie.Insert("apple")
+	trie.Insert("app")
+	trie.Insert("dog")
+	if !trie.Delete("apple") {
+		t.Error("Delete(apple) should report true")
+	}
+	if trie.Search("apple") || !trie.Search("app") {
+		t.Error("apple should be gone and app should remain")
+	}
+	if trie.Delete("apple") || trie.Delete("appl") || trie.Delete("cat") {
+		t.Error("deleting an absent word or a bare prefix should report false")
+	}
+	if trie.StartsWith("appl") {
+		t.Error("unused nodes should be pruned")
+	}
+	if !trie.Delete("app") || !trie.Delete("dog") {
+		t.Error("remaining words should delete")
+	}
+	if !trie.IsEmpty() {
+		t.Error("trie should be empty again")
+	}
+}
+
+func TestDeleteNonASCII(t *testing.T) {
+	trie := NewTrie()
+	trie.Insert("caf\u00e9")
+	trie.Insert("x")
+	if !trie.Delete("caf\u00e9") {
+		t.Error("Delete(cafe with accent) should report true")
+	}
+	if trie.Search("caf\u00e9") || !trie.Search("x") {
+		t.Error("the accented word should be gone and x should remain")
+	}
+}
+
+func TestEmptyWordAndCount(t *testing.T) {
+	trie := NewTrie()
+	trie.Insert("")
+	if trie.CountWords() != 1 || trie.IsEmpty() || !trie.Search("") {
+		t.Error("the empty word is a stored word")
+	}
+	if !trie.Delete("") || !trie.IsEmpty() {
+		t.Error("deleting the empty word should empty the trie")
+	}
+}

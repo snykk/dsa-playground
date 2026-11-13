@@ -17,10 +17,10 @@ class AdjacencyList:
     Supports both directed/undirected and weighted/unweighted graphs.
     
     Supports:
-    - Add edge: O(1)
-    - Remove edge: O(V)
-    - Check edge: O(V)
-    - Get neighbors: O(1) to get list, O(V) to iterate
+    - Add edge: O(deg(u) + deg(v)) (an existing edge is replaced first)
+    - Remove edge: O(deg(u) + deg(v))
+    - Check edge: O(deg(u))
+    - Get neighbors: O(deg(u)) (a copy is returned)
     - Space: O(V + E)
     """
     

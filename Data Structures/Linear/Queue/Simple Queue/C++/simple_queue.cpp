@@ -14,12 +14,12 @@ public:
         return val;
     }
 
-    int peek() {
+    int peek() const {
         if (queue.empty()) throw runtime_error("Queue is empty");
         return queue.front();
     }
 
-    bool is_empty() { return queue.empty(); }
+    bool is_empty() const { return queue.empty(); }
 
-    int size() { return queue.size(); }
+    int size() const { return queue.size(); }
 };

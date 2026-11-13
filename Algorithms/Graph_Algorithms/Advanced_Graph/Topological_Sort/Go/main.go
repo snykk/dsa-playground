@@ -56,10 +56,15 @@ func TopologicalSortKahn(graph map[int][]int) []int {
 	return result
 }
 
-// IsDAG checks if graph is a Directed Acyclic Graph
+// IsDAG checks if graph is a Directed Acyclic Graph.
+// The empty graph is a DAG. Otherwise TopologicalSortKahn returns every vertex
+// (including vertices that only appear as neighbors, which are not map keys)
+// for a DAG and an empty slice for a cyclic graph.
 func IsDAG(graph map[int][]int) bool {
-	result := TopologicalSortKahn(graph)
-	return len(result) > 0 && len(result) == len(graph)
+	if len(graph) == 0 {
+		return true
+	}
+	return len(TopologicalSortKahn(graph)) > 0
 }
 
 func main() {

@@ -1,136 +1,42 @@
-# Binary Tree - Go
+# Binary Tree -- Go Implementation
 
-This folder contains a Go implementation of a **Binary Tree**.
+## Files
 
-A **Binary Tree** is a hierarchical data structure where each node has at most two children, referred to as the left child and right child. Unlike Binary Search Trees, Binary Trees don't enforce any ordering constraint on the nodes.
+- `main.go`: `BinaryTree` and a small `main` with an example.
+- `main_test.go`: unit tests, including a 7-node tree with every traversal and a 1,000-node height check.
+- `go.mod`: module `binary_tree`.
 
----
+## API
 
-## Concept
-
-- Each node can have at most **2 children** (left and right)
-- No ordering constraint (unlike BST)
-- Hierarchical structure with a root node
-- Can be empty (no nodes)
-- Used as a foundation for more specialized trees (BST, AVL, etc.)
-
----
-
-## Operations
-
-| Operation                | Description                                    | Time Complexity |
-| ------------------------- | ---------------------------------------------- | --------------- |
-| `Insert(data)`           | Insert data using level-order insertion        | O(n)            |
-| `Search(data)`           | Search for data in the tree                    | O(n)            |
-| `InorderTraversal()`     | Traverse: Left, Root, Right                    | O(n)            |
-| `PreorderTraversal()`    | Traverse: Root, Left, Right                    | O(n)            |
-| `PostorderTraversal()`   | Traverse: Left, Right, Root                    | O(n)            |
-| `LevelOrderTraversal()`  | Traverse level by level (BFS)                  | O(n)            |
-| `Height()`               | Calculate height of the tree                   | O(n)            |
-| `Size()`                 | Get total number of nodes                      | O(n)            |
-| `IsEmpty()`              | Check if tree is empty                         | O(1)            |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| insert    | O(n)            | O(n)             |
-| search    | O(n)            | O(h)             |
-| Traversal | O(n)            | O(h)             |
-| height    | O(n)            | O(h)             |
-| size      | O(n)            | O(h)             |
-| Space     | O(n)            | O(n)             |
-
-Where `h` is the height of the tree (O(log n) for balanced tree, O(n) for skewed tree).
-
----
-
-## Usage
+- `NewBinaryTree() *BinaryTree`
+- `Insert(int)`: level-order insert.
+- `Search(int) bool`: O(n).
+- `InorderTraversal()`, `PreorderTraversal()`, `PostorderTraversal()`, `LevelOrderTraversal()`: return `[]int`.
+- `Height()` in edges (empty = -1), `Size()`, `IsEmpty()`.
 
 ```go
-package main
-
-import "fmt"
-
-func main() {
-    tree := NewBinaryTree()
-
-    // Insert elements
-    tree.Insert(1)
-    tree.Insert(2)
-    tree.Insert(3)
-    tree.Insert(4)
-    tree.Insert(5)
-
-    // Search for an element
-    fmt.Println(tree.Search(3))  // true
-    fmt.Println(tree.Search(6))  // false
-
-    // Get tree properties
-    fmt.Println(tree.Size())     // 5
-    fmt.Println(tree.Height())   // 2
-    fmt.Println(tree.IsEmpty())  // false
-
-    // Traverse the tree
-    inorder := tree.InorderTraversal()
-    fmt.Println(inorder)  // [4, 2, 5, 1, 3]
+t := NewBinaryTree()
+for i := 1; i <= 7; i++ {
+	t.Insert(i)
 }
+fmt.Println(t.InorderTraversal()) // [4 2 5 1 6 3 7]
 ```
 
----
+## Go-Specific Notes
 
-## Traversal Methods
+- The queue for insert and level order is `container/list`.
+- The package is `main`, so the example is run with `go run .`.
+- Garbage collection frees nodes.
 
-### 1. Inorder Traversal (Left, Root, Right)
-```go
-result := tree.InorderTraversal()
-// For tree:     1
-//              / \
-//             2   3
-// Output: [2, 1, 3]
-```
-
-### 2. Preorder Traversal (Root, Left, Right)
-```go
-result := tree.PreorderTraversal()
-// Output: [1, 2, 3]
-```
-
-### 3. Postorder Traversal (Left, Right, Root)
-```go
-result := tree.PostorderTraversal()
-// Output: [2, 3, 1]
-```
-
-### 4. Level-Order Traversal (Breadth-First)
-```go
-result := tree.LevelOrderTraversal()
-// Output: [1, 2, 3]
-```
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-go test -v
+go test ./...
+go run .
 ```
 
-Or run the main program:
+## Key Takeaways
 
-```bash
-go run main.go
-```
-
----
-
-## Notes
-
-- This implementation uses level-order insertion (fills from left to right)
-- Uses `container/list` for queue operations in level-order traversal
-- For more specialized trees, consider Binary Search Tree (BST) which enforces ordering
-- Traversal methods use recursion, which may cause stack overflow for very deep trees
-- For iterative implementations, use explicit stack/queue data structures
-
+- Pre-, in- and post-order differ only in when the node is visited.
+- Level order needs a queue and uses O(width) space.
+- No ordering means O(n) search.

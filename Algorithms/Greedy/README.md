@@ -22,7 +22,7 @@ Greedy algorithms build solutions step by step, always choosing the option that 
 
 ### 1. Activity Selection
 - **Time Complexity**: O(n log n)
-- **Space Complexity**: O(1)
+- **Space Complexity**: O(n)
 - **Description**: Select maximum number of non-overlapping activities
 
 ### 2. Huffman Coding
@@ -36,7 +36,7 @@ Greedy algorithms build solutions step by step, always choosing the option that 
 - **Description**: Maximize value with fractional items allowed
 
 ### 4. Job Scheduling
-- **Time Complexity**: O(n log n)
+- **Time Complexity**: O(n log n + n * min(n, D)), D = largest deadline
 - **Space Complexity**: O(n)
 - **Description**: Schedule jobs to maximize profit or minimize completion time
 
@@ -51,10 +51,10 @@ Greedy algorithms build solutions step by step, always choosing the option that 
 
 | Algorithm | Time Complexity | Space Complexity | Application |
 |-----------|----------------|------------------|-------------|
-| **Activity Selection** | O(n log n) | O(1) | Scheduling |
+| **Activity Selection** | O(n log n) | O(n) | Scheduling |
 | **Huffman Coding** | O(n log n) | O(n) | Compression |
 | **Fractional Knapsack** | O(n log n) | O(1) | Optimization |
-| **Job Scheduling** | O(n log n) | O(n) | Scheduling |
+| **Job Scheduling** | O(n log n + n * min(n, D)) | O(n + D) | Scheduling |
 | **Kruskal's MST** | O(E log E) | O(V) | Graph |
 | **Prim's MST** | O(E log V) | O(V) | Graph |
 

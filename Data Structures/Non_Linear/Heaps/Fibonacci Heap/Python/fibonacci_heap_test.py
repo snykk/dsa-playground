@@ -63,6 +63,31 @@ class TestFibonacciHeap(unittest.TestCase):
         
         self.assertEqual(result, [1, 2, 3, 5, 7, 9])
 
+    def test_scale_with_duplicates_and_negatives(self):
+        import random
+        rng = random.Random(7)
+        vals = [rng.randint(-250, 250) for _ in range(2000)]
+        for v in vals:
+            self.heap.insert(v)
+        out = [self.heap.extract_min() for _ in range(len(vals))]
+        self.assertEqual(out, sorted(vals))
+        self.assertTrue(self.heap.is_empty())
+
+    def test_interleaved_insert_extract(self):
+        import heapq
+        import random
+        rng = random.Random(11)
+        ref = []
+        for _ in range(1500):
+            if ref and rng.random() < 0.4:
+                self.assertEqual(self.heap.extract_min(), heapq.heappop(ref))
+            else:
+                v = rng.randint(-50, 50)
+                self.heap.insert(v)
+                heapq.heappush(ref, v)
+            self.assertEqual(self.heap.size(), len(ref))
+
+
 if __name__ == "__main__":
     unittest.main()
 

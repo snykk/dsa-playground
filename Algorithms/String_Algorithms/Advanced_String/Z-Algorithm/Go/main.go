@@ -36,8 +36,10 @@ func ZAlgorithmSearch(text, pattern string) []int {
 	var result []int
 	m := len(pattern)
 	
+	// A text position i is a match when z[i] >= m. Use >=, not ==: when '$'
+	// also occurs in the text or pattern, z[i] can run past the separator.
 	for i := m + 1; i < len(combined); i++ {
-		if z[i] == m {
+		if z[i] >= m {
 			result = append(result, i-m-1)
 		}
 	}

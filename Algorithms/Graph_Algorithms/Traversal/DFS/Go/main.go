@@ -1,5 +1,7 @@
 package main
 
+import "slices"
+
 // DFSAdjacencyList performs DFS traversal using adjacency list (iterative)
 // Returns vertices in DFS order
 // Time Complexity: O(V + E), Space Complexity: O(V)
@@ -69,40 +71,46 @@ func DFSWithPath(graph map[int][]int, start, target int) []int {
 		return []int{start}
 	}
 
+	// The target does not have to be a key: a vertex without outgoing edges
+	// may appear only in neighbor lists.
 	if _, exists := graph[start]; !exists {
 		return []int{}
 	}
-	if _, exists := graph[target]; !exists {
-		return []int{}
-	}
 
-	type pathNode struct {
+	// Stack entries are (vertex, vertex that pushed it). parent[v] is recorded
+	// when v is popped and visited (the map doubles as the visited set), so
+	// the path is rebuilt once from the target instead of being copied into
+	// every stack entry.
+	type stackEntry struct {
 		vertex int
-		path   []int
+		via    int
 	}
 
-	stack := []pathNode{{vertex: start, path: []int{start}}}
-	visited := make(map[int]bool)
+	stack := []stackEntry{{vertex: start, via: start}}
+	parent := make(map[int]int)
 
 	for len(stack) > 0 {
 		current := stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
 
 		if current.vertex == target {
-			return current.path
+			path := []int{target}
+			for node := current.via; node != start; node = parent[node] {
+				path = append(path, node)
+			}
+			path = append(path, start)
+			slices.Reverse(path)
+			return path
 		}
 
-		if !visited[current.vertex] {
-			visited[current.vertex] = true
+		if _, seen := parent[current.vertex]; !seen {
+			parent[current.vertex] = current.via
 
 			neighbors := graph[current.vertex]
 			for i := len(neighbors) - 1; i >= 0; i-- {
 				neighbor := neighbors[i]
-				if !visited[neighbor] {
-					newPath := make([]int, len(current.path))
-					copy(newPath, current.path)
-					newPath = append(newPath, neighbor)
-					stack = append(stack, pathNode{vertex: neighbor, path: newPath})
+				if _, seen := parent[neighbor]; !seen {
+					stack = append(stack, stackEntry{vertex: neighbor, via: current.vertex})
 				}
 			}
 		}
@@ -118,8 +126,11 @@ func DFSDetectCycle(graph map[int][]int, directed bool) bool {
 	visited := make(map[int]bool)
 	recStack := make(map[int]bool)
 
-	var hasCycle func(int, int) bool
-	hasCycle = func(vertex, parent int) bool {
+	// hasParent says whether parent is meaningful (false for a DFS root), so no
+	// vertex value has to serve as a "no parent" sentinel: every int, including
+	// -1, is a valid vertex. parent is only used for undirected graphs.
+	var hasCycle func(vertex, parent int, hasParent bool) bool
+	hasCycle = func(vertex, parent int, hasParent bool) bool {
 		visited[vertex] = true
 		if directed {
 			recStack[vertex] = true
@@ -127,18 +138,14 @@ func DFSDetectCycle(graph map[int][]int, directed bool) bool {
 
 		for _, neighbor := range graph[vertex] {
 			if !visited[neighbor] {
-				parentVal := parent
-				if !directed {
-					parentVal = vertex
-				}
-				if hasCycle(neighbor, parentVal) {
+				if hasCycle(neighbor, vertex, true) {
 					return true
 				}
 			} else if directed {
 				if recStack[neighbor] {
 					return true
 				}
-			} else if neighbor != parent {
+			} else if !hasParent || neighbor != parent {
 				return true
 			}
 		}
@@ -151,7 +158,7 @@ func DFSDetectCycle(graph map[int][]int, directed bool) bool {
 
 	for vertex := range graph {
 		if !visited[vertex] {
-			if hasCycle(vertex, -1) {
+			if hasCycle(vertex, 0, false) {
 				return true
 			}
 		}

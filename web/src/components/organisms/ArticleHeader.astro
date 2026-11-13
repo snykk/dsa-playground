@@ -1,0 +1,142 @@
+---
+import type { Level } from '../../lib/article';
+import { formatInline } from '../../lib/inline';
+import { getContent, githubUrl, joinBase, type DocNode } from '../../lib/repo';
+import Button from '../atoms/Button.astro';
+import Icon from '../atoms/Icon.astro';
+import LevelMeter from '../atoms/LevelMeter.astro';
+import Breadcrumbs from '../molecules/Breadcrumbs.astro';
+
+/** Top of an article: breadcrumbs, title, lead, difficulty and dates, prerequisites and quick actions. */
+interface Props {
+  node: DocNode;
+  title: string;
+  lead: string;
+  level: Level;
+  updated: Date;
+  prerequisites: string[];
+  hasViz: boolean;
+}
+
+const { node, title, lead, level, updated, prerequisites, hasViz } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const content = getContent();
+const before = prerequisites.map((rel) => {
+  const n = content.byRel.get(rel);
+  if (!n) throw new Error(`Article "${title}": unknown prerequisite folder "${rel}"`);
+  return n;
+});
+const languages = node.languages.map((l) => l.label).join(', ');
+const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+---
+
+<header class="article-header">
+  <Breadcrumbs node={node} />
+  <h1>{title}</h1>
+  <p class="lead" set:html={formatInline(lead)} />
+
+  <div class="meta">
+    <LevelMeter level={level} />
+    {languages && <span>{languages}</span>}
+    <span class="updated">
+      <Icon name="clock" size={14} />
+      Updated <time datetime={updated.toISOString().slice(0, 10)}>{date}</time>
+    </span>
+  </div>
+
+  {
+    before.length > 0 && (
+      <p class="before">
+        <span class="before-label">Before you start</span>
+        {before.map((n) => (
+          <a href={joinBase(base, n.slug)}>{n.title}</a>
+        ))}
+      </p>
+    )
+  }
+
+  <div class="actions">
+    {
+      hasViz && (
+        <Button href="#visualize" variant="primary" size="sm">
+          <Icon name="play" size={15} /> Visualize
+        </Button>
+      )
+    }
+    {
+      node.languages.length > 0 && (
+        <Button href="#code" size="sm">
+          <Icon name="code" size={15} /> Code
+        </Button>
+      )
+    }
+    <Button href={githubUrl(node.rel, true)} size="sm" external>
+      <Icon name="github" size={15} /> GitHub
+    </Button>
+  </div>
+</header>
+
+<style>
+  .article-header {
+    margin-bottom: 28px;
+  }
+  h1 {
+    font-size: clamp(30px, 4.4vw, 40px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 4px 0 12px;
+  }
+  .lead {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--text-2);
+    margin: 0 0 16px;
+    max-width: 68ch;
+  }
+  .lead :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .updated {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-3);
+  }
+  .before {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 12px 0 0;
+    font-size: 14px;
+  }
+  .before-label {
+    color: var(--text-3);
+    font-weight: 600;
+  }
+  .before a {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .before a:hover {
+    background: var(--surface-3);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+</style>

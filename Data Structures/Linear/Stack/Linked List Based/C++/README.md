@@ -1,49 +1,41 @@
-# ⚡ Linked List-Based Stack (C++)
+# Linked List Stack -- C++ Implementation
 
-This folder contains the **C++ implementation** of a stack using a **singly linked list**.
+A LIFO stack of `int` on a singly linked list of heap-allocated nodes. See the [topic README](../README.md) for the concept.
 
----
+## Files
 
-## 📌 Files
+| File | Contents |
+| --- | --- |
+| `linked_list_stack.cpp` | the `LinkedListStack` class with a private `Node` |
+| `linked_list_stack_test.cpp` | assert-based tests, built with `-DIS_TEST_BUILD`; counts allocations to check that nodes are freed |
 
-- `linked_list_stack.cpp` → Implementation
-- `linked_list_stack_test.cpp` → Test file using `assert`
+## API
 
----
+| Member | Description | Time |
+| --- | --- | --- |
+| `LinkedListStack()` | create an empty stack | O(1) |
+| `void push(int value)` | new node becomes the top | O(1) |
+| `int pop()` | remove, free and return the top; throws `std::underflow_error` if empty | O(1) |
+| `int peek()` | return the top by value; throws `std::underflow_error` if empty | O(1) |
+| `bool isEmpty()`, `int size()` | state queries | O(1) |
 
-## ⚡ Example Usage
+## C++-Specific Notes
 
-```cpp
-#include "linked_list_stack.cpp"
-#include <iostream>
-using namespace std;
+- Nodes are allocated with `new` in `push` and `delete`d in `pop`.
+- The destructor pops every remaining node, so a stack that goes out of scope does not leak.
+- Copy constructor and copy assignment are deleted: a shallow copy would share nodes and free them twice.
+- `Node` is a private nested type, so it cannot collide with another `Node` in the same program.
+- The destructor frees nodes in a loop, so a very long stack does not overflow the call stack.
 
-int main() {
-    LinkedListStack s;
-    s.push(10);
-    s.push(20);
-    cout << s.peek() << endl; // 20
-    cout << s.pop() << endl;  // 20
-    cout << s.size() << endl; // 1
-}
-```
-
----
-
-## 🧪 Run Tests
+## How to Run
 
 ```bash
-g++ linked_list_stack_test.cpp -o test && ./test
+cd "Data Structures/Linear/Stack/Linked List Based/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD linked_list_stack_test.cpp -o linked_list_stack_test
+./linked_list_stack_test
 ```
 
----
+## Key Takeaways
 
-## ⏱️ Complexity
-
-| Operation | Time Complexity |
-| --------- | --------------- |
-| Push      | O(1)            |
-| Pop       | O(1)            |
-| Peek      | O(1)            |
-| isEmpty   | O(1)            |
-| Size      | O(1)            |
+- Every `new` needs a matching `delete`, including nodes still on the stack at destruction.
+- A class that owns raw nodes must not be copied naively.

@@ -1,3 +1,4 @@
+import random
 import unittest
 from red_black_tree import RedBlackTree
 
@@ -68,6 +69,64 @@ class TestRedBlackTree(unittest.TestCase):
         # Verify sorted order
         result = self.rbt.inorder_traversal()
         self.assertEqual(result, sorted(values))
+
+def check_invariants(tree):
+    """Return the black height; raise AssertionError if any rule is broken."""
+    nil = tree.NIL
+    assert tree.root.color == 1, "root must be black"
+
+    def walk(node, lo, hi):
+        if node is nil:
+            return 1
+        if lo is not None:
+            assert node.data >= lo
+        if hi is not None:
+            assert node.data <= hi
+        if node.color == 0:
+            assert node.left.color == 1 and node.right.color == 1, "red-red"
+        for child in (node.left, node.right):
+            if child is not nil:
+                assert child.parent is node
+        lh = walk(node.left, lo, node.data)
+        rh = walk(node.right, node.data, hi)
+        assert lh == rh, "black heights differ"
+        return lh + (1 if node.color == 1 else 0)
+
+    return walk(tree.root, None, None)
+
+
+class TestRedBlackInvariants(unittest.TestCase):
+    def test_random_inserts_with_duplicates(self):
+        rng = random.Random(7)
+        for _ in range(40):
+            t = RedBlackTree()
+            n = rng.randint(1, 150)
+            for _ in range(n):
+                t.insert(rng.randint(0, 50))
+                check_invariants(t)
+            self.assertEqual(t.size(), n)
+            out = t.inorder_traversal()
+            self.assertEqual(out, sorted(out))
+
+    def test_sorted_input_height_bound(self):
+        t = RedBlackTree()
+        for i in range(1000):
+            t.insert(i)
+        check_invariants(t)
+        self.assertLessEqual(t.height(), 20)  # 2 * log2(1001) = 19.9
+
+    def test_find_min_max_empty(self):
+        t = RedBlackTree()
+        self.assertIsNone(t.find_min())
+        self.assertIsNone(t.find_max())
+
+    def test_min_max(self):
+        t = RedBlackTree()
+        for v in [5, 1, 9, 3]:
+            t.insert(v)
+        self.assertEqual(t.find_min(), 1)
+        self.assertEqual(t.find_max(), 9)
+
 
 if __name__ == "__main__":
     unittest.main()

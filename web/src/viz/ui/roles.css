@@ -1,0 +1,35 @@
+/* Role -> color token mapping shared by every visualization atom. */
+.viz .role-idle { --role: var(--viz-neutral); }
+.viz .role-compare { --role: var(--viz-compare); }
+.viz .role-active { --role: var(--viz-active); }
+.viz .role-done { --role: var(--viz-done); }
+.viz .role-good { --role: var(--viz-good); }
+.viz .role-bad { --role: var(--viz-bad); }
+.viz .role-muted { --role: var(--viz-neutral); }
+
+@media (prefers-reduced-motion: reduce) {
+  .viz *,
+  .viz *::before,
+  .viz *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Shared motion: a short pop when something becomes current, marching dashes for "being examined". */
+@keyframes viz-pop {
+  0% {
+    transform: scale(0.82);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes viz-march {
+  to {
+    stroke-dashoffset: -30;
+  }
+}

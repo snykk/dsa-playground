@@ -1,41 +1,43 @@
-# K-D Tree — Go Implementation
+# K-D Tree -- Go Implementation
 
-Runtime-variable dimensionality K-D Tree supporting build, insert, nearest-neighbor, and range queries.
-
-For the conceptual overview, see the parent README: [../README.md](../README.md)
-
----
+A K-D tree with runtime dimensionality, supporting build, insert, nearest-neighbour and range queries. See the [topic README](../README.md) for the idea and a trace.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | `KDTree` type with `Insert`, `Nearest`, `RangeSearch` methods |
-| `main_test.go` | 9 tests: textbook example, random cross-check, 3D support |
-| `go.mod` | Module definition |
+| File | Contents |
+| ---- | -------- |
+| `main.go` | `KDTree`, `Point` and a small demo `main` |
+| `main_test.go` | tests: textbook example, random cross-checks against brute force, 3D, dimension-mismatch panics |
+| `go.mod` | module `kd_tree` (Go 1.24.2) |
 
----
+## API
+
+| Call | Result |
+| ---- | ------ |
+| `NewKDTree(points []Point) *KDTree` | balanced build; panics if the points differ in length |
+| `Dimensionality() int` | the number k |
+| `Insert(p Point)` | adds a point as a leaf (iterative); no rebalancing; panics on a wrong size |
+| `Nearest(query Point) Point` | the closest stored point, or `nil` on an empty tree; panics on a wrong size |
+| `RangeSearch(lo, hi Point) []Point` | points inside the box; panics on wrong-sized bounds |
 
 ## Go-Specific Notes
 
-- **`Point = []float64`** for runtime-variable dimensionality. Unlike C++'s compile-time `K`, Go users specify dimensionality by the length of the first inserted point.
-- **`sort.Slice` with axis closure**: clean way to pivot-sort by different axes at different levels without duplicating code.
-- **`*node` pointers** with automatic GC: no manual lifetime management. Dropping the tree reference lets GC reclaim the whole structure.
-- **Panic on dimensionality mismatch**: `Insert(p)` panics if `len(p) != k`. Matches Go stdlib conventions for programmer errors (like slice indexing).
-- **No generics**: uses concrete `float64`. A 1.18+ version could be `type Point[T constraints.Float] []T`.
-
----
+- `Point` is `[]float64`; the dimensionality is the length of the first point.
+- The build uses `sort.Slice` at every level, O(n log^2 n) overall; C++ is O(n log n) with `nth_element`.
+- Errors are panics with a message, like a bad slice index, not returned errors.
+- Queries are recursive. Go stacks grow dynamically, so a deep chain is not a crash risk the way it is in C++, but it is still slow.
+- The garbage collector frees dropped trees.
 
 ## How to Run
 
 ```bash
-go test -v ./...
+cd "Data Structures/Non_Linear/Trees/K-D Tree/Go"
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Runtime-variable k** is Go's typical approach; C++ templates give compile-time K. Pick based on whether you know the dimensionality at compile time.
-2. **`sort.Slice` per recursive call** — the axis parameter changes at each level, so the comparator must capture it. A closure handles this cleanly.
-3. **Squared distance — not Euclidean.** `math.Sqrt` is expensive in the inner loop. For comparison (`a < b`), squared distance gives the same answer without the square root.
+- Runtime k is simple; check the length of every query.
+- Compare squared distances.
+- Build from the full list for a balanced tree.

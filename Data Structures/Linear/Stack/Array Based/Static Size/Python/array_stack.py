@@ -1,29 +1,39 @@
 """
 Static-Size Array-Based Stack implementation in Python.
 
-A stack backed by a Python list that follows the Last-In-First-Out
-(LIFO) principle. Although Python lists are inherently dynamic, this
-implementation represents the static-size stack concept.
+A stack backed by a preallocated list of fixed capacity that follows the
+Last-In-First-Out (LIFO) principle. The list is created once and never
+grows: pushing onto a full stack raises OverflowError.
 """
 
 
 class ArrayStack:
     """
-    Array-based stack data structure.
+    Fixed-capacity array-based stack data structure.
 
     Supported operations:
-        - push: Add a value to the top of the stack.
+        - push: Add a value to the top of the stack (fails when full).
         - pop: Remove and return the top value.
         - peek: View the top value without removing it.
         - is_empty: Check whether the stack is empty.
         - size: Return the number of elements in the stack.
     """
 
-    def __init__(self):
+    def __init__(self, capacity=100):
         """
-        Initialize an empty stack.
+        Initialize an empty stack with a fixed capacity.
+
+        Args:
+            capacity: The maximum number of items (default 100).
+
+        Raises:
+            ValueError: If capacity is less than 1.
         """
-        self.stack = []
+        if capacity < 1:
+            raise ValueError("Capacity must be at least 1")
+        self.capacity = capacity
+        self.stack = [None] * capacity
+        self.top = -1
 
     def push(self, value):
         """
@@ -32,9 +42,15 @@ class ArrayStack:
         Args:
             value: The value to push.
 
+        Raises:
+            OverflowError: If the stack is full.
+
         Time Complexity: O(1)
         """
-        self.stack.append(value)
+        if self.top == self.capacity - 1:
+            raise OverflowError("Stack overflow")
+        self.top += 1
+        self.stack[self.top] = value
 
     def pop(self):
         """
@@ -50,7 +66,10 @@ class ArrayStack:
         """
         if self.is_empty():
             raise IndexError("Pop from empty stack")
-        return self.stack.pop()
+        value = self.stack[self.top]
+        self.stack[self.top] = None  # do not keep the popped object alive
+        self.top -= 1
+        return value
 
     def peek(self):
         """
@@ -66,7 +85,7 @@ class ArrayStack:
         """
         if self.is_empty():
             raise IndexError("Peek from empty stack")
-        return self.stack[-1]
+        return self.stack[self.top]
 
     def is_empty(self):
         """
@@ -77,7 +96,7 @@ class ArrayStack:
 
         Time Complexity: O(1)
         """
-        return len(self.stack) == 0
+        return self.top == -1
 
     def size(self):
         """
@@ -88,4 +107,4 @@ class ArrayStack:
 
         Time Complexity: O(1)
         """
-        return len(self.stack)
+        return self.top + 1

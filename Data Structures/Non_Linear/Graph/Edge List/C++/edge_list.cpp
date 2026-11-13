@@ -123,9 +123,22 @@ public:
     int get_edge_count() {
         if (directed) {
             return weighted ? edges.size() : edges_unweighted.size();
-        } else {
-            return (weighted ? edges.size() : edges_unweighted.size()) / 2;
         }
+        // An undirected edge u-v is stored twice, but a self-loop u-u only once.
+        int stored = 0;
+        int loops = 0;
+        if (weighted) {
+            stored = edges.size();
+            for (const auto& e : edges) {
+                if (get<0>(e) == get<1>(e)) loops++;
+            }
+        } else {
+            stored = edges_unweighted.size();
+            for (const auto& e : edges_unweighted) {
+                if (e.first == e.second) loops++;
+            }
+        }
+        return (stored - loops) / 2 + loops;
     }
 
     vector<int> bfs(int start_vertex) {

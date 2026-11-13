@@ -33,12 +33,12 @@ Given n activities with their start and finish times, we want to select the maxi
 
 | Complexity | Time | Space |
 |------------|------|-------|
-| **All Cases** | O(n log n) | O(1) |
+| **All Cases** | O(n log n) | O(n) |
 
 **Note**: 
 - O(n log n) is for sorting activities by finish time
 - Selection itself is O(n) after sorting
-- Space is O(1) excluding output array
+- Space is O(n) for the sorted copy of the activities
 
 ---
 
@@ -50,7 +50,7 @@ Given n activities with their start and finish times, we want to select the maxi
    - Standard greedy activity selection
    - Takes vector of pairs (start_time, finish_time)
    - Returns vector of selected activity indices (0-indexed)
-   - Time: O(n log n), Space: O(1) excluding output
+   - Time: O(n log n), Space: O(n) (sorted copy)
 
 ### Data Structures
 
@@ -103,7 +103,7 @@ int main() {
 1. ✅ **Optimal**: Greedy gives optimal solution
 2. ✅ **Efficient**: O(n log n) time complexity
 3. ✅ **Simple**: Easy to understand and implement
-4. ✅ **Space efficient**: O(1) space excluding output
+4. ✅ **Space efficient**: O(n) extra space (one sorted copy)
 
 ---
 
@@ -139,7 +139,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++11 activity_selection.cpp activity_selection_test.cpp -o test
+g++ -std=c++17 activity_selection_test.cpp -o test
 ./test
 ```
 
@@ -150,7 +150,7 @@ g++ -std=c++11 activity_selection.cpp activity_selection_test.cpp -o test
 Run the test suite:
 
 ```bash
-g++ -std=c++11 activity_selection_test.cpp -o test && ./test
+g++ -std=c++17 activity_selection_test.cpp -o test && ./test
 ```
 
 ---

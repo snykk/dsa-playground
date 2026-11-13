@@ -25,9 +25,14 @@ class DSU:
         Args:
             n: Number of elements.
 
+        Raises:
+            ValueError: If n is negative.
+
         Time:  O(n)
         Space: O(n)
         """
+        if n < 0:
+            raise ValueError("n must be non-negative")
         self.parent = list(range(n))
         self.rank = [0] * n
         self.size = [1] * n
@@ -46,8 +51,14 @@ class DSU:
         Returns:
             Root of the set containing x.
 
+        Raises:
+            IndexError: If x is not in [0, n). Negative values are rejected
+                instead of silently aliasing element n-1.
+
         Time:  O(alpha(n)) amortized
         """
+        if not 0 <= x < len(self.parent):
+            raise IndexError("element %d is out of range [0, %d)" % (x, len(self.parent)))
         if self.parent[x] != x:
             self.parent[x] = self.find(self.parent[x])
         return self.parent[x]
@@ -101,6 +112,14 @@ class DSU:
         Time:  O(alpha(n)) amortized
         """
         return self.find(x) == self.find(y)
+
+    def get_parent(self, x: int) -> int:
+        """
+        Return the direct parent of x without compressing (useful in tests).
+
+        Time:  O(1)
+        """
+        return self.parent[x]
 
     def get_component_count(self) -> int:
         """

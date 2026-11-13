@@ -1,48 +1,36 @@
-# Collision Handling (Python)
+# Collision Handling -- Python Implementation
 
-Demonstrates two main collision handling techniques in hash tables.
+Chaining, linear probing and quadratic probing. See the [topic README](../README.md).
 
----
+## Files
 
-## 1. Chaining
+- `collision_handling.py`: `HashTableChaining`, a shared base `_OpenAddressing`, and its subclasses `HashTableOpenAddressing` (linear) and `HashTableQuadraticProbing`.
+- `collision_handling_test.py`: tests, including forced collisions, tombstones, wrap-around, a full table and a differential test against `dict`.
 
-Each bucket contains a list of key-value pairs. Collisions are handled by storing multiple pairs in the same bucket.
+## API
 
-**Advantages:**
-- Simple to implement
-- No clustering issues
-- Can store more elements than capacity
+| Member | Description |
+|--------|-------------|
+| `HashTableChaining(capacity=16)` | `put`, `get` (None if absent), `remove` (True if removed), `size` |
+| `HashTableOpenAddressing(capacity=16)` | linear probing; same methods |
+| `HashTableQuadraticProbing(capacity=16)` | triangular-number probing; same methods |
 
-**Disadvantages:**
-- Extra memory for pointers
-- Cache performance may be worse
+`put` raises `Exception("Hash table is full")` for a new key in a full open-addressing table. Capacity 0 or less raises `ValueError`.
 
----
+## Python-Specific Notes
 
-## 2. Open Addressing
+- Open addressing walks the whole probe sequence once (`_probe`), remembering the first tombstone, so `put` never duplicates a key.
+- `get` returns None for a missing key, so a stored None value is indistinguishable from a miss.
+- Integers hash as `key mod capacity` (non-negative in Python), strings with `h*31 + c`, other keys with built-in `hash()`.
 
-Finds next available slot using probing when collision occurs.
+## How to Run
 
-### Linear Probing
-- Next slot: `(hash + 1) % capacity`
-- Simple but can cause clustering
+```bash
+python3 -m unittest collision_handling_test
+```
 
-### Quadratic Probing
-- Next slot: `(hash + i²) % capacity`
-- Reduces clustering compared to linear
+## Key Takeaways
 
-**Advantages:**
-- Better cache performance
-- No extra memory for pointers
-
-**Disadvantages:**
-- Clustering can occur
-- Load factor must be kept low
-
----
-
-## Related Data Structures
-
-- **Hash Table**: Basic hash table implementation
-- **Hash Map**: Extended hash table
-
+- Tombstones keep probe sequences intact after a delete.
+- Triangular steps cover a power-of-two table; plain squares do not.
+- Check the whole sequence before inserting.

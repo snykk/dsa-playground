@@ -12,6 +12,22 @@ public:
     Node* head;
     CircularLinkedList(): head(nullptr) {}
 
+    // Owns its nodes: copying would make two lists free the same ring.
+    CircularLinkedList(const CircularLinkedList&) = delete;
+    CircularLinkedList& operator=(const CircularLinkedList&) = delete;
+
+    ~CircularLinkedList() {
+        if(!head) return;
+        Node* tail = head;
+        while(tail->next != head) tail = tail->next;
+        tail->next = nullptr;  // open the ring, then free it as a plain chain
+        while(head) {
+            Node* next = head->next;
+            delete head;
+            head = next;
+        }
+    }
+
     void insertAtHead(int val) {
         Node* newNode = new Node(val);
         if(!head) {
@@ -41,12 +57,18 @@ public:
 
     void deleteValue(int key) {
         if(!head) return;
+        if(head->next == head) {  // a single node: it is also the tail
+            if(head->data == key) {
+                delete head;
+                head = nullptr;
+            }
+            return;
+        }
         Node *curr = head, *prev = nullptr;
         do {
             if(curr->data == key) {
                 if(prev) {
                     prev->next = curr->next;
-                    if(curr == head) head = curr->next;
                 } else {
                     Node* tail = head;
                     while(tail->next != head) tail = tail->next;

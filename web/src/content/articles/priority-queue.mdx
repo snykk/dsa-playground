@@ -1,0 +1,212 @@
+---
+topic: Data Structures/Linear/Queue/Priority Queue
+title: Priority Queue
+lead: A priority queue serves the item with the best priority first, not the one that arrived first. The repository builds it on a binary min heap, so enqueue and dequeue cost O(log n), peek is O(1), and equal priorities leave in insertion order.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Enqueue
+    value: O(log n)
+  - label: Dequeue
+    value: O(log n)
+  - label: Peek
+    value: O(1)
+  - label: Equal priorities
+    value: FIFO
+    hint: an insertion counter breaks ties
+properties:
+  - { label: Heap-backed, value: true }
+  - { label: Lowest value first, value: true }
+  - { label: Stable for ties, value: true }
+  - { label: Sorted iteration, value: false }
+prerequisites:
+  - Data Structures/Non_Linear/Heaps/Min Heap
+  - Data Structures/Linear/Queue/Simple Queue
+related:
+  - Data Structures/Non_Linear/Heaps/Min Heap
+  - Data Structures/Non_Linear/Heaps/Max Heap
+  - Algorithms/Sorting/Heap Sort
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
+---
+
+## What a priority queue is
+
+A priority queue is an abstract data type: a collection where each item carries a priority and `dequeue` always returns the item with the best one. A simple queue answers "who came first?". A priority queue answers "who matters most?".
+
+This repository's priority queue treats a **lower number as a higher priority**, so `dequeue` returns the smallest priority value. To get the largest first, negate the priority when you enqueue.
+
+The structure behind the interface is a binary min heap stored in an array. The Min Heap article explains the heap itself (sift up, sift down, the index formulas). Here the focus is the interface and the tie rule.
+
+Every entry stores three things: the priority, an insertion counter and the item. The heap orders entries by `(priority, counter)`. Since the counter is unique and always grows, no two entries compare equal.
+
+<TreeDiagram
+  levelOrder={[1, 1, 3, 3, 2]}
+  badges={['#1', '#4', '#2', '#0', '#3']}
+  tones="f...."
+  legend={{ f: 'next to leave: lowest priority, earliest counter' }}
+  caption="Five entries after enqueueing `write report` (3), `fix bug` (1), `email` (3), `deploy` (2), `review` (1). The number in a node is its priority and the badge is its insertion counter."
+/>
+
+<Callout title="Priority first, arrival second">
+The counter makes equal priorities behave like an ordinary queue. `fix bug` and `review` both have priority 1, and `fix bug` leaves first because its counter (1) is smaller than the counter of `review` (4).
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`enqueue(item, priority)`', 'append an entry to the heap array and sift it up', 'O(log n)'],
+    ['`dequeue()`', 'remove the root, move the last entry to the root, sift it down; returns the item only', 'O(log n)'],
+    ['`peek()`', 'return the root item without removing it', 'O(1)'],
+    ['`is_empty()`, `size()`', 'length checks', 'O(1)'],
+    ['`clear()`', 'drop all entries and reset the counter to 0', 'O(1) in Python and Go, O(n) in C++'],
+  ]}
+/>
+
+Dequeue and peek on an empty queue raise `IndexError` in Python, throw `std::runtime_error` in C++ and return an error in Go. In C++ and Go the item and the priority are `int`. Python stores any object as the item, and the priorities only need to be comparable with each other.
+
+### Enqueue: sift up
+
+The new entry goes at the end of the array and swaps with its parent while it is smaller. The comparison is on `(priority, counter)`. Enqueueing `review` (priority 1, counter 4) into a heap of four entries:
+
+<ArrayDiagram
+  legend={{ p: 'new entry', l: 'its parent' }}
+  rows={[
+    { label: 'heap before', values: ['1 #1', '2 #3', '3 #2', '3 #0'], tones: '....', note: 'Each cell shows `priority #counter`.' },
+    { label: 'append', values: ['1 #1', '2 #3', '3 #2', '3 #0', '1 #4'], tones: '.l..p', marks: { 4: 'new', 1: 'parent' }, note: 'Index 4 has parent index 1. `1 #4` is smaller than `2 #3`, so swap.' },
+    { label: 'swap', values: ['1 #1', '1 #4', '3 #2', '3 #0', '2 #3'], tones: 'lp...', marks: { 1: 'new', 0: 'parent' }, note: 'Compare with the root: `1 #1` is smaller than `1 #4` because its counter is smaller. Stop.' },
+  ]}
+/>
+
+### Dequeue: sift down
+
+The root is the answer. The last entry replaces it and sinks, swapping with the smaller child. Dequeuing from the five-entry heap above returns `fix bug`:
+
+<ArrayDiagram
+  legend={{ p: 'entry sinking', l: 'its children', f: 'settled' }}
+  rows={[
+    { label: 'remove root', values: ['2 #3', '1 #4', '3 #2', '3 #0'], tones: 'pll.', marks: { 0: 'i = 0' }, note: 'Returns `fix bug`. The last entry `2 #3` moves to the root.' },
+    { label: 'swap', values: ['1 #4', '2 #3', '3 #2', '3 #0'], tones: 'fp.l', marks: { 1: 'i = 1' }, note: 'The smaller child is `1 #4`, so swap. Index 1 has one child `3 #0`, which is larger: stop.' },
+  ]}
+/>
+
+Dequeuing everything from this queue gives `fix bug`, `review`, `deploy`, `write report`, `email`.
+
+## Pseudocode
+
+```text
+enqueue(item, priority):
+    entry = (priority, counter, item)
+    counter = counter + 1
+    heap.append(entry)
+    siftUp(last index)            # swap with parent while entry < parent
+
+dequeue():
+    if heap is empty: error
+    top = heap[0]
+    heap[0] = heap.last
+    remove heap.last
+    siftDown(0)                   # swap with the smaller child while larger
+    return top.item
+```
+
+Python uses `heapq` for the sift steps, with the tuple `(priority, counter, item)`. C++ implements `heapify_up` and `heapify_down` by hand over a `std::vector`. Go uses `container/heap` with a `Less` that compares priority and then counter.
+
+## Implementation
+
+The three versions expose the same `enqueue`, `dequeue`, `peek`, `is_empty`, `size` and `clear`. In Go, the exported `PriorityQueue` type is the raw heap slice and `PriorityQueueWrapper` is the API to use. The C++ tie-break counter is a 64-bit unsigned integer.
+
+<TopicCode topic="Data Structures/Linear/Queue/Priority Queue" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['enqueue', 'O(log n)', 'at most one swap per level; a heap with n entries has about log2(n) levels'],
+    ['dequeue', 'O(log n)', 'one sift down from the root to a leaf'],
+    ['peek', 'O(1)', 'the best entry is always at index 0'],
+    ['search for an arbitrary item', 'O(n)', 'a heap is only ordered along parent-child paths'],
+  ]}
+/>
+
+Space is O(n) for the entries. The tie-break counter adds one integer per entry.
+
+## Ways to build a priority queue
+
+<DataTable
+  columns={['Representation', { label: 'Enqueue', kind: 'mono' }, { label: 'Dequeue', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Binary heap (this repository)', 'O(log n)', 'O(log n)', 'the standard choice, array-based'],
+    ['Unsorted array', 'O(1)', 'O(n)', 'scan for the best entry on every dequeue'],
+    ['Sorted array', 'O(n)', 'O(1)', 'inserts shift items; keep the best at the end for O(1) removal'],
+    ['Balanced BST', 'O(log n)', 'O(log n)', 'also gives sorted iteration, more overhead'],
+    ['Fibonacci heap', 'O(1) amortized', 'O(log n) amortized', 'cheap decrease-key, mostly theoretical'],
+  ]}
+/>
+
+## Priority queue vs other queues
+
+<DataTable
+  columns={['Queue', 'Order of removal', 'Cost of dequeue']}
+  rows={[
+    ['Simple queue', 'arrival order', 'O(1) with a head index, O(n) with shifting'],
+    ['Circular queue', 'arrival order, bounded', 'O(1)'],
+    ['Deque', 'either end', 'depends on the design'],
+    ['Priority queue', 'best priority first', 'O(log n)'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Always yields the most urgent item in O(log n).',
+    'Equal priorities stay in arrival order, so results are predictable.',
+    'Compact: one array, no pointers.',
+    'The interface hides the representation, so the heap can be replaced.',
+  ]}
+  cons={[
+    'Not a sorted list: you cannot iterate in order without removing items.',
+    'Changing the priority of an item that is already queued is not supported.',
+    'Searching or removing an arbitrary item is O(n).',
+    'Each entry stores an extra counter for the tie-break.',
+  ]}
+/>
+
+## Applications
+
+- **Task and event scheduling:** run the most urgent job next.
+- **Dijkstra's algorithm and Prim's algorithm:** repeatedly take the closest or cheapest vertex.
+- **Heap Sort** and **top-k** selection, which are built on the same heap.
+- **Merging k sorted lists:** keep the current head of every list in the queue.
+- **Simulations:** process events in time order, with ties handled in arrival order.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming a bigger number means higher priority.** Here the smallest priority value leaves first. Negate priorities for a max priority queue: after enqueueing priorities -10, -5 and -1, the first `dequeue` returns the item with priority -10.
+- **Expecting `dequeue` to return the priority.** It returns the item only.
+- **Expecting sorted iteration.** Only the root is guaranteed to be the best entry.
+- **Relying on tie order from a plain heap.** A bare heap is not stable. The counter is what keeps equal priorities in insertion order.
+- **Dequeuing from an empty queue.** Check `is_empty()` first.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How is a priority queue different from a heap?">
+    A priority queue is the interface: enqueue with a priority, dequeue the best. A heap is one way to implement it. This repository uses a binary min heap.
+  </FaqItem>
+  <FaqItem question="What happens to items with the same priority?">
+    They leave in the order they were enqueued. Each entry gets an increasing counter and the heap compares `(priority, counter)`.
+  </FaqItem>
+  <FaqItem question="How do I get a max priority queue?">
+    Negate the priority on the way in, so a larger priority becomes a smaller number. The item you get back is unchanged.
+  </FaqItem>
+  <FaqItem question="Does clear() reset the tie-break counter?">
+    Yes. All three versions reset it to 0, which is safe because the queue is empty.
+  </FaqItem>
+</Faq>

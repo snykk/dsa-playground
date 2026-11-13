@@ -2,27 +2,39 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
+#include <algorithm>
 using namespace std;
 
 struct RopeNode {
     shared_ptr<RopeNode> left;
     shared_ptr<RopeNode> right;
-    int weight;
-    string data;
+    int weight;   // length of the left subtree (leaf: its own length)
+    int length;   // cached length of the whole subtree
+    int height;   // cached height: a leaf is 0
+    string data;  // leaves hold a non-empty fragment
 
     // Leaf node constructor
-    RopeNode(const string& s) : weight(s.size()), data(s) {}
+    RopeNode(const string& s) : weight(s.size()), length(s.size()), height(0), data(s) {}
 
     // Internal node constructor
-    RopeNode() : weight(0) {}
+    RopeNode() : weight(0), length(0), height(0) {}
 };
 
 using NodePtr = shared_ptr<RopeNode>;
 
-int ropeLength(const NodePtr& node) {
-    if (!node) return 0;
-    if (!node->data.empty()) return node->data.size();
-    return node->weight + ropeLength(node->right);
+int ropeLength(const NodePtr& node) { return node ? node->length : 0; }
+
+int ropeHeight(const NodePtr& node) { return node ? node->height : -1; }
+
+// A new internal node over two non-empty subtrees, with its cached fields set.
+NodePtr makeNode(const NodePtr& left, const NodePtr& right) {
+    auto parent = make_shared<RopeNode>();
+    parent->left = left;
+    parent->right = right;
+    parent->weight = left->length;
+    parent->length = left->length + right->length;
+    parent->height = 1 + max(left->height, right->height);
+    return parent;
 }
 
 char ropeIndex(const NodePtr& node, int i) {
@@ -51,21 +63,41 @@ NodePtr ropeBuild(const string& text, int leafSize = 10) {
     if ((int)text.size() <= leafSize)
         return make_shared<RopeNode>(text);
     int mid = text.size() / 2;
-    auto parent = make_shared<RopeNode>();
-    parent->left = ropeBuild(text.substr(0, mid), leafSize);
-    parent->right = ropeBuild(text.substr(mid), leafSize);
-    parent->weight = ropeLength(parent->left);
-    return parent;
+    return makeNode(ropeBuild(text.substr(0, mid), leafSize),
+                    ropeBuild(text.substr(mid), leafSize));
 }
 
-NodePtr concatNodes(const NodePtr& left, const NodePtr& right) {
+NodePtr ropeJoin(const NodePtr& left, const NodePtr& right);
+
+// left is taller: attach right somewhere down left's right spine.
+NodePtr joinRight(const NodePtr& left, const NodePtr& right) {
+    NodePtr joined = ropeJoin(left->right, right);
+    if (joined->height <= left->left->height + 1) return makeNode(left->left, joined);
+    // joined is two levels taller than left->left: rotate it up
+    if (joined->left->height <= joined->right->height)
+        return makeNode(makeNode(left->left, joined->left), joined->right);
+    return makeNode(makeNode(left->left, joined->left->left),
+                    makeNode(joined->left->right, joined->right));
+}
+
+// right is taller: attach left somewhere down right's left spine.
+NodePtr joinLeft(const NodePtr& left, const NodePtr& right) {
+    NodePtr joined = ropeJoin(left, right->left);
+    if (joined->height <= right->right->height + 1) return makeNode(joined, right->right);
+    if (joined->right->height <= joined->left->height)
+        return makeNode(joined->left, makeNode(joined->right, right->right));
+    return makeNode(makeNode(joined->left, joined->right->left),
+                    makeNode(joined->right->right, right->right));
+}
+
+// Concatenate two subtrees, keeping the heights of siblings within 1 (AVL join):
+// O(|height(left) - height(right)| + 1).
+NodePtr ropeJoin(const NodePtr& left, const NodePtr& right) {
     if (!left) return right;
     if (!right) return left;
-    auto parent = make_shared<RopeNode>();
-    parent->left = left;
-    parent->right = right;
-    parent->weight = ropeLength(left);
-    return parent;
+    if (left->height > right->height + 1) return joinRight(left, right);
+    if (right->height > left->height + 1) return joinLeft(left, right);
+    return makeNode(left, right);
 }
 
 pair<NodePtr, NodePtr> ropeSplit(const NodePtr& node, int i) {
@@ -81,20 +113,12 @@ pair<NodePtr, NodePtr> ropeSplit(const NodePtr& node, int i) {
 
     if (i < node->weight) {
         auto [lp, rp] = ropeSplit(node->left, i);
-        auto newRight = make_shared<RopeNode>();
-        newRight->left = rp;
-        newRight->right = node->right;
-        newRight->weight = ropeLength(rp);
-        return {lp, newRight};
+        return {lp, ropeJoin(rp, node->right)};
     }
 
     if (i > node->weight) {
         auto [lp, rp] = ropeSplit(node->right, i - node->weight);
-        auto newLeft = make_shared<RopeNode>();
-        newLeft->left = node->left;
-        newLeft->right = lp;
-        newLeft->weight = node->weight;
-        return {newLeft, rp};
+        return {ropeJoin(node->left, lp), rp};
     }
 
     // i == node->weight
@@ -121,7 +145,7 @@ public:
     }
 
     Rope concat(const Rope& other) const {
-        return Rope(concatNodes(root, other.root));
+        return Rope(ropeJoin(root, other.root));
     }
 
     pair<Rope, Rope> split(int i) const {
@@ -151,5 +175,10 @@ public:
 
     int length() const {
         return ropeLength(root);
+    }
+
+    // Height of the tree: 0 for a single leaf, -1 for an empty rope.
+    int height() const {
+        return ropeHeight(root);
     }
 };

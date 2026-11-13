@@ -1,0 +1,63 @@
+/* Article pages (hand-written MDX topics). Only the markdown parts are styled here;
+ * every component (tables, steps, callouts, ...) styles itself. Section breaks come
+ * from spacing and type, never from rules or underlines. */
+
+.article-body {
+  font-size: 16.5px;
+  line-height: 1.75;
+  overflow-wrap: break-word;
+}
+.article-body > h2 {
+  font-size: 26px;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  margin: 60px 0 14px;
+}
+.article-body > h2:first-child {
+  margin-top: 40px;
+}
+.article-body > h3 {
+  font-size: 19px;
+  line-height: 1.35;
+  margin: 34px 0 10px;
+}
+.article-body > p,
+.article-body > ul,
+.article-body > ol {
+  margin: 0 0 16px;
+}
+.article-body > ul,
+.article-body > ol {
+  padding-left: 22px;
+}
+.article-body li + li {
+  margin-top: 8px;
+}
+.article-body li::marker {
+  color: var(--text-3);
+}
+.article-body strong {
+  font-weight: 650;
+}
+/* Inline code in the prose; the visualization player and the code tabs style their own. */
+.article-body :not(pre) > code:not(.article-viz code, .topic-code code) {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  padding: 0.12em 0.4em;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.article-body > pre {
+  margin: 18px 0 24px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+.article-body > :last-child {
+  margin-bottom: 0;
+}

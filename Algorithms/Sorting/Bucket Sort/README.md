@@ -54,7 +54,7 @@ Where k is the number of buckets.
 ## When to Use
 
 - ✅ Uniformly distributed data
-- ✅ Floating point numbers in [0.0, 1.0)
+- ✅ Floating point numbers in [0.0, 1.0] (1.0 goes to the last bucket; the implementations reject negative or larger values)
 - ✅ When data can be partitioned into buckets
 - ❌ Non-uniformly distributed data
 - ❌ When worst-case performance matters
@@ -64,7 +64,7 @@ Where k is the number of buckets.
 ## Implementations
 
 - **Python** (`Python/`) - For floats and integers
-- **C++** (`C++/`) - Template-based implementation
+- **C++** (`C++/`) - `bucketSort(std::vector<double>&)`
 - **Go** (`Go/`) - Clean implementation
 
 ---

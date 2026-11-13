@@ -36,7 +36,7 @@ def tarjan_scc(graph: Dict[int, List[int]]) -> List[List[int]]:
     stack = []
     sccs = []
     
-    def strongconnect(vertex: int):
+    def discover(vertex: int, work: list):
         nonlocal index
         
         # Set discovery index and low-link
@@ -46,27 +46,45 @@ def tarjan_scc(graph: Dict[int, List[int]]) -> List[List[int]]:
         
         stack.append(vertex)
         on_stack.add(vertex)
-        
-        # Visit all neighbors
-        for neighbor in graph.get(vertex, []):
-            if neighbor not in indices:
-                # Neighbor not visited, recurse
-                strongconnect(neighbor)
-                low_link[vertex] = min(low_link[vertex], low_link[neighbor])
-            elif neighbor in on_stack:
-                # Neighbor is in stack, update low-link
-                low_link[vertex] = min(low_link[vertex], indices[neighbor])
-        
-        # If vertex is root of SCC, pop stack
-        if low_link[vertex] == indices[vertex]:
-            component = []
-            while True:
-                w = stack.pop()
-                on_stack.remove(w)
-                component.append(w)
-                if w == vertex:
+        work.append((vertex, iter(graph.get(vertex, []))))
+    
+    def strongconnect(start: int):
+        # Iterative DFS: `work` holds (vertex, neighbor iterator) pairs and plays
+        # the role of the call stack, in the same order as the recursive version,
+        # so long paths do not hit Python's recursion limit.
+        work = []
+        discover(start, work)
+        while work:
+            vertex, neighbors = work[-1]
+            
+            # Visit the remaining neighbors
+            for neighbor in neighbors:
+                if neighbor not in indices:
+                    # Neighbor not visited: descend into it ("recurse")
+                    discover(neighbor, work)
                     break
-            sccs.append(component)
+                if neighbor in on_stack:
+                    # Neighbor is in stack, update low-link
+                    low_link[vertex] = min(low_link[vertex], indices[neighbor])
+            else:
+                # All neighbors done: vertex is finished
+                work.pop()
+                
+                # If vertex is root of SCC, pop stack
+                if low_link[vertex] == indices[vertex]:
+                    component = []
+                    while True:
+                        w = stack.pop()
+                        on_stack.remove(w)
+                        component.append(w)
+                        if w == vertex:
+                            break
+                    sccs.append(component)
+                
+                # Back in the caller: propagate the low-link to the parent
+                if work:
+                    parent = work[-1][0]
+                    low_link[parent] = min(low_link[parent], low_link[vertex])
     
     # Process all vertices
     for vertex in graph:
@@ -140,9 +158,13 @@ def tarjan_bridges(graph: Dict[int, List[int]]) -> List[tuple]:
         low_link[vertex] = index
         index += 1
         
+        skipped_parent_edge = False
         for neighbor in graph.get(vertex, []):
-            if neighbor == parent:
-                continue  # Skip parent edge
+            if neighbor == parent and not skipped_parent_edge:
+                # Skip the tree edge we arrived on, but only once: a second copy
+                # of it (a parallel edge) is a real back edge to the parent.
+                skipped_parent_edge = True
+                continue
             
             if neighbor not in indices:
                 dfs(neighbor, vertex)

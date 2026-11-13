@@ -49,6 +49,22 @@ class TestPrim(unittest.TestCase):
         self.assertEqual(len(mst), 3)
         self.assertEqual(weight, 19)
 
+    def test_adjacency_matrix_negative_weights(self):
+        """Regression: only matrix[u][v] > 0 counted as an edge, so negative
+        weights were dropped."""
+        self.assertEqual(prim_mst_adjacency_matrix([[0, -4], [-4, 0]]), ([(0, 1, -4)], -4))
+        matrix = [
+            [0, -2, 7, 0],
+            [-2, 0, 3, -5],
+            [7, 3, 0, 1],
+            [0, -5, 1, 0]
+        ]
+        edges = [(0, 1, -2), (0, 2, 7), (1, 2, 3), (1, 3, -5), (2, 3, 1)]
+        mst, weight = prim_mst_adjacency_matrix(matrix, 0)
+        self.assertEqual(len(mst), 3)
+        self.assertEqual(weight, -6)
+        self.assertEqual(weight, prim_mst_edge_list(edges, 4, 0)[1])
+
 
 if __name__ == '__main__':
     unittest.main()

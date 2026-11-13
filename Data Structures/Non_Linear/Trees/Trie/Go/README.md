@@ -1,37 +1,35 @@
-# Trie (Prefix Tree) - Go
+# Trie -- Go Implementation
 
-This folder contains a Go implementation of a **Trie** (Prefix Tree).
+Prefix tree with `map[rune]*TrieNode` children. See the [topic README](../README.md) for the theory, the trace and the complexity table.
 
----
+## Files
 
-## Operations
+- `main.go`: `TrieNode`, `Trie` and a small `main` demo
+- `main_test.go`: tests (basic operations, delete return value and pruning, non-ASCII, empty word)
+- `go.mod`: module `trie`
 
-| Operation                | Description                          | Time Complexity |
-| ------------------------- | ------------------------------------ | --------------- |
-| `Insert(word)`           | Insert a word into the trie          | O(m)            |
-| `Search(word)`           | Search for a complete word           | O(m)            |
-| `StartsWith(prefix)`     | Check if prefix exists               | O(m)            |
-| `Delete(word)`           | Delete a word from the trie          | O(m)            |
-| `GetAllWords()`          | Get all words in the trie            | O(n)            |
-| `CountWords()`           | Count total number of words           | O(n)            |
-| `IsEmpty()`              | Check if trie is empty               | O(1)            |
+## API
 
----
+- `NewTrie() *Trie`
+- `Insert(word)`
+- `Search(word) bool`, `StartsWith(prefix) bool`
+- `Delete(word) bool`: true if the word was stored and has been removed
+- `GetAllWords() []string`: unspecified order
+- `CountWords() int`, `IsEmpty() bool`
 
-## Usage
+## Go-Specific Notes
 
-```go
-trie := NewTrie()
-trie.Insert("apple")
-trie.Insert("app")
-fmt.Println(trie.Search("apple"))    // true
-fmt.Println(trie.StartsWith("app")) // true
+Words are walked as runes in `Insert`, `Search`, `StartsWith` and `Delete`, so non-ASCII words are consistent across operations. `Delete` is iterative. `GetAllWords` and `CountWords` recurse once per character, which Go's growable stacks handle for long words. Map iteration makes the order of `GetAllWords` unspecified, so sort before comparing. The garbage collector frees pruned nodes.
+
+## How to Run
+
+```bash
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Notes
-
-- Uses `map[rune]*TrieNode` for character storage
-- O(m) time complexity for all operations
-
+- Insert and delete walk the same runes.
+- Delete returns whether the word was stored and prunes unused nodes.
+- Result order from `GetAllWords` is not fixed.

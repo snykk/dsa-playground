@@ -16,13 +16,32 @@ void testBasicSort() {
     heapSort(arr);
     assert(arr == expected);
     
-    std::cout << "✓ Basic sort test passed" << std::endl;
+    std::cout << "[PASS] Basic sort test" << std::endl;
+}
+
+// Regression: n - 1 wrapped around for an empty vector and the loop swapped arr[0]
+// with arr[SIZE_MAX] (segfault).
+void testEmptyAndSingle() {
+    std::vector<int> empty;
+    heapSort(empty);
+    assert(empty.empty());
+
+    std::vector<int> single = {42};
+    heapSort(single);
+    assert(single == std::vector<int>({42}));
+
+    std::vector<double> two = {2.5, -1.0};
+    heapSort(two);
+    assert(two == std::vector<double>({-1.0, 2.5}));
+
+    std::cout << "[PASS] Empty and single-element test" << std::endl;
 }
 
 int main() {
     std::cout << "Running Heap Sort tests..." << std::endl;
     testBasicSort();
-    std::cout << "All tests passed! ✓" << std::endl;
+    testEmptyAndSingle();
+    std::cout << "All tests passed!" << std::endl;
     return 0;
 }
 

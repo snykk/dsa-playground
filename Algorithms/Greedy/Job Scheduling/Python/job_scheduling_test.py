@@ -19,6 +19,14 @@ class TestJobScheduling(unittest.TestCase):
         self.assertGreater(profit, 0)
         self.assertGreater(len(scheduled), 0)
     
+    def test_deadline_scheduling_negative_job_id(self):
+        """Regression: -1 doubled as the "empty slot" marker, so a job with
+        id -1 left its slot looking free and a second job was booked into it."""
+        profit, scheduled = job_scheduling_deadline([(-1, 1, 100), (2, 1, 50)])
+        self.assertEqual((profit, scheduled), (100, [-1]))
+        profit, scheduled = job_scheduling_deadline([(-1, 2, 100), (2, 1, 50), (3, 2, 40)])
+        self.assertEqual((profit, scheduled), (150, [-1, 2]))
+
     def test_earliest_deadline(self):
         """Test earliest deadline first"""
         jobs = [(1, 4, 5), (2, 2, 3), (3, 6, 4)]

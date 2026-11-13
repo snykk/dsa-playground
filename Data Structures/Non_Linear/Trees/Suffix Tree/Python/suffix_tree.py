@@ -7,23 +7,32 @@ class SuffixTreeNode:
         self.end = None  # End index of edge label (None means global_end)
         self.suffix_index = -1  # Index of suffix if leaf node
 
+# A terminator that must not occur in the text: with a unique last character no suffix
+# is a prefix of another suffix, so every suffix ends at its own leaf.
+TERMINATOR = '\0'
+
+
 class SuffixTree:
     """Suffix Tree implementation.
     
     A Suffix Tree is a compressed trie containing all suffixes of a given string.
-    It allows O(m) pattern search where m is pattern length.
+    Searching for a pattern of length m costs O(m + occ), where occ is the number
+    of occurrences (the leaves under the matched point are collected).
+    Construction inserts the suffixes one by one: O(n^2) worst case.
     """
     
     def __init__(self, text):
         """Initialize Suffix Tree with text.
         
         Args:
-            text: The input string (should end with unique terminator like '$')
+            text: The input string. It may contain '$' or any other character
+                except the internal terminator '\\0', which raises ValueError.
         """
-        if not text.endswith('$'):
-            text += '$'
-        self.text = text
-        self.n = len(text)
+        if TERMINATOR in text:
+            raise ValueError("text must not contain the NUL character")
+        self.original = text
+        self.text = text + TERMINATOR
+        self.n = len(self.text)
         self.root = SuffixTreeNode()
         self.global_end = -1
         self._build_tree()
@@ -113,6 +122,9 @@ class SuffixTree:
         node = self.root
         i = 0
         n_pattern = len(pattern)
+
+        if TERMINATOR in pattern:
+            return []
         
         while i < n_pattern:
             char = pattern[i]
@@ -142,36 +154,27 @@ class SuffixTree:
         return []
     
     def _collect_leaf_indices(self, node):
-        """Collect all suffix indices from subtree rooted at node."""
+        """Collect all suffix indices from subtree rooted at node (iterative DFS)."""
         result = []
-        
-        def dfs(n):
-            if n.suffix_index != -1:
-                result.append(n.suffix_index)
-            for child in n.children.values():
-                dfs(child)
-        
-        dfs(node)
+        stack = [node]
+        while stack:
+            current = stack.pop()
+            if current.suffix_index != -1:
+                result.append(current.suffix_index)
+            stack.extend(current.children.values())
         return sorted(result)
     
     def get_all_suffixes(self):
-        """Get all suffixes stored in the tree.
+        """Get all non-empty suffixes of the original text.
         
         Returns:
-            List of all suffixes
+            Sorted list of the suffixes (the terminator is not included)
         """
         suffixes = []
-        
-        def traverse(node, prefix):
-            if node.suffix_index != -1:
-                suffixes.append(self.text[node.suffix_index:])
-            for char, child in node.children.items():
-                edge_start = child.start
-                edge_end = child.end if child.end is not None else self.n - 1
-                edge_label = self.text[edge_start:edge_end + 1]
-                traverse(child, prefix + edge_label)
-        
-        traverse(self.root, "")
+        stack = [self.root]
+        while stack:
+            node = stack.pop()
+            if node.suffix_index != -1 and node.suffix_index < len(self.original):
+                suffixes.append(self.original[node.suffix_index:])
+            stack.extend(node.children.values())
         return sorted(suffixes)
-
-

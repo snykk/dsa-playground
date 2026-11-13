@@ -62,6 +62,27 @@ class TestMinHeap(unittest.TestCase):
         with self.assertRaises(IndexError):
             self.heap.extract_min()
 
+    def test_duplicates_and_negatives(self):
+        vals = [4, -2, 4, 0, -2, 9, 9, 4, -7]
+        for v in vals:
+            self.heap.insert(v)
+        out = [self.heap.extract_min() for _ in vals]
+        self.assertEqual(out, sorted(vals))
+
+    def test_random_heapify_matches_sorted(self):
+        import random
+        rng = random.Random(5)
+        vals = [rng.randint(-100, 100) for _ in range(1000)]
+        built = MinHeap(vals)
+        self.assertEqual(built.size(), 1000)
+        self.assertEqual([built.extract_min() for _ in vals], sorted(vals))
+
+    def test_input_list_not_modified(self):
+        vals = [3, 1, 2]
+        MinHeap(vals)
+        self.assertEqual(vals, [3, 1, 2])
+
+
 if __name__ == "__main__":
     unittest.main()
 

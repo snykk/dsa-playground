@@ -17,6 +17,7 @@ This problem is essentially the Fibonacci sequence! The number of ways to reach 
 ## Algorithm
 
 1. **Base Cases**: 
+   - Ways(0) = 1 (one way: the empty climb, take no step)
    - Ways(1) = 1 (only one way: take 1 step)
    - Ways(2) = 2 (two ways: 1+1 or 2)
 2. **Recurrence Relation**: 
@@ -45,23 +46,12 @@ This problem is essentially the Fibonacci sequence! The number of ways to reach 
 
 ### Functions
 
-1. **`ClimbingStairsTabulation(n)`**
-   - Bottom-up Dynamic Programming
-   - Fills array iteratively
-   - Returns number of ways
-   - Time: O(n), Space: O(n)
-
-2. **`ClimbingStairsOptimized(n)`**
-   - Space-optimized version
-   - Only stores last two values
-   - Returns number of ways
+1. **`ClimbingStairs(n)`**
+   - Space-optimized bottom-up loop (only stores the last two values)
+   - Returns the number of ways as `int64`
    - Time: O(n), Space: O(1)
 
-3. **`ClimbingStairsVariableSteps(n, steps)`**
-   - Generalization: can take steps from list
-   - Steps can be [1, 2, 3, ...] or any combination
-   - Uses DP with different recurrence
-   - Time: O(n × k) where k is number of step sizes
+The tabulation, memoization and variable-step versions exist only in the Python implementation.
 
 ---
 
@@ -73,18 +63,11 @@ package main
 import "fmt"
 
 func main() {
-    // Standard tabulation (recommended)
-    ways := ClimbingStairsTabulation(5)
+    ways := ClimbingStairs(5)
     fmt.Println(ways)  // Output: 8
 
-    // Space-optimized (best for large n)
-    ways = ClimbingStairsOptimized(10)
+    ways = ClimbingStairs(10)
     fmt.Println(ways)  // Output: 89
-
-    // Variable steps (can take 1, 2, or 3 steps)
-    steps := []int{1, 2, 3}
-    ways = ClimbingStairsVariableSteps(5, steps)
-    fmt.Println(ways)  // Output: 13 (more ways than 1 or 2 steps only)
 }
 ```
 
@@ -92,10 +75,10 @@ func main() {
 
 ## Important Notes
 
-1. **Fibonacci Connection**: This is exactly the Fibonacci sequence starting from F(1)=1, F(2)=2
+1. **Fibonacci Connection**: Ways(n) = F(n+1), the Fibonacci numbers shifted by one: Ways(0..5) = 1, 1, 2, 3, 5, 8 = F(1..6)
 2. **Integer Overflow**: For very large n, use big integers or modulo arithmetic
 3. **Space Optimization**: Use optimized version when space is constrained
-4. **Base Cases**: Always handle n=1 and n=2 correctly
+4. **Base Cases**: Always handle n=0 (1 way), n=1 and n=2 correctly; `ClimbingStairs` panics for n < 0
 5. **Variable Steps**: Generalization allows any step sizes, not just 1 and 2
 
 ---

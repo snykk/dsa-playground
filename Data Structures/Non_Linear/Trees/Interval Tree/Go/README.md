@@ -1,51 +1,43 @@
-# Interval Tree (Go)
+# Interval Tree -- Go Implementation
 
-An **Interval Tree** is a data structure for storing intervals and efficiently querying intervals that overlap with a given interval or point.
+An augmented binary search tree of closed `int` intervals. See the [topic README](../README.md) for the algorithms.
 
----
+## Files
 
-## Operations
+| File | Contents |
+| ---- | -------- |
+| `main.go` | `Interval`, `IntervalTree` and a small demo `main` |
+| `main_test.go` | unit tests with exact results, a 100000-insert scaling test and a randomized test against brute force |
+| `go.mod` | module `intervaltree` (Go 1.24.2) |
 
-### 1. Insert
+## API
 
-```go
-tree := NewIntervalTree()
-tree.Insert(NewInterval(10, 20))
-tree.Insert(NewInterval(15, 25))
-```
+| Call | Result |
+| ---- | ------ |
+| `NewInterval(low, high int) Interval` | closed interval; a low greater than high swaps the bounds |
+| `Overlaps(other)`, `ContainsPoint(x)` | predicates on `Interval` |
+| `NewIntervalTree() *IntervalTree` | empty tree |
+| `Insert(Interval)` | adds an interval |
+| `Delete(Interval) bool` | removes one equal interval; false if none |
+| `SearchOverlapping(q)`, `SearchContainingPoint(x)`, `SearchContainedIn(q)` | `[]Interval` results |
+| `InorderTraversal() []Interval`, `Size() int`, `IsEmpty() bool` | sorted by low, count, emptiness |
 
-**Time Complexity**: O(log n)
+## Go-Specific Notes
 
-### 2. Search Overlapping
+- Garbage collection frees deleted nodes.
+- The package has a `main` function (a demo), so `go build` works.
+- `Size` walks the tree, so it is O(n).
 
-```go
-result := tree.SearchOverlapping(NewInterval(14, 16))
-```
-
-**Time Complexity**: O(log n + k)
-
-### 3. Search Point
-
-```go
-result := tree.SearchContainingPoint(15)
-```
-
-**Time Complexity**: O(log n + k)
-
----
-
-## Testing
-
-Run the test suite:
+## How to Run
 
 ```bash
-go test
+cd "Data Structures/Non_Linear/Trees/Interval Tree/Go"
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Related Data Structures
-
-- **Segment Tree**: For range queries on arrays
-- **Range Tree**: For multi-dimensional range queries
-
+- `max` is recomputed only along the path of an insert or delete.
+- Equal lows go right, so delete keeps going right until the high matches.
+- The tree is not balanced; sorted input makes a chain.
