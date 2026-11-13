@@ -1,0 +1,41 @@
+---
+/** Small pill: a page fact ("12 topics") or a quick link ("Python", "View source"). */
+interface Props {
+  href?: string;
+  external?: boolean;
+}
+
+const { href, external = false } = Astro.props;
+const linkProps = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+{
+  href ? (
+    <a class="chip" href={href} {...linkProps}>
+      <slot />
+    </a>
+  ) : (
+    <span class="chip">
+      <slot />
+    </span>
+  )
+}
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: 13px;
+    text-decoration: none;
+  }
+  a.chip:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+</style>

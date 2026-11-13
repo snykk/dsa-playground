@@ -1,0 +1,26 @@
+---
+import Icon from '../atoms/Icon.astro';
+import IconButton from '../atoms/IconButton.astro';
+
+/** Light/dark switch. The saved choice is applied before paint by BaseLayout's head script. */
+---
+
+<IconButton label="Toggle dark mode" data-theme-toggle>
+  <Icon name="moon" />
+</IconButton>
+
+<script>
+  const root = document.documentElement;
+  const effectiveTheme = () => root.dataset.theme ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  for (const button of document.querySelectorAll('[data-theme-toggle]')) {
+    button.addEventListener('click', () => {
+      const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem('dsa-theme', next);
+      } catch {
+        /* storage unavailable: the choice lasts for this page only */
+      }
+    });
+  }
+</script>

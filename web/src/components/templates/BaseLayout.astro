@@ -1,0 +1,75 @@
+---
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { joinBase } from '../../lib/repo';
+import '../../styles/base.css';
+import '../../styles/layout.css';
+import '../../styles/prose.css';
+import '../../styles/tokens.css';
+import TableOfContents from '../molecules/TableOfContents.astro';
+import Sidebar from '../organisms/Sidebar.astro';
+import SiteFooter from '../organisms/SiteFooter.astro';
+import SiteHeader from '../organisms/SiteHeader.astro';
+
+/** Page shell shared by every route: head, header, sidebar, content, table of contents, footer. */
+interface Props {
+  title: string;
+  description?: string;
+  currentSlug?: string;
+  toc?: MarkdownHeading[];
+  section?: 'overview' | 'visualizations' | 'study-guide';
+}
+
+const {
+  title,
+  description = 'Data structures and algorithms explained, visualized step by step, and implemented in Python, C++ and Go.',
+  currentSlug,
+  toc = [],
+  section,
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+const tocItems = toc.filter((h) => h.depth === 2 || h.depth === 3);
+const showToc = tocItems.length > 2;
+const pageTitle = title === 'DSA Playground' ? title : `${title} ${String.fromCodePoint(0xb7)} DSA Playground`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={`${joinBase(base, '')}favicon.svg`} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <script is:inline>
+      (() => {
+        try {
+          // ?theme=light|dark previews a theme without remembering it.
+          const forced = new URLSearchParams(location.search).get('theme');
+          const t = forced ?? localStorage.getItem('dsa-theme');
+          if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        } catch (e) {
+          /* storage unavailable: follow the OS setting */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader section={section} />
+    <div class:list={['layout', { 'has-toc': showToc }]}>
+      <Sidebar currentSlug={currentSlug} />
+      <main id="main" class="content">
+        <div class="content-inner">
+          <slot />
+        </div>
+      </main>
+      {showToc && <TableOfContents headings={tocItems} />}
+    </div>
+    <SiteFooter />
+  </body>
+</html>
