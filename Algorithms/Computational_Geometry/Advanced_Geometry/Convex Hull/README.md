@@ -1,155 +1,108 @@
 # Convex Hull
 
-Algorithms for computing the convex hull of a set of points in 2D space, including **Graham's Scan** and **Jarvis March** (Gift Wrapping).
+The convex hull of a set of points is the smallest convex polygon that contains all of them, like a rubber band stretched around nails. This folder implements Graham's scan (O(n log n)) and Jarvis march (O(nh)). Both use exact cross-product comparisons and return the hull vertices in counterclockwise order, without points that merely lie on an edge.
 
----
+## Intuition
 
-## Overview
+The cross product `cross(o, a, b) = (a.x - o.x)(b.y - o.y) - (a.y - o.y)(b.x - o.x)` tells how you turn when you walk `o -> a -> b`: positive for a left turn, negative for a right turn, zero for a straight line. Walking counterclockwise around a convex polygon you only ever turn left. So if three consecutive candidates make a right turn or a straight line, the middle one is inside the polygon or on an edge and is not a corner.
 
-The convex hull of a set of points is the smallest convex polygon that contains all the points. This module provides two efficient algorithms for computing convex hulls.
+Invariant: in Graham's scan the stack always holds a strictly convex chain from the pivot through the points seen so far. In Jarvis march every point added is a hull vertex, because all other points lie on its left.
 
-**Key Characteristics:**
-- **Graham's Scan**: O(n log n) time complexity, optimal for general cases
-- **Jarvis March**: O(nh) time complexity where h is number of hull points, efficient when h is small
-- Versatile: Used in many computational geometry problems
-- Foundation: Essential for advanced geometric algorithms
+## Visual
 
----
-
-## Algorithms
-
-### Graham's Scan
-A stack-based algorithm that sorts points by polar angle and builds the hull incrementally.
-
-**Time Complexity:** O(n log n)  
-**Space Complexity:** O(n)
-
-**Steps:**
-1. Find bottom-most point (or leftmost in case of tie)
-2. Sort points by polar angle with respect to bottom point
-3. Build hull using stack, removing points that create clockwise turns
-
-### Jarvis March (Gift Wrapping)
-A simple algorithm that "wraps" around the points like a gift.
-
-**Time Complexity:** O(nh) where h is number of hull points  
-**Space Complexity:** O(n)
-
-**Steps:**
-1. Start with leftmost point
-2. For each point, find the next point with smallest polar angle
-3. Continue until returning to starting point
-
----
-
-## Complexity Analysis
-
-| Algorithm | Time Complexity | Space Complexity | Best For |
-|-----------|----------------|------------------|----------|
-| **Graham's Scan** | O(n log n) | O(n) | General case, many points |
-| **Jarvis March** | O(nh) | O(n) | Few hull points (h << n) |
-
----
-
-## Implementations
-
-This folder contains implementations in three languages:
-
-- **Python** (`Python/`) - Clean, readable implementation
-- **C++** (`C++/`) - Efficient STL-based implementation
-- **Go** (`Go/`) - Slice-based implementation
-
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
-
----
-
-## Applications
-
-1. **Shape Analysis**: Find bounding shape of point set
-2. **Path Planning**: Determine safe navigation regions
-3. **Collision Detection**: Check if objects overlap
-4. **Computer Graphics**: Rendering and clipping
-5. **Robotics**: Workspace analysis
-
----
-
-## Usage Examples
-
-### Python
-```python
-from convex_hull import Point, graham_scan, jarvis_march
-
-points = [Point(0, 0), Point(1, 1), Point(2, 0), Point(1, 0.5)]
-hull = graham_scan(points)  # O(n log n)
-hull2 = jarvis_march(points)  # O(nh)
+```text
+y
+3  G . . . F        points: A(0,0) B(3,0) C(2,1) D(1,1) E(2,2) F(3,3) G(0,3)
+2  . . E . .        hull (counterclockwise from the pivot A): A B F G
+1  . D C . .        C, D, E are inside (D, E, F share the ray from A)
+0  A . . B .
+   0 1 2 3
 ```
 
-### C++
-```cpp
-std::vector<Point> points = {{0, 0}, {1, 1}, {2, 0}, {1, 0.5}};
-auto hull = grahamScan(points);
-auto hull2 = jarvisMarch(points);
-```
+## How It Works
 
-### Go
-```go
-points := []Point{{0, 0}, {1, 1}, {2, 0}, {1, 0.5}}
-hull := grahamScan(points)
-hull2 := jarvisMarch(points)
-```
+Graham's scan:
 
----
+1. Remove duplicate points (exact comparison). With fewer than three distinct points, return them as they are.
+2. Pick the pivot: the bottom-most point, leftmost on a tie.
+3. Sort the others by angle around the pivot: `a` before `b` if `cross(pivot, a, b) > 0`; on the same ray, nearer first.
+4. Scan: while the last two stack points and the new point do not make a strict left turn (`cross <= 0`), pop; then push the new point.
 
-## Important Notes
+Jarvis march:
 
-1. **Polar Angle Sorting**: Graham's Scan requires sorting by polar angle
-2. **Collinear Points**: Both algorithms handle collinear points
-3. **Minimum Points**: Need at least 3 points for a valid convex hull
-4. **Output Order**: Points are returned in counterclockwise order
+1. Remove duplicates; start at the leftmost point (lowest on a tie).
+2. From the current vertex, scan all points and keep the most clockwise one (on a tie, the farthest).
+3. Repeat from it until the best point is the start again. The loop is bounded by the number of points.
 
----
+## Step-by-Step Trace
+
+Graham's scan on `A (0,0)`, `B (3,0)`, `C (2,1)`, `D (1,1)`, `E (2,2)`, `F (3,3)`, `G (0,3)` (already in sorted order around `A`):
+
+| Point | Turn test | Stack afterwards |
+|-------|-----------|------------------|
+| A | first point | A |
+| B | only one point on the stack | A B |
+| C | cross(A, B, C) = 3, left turn | A B C |
+| D | cross(B, C, D) = 1, left turn | A B C D |
+| E | cross(C, D, E) = -1: pop D; cross(B, C, E) = -1: pop C; cross(A, B, E) = 6: stop | A B E |
+| F | cross(B, E, F) = -3: pop E; cross(A, B, F) = 9: stop | A B F |
+| G | cross(B, F, G) = 9, left turn | A B F G |
+
+The hull is `[(0,0), (3,0), (3,3), (0,3)]`. Jarvis march finds the same polygon: A to B, B to F, F to G, G back to A.
+
+## Complexity
+
+| Algorithm | Time | Space |
+|-----------|------|-------|
+| Graham's scan | O(n log n) | O(n) |
+| Jarvis march | O(n h), O(n^2) when every point is on the hull | O(n) |
+
+Sorting costs O(n log n) and the scan is O(n), since each point is pushed once and popped at most once. Jarvis does one pass over n points for each of the h hull vertices. Space counts the deduplicated copy of the input plus the output.
 
 ## When to Use
 
-- **Graham's Scan**: Use when you have many points or need guaranteed O(n log n) performance
-- **Jarvis March**: Use when the number of hull points is small (h << n)
+- Graham's scan is the default choice for general input.
+- Jarvis march is simpler and faster when the hull is tiny compared with n.
+- For integer coordinates both are exact (see the notes below). For decimals that may be nearly collinear, scale to integers first.
+- Needed for diameter and width ([Rotating Calipers](../Rotating%20Calipers/README.md)), collision tests and enclosure problems.
 
----
+## Graham's Scan vs. Alternatives
 
-## Related Algorithms
+| Algorithm | Time | In this folder |
+|-----------|------|----------------|
+| Graham's scan | O(n log n) | yes |
+| Jarvis march | O(nh) | yes |
+| Andrew's monotone chain | O(n log n) | no |
+| QuickHull | O(n log n) average, O(n^2) worst | no |
+| Chan's algorithm | O(n log h) | no |
 
-- **Rotating Calipers**: Uses convex hull for diameter and width
-- **Closest Pair**: Related geometric problem
-- **Line Intersection**: Used in polygon operations
+## Common Pitfalls
 
----
+- An epsilon in the angle sort breaks the ordering and can leave interior points in the hull; compare with the cross product.
+- An absolute epsilon in the gift-wrapping loop makes tiny-scale input look collinear and the loop never ends.
+- Popping only on right turns keeps collinear boundary points; this code pops on `cross <= 0` and excludes them.
+- Duplicates give zero cross products; they are removed first.
+- Exactness holds for integer coordinates (Python: any size; C++ and Go: cross products below 2^53, so coordinate differences below about 6.7e7). Decimal data can still be misjudged near collinear configurations, and platform rounding (FMA) can change the answer; the code avoids fused multiply-add in the cross product.
+- All points collinear returns the two end points; fewer than three distinct points are returned as they are.
 
-## Testing
+## Implementations
 
-Run tests with:
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `convex_hull.py` | `Point`, `graham_scan`, `jarvis_march`, `cross_product` |
+| C++ | [C++](C++/) | `convex_hull.cpp` | `Point`, `grahamScan`, `jarvisMarch`, `crossProduct` |
+| Go | [Go](Go/) | `main.go` | `Point`, `grahamScan`, `jarvisMarch`, `crossProduct` |
 
-```bash
-# Python
-python -m unittest convex_hull_test.py
+Each version returns a new list: counterclockwise, Graham starting at the bottom-most point and Jarvis at the leftmost.
 
-# C++
-g++ -o test convex_hull_test.cpp && ./test
+## Practice Problems
 
-# Go
-go test -v
-```
+- [Erect the Fence (LeetCode 587)](https://leetcode.com/problems/erect-the-fence/)
+- [Convex Hull (CSES)](https://cses.fi/problemset/task/2195)
 
----
+## Related
 
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 33)
-- "Computational Geometry in C" by Joseph O'Rourke
-- Graham, R. L. (1972). "An efficient algorithm for determining the convex hull of a finite planar set"
-
----
-
-_Last Updated: December 2025_
+- [Rotating Calipers](../Rotating%20Calipers/README.md)
+- [Line Intersection](../../Basic_Geometry/Line%20Intersection/README.md)
+- [Point Line Circle](../../Basic_Geometry/Point%20Line%20Circle/README.md)
+- [Closest Pair of Points](../../../Divide_and_Conquer/Closest%20Pair%20of%20Points/README.md)

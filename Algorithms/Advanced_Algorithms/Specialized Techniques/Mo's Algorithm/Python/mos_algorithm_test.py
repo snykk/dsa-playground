@@ -29,6 +29,28 @@ class TestMoSAlgorithm(unittest.TestCase):
         # Should handle gracefully
         self.assertIsInstance(results[0], int)
 
+    def test_empty_array_without_queries(self):
+        self.assertEqual(count_distinct_in_ranges([], []), [])
+
+    def test_answers_follow_input_order(self):
+        arr = [1, 2, 1, 3, 2, 3, 4]
+        queries = [(5, 6), (0, 0), (2, 4), (0, 6), (3, 3)]
+        self.assertEqual(count_distinct_in_ranges(arr, queries), [2, 1, 3, 4, 1])
+
+    def test_random_arrays_match_brute_force(self):
+        import random
+        rng = random.Random(11)
+        for _ in range(300):
+            n = rng.randint(1, 30)
+            arr = [rng.randint(0, 6) for _ in range(n)]
+            queries = []
+            for _ in range(rng.randint(1, 20)):
+                l = rng.randrange(n)
+                r = rng.randrange(l, n)
+                queries.append((l, r))
+            expected = [len(set(arr[l:r + 1])) for l, r in queries]
+            self.assertEqual(count_distinct_in_ranges(arr, queries), expected)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,217 @@
+---
+topic: Utilities/Optimization_Techniques/Bitmasking
+title: Bitmasking
+lead: Bitmasking stores a small set as the bits of one integer, so set operations become single machine instructions and a DP state can index an array. It is the standard tool whenever the number of items is at most about 20 to 25 and you must consider subsets.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Set operations
+    value: O(1)
+    hint: AND, OR, XOR on one word
+  - label: All subsets of n items
+    value: 2^n
+    hint: practical up to n of about 20 to 25
+    tone: warn
+  - label: Submasks of all masks
+    value: O(3^n)
+  - label: Bitmask DP (TSP)
+    value: O(n^2 2^n)
+properties:
+  - { label: Needs a small ground set, value: true }
+  - { label: Exact (no approximation), value: true }
+  - { label: Constant extra memory for a set, value: true }
+prerequisites:
+  - Problem_Patterns/Bit Manipulation
+related:
+  - Problem_Patterns/Meet in the Middle
+  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
+  - Utilities/Optimization_Techniques/Precomputation
+---
+
+## When to use it
+
+Look for these signals in a problem statement:
+
+- **A small number of items** (n up to about 20 to 25) and the answer depends on which subset was chosen, visited or used.
+- **A DP state is a set:** "visited cities", "used items", "which people already got a task".
+- **Set operations in a hot loop:** membership, union, intersection, difference, counting elements.
+- **Subsets of subsets,** such as splitting a set into two parts, or summing a value over all subsets of each mask.
+
+If n is 40 or more, enumerating 2<sup>n</sup> subsets is out of reach; consider meet in the middle instead.
+
+## How it works
+
+Number the items 0 to n-1. A set is the integer whose bit i is 1 exactly when item i is in the set.
+
+<Steps>
+  <Step title="Encode the set">
+    `mask = (1 << i) | (1 << j)` is the set `{i, j}`. The empty set is 0 and the full set is `(1 << n) - 1`.
+  </Step>
+  <Step title="Use bit operations as set operations">
+    Test `(mask >> i) & 1`, add `mask | (1 << i)`, remove `mask & ~(1 << i)`, toggle `mask ^ (1 << i)`. Union is `a | b`, intersection `a & b`, size is a popcount.
+  </Step>
+  <Step title="Enumerate">
+    Loop `mask` from 0 to 2<sup>n</sup> - 1 for all subsets, `sub = (sub - 1) & mask` for the submasks of one mask, and Gosper's hack for the masks with exactly k bits.
+  </Step>
+  <Step title="Use the mask as a DP index">
+    A table `dp[mask]` or `dp[mask][last]` holds the best value for that set. Process masks in increasing numeric order: every submask is smaller than its mask, so transitions that add an element always go to a larger mask.
+  </Step>
+</Steps>
+
+<Callout title="Why the submask loop visits every submask once">
+`(sub - 1) & mask` subtracts one, which flips the lowest set bit and sets all the bits below it, then removes every bit that is not in `mask`. The result is the next smaller submask. Starting from `mask` it reaches 0 after 2<sup>popcount(mask)</sup> steps. Summed over all masks this is 3<sup>n</sup>, because each element is either outside the mask, inside the mask but outside the submask, or inside both.
+</Callout>
+
+## Template
+
+```text
+# basic operations
+get(mask, i)      = (mask >> i) & 1
+set(mask, i)      = mask | (1 << i)
+clear(mask, i)    = mask & ~(1 << i)
+toggle(mask, i)   = mask ^ (1 << i)
+lowest(mask)      = mask & -mask
+dropLowest(mask)  = mask & (mask - 1)
+
+# all submasks of mask, including 0
+sub = mask
+loop:
+    use(sub)
+    if sub == 0: break
+    sub = (sub - 1) & mask
+
+# all masks with exactly k bits among n (k >= 1), Gosper's hack
+mask = (1 << k) - 1
+while mask < (1 << n):
+    use(mask)
+    c = mask & -mask
+    r = mask + c
+    mask = (((r ^ mask) >> 2) / c) | r
+
+# TSP: dp[mask][last] = shortest path from city 0 through the cities in mask, ending at last
+dp[1][0] = 0
+for mask in 1 .. 2^n - 1:
+    for last in mask: for next not in mask:
+        dp[mask | (1 << next)][next] = min(that, dp[mask][last] + dist[last][next])
+answer = min over last >= 1 of dp[full][last] + dist[last][0]
+```
+
+## Worked example
+
+### Submasks and k-subsets
+
+The submasks of `1011` (the set `{0, 1, 3}`) in the order the loop produces them:
+
+<ArrayDiagram
+  legend={{ f: 'the starting mask, then each smaller submask', m: 'the empty set, which ends the loop' }}
+  rows={[
+    { label: 'submasks of 1011 (8 = 2^3 of them)', values: ['1011', '1010', '1001', '1000', '0011', '0010', '0001', '0000'], tones: 'fffffffm', note: 'Each step subtracts 1 and masks with 1011, so the bit that is not in the mask (bit 2) never appears.' },
+    { label: 'masks with 2 bits among 4 (Gosper)', values: ['0011', '0101', '0110', '1001', '1010', '1100'], note: 'Six masks, C(4, 2) = 6, in increasing numeric order.' },
+  ]}
+/>
+
+### Bitmask DP: travelling salesman
+
+For the four cities with distances 0-1: 10, 0-2: 15, 0-3: 20, 1-2: 35, 1-3: 25, 2-3: 30, the table `dp[mask][last]` (bit i is city i; `-` marks states that cannot be reached because every path starts at city 0) is:
+
+<GridDiagram
+  legend={{ f: 'full set: add the way back to city 0 to get the tour length' }}
+  label="TSP table dp[mask][last]"
+  corner="mask"
+  rowLabels={['0001', '0011', '0101', '0111', '1001', '1011', '1101', '1111']}
+  colLabels={['last = 0', 'last = 1', 'last = 2', 'last = 3']}
+  rows={[
+    [0, '-', '-', '-'],
+    ['-', 10, '-', '-'],
+    ['-', '-', 15, '-'],
+    ['-', 50, 45, '-'],
+    ['-', '-', '-', 20],
+    ['-', 45, '-', 35],
+    ['-', '-', 50, 45],
+    ['-', 70, 65, 75],
+  ]}
+  tones={['....', '....', '....', '....', '....', '....', '....', '.fff']}
+/>
+
+Closing the tour: 70 + 10 = 80, 65 + 15 = 80 and 75 + 20 = 95, so the shortest tour has length 80, which is what `tsp` returns.
+
+## Implementation
+
+The Python, C++ and Go files share the basic operations, subset enumeration, a TSP DP, subset-sum counting, power-of-two helpers and SOS DP (sum over subsets); the exact function sets differ.
+
+- Python also has `log2_floor`, `log2_ceil` and a meet-in-the-middle subset-sum check; C++ also has `trailingZeros`, `leadingZeros`, an `absNoBranch` trick and a `BitSet` class for more than 64 items; Go has `SOSDP` and `NextPowerOf2`.
+- `next_power_of_2` uses `bit_length` in Python and `bits.Len` in Go, so it is correct beyond 32 bits. The C++ version uses the shift-or ladder on a 32-bit `int`, so it is valid up to 2<sup>30</sup>.
+- `tsp` returns 0 for zero or one city in all three languages.
+- `subsets_of_size_k(n, 0)` yields only the empty mask: Gosper's hack divides by the lowest set bit, which does not exist for 0.
+- `sos_dp` accepts any length: missing entries count as absent.
+
+<TopicCode topic="Utilities/Optimization_Techniques/Bitmasking" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Why']}
+  rows={[
+    ['Single bit operation', 'O(1)', 'O(1)', 'one instruction on a machine word'],
+    ['Enumerate all subsets of n items', 'O(2^n)', 'O(1)', 'count from 0 to 2^n - 1'],
+    ['Submasks of one mask', 'O(2^k)', 'O(1)', 'k = number of bits in the mask'],
+    ['Submasks of every mask', 'O(3^n)', 'O(1)', 'each element has three states'],
+    ['Bitmask DP for TSP', 'O(n^2 2^n)', 'O(n 2^n)', '2^n n states, n transitions each'],
+    ['SOS DP', 'O(n 2^n)', 'O(2^n)', 'n passes over 2^n entries'],
+  ]}
+/>
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Travelling salesman, Hamiltonian path', '`dp[mask][last]`, as above'],
+    ['Assign n tasks to n people at minimum cost', '`dp[mask]` = cost after assigning the people in mask to the first popcount(mask) tasks'],
+    ['Count subsets with a given sum, n up to 20', 'loop over all masks and add up the chosen items (`count_subset_sum`)'],
+    ['Subset sum, n up to 40', 'meet in the middle: sums of each half, then look up the complement'],
+    ['Sum over all subsets of each mask', 'SOS DP, one pass per bit'],
+    ['Partition a set into groups', 'iterate submasks of the remaining set, O(3^n)'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Use', 'Note']}
+  rows={[
+    ['Machine word (int, uint64)', 'up to 31 or 63 items', 'in C++ use `1LL << i` for bit positions of 31 or more'],
+    ['Big integer (Python int)', 'any size', 'slower, but no overflow'],
+    ['`BitSet` of 64-bit words', 'thousands of items', 'set operations are O(n / 64); the C++ file has a small one'],
+    ['SOS DP', 'sums over submasks or supermasks', 'O(n 2^n) instead of O(3^n)'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Shift by the width or more.** In C++ and Go, `1 << 31` overflows a 32-bit `int`, and shifting by 32 or more is undefined in C++. Use `1LL << i` or `uint64_t`.
+- **Precedence.** In C and C++, `mask & bit == 0` parses as `mask & (bit == 0)`. Write `(mask & bit) == 0`; Python and Go bind the other way, but the parentheses are always safe.
+- **Loop condition `sub > 0`.** It skips the empty submask. Use the explicit break shown in the template if the empty set matters.
+- **Wrong range.** All subsets are `0` to `(1 << n) - 1`, not `1 << n`.
+- **Counting trailing or leading zeros of 0.** `__builtin_ctz(0)` and `__builtin_clz(0)` are undefined; the C++ helpers here return 32.
+- **Signed right shift.** `n >> 31` on a negative `int` is implementation-defined before C++20; the `absNoBranch` trick relies on it and fails for the minimum `int`.
+- **Too many items.** 2<sup>25</sup> states of 4 bytes each is 128 MB; check the memory limit before choosing a DP over masks.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is enumerating submasks of all masks O(3^n) and not 4^n?">
+    For each element there are three cases: not in the mask, in the mask but not in the submask, in both. That gives 3<sup>n</sup> pairs of (mask, submask), while 4<sup>n</sup> would count the impossible case of being in the submask but not the mask.
+  </FaqItem>
+  <FaqItem question="Why does Gosper's hack work?">
+    It finds the next larger number with the same popcount. `c` is the lowest set bit; adding it to `mask` carries through the lowest block of ones and gives `r`. The ones that the carry cleared are then moved back to the bottom with `((r ^ mask) >> 2) / c`, and OR-ing them into `r` restores the popcount.
+  </FaqItem>
+  <FaqItem question="How large can n be?">
+    A DP over masks needs 2<sup>n</sup> entries times the number of other state dimensions. Around n = 20 is comfortable, 25 is tight, and beyond that you need a different idea.
+  </FaqItem>
+  <FaqItem question="What is the difference between this topic and Bit Manipulation?">
+    Bit Manipulation is about tricks on single numbers (parity, XOR pairing, single-bit counting). Bitmasking is about representing a set as a number and using it for enumeration and DP.
+  </FaqItem>
+</Faq>

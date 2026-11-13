@@ -2,7 +2,8 @@ package main
 
 import "fmt"
 
-// LinearSearchBestCase demonstrates Ω(1) - Constant Lower Bound
+// LinearSearchBestCase demonstrates Omega(1): at least one comparison on every
+// input. Best case Theta(1), worst case Theta(n).
 func LinearSearchBestCase(arr []int, target int) int {
 	for i, element := range arr {
 		if element == target {
@@ -12,7 +13,8 @@ func LinearSearchBestCase(arr []int, target int) int {
 	return -1
 }
 
-// BubbleSortBestCase demonstrates Ω(n) - Linear Lower Bound
+// BubbleSortBestCase demonstrates Omega(n) on every input (early-exit flag).
+// Best case (sorted) Theta(n), worst case Theta(n^2).
 func BubbleSortBestCase(arr []int) []int {
 	result := make([]int, len(arr))
 	copy(result, arr)
@@ -33,7 +35,7 @@ func BubbleSortBestCase(arr []int) []int {
 	return result
 }
 
-// MatrixTraversalLowerBound demonstrates Ω(n²) - Quadratic Lower Bound
+// MatrixTraversalLowerBound visits all n^2 elements: Theta(n^2) in every case.
 func MatrixTraversalLowerBound(matrix [][]int) int {
 	total := 0
 	for _, row := range matrix {
@@ -45,19 +47,19 @@ func MatrixTraversalLowerBound(matrix [][]int) int {
 }
 
 func DemonstrateBigOmega() {
-	fmt.Println("=== Big-Omega (Ω) Notation Examples ===")
-	fmt.Println("Big-Omega provides a LOWER BOUND (best case)")
+	fmt.Println("=== Big-Omega (Omega) Notation Examples ===")
+	fmt.Println("Big-Omega is a LOWER BOUND on a function (any case can have one)")
 
 	arr := []int{5, 3, 8, 1, 9}
-	fmt.Println("Ω(1) - Constant Lower Bound:")
+	fmt.Println("Omega(1) - Constant Lower Bound:")
 	fmt.Printf("  Linear search (best case): index %d\n\n", LinearSearchBestCase(arr, 5))
 
 	sorted := []int{1, 2, 3, 4, 5}
-	fmt.Println("Ω(n) - Linear Lower Bound:")
+	fmt.Println("Omega(n) - Linear Lower Bound:")
 	fmt.Printf("  Bubble sort (best case): %v\n\n", BubbleSortBestCase(sorted))
 
 	matrix := [][]int{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
-	fmt.Println("Ω(n²) - Quadratic Lower Bound:")
+	fmt.Println("Omega(n^2) - Quadratic Lower Bound:")
 	fmt.Printf("  Matrix traversal: sum = %d\n\n", MatrixTraversalLowerBound(matrix))
 }
 

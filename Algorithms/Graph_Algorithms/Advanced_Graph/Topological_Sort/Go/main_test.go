@@ -95,3 +95,31 @@ func indexOf(slice []int, val int) int {
 	return -1
 }
 
+// Every edge u -> v must have u before v, and every vertex (including the
+// neighbor-only vertex 4) must appear exactly once.
+func TestOrderIsValid(t *testing.T) {
+	graph := map[int][]int{0: {1, 2}, 1: {3}, 2: {3}, 3: {4}, 5: {4}}
+	order := TopologicalSortKahn(graph)
+	if len(order) != 6 {
+		t.Fatalf("expected 6 vertices, got %v", order)
+	}
+	for u, neighbors := range graph {
+		for _, v := range neighbors {
+			if indexOf(order, u) >= indexOf(order, v) {
+				t.Errorf("%d must come before %d in %v", u, v, order)
+			}
+		}
+	}
+}
+
+func TestLongChain(t *testing.T) {
+	const n = 1000000
+	chain := make(map[int][]int, n)
+	for i := 0; i < n; i++ {
+		chain[i] = []int{i + 1}
+	}
+	order := TopologicalSortKahn(chain)
+	if len(order) != n+1 || order[0] != 0 || order[n] != n {
+		t.Errorf("unexpected order of length %d", len(order))
+	}
+}

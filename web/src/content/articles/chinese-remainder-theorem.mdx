@@ -1,0 +1,196 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Chinese Remainder Theorem
+title: Chinese Remainder Theorem
+lead: The Chinese Remainder Theorem (CRT) combines congruences x = r (mod m) with different moduli into a single one. With pairwise coprime moduli the answer always exists and is unique modulo the product, and it is found with one extended Euclid per congruence.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n log max m)
+    hint: one extended Euclid per congruence
+  - label: Extra space
+    value: O(1)
+  - label: Answer
+    value: unique mod lcm
+    hint: the product when the moduli are coprime
+  - label: Overflow
+    value: lcm must fit in 64 bits
+    hint: C++ and Go return -1 otherwise
+    tone: warn
+properties:
+  - { label: Needs coprime moduli, value: false }
+  - { label: Detects contradictions, value: true }
+  - { label: Exact integer arithmetic, value: true }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+related:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller-Rabin Primality Test
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast Fourier Transform
+---
+
+## Definition
+
+A system of congruences asks for an integer `x` with a given remainder modulo each of several moduli.
+
+<Equation label="The system" expr="x = r_1 (mod m_1),  x = r_2 (mod m_2),  ...,  x = r_n (mod m_n)" />
+
+<Callout title="The theorem">
+If the moduli `m_1, ..., m_n` are pairwise coprime, the system has a solution, and any two solutions differ by a multiple of `M = m_1 * m_2 * ... * m_n`. So there is exactly one solution in `0 .. M-1`.
+</Callout>
+
+The repository code goes one step further. If the moduli share factors, it still finds the answer when one exists; the solution is then unique modulo `lcm(m_1, ..., m_n)`. Two congruences with `g = gcd(m_1, m_2)` are consistent exactly when `r_1 = r_2 (mod g)`.
+
+## Intuition
+
+A remainder is a partial fingerprint of `x`. Knowing `x mod 3` and `x mod 5` leaves 15 possible pairs, and `x` in `0..14` produces each pair exactly once. If the moduli had a common factor, some pairs would be impossible, which is why coprimality gives existence, and why a shared factor turns into a consistency check.
+
+<GridDiagram
+  corner='x mod 3 \ x mod 5'
+  colLabels={[0, 1, 2, 3, 4]}
+  rowLabels={[0, 1, 2]}
+  rows={[[0, 6, 12, 3, 9], [10, 1, 7, 13, 4], [5, 11, 2, 8, 14]]}
+  tones={['.....', '..f..', '.....']}
+  legend={{ f: 'x = 1 (mod 3) and x = 2 (mod 5): the solution 7' }}
+  caption='Each cell holds the one x in 0..14 with that pair of remainders.'
+/>
+
+## How the code solves it
+
+The code merges congruences one at a time. It keeps the current answer `x` and the modulus `L` it is known modulo, starting from `x = 0 (mod 1)`.
+
+<Steps>
+  <Step title="Reduce the remainder">
+    Replace `r_i` by `r_i mod m_i`, so negative and oversized remainders are fine.
+  </Step>
+  <Step title="Run extended Euclid">
+    Find `p` with `L*p + m*q = g`, where `g = gcd(L, m)`.
+  </Step>
+  <Step title="Check consistency">
+    If `(r - x)` is not divisible by `g`, the two congruences contradict each other: report no solution.
+  </Step>
+  <Step title="Merge">
+    Set `t = ((r - x) / g * p) mod (m / g)`, then `x = x + L*t` and `L = L / g * m`.
+  </Step>
+</Steps>
+
+<Callout title="Why it works">
+We need `L*t = r - x (mod m)`. Dividing by `g` gives `(L/g) * t = (r - x)/g (mod m/g)`, and `L/g` is invertible modulo `m/g` with inverse `p`. The new `x = x + L*t` still satisfies the old congruences, because `L*t` is a multiple of `L`, and it satisfies the new one by construction.
+</Callout>
+
+## Worked example
+
+Solve `x = 2 (mod 3)`, `x = 3 (mod 5)`, `x = 2 (mod 7)`. This is the system the Python demo runs.
+
+<DataTable
+  columns={['Step', 'Merge', 'Extended gcd', 't', 'x', 'L']}
+  rows={[
+    ['0', 'start', '', '', '0', '1'],
+    ['1', 'x = 2 (mod 3)', '', '', '2', '3'],
+    ['2', 'x = 3 (mod 5)', '3*2 + 5*(-1) = 1, so p = 2', '(1 * 2) mod 5 = 2', '2 + 3*2 = 8', '15'],
+    ['3', 'x = 2 (mod 7)', '15*1 + 7*(-2) = 1, so p = 1', '(-6 * 1) mod 7 = 1', '8 + 15*1 = 23', '105'],
+  ]}
+  caption='The answer is 23, unique modulo 105.'
+/>
+
+With non-coprime moduli the same steps apply. For `x = 1 (mod 4)` and `x = 3 (mod 6)`, `g = 2` and the extended gcd is `4*(-1) + 6*1 = 2`. Since `3 - 1 = 2` is divisible by 2, a solution exists: `t = (1 * -1) mod 3 = 2`, so `x = 1 + 4*2 = 9` modulo 12. For `x = 1 (mod 4)` and `x = 2 (mod 6)` the difference 1 is not divisible by 2, so the function returns `None` (Python) or `-1` (C++ and Go).
+
+## Pseudocode
+
+```text
+merge(r1, m1, r2, m2):                  # 0 <= r1 < m1, 0 <= r2 < m2
+    (g, p, q) = extendedGcd(m1, m2)     # m1*p + m2*q = g
+    if (r2 - r1) mod g != 0: return none
+    t = ((r2 - r1) / g * p) mod (m2 / g)
+    return (r1 + m1 * t, m1 / g * m2)
+
+crt(remainders, moduli):
+    if lengths differ or any modulus <= 0: return none
+    (x, L) = (0, 1)
+    for each (r, m):
+        (x, L) = merge(x, L, r mod m, m)  or return none
+    return x
+```
+
+## Implementation
+
+All three versions use this merge. `verify_crt_solution` reduces the remainders before comparing, so `8` modulo `3` counts as `2`. `chinese_remainder_theorem_pairwise` keeps the classic contract and accepts only coprime moduli. In C++ and Go the product of two residues is computed in 128 bits (`__int128`, `math/bits`), and the combined modulus must fit in a signed 64-bit integer, otherwise they return `-1`. Python has no such limit.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Chinese Remainder Theorem" />
+
+## Complexity
+
+Each merge calls extended Euclid on `(L, m)`. The first step reduces `L` modulo `m`, so it takes `O(log m)` steps, and the other operations are constant time.
+
+<ComplexityTable
+  rows={[
+    { case: 'Whole system', time: 'O(n + log M)', space: 'O(1)', when: 'n merges, each costing the log of the new modulus; this is within O(n log max m).' },
+    { case: 'Two congruences', time: 'O(log max(m1, m2))', space: 'O(1)', when: 'One extended Euclid.' },
+    { case: 'Verification', time: 'O(n)', space: 'O(1)', when: 'One remainder per congruence.' },
+  ]}
+/>
+
+In Python the numbers grow with `M`, so each operation on them costs more than a constant. In C++ and Go every value stays below `lcm`, which is at most `2^63 - 1`.
+
+## Closed form vs incremental merge
+
+<DataTable
+  columns={['', 'Closed form', 'Incremental merge (this code)']}
+  rows={[
+    ['Formula', 'x = sum of r_i * M_i * inv(M_i, m_i), mod M', 'repeat merge(x, L, r, m)'],
+    ['Moduli', 'must be pairwise coprime', 'any positive moduli'],
+    ['Detects contradictions', 'no (needs a separate gcd check)', 'yes, at the failing merge'],
+    ['Largest intermediate value', 'about M * M_i * inv: overflows quickly', 'below lcm'],
+    ['Inverses needed', 'n, one per modulus', 'one per merge, from the same extended gcd'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Turns one hard modulus into several small ones, solved independently.',
+    'The incremental merge handles non-coprime moduli and reports contradictions.',
+    'Linear in the number of congruences, with logarithmic work per merge.',
+  ]}
+  cons={[
+    'C++ and Go give up (-1) when the lcm exceeds 64 bits; use big integers beyond that.',
+    'The answer is only defined modulo the lcm, so a different representative may be needed.',
+    'The closed form needs coprime moduli; the merge form is sequential.',
+  ]}
+/>
+
+## Applications
+
+- **Splitting a modulus.** Compute modulo each coprime factor (or prime power), then recombine. This is also how RSA decryption can be sped up, working modulo `p` and `q` separately.
+- **Residue number systems.** A large integer is stored as its remainders modulo several small primes and rebuilt at the end (Garner's algorithm is the standard way when there are many moduli).
+- **Periodic events.** The first day when an event repeating every 4 days and one repeating every 6 days both land on given offsets.
+- **Competitive programming.** Congruence systems with non-coprime moduli appear regularly; the merge handles them directly.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming coprime moduli.** `x = 1 (mod 4)`, `x = 3 (mod 6)` is solvable (`x = 9 (mod 12)`); `x = 1 (mod 4)`, `x = 2 (mod 6)` is not. Check `r_1 = r_2 (mod g)` rather than rejecting `g > 1`.
+- **Skipping normalization.** `-1 (mod 7)` is `6`, and `8 (mod 3)` is `2`. Comparing a raw remainder with `x % m` gives false negatives.
+- **Overflow.** The product `M` and the term `r * M_i * inv` overflow 64 bits fast. Merge incrementally and multiply in 128 bits.
+- **Dropping signs in extended gcd.** `a*x + b*y` must equal `gcd(a, b)` for any signs of `a` and `b`; applying `abs` to the inputs without fixing `x` and `y` breaks it.
+- **Treating `-1` as an answer.** In C++ and Go it means failure. Answers are never negative.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the solution exist when the moduli are coprime?">
+    Because each `M_i = M / m_i` is coprime to `m_i`, it has an inverse modulo `m_i`. The term `r_i * M_i * inv(M_i)` is `r_i` modulo `m_i` and `0` modulo every other modulus, so the sum satisfies every congruence.
+  </FaqItem>
+  <FaqItem question="What if the moduli are not coprime?">
+    The system can still be solvable. Two congruences are consistent exactly when their remainders agree modulo the gcd of their moduli, and the merged solution is unique modulo the lcm. This implementation merges one congruence at a time and returns no solution only for a real contradiction.
+  </FaqItem>
+  <FaqItem question="How do I get the smallest positive solution?">
+    The function returns the smallest non-negative solution in `0 .. L-1`. If that is 0 and you need a positive one, add `L`.
+  </FaqItem>
+  <FaqItem question="What happens for an empty system?">
+    It returns 0, the solution modulo 1.
+  </FaqItem>
+</Faq>

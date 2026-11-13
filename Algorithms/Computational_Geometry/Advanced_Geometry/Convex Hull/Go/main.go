@@ -2,18 +2,19 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"sort"
 )
-
-const eps = 1e-9
 
 type Point struct {
 	X, Y float64
 }
 
 func crossProduct(o, a, b Point) float64 {
-	return (a.X-o.X)*(b.Y-o.Y) - (a.Y-o.Y)*(b.X-o.X)
+	// float64(...) stops the compiler from fusing the products into one FMA instruction,
+	// which would change the rounding of the result on some CPUs.
+	left := float64((a.X - o.X) * (b.Y - o.Y))
+	right := float64((a.Y - o.Y) * (b.X - o.X))
+	return left - right
 }
 
 func distanceSquared(p1, p2 Point) float64 {
@@ -22,97 +23,112 @@ func distanceSquared(p1, p2 Point) float64 {
 	return dx*dx + dy*dy
 }
 
+// distinctPoints returns the distinct points (exact comparison) sorted by (X, Y).
+// It works on a copy, so the caller's slice is never reordered.
+func distinctPoints(points []Point) []Point {
+	pts := make([]Point, len(points))
+	copy(pts, points)
+	sort.Slice(pts, func(i, j int) bool {
+		return pts[i].X < pts[j].X || (pts[i].X == pts[j].X && pts[i].Y < pts[j].Y)
+	})
+	out := pts[:0]
+	for i, p := range pts {
+		if i == 0 || p != out[len(out)-1] {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// grahamScan returns the hull counterclockwise, starting at the bottom-most point (leftmost
+// on a tie). Points on a hull edge are excluded. Duplicates are removed; fewer than three
+// distinct points are returned as they are. Comparisons are exact, so integer input never
+// goes wrong. The input slice is not modified.
 func grahamScan(points []Point) []Point {
-	if len(points) < 3 {
-		return points
+	pts := distinctPoints(points)
+	if len(pts) < 3 {
+		sort.Slice(pts, func(i, j int) bool {
+			return pts[i].Y < pts[j].Y || (pts[i].Y == pts[j].Y && pts[i].X < pts[j].X)
+		})
+		return pts
 	}
 
-	// Find bottom-most point
-	bottom := points[0]
-	for _, p := range points {
-		if p.Y < bottom.Y || (math.Abs(p.Y-bottom.Y) < eps && p.X < bottom.X) {
-			bottom = p
+	// Find bottom-most point (or leftmost in case of tie)
+	bottomIdx := 0
+	for i, p := range pts {
+		if p.Y < pts[bottomIdx].Y || (p.Y == pts[bottomIdx].Y && p.X < pts[bottomIdx].X) {
+			bottomIdx = i
 		}
 	}
+	pts[0], pts[bottomIdx] = pts[bottomIdx], pts[0]
+	bottom := pts[0]
 
-	// Sort points by polar angle
-	sort.Slice(points, func(i, j int) bool {
-		dx1 := points[i].X - bottom.X
-		dy1 := points[i].Y - bottom.Y
-		dx2 := points[j].X - bottom.X
-		dy2 := points[j].Y - bottom.Y
-
-		angle1 := math.Atan2(dy1, dx1)
-		angle2 := math.Atan2(dy2, dx2)
-
-		if math.Abs(angle1-angle2) < eps {
-			return distanceSquared(bottom, points[i]) < distanceSquared(bottom, points[j])
+	// Sort by polar angle around bottom: a comes first if b is counterclockwise of it.
+	// All points lie in the upper half-plane of bottom, so this is a strict weak ordering.
+	// Points on the same ray are ordered nearest first.
+	rest := pts[1:]
+	sort.Slice(rest, func(i, j int) bool {
+		cross := crossProduct(bottom, rest[i], rest[j])
+		if cross != 0 {
+			return cross > 0
 		}
-		return angle1 < angle2
+		return distanceSquared(bottom, rest[i]) < distanceSquared(bottom, rest[j])
 	})
 
-	// Remove duplicates
-	uniquePoints := []Point{points[0]}
-	for i := 1; i < len(points); i++ {
-		if !pointsEqual(points[i], uniquePoints[len(uniquePoints)-1]) {
-			uniquePoints = append(uniquePoints, points[i])
-		}
-	}
-
-	if len(uniquePoints) < 3 {
-		return uniquePoints
-	}
-
-	// Build convex hull using stack
-	hull := []Point{uniquePoints[0], uniquePoints[1]}
-
-	for i := 2; i < len(uniquePoints); i++ {
-		for len(hull) > 1 && crossProduct(hull[len(hull)-2], hull[len(hull)-1], uniquePoints[i]) <= 0 {
+	// Build convex hull using stack; drop right turns and collinear points
+	hull := []Point{}
+	for _, p := range pts {
+		for len(hull) > 1 && crossProduct(hull[len(hull)-2], hull[len(hull)-1], p) <= 0 {
 			hull = hull[:len(hull)-1]
 		}
-		hull = append(hull, uniquePoints[i])
+		hull = append(hull, p)
 	}
 
 	return hull
 }
 
+// jarvisMarch returns the hull counterclockwise, starting at the leftmost point (lowest on a
+// tie). Points on a hull edge are excluded. Duplicates are removed; fewer than three
+// distinct points are returned as they are. Comparisons are exact, so integer input never
+// goes wrong. The input slice is not modified.
 func jarvisMarch(points []Point) []Point {
-	if len(points) < 3 {
-		return points
+	pts := distinctPoints(points) // sorted by (X, Y)
+	if len(pts) < 3 {
+		return pts
 	}
 
-	// Find leftmost point
-	leftmost := points[0]
-	for _, p := range points {
-		if p.X < leftmost.X || (math.Abs(p.X-leftmost.X) < eps && p.Y < leftmost.Y) {
-			leftmost = p
-		}
-	}
-
+	// Leftmost point is the first one after sorting by (X, Y)
+	leftmost := pts[0]
 	hull := []Point{leftmost}
 
-	for {
+	// A hull never has more vertices than points; the bound only guards rounding trouble
+	// with non-integer coordinates.
+	for len(hull) <= len(pts) {
 		current := hull[len(hull)-1]
-		nextPoint := points[0]
+		var nextPoint Point
+		found := false
 
-		// Find point with smallest polar angle from current
-		for _, point := range points {
-			if pointsEqual(point, current) {
+		// Find the point such that every other point is on its left (or on the line)
+		for _, point := range pts {
+			if point == current {
+				continue
+			}
+			if !found {
+				nextPoint = point
+				found = true
 				continue
 			}
 
 			cross := crossProduct(current, nextPoint, point)
-			distNext := distanceSquared(current, nextPoint)
-			distPoint := distanceSquared(current, point)
 
-			// If point is more counterclockwise, or same angle but farther
-			if cross < 0 || (math.Abs(cross) < eps && distPoint > distNext) {
+			// If point is more clockwise, or on the same ray but farther
+			if cross < 0 || (cross == 0 && distanceSquared(current, point) > distanceSquared(current, nextPoint)) {
 				nextPoint = point
 			}
 		}
 
 		// If we've completed the hull
-		if pointsEqual(nextPoint, leftmost) {
+		if nextPoint == leftmost {
 			break
 		}
 
@@ -120,10 +136,6 @@ func jarvisMarch(points []Point) []Point {
 	}
 
 	return hull
-}
-
-func pointsEqual(p1, p2 Point) bool {
-	return math.Abs(p1.X-p2.X) < eps && math.Abs(p1.Y-p2.Y) < eps
 }
 
 func main() {

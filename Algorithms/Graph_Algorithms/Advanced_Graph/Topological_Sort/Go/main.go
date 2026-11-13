@@ -94,4 +94,3 @@ func main() {
 	fmt.Printf("Topological order: %v (empty if cycle detected)\n", orderCycle)
 	fmt.Printf("Is DAG: %v\n", IsDAG(graphCycle))
 }
-

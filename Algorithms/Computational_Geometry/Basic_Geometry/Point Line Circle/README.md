@@ -1,200 +1,101 @@
-# Point, Line, and Circle Operations
+# Point, Line and Circle
 
-A comprehensive implementation of basic geometric operations for **Point**, **Line**, and **Circle** structures, essential building blocks for computational geometry problems.
+The basic 2D toolkit behind computational geometry: distance between points, the cross product as a signed area that tells left from right, the dot product, the angle between two directions, point-in-triangle and point-in-circle tests. Every test is exact (no epsilon), so the answers do not depend on the coordinate scale.
 
----
+## Intuition
 
-## Overview
+Walk from `o` to `a`, then look at `b`. The cross product `(a.x - o.x)(b.y - o.y) - (a.y - o.y)(b.x - o.x)` is positive if `b` is to your left, negative if it is to your right, and zero if the three points are on one line. Its absolute value is the area of the parallelogram spanned by `oa` and `ob`. The dot product is the matching "how aligned" number: `|u||v|cos(theta)`. Together they give orientation, angles, projections and containment tests with a handful of multiplications.
 
-This module provides fundamental geometric primitives and operations that form the foundation of computational geometry algorithms. These operations are used extensively in problems involving geometric shapes, intersections, and spatial relationships.
+Invariant: every predicate is the sign (or zero test) of a product expression, evaluated exactly. There is no threshold to tune, and the same code gives the same answer at scale 1e-5 and at scale 1e5.
 
-**Key Characteristics:**
-- Efficient: O(1) operations for most basic queries
-- Accurate: Uses floating-point tolerance for comparisons
-- Versatile: Supports various geometric computations
-- Foundation: Essential for advanced geometry algorithms
+## Visual
 
----
+```text
+       C (2,4)                    P (2,1):  cross(P,A,B) =  4
+      /  \                                  cross(P,B,C) =  6   all positive
+     /  P \                                 cross(P,C,A) =  6   -> inside
+    /      \
+   A--------B
+ (0,0)     (4,0)       orientation (0,0)->(4,4)->(1,2) = +4: counterclockwise (2)
+```
 
-## Data Structures
+## Operations
 
-### Point
-Represents a 2D point with x and y coordinates.
+| Piece | What it does | Time |
+|-------|--------------|------|
+| `Point` | `distance_to`, `distance_squared`, exact equality | O(1) |
+| `Line` | `length`, `length_squared`, `slope`, `is_vertical`, `is_horizontal` | O(1) |
+| `Circle` | `area`, `circumference`, `contains_point`, `point_on_circle` | O(1) |
+| `cross_product(o, a, b)` | signed parallelogram area | O(1) |
+| `dot_product(o, a, b)` | projection / cosine measure | O(1) |
+| `orientation(p, q, r)` | 0 collinear, 1 clockwise, 2 counterclockwise | O(1) |
+| `angle_between_points(o, a, b)` | angle AOB in `[0, pi]`, via `atan2(abs(cross), dot)` | O(1) |
+| `point_in_triangle(p, a, b, c)` | inside or on the boundary | O(1) |
 
-**Operations:**
-- Distance calculation (Euclidean and squared)
-- Point equality comparison
+Behaviors to know: point equality is exact; a zero-length line has no direction (`slope` is NaN, it is neither vertical nor horizontal); a negative radius is rejected (`ValueError`, `std::invalid_argument`, a panic in Go); a degenerate triangle contains no point; `angle_between_points` returns 0 when A or B coincides with O. Line-point distance, projection and line-circle intersection are not implemented.
 
-### Line
-Represents a line segment or infinite line defined by two points.
+## Step-by-Step Trace
 
-**Operations:**
-- Length calculation
-- Slope computation
-- Vertical/horizontal detection
+Triangle `A (0,0)`, `B (4,0)`, `C (2,4)`:
 
-### Circle
-Represents a circle with center point and radius.
+| Point | cross(p, a, b) | cross(p, b, c) | cross(p, c, a) | Result |
+|-------|----------------|----------------|----------------|--------|
+| (2,1) | 4 | 6 | 6 | inside: all positive |
+| (10,10) | 40 | -44 | 20 | outside: mixed signs |
+| (2,0) | 0 | 8 | 8 | inside: on the edge AB |
 
-**Operations:**
-- Area and circumference calculation
-- Point containment checking
-- Boundary point detection
+Angle between `(3,4)` and `(2,1)` from the origin: `cross = -5`, `dot = 10`, angle `atan2(5, 10)` is about 26.57 degrees, and the negative cross says the second vector is clockwise from the first.
 
----
+## Complexity
 
-## Geometric Functions
+| Operation | Time | Space |
+|-----------|------|-------|
+| Any single operation | O(1) | O(1) |
+| k points against one triangle or circle | O(k) | O(1) |
 
-### Cross Product
-Calculates the cross product of two vectors, useful for:
-- Determining orientation (clockwise/counterclockwise)
-- Computing signed area
-- Checking collinearity
+Circle tests compare squared distances, so no square root is needed. Results are exact when the products are exactly representable: integer coordinates in Python, and in C++ and Go while the products stay below 2^53.
 
-### Dot Product
-Calculates the dot product of two vectors, useful for:
-- Computing angles
-- Projection calculations
-- Perpendicularity checks
+## When to Use
 
-### Orientation
-Determines the orientation of three points:
-- **0**: Collinear
-- **1**: Clockwise
-- **2**: Counterclockwise
+- Orientation and angle tests inside hull, intersection and polygon algorithms.
+- Hit tests against triangles and circles.
+- Not for line-point distance or line-circle intersection (not implemented). Decimal data that must be judged collinear should be scaled to integers first.
 
-### Point in Triangle
-Checks if a point lies inside a triangle using cross product tests.
+## Cross Product vs. Dot Product
 
----
+| | Cross product | Dot product |
+|--|---------------|-------------|
+| Formula | `u.x * v.y - u.y * v.x` | `u.x * v.x + u.y * v.y` |
+| Magnitude | `abs(u) abs(v) sin(theta)` | `abs(u) abs(v) cos(theta)` |
+| Meaning | signed area, left or right | projection, alignment |
+| Zero means | collinear | perpendicular |
 
-## Complexity Analysis
+## Common Pitfalls
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **Point Distance** | O(1) | O(1) |
-| **Line Length** | O(1) | O(1) |
-| **Circle Area** | O(1) | O(1) |
-| **Cross Product** | O(1) | O(1) |
-| **Orientation** | O(1) | O(1) |
-| **Point in Triangle** | O(1) | O(1) |
-
----
+- A fixed epsilon on the cross product is wrong: it has units of length squared, so it breaks at small and large scales.
+- `acos` of a clamped cosine loses all precision near 0 and pi; use `atan2(abs(cross), dot)`.
+- Orientation codes are 1 for clockwise and 2 for counterclockwise in all three languages; test them with exact values.
+- With a zero-area triangle all three signs are 0 and a naive test says "inside" for every point.
+- Collinear decimals (0.1, 0.2, 0.3) may not give a zero cross product because of rounding.
+- Exact equality on computed points rarely holds; use a tolerance of your own for results of arithmetic.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `point_line_circle.py` | classes `Point`, `Line`, `Circle` and free functions |
+| C++ | [C++](C++/) | `point_line_circle.cpp` | structs with the same methods, camelCase names |
+| Go | [Go](Go/) | `main.go` | exported names: `NewPoint`, `NewCircle`, `CrossProduct`, `Orientation`, `PointInTriangle` |
 
-- **Python** (`Python/`) - Object-oriented implementation with classes
-- **C++** (`C++/`) - Struct-based implementation
-- **Go** (`Go/`) - Struct-based implementation with methods
+## Practice Problems
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+- [Point Location Test (CSES)](https://cses.fi/problemset/task/2189)
+- [Check If It Is a Straight Line (LeetCode 1232)](https://leetcode.com/problems/check-if-it-is-a-straight-line/)
+- [Valid Boomerang (LeetCode 1037)](https://leetcode.com/problems/valid-boomerang/)
+- [Valid Square (LeetCode 593)](https://leetcode.com/problems/valid-square/)
 
----
+## Related
 
-## Applications
-
-1. **Convex Hull**: Uses orientation and cross product
-2. **Line Intersection**: Uses point and line operations
-3. **Closest Pair**: Uses distance calculations
-4. **Polygon Operations**: Uses point containment and orientation
-5. **Spatial Queries**: Uses geometric relationships
-
----
-
-## Usage Examples
-
-### Python
-```python
-from point_line_circle import Point, Line, Circle
-
-# Point operations
-p1 = Point(0, 0)
-p2 = Point(3, 4)
-distance = p1.distance_to(p2)  # 5.0
-
-# Line operations
-line = Line(Point(0, 0), Point(3, 4))
-length = line.length()  # 5.0
-
-# Circle operations
-circle = Circle(Point(0, 0), 5.0)
-area = circle.area()  # ~78.54
-```
-
-### C++
-```cpp
-Point p1(0, 0);
-Point p2(3, 4);
-double distance = p1.distanceTo(p2);  // 5.0
-
-Line line(Point(0, 0), Point(3, 4));
-double length = line.length();  // 5.0
-
-Circle circle(Point(0, 0), 5.0);
-double area = circle.area();  // ~78.54
-```
-
-### Go
-```go
-p1 := NewPoint(0, 0)
-p2 := NewPoint(3, 4)
-distance := p1.DistanceTo(p2)  // 5.0
-
-line := NewLine(NewPoint(0, 0), NewPoint(3, 4))
-length := line.Length()  // 5.0
-
-circle := NewCircle(NewPoint(0, 0), 5.0)
-area := circle.Area()  // ~78.54
-```
-
----
-
-## Important Notes
-
-1. **Floating-Point Precision**: All comparisons use epsilon tolerance (1e-9) to handle floating-point errors
-2. **Vertical Lines**: Slope returns infinity for vertical lines
-3. **Distance Squared**: Use `distance_squared` when comparing distances (avoids sqrt)
-4. **Orientation**: Cross product sign determines orientation
-
----
-
-## Related Algorithms
-
-- **Line Intersection**: Uses point and line operations
-- **Convex Hull**: Uses orientation and cross product
-- **Closest Pair**: Uses distance calculations
-- **Rotating Calipers**: Uses geometric primitives
-
----
-
-## Testing
-
-Run tests with:
-
-```bash
-# Python
-python -m unittest point_line_circle_test.py
-
-# C++
-g++ -o test point_line_circle_test.cpp && ./test
-
-# Go
-go test -v
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 33)
-- "Computational Geometry in C" by Joseph O'Rourke
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
+- [Line Intersection](../Line%20Intersection/README.md)
+- [Convex Hull](../../Advanced_Geometry/Convex%20Hull/README.md)
+- [Rotating Calipers](../../Advanced_Geometry/Rotating%20Calipers/README.md)

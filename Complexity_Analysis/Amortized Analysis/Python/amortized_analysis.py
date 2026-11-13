@@ -26,6 +26,8 @@ class DynamicArray:
         self.capacity = initial_capacity
         self.size = 0
         self.data = [None] * initial_capacity
+        # Total number of element copies made by all resizes so far.
+        self.copies = 0
     
     def append(self, value):
         """
@@ -44,12 +46,13 @@ class DynamicArray:
     def _resize(self):
         """Double the capacity when array is full."""
         old_capacity = self.capacity
-        self.capacity *= 2
+        self.capacity = max(1, self.capacity * 2)
         new_data = [None] * self.capacity
         
         # Copy old data: O(n)
         for i in range(old_capacity):
             new_data[i] = self.data[i]
+        self.copies += old_capacity
         
         self.data = new_data
     
@@ -71,6 +74,8 @@ class BinaryCounter:
     def __init__(self, n_bits=8):
         self.bits = [0] * n_bits
         self.n_bits = n_bits
+        # Total number of bit flips made by all increments so far.
+        self.flips = 0
     
     def increment(self):
         """
@@ -82,10 +87,12 @@ class BinaryCounter:
         i = 0
         while i < self.n_bits and self.bits[i] == 1:
             self.bits[i] = 0
+            self.flips += 1
             i += 1
         
         if i < self.n_bits:
             self.bits[i] = 1
+            self.flips += 1
     
     def get_value(self):
         """Get decimal value of binary counter."""
@@ -114,47 +121,38 @@ def aggregate_method_example():
         print(f"  Append {i}: size={arr.size}, capacity={arr.capacity}")
     
     print(f"\nAmortized cost: O(1) per append")
-    print("Explanation: Total cost O(n) / {operations} operations = O(1)\n")
+    print(f"Explanation: total cost O(n) / {operations} operations = O(1)\n")
 
 
 def accounting_method_example():
     """
-    Accounting Method: Assign credits to cheap operations,
-    use credits to pay for expensive operations.
-    
-    Example: Dynamic array
-    - Cheap append (no resize): Charge 3 credits, use 1, save 2
-    - Expensive append (resize): Use saved credits to pay for O(n) cost
+    Accounting Method: charge every append a fixed amortized cost of 3 credits.
+
+    An append that does not resize really costs 1 (the write); it banks the other
+    2 credits. A resize append really costs the copies plus 1 (its own write); the
+    bank pays for the copies. The bank must never go negative.
     """
     print("=== Accounting Method Example ===\n")
     
     arr = DynamicArray(initial_capacity=2)
-    credits = 0
-    total_cost = 0
+    charge = 3
+    bank = 0
+    total_actual = 0
     
-    print("Append operations with credit accounting:")
+    print("Append operations with credit accounting (charge = 3 per append):")
     for i in range(8):
-        old_capacity = arr.capacity
+        copies_before = arr.copies
         arr.append(i)
-        
-        if arr.capacity > old_capacity:
-            # Expensive operation (resize)
-            actual_cost = old_capacity  # Cost of copying
-            credits_used = min(credits, actual_cost)
-            credits -= credits_used
-            total_cost += actual_cost - credits_used
-            print(f"  Append {i}: RESIZE (cost={actual_cost}, credits_used={credits_used})")
-        else:
-            # Cheap operation
-            actual_cost = 1
-            credits_charged = 3
-            credits += credits_charged - actual_cost
-            total_cost += actual_cost
-            print(f"  Append {i}: normal (cost={actual_cost}, credits_saved={credits_charged - actual_cost})")
+        actual_cost = 1 + (arr.copies - copies_before)  # own write + copies
+        total_actual += actual_cost
+        bank += charge - actual_cost
+        kind = "RESIZE" if arr.copies > copies_before else "normal"
+        print(f"  Append {i}: {kind} (actual={actual_cost}, charged={charge}, bank={bank})")
     
-    print(f"\nTotal cost: {total_cost}")
-    print(f"Amortized cost: {total_cost / 8:.2f} per operation")
-    print("Explanation: Credits from cheap operations pay for expensive ones\n")
+    print(f"\nTotal actual cost: {total_actual} (n writes + {arr.copies} copies)")
+    print(f"Total charged: {charge * 8}; amortized cost: {charge} per operation")
+    print(f"Actual cost per operation: {total_actual / 8:.2f} (never above {charge})")
+    print("Explanation: the bank stays >= 0, so 3 credits per append always pay the real cost\n")
 
 
 def potential_method_example():
@@ -214,7 +212,7 @@ def binary_counter_example():
         counter.increment()
         new_value = counter.get_value()
         bits = ''.join(str(b) for b in reversed(counter.bits))
-        print(f"  {i+1}. {old_value} → {new_value} (binary: {bits})")
+        print(f"  {i+1}. {old_value} -> {new_value} (binary: {bits})")
     
     print("\nAmortized cost: O(1) per increment")
     print("Explanation: Total bit flips for n increments is O(n)\n")

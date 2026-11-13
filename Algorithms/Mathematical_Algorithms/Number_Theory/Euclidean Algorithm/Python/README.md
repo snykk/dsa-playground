@@ -1,151 +1,39 @@
-# Euclidean Algorithm (Python)
+# Euclidean Algorithm -- Python Implementation
 
-**Euclidean Algorithm** is an efficient method for computing the greatest common divisor (GCD) of two integers. It can also be used to compute the least common multiple (LCM).
+## Files
 
----
+- `euclidean_algorithm.py`: the four functions below plus a demo under `__main__`.
+- `euclidean_algorithm_test.py`: unit tests (gcd basics, zero, negatives, lcm, the gcd-lcm identity, extended gcd including negative inputs and 5,000 random signed pairs, values above 2^53, large lcm).
 
-## Overview
+## API
 
-The Euclidean algorithm is one of the oldest algorithms still in use today. It is based on the principle that the GCD of two numbers also divides their difference.
-
-**Key Characteristics:**
-- Efficient: O(log min(a, b)) time complexity
-- Simple: Easy to understand and implement
-- Versatile: Can compute GCD, LCM, and solve linear Diophantine equations
-
----
-
-## Algorithm
-
-### GCD Computation
-
-The algorithm is based on the property:
-```
-GCD(a, b) = GCD(b, a mod b)
-```
-
-**Steps:**
-1. If b = 0, return a
-2. Otherwise, compute GCD(b, a mod b)
-
-### LCM Computation
-
-LCM can be computed using GCD:
-```
-LCM(a, b) = |a × b| / GCD(a, b)
-```
-
-### Extended Euclidean Algorithm
-
-Finds integers x and y such that:
-```
-ax + by = GCD(a, b)
-```
-
-This is known as Bézout's identity.
-
----
-
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **GCD** | O(log min(a, b)) | O(1) iterative, O(log min(a, b)) recursive |
-| **LCM** | O(log min(a, b)) | O(1) |
-| **Extended GCD** | O(log min(a, b)) | O(log min(a, b)) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`gcd(a, b)`**
-   - Compute GCD using recursive Euclidean algorithm
-   - Returns GCD of a and b
-   - Time: O(log min(a, b)), Space: O(log min(a, b))
-
-2. **`gcd_iterative(a, b)`**
-   - Compute GCD using iterative Euclidean algorithm
-   - Returns GCD of a and b
-   - Time: O(log min(a, b)), Space: O(1)
-
-3. **`lcm(a, b)`**
-   - Compute LCM using GCD
-   - Returns LCM of a and b
-   - Time: O(log min(a, b)), Space: O(1)
-
-4. **`extended_gcd(a, b)`**
-   - Extended Euclidean algorithm
-   - Returns tuple (gcd, x, y) where ax + by = gcd
-   - Time: O(log min(a, b)), Space: O(log min(a, b))
-
----
-
-## Usage
+- `gcd(a, b)`: recursive Euclid on `|a|` and `|b|`; `gcd(0, 0) == 0`.
+- `gcd_iterative(a, b)`: the same result with a loop.
+- `lcm(a, b)`: `|a * b| // gcd(a, b)`; 0 if either argument is 0.
+- `extended_gcd(a, b)`: `(g, x, y)` with `a*x + b*y == g == gcd(a, b)`, for inputs of any sign.
 
 ```python
-from euclidean_algorithm import gcd, lcm, extended_gcd
+from euclidean_algorithm import gcd, extended_gcd
 
-# Compute GCD
-result = gcd(48, 18)
-print(result)  # 6
-
-# Compute LCM
-result = lcm(12, 18)
-print(result)  # 36
-
-# Extended GCD
-gcd_val, x, y = extended_gcd(48, 18)
-print(f"GCD = {gcd_val}, x = {x}, y = {y}")
-# GCD = 6, x = -1, y = 3
-# Verification: 48*(-1) + 18*3 = 6
+print(gcd(48, 18))            # 6
+print(extended_gcd(-48, 18))  # (6, 1, 3): -48*1 + 18*3 == 6
 ```
 
----
+## Python-Specific Notes
 
-## Applications
+- Integers have arbitrary precision, so there is no overflow.
+- The recursive versions use `O(log min(a, b))` stack; the recursion depth is tiny (about 90 frames at most for 64-bit inputs).
+- `math.gcd` and `math.lcm` (3.9+) are the standard library equivalents; `pow(a, -1, m)` covers modular inverses.
+- Python 3.9 and later.
 
-1. **Fraction Simplification**: Reduce fractions to lowest terms
-2. **Modular Inverses**: Find modular multiplicative inverse
-3. **Linear Diophantine Equations**: Solve ax + by = c
-4. **Cryptography**: RSA algorithm, modular arithmetic
-5. **Number Theory**: Various number theory problems
-
----
-
-## Properties
-
-- **Commutative**: GCD(a, b) = GCD(b, a)
-- **Associative**: GCD(GCD(a, b), c) = GCD(a, GCD(b, c))
-- **Distributive**: GCD(ka, kb) = k × GCD(a, b) for k > 0
-- **LCM Relationship**: LCM(a, b) × GCD(a, b) = |a × b|
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-python -m unittest euclidean_algorithm_test.py
+python3 -m unittest euclidean_algorithm_test
+python3 euclidean_algorithm.py
 ```
 
-Or:
+## Key Takeaways
 
-```bash
-python euclidean_algorithm_test.py
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 31)
-- "Algorithm Design Manual" by Steven Skiena
-- "Number Theory" by Rosen
-
----
-
-_Last Updated: December 2025_
-
+- `gcd(a, b) = gcd(b, a mod b)`, and the loop ends in `O(log min)` steps.
+- For negative inputs, run on absolute values and flip the signs of `x` and `y` afterwards.

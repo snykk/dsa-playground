@@ -2,7 +2,10 @@
  * Precomputation Techniques for Competitive Programming (C++)
  */
 
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <iostream>
+#include <utility>
+#include <vector>
 using namespace std;
 
 typedef long long ll;
@@ -212,15 +215,16 @@ int lca(int u, int v) {
 
 // Powers of 2
 
-ll pow2[64];
+// Unsigned: 2^63 does not fit in a signed long long (the doubling overflowed).
+unsigned long long pow2[64];
 
 void precomputePow2() {
-    pow2[0] = 1;
-    for (int i = 1; i < 64; i++) {
-        pow2[i] = pow2[i-1] * 2;
+    for (int i = 0; i < 64; i++) {
+        pow2[i] = 1ULL << i;
     }
 }
 
+#ifndef IS_TEST_BUILD
 int main() {
     // Initialize all precomputations
     precomputeFactorials();
@@ -237,4 +241,4 @@ int main() {
     
     return 0;
 }
-
+#endif  // IS_TEST_BUILD

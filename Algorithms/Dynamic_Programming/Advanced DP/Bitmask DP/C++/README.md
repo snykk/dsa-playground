@@ -1,43 +1,31 @@
-# Bitmask DP (C++)
+# Bitmask DP -- C++ Implementation
 
-C++ scaffold for Bitmask Dynamic Programming, a technique that uses bitmasks to represent subsets of elements as DP states. The full implementation is in the Python directory.
+A placeholder. This folder does not implement bitmask DP yet; the working solver is the Python version.
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `bitmask_dp.cpp` | Placeholder structure (see Python for full implementation) |
-| `bitmask_dp_test.cpp` | Basic structure test |
+| `bitmask_dp.cpp` | Comment-only stub, no functions |
+| `bitmask_dp_test.cpp` | Includes the stub and prints a message; it asserts nothing |
+
+## API
+
+None. There are no functions or types.
+
+## C++-Specific Notes
+
+- A real port would use `std::vector<std::vector<long long>>` or a flat array of size `(1 << n) * n`, a large sentinel for infinity (take care that `INF + dist` does not overflow) and `1LL << j` for masks above 31 bits.
+- Because the test only prints a message, passing it proves nothing about bitmask DP.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -DTESTING -o test bitmask_dp_test.cpp
-./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD bitmask_dp_test.cpp -o bitmask_dp_test
+./bitmask_dp_test
 ```
 
-## Key Concepts
+## Key Takeaways
 
-| Concept | Description | Typical Complexity |
-|---------|-------------|-------------------|
-| Traveling Salesman (TSP) | Visit all cities with minimum cost using bitmask to track visited set | O(n^2 * 2^n) |
-| Subset enumeration | Iterate over all subsets of n elements via bitmask | O(2^n) |
-| State: `dp[mask][i]` | Minimum cost to reach city `i` having visited the cities in `mask` | -- |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n^2 * 2^n) for TSP-style problems |
-| Space | O(n * 2^n) for the DP table |
-
-## Notes
-
-- Bitmask DP is used when the state space involves subsets of a small set (typically n <= 20).
-- Each bit in the mask represents whether an element is included in the current subset.
-- The Python implementation contains a complete Traveling Salesman Problem solver.
-- See `../Python/bitmask_dp.py` for the full working implementation.
-
----
-
-_Last Updated: April 2026_
+- Treat this folder as a stub; see `../Python/bitmask_dp.py` for the algorithm.
+- The expected cost for a port is O(n^2 * 2^n) time and O(n * 2^n) space.

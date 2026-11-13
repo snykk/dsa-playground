@@ -74,3 +74,53 @@ func TestIsPowerOf2(t *testing.T) {
 		t.Error("7 should not be power of 2")
 	}
 }
+
+func TestNextPowerOf2(t *testing.T) {
+	cases := map[int]int{0: 1, 1: 1, 2: 2, 3: 4, 5: 8, 1000: 1024, 1 << 20: 1 << 20}
+	for in, want := range cases {
+		if got := NextPowerOf2(in); got != want {
+			t.Errorf("NextPowerOf2(%d) = %d, expected %d", in, got, want)
+		}
+	}
+}
+
+func TestNextPowerOf2Beyond32Bits(t *testing.T) {
+	if got := NextPowerOf2(1<<32 + 1); got != 1<<33 {
+		t.Errorf("NextPowerOf2(2^32+1) = %d, expected %d", got, 1<<33)
+	}
+	if got := NextPowerOf2(1 << 40); got != 1<<40 {
+		t.Errorf("NextPowerOf2(2^40) = %d, expected %d", got, 1<<40)
+	}
+}
+
+func TestTSPSingleCity(t *testing.T) {
+	if got := TSP([][]int{{0}}); got != 0 {
+		t.Errorf("TSP with one city = %d, expected 0", got)
+	}
+	if got := TSP(nil); got != 0 {
+		t.Errorf("TSP with no cities = %d, expected 0", got)
+	}
+}
+
+func TestEnumerateSubsets(t *testing.T) {
+	got := EnumerateSubsets(0b101)
+	want := []int{0b101, 0b100, 0b001, 0}
+	if len(got) != len(want) {
+		t.Fatalf("EnumerateSubsets(0b101) = %v, expected %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("EnumerateSubsets(0b101)[%d] = %b, expected %b", i, got[i], want[i])
+		}
+	}
+}
+
+func TestSOSDP(t *testing.T) {
+	got := SOSDP([]int{1, 2, 3, 4})
+	want := []int{1, 3, 4, 10}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("SOSDP[%d] = %d, expected %d", i, got[i], want[i])
+		}
+	}
+}

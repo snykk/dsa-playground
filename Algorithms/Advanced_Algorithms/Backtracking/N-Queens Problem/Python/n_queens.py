@@ -1,7 +1,7 @@
 """
 N-Queens Problem
 
-Backtracking algorithm to solve the N-Queens problem - placing N queens on an N×N chessboard
+Backtracking algorithm to solve the N-Queens problem - placing N queens on an NxN chessboard
 so that no two queens attack each other.
 """
 
@@ -34,60 +34,41 @@ def is_safe(board: List[List[int]], row: int, col: int, n: int) -> bool:
     return True
 
 
-def solve_n_queens_util(board: List[List[int]], row: int, n: int, solutions: List[List[List[int]]]) -> bool:
-    """Backtracking utility function."""
+def solve_n_queens_util(board: List[List[int]], row: int, n: int, solutions: List[List[List[int]]], find_all: bool) -> bool:
+    """Backtracking utility function. Returns True when the search should stop."""
     if row == n:
-        # Found a solution, save it
-        solution = [row[:] for row in board]
-        solutions.append(solution)
-        return False  # Continue to find all solutions
-    
+        # Found a solution, save a copy of the board
+        solutions.append([r[:] for r in board])
+        return not find_all  # stop after the first solution unless collecting all
+
     for col in range(n):
         if is_safe(board, row, col, n):
             board[row][col] = 1
-            
-            if solve_n_queens_util(board, row + 1, n, solutions):
+
+            if solve_n_queens_util(board, row + 1, n, solutions, find_all):
                 return True
-            
+
             # Backtrack
             board[row][col] = 0
-    
+
     return False
 
 
 def solve_n_queens(n: int, find_all: bool = False) -> List[List[List[int]]]:
     """
     Solve N-Queens problem.
-    
+
     Args:
-        n: Size of the board (n×n)
+        n: Size of the board (nxn)
         find_all: If True, find all solutions; if False, find first solution
-        
+
     Returns:
-        List of solutions, where each solution is a 2D board
+        List of solutions, where each solution is a 2D board (1 = queen).
+        Empty list if there is no solution (n = 2 or 3).
     """
     board = [[0 for _ in range(n)] for _ in range(n)]
-    solutions = []
-    
-    if find_all:
-        solve_n_queens_util(board, 0, n, solutions)
-    else:
-        # Find first solution only
-        def solve_first(board, row):
-            if row == n:
-                solutions.append([row[:] for row in board])
-                return True
-            
-            for col in range(n):
-                if is_safe(board, row, col, n):
-                    board[row][col] = 1
-                    if solve_first(board, row + 1):
-                        return True
-                    board[row][col] = 0
-            return False
-        
-        solve_first(board, 0)
-    
+    solutions: List[List[List[int]]] = []
+    solve_n_queens_util(board, 0, n, solutions, find_all)
     return solutions
 
 

@@ -40,3 +40,6 @@ def main():
     print(f"Compressed mapping: {mapping}")
     print(f"Decompressed: {decompress_coordinates(mapping)}")
 
+
+if __name__ == "__main__":
+    main()

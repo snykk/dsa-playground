@@ -5,6 +5,8 @@ The Sieve of Eratosthenes is an efficient algorithm for finding all prime
 numbers up to a given limit n.
 """
 
+import math
+
 
 def sieve_of_eratosthenes(n):
     """
@@ -27,7 +29,7 @@ def sieve_of_eratosthenes(n):
     is_prime[0] = is_prime[1] = False
     
     # Sieve process
-    for i in range(2, int(n ** 0.5) + 1):
+    for i in range(2, math.isqrt(n) + 1):
         if is_prime[i]:
             # Mark multiples of i as composite
             for j in range(i * i, n + 1, i):
@@ -46,7 +48,8 @@ def sieve_boolean(n):
         n: Upper limit (inclusive)
         
     Returns:
-        Boolean list where is_prime[i] = True if i is prime
+        Boolean list of length n + 1 where is_prime[i] = True if i is prime
+        (an empty list for n < 0)
         
     Time Complexity: O(n log log n)
     Space Complexity: O(n)
@@ -57,7 +60,7 @@ def sieve_boolean(n):
     is_prime = [True] * (n + 1)
     is_prime[0] = is_prime[1] = False
     
-    for i in range(2, int(n ** 0.5) + 1):
+    for i in range(2, math.isqrt(n) + 1):
         if is_prime[i]:
             for j in range(i * i, n + 1, i):
                 is_prime[j] = False
@@ -74,12 +77,14 @@ def is_prime_sieve(n, sieve):
         sieve: Boolean array from sieve_boolean
         
     Returns:
-        True if n is prime, False otherwise
+        True if n is prime, False otherwise. A negative n is not prime
+        (it must not wrap around to the end of the list), and an n beyond the
+        end of the sieve is reported as False because it was never sieved.
         
     Time Complexity: O(1)
     Space Complexity: O(1)
     """
-    if n < len(sieve):
+    if 0 <= n < len(sieve):
         return sieve[n]
     return False
 

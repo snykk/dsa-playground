@@ -1,157 +1,111 @@
-# Convex Hull Trick (CHT) & Li Chao Tree
+# Convex Hull Trick and Li Chao Tree
 
-> A DP optimization that speeds up transitions of the form `dp[i] = min(m_j · x_i + b_j)` — "minimum of a bunch of linear functions at query point `x_i`" — from O(n) per query to **O(log n)** (Li Chao) or **O(1) amortized** (monotonic CHT).
+The Convex Hull Trick (CHT) answers "smallest value of `m*x + b` over a set of lines" in O(1) amortized time when slopes and queries are sorted, and a Li Chao tree does it in O(log V) in any order. They speed up DP transitions of the form `dp[i] = min over j of (m_j * x_i + b_j)` from O(n) per state to near-constant.
 
----
+## Intuition
 
-## 🎯 Intuition
+Many DPs look like `dp[i] = min over j < i of (m_j * x_i + b_j)`. Each earlier state `j` is a **line** `y = m_j * x + b_j`, and `x_i` is the query point. The minimum of many lines as a function of `x` is the **lower envelope**, a convex piecewise-linear function, and only lines that appear on it can ever be the answer. CHT keeps just those lines:
 
-Many DPs look like this:
-```
-dp[i] = min over j < i of  (some_linear_function_of_j)(i)
-      = min over j < i of  m_j · x_i + b_j
-```
+- Slopes inserted in non-increasing order and queries with non-decreasing `x`: a deque, with every line pushed once and popped at most once.
+- Any order: a Li Chao tree, a segment tree over `x` whose node stores the one line that is best at the node's midpoint.
 
-Each `j` contributes a **line** `y = m_j · x + b_j`. At query point `x = x_i`, we want the minimum `y` over all added lines.
+## Visual
 
-The insight: the minimum over a collection of lines, as a function of `x`, is the **lower envelope** — a convex piecewise-linear function. Only the lines that appear on the lower envelope matter.
+Lines `3x`, `2x + 4`, `x + 3` and `7`, values at x = 0..6 (the minimum of each column is the envelope):
 
-**Convex Hull Trick** maintains this lower envelope incrementally:
-- Lines added in sorted-slope order → use a deque, O(1) amortized per insert and query.
-- Lines in arbitrary order → use a **Li Chao Tree**, O(log n) per insert and query.
-
----
-
-## 📊 Visual: Lower Envelope
-
-Three lines:
-```
-y = 2x + 5     (steep, high intercept)
-y = 1x + 3     (medium)
-y = 0x + 7     (flat, high intercept)
-
-          |
-       7  ────────────────   ← y = 7 constant
-          |  ╲
-          |    ╲ (y=1x+3)
-          |      ╲_____
-          |             ╲___
-          |_____________________
-        Query at x = 0: min = 3  (line y=x+3)
-        Query at x = 5: min = 7  (line y=7, it's now below y=x+3)
+```text
+ x        0   1   2   3   4   5   6
+ 3x       0   3   6   9  12  15  18      best at x = 0, 1
+ 2x + 4   4   6   8  10  12  14  16      never best: not on the envelope
+ x + 3    3   4   5   6   7   8   9      best at x = 2, 3 (tie at 4)
+ 7        7   7   7   7   7   7   7      best from x = 4
+ min      0   3   5   6   7   7   7
 ```
 
-The **lower envelope** (the min at every x) is itself a convex piecewise-linear function. CHT maintains it as a structure you can query in O(log n) or O(1).
+## How It Works
 
----
+Monotonic CHT (deque of `(m, b)`, slopes strictly decreasing):
 
-## 🧮 The Monotonic CHT (simple version)
+1. Insert `(m, b)`. If the last line has the same slope, keep only the lower intercept (drop the new line if it is not lower, otherwise pop the last one).
+2. While at least two lines are stored and the last line `l2` is redundant given the one before it `l1` and the new line `l3`, pop it. The test uses integers: `(b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)`.
+3. Push the new line.
+4. Query at `x` (non-decreasing): while the first line is no better than the second at `x`, pop the front. Return the first line's value.
 
-Assumptions (for the O(1) amortized version):
-- **Slopes added in monotonically decreasing order** (m₁ ≥ m₂ ≥ m₃ ≥ ...).
-- **Query x's are monotonically non-decreasing**.
+Li Chao tree over `[lo, hi]`:
 
-Data structure: a deque of `(slope, intercept)`.
+1. Insert: compare the new line and the stored one at the midpoint and keep the better one in the node.
+2. Send the loser to the left child if it is better at the left end of the range, or to the right child if it is better at the right end; otherwise drop it.
+3. Query: walk from the root to the leaf of `x` and take the minimum of the stored lines.
 
-### Insert a new line `(m, b)`
-While the deque has ≥ 2 lines and the new line makes the **last** line redundant (the new line and the one before the last dominate it everywhere), pop the last line. Then push.
+## Step-by-Step Trace
 
-### Query `min(m·x + b)` at `x`
-While the deque has ≥ 2 lines and the **first** line is dominated by the second at this `x`, pop the first line. Then return evaluation of the first.
+Insert `(3, 0)`, `(2, 4)`, `(1, 3)`, `(0, 7)` into the monotonic CHT, then query:
 
-Both amortized O(1) because each line is pushed and popped at most once.
+| Step | Deque | Note |
+|------|-------|------|
+| add (3, 0) | (3,0) | first line |
+| add (2, 4) | (3,0) (2,4) | fewer than two lines, no test |
+| add (1, 3) | (3,0) (1,3) | `3 * 1 <= 4 * 2`: (2,4) popped |
+| add (0, 7) | (3,0) (1,3) (0,7) | `7 * 2 <= 3 * 3` is false: keep |
+| query 0 | (3,0) (1,3) (0,7) | 0 (3x) |
+| query 1 | same | 3 |
+| query 2 | (1,3) (0,7) | 6 >= 5: front popped, answer 5 |
+| query 4 | (0,7) | 7 >= 7: front popped, answer 7 |
 
----
+The answers for x = 0..6 are 0, 3, 5, 6, 7, 7, 7.
 
-## 🧮 Li Chao Tree (general version)
-
-For arbitrary insertion order and arbitrary query order. Build a segment tree over the query-x range. Each node stores **one line** — the one that "wins" over the largest subrange of its interval.
-
-### Insert `(m, b)` into a node covering `[lo, hi]`
-1. Compare at midpoint. Keep whichever line is lower at mid.
-2. Recurse into the side where the other line might still win.
-
-### Query at `x`
-Walk from root to the leaf containing `x`, tracking the minimum line value seen. O(log V) where V is the value range.
-
----
-
-## ⏱️ Complexity
+## Complexity
 
 | Variant | Insert | Query | Restrictions |
 |---------|--------|-------|--------------|
-| **Monotonic CHT (deque)** | O(1) amortized | O(1) amortized | Slopes monotone; queries monotone |
-| **CHT with binary search** | O(log n) | O(log n) | Slopes monotone; queries arbitrary |
-| **Li Chao Tree** | O(log V) | O(log V) | None — arbitrary lines, arbitrary queries |
-| **Li Chao Tree (dynamic)** | O(log² V) | O(log V) | Unknown value range; node allocation as needed |
+| Monotonic CHT (deque) | O(1) amortized | O(1) amortized | slopes non-increasing, queries non-decreasing |
+| CHT with binary search | O(1) amortized | O(log n) | slopes monotone, queries arbitrary |
+| Li Chao tree | O(log V) | O(log V) | a fixed range of V integer query points |
 
-`V` is the range of query points (e.g., `10^9` for typical CP constraints).
+Each line is pushed once and popped at most once, so n operations on the deque cost O(n) in total (the Python version uses `collections.deque`, so front pops are O(1)). The Li Chao tree creates nodes lazily, at most one per inserted line, so space is O(n) in both variants.
 
----
+## When to Use
 
-## 🎯 When to Use
+- A DP whose transition is `min` or `max` of terms linear in an index-dependent value, such as setup costs or squared distances expanded as `(x_i - x_j)^2`.
+- Not when the cost is not linear in the query variable (try divide and conquer DP or Knuth's optimization), or when n is small enough for a plain scan.
 
-✅ **Perfect fit:**
-- DP of the form `dp[i] = min/max over j of (linear_in_i function of j)`
-- Classic problems: **Batch scheduling, building skyscrapers, task partitioning with setup cost**
-- Competitive programming problems tagged "DP optimization"
+## CHT vs. Alternatives
 
-❌ **Not the right tool:**
-- Cost function isn't linear in `i` → CHT doesn't apply; try Divide & Conquer DP or Knuth's opt
-- DP is O(n) already — no benefit
-- Only a few lines → just scan them each query
+| Technique | Time | Use when |
+|-----------|------|----------|
+| Monotonic CHT | O(n) | sorted slopes and queries |
+| Li Chao tree | O(n log V) | any order, known range of x |
+| Divide and conquer DP | O(n log n) | quadrangle-inequality costs |
+| Plain scan | O(n^2) | n up to a few thousand |
 
----
+## Common Pitfalls
 
-## ⚔️ CHT vs. Alternatives
+- Equal slopes: keep the lower intercept only. Without it, three lines with the same slope can drop the best line (the cross-multiplied test is 0 on both sides). Fixed here: `(2,5), (2,1), (2,3)` queried at 0 now returns 1.
+- Wrong order: slopes must be non-increasing and queries non-decreasing; otherwise the answers are silently wrong.
+- Min versus max: the envelope and comparisons flip for the maximum, so write it separately.
+- Floating point: compare intersections by cross-multiplication, not division.
+- Overflow: the C++ version widens to `__int128` and Go uses `big.Int` in the redundancy test, but `m * x + b` must still fit in 64 bits.
+- Empty structure: Python raises `ValueError`, C++ has undefined behaviour and Go panics.
+- Li Chao tree outside its range: Python raises `ValueError` and Go panics; C++ does not check. An empty tree returns `inf` (Python), `LLONG_MAX` (C++) or `MaxInt64` (Go).
 
-| Technique | Good for | Not for |
-|-----------|----------|---------|
-| **Monotonic CHT** | Simplest case; slopes and queries monotone | Arbitrary orders |
-| **Li Chao Tree** | Any order; fixed value range | Very wide value range without compression |
-| **Dynamic Li Chao** | Any order, any range | Slight log² overhead |
-| **Kinetic Segment Tree** | Dynamic insertions + deletions | Overkill for most CP problems |
+## Implementations
 
-For contest use: **start with monotonic CHT** if the problem allows it. Fall back to Li Chao only when slopes or queries aren't monotone.
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `cht.py` | Deque-based CHT and Li Chao tree; 12 tests |
+| C++ | [C++](C++/) | `cht.h` | Header-only; `__int128` in the redundancy test; 5 tests |
+| Go | [Go](Go/) | `main.go` | Slice-based CHT, `big.Int` in the redundancy test; 5 tests |
 
----
+## Practice Problems
 
-## ⚠️ Common Pitfalls
+- [Kalila and Dimna (Codeforces 319C)](https://codeforces.com/problemset/problem/319/C)
+- [Escape Through Leaf (Codeforces 932F)](https://codeforces.com/problemset/problem/932/F)
+- [Frog 3 (AtCoder Educational DP Contest, problem Z)](https://atcoder.jp/contests/dp/tasks/dp_z)
+- [Commando (SPOJ APIO10A)](https://www.spoj.com/problems/APIO10A/)
 
-1. **Min vs Max confusion.** Minimizing requires the **lower** envelope; maximizing the **upper**. The code differs in inequality direction. Don't try to unify — write two versions.
-2. **Precision with doubles.** Intersection x-coordinates use division; rounding errors can cause lines to look wrongly dominated. For integer slopes and intercepts, use cross-multiplication: `(b1 - b2) * (m3 - m1) <= (b1 - b3) * (m2 - m1)` instead of `(b1 - b2) / (m2 - m1) <= (b1 - b3) / (m3 - m1)`.
-3. **Overflow in cross-multiplication.** 64-bit slopes × 64-bit intercepts can overflow. Use `__int128` in C++, `big.Int` in Go, or plain Python (arbitrary precision).
-4. **Equal slopes**: treat as "keep the one with lower intercept" for min. Forgetting this gives a deque full of parallel, mutually-dominating lines.
-5. **Li Chao over unbounded range**: the naive implementation needs a fixed `[lo, hi]`. For queries over `[-10⁹, 10⁹]`, that's 2·10⁹ leaves — too much. Use coordinate compression or dynamic Li Chao.
+## Related
 
----
-
-## 🔧 Implementations
-
-| Language | Folder | Notes |
-|----------|--------|-------|
-| Python | [Python/](Python/) | Deque-based monotonic CHT + Li Chao Tree |
-| C++ | [C++/](C++/) | Deque-based CHT + Li Chao |
-| Go | [Go/](Go/) | Slice-based CHT + Li Chao |
-
----
-
-## 📝 Practice Problems
-
-- [Codeforces 319C. Kalila and Dimna](https://codeforces.com/problemset/problem/319/C) — classic CHT introduction
-- [Codeforces 631E. Product Sum](https://codeforces.com/problemset/problem/631/E) — CHT with slope tricks
-- [SPOJ APIO10A. Commando](https://www.spoj.com/problems/APIO10A/) — textbook monotonic CHT
-- [Atcoder DP Contest - Z. Frog 3](https://atcoder.jp/contests/dp/tasks/dp_z) — introductory CHT
-- [Codeforces 932F. Escape Through Leaf](https://codeforces.com/problemset/problem/932/F) — CHT on a tree, needs Li Chao
-
----
-
-## 🔗 Related
-
-- [Segment Tree](../../../../Data%20Structures/Non_Linear/Trees/Segment%20Tree/README.md) — Li Chao builds on it
-- [Dynamic Programming](../../README.md) — this is an optimization for specific DP shapes
-- [Sliding Window](../../../../Problem_Patterns/Sliding%20Window/README.md) — different technique, different structure
-
----
-
-_Part of [DP Optimizations](../README.md)._
+- [Dynamic Programming](../../README.md)
+- [DP on Trees](../../Advanced%20DP/DP%20on%20Trees/)
+- [Monotonic Queue](../../../../Problem_Patterns/Monotonic%20Queue/)
+- [DP Problem Patterns](../../../../Problem_Patterns/DP%20Problem%20Patterns/)

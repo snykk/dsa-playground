@@ -2,11 +2,12 @@
 Big-O Notation Implementation and Examples
 
 Big-O notation describes the upper bound of an algorithm's time complexity.
-It represents the worst-case scenario for how the runtime grows with input size.
+It is an upper bound on a function; that function can be the best, average or
+worst-case running time (O is not a synonym for 'worst case').
 
 Formal Definition:
-f(n) = O(g(n)) if there exist positive constants c and n₀ such that
-0 ≤ f(n) ≤ c·g(n) for all n ≥ n₀
+f(n) = O(g(n)) if there exist positive constants c and n_0 such that
+0 <= f(n) <= c*g(n) for all n >= n_0
 """
 
 
@@ -83,7 +84,7 @@ def linearithmic_time_example(arr):
     Returns:
         Sorted list
         
-    Time Complexity: O(n log n)
+    Time Complexity: Theta(n log n) in every case (merge sort)
     Space Complexity: O(n)
     """
     if len(arr) <= 1:
@@ -112,7 +113,7 @@ def linearithmic_time_example(arr):
 
 def quadratic_time_example(arr):
     """
-    O(n²) - Quadratic Time
+    O(n^2) - Quadratic Time
     Time complexity grows quadratically with input size.
     Common in nested loops, bubble sort, selection sort.
     
@@ -122,8 +123,8 @@ def quadratic_time_example(arr):
     Returns:
         List of all pairs
         
-    Time Complexity: O(n²)
-    Space Complexity: O(n²)
+    Time Complexity: O(n^2)
+    Space Complexity: O(n^2)
     """
     pairs = []
     for i in range(len(arr)):
@@ -134,7 +135,7 @@ def quadratic_time_example(arr):
 
 def cubic_time_example(n):
     """
-    O(n³) - Cubic Time
+    O(n^3) - Cubic Time
     Time complexity grows cubically with input size.
     Common in triple nested loops, matrix multiplication (naive).
     
@@ -144,7 +145,7 @@ def cubic_time_example(n):
     Returns:
         Number of operations
         
-    Time Complexity: O(n³)
+    Time Complexity: O(n^3)
     Space Complexity: O(1)
     """
     count = 0
@@ -157,7 +158,7 @@ def cubic_time_example(n):
 
 def exponential_time_example(n):
     """
-    O(2ⁿ) - Exponential Time
+    O(2^n) - Exponential Time
     Time complexity grows exponentially with input size.
     Common in recursive algorithms without memoization (naive Fibonacci).
     
@@ -167,7 +168,8 @@ def exponential_time_example(n):
     Returns:
         Fibonacci number at position n
         
-    Time Complexity: O(2ⁿ)
+    Time Complexity: O(2^n). This bound is valid but loose: the exact growth is
+    Theta(phi^n) with phi = (1 + sqrt(5)) / 2, about 1.618.
     Space Complexity: O(n) due to recursion stack
     """
     if n <= 1:
@@ -187,8 +189,9 @@ def factorial_time_example(n):
     Returns:
         List of all permutations
         
-    Time Complexity: O(n!)
-    Space Complexity: O(n!)
+    Time Complexity: Theta(n * n!), which is O(n * n!) but NOT O(n!): each of
+    the n! permutations is built by slicing and copying a list of length n.
+    Space Complexity: Theta(n * n!) - all permutations are stored
     """
     if n == 0:
         return [[]]
@@ -231,22 +234,22 @@ def demonstrate_big_o():
     print(f"  Sorted: {sorted_arr}")
     print()
     
-    # O(n²) - Quadratic
-    print("O(n²) - Quadratic Time:")
+    # O(n^2) - Quadratic
+    print("O(n^2) - Quadratic Time:")
     arr = [1, 2, 3, 4]
     pairs = quadratic_time_example(arr)
     print(f"  All pairs: {pairs}")
     print()
     
-    # O(n³) - Cubic
-    print("O(n³) - Cubic Time:")
+    # O(n^3) - Cubic
+    print("O(n^3) - Cubic Time:")
     n = 5
     count = cubic_time_example(n)
     print(f"  n={n}: {count} operations")
     print()
     
-    # O(2ⁿ) - Exponential
-    print("O(2ⁿ) - Exponential Time:")
+    # O(2^n) - Exponential
+    print("O(2^n) - Exponential Time:")
     for n in range(10):
         result = exponential_time_example(n)
         print(f"  Fibonacci({n}) = {result}")

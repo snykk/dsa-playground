@@ -153,6 +153,21 @@ class TestTopologicalSort(unittest.TestCase):
         # Regression: a vertex that is not a key raised KeyError
         self.assertEqual(longest_path_dag({0: [1]}, {}), {0: 0, 1: 1})
 
+    def test_self_loop_is_a_cycle(self):
+        self.assertIsNone(topological_sort_kahn({0: [0]}))
+        self.assertIsNone(topological_sort_dfs({0: [0]}))
+        self.assertFalse(is_dag({0: [0]}))
+
+    def test_order_is_valid_with_neighbor_only_vertex(self):
+        graph = {0: [1, 2], 1: [3], 2: [3], 3: [4], 5: [4]}
+        for order in (topological_sort_kahn(graph), topological_sort_dfs(graph)):
+            self.assertEqual(sorted(order), [0, 1, 2, 3, 4, 5])
+            position = {v: i for i, v in enumerate(order)}
+            for u, neighbors in graph.items():
+                for v in neighbors:
+                    self.assertLess(position[u], position[v])
+        self.assertEqual(len(topological_sort_all_orders(graph)), 10)
+
     def test_longest_path_dag_every_source_starts_a_path(self):
         # Regression: only the first source counted, so 3 got 1 instead of 10
         graph = {1: [3], 2: [3], 3: []}

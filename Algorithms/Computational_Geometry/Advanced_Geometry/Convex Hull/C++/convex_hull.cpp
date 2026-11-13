@@ -15,7 +15,11 @@ struct Point {
 };
 
 double crossProduct(const Point& o, const Point& a, const Point& b) {
-    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+    // Two statements, so a compiler cannot fuse the products into one FMA instruction
+    // and change the rounding of the result.
+    double left = (a.x - o.x) * (b.y - o.y);
+    double right = (a.y - o.y) * (b.x - o.x);
+    return left - right;
 }
 
 double distanceSquared(const Point& p1, const Point& p2) {
@@ -24,102 +28,109 @@ double distanceSquared(const Point& p1, const Point& p2) {
     return dx * dx + dy * dy;
 }
 
+// Exact comparison, used by the hull algorithms (operator== above uses EPS).
+static bool samePoint(const Point& a, const Point& b) {
+    return a.x == b.x && a.y == b.y;
+}
+
+// Distinct points (exact comparison), sorted by (x, y).
+static std::vector<Point> distinctPoints(std::vector<Point> points) {
+    std::sort(points.begin(), points.end(), [](const Point& a, const Point& b) {
+        return a.x < b.x || (a.x == b.x && a.y < b.y);
+    });
+    points.erase(std::unique(points.begin(), points.end(), samePoint), points.end());
+    return points;
+}
+
+// Counterclockwise hull starting at the bottom-most point (leftmost on a tie). Points on
+// a hull edge are excluded. Duplicates are removed; fewer than three distinct points are
+// returned as they are. Comparisons are exact, so integer input never goes wrong.
 std::vector<Point> grahamScan(std::vector<Point> points) {
-    if (points.size() < 3) {
-        return points;
+    std::vector<Point> pts = distinctPoints(points);
+    if (pts.size() < 3) {
+        std::sort(pts.begin(), pts.end(), [](const Point& a, const Point& b) {
+            return a.y < b.y || (a.y == b.y && a.x < b.x);
+        });
+        return pts;
     }
 
     // Find bottom-most point (or leftmost in case of tie)
-    Point bottom = points[0];
-    for (const auto& p : points) {
-        if (p.y < bottom.y || (std::abs(p.y - bottom.y) < EPS && p.x < bottom.x)) {
-            bottom = p;
+    size_t bottomIdx = 0;
+    for (size_t i = 1; i < pts.size(); i++) {
+        if (pts[i].y < pts[bottomIdx].y || (pts[i].y == pts[bottomIdx].y && pts[i].x < pts[bottomIdx].x)) {
+            bottomIdx = i;
         }
     }
+    std::swap(pts[0], pts[bottomIdx]);
+    const Point bottom = pts[0];
 
-    // Sort points by polar angle with respect to bottom point
-    std::sort(points.begin(), points.end(), [&bottom](const Point& a, const Point& b) {
-        double dx1 = a.x - bottom.x;
-        double dy1 = a.y - bottom.y;
-        double dx2 = b.x - bottom.x;
-        double dy2 = b.y - bottom.y;
-        
-        double angle1 = std::atan2(dy1, dx1);
-        double angle2 = std::atan2(dy2, dx2);
-        
-        if (std::abs(angle1 - angle2) < EPS) {
-            return distanceSquared(bottom, a) < distanceSquared(bottom, b);
+    // Sort by polar angle around bottom: a comes first if b is counterclockwise of it.
+    // All points lie in the upper half-plane of bottom, so this is a strict weak ordering.
+    // Points on the same ray are ordered nearest first.
+    std::sort(pts.begin() + 1, pts.end(), [&bottom](const Point& a, const Point& b) {
+        double cross = crossProduct(bottom, a, b);
+        if (cross != 0) {
+            return cross > 0;
         }
-        return angle1 < angle2;
+        return distanceSquared(bottom, a) < distanceSquared(bottom, b);
     });
 
-    // Remove duplicates
-    std::vector<Point> unique_points;
-    unique_points.push_back(points[0]);
-    for (size_t i = 1; i < points.size(); i++) {
-        if (!(points[i] == unique_points.back())) {
-            unique_points.push_back(points[i]);
-        }
-    }
-
-    if (unique_points.size() < 3) {
-        return unique_points;
-    }
-
-    // Build convex hull using stack
+    // Build convex hull using stack; drop right turns and collinear points
     std::vector<Point> hull;
-    hull.push_back(unique_points[0]);
-    hull.push_back(unique_points[1]);
-
-    for (size_t i = 2; i < unique_points.size(); i++) {
-        while (hull.size() > 1 && 
-               crossProduct(hull[hull.size() - 2], hull.back(), unique_points[i]) <= 0) {
+    for (const Point& p : pts) {
+        while (hull.size() > 1 &&
+               crossProduct(hull[hull.size() - 2], hull.back(), p) <= 0) {
             hull.pop_back();
         }
-        hull.push_back(unique_points[i]);
+        hull.push_back(p);
     }
 
     return hull;
 }
 
+// Counterclockwise hull starting at the leftmost point (lowest on a tie). Points on a hull
+// edge are excluded. Duplicates are removed; fewer than three distinct points are
+// returned as they are. Comparisons are exact, so integer input never goes wrong.
 std::vector<Point> jarvisMarch(std::vector<Point> points) {
-    if (points.size() < 3) {
-        return points;
+    std::vector<Point> pts = distinctPoints(points);  // sorted by (x, y)
+    if (pts.size() < 3) {
+        return pts;
     }
 
-    // Find leftmost point
-    Point leftmost = points[0];
-    for (const auto& p : points) {
-        if (p.x < leftmost.x || (std::abs(p.x - leftmost.x) < EPS && p.y < leftmost.y)) {
-            leftmost = p;
-        }
-    }
-
+    // Leftmost point is the first one after sorting by (x, y)
+    const Point leftmost = pts[0];
     std::vector<Point> hull;
     hull.push_back(leftmost);
 
-    while (true) {
+    // A hull never has more vertices than points; the bound only guards rounding trouble
+    // with non-integer coordinates.
+    while (hull.size() <= pts.size()) {
         Point current = hull.back();
-        Point next_point = points[0];
+        bool found = false;
+        Point next_point;
 
-        // Find point with smallest polar angle from current
-        for (const auto& point : points) {
-            if (point == current) {
+        // Find the point such that every other point is on its left (or on the line)
+        for (const auto& point : pts) {
+            if (samePoint(point, current)) {
+                continue;
+            }
+            if (!found) {
+                next_point = point;
+                found = true;
                 continue;
             }
 
             double cross = crossProduct(current, next_point, point);
-            double dist_next = distanceSquared(current, next_point);
-            double dist_point = distanceSquared(current, point);
 
-            // If point is more counterclockwise, or same angle but farther
-            if (cross < 0 || (std::abs(cross) < EPS && dist_point > dist_next)) {
+            // If point is more clockwise, or on the same ray but farther
+            if (cross < 0 || (cross == 0 &&
+                              distanceSquared(current, point) > distanceSquared(current, next_point))) {
                 next_point = point;
             }
         }
 
         // If we've completed the hull
-        if (next_point == leftmost) {
+        if (samePoint(next_point, leftmost)) {
             break;
         }
 
@@ -129,7 +140,6 @@ std::vector<Point> jarvisMarch(std::vector<Point> points) {
     return hull;
 }
 
-#ifndef TESTING
 #ifndef IS_TEST_BUILD
 int main() {
     std::cout << "Convex Hull Examples:" << std::endl;
@@ -163,5 +173,4 @@ int main() {
 
     return 0;
 }
-#endif
 #endif  // !IS_TEST_BUILD

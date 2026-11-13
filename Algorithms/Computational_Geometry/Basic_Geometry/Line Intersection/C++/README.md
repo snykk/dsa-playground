@@ -1,97 +1,33 @@
-# Line Intersection - C++
+# Line Intersection -- C++ Implementation
 
-This folder contains a C++ implementation of algorithms for finding intersections between lines and line segments.
+## Files
 
----
+- `line_intersection.cpp`: `Point`, `Line`, `crossProduct`, `lineIntersection`, `segmentsIntersect`, `segmentIntersection`, `pointOnSegment`; `main` is compiled out with `-DIS_TEST_BUILD`.
+- `line_intersection_test.cpp`: assert-based tests (crossing, parallel, no intersection, point on and off a segment, collinear overlap and touching, collinear disjoint, zero-length segments, T-junction, shared float endpoints, tiny scale, coincident lines, and 4,000 random integer segment pairs against an independent reference).
 
-## Concept
+## API
 
-This module provides efficient algorithms to determine if and where lines or line segments intersect. These operations are fundamental for many computational geometry problems.
+- `lineIntersection(l1, l2)`: `std::optional<Point>`.
+- `segmentIntersection(l1, l2)`: `std::optional<Point>`, a common point.
+- `segmentsIntersect(l1, l2)`: `bool`; exact.
+- `pointOnSegment(p, line)`: `bool`; exact.
+- Collinear overlap: `segment_intersection` returns the first shared point in (x, y) order.
+- `line_intersection` works on the infinite lines through the endpoints and returns nothing for parallel, coincident or zero-length lines.
 
-**Key Features:**
-- Line intersection (infinite lines)
-- Segment intersection (line segments)
-- Point on segment checking
-- Efficient struct-based implementation
+## C++-Specific Notes
 
----
+- Needs C++17 for `std::optional`; the commands below use C++17.
+- `crossProduct` computes its two products in separate statements so a compiler cannot fuse them into an FMA.
+- Integer coordinates are exact while cross products stay below 2^53.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `lineIntersection(l1, l2)` | Find intersection of two infinite lines | O(1) |
-| `segmentIntersection(l1, l2)` | Find intersection of two line segments | O(1) |
-| `segmentsIntersect(l1, l2)` | Check if segments intersect | O(1) |
-| `pointOnSegment(p, line)` | Check if point lies on segment | O(1) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Line Intersection | O(1) | O(1) |
-| Segment Intersection | O(1) | O(1) |
-| Segments Intersect | O(1) | O(1) |
-| Point on Segment | O(1) | O(1) |
-
----
-
-## Usage
-
-```cpp
-#include "line_intersection.cpp"
-
-// Line intersection
-Line l1(Point(0, 0), Point(4, 4));
-Line l2(Point(0, 4), Point(4, 0));
-auto intersection = lineIntersection(l1, l2);  // Point(2, 2)
-
-// Segment intersection
-Line seg1(Point(0, 0), Point(4, 4));
-Line seg2(Point(0, 4), Point(4, 0));
-auto seg_intersection = segmentIntersection(seg1, seg2);  // Point(2, 2)
-
-// Check if segments intersect
-if (segmentsIntersect(seg1, seg2)) {
-    std::cout << "Segments intersect!" << std::endl;
-}
-```
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++11 line_intersection.cpp -o line_intersection
-./line_intersection
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD line_intersection_test.cpp -o line_intersection_test && ./line_intersection_test
 ```
 
----
+## Key Takeaways
 
-## Run Test
-
-```bash
-g++ -std=c++11 line_intersection_test.cpp -o test && ./test
-```
-
----
-
-## Important Notes
-
-1. **Parallel Lines**: Returns `std::nullopt` if lines are parallel
-2. **Floating-Point Precision**: Uses epsilon tolerance (1e-9) for comparisons
-3. **Optional Return**: Uses `std::optional<Point>` for nullable return values
-
----
-
-## Related Files
-
-- Main README: `../README.md`
-- Python Implementation: `../../Python/`
-- Go Implementation: `../../Go/`
-
----
-
-_Last Updated: December 2025_
+- Decide with orientations (signs of cross products), then compute the point.
+- Exact zero tests avoid the scale problems of an epsilon.
+- Collinear, touching and zero-length cases are all handled.

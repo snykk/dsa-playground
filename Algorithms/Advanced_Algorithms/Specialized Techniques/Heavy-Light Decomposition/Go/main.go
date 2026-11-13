@@ -69,7 +69,11 @@ func (hld *HLD) decompose(u, h int) {
 func (hld *HLD) Build(root int) {
 	for i := range hld.heavy {
 		hld.heavy[i] = -1
+		hld.parent[i] = -1
+		hld.depth[i] = 0
+		hld.size[i] = 0
 	}
+	hld.curPos = 0
 	hld.dfsSize(root, -1)
 	hld.decompose(root, root)
 }

@@ -89,4 +89,3 @@ func main() {
 	fmt.Printf("Number of SCCs: %d\n", TarjanSCCCount(graph))
 	fmt.Printf("Is strongly connected: %v\n", IsStronglyConnected(graph))
 }
-

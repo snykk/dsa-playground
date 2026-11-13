@@ -1,145 +1,45 @@
-# Big-O Notation (Python)
+# Big-O Notation -- Python Implementation
 
-**Big-O Notation** describes the upper bound of an algorithm's time complexity, representing the worst-case scenario for how runtime grows with input size.
+## Files
 
----
+- `big_o_notation.py`: eight example functions and `demonstrate_big_o`.
+- `big_o_notation_test.py`: unit tests for every example.
 
-## Overview
+## API
 
-Big-O notation is used to classify algorithms according to how their runtime or space requirements grow as the input size increases. It provides an asymptotic upper bound.
-
----
-
-## Formal Definition
-
-f(n) = O(g(n)) if there exist positive constants c and n₀ such that:
-```
-0 ≤ f(n) ≤ c·g(n) for all n ≥ n₀
-```
-
-This means that for sufficiently large n, f(n) is bounded above by a constant multiple of g(n).
-
----
-
-## Common Big-O Complexities
-
-| Notation | Name | Description | Example |
-|----------|------|-------------|---------|
-| **O(1)** | Constant | Time doesn't depend on input size | Array access, hash table lookup |
-| **O(log n)** | Logarithmic | Time grows logarithmically | Binary search, balanced tree operations |
-| **O(n)** | Linear | Time grows linearly with input | Single loop, array traversal |
-| **O(n log n)** | Linearithmic | Time grows as n times log n | Merge sort, heap sort |
-| **O(n²)** | Quadratic | Time grows quadratically | Nested loops, bubble sort |
-| **O(n³)** | Cubic | Time grows cubically | Triple nested loops, naive matrix multiplication |
-| **O(2ⁿ)** | Exponential | Time grows exponentially | Naive recursive Fibonacci, subset generation |
-| **O(n!)** | Factorial | Time grows factorially | Generating all permutations, brute-force solutions |
-
----
-
-## Complexity Comparison
-
-```
-O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(n³) < O(2ⁿ) < O(n!)
-```
-
----
-
-## Examples
-
-### O(1) - Constant Time
-```python
-def constant_time_example(n):
-    return 42  # Always takes the same time
-```
-
-### O(log n) - Logarithmic Time
-```python
-def logarithmic_time_example(n):
-    count = 0
-    i = n
-    while i > 1:
-        i = i // 2
-        count += 1
-    return count
-```
-
-### O(n) - Linear Time
-```python
-def linear_time_example(arr):
-    total = 0
-    for element in arr:
-        total += element
-    return total
-```
-
-### O(n log n) - Linearithmic Time
-```python
-def linearithmic_time_example(arr):
-    # Merge sort implementation
-    # ...
-```
-
-### O(n²) - Quadratic Time
-```python
-def quadratic_time_example(arr):
-    pairs = []
-    for i in range(len(arr)):
-        for j in range(i + 1, len(arr)):
-            pairs.append((arr[i], arr[j]))
-    return pairs
-```
-
----
-
-## Usage
+- `constant_time_example(n)`: returns 42, O(1).
+- `logarithmic_time_example(n)`: number of halvings of `n`, O(log n).
+- `linear_time_example(arr)`: sum of a list, O(n).
+- `linearithmic_time_example(arr)`: merge sort, returns a new sorted list, O(n log n).
+- `quadratic_time_example(arr)`: all pairs `(arr[i], arr[j])` with `i < j`, O(n^2).
+- `cubic_time_example(n)`: counts `n^3` iterations, O(n^3).
+- `exponential_time_example(n)`: naive Fibonacci, O(2^n) (valid but loose).
+- `factorial_time_example(n)`: all permutations of `0..n-1`; O(n * n!) time and space.
 
 ```python
-from big_o_notation import (
-    constant_time_example,
-    logarithmic_time_example,
-    linear_time_example,
-    linearithmic_time_example,
-    quadratic_time_example,
-    cubic_time_example,
-    exponential_time_example,
-    factorial_time_example
-)
+from big_o_notation import linear_time_example, linearithmic_time_example
 
-# Run examples
-python big_o_notation.py
+linear_time_example([1, 2, 3])             # 6
+linearithmic_time_example([5, 2, 8, 1])    # [1, 2, 5, 8]
 ```
 
----
+## Python-Specific Notes
 
-## Testing
+- Only Python has the factorial example and a hand-written merge sort.
+- `factorial_time_example` slices lists, so it costs `n` per permutation: O(n * n!), not O(n!).
+- Naive Fibonacci hits Python's default recursion limit only at depth about 1,000, but its running time becomes impractical near `n = 35`.
+
+## How to Run
 
 ```bash
-python big_o_notation_test.py
+cd "Complexity_Analysis/Time Complexity/Big-O Notation/Python"
+python3 -m unittest big_o_notation_test
+python3 big_o_notation.py
 ```
 
----
+## Key Takeaways
 
-## Key Points
-
-1. **Upper Bound**: Big-O describes the worst-case scenario
-2. **Asymptotic**: Focuses on behavior as n approaches infinity
-3. **Constants Ignored**: O(2n) = O(n), constants are dropped
-4. **Lower Terms Ignored**: O(n² + n) = O(n²), lower order terms are dropped
-5. **Multiplicative Constants**: O(5n) = O(n), constants are ignored
-
----
-
-## Related Topics
-
-- **Big-Theta (Θ)**: Tight bound (both upper and lower)
-- **Big-Omega (Ω)**: Lower bound
-- **Space Complexity**: Memory usage analysis
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
+- Big-O is an upper bound on a function; best, average and worst case are different functions you can bound.
+- Drop constants and lower-order terms; keep the dominant term.
+- To prove a bound, exhibit `c` and `n0`.
 

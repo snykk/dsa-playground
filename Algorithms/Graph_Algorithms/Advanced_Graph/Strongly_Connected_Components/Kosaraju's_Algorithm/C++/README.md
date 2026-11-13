@@ -1,215 +1,43 @@
-# Kosaraju's Algorithm (C++)
+# Kosaraju's Algorithm -- C++ Implementation
 
-**Kosaraju's Algorithm** finds all strongly connected components (SCCs) in a directed graph. A strongly connected component is a maximal set of vertices where every vertex is reachable from every other vertex in the component.
+SCCs with two iterative DFS passes. For the idea, the trace and the complexity, see the topic README: [../README.md](../README.md).
 
----
+## Files
 
-## Overview
+| File | Purpose |
+|------|---------|
+| `kosaraju.cpp` | `kosarajuSCC`, `kosarajuSCCCount`, `isStronglyConnected`, helpers `dfs1` and `dfs2`, and a demo `main` (compiled out when `IS_TEST_BUILD` is defined) |
+| `kosaraju_test.cpp` | 5 assert-based tests: basic, component contents, strongly connected, negative ids and neighbour-only vertices, a 10^6-vertex cycle and path; it `#include`s `kosaraju.cpp` |
 
-Kosaraju's algorithm is one of the most intuitive algorithms for finding strongly connected components. It uses two DFS passes:
-1. First DFS on original graph to determine finish times
-2. Second DFS on reversed graph in order of decreasing finish times
+## API
 
-**Example**:
-- Graph: 1 → 2 → 3 → 1 (cycle), 4 → 5 → 6 → 4 (cycle)
-- SCCs: {1, 2, 3} and {4, 5, 6}
-- Each cycle forms a strongly connected component
+- `std::vector<std::vector<int>> kosarajuSCC(const std::unordered_map<int, std::vector<int>>& graph)`: the components, source components first.
+- `int kosarajuSCCCount(graph)`: number of components.
+- `bool isStronglyConnected(graph)`: exactly one component (false for an empty graph).
 
----
+There is no condensation function in C++ (Python has one).
 
-## Algorithm
+## C++-Specific Notes
 
-1. **First DFS**: Perform DFS on original graph
-   - Record finish times (when DFS finishes exploring vertex)
-   - Add vertices to finish order when backtracking
-2. **Reverse Graph**: Create transpose of graph (reverse all edges)
-3. **Second DFS**: Perform DFS on reversed graph
-   - Process vertices in reverse finish order (from first DFS)
-   - Each DFS tree in second pass is one SCC
+- **Explicit stacks.** Both passes use `std::vector<std::pair<int, size_t>>` (vertex, next neighbour index), so a 10^6-vertex cycle does not overflow the call stack.
+- **Hash sets.** `visited` is an `std::unordered_set<int>`, so any `int` is a valid vertex id, including negative ones.
+- **Neighbour-only vertices.** `neighborsOf` returns an empty list for a vertex that is not a key.
+- **Order of components** that are unrelated in the condensation depends on `unordered_map` iteration order.
 
-**Key Insight**: In reversed graph, vertices in same SCC are still reachable from each other, but vertices in different SCCs are not.
-
----
-
-## Complexity Analysis
-
-| Operation | Time | Space |
-|-----------|------|-------|
-| **Find All SCCs** | O(V + E) | O(V) |
-| **Count SCCs** | O(V + E) | O(V) |
-| **Check Strongly Connected** | O(V + E) | O(V) |
-
-Where:
-- V = number of vertices
-- E = number of edges
-
-**Note**: Two DFS passes, each O(V + E), so total is still O(V + E).
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`kosarajuSCC(graph)`**
-   - Finds all strongly connected components
-   - Returns vector of vectors, each inner vector is an SCC
-   - Time: O(V + E), Space: O(V)
-
-2. **`kosarajuSCCCount(graph)`**
-   - Counts number of strongly connected components
-   - Returns integer count
-   - Time: O(V + E), Space: O(V)
-
-3. **`isStronglyConnected(graph)`**
-   - Checks if graph is strongly connected (one SCC)
-   - Returns true if strongly connected, false otherwise
-   - Time: O(V + E), Space: O(V)
-
----
-
-## Usage
-
-```cpp
-#include <unordered_map>
-#include <vector>
-#include "kosaraju.cpp"
-
-int main() {
-    std::unordered_map<int, std::vector<int>> graph = {
-        {1, {2}},
-        {2, {3}},
-        {3, {1}},  // Cycle: 1 -> 2 -> 3 -> 1
-        {4, {5}},
-        {5, {6}},
-        {6, {4}}  // Cycle: 4 -> 5 -> 6 -> 4
-    };
-    
-    auto sccs = kosarajuSCC(graph);
-    std::cout << "Number of SCCs: " << sccs.size() << "\n";  // 2
-    
-    // Check if strongly connected
-    bool is_sc = isStronglyConnected(graph);
-    std::cout << "Is strongly connected: " << is_sc << "\n";  // false
-    
-    return 0;
-}
-```
-
----
-
-## Important Notes
-
-1. **Directed graphs**: Only works on directed graphs
-2. **Two DFS passes**: Requires two complete DFS traversals
-3. **Graph reversal**: Must reverse graph for second pass
-4. **Finish order**: Critical to process in reverse finish order
-5. **C++ containers**: Uses std::unordered_map and std::stack
-
----
-
-## Advantages
-
-1. ✅ **Intuitive**: Easy to understand algorithm
-2. ✅ **Efficient**: O(V + E) time complexity
-3. ✅ **Complete**: Finds all strongly connected components
-4. ✅ **Simple implementation**: Straightforward DFS-based
-
----
-
-## Disadvantages
-
-1. ❌ **Two passes**: Requires two DFS passes
-2. ❌ **Graph reversal**: Must reverse graph (O(E) operation)
-3. ❌ **Memory**: Requires O(V) space for visited and finish order
-
----
-
-## When to Use
-
-- ✅ Finding strongly connected components
-- ✅ Checking if graph is strongly connected
-- ✅ Cycle detection in directed graphs
-- ❌ Undirected graphs (use DFS for connected components)
-- ❌ When only need to know if cycle exists (simpler algorithms)
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++11 kosaraju.cpp kosaraju_test.cpp -o test
-./test
+# tests
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD kosaraju_test.cpp -o kosaraju_test
+./kosaraju_test
+
+# demo (prints the SCC count and whether the graph is strongly connected)
+g++ -std=c++17 -O2 -Wall kosaraju.cpp -o kosaraju_demo
+./kosaraju_demo
 ```
 
----
+## Key Takeaways
 
-## Usage
-
-```cpp
-#include <unordered_map>
-#include <vector>
-#include <iostream>
-#include "kosaraju.cpp"
-
-int main() {
-    std::unordered_map<int, std::vector<int>> graph = {
-        {1, {2}},
-        {2, {3}},
-        {3, {1}},  // Cycle: 1 -> 2 -> 3 -> 1
-        {4, {5}},
-        {5, {6}},
-        {6, {4}}  // Cycle: 4 -> 5 -> 6 -> 4
-    };
-    
-    auto sccs = kosarajuSCC(graph);
-    std::cout << "Number of SCCs: " << sccs.size() << "\n";  // 2
-    
-    bool is_sc = isStronglyConnected(graph);
-    std::cout << "Is strongly connected: " << (is_sc ? "true" : "false") << "\n";  // false
-    
-    return 0;
-}
-```
-
-## Testing
-
-Run tests with:
-
-```bash
-# Compile and run tests
-g++ -std=c++11 kosaraju_test.cpp -o test && ./test
-
-# Or compile with main example (uncomment main in kosaraju.cpp)
-g++ -std=c++11 kosaraju.cpp -o example && ./example
-```
-
----
-
-## Related Algorithms
-
-- **Tarjan's Algorithm**: Alternative SCC algorithm (single pass)
-- **DFS**: Used in both passes
-- **Graph Reversal**: Transpose operation
-
----
-
-## Applications
-
-1. **Compiler Design**: Finding loops and dependencies
-2. **Social Networks**: Finding communities
-3. **Web Analysis**: Finding related web pages
-4. **Circuit Design**: Finding feedback loops
-
----
-
-## References
-
-- Kosaraju, S. R. (1978). "Analysis of structured programs"
-- "Introduction to Algorithms" by CLRS (Chapter 22)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. An explicit stack replaces recursion on deep graphs.
+2. A hash set removes any assumption about vertex ids.
+3. Build the test file alone: it includes the implementation.

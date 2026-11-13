@@ -1,65 +1,36 @@
-# Heavy-Light Decomposition - Python
+# Heavy-Light Decomposition -- Python Implementation
 
-This folder contains a Python implementation of **Heavy-Light Decomposition (HLD)** for efficient tree path queries.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `heavy_light_decomposition.py` | the `HLD` class and a demo `main()` |
+| `heavy_light_decomposition_test.py` | unit tests (build, LCA, positions, deep path, rebuild, random check against a naive LCA) |
 
-## Concept
+## API
 
-Heavy-Light Decomposition decomposes a tree into chains (heavy paths) to enable efficient path queries. Each path query can be answered in O(log² N) time.
+| Member | Description | Time |
+|--------|-------------|------|
+| `HLD(n, adj)` | `adj` is the adjacency list of a tree on `0..n-1` | O(n) |
+| `build(root=0)` | resets state, computes `parent`, `depth`, `size`, `heavy`, `head`, `pos` | O(n) |
+| `lca(u, v)` | lowest common ancestor | O(log n) |
+| `query_path(u, v)` | list of `(lo, hi)` position segments covering the path (not sums) | O(log n) |
+| `head`, `pos`, `depth`, `parent`, `size`, `heavy` | the decomposition arrays | |
 
-**Key Features:**
-- Tree decomposition into chains
-- Efficient LCA computation
-- Path query optimization
-- O(log² N) per query
+## Python-Specific Notes
 
----
+- `dfs_size` and `decompose` are iterative, so a path of thousands of nodes does not hit the recursion limit.
+- The adjacency list is stored, not copied.
+- There is no segment tree, path sum or path update; `query_path` returns only position ranges.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `HLD.build(root)` | Build HLD structure | O(N) |
-| `HLD.lca(u, v)` | Find lowest common ancestor | O(log N) |
-| `HLD.query_path(u, v)` | Get path segments | O(log N) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Build HLD | O(N) | O(N) |
-| LCA Query | O(log N) | O(1) |
-| Path Query | O(log² N) | O(log N) |
-
----
-
-## Usage
-
-```python
-from heavy_light_decomposition import HLD
-
-n = 7
-adj = [[1, 2], [0, 3, 4], [0, 5], [1], [1, 6], [2], [4]]
-
-hld = HLD(n, adj)
-hld.build(0)
-
-lca = hld.lca(3, 6)
-path = hld.query_path(3, 6)
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-python heavy_light_decomposition_test.py
+python3 -m unittest heavy_light_decomposition_test
+python3 heavy_light_decomposition.py
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Any root path crosses at most floor(log2 n) + 1 chains.
+- `query_path` gives the segments you would feed to a segment tree.

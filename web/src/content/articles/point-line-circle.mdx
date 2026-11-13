@@ -1,0 +1,251 @@
+---
+topic: Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle
+title: Point, Line and Circle
+lead: The basic 2D toolkit behind computational geometry. It covers distance between points, the cross product as a signed area that tells left from right, the dot product, the angle between two directions, point-in-triangle and point-in-circle tests. Every test here is exact, so the answers do not depend on the coordinate scale.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Every operation
+    value: O(1)
+    hint: a fixed number of arithmetic operations
+  - label: Space
+    value: O(1)
+  - label: Tolerance
+    value: none
+    hint: signs and equalities are tested exactly
+    tone: warn
+  - label: Orientation codes
+    value: 0, 1, 2
+    hint: 0 collinear, 1 clockwise, 2 counterclockwise
+properties:
+  - { label: Exact on integer input, value: true }
+  - { label: Independent of coordinate scale, value: true }
+  - { label: Handles degenerate shapes, value: true }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Algorithms/Computational_Geometry/Basic_Geometry/Line Intersection
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex Hull
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating Calipers
+---
+
+## What the toolkit contains
+
+The module defines three small types and a few free functions:
+
+<DataTable
+  columns={['Piece', 'What it does', 'Cost']}
+  rows={[
+    ['`Point`', '`distance_to`, `distance_squared`, exact equality', 'O(1)'],
+    ['`Line`', '`length`, `length_squared`, `slope`, `is_vertical`, `is_horizontal`; two endpoints, usable as a segment or as the infinite line through them', 'O(1)'],
+    ['`Circle`', '`area`, `circumference`, `contains_point`, `point_on_circle`; the radius must be non-negative', 'O(1)'],
+    ['`cross_product(o, a, b)`', 'signed area of the parallelogram spanned by `oa` and `ob`', 'O(1)'],
+    ['`dot_product(o, a, b)`', 'product of the two lengths and the cosine of the angle', 'O(1)'],
+    ['`orientation(p, q, r)`', '0 collinear, 1 clockwise, 2 counterclockwise', 'O(1)'],
+    ['`angle_between_points(o, a, b)`', 'angle AOB in radians, between 0 and pi', 'O(1)'],
+    ['`point_in_triangle(p, a, b, c)`', 'inside or on the boundary of triangle ABC', 'O(1)'],
+  ]}
+/>
+
+Line-point distance, projection and line-circle intersection are not implemented here.
+
+## How the key operations work
+
+### Cross product: left, right or straight
+
+With `u = a - o` and `v = b - o`, the cross product is `u.x * v.y - u.y * v.x`. Its absolute value is the area of the parallelogram spanned by `u` and `v`, and its sign tells the turn from `u` to `v`: positive for a counterclockwise (left) turn, negative for a clockwise (right) turn, zero if the vectors are collinear. `orientation` just returns the sign as a code.
+
+<Steps>
+  <Step title="Subtract the origin">
+    Form `a - o` and `b - o`.
+  </Step>
+  <Step title="Take the cross product">
+    Compute `(a.x - o.x)(b.y - o.y) - (a.y - o.y)(b.x - o.x)`.
+  </Step>
+  <Step title="Read the sign">
+    Greater than 0 gives 2 (counterclockwise), less than 0 gives 1 (clockwise), exactly 0 gives 0 (collinear).
+  </Step>
+</Steps>
+
+<Callout title="Exact signs, no epsilon">
+The sign is read directly, with no 1e-9 threshold. A fixed threshold is wrong at both ends of the scale: the cross product has units of length<sup>2</sup>, so at a scale of 1e-5 every triple would look collinear, and the same code would work at a scale of 1. For integer coordinates the sign is exact.
+</Callout>
+
+### Dot product and angle
+
+The dot product `u.x * v.x + u.y * v.y` equals `|u||v|cos(theta)`. The angle is computed as `atan2(|cross|, dot)`, because `cross = |u||v|sin(theta)`. Unlike `acos(dot / (|u||v|))`, this stays accurate near 0 and pi. Using `acos`, the angle between `(1, 0)` and `(1, 1e-8)` comes out as exactly 0 instead of 1e-8.
+
+### Point in triangle
+
+Take the three cross products of the point against the triangle's edges, `d1 = cross(p, a, b)`, `d2 = cross(p, b, c)` and `d3 = cross(p, c, a)`. The point is inside or on the boundary if the three values never have both a negative and a positive sign. A triangle with zero area contains nothing, so a collinear or repeated vertex list returns false.
+
+### Point in circle
+
+Compare squared distances, so no square root is needed: `contains_point` tests `dist^2 <= r^2`, and `point_on_circle` tests `dist^2 == r^2` exactly.
+
+## Worked example
+
+Triangle `A (0,0)`, `B (4,0)`, `C (2,4)` and the point `P (2,1)`.
+
+<GraphDiagram
+  edges="A-B, B-C, A-C, P-A, P-B, P-C"
+  positions={{ A: [0, 100], B: [100, 100], C: [50, 0], P: [50, 75] }}
+  tones={{ A: 'l', B: 'l', C: 'l', P: 'p' }}
+  width={340}
+  height={280}
+  legend={{ l: 'triangle vertex', p: 'the query point P' }}
+  caption="P is joined to the three vertices: the signs of the three sub-triangles decide membership."
+/>
+
+<DataTable
+  columns={['Point', 'd1 = cross(p, a, b)', 'd2 = cross(p, b, c)', 'd3 = cross(p, c, a)', 'Result']}
+  rows={[
+    ['P (2,1)', '4', '6', '6', 'inside: all positive'],
+    ['(10,10)', '40', '-44', '20', 'outside: mixed signs'],
+    ['(2,0)', '0', '8', '8', 'inside: on the edge AB, no negative sign'],
+  ]}
+  caption="The three tests for the triangle above."
+/>
+
+Orientation of `(0,0) -> (4,4) -> (1,2)` is `4 * 2 - 4 * 1 = 4 > 0`, so the turn is counterclockwise (code 2). For `(2,1)` it is `4 * 1 - 4 * 2 = -4`, clockwise (code 1), and for `(2,2)` it is 0.
+
+For the angle between `A = (3,4)` and `B = (2,1)` seen from the origin, `cross = -5` and `dot = 10`, so the angle is `atan2(5, 10)`, about 26.57 degrees. The cross product is negative, so B is clockwise from A.
+
+## Pseudocode
+
+```text
+cross(o, a, b) = (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
+dot(o, a, b)   = (a.x - o.x) * (b.x - o.x) + (a.y - o.y) * (b.y - o.y)
+
+orientation(p, q, r):
+    v = cross(p, q, r)
+    if v == 0: return 0                  # collinear
+    return 2 if v > 0 else 1             # counterclockwise : clockwise
+
+angleBetweenPoints(o, a, b):
+    if a == o or b == o: return 0
+    return atan2(abs(cross(o, a, b)), dot(o, a, b))
+
+pointInTriangle(p, a, b, c):
+    if cross(a, b, c) == 0: return false  # degenerate triangle
+    d1 = cross(p, a, b); d2 = cross(p, b, c); d3 = cross(p, c, a)
+    hasNeg = any of d1, d2, d3 is < 0
+    hasPos = any of d1, d2, d3 is > 0
+    return not (hasNeg and hasPos)
+
+circle.contains(p):   dist2(center, p) <= r * r
+circle.onBoundary(p): dist2(center, p) == r * r
+```
+
+## Implementation
+
+All three languages expose the same operations. Python and C++ use methods on `Point`, `Line` and `Circle` (`distance_to`, `distanceTo`) and free functions for the cross product, dot product, orientation, angle and triangle test; Go capitalizes the names (`CrossProduct`, `Orientation`, `PointInTriangle`).
+
+Behaviors worth knowing:
+
+- Point equality is exact: `Point(0, 0) == Point(5e-10, 0)` is false.
+- A zero-length line has no direction: `slope` returns NaN and both `is_vertical` and `is_horizontal` are false. A vertical line has an infinite slope.
+- A negative radius is rejected: `ValueError` in Python, `std::invalid_argument` in C++, a panic in Go (`NewCircle`).
+- `angle_between_points` returns 0 when A or B coincides with O, where the angle is undefined.
+
+<TopicCode topic="Algorithms/Computational_Geometry/Basic_Geometry/Point Line Circle" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Any single operation', time: 'O(1)', space: 'O(1)', when: 'A fixed number of subtractions, multiplications and at most one square root or atan2.' },
+    { case: 'Testing k points against a triangle or circle', time: 'O(k)', space: 'O(1)', when: 'Each point is independent.' },
+  ]}
+/>
+
+Squared distances avoid the square root, so comparing distances or testing containment needs only multiplications. The result is exact when the cross and dot products are exactly representable: integer coordinates in Python, and in C++ and Go while the products stay below 2<sup>53</sup>.
+
+## Design choices
+
+<DataTable
+  columns={['Question', 'Choice here', 'Alternative']}
+  rows={[
+    ['Orientation of a triple', 'sign of the cross product, exact', 'epsilon test: scale dependent'],
+    ['Angle between vectors', 'atan2(abs(cross), dot)', 'acos of a clamped cosine: inaccurate near 0 and pi'],
+    ['Circle containment', 'compare squared distances', 'compare square roots: slower and rounds twice'],
+    ['Point equality', 'exact coordinates', 'tolerance: not transitive, cannot be hashed consistently'],
+    ['Zero-length line', 'no direction: NaN slope, not vertical or horizontal', 'treat as vertical: misleading'],
+  ]}
+/>
+
+## Cross product vs dot product
+
+<DataTable
+  columns={['', 'Cross product', 'Dot product']}
+  highlight={0}
+  rows={[
+    ['Formula', 'u.x * v.y - u.y * v.x', 'u.x * v.x + u.y * v.y'],
+    ['Magnitude', '|u||v| sin(theta)', '|u||v| cos(theta)'],
+    ['Geometric meaning', 'signed parallelogram area', 'projection of one vector on the other'],
+    ['Used for', 'orientation, left or right, area, point in triangle', 'perpendicularity, angle, projection'],
+    ['Zero means', 'collinear (parallel)', 'perpendicular'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Constant-time, allocation-free building blocks that every geometry algorithm reuses.',
+    'Exact comparisons give the same answer at any scale and avoid epsilon tuning.',
+    'The same definitions in three languages, so results can be compared directly.',
+  ]}
+  cons={[
+    'Decimal coordinates are only as exact as floating point: collinear decimals such as 0.1, 0.2, 0.3 may not give a zero cross product.',
+    'Exact equality on computed points rarely holds; compare with a tolerance of your own when your data is computed.',
+    'The toolkit has no line-point distance, projection or line-circle intersection.',
+  ]}
+/>
+
+## Applications
+
+- **Convex hulls and polygon algorithms.** Orientation is the core test of Graham's scan and similar algorithms.
+- **Line and segment intersection.** Built on four orientation values.
+- **Collision and hit testing.** Point in triangle, point in circle.
+- **Games and graphics.** Angles between directions, facing tests.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **A fixed epsilon on the cross product.** It depends on the scale, because the cross product is a length<sup>2</sup>. Compare the sign instead.
+- **Computing the angle with `acos`.** It loses all precision near 0 and pi and returns 0 for small angles. Use `atan2(|cross|, dot)`.
+- **Swapped orientation codes.** The codes are 1 for clockwise and 2 for counterclockwise in all three languages. Test them with exact values, never with a check that accepts either code.
+- **Degenerate triangles.** With a zero-area triangle all three signs are zero and a naive test says every point is inside. Reject the triangle first.
+- **Assuming collinear decimals are exact.** Convert to integers if possible.
+- **Comparing computed points with `==`.** Use your own tolerance for results of arithmetic.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is there no epsilon in orientation?">
+    The cross product has units of length squared, so no single absolute epsilon works at every scale. For integer input the exact sign is correct. For decimals, scale to integers when borderline cases matter.
+  </FaqItem>
+  <FaqItem question="What do the orientation codes mean?">
+    0 means the three points are collinear, 1 means that walking p, q, r turns clockwise (right), and 2 means counterclockwise (left).
+  </FaqItem>
+  <FaqItem question="Does point_in_triangle include the edges?">
+    Yes. A point on an edge or at a vertex counts as inside. A triangle with zero area contains no point.
+  </FaqItem>
+  <FaqItem question="Why compare squared distances for circles?">
+    Squaring both sides keeps the test in multiplications, with no square root and no extra rounding. It is valid because both sides are non-negative.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Point Location Test (CSES)', 'orientation of a point against a directed line'],
+    ['Check If It Is a Straight Line (LeetCode 1232)', 'all cross products against the first segment are zero'],
+    ['Valid Boomerang (LeetCode 1037)', 'three distinct points that are not collinear'],
+    ['Valid Square (LeetCode 593)', 'distances and right angles from squared distances and dot products'],
+  ]}
+/>

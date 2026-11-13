@@ -16,6 +16,9 @@ type SqrtDecomposition struct {
 func NewSqrtDecomposition(arr []int) *SqrtDecomposition {
 	n := len(arr)
 	blockSize := int(math.Ceil(math.Sqrt(float64(n))))
+	if blockSize < 1 {
+		blockSize = 1
+	}
 	blockCount := (n + blockSize - 1) / blockSize
 	blocks := make([]int, blockCount)
 
@@ -26,7 +29,7 @@ func NewSqrtDecomposition(arr []int) *SqrtDecomposition {
 	}
 
 	return &SqrtDecomposition{
-		arr:        arr,
+		arr:        append([]int(nil), arr...), // copy: Update must not change the caller's slice
 		n:          n,
 		blockSize:  blockSize,
 		blockCount: blockCount,

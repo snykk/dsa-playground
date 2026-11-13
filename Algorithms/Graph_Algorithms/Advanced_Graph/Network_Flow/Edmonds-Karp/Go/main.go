@@ -10,17 +10,19 @@ func edmondsKarp(graph map[int]map[int]int, source, sink int) int {
 		return 0
 	}
 
+	// Residual graph: forward capacities plus a 0-capacity reverse entry per edge.
 	residual := make(map[int]map[int]int)
+	ensure := func(u int) {
+		if residual[u] == nil {
+			residual[u] = make(map[int]int)
+		}
+	}
 	for u, neighbors := range graph {
-		residual[u] = make(map[int]int)
+		ensure(u)
 		for v, cap := range neighbors {
-			residual[u][v] = cap
-			if residual[v] == nil {
-				residual[v] = make(map[int]int)
-			}
-			if residual[v][u] == 0 {
-				residual[v][u] = 0
-			}
+			ensure(v)
+			residual[u][v] += cap
+			residual[v][u] += 0
 		}
 	}
 

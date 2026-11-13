@@ -1,45 +1,43 @@
-# Game Theory — C++ Implementation
+# Game Theory -- C++ Implementation
 
-This folder implements the classical **impartial game** toolkit: Nim, Grundy numbers (nimbers), the MEX function, and misère variants. The Sprague-Grundy theorem says every impartial game is equivalent to a Nim heap with Grundy value `G(state)` — so learning these tools unlocks a large slice of combinatorial-game problems.
+## Files
 
-For the conceptual overview and worked examples, see the parent README: [../README.md](../README.md)
+| File | Contents |
+|------|----------|
+| `game_theory.cpp` | the game functions and a demo `main()` (compiled out with `-DIS_TEST_BUILD`) |
+| `game_theory_test.cpp` | assert-based tests checked against brute-force game-tree search |
 
----
+## API
 
-## Functions Included
+| Function | Description |
+|----------|-------------|
+| `bool nimWinner(vi& piles)` | first player wins iff XOR != 0 |
+| `pair<int,int> nimWinningMove(vi& piles)` | `{pile index, amount}` or `{-1, -1}` |
+| `int mex(set<int>&)` | minimum excludant |
+| `vi subtractGrundy(int n, vi& moves)` | Grundy numbers for 0..n |
+| `int combinedGrundy(vi& states, vector<vi>& tables)` | XOR of Grundy numbers |
+| `bool misereNimWinner(vi& piles)` | misere Nim; empty piles are not counted |
+| `bool staircaseNim(vi& stairs)` | odd-indexed stairs; `stairs[0]` is the ground |
+| `int hackenbushTree(vector<vi>& adj, int root = 0)` | Grundy value of Green Hackenbush on a tree |
+| `bool canWin(int state, function<vi(int)> getMoves)` | generic memoised win/lose DP, fresh memo per call |
+| `bool stoneGameDP(int n, int k)`, `bool wythoffWinner(int a, int b)`, `vi zeckendorf(int n)` | stone game, Wythoff, Zeckendorf |
 
-| Function | Returns | Tells you |
-|----------|---------|-----------|
-| `nimWinner(piles)` | `bool` | True iff XOR(piles) ≠ 0 |
-| `nimWinningMove(piles)` | `pair<int,int>` | `(pile_idx, remove_count)` |
-| `mex(s)` | `int` | Smallest non-negative int not in `s` |
-| `subtractGrundy(n, moves)` | `vector<int>` | Grundy values for subtraction games |
-| `combinedGrundy(states, tables)` | `int` | XOR of component Grundy values |
-| `misereNimWinner(piles)` | `bool` | Winner under misère rule |
-
----
+There is no Fibonacci Nim and no game-graph analysis in C++.
 
 ## C++-Specific Notes
 
-- **`int` XOR is fine for typical pile sizes** (up to 2³¹ − 1). For massive piles or large nim-values, use `int64_t` / `uint64_t` — XOR never "overflows" numerically.
-- **`std::accumulate` for Nim sum**: `std::accumulate(piles.begin(), piles.end(), 0, std::bit_xor<>())` — idiomatic one-liner.
-- **MEX with `std::set<int>` or `std::vector<bool>`**: for dense sets, a bool array of size `|s| + 1` is faster. Linear scan up from 0 until you find a false cell.
-- **Memoization via `std::unordered_map<State, int>`**: for games with complex state, cache Grundy values. Use a hash functor for custom state types.
-- **Be precise about state equivalence**: games that look different may share Grundy values. Always enumerate moves in _canonical form_ before memoizing — otherwise your memo misses hits.
-
----
+- Uses standard headers instead of `<bits/stdc++.h>`, so it compiles with clang on macOS.
+- `hackenbushTree` computes `g(v) = XOR of (g(child) + 1)` with an iterative BFS order (no recursion).
+- Wythoff uses `double`; exact for the sizes tested.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall game_theory_test.cpp -o game_theory_test
-./game_theory_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD game_theory_test.cpp -o test && ./test
+g++ -std=c++17 -O2 game_theory.cpp -o demo && ./demo
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Nim's XOR rule is one line, one theorem, huge applicability.** Any problem that separates into independent heaps with subtraction rules is Nim in disguise.
-2. **Sprague-Grundy unifies impartial games.** For a single game: Grundy number = MEX of next-states' Grundy numbers. For a sum: XOR. That's it.
-3. **Memoize Grundy values aggressively.** Naïve recursion on game states is exponential; adding `unordered_map` memoization routinely turns 10-second solutions into 10-millisecond ones.
+- Same results as Python for the shared functions.
+- Hackenbush and `canWin` exist only in C++ (and `can_win` in Python).

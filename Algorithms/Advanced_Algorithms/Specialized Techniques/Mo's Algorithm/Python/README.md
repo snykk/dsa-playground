@@ -1,61 +1,34 @@
-# Mo's Algorithm - Python
+# Mo's Algorithm -- Python Implementation
 
-This folder contains a Python implementation of **Mo's Algorithm** for efficient offline range queries.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `mos_algorithm.py` | the `MoSAlgorithm` class, `count_distinct_in_ranges` and a demo `main()` |
+| `mos_algorithm_test.py` | unit tests (examples, order of answers, empty input, randomized check against brute force) |
 
-## Concept
+## API
 
-Mo's Algorithm is a square root decomposition technique that efficiently answers multiple range queries offline. It sorts queries by block and processes them in an optimized order.
+| Function | Description |
+|----------|-------------|
+| `MoSAlgorithm(arr)` | stores the array; block size is `max(1, int(sqrt(n)))` |
+| `process_queries(queries)` | `queries` is a list of 0-indexed inclusive `(l, r)` tuples; returns distinct counts in input order |
+| `add(current_ans, value, freq)`, `remove(current_ans, value, freq)` | update the distinct count and the frequency dict |
+| `count_distinct_in_ranges(arr, queries)` | convenience wrapper |
 
-**Key Features:**
-- Square root decomposition
-- Offline query processing
-- Efficient for multiple range queries
-- O((N + Q) × √N) complexity
+## Python-Specific Notes
 
----
+- The aggregate is distinct counting; change `add` and `remove` for another statistic.
+- The array is stored, not copied; it is never modified.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `count_distinct_in_ranges(arr, queries)` | Count distinct elements in ranges | O((N+Q)√N) |
-| `MoSAlgorithm.process_queries(queries)` | Process queries using Mo's algorithm | O((N+Q)√N) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Process Queries | O((N+Q)√N) | O(N) |
-| Query Answer | O(1) amortized | O(1) |
-
----
-
-## Usage
-
-```python
-from mos_algorithm import count_distinct_in_ranges
-
-arr = [1, 1, 2, 1, 3, 4, 3, 3, 4]
-queries = [(0, 4), (1, 3), (2, 6), (0, 8)]
-
-results = count_distinct_in_ranges(arr, queries)
-for i, (l, r) in enumerate(queries):
-    print(f"Range [{l}, {r}]: {results[i]} distinct")
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-python mos_algorithm_test.py
+python3 -m unittest mos_algorithm_test
+python3 mos_algorithm.py
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Queries are sorted by `(block of l, r)` and answered in input order.
+- Total pointer movement is O((N + Q) sqrt N).

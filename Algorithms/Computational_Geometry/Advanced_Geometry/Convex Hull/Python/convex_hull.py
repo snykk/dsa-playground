@@ -4,8 +4,8 @@ Convex Hull
 Implementation of Graham's Scan and Jarvis March algorithms for computing convex hull.
 """
 
-import math
-from typing import List, Tuple
+from functools import cmp_to_key
+from typing import List
 
 
 class Point:
@@ -30,43 +30,57 @@ def distance_squared(p1: Point, p2: Point) -> float:
     return (p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2
 
 
+def unique_points(points: List[Point]) -> List[Point]:
+    """Distinct points (exact comparison), in order of first appearance."""
+    seen = set()
+    result = []
+    for p in points:
+        key = (p.x, p.y)
+        if key not in seen:
+            seen.add(key)
+            result.append(p)
+    return result
+
+
 def graham_scan(points: List[Point]) -> List[Point]:
     """
     Graham's Scan algorithm for convex hull.
     Time Complexity: O(n log n)
+
+    Returns the hull vertices in counterclockwise order, starting at the bottom-most
+    point (leftmost on a tie). Points that lie on a hull edge are not included.
+    Duplicates are removed; fewer than three distinct points are returned as they are
+    (a new list). The comparisons are exact, so integer input never goes wrong.
     """
-    if len(points) < 3:
-        return points
+    pts = unique_points(points)
+    if len(pts) < 3:
+        return sorted(pts, key=lambda p: (p.y, p.x))
 
     # Find bottom-most point (or leftmost in case of tie)
-    bottom = min(points, key=lambda p: (p.y, p.x))
+    bottom = min(pts, key=lambda p: (p.y, p.x))
+    others = [p for p in pts if p is not bottom]
 
-    # Sort points by polar angle with respect to bottom point
-    def polar_angle(p: Point) -> Tuple[float, float]:
-        dx = p.x - bottom.x
-        dy = p.y - bottom.y
-        angle = math.atan2(dy, dx)
-        dist = distance_squared(bottom, p)
-        return (angle, dist)
+    # Sort by polar angle around bottom: a comes first if b is counterclockwise of it.
+    # All points lie in the upper half-plane of bottom, so this is a strict weak ordering.
+    # Points on the same ray are ordered nearest first.
+    def compare(a: Point, b: Point) -> int:
+        cross = cross_product(bottom, a, b)
+        if cross > 0:
+            return -1
+        if cross < 0:
+            return 1
+        da = distance_squared(bottom, a)
+        db = distance_squared(bottom, b)
+        return -1 if da < db else (1 if da > db else 0)
 
-    sorted_points = sorted(points, key=polar_angle)
+    sorted_points = [bottom] + sorted(others, key=cmp_to_key(compare))
 
-    # Remove duplicates
-    unique_points = [sorted_points[0]]
-    for i in range(1, len(sorted_points)):
-        if sorted_points[i] != unique_points[-1]:
-            unique_points.append(sorted_points[i])
-
-    if len(unique_points) < 3:
-        return unique_points
-
-    # Build convex hull using stack
-    hull = [unique_points[0], unique_points[1]]
-
-    for i in range(2, len(unique_points)):
-        while len(hull) > 1 and cross_product(hull[-2], hull[-1], unique_points[i]) <= 0:
+    # Build convex hull using stack; drop right turns and collinear points
+    hull: List[Point] = []
+    for p in sorted_points:
+        while len(hull) > 1 and cross_product(hull[-2], hull[-1], p) <= 0:
             hull.pop()
-        hull.append(unique_points[i])
+        hull.append(p)
 
     return hull
 
@@ -75,33 +89,43 @@ def jarvis_march(points: List[Point]) -> List[Point]:
     """
     Jarvis March (Gift Wrapping) algorithm for convex hull.
     Time Complexity: O(nh) where h is number of hull points
+
+    Returns the hull vertices in counterclockwise order, starting at the leftmost
+    point (lowest on a tie). Points that lie on a hull edge are not included.
+    Duplicates are removed; fewer than three distinct points are returned as they are
+    (a new list). The comparisons are exact, so integer input never goes wrong.
     """
-    if len(points) < 3:
-        return points
+    pts = unique_points(points)
+    if len(pts) < 3:
+        return sorted(pts, key=lambda p: (p.x, p.y))
 
     # Find leftmost point
-    leftmost = min(points, key=lambda p: (p.x, p.y))
+    leftmost = min(pts, key=lambda p: (p.x, p.y))
     hull = [leftmost]
 
-    while True:
+    # A hull never has more vertices than points; the bound only guards rounding trouble
+    # with non-integer coordinates.
+    while len(hull) <= len(pts):
         current = hull[-1]
-        next_point = points[0]
+        next_point = None
 
-        # Find point with smallest polar angle from current
-        for point in points:
-            if point == current:
+        # Find the point such that every other point is on its left (or on the line)
+        for point in pts:
+            if point is current:
+                continue
+            if next_point is None:
+                next_point = point
                 continue
 
             cross = cross_product(current, next_point, point)
-            dist_next = distance_squared(current, next_point)
-            dist_point = distance_squared(current, point)
 
-            # If point is more counterclockwise, or same angle but farther
-            if cross < 0 or (abs(cross) < 1e-9 and dist_point > dist_next):
+            # If point is more clockwise, or on the same ray but farther
+            if cross < 0 or (cross == 0 and
+                             distance_squared(current, point) > distance_squared(current, next_point)):
                 next_point = point
 
         # If we've completed the hull
-        if next_point == leftmost:
+        if next_point is leftmost:
             break
 
         hull.append(next_point)

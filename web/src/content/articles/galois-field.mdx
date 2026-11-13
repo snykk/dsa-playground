@@ -1,0 +1,235 @@
+---
+topic: Algorithms/Coding_Theory/Galois_Field
+title: Galois Field GF(2^8)
+lead: GF(2^8) is a field of exactly 256 elements, one for every byte. You can add, subtract, multiply and divide bytes and always get a byte back, with no overflow and with an inverse for every nonzero value. That makes it the arithmetic behind AES, Reed-Solomon codes, QR codes and RAID-6.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Elements
+    value: '256'
+    hint: one per byte; 255 of them are nonzero
+  - label: Add / subtract
+    value: XOR
+    hint: no carries, and a + a = 0
+  - label: Multiply / divide
+    value: O(1)
+    hint: two table lookups after a one-time O(256) setup
+  - label: Field polynomial
+    value: '0x11B'
+    hint: x^8 + x^4 + x^3 + x + 1, generator 3
+    tone: warn
+properties:
+  - { label: Closed under + - * /, value: true }
+  - { label: Every nonzero element invertible, value: true }
+  - { label: Same as integers mod 256, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+related:
+  - Algorithms/Coding_Theory/Reed_Solomon
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast Fourier Transform
+---
+
+## Definition
+
+A **field** is a set where addition, subtraction, multiplication and division (except by zero) all stay inside the set and obey the usual laws. The integers modulo 256 are not a field: only the 128 odd numbers have an inverse, so most divisions are impossible. A finite field with 256 elements does exist, but its operations are not the integer ones.
+
+Treat a byte as a polynomial of degree at most 7 whose coefficients are bits: `0x53` is `01010011`, which is x<sup>6</sup> + x<sup>4</sup> + x + 1. Coefficients live in GF(2), where 1 + 1 = 0.
+
+<Equation label="Addition" expr="a + b = a XOR b" result="subtraction is the same operation" />
+<Equation label="Multiplication" expr="a * b = (a(x) b(x)) mod m(x)" result="m(x) = x^8 + x^4 + x^3 + x + 1 = 0x11B" />
+
+The modulus `m(x)` must be irreducible (it cannot be factored over GF(2)). That is what guarantees an inverse for every nonzero element. This repository uses the AES polynomial `0x11B`. QR codes and many storage codes use `0x11D`; both give a valid field, but the elements of one are not the elements of the other, so encoder and decoder must agree.
+
+## Intuition
+
+- **Addition ignores carries.** Each bit is added on its own, modulo 2, which is exactly XOR. So `5 + 3 = 6` in this field, and every element is its own negative.
+- **Multiplication is shift-and-add, with a wrap-around.** Multiplying by x shifts the byte left. If bit 8 appears, the result no longer fits, so it is replaced by its remainder: XOR with `0x11B`. That is the Russian-peasant loop in `slowMultiply`.
+- **The nonzero elements form a cycle.** There is a generator &alpha; such that &alpha;<sup>0</sup>, &alpha;<sup>1</sup>, &hellip;, &alpha;<sup>254</sup> are all 255 nonzero bytes, and &alpha;<sup>255</sup> = 1. Multiplication becomes addition of exponents, exactly like logarithms.
+
+<Callout title="The generator is 3, not 2">
+Under `0x11B` the element 2 (the polynomial x) is not a generator: its powers return to 1 after only 51 steps. The element 3 (x + 1) does reach all 255 nonzero bytes, so the code uses `GENERATOR = 0x03`. Under `0x11D`, 2 is a generator, which is why many libraries use that pair instead.
+</Callout>
+
+## How it works
+
+<Steps>
+  <Step title="Add and subtract with XOR">
+    `add(a, b)` and `sub(a, b)` are both `a ^ b`. No tables are involved.
+  </Step>
+  <Step title="Build the exp and log tables once">
+    Start with `acc = 1`. For `i` from 0 to 254, store `exp[i] = acc` and `log[acc] = i`, then multiply `acc` by the generator with the slow shift-and-reduce routine. This costs a few hundred operations in total.
+  </Step>
+  <Step title="Multiply by adding logarithms">
+    For nonzero `a` and `b`, `a * b = exp[log[a] + log[b]]`. The sum is at most 508, so the exp table is stored twice over (`exp[i + 255] = exp[i]`) and no `mod 255` is needed. If either operand is 0 the answer is 0.
+  </Step>
+  <Step title="Divide and invert by subtracting logarithms">
+    `a / b = exp[(log[a] - log[b]) mod 255]` and `inv(b) = exp[255 - log[b]]`. Both raise an error for `b = 0`.
+  </Step>
+  <Step title="Power by multiplying the exponent">
+    `a^n = exp[(log[a] * n) mod 255]`. A negative `n` works because the modulus is made non-negative.
+  </Step>
+</Steps>
+
+<Callout title="Why the exponent is reduced mod 255">
+The nonzero elements form a group of order 255, so &alpha;<sup>255</sup> = &alpha;<sup>0</sup> = 1. Exponents therefore wrap at 255, not 256. `log[0]` does not exist, which is why every operation checks for zero first.
+</Callout>
+
+## The tables
+
+The first twelve powers of 3 under `0x11B`, taken from the repository's table:
+
+<ArrayDiagram
+  legend={{ p: 'the first power that overflows a byte and gets reduced', f: 'exp[0] = 1, where the cycle closes at exp[255]' }}
+  rows={[
+    { label: 'exp[i] = 3^i', values: [1, 3, 5, 15, 17, 51, 85, 255, 26, 46, 114, 150], tones: 'f.......p...', note: '`exp[8] = 255 * 3 = 0x1FE`, which has bit 8 set, so XOR with `0x11B` gives `0x1A` = 26.' },
+    { label: 'log[exp[i]] = i', values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], note: 'For example `log[3] = 1`, `log[5] = 2`, `log[17] = 4`; the table is built by writing `log[acc] = i` in the same loop.' },
+  ]}
+/>
+
+## Worked example: 0x53 times 0xCA
+
+This is the classic AES test vector. First multiply the polynomials without carries: the result is `0x3F7E` (x<sup>13</sup> + x<sup>12</sup> + &hellip; + x), 14 bits wide. Then clear every bit at position 8 or higher by XORing a shifted copy of `0x11B`, starting from the top.
+
+<DataTable
+  columns={['Step', 'Top bit cleared', 'XOR with', 'Result']}
+  rows={[
+    ['carry-less product', '', '', '`0x3F7E`'],
+    ['1', 'bit 13', '`0x11B << 5` = `0x2360`', '`0x1C1E`'],
+    ['2', 'bit 12', '`0x11B << 4` = `0x11B0`', '`0x0DAE`'],
+    ['3', 'bit 11', '`0x11B << 3` = `0x08D8`', '`0x0576`'],
+    ['4', 'bit 10', '`0x11B << 2` = `0x046C`', '`0x011A`'],
+    ['5', 'bit 8', '`0x11B`', '`0x0001`'],
+  ]}
+  caption="Bit 9 was already clear after step 4, so no shift by 1 is needed."
+/>
+
+So `0x53 * 0xCA = 0x01`: the two bytes are inverses. With tables the same answer takes one addition: `log[0x53] = 48` and `log[0xCA] = 207`, so the exponents add up to 255, and `exp[255] = exp[0] = 1`. The code's demo also prints `0x53 + 0xCA = 0x99`.
+
+## Pseudocode
+
+```text
+slowMultiply(a, b, poly):            # shift-and-add, used at setup only
+    result = 0
+    while a != 0 and b != 0:
+        if b & 1: result = result xor a
+        b = b >> 1
+        a = a << 1
+        if a & 0x100: a = a xor poly
+    return result
+
+build(poly, generator):
+    acc = 1
+    for i = 0 to 254:
+        exp[i] = acc;  log[acc] = i
+        acc = slowMultiply(acc, generator, poly)
+    for i = 255 to 509: exp[i] = exp[i - 255]   # Python: up to 511
+
+mul(a, b):   if a == 0 or b == 0: return 0
+             return exp[log[a] + log[b]]
+div(a, b):   if b == 0: error
+             if a == 0: return 0
+             return exp[(log[a] - log[b]) mod 255]
+inv(b):      if b == 0: error
+             return exp[255 - log[b]]
+pow(a, n):   if a == 0: error if n == 0 else return 0
+             return exp[(log[a] * n) mod 255]
+```
+
+## Implementation
+
+All three versions share the same design: a `GF256` object that holds the two tables, a default instance (`GF` in Python, `gf256::shared()` in C++, `Shared()` in Go), and polynomial helpers with low-degree-first coefficient lists. Division by zero raises `ZeroDivisionError` in Python, throws `std::domain_error` in C++ and returns an error in Go. Python also has `poly_divmod`, which the C++ and Go versions do not.
+
+<TopicCode topic="Algorithms/Coding_Theory/Galois_Field" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['table setup', 'O(256)', 'once per field; about 510 to 512 bytes of exp plus 256 of log'],
+    ['`add`, `sub`', 'O(1)', 'a single XOR'],
+    ['`mul`, `div`, `inv`', 'O(1)', 'two or three lookups and one add or subtract'],
+    ['`pow`', 'O(1)', 'one multiplication of the exponent, then a lookup'],
+    ['`slowMultiply`', 'O(8)', 'one loop pass per bit; used only to build tables'],
+    ['`poly_mul` of degrees d and e', 'O(d e)', 'one table multiplication per pair of coefficients'],
+    ['`poly_eval` (Horner)', 'O(d)', 'one multiplication and one XOR per coefficient'],
+  ]}
+/>
+
+## Common field polynomials
+
+<DataTable
+  columns={['Polynomial', 'Hex', 'Generator', 'Used by']}
+  rows={[
+    ['x^8 + x^4 + x^3 + x + 1', '`0x11B`', '3 (2 has order 51)', 'AES; the default in this repository'],
+    ['x^8 + x^4 + x^3 + x^2 + 1', '`0x11D`', '2', 'QR codes and many storage Reed-Solomon codes'],
+  ]}
+/>
+
+The Python test `test_alternative_primitive_poly` builds a second field with `GF256(primitive_poly=0x11D, generator=0x02)` to show that the code works for another polynomial. The constructors do not check that the generator really has order 255: a wrong generator silently produces broken tables.
+
+## GF(2^8) vs integers mod 256
+
+<DataTable
+  columns={['', 'Integers mod 256', 'GF(2^8)']}
+  highlight={1}
+  rows={[
+    ['Addition', 'integer `+` with wrap-around', 'XOR'],
+    ['Inverse of every nonzero value', 'No: only the 128 odd numbers', 'Yes: all 255'],
+    ['Division always possible', 'No', 'Yes, except by 0'],
+    ['Algebraic structure', 'ring', 'field'],
+    ['Usable for Reed-Solomon, BCH', 'No', 'Yes'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'A byte in, a byte out: no overflow, no widening.',
+    'Constant-time multiplication and division from about 770 bytes of tables.',
+    'A true field, so linear algebra (solving systems, interpolation) works exactly as over the rationals.',
+    'Addition is a single instruction and vectorises well.',
+  ]}
+  cons={[
+    'Not intuitive: `+` is XOR and `*` is polynomial arithmetic.',
+    'Table lookups depend on the data, which leaks timing in cryptographic code.',
+    'Tied to one polynomial: tables from `0x11B` and `0x11D` cannot be mixed.',
+    'Larger fields such as GF(2^16) need tables hundreds of kilobytes large, or carry-less multiplication.',
+  ]}
+/>
+
+## Applications
+
+- **Reed-Solomon codes** treat bytes as field elements and encode by polynomial evaluation or division; see the Reed-Solomon topic.
+- **AES** computes its S-box from the inverse in this field (with the polynomial `0x11B`).
+- **RAID-6** keeps two parity blocks, one plain XOR and one weighted by powers of a generator.
+- **Secret sharing** and erasure coding use the same interpolation tools over the field.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using integer `+` or `*`.** `5 + 3` is 6, and `2 * 0x80` is `0x1B` here, not 256.
+- **Reducing exponents mod 256.** The cycle length is 255.
+- **Reading `log[0]`.** It is meaningless; check for zero before every log lookup, as `mul`, `div` and `inv` do.
+- **Mixing polynomials.** Tables built for `0x11B` are wrong for data produced under `0x11D`.
+- **Overflowing the intermediate.** A byte shifted left needs 9 bits before the reduction, so use a wider integer in `slowMultiply`.
+- **Assuming `pow(0, n)` is meaningful for every n.** The code raises only for `0^0`; for any other `n` it returns 0, even for negative `n`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is addition the same as subtraction?">
+    In GF(2) every element is its own negative, because 1 + 1 = 0. Adding the same byte twice therefore gives 0, and `a - b = a + b = a XOR b`.
+  </FaqItem>
+  <FaqItem question="Why 256 elements and not, say, 100?">
+    A finite field exists only when the number of elements is a prime power. 256 = 2<sup>8</sup> works, and it matches the size of a byte exactly. 100 is not a prime power, so no field has 100 elements.
+  </FaqItem>
+  <FaqItem question="Why not use plain mod 256 arithmetic?">
+    It has zero divisors, such as 2 * 128 = 0, and half of the nonzero values have no inverse. Reed-Solomon decoding needs to divide by arbitrary nonzero values, which only a field allows.
+  </FaqItem>
+  <FaqItem question="How does the shift-and-add multiply work?">
+    It reads the bits of `b` from the lowest. Whenever a bit is set it XORs the current `a` into the result, and after each step `a` is multiplied by x (shifted left, then reduced by `0x11B` if bit 8 is set).
+  </FaqItem>
+</Faq>

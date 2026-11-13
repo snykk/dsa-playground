@@ -1,36 +1,44 @@
-# Bitmasking (C++)
+# Bitmasking -- C++ Implementation
 
-C++ implementation of bitmasking techniques for competitive programming.
+Bit operations, subset enumeration, bitmask DP, SOS DP and a `BitSet` class.
 
-## Functions
+For the concept, see the topic README: [../README.md](../README.md).
 
-### Basic Operations
-- `getBit(mask, i)` - Check if i-th bit is set
-- `setBit(mask, i)` - Set i-th bit to 1
-- `clearBit(mask, i)` - Clear i-th bit
-- `toggleBit(mask, i)` - Toggle i-th bit
-- `countBits(mask)` - Count number of set bits
-- `lowestBit(mask)` - Get lowest set bit
-- `clearLowestBit(mask)` - Clear lowest set bit
+## Files
 
-### Subset Enumeration
-- `enumerateSubsets(mask)` - Iterate through all subsets
-- `subsetsOfSizeK(n, k)` - Generate subsets of size k
+| File | Purpose |
+|------|---------|
+| `bitmasking.cpp` | the functions below and a demo `main` (disabled when `IS_TEST_BUILD` is defined) |
+| `bitmasking_test.cpp` | 12 tests: bit operations, zero inputs, subset output, TSP edge cases, power-of-two helpers, SOS DP, `BitSet` |
 
-### Bitmask DP
-- `tsp(dist)` - Traveling Salesman Problem
-- `countSubsetSum(nums, target)` - Count subsets that sum to target
+## API
 
-### Tricks
-- `isPowerOf2(n)` - Check if n is power of 2
-- `nextPowerOf2(n)` - Round up to next power of 2
-- `sosDP(a)` - Sum Over Subsets DP
+- `getBit`, `setBit`, `clearBit`, `toggleBit`, `countBits`, `lowestBit`, `clearLowestBit`.
+- `trailingZeros(mask)`, `leadingZeros(mask)`: return 32 for 0 instead of invoking undefined behaviour.
+- `enumerateSubsets(mask)`, `subsetsOfSizeK(n, k)`: print the masks; `k = 0` prints only the empty mask.
+- `tsp(dist)`: returns 0 for 0 or 1 city; `INF` is 1e9.
+- `countSubsetSum(nums, target)`.
+- `isPowerOf2(n)`, `nextPowerOf2(n)` (valid up to 2^30), `swapBits`, `absNoBranch`, `averageNoOverflow`.
+- `sosDp(a)`: sum over subsets for any length.
+- `BitSet(n)`: `set`, `clear`, `get`, `count`, `&`, `|` over 64-bit words.
 
-## Usage
+## C++-Specific Notes
 
-```cpp
-int mask = 0b10110;
-cout << getBit(mask, 1) << endl;  // 1
-cout << setBit(mask, 0) << endl;  // 0b10111
+- Uses `__builtin_popcount`, `__builtin_ctz`, `__builtin_clz` (GCC and Clang). The file includes explicit standard headers, so it builds with Clang on macOS as well as GCC.
+- `int` masks hold up to 31 items; use `1LL << i` and `long long` beyond that.
+- `absNoBranch` relies on arithmetic right shift and overflows for `INT_MIN`.
+- The enumeration functions print instead of returning, which keeps them allocation-free but is awkward to reuse; copy the loop into your own code.
+
+## How to Run
+
+```bash
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD bitmasking_test.cpp -o bitmasking_test
+./bitmasking_test
+g++ -std=c++17 -O2 -Wall bitmasking.cpp -o bitmasking_demo && ./bitmasking_demo
 ```
 
+## Key Takeaways
+
+1. Builtins such as `__builtin_ctz` are undefined at 0; guard them.
+2. Choose the mask type (`int`, `long long`, `uint64_t`) from the item count.
+3. Keep `main` out of test builds with a macro guard.

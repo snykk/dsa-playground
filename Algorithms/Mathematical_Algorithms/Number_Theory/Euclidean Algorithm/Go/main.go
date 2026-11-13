@@ -1,16 +1,22 @@
 package main
 
-import (
-	"fmt"
-	"math"
-)
+import "fmt"
+
+// abs returns |x| in integer arithmetic. (math.MinInt64 has no positive
+// counterpart and is not supported.)
+func abs(x int64) int64 {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
 
 // GCD computes Greatest Common Divisor using recursive Euclidean Algorithm
 // Time Complexity: O(log min(a, b))
 // Space Complexity: O(log min(a, b))
 func GCD(a, b int64) int64 {
-	a = int64(math.Abs(float64(a)))
-	b = int64(math.Abs(float64(b)))
+	a = abs(a)
+	b = abs(b)
 
 	if b == 0 {
 		return a
@@ -23,8 +29,8 @@ func GCD(a, b int64) int64 {
 // Time Complexity: O(log min(a, b))
 // Space Complexity: O(1)
 func GCDIterative(a, b int64) int64 {
-	a = int64(math.Abs(float64(a)))
-	b = int64(math.Abs(float64(b)))
+	a = abs(a)
+	b = abs(b)
 
 	for b != 0 {
 		a, b = b, a%b
@@ -34,7 +40,9 @@ func GCDIterative(a, b int64) int64 {
 }
 
 // LCM computes Least Common Multiple using GCD
-// LCM(a, b) = |a * b| / GCD(a, b)
+// LCM(a, b) = |a| / GCD(a, b) * |b|
+// Dividing before multiplying keeps the intermediate value as small as the
+// result. The result itself must still fit in an int64.
 // Time Complexity: O(log min(a, b))
 // Space Complexity: O(1)
 func LCM(a, b int64) int64 {
@@ -42,7 +50,7 @@ func LCM(a, b int64) int64 {
 		return 0
 	}
 
-	return int64(math.Abs(float64(a*b))) / GCD(a, b)
+	return abs(a) / GCD(a, b) * abs(b)
 }
 
 // ExtendedGCDResult holds the result of Extended Euclidean Algorithm
@@ -52,23 +60,31 @@ type ExtendedGCDResult struct {
 	Y   int64
 }
 
-// ExtendedGCD computes Extended Euclidean Algorithm
-// Finds integers x and y such that: ax + by = GCD(a, b)
-// Time Complexity: O(log min(a, b))
-// Space Complexity: O(log min(a, b))
-func ExtendedGCD(a, b int64) ExtendedGCDResult {
-	a = int64(math.Abs(float64(a)))
-	b = int64(math.Abs(float64(b)))
-
+// extendedGCDNonNeg is extended Euclid for a, b >= 0.
+func extendedGCDNonNeg(a, b int64) ExtendedGCDResult {
 	if b == 0 {
 		return ExtendedGCDResult{a, 1, 0}
 	}
 
-	result := ExtendedGCD(b, a%b)
-	x := result.Y
-	y := result.X - (a/b)*result.Y
+	result := extendedGCDNonNeg(b, a%b)
+	return ExtendedGCDResult{result.GCD, result.Y, result.X - (a/b)*result.Y}
+}
 
-	return ExtendedGCDResult{result.GCD, x, y}
+// ExtendedGCD computes Extended Euclidean Algorithm
+// Finds integers x and y such that: a*x + b*y = GCD(a, b), for inputs of any
+// sign. It runs on |a| and |b|, then negates x when a is negative and y when
+// b is negative.
+// Time Complexity: O(log min(a, b))
+// Space Complexity: O(log min(a, b))
+func ExtendedGCD(a, b int64) ExtendedGCDResult {
+	result := extendedGCDNonNeg(abs(a), abs(b))
+	if a < 0 {
+		result.X = -result.X
+	}
+	if b < 0 {
+		result.Y = -result.Y
+	}
+	return result
 }
 
 func main() {
@@ -85,4 +101,9 @@ func main() {
 	result := ExtendedGCD(48, 18)
 	fmt.Printf("GCD = %d, x = %d, y = %d\n", result.GCD, result.X, result.Y)
 	fmt.Printf("Verification: 48*%d + 18*%d = %d\n", result.X, result.Y, 48*result.X+18*result.Y)
+
+	fmt.Println("\nExtended GCD(-48, 18):")
+	result = ExtendedGCD(-48, 18)
+	fmt.Printf("GCD = %d, x = %d, y = %d\n", result.GCD, result.X, result.Y)
+	fmt.Printf("Verification: -48*%d + 18*%d = %d\n", result.X, result.Y, -48*result.X+18*result.Y)
 }

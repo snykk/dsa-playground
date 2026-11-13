@@ -117,11 +117,8 @@ bool isStronglyConnected(const std::unordered_map<int, std::vector<int>>& graph)
     return sccs.size() == 1;
 }
 
-// Example usage (uncomment to use)
-/*
-#include <iostream>
-#ifndef TESTING
 #ifndef IS_TEST_BUILD
+#include <iostream>
 int main() {
     std::unordered_map<int, std::vector<int>> graph = {
         {1, {2}},
@@ -131,15 +128,13 @@ int main() {
         {5, {6}},
         {6, {4}}
     };
-    
+
     std::cout << "Kosaraju's Algorithm Example:" << std::endl;
     auto sccs = kosarajuSCC(graph);
-    
+
     std::cout << "Number of SCCs: " << sccs.size() << std::endl;
     std::cout << "Is strongly connected: " << (isStronglyConnected(graph) ? "true" : "false") << std::endl;
-    
+
     return 0;
 }
-#endif
-#endif
-*/
+#endif  // !IS_TEST_BUILD

@@ -1,105 +1,33 @@
-# Rotating Calipers - Go
+# Rotating Calipers -- Go Implementation
 
-This folder contains a Go implementation of the **rotating calipers** technique for solving various geometric problems.
+## Files
 
----
+- `main.go`: `Point`, `DiameterResult`, `crossProduct`, `cleanPolygon`, `rotatingCalipersDiameter`, `rotatingCalipersWidth`, `rotatingCalipersPerimeter`, `rotatingCalipersArea` and a demo `main`.
+- `main_test.go`: tests (rectangle, perimeter and area, the fan hull that defeats a distance hill climb, collinear and repeated vertices, degenerate inputs, a triangle, orientation independence, and 500 random polygons against brute force).
 
-## Concept
+## API
 
-Rotating calipers is a technique used to solve several geometric problems efficiently after computing the convex hull. It uses two parallel lines that "rotate" around the convex polygon to find optimal solutions.
+- `rotatingCalipersDiameter(hull []Point) DiameterResult`: `Dist`, `P1`, `P2`.
+- `rotatingCalipersWidth(hull []Point) float64`: width; 0 for fewer than three distinct corners.
+- `rotatingCalipersPerimeter(hull)` and `rotatingCalipersArea(hull)`.
+- `cleanPolygon(hull)`: drops repeated and edge-collinear vertices.
 
-**Key Features:**
-- Efficient: O(n) time complexity after convex hull computation
-- Versatile: Solves multiple geometric problems
-- Requires convex hull as input
-- Slice-based implementation
+`hull` is a convex polygon in order, clockwise or counterclockwise.
 
----
+## Go-Specific Notes
 
-## Functions
+- `Point` is a comparable struct, so exact equality is `p == q`.
+- `crossProduct` wraps each product in `float64(...)`, which forbids fused multiply-add.
+- Everything is in `package main` and unexported.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `rotatingCalipersDiameter(hull)` | Find maximum distance between any two points | O(n) |
-| `rotatingCalipersWidth(hull)` | Find minimum distance between parallel lines | O(n) |
-| `rotatingCalipersPerimeter(hull)` | Calculate perimeter of convex hull | O(n) |
-| `rotatingCalipersArea(hull)` | Calculate area using shoelace formula | O(n) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Diameter | O(n) | O(1) |
-| Width | O(n) | O(1) |
-| Perimeter | O(n) | O(1) |
-| Area | O(n) | O(1) |
-
-**Note:** These complexities assume convex hull is already computed. Total complexity including convex hull is O(n log n).
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    hull := []Point{
-        {0, 0}, {4, 0}, {4, 3}, {0, 3},
-    }
-
-    // Find diameter
-    diameterResult := rotatingCalipersDiameter(hull)
-
-    // Find width
-    width := rotatingCalipersWidth(hull)
-
-    // Calculate perimeter
-    perimeter := rotatingCalipersPerimeter(hull)
-
-    // Calculate area
-    area := rotatingCalipersArea(hull)
-}
-```
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-go test -v
+go test ./...
 ```
 
----
+## Key Takeaways
 
-## Important Notes
-
-1. **Convex Hull Required**: Input must be a convex hull (use Graham's Scan or Jarvis March)
-2. **Counterclockwise Order**: Points should be in counterclockwise order
-3. **Struct Return**: Diameter function returns `DiameterResult` struct
-4. **Slice Input**: Uses `[]Point` for hull input
-
----
-
-## When to Use
-
-- **Diameter**: Finding maximum distance in point set
-- **Width**: Finding minimum width of shape
-- **Perimeter/Area**: Calculating geometric properties
-- **After Convex Hull**: When you need additional properties of convex hull
-
----
-
-## Related Files
-
-- Main README: `../README.md`
-- Python Implementation: `../../Python/`
-- C++ Implementation: `../../C++/`
-
----
-
-_Last Updated: December 2025_
+- Drive the far pointer with triangle area, not with distance.
+- Clean repeated and collinear vertices first.
+- One sweep is O(n); the hull itself costs O(n log n).

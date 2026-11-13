@@ -104,6 +104,11 @@ class TestTarjan(unittest.TestCase):
         sccs = tarjan_scc({1: [2], 2: [1, 3], 3: [4]})
         self.assertEqual(sccs, [[4], [3], [2, 1]])
 
+    def test_tarjan_scc_components_and_order(self):
+        graph = {0: [1], 1: [2], 2: [0, 3], 3: [4], 4: [3, 5], 5: []}
+        self.assertEqual(tarjan_scc(graph), [[5], [4, 3], [2, 1, 0]])
+        self.assertEqual(tarjan_scc({7: [7]}), [[7]])
+
     def test_tarjan_bridges_parallel_edges(self):
         # Regression: skipping every edge back to the parent vertex reported a
         # doubled edge as a bridge

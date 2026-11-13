@@ -30,3 +30,22 @@ func TestSingleElement(t *testing.T) {
 		t.Errorf("Expected 1 distinct, got %d", results[0])
 	}
 }
+
+func TestEmptyArrayNoQueries(t *testing.T) {
+	results := countDistinctInRanges([]int{}, [][]int{})
+	if len(results) != 0 {
+		t.Errorf("Expected no answers, got %v", results)
+	}
+}
+
+func TestAnswersFollowInputOrder(t *testing.T) {
+	arr := []int{1, 2, 1, 3, 2, 3, 4}
+	queries := [][]int{{5, 6}, {0, 0}, {2, 4}, {0, 6}, {3, 3}}
+	want := []int{2, 1, 3, 4, 1}
+	got := countDistinctInRanges(arr, queries)
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("query %d: want %d, got %d", i, want[i], got[i])
+		}
+	}
+}

@@ -1,92 +1,33 @@
-# Line Intersection - Go
+# Line Intersection -- Go Implementation
 
-This folder contains a Go implementation of algorithms for finding intersections between lines and line segments.
+## Files
 
----
+- `main.go`: `Point`, `Line`, `crossProduct`, `lineIntersection`, `segmentsIntersect`, `segmentIntersection`, `pointOnSegment` and a demo `main`.
+- `main_test.go`: tests (crossing, parallel, no intersection, point on and off a segment, collinear overlap and touching, collinear disjoint, zero-length segments, T-junction, shared float endpoints, tiny scale, coincident lines, and 4,000 random integer segment pairs against an independent reference).
 
-## Concept
+## API
 
-This module provides efficient algorithms to determine if and where lines or line segments intersect. These operations are fundamental for many computational geometry problems.
+- `lineIntersection(l1, l2 Line) *Point`: `nil` if parallel.
+- `segmentIntersection(l1, l2 Line) *Point`: a common point, or `nil`.
+- `segmentsIntersect(l1, l2 Line) bool`: exact.
+- `pointOnSegment(p Point, line Line) bool`: exact.
+- Collinear overlap: `segment_intersection` returns the first shared point in (x, y) order.
+- `line_intersection` works on the infinite lines through the endpoints and returns nothing for parallel, coincident or zero-length lines.
 
-**Key Features:**
-- Line intersection (infinite lines)
-- Segment intersection (line segments)
-- Point on segment checking
-- Struct-based implementation with methods
+## Go-Specific Notes
 
----
+- Pointer results: always check for `nil` before reading `X` and `Y` (the tests use `t.Fatalf` so a failure cannot dereference `nil`).
+- `crossProduct` wraps each product in `float64(...)`, which forbids fused multiply-add.
+- Everything is in `package main` and unexported.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `lineIntersection(l1, l2)` | Find intersection of two infinite lines | O(1) |
-| `segmentIntersection(l1, l2)` | Find intersection of two line segments | O(1) |
-| `segmentsIntersect(l1, l2)` | Check if segments intersect | O(1) |
-| `pointOnSegment(p, line)` | Check if point lies on segment | O(1) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Line Intersection | O(1) | O(1) |
-| Segment Intersection | O(1) | O(1) |
-| Segments Intersect | O(1) | O(1) |
-| Point on Segment | O(1) | O(1) |
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // Line intersection
-    l1 := Line{Point{0, 0}, Point{4, 4}}
-    l2 := Line{Point{0, 4}, Point{4, 0}}
-    intersection := lineIntersection(l1, l2)  // *Point(2, 2)
-
-    // Segment intersection
-    seg1 := Line{Point{0, 0}, Point{4, 4}}
-    seg2 := Line{Point{0, 4}, Point{4, 0}}
-    segIntersection := segmentIntersection(seg1, seg2)  // *Point(2, 2)
-
-    // Check if segments intersect
-    if segmentsIntersect(seg1, seg2) {
-        fmt.Println("Segments intersect!")
-    }
-}
-```
-
----
-
-## Run Test
+## How to Run
 
 ```bash
-go test -v
+go test ./...
 ```
 
----
+## Key Takeaways
 
-## Important Notes
-
-1. **Parallel Lines**: Returns `nil` if lines are parallel
-2. **Floating-Point Precision**: Uses epsilon tolerance (1e-9) for comparisons
-3. **Pointer Return**: Functions return `*Point` (nil for no intersection)
-
----
-
-## Related Files
-
-- Main README: `../README.md`
-- Python Implementation: `../../Python/`
-- C++ Implementation: `../../C++/`
-
----
-
-_Last Updated: December 2025_
+- Decide with orientations (signs of cross products), then compute the point.
+- Exact zero tests avoid the scale problems of an epsilon.
+- Collinear, touching and zero-length cases are all handled.

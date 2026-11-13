@@ -1,234 +1,135 @@
 # Big-O Notation
 
-A comprehensive guide to **Big-O Notation**, which describes the upper bound of an algorithm's time complexity.
+Big-O gives an asymptotic **upper bound on a function**. In algorithm analysis the function is a running time (or memory use) as a function of the input size `n`. Big-O is a bound on that function: it is not a synonym for "worst case".
 
----
+## Intuition
 
-## Overview
+Big-O keeps only the part of a formula that dominates for large `n`.
 
-Big-O notation is used to classify algorithms according to how their runtime or space requirements grow as the input size increases. It provides an asymptotic upper bound, representing the worst-case scenario.
+- Constants are dropped: `5n` and `n` grow the same way, so `O(5n) = O(n)`.
+- Lower-order terms are dropped: `n^2 + 100n` is `O(n^2)`.
+- It is only an upper bound: `3n + 1` is `O(n)`, and also `O(n^2)` and `O(2^n)`. Those statements are true but weak. When you want a tight bound, use Big-Theta.
 
----
+**Formal definition.** `f(n) = O(g(n))` if there exist constants `c > 0` and `n0` such that
 
-## Formal Definition
-
-f(n) = O(g(n)) if there exist positive constants c and n₀ such that:
-```
-0 ≤ f(n) ≤ c·g(n) for all n ≥ n₀
-```
-
-This means that for sufficiently large n, f(n) is bounded above by a constant multiple of g(n).
-
----
-
-## Key Characteristics
-
-1. **Upper Bound**: Describes the worst-case scenario
-2. **Asymptotic**: Focuses on behavior as n approaches infinity
-3. **Constants Ignored**: O(2n) = O(n), constants are dropped
-4. **Lower Terms Ignored**: O(n² + n) = O(n²), lower order terms are dropped
-5. **Multiplicative Constants**: O(5n) = O(n), constants are ignored
-
----
-
-## Common Big-O Complexities
-
-| Notation | Name | Description | Example |
-|----------|------|-------------|---------|
-| **O(1)** | Constant | Time doesn't depend on input size | Array access, hash table lookup |
-| **O(log n)** | Logarithmic | Time grows logarithmically | Binary search, balanced tree operations |
-| **O(n)** | Linear | Time grows linearly with input | Single loop, array traversal |
-| **O(n log n)** | Linearithmic | Time grows as n times log n | Merge sort, heap sort |
-| **O(n²)** | Quadratic | Time grows quadratically | Nested loops, bubble sort |
-| **O(n³)** | Cubic | Time grows cubically | Triple nested loops, naive matrix multiplication |
-| **O(2ⁿ)** | Exponential | Time grows exponentially | Naive recursive Fibonacci, subset generation |
-| **O(n!)** | Factorial | Time grows factorially | Generating all permutations, brute-force solutions |
-
----
-
-## Complexity Hierarchy
-
-```
-O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(n³) < O(2ⁿ) < O(n!)
+```text
+0 <= f(n) <= c * g(n)   for all n >= n0
 ```
 
----
+The `=` is read as "is in the set": `n = O(n^2)` is true, `O(n^2) = n` is meaningless.
 
-## Examples
+**Cases are separate from notations.** Best, average and worst case are three different functions of `n`. Each of them can be bounded with O, Omega or Theta. For linear search the best case is `O(1)` (and `Theta(1)`), and the worst case is `O(n)` (and `Theta(n)`). Writing "O is the worst case" mixes up the notation with the case.
 
-### O(1) - Constant Time
-```python
-def constant_time_example(n):
-    return 42  # Always takes the same time
+## Visual
+
+```text
+f(n) = 3n^2 + 5n + 2   against   c * g(n) = 4n^2   (c = 4)
+
+n       1    2    3    4    5     6     7     8     9
+f(n)   10   24   44   70  102   140   184   234   290
+4n^2    4   16   36   64  100   144   196   256   324
+f<=cg?  no   no   no   no   no   yes   yes   yes   yes
+                                  ^ n0 = 6
 ```
 
-### O(log n) - Logarithmic Time
-```python
-def logarithmic_time_example(n):
-    count = 0
-    i = n
-    while i > 1:
-        i = i // 2
-        count += 1
-    return count
-```
+## How It Works
 
-### O(n) - Linear Time
-```python
-def linear_time_example(arr):
-    total = 0
-    for element in arr:
-        total += element
-    return total
-```
+To prove `f(n) = O(g(n))`, find `c` and `n0` and show the inequality for all `n >= n0`.
 
-### O(n log n) - Linearithmic Time
-```python
-def linearithmic_time_example(arr):
-    # Merge sort implementation
-    # Always requires n log n operations
-```
+1. Take each term of `f` and bound it by a multiple of `g`: for `n >= 1`, `5n <= 5n^2` and `2 <= 2n^2`.
+2. Add the multiples: `3n^2 + 5n + 2 <= (3 + 5 + 2) n^2 = 10 n^2`.
+3. Read off `c = 10` and `n0 = 1`.
 
-### O(n²) - Quadratic Time
-```python
-def quadratic_time_example(arr):
-    pairs = []
-    for i in range(len(arr)):
-        for j in range(i + 1, len(arr)):
-            pairs.append((arr[i], arr[j]))
-    return pairs
-```
+To show that `f` is **not** `O(g)`, show that no constant works. `n^2 = O(n)` would need `n <= c` for all large `n`, which is impossible.
 
----
+Reading code:
 
-## When to Use Big-O
+| Code shape | Bound |
+|------------|-------|
+| a fixed number of steps | `O(1)` |
+| halving a value in a loop | `O(log n)` |
+| one pass over the input | `O(n)` |
+| all pairs (two nested loops) | `O(n^2)` |
+| three nested loops | `O(n^3)` |
+| two recursive calls on `n - 1` and `n - 2` (naive Fibonacci) | `O(2^n)` |
 
-Use Big-O notation when:
-- ✅ You want to describe worst-case performance
-- ✅ You need an upper bound guarantee
-- ✅ Analyzing algorithm efficiency
-- ✅ Comparing different algorithms
+Rules: sequential steps add (`O(f) + O(g) = O(max(f, g))`), nested steps multiply, and several inputs need several variables (graph search is `O(V + E)`).
 
-**Example**: Quick sort is O(n²) worst case, but O(n log n) average case.
+## Step-by-Step Trace
 
----
+Growth of the common classes (log base 2):
 
-## Big-O vs Other Notations
+| Class | Name | n = 10 | n = 100 | n = 1,000 |
+|-------|------|--------|---------|-----------|
+| O(1) | constant | 1 | 1 | 1 |
+| O(log n) | logarithmic | 3.3 | 6.6 | 10 |
+| O(n) | linear | 10 | 100 | 1,000 |
+| O(n log n) | linearithmic | 33 | 664 | 9,966 |
+| O(n^2) | quadratic | 100 | 10,000 | 1,000,000 |
+| O(n^3) | cubic | 1,000 | 1,000,000 | 1,000,000,000 |
+| O(2^n) | exponential | 1,024 | 1.27 x 10^30 | 1.07 x 10^301 |
+| O(n!) | factorial | 3,628,800 | 9.3 x 10^157 | about 4 x 10^2567 |
 
-| Notation | Bound | Description | Example |
-|----------|-------|-------------|---------|
-| **O** | Upper | Worst case | Quick sort: O(n²) worst |
-| **Ω** | Lower | Best case | Linear search: Ω(1) best |
-| **Θ** | Tight | Best = Worst | Merge sort: Θ(n log n) all cases |
+Ordering: `O(1) < O(log n) < O(n) < O(n log n) < O(n^2) < O(n^3) < O(2^n) < O(n!)`.
 
----
+## Complexity
 
-## Common Algorithms
+Big-O is the notation, so there is no "complexity of Big-O". The examples in this folder have these costs:
 
-| Algorithm | Time Complexity | Notes |
-|-----------|-----------------|-------|
-| Binary Search | O(log n) | Sorted array |
-| Linear Search | O(n) | Unsorted array |
-| Merge Sort | O(n log n) | All cases |
-| Quick Sort | O(n log n) average, O(n²) worst | Depends on pivot |
-| Bubble Sort | O(n²) | All cases |
-| Hash Table Lookup | O(1) average | O(n) worst case |
-| Matrix Multiplication (naive) | O(n³) | n×n matrices |
+| Function | Time | Space | Note |
+|----------|------|-------|------|
+| `constant_time_example` | O(1) | O(1) | |
+| `logarithmic_time_example` | O(log n) | O(1) | halving loop |
+| `linear_time_example` | O(n) | O(1) | sum of a list |
+| `linearithmic_time_example` | O(n log n) | O(n) | Python: merge sort; C++ and Go: library sort |
+| `quadratic_time_example` | O(n^2) | O(n^2) | all pairs |
+| `cubic_time_example` | O(n^3) | O(1) | counts iterations |
+| `exponential_time_example` | O(2^n) | O(n) | naive Fibonacci; valid but loose, exact growth is about 1.618^n |
+| `factorial_time_example` (Python only) | O(n * n!) | O(n * n!) | builds all permutations by slicing; not O(n!) |
 
----
+## When to Use
 
-## Key Points
+- To compare how algorithms scale, ignoring machine and language constants.
+- To state a guarantee: "the worst case is O(n log n)", "the average case is O(1)".
+- Not for small inputs, where constants decide, and not as a substitute for measurement.
 
-1. **Worst-Case Analysis**: Big-O describes worst-case performance
-2. **Asymptotic Behavior**: Focuses on large input sizes
-3. **Practical Use**: Helps choose the right algorithm for your problem
-4. **Not Always Precise**: May overestimate actual performance
+## Big-O vs. Other Notations
 
----
+| Notation | Meaning | Reads as |
+|----------|---------|----------|
+| O(g) | upper bound | grows at most as fast as g |
+| Omega(g) | lower bound | grows at least as fast as g |
+| Theta(g) | tight bound | grows exactly as fast as g (both O and Omega) |
+
+Linear search bounds, per case: best `Theta(1)`, worst `Theta(n)`, average `Theta(n)`. Each can also be stated with a plain `O`.
+
+## Common Pitfalls
+
+- Reading O as "worst case". The case is a separate choice, and every case can be bounded with O, Omega or Theta.
+- Assuming `O(n)` beats `O(n^2)` for every `n`. `100n` is larger than `n^2` until `n = 100`.
+- Treating `n = O(n^2)` as a precise statement. It is true but loose; use Theta for a tight bound.
+- Worrying about the log base. It only changes a constant factor.
+- Hiding variables: `O(V + E)` is not `O(n)`.
+- Mislabeling examples: building all permutations costs `O(n * n!)`, because each permutation takes `O(n)` to write.
 
 ## Implementations
 
-This folder contains implementations in multiple languages:
+- [Python](./Python/big_o_notation.py): eight examples, including a merge sort and the factorial one.
+- [C++](./C++/big_o_notation.cpp): seven examples (no factorial); the linearithmic one calls `std::sort`.
+- [Go](./Go/main.go): seven examples (no factorial); the linearithmic one calls `sort.Ints`.
 
-- **[Python](./Python/)** - Readable and educational examples
-- **[C++](./C++/)** - High-performance implementations
-- **[Go](./Go/)** - Modern and efficient code
+## Practice Problems
 
-Each implementation includes:
-- Complete source code with examples
-- Comprehensive test suites
-- Detailed documentation
-- Complexity analysis
+- [Contains Duplicate (LeetCode 217)](https://leetcode.com/problems/contains-duplicate/): compare `O(n^2)`, `O(n log n)` and `O(n)` solutions.
+- [Two Sum (LeetCode 1)](https://leetcode.com/problems/two-sum/): brute force `O(n^2)` versus a hash map `O(n)`.
+- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/): bound the cost of a hand-written sort.
+- Prove with explicit `c` and `n0` that `n^2 + 10n` is `O(n^2)`, and that `2^n` is not `O(n^100)`.
 
----
+## Related
 
-## Usage
-
-### Python
-```python
-from big_o_notation import (
-    constant_time_example,
-    logarithmic_time_example,
-    linear_time_example
-)
-
-# Run examples
-python big_o_notation.py
-
-# Run tests
-python big_o_notation_test.py
-```
-
-### C++
-```bash
-# Compile
-g++ -std=c++11 -o big_o_notation big_o_notation.cpp
-
-# Run
-./big_o_notation
-
-# Run tests
-g++ -std=c++11 -o test big_o_notation_test.cpp
-./test
-```
-
-### Go
-```bash
-# Run
-go run main.go
-
-# Run tests
-go test
-```
-
----
-
-## Related Topics
-
-- **[Big-Theta (Θ)](../Big-Theta%20(%CE%98)/)** - Tight bound notation
-- **[Big-Omega (Ω)](../Big-Omega%20(%CE%A9)/)** - Lower bound notation
-- **[Space Complexity](../../Space%20Complexity/)** - Memory usage analysis
-- **[Amortized Analysis](../../Amortized%20Analysis/)** - Average-case analysis
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 3)
-- "Algorithm Design Manual" by Steven Skiena
-- "Competitive Programming" by Steven Halim
-
----
-
-## Further Reading
-
-- Asymptotic notation properties
-- Master theorem for divide-and-conquer
-- Complexity analysis techniques
-- Real-world algorithm complexity
-
----
-
-**Happy Learning! 🚀**
-
-
+- [Big-Omega](../Big-Omega%20(%CE%A9)/)
+- [Big-Theta](../Big-Theta%20(%CE%98)/)
+- [Space Complexity](../../Space%20Complexity/)
+- [Amortized Analysis](../../Amortized%20Analysis/)
+- [Quick Sort](../../../Algorithms/Sorting/Quick%20Sort/)
+- [Binary Search](../../../Algorithms/Searching/Binary%20Search/)

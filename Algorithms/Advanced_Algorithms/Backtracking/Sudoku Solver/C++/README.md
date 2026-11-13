@@ -1,66 +1,32 @@
-# Sudoku Solver - C++
+# Sudoku Solver -- C++ Implementation
 
-This folder contains a C++ implementation of a **Sudoku Solver** using backtracking.
+## Files
 
----
+- `sudoku_solver.cpp`: `isValidPuzzle`, `isValid`, `findEmpty`, the static `searchSudoku`, `solveSudoku`, `printBoard`; `main` is compiled out with `-DIS_TEST_BUILD`.
+- `sudoku_solver_test.cpp`: assert-based tests (the example puzzle against its exact solution, `is_valid`, duplicates in row, column and box, out-of-range values, bad shapes, an unsolvable puzzle that must restore the board, an already solved board, an empty board).
 
-## Concept
+## API
 
-Solves a 9×9 Sudoku puzzle using backtracking. The algorithm tries placing numbers 1-9 in empty cells and backtracks when a conflict is detected.
+- `solveSudoku(vector<vector<int>>& board)`: solves in place and returns `true`; returns `false` and leaves the board unchanged if the givens conflict, a value is outside 0..9, the shape is not 9 x 9, or there is no solution.
+- `isValidPuzzle(board)`: shape, range and conflicts among the givens.
+- `isValid(board, row, col, num)`: true if `num` is legal at the cell.
+- `findEmpty(board)`: `optional<pair<int, int>>` of the first 0.
+- `printBoard(board)`: prints the board.
 
-**Key Features:**
-- Backtracking algorithm
-- Validates row, column, and 3×3 box constraints
-- Finds solution if one exists
-- Handles standard Sudoku puzzles
+## C++-Specific Notes
 
----
+- Needs C++17 for `std::optional`.
+- The test file includes the `.cpp` directly; define `IS_TEST_BUILD` to drop the demo `main`.
+- The board is `vector<vector<int>>`, not a fixed array, so its shape is validated at run time.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `isValid(board, row, col, num)` | Check if number placement is valid | O(1) |
-| `findEmpty(board)` | Find next empty cell | O(n²) |
-| `solveSudoku(board)` | Solve Sudoku puzzle | O(9^m) where m is empty cells |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Solve Puzzle | O(9^m) | O(1) |
-| Validation | O(1) | O(1) |
-| Find Empty | O(n²) | O(1) |
-
----
-
-## Usage
-
-```cpp
-#include "sudoku_solver.cpp"
-
-vector<vector<int>> board = {
-    {5, 3, 0, 0, 7, 0, 0, 0, 0},
-    {6, 0, 0, 1, 9, 5, 0, 0, 0},
-    // ... more rows
-};
-
-if (solveSudoku(board)) {
-    printBoard(board);
-}
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-g++ -o test sudoku_solver_test.cpp && ./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD sudoku_solver_test.cpp -o sudoku_solver_test && ./sudoku_solver_test
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Validate the givens once, then search.
+- Fill the first empty cell with each legal digit and undo on failure.
+- A failed solve restores the board; plain backtracking is exponential in the worst case.

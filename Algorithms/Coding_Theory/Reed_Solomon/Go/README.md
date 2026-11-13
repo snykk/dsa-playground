@@ -4,8 +4,6 @@ Full Reed-Solomon over GF(2^8): systematic encode + Berlekamp-Massey decode + Fo
 
 For the conceptual overview, see the parent README: [../README.md](../README.md)
 
----
-
 ## Files
 
 | File | Purpose |
@@ -13,8 +11,6 @@ For the conceptual overview, see the parent README: [../README.md](../README.md)
 | `main.go` | `ReedSolomon` type, GF(2^8) primitives, `Encode` / `Decode` / `DecodeWithErasures` |
 | `main_test.go` | 25 tests: errors only (1, 2, QR-like, Voyager RS(255, 223)), erasures only, mixed errors + erasures, several `fcr` values, beyond-budget detection, input validation, and the shared RS(7, 5) known-codeword fixture |
 | `go.mod` | Module definition |
-
----
 
 ## Usage
 
@@ -32,7 +28,13 @@ if errors.Is(err, ErrDecode) { /* damage exceeded the budget */ }
 rs1, _ := NewReedSolomonWithFCR(15, 11, 3, 1) // generator roots alpha^1 .. alpha^4
 ```
 
----
+## API
+
+- `NewReedSolomon(n, k int, alpha byte) (*ReedSolomon, error)`: `fcr = 0`.
+- `NewReedSolomonWithFCR(n, k int, alpha byte, fcr int) (*ReedSolomon, error)`.
+- `Encode(message []byte) ([]byte, error)`: systematic codeword `[parity | message]`.
+- `Decode(received []byte) ([]byte, error)` and `DecodeWithErasures(received []byte, erasures []int) ([]byte, error)`.
+- Accessors `N()`, `K()`, `T()`, `FCR()`, `Alpha()`; sentinel error `ErrDecode`.
 
 ## Go-Specific Notes
 
@@ -45,17 +47,13 @@ rs1, _ := NewReedSolomonWithFCR(15, 11, 3, 1) // generator roots alpha^1 .. alph
 - **`init()` builds the log/antilog tables once** at package load. After that, every GF operation is read-only -- safe for unlimited concurrent use.
 - **Byte slices everywhere**: polynomial format is `[]byte` (low-degree-first). Matches the Python sibling byte-for-byte on every encoded codeword.
 
----
-
 ## How to Run
 
 ```bash
 go test -v ./...
 ```
 
----
-
-## Key Takeaways for Learners
+## Key Takeaways
 
 1. **`init()` is Go's answer to "expensive one-time setup."** No need for double-checked locking or `sync.Once` -- the runtime guarantees `init()` runs exactly once before any package code executes.
 2. **Sentinel errors with `errors.Is`** is the modern Go idiom. Callers check `errors.Is(err, ErrDecode)` to handle the recoverable case without panicking.

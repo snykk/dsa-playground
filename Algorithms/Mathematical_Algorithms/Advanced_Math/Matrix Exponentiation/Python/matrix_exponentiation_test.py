@@ -56,9 +56,8 @@ class TestMatrixExponentiation(unittest.TestCase):
         """Test matrix to larger power"""
         A = [[1, 1], [1, 0]]
         A_5 = matrix_power(A, 5)
-        # Verify by manual calculation or known result
-        self.assertEqual(len(A_5), 2)
-        self.assertEqual(len(A_5[0]), 2)
+        # [[1,1],[1,0]]^5 = [[F(6), F(5)], [F(5), F(4)]]
+        self.assertEqual(A_5, [[8, 5], [5, 3]])
     
     def test_matrix_power_iterative(self):
         """Test iterative matrix power"""
@@ -71,11 +70,10 @@ class TestMatrixExponentiation(unittest.TestCase):
         """Test matrix power with modulus"""
         A = [[1, 1], [1, 0]]
         result = matrix_power(A, 10, mod=1000)
-        # Result should be valid matrix with values < 1000
-        for row in result:
-            for val in row:
-                self.assertLess(val, 1000)
-                self.assertGreaterEqual(val, 0)
+        # [[1,1],[1,0]]^10 = [[89, 55], [55, 34]]
+        self.assertEqual(result, [[89, 55], [55, 34]])
+        # 11th power: [[144, 89], [89, 55]] mod 100
+        self.assertEqual(matrix_power(A, 11, mod=100), [[44, 89], [89, 55]])
     
     def test_fibonacci_matrix(self):
         """Test Fibonacci using matrix exponentiation"""
@@ -99,9 +97,40 @@ class TestMatrixExponentiation(unittest.TestCase):
     def test_fibonacci_matrix_with_mod(self):
         """Test Fibonacci with modulus"""
         fib_100 = fibonacci_matrix(100, mod=1000)
-        # Should be F(100) mod 1000
-        self.assertLess(fib_100, 1000)
-        self.assertGreaterEqual(fib_100, 0)
+        # F(100) = 354224848179261915075 ends in ...521
+        self.assertEqual(fib_100, 354224848179261915075 % 1000)
+        self.assertEqual(fibonacci_matrix(100, mod=10**9 + 7), 354224848179261915075 % (10**9 + 7))
+
+    def test_negative_entries_reduce_into_range(self):
+        """Negative entries give a result in [0, mod)"""
+        self.assertEqual(matrix_power([[-1]], 3, mod=5), [[4]])
+        self.assertEqual(matrix_power_iterative([[-1]], 3, mod=5), [[4]])
+
+    def test_large_modulus_exact(self):
+        """Moduli above 2^32 need exact big-integer products"""
+        mod = 5000000011
+        result = matrix_power([[4000000000, 1], [1, 0]], 2, mod)
+        self.assertEqual(result[0][0], (4000000000 ** 2 + 1) % mod)
+
+    def test_negative_exponent_rejected(self):
+        with self.assertRaises(ValueError):
+            matrix_power([[1, 1], [1, 0]], -1)
+        with self.assertRaises(ValueError):
+            matrix_power_iterative([[1, 1], [1, 0]], -1)
+        with self.assertRaises(ValueError):
+            fibonacci_matrix(-1)
+
+    def test_modulus_one_gives_zero_matrix(self):
+        """Everything is 0 modulo 1, including A^0"""
+        A = [[1, 1], [1, 0]]
+        self.assertEqual(matrix_power(A, 0, mod=1), [[0, 0], [0, 0]])
+        self.assertEqual(matrix_power_iterative(A, 0, mod=1), [[0, 0], [0, 0]])
+        self.assertEqual(matrix_power(A, 5, mod=1), [[0, 0], [0, 0]])
+
+    def test_zero_modulus_means_no_modulus(self):
+        A = [[1, 1], [1, 0]]
+        self.assertEqual(matrix_power(A, 5, mod=0), [[8, 5], [5, 3]])
+        self.assertEqual(matrix_power_iterative(A, 5, mod=0), [[8, 5], [5, 3]])
 
 
 if __name__ == '__main__':

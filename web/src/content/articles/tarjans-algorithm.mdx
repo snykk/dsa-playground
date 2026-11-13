@@ -1,0 +1,198 @@
+---
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm
+title: Tarjan's SCC Algorithm
+lead: Tarjan's algorithm finds every strongly connected component of a directed graph in a single depth-first search. It tags each vertex with a discovery time and a low-link value, and a vertex whose low-link equals its discovery time is the root of a component.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V + E)
+    hint: one DFS pass
+  - label: Extra space
+    value: O(V)
+    hint: indices, low-links, the component stack
+  - label: Passes
+    value: '1'
+    hint: no reversed graph needed
+  - label: Output order
+    value: Sink SCC first
+    hint: reverse topological order of the condensation
+properties:
+  - { label: Single pass, value: true }
+  - { label: Needs the reversed graph, value: false }
+  - { label: Iterative DFS, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosaraju's_Algorithm
+  - Algorithms/Graph_Algorithms/Advanced_Graph/2-SAT
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+---
+
+## How Tarjan's algorithm works
+
+A DFS tree splits a directed graph into tree edges and other edges. A strongly connected component (SCC) is always a connected piece of the DFS tree: it has a topmost vertex, its **root**, and every other vertex of the component is a descendant of the root. Tarjan's algorithm finds the roots.
+
+Each vertex `v` gets two numbers:
+
+- `disc[v]` (the repository calls it `indices`): the order in which the DFS discovered `v`.
+- `low[v]`: the smallest discovery time reachable from `v` by following tree edges down and at most one edge back **to a vertex still on the stack**.
+
+<Steps>
+  <Step title="Discover a vertex">
+    Give it the next discovery number, set `low = disc`, push it on the component stack and mark it as on the stack.
+  </Step>
+  <Step title="Look at each outgoing edge">
+    If the neighbour is new, descend into it, and when it returns set `low[v] = min(low[v], low[w])`. If the neighbour is already on the stack, set `low[v] = min(low[v], disc[w])`. If the neighbour was discovered but is no longer on the stack, ignore the edge.
+  </Step>
+  <Step title="Finish a vertex">
+    If `low[v] == disc[v]`, `v` is the root of a component: pop the stack down to `v`. Everything popped is one SCC.
+  </Step>
+</Steps>
+
+<Callout title="Why edges to finished vertices are ignored">
+A vertex that is discovered but no longer on the stack already belongs to a completed component. It cannot reach the current vertex, otherwise it would have been in the same component. Using its discovery time for `low` would wrongly glue two components together. Only vertices still on the stack can still lead back up.
+</Callout>
+
+## See it in action
+
+Press play, or step through one edge at a time. Each step examines one edge: a tree edge descends into a new vertex, an edge to a vertex on the stack lowers the low-link, and an edge to a finished vertex is skipped. When a component is complete, its vertices are marked as done. The legend under the picture explains the colours; type your own edges or press Random.
+
+<ArticleViz ids={['tarjan-scc']} />
+
+## A worked example
+
+Graph with edges `0->1, 1->2, 2->0, 2->3, 3->4, 4->3, 4->5` (the same graph as in the Kosaraju article). The badges show `disc / low` at the end:
+
+<GraphDiagram
+  edges="0->1, 1->2, 2->0, 2->3, 3->4, 4->3, 4->5"
+  positions={{ 0: [6, 50], 1: [22, 12], 2: [38, 50], 3: [58, 50], 4: [76, 12], 5: [94, 50] }}
+  tones={{ 0: 'l', 1: 'l', 2: 'l', 3: 'r', 4: 'r', 5: 'f' }}
+  badges={{ 0: '0 / 0', 1: '1 / 0', 2: '2 / 0', 3: '3 / 3', 4: '4 / 3', 5: '5 / 5' }}
+  legend={{ l: 'SCC {0, 1, 2}, root 0', r: 'SCC {3, 4}, root 3', f: 'SCC {5}, root 5' }}
+  caption="disc / low for each vertex. Vertices whose two numbers are equal (0, 3, 5) are the roots."
+  label="Directed graph with discovery and low-link values"
+/>
+
+<DataTable
+  columns={['Event', 'disc / low', 'Stack (bottom to top)', 'Output']}
+  rows={[
+    ['visit 0, 1, 2', '0/0, 1/1, 2/2', '0 1 2', ''],
+    ['edge 2 -> 0: 0 is on the stack', 'low[2] = 0', '0 1 2', ''],
+    ['visit 3, then 4', '3/3, 4/4', '0 1 2 3 4', ''],
+    ['edge 4 -> 3: 3 is on the stack', 'low[4] = 3', '0 1 2 3 4', ''],
+    ['visit 5; low = disc, so 5 is a root', '5/5', '0 1 2 3 4 5', '[5]'],
+    ['4 finishes: low 3 != disc 4, stays', 'low[4] = 3', '0 1 2 3 4', ''],
+    ['3 finishes: low 3 = disc 3, pop to 3', 'low[3] = 3', '0 1 2', '[4, 3]'],
+    ['2 and 1 finish, low-link 0 flows up', 'low[2] = low[1] = 0', '0 1 2', ''],
+    ['0 finishes: low 0 = disc 0, pop to 0', 'low[0] = 0', '(empty)', '[2, 1, 0]'],
+  ]}
+/>
+
+The Python code returns `[[5], [4, 3], [2, 1, 0]]`. The sink component comes first, so the list is in reverse topological order of the condensation. Inside a component the vertices appear in stack pop order.
+
+## Pseudocode
+
+```text
+tarjan(graph):
+    index = 0; stack = []; sccs = []
+    for each vertex s in graph:
+        if s has no index: strongconnect(s)
+    return sccs
+
+strongconnect(v):
+    disc[v] = low[v] = index++
+    push v on stack; onStack[v] = true
+    for each edge v -> w:
+        if w has no index:
+            strongconnect(w)
+            low[v] = min(low[v], low[w])
+        else if onStack[w]:
+            low[v] = min(low[v], disc[w])
+    if low[v] == disc[v]:
+        pop the stack down to v; the popped vertices are one SCC
+```
+
+## Implementation
+
+Python and C++ replace the recursion of `strongconnect` with an explicit stack of (vertex, neighbour iterator or index) pairs, so a path or cycle of a million vertices does not overflow the call stack. Go keeps the recursive closure, which is safe because goroutine stacks grow. Any integer can be a vertex id, and a vertex that appears only as a neighbour is handled in all languages. An empty graph returns no components.
+
+Python also provides `tarjan_scc_count`, `is_strongly_connected`, and two extras, `tarjan_bridges` and `tarjan_articulation_points`, which work on undirected adjacency lists. Those two use a recursive DFS, so on a deep graph use the dedicated Tarjan Bridges and Articulation Points topic instead. C++ and Go only have the SCC functions.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(V + E)', when: 'Every vertex is discovered and pushed once; every edge is looked at once.' },
+    { case: 'Space', time: 'O(V)', space: 'O(V)', when: 'Two numbers per vertex, the component stack and the DFS work stack. No reversed graph.' },
+  ]}
+/>
+
+Each vertex is pushed on the component stack once and popped once, so popping components costs O(V) in total.
+
+## Tarjan vs Kosaraju
+
+<DataTable
+  columns={['', 'Tarjan', 'Kosaraju']}
+  rows={[
+    ['DFS passes', '1', '2'],
+    ['Extra memory', 'O(V): numbers and stack', 'O(V + E): reversed graph'],
+    ['Components emitted', 'sinks first', 'sources first'],
+    ['2-SAT test', '`comp[x] < comp[~x]`', '`comp[x] > comp[~x]`'],
+    ['Core idea', 'low-link values', 'finish order on the reverse graph'],
+  ]}
+/>
+
+The two algorithms always find the same components. Tarjan is a little faster and lighter; Kosaraju is easier to prove.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'One DFS pass and no reversed graph.',
+    'Components come out in reverse topological order, which 2-SAT relies on.',
+    'The same low-link idea gives bridges and articulation points.',
+  ]}
+  cons={[
+    'The low-link rule (only vertices on the stack count) is easy to get wrong.',
+    'Harder to explain and to prove than Kosaraju.',
+    'The recursive form overflows the stack on deep graphs unless it is made iterative.',
+  ]}
+/>
+
+## Applications
+
+- **Condensation DAG.** Contract each component, then use topological order or DP on the DAG.
+- **2-SAT.** The components of the implication graph give satisfiability and an assignment.
+- **Cycle detection in directed graphs.** A component with more than one vertex, or a vertex with a self-loop, has a cycle.
+- **Strong connectivity checks.** The graph is strongly connected when there is exactly one component.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using `disc` of finished vertices.** The `low` update for a non-tree edge applies only if the target is on the stack.
+- **Propagating `disc` instead of `low`.** After a child returns, take `min(low[v], low[w])`, not `disc[w]`.
+- **Recursion depth.** A recursive version crashes in C++ on a 100000-vertex cycle and fails in Python at about 1000 vertices. Use an explicit stack.
+- **Assuming vertex ids are `0..n-1`.** Use hash maps, or remap the ids first.
+- **Using the Python bridge functions on big graphs.** They are recursive; prefer the dedicated bridges topic.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What does low-link mean?">
+    It is the smallest discovery time that `v` can reach through its DFS subtree plus one edge into a vertex that is still on the stack. If it is smaller than `disc[v]`, the vertex can reach something older, so it belongs to an earlier root's component.
+  </FaqItem>
+  <FaqItem question="Why do components come out in reverse topological order?">
+    A component is emitted only when its root finishes, and every component reachable from it has already finished and been emitted. So sinks come before the components that point to them.
+  </FaqItem>
+  <FaqItem question="Is Tarjan's algorithm the same as the bridges algorithm?">
+    They share the discovery time and low-link idea, but they are different programs. Bridges work on undirected graphs and compare `low[child] > disc[parent]`; SCC works on directed graphs and uses a stack.
+  </FaqItem>
+  <FaqItem question="Which should I choose for contests?">
+    Tarjan, usually, because it needs one pass and little memory. Choose Kosaraju if you want simpler code to reason about or if you need the components in topological order without reversing the list.
+  </FaqItem>
+</Faq>

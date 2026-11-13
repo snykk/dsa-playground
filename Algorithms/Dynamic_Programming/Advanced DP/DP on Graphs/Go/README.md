@@ -1,14 +1,22 @@
-# DP on Graphs (Go)
+# DP on Graphs -- Go Implementation
 
-Go scaffold for Dynamic Programming on Graphs, a technique that combines graph traversal with memoized subproblem solutions on DAGs and other graph structures. The full implementation is in the Python directory.
+A placeholder. This folder does not implement DP on graphs yet; the working code is the Python version.
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `main.go` | Placeholder structure (see Python for full implementation) |
-| `main_test.go` | Basic structure test |
-| `go.mod` | Go module definition (`graphdp`) |
+| `main.go` | `package main` with comments only, no functions |
+| `main_test.go` | One test that only logs a message; it asserts nothing |
+
+## API
+
+None. There are no functions or types.
+
+## Go-Specific Notes
+
+- A real port would use `[][]int` for the adjacency list, a state slice (unvisited, in progress, done) and return an error for a cycle. Module `graphdp`, Go 1.21.
+- Because the test cannot fail, passing it proves nothing about graph DP.
 
 ## How to Run
 
@@ -16,28 +24,7 @@ Go scaffold for Dynamic Programming on Graphs, a technique that combines graph t
 go test ./...
 ```
 
-## Key Concepts
+## Key Takeaways
 
-| Concept | Description | Typical Complexity |
-|---------|-------------|-------------------|
-| Longest path in DAG | Find the longest path from a source using DFS with memoization | O(V + E) |
-| Topological order DP | Process nodes in topological order to propagate DP values | O(V + E) |
-| State: `dp[node]` | Optimal value (e.g., longest path) reachable from `node` | -- |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(V + E) where V = vertices, E = edges |
-| Space | O(V) for the DP memo table |
-
-## Notes
-
-- DP on graphs requires a DAG (directed acyclic graph) or equivalent structure to avoid cycles.
-- Typically implemented via DFS with memoization or iterating in topological order.
-- The Python implementation contains a complete longest-path-in-DAG solver using recursive DFS.
-- See `../Python/graph_dp.py` for the full working implementation.
-
----
-
-_Last Updated: April 2026_
+- Treat this folder as a stub; see `../Python/graph_dp.py` for the algorithm.
+- The expected cost for a port is O(V + E) time and O(V) space.

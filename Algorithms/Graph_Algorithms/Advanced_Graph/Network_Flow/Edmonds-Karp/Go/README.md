@@ -1,72 +1,35 @@
-# Edmonds-Karp Algorithm (Go)
+# Edmonds-Karp Algorithm -- Go Implementation
 
-**Edmonds-Karp Algorithm** finds the maximum flow using BFS, guaranteeing polynomial time complexity.
+Maximum flow with BFS augmenting paths. For the idea, the trace and the complexity proof, see the topic README: [../README.md](../README.md).
 
----
+## Files
 
-## Complexity Analysis
+| File | Purpose |
+|------|---------|
+| `main.go` | `edmondsKarp(graph, source, sink)` and a demo `main` |
+| `main_test.go` | 8 tests: the classic network, unreachable sink, key-less sink, same source and sink, anti-parallel edges, zero capacity, the 1000/1 diamond, large capacities |
+| `go.mod` | Module definition (`go 1.21`) |
 
-| Operation | Time | Space |
-|-----------|------|-------|
-| **Maximum Flow** | O(V × E²) | O(V + E) |
+## API
 
----
+- `edmondsKarp(graph map[int]map[int]int, source, sink int) int`: the maximum flow value. Returns 0 when `source == sink` or the sink is unreachable.
 
-## Usage
+## Go-Specific Notes
 
-```go
-graph := map[int]map[int]int{
-    0: {1: 16, 2: 13},
-    1: {2: 10, 3: 12},
-    2: {1: 4, 4: 14},
-    3: {2: 9, 5: 20},
-    4: {3: 7, 5: 4},
-}
+- **64-bit `int`.** Two paths of `2147483647` add up correctly on 64-bit platforms.
+- **Map iteration order is random.** BFS may take a different shortest path from one run to the next; the flow value does not change.
+- **Queue.** The BFS queue is `container/list`.
+- **Residual graph.** It is a fresh `map[int]map[int]int`, so the input graph is never modified.
 
-maxFlow := edmondsKarp(graph, 0, 5)
-```
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    graph := map[int]map[int]int{
-        0: {1: 16, 2: 13},
-        1: {2: 10, 3: 12},
-        2: {1: 4, 4: 14},
-        3: {2: 9, 5: 20},
-        4: {3: 7, 5: 4},
-    }
-    
-    maxFlow := edmondsKarp(graph, 0, 5)
-    fmt.Printf("Maximum flow: %d\n", maxFlow)  // 23
-}
-```
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test ./...
+go run main.go      # demo: prints "Maximum flow: 23"
 ```
 
-## References
+## Key Takeaways
 
-- Edmonds, J., & Karp, R. M. (1972). "Theoretical improvements in algorithmic efficiency"
-- "Introduction to Algorithms" by CLRS (Chapter 26)
-
----
-
-_Last Updated: December 2025_
-
+1. Reverse edges with capacity 0 are part of the residual graph from the start.
+2. The result does not depend on which shortest path BFS picks.
+3. Only the value is returned.

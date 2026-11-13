@@ -1,60 +1,34 @@
-# Mo's Algorithm - Go
+# Mo's Algorithm -- Go Implementation
 
-This folder contains a Go implementation of **Mo's Algorithm** for efficient offline range queries.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `main.go` | the `MoSAlgorithm` type, `countDistinctInRanges` and a demo `main()` |
+| `main_test.go` | tests |
+| `go.mod` | module `mos_algorithm` |
 
-## Concept
+## API
 
-Mo's Algorithm is a square root decomposition technique that efficiently answers multiple range queries offline. It sorts queries by block and processes them in an optimized order.
+| Function | Description |
+|----------|-------------|
+| `NewMoSAlgorithm(arr []int) *MoSAlgorithm` | stores the slice; block size is at least 1 |
+| `processQueries(queries [][]int) []int` | distinct counts for 0-indexed inclusive `{l, r}` pairs, in input order |
+| `countDistinctInRanges(arr, queries)` | convenience wrapper |
 
-**Key Features:**
-- Square root decomposition
-- Offline query processing
-- Efficient for multiple range queries
-- O((N + Q) × √N) complexity
+## Go-Specific Notes
 
----
+- Everything but `NewMoSAlgorithm` is unexported (the package is `main`), so it is used from the tests and the demo only.
+- The slice is stored, not copied; it is never modified.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `countDistinctInRanges(arr, queries)` | Count distinct elements in ranges | O((N+Q)√N) |
-| `MoSAlgorithm.processQueries(queries)` | Process queries using Mo's algorithm | O((N+Q)√N) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Process Queries | O((N+Q)√N) | O(N) |
-| Query Answer | O(1) amortized | O(1) |
-
----
-
-## Usage
-
-```go
-arr := []int{1, 1, 2, 1, 3, 4, 3, 3, 4}
-queries := [][]int{{0, 4}, {1, 3}, {2, 6}, {0, 8}}
-
-results := countDistinctInRanges(arr, queries)
-for i, q := range queries {
-    fmt.Printf("Range [%d, %d]: %d distinct\n", q[0], q[1], results[i])
-}
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-go test
+go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Same algorithm as Python and C++.
+- Queries are `[]int{l, r}`, not a struct.

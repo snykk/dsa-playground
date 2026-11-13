@@ -1,76 +1,38 @@
-# Edmonds-Karp Algorithm (C++)
+# Edmonds-Karp Algorithm -- C++ Implementation
 
-**Edmonds-Karp Algorithm** finds the maximum flow using BFS, guaranteeing polynomial time complexity.
+Maximum flow with BFS augmenting paths. For the idea, the trace and the complexity proof, see the topic README: [../README.md](../README.md).
 
----
+## Files
 
-## Complexity Analysis
+| File | Purpose |
+|------|---------|
+| `edmonds_karp.cpp` | `edmondsKarp(graph, source, sink)` and a demo `main` (compiled out when `IS_TEST_BUILD` is defined) |
+| `edmonds_karp_test.cpp` | 8 assert-based tests; it `#include`s `edmonds_karp.cpp` |
 
-| Operation | Time | Space |
-|-----------|------|-------|
-| **Maximum Flow** | O(V × E²) | O(V + E) |
+## API
 
----
+- `long long edmondsKarp(const std::unordered_map<int, std::unordered_map<int, int>>& graph, int source, int sink)`: the maximum flow value. `graph[u][v]` is the capacity of `u -> v`. Returns 0 when `source == sink` or the sink is unreachable.
 
-## Usage
+## C++-Specific Notes
 
-```cpp
-#include "edmonds_karp.cpp"
+- **Overflow.** Capacities are `int`, but the residual graph and the total are `long long`, so adding several `INT_MAX` paths is safe (a regression test covers two such paths).
+- **Hash maps.** Vertex ids can be any `int`, including negative ones and ones that are not map keys. Neighbour order is unspecified, so the chosen shortest path may differ from Python, but the flow value is the same.
+- **Test build.** The test `#include`s the `.cpp`, so build only the test file, and define `IS_TEST_BUILD` to drop the demo `main`.
 
-std::unordered_map<int, std::unordered_map<int, int>> graph = {
-    {0, {{1, 16}, {2, 13}}},
-    {1, {{2, 10}, {3, 12}}},
-    {2, {{1, 4}, {4, 14}}},
-    {3, {{2, 9}, {5, 20}}},
-    {4, {{3, 7}, {5, 4}}}
-};
-
-int maxFlow = edmondsKarp(graph, 0, 5);
-```
-
----
-
-## Usage
-
-```cpp
-#include <unordered_map>
-#include <iostream>
-#include "edmonds_karp.cpp"
-
-int main() {
-    std::unordered_map<int, std::unordered_map<int, int>> graph = {
-        {0, {{1, 16}, {2, 13}}},
-        {1, {{2, 10}, {3, 12}}},
-        {2, {{1, 4}, {4, 14}}},
-        {3, {{2, 9}, {5, 20}}},
-        {4, {{3, 7}, {5, 4}}}
-    };
-    
-    int maxFlow = edmondsKarp(graph, 0, 5);
-    std::cout << "Maximum flow: " << maxFlow << "\n";  // 23
-    
-    return 0;
-}
-```
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Compile and run tests
-g++ -std=c++11 edmonds_karp_test.cpp -o test && ./test
+# tests
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD edmonds_karp_test.cpp -o edmonds_karp_test
+./edmonds_karp_test
 
-# Or compile with main example (uncomment main in edmonds_karp.cpp)
-g++ -std=c++11 edmonds_karp.cpp -o example && ./example
+# demo (prints "Maximum flow: 23")
+g++ -std=c++17 -O2 -Wall edmonds_karp.cpp -o edmonds_karp_demo
+./edmonds_karp_demo
 ```
 
-## References
+## Key Takeaways
 
-- Edmonds, J., & Karp, R. M. (1972). "Theoretical improvements in algorithmic efficiency"
-- "Introduction to Algorithms" by CLRS (Chapter 26)
-
----
-
-_Last Updated: December 2025_
-
+1. Use a wider type for flow totals than for single capacities.
+2. Include reverse edges of capacity 0 in the residual graph.
+3. Build the test file alone: compiling both `.cpp` files together defines every symbol twice.

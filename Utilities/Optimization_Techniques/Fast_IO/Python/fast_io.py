@@ -55,9 +55,15 @@ def fast_print_matrix(matrix: List[List], sep=' ', end='\n'):
 # ==================== Buffered I/O ====================
 
 class BufferedInput:
-    """Buffered input for very large inputs."""
+    """Buffered input for very large inputs.
+
+    Reads the whole of stdin up front and splits it into whitespace-separated
+    tokens. next() raises IndexError once the tokens run out.
+    """
     
     def __init__(self, buffer_size: int = 1 << 20):
+        # buffer_size is accepted for API compatibility but not used: the whole
+        # stream is read with one stdin.read() call.
         self.buffer = sys.stdin.read().split()
         self.index = 0
     
@@ -80,7 +86,7 @@ class BufferedInput:
         return [self.next_int() for _ in range(n)]
     
     def next_line(self) -> str:
-        """Get tokens until newline (not recommended with buffered input)."""
+        """Return the next token (a token, not a whole line: line breaks are lost)."""
         return self.next()
 
 

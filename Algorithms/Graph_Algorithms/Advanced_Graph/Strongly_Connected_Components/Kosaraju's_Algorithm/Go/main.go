@@ -106,4 +106,3 @@ func main() {
 	fmt.Printf("\nStrongly connected graph: %v\n", graphSC)
 	fmt.Printf("Is strongly connected: %v\n", IsStronglyConnected(graphSC))
 }
-

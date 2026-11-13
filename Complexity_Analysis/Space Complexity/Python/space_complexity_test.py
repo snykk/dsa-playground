@@ -27,7 +27,7 @@ class TestSpaceComplexity(unittest.TestCase):
         self.assertEqual(len(result), 5)
     
     def test_quadratic_space(self):
-        """Test O(n²) quadratic space"""
+        """Test O(n^2) quadratic space"""
         matrix = quadratic_space_example(3)
         self.assertEqual(len(matrix), 3)
         self.assertEqual(len(matrix[0]), 3)

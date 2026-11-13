@@ -1,114 +1,44 @@
-# Space Complexity (Python)
+# Space Complexity -- Python Implementation
 
-**Space Complexity** measures the amount of memory space an algorithm uses relative to the input size.
+## Files
 
----
+- `space_complexity.py`: seven example functions and `demonstrate_space_complexity`.
+- `space_complexity_test.py`: unit tests for every example.
 
-## Overview
+## API
 
-Space complexity describes how memory usage grows with input size. It includes:
-1. **Auxiliary space**: Extra space used by the algorithm
-2. **Input space**: Space used by the input itself (usually not counted)
-
----
-
-## Common Space Complexities
-
-| Notation | Description | Example |
-|----------|-------------|---------|
-| **O(1)** | Constant space | In-place algorithms, few variables |
-| **O(log n)** | Logarithmic space | Balanced recursive algorithms |
-| **O(n)** | Linear space | Arrays, lists, recursion stack |
-| **O(n log n)** | Linearithmic space | Some divide-and-conquer algorithms |
-| **O(n²)** | Quadratic space | 2D matrices, nested data structures |
-
----
-
-## Examples
-
-### O(1) - Constant Space
-```python
-def constant_space_example(n):
-    total = 0
-    for i in range(1, n + 1):
-        total += i
-    return total
-# Only uses a few variables
-```
-
-### O(n) - Linear Space
-```python
-def linear_space_example(n):
-    result = []
-    for i in range(1, n + 1):
-        result.append(i)
-    return result
-# Creates a list of size n
-```
-
-### O(n²) - Quadratic Space
-```python
-def quadratic_space_example(n):
-    matrix = []
-    for i in range(n):
-        row = [0] * n
-        matrix.append(row)
-    return matrix
-# Creates an n×n matrix
-```
-
-### O(log n) - Logarithmic Space
-```python
-def logarithmic_space_example(n):
-    if n <= 1:
-        return n
-    return logarithmic_space_example(n // 2)
-# Recursion depth is log n
-```
-
----
-
-## Space vs Time Trade-offs
-
-1. **In-place algorithms**: O(1) space, may be slower
-2. **Extra space**: O(n) space, often faster
-3. **Recursion**: Uses stack space (O(depth))
-4. **Dynamic arrays**: May use extra space for resizing
-
----
-
-## Usage
+- `constant_space_example(n)`: sum of 1..n, O(1) space.
+- `linear_space_example(n)`: list `[1..n]`, O(n) space.
+- `quadratic_space_example(n)`: n by n matrix of `i * n + j`, O(n^2) space.
+- `logarithmic_space_example(n)`: two recursive calls on `n // 2`; O(n) time, O(log n) space (depth log2(n) + 1).
+- `recursive_fibonacci_naive(n)`: O(2^n) time, O(n) space.
+- `in_place_reverse(arr)`: reverses and returns the same list, O(1) space.
+- `merge_sort_space(arr)`: returns a new sorted list, O(n) auxiliary space.
 
 ```python
-from space_complexity import (
-    constant_space_example,
-    linear_space_example,
-    quadratic_space_example
-)
+from space_complexity import in_place_reverse, merge_sort_space
 
-python space_complexity.py
+in_place_reverse([1, 2, 3, 4, 5])           # [5, 4, 3, 2, 1]
+merge_sort_space([64, 34, 25, 12, 22, 11])  # [11, 12, 22, 25, 34, 64]
 ```
 
----
+## Python-Specific Notes
 
-## Testing
+- The default recursion limit is about 1,000 frames, so `recursive_fibonacci_naive(2000)` raises `RecursionError` long before time becomes the problem.
+- `merge_sort_space` slices lists (`arr[:mid]`), which copies. That is fine for a demo but passing indices would avoid the copies.
+- Python integers and lists have per-object overhead, so real memory is larger than the cell counts used in complexity analysis.
+
+## How to Run
 
 ```bash
-python space_complexity_test.py
+cd "Complexity_Analysis/Space Complexity/Python"
+python3 -m unittest space_complexity_test
+python3 space_complexity.py
 ```
 
----
+## Key Takeaways
 
-## Related Topics
-
-- **Time Complexity**: Runtime analysis
-- **Big-O Notation**: Upper bound analysis
-- **Amortized Analysis**: Average case analysis
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-
+- Space complexity counts auxiliary memory, including the recursion stack, not the input.
+- Count what is alive at the same time, not everything ever allocated.
+- Recursion depth `d` costs O(d) memory.
 

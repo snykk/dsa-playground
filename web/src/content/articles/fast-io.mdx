@@ -1,0 +1,177 @@
+---
+topic: Utilities/Optimization_Techniques/Fast_IO
+title: Fast I/O
+lead: Fast I/O means reading and writing in big chunks instead of one small call at a time. With about a million numbers of input, the default reading functions can dominate the running time; switching to buffered readers and one combined write often decides between passing and a time-limit error.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Core idea
+    value: Batch the work
+    hint: fewer calls, bigger buffers
+  - label: C++ first step
+    value: sync_with_stdio(false)
+    hint: plus cin.tie(nullptr)
+  - label: Python first step
+    value: sys.stdin.readline
+    hint: or read everything once
+  - label: At end of input
+    value: returns 0
+    hint: the C++ readers used to loop forever here
+    tone: warn
+properties:
+  - { label: Changes the algorithm, value: false }
+  - { label: Matters for small inputs, value: false }
+  - { label: Needs care with mixed I/O styles, value: true }
+prerequisites: []
+related:
+  - Utilities/Optimization_Techniques/Precomputation
+  - Utilities/Optimization_Techniques/Modular_Arithmetic_Tricks
+  - Utilities/Optimization_Techniques/Bitmasking
+---
+
+## When to use it
+
+- The input has hundreds of thousands of numbers or more (arrays, edges, queries), and the algorithm itself is already near-linear.
+- The output has one line per query, and there are many queries.
+- A solution is correct but gets a time-limit error even though its complexity matches the intended one.
+
+Fast I/O does not change the algorithm. For small inputs the default functions are fine, and readability matters more.
+
+## How it works
+
+Every call to a standard reading or writing function carries overhead: locking, synchronisation between streams, a possible flush, a system call. Fast I/O removes it in three ways.
+
+<Steps>
+  <Step title="Turn off needless synchronisation">
+    In C++, `ios_base::sync_with_stdio(false)` stops `cin` and `cout` from staying in step with C `stdio`. `cin.tie(nullptr)` stops `cin` from flushing `cout` before every read.
+  </Step>
+  <Step title="Read in big blocks">
+    Read a whole line, or the whole stream, into memory with a single call, then split and parse it yourself. A buffer holds data between calls, so system calls become rare.
+  </Step>
+  <Step title="Write once">
+    Collect the output in a buffer or list and write it in one call, flushing at the end. Use `'\n'` rather than `endl`, because `endl` flushes on every line.
+  </Step>
+</Steps>
+
+<Callout title="Do not mix styles after turning synchronisation off">
+After `sync_with_stdio(false)`, mixing `cin` or `cout` with `scanf`, `printf` or `getchar` can interleave data in the wrong order. Pick one family per program. The custom `getchar` readers below are an alternative to `cin`, not an addition to it.
+</Callout>
+
+## Template
+
+```text
+# C++, standard streams
+ios_base::sync_with_stdio(false); cin.tie(nullptr);
+read with cin >> x;   write with cout << x << '\n';
+
+# C++, character reader (this repository's readInt)
+c = getchar()                      # c is an int, never a char
+while c != EOF and c is not a digit: remember a '-' ; c = getchar()
+while c is a digit: x = x * 10 + (c - '0'); c = getchar()
+return sign * x                    # 0 at end of input
+
+# Python
+read_line:  sys.stdin.readline()
+read_all:   data = sys.stdin.read().split()
+write:      sys.stdout.write("\n".join(map(str, results)) + "\n")
+
+# Go
+reader = bufio.NewReader(stdin); writer = bufio.NewWriter(stdout)
+defer writer.Flush()
+```
+
+## Worked example: where readInt stops
+
+The C++ reader skips anything that is not a digit, notes a minus sign, then accumulates digits. The picture shows three calls on the input `12 -34` followed by the end of the stream.
+
+<ArrayDiagram
+  legend={{ f: 'bytes consumed by this call', m: 'end of the stream' }}
+  rows={[
+    { label: 'input bytes', values: ['1', '2', ' ', '-', '3', '4', 'EOF'], note: 'The last cell stands for the end of the stream, where `getchar` returns -1. Stored in a `char` and tested only against digits, that value never stopped the skip loop.' },
+    { label: 'readInt, call 1', values: ['1', '2', ' ', '-', '3', '4', 'EOF'], tones: 'ff.....', note: 'Reads 1 and 2, stops at the space (consumed). Returns 12.' },
+    { label: 'readInt, call 2', values: ['1', '2', ' ', '-', '3', '4', 'EOF'], tones: '...fff.', note: 'Sees `-`, remembers the sign, reads 3 and 4, then reads EOF and stops. Returns -34.' },
+    { label: 'readInt, call 3', values: ['1', '2', ' ', '-', '3', '4', 'EOF'], tones: '......m', note: 'The first byte is already EOF. The skip loop must stop here, so the result is 0. With the old `char` variable the loop never ended.' },
+  ]}
+/>
+
+## Implementation
+
+The three languages offer the same layers: single-value readers, buffered readers that load the whole input, and buffered writers.
+
+- **C++** has `fastIO`, the character readers `readInt` and `readLong`, the writers `writeInt` and `writeLong`, and two buffered classes: `FastInput` (an `fread` buffer of 1 MiB) and `FastOutput` (a 1 MiB output buffer flushed at the end). The buffers live on the heap, so the objects are small.
+- **Python** has the line readers (`fast_int`, `fast_ints`, ...), `fast_print`, `BufferedInput` / `BufferedOutput`, and `read_all_ints` / `AllInputReader` for reading everything at once.
+- **Go** has `readInt`, `readInts` and `readString` on a `bufio.Reader` (using `fmt.Fscan`), a buffered writer, and `BufferedInput`, which reads every token with a word scanner.
+
+Behaviour at the end of the stream, after the fixes:
+
+- C++ `readInt`, `readLong`, `FastInput::readInt`, `readLong` return 0 and `readString` returns `""`; they no longer loop forever.
+- `writeInt(INT_MIN)` and `writeLong(LLONG_MIN)` print the right digits; the magnitude is computed in unsigned arithmetic.
+- Go `BufferedInput` splits on words, so one line of any length works (the old line scanner returned nothing for lines over 64 KiB). `Err()` reports a read error or a bad token, and `NextInt` returns 0 for a bad token instead of hiding it.
+- Python `fast_int` raises `ValueError` at the end of the input, because the empty line is not an integer.
+
+<TopicCode topic="Utilities/Optimization_Techniques/Fast_IO" />
+
+## Complexity
+
+Parsing and printing are linear in the size of the data in every method; the methods differ only in the constant factor. What changes is the number of expensive operations.
+
+<DataTable
+  columns={['Method', 'Calls into the system', 'Notes']}
+  rows={[
+    ['`cin` / `cout` with default settings', 'many, with synchronisation', 'simplest; fine for small inputs'],
+    ['`cin` / `cout` after `sync_with_stdio(false)`', 'fewer', 'one line of setup; usually enough'],
+    ['`getchar` / `putchar` readers', 'one library call per character', 'faster parsing, still locks per call'],
+    ['`fread` into your own buffer (`FastInput`)', 'one per 1 MiB', 'the least overhead; more code'],
+    ['Python `sys.stdin.read()`', 'one', 'needs memory for the whole input'],
+  ]}
+/>
+
+This repository gives no timing table, because the speed-up depends on the machine, compiler and input. Measure with your own data before optimising further.
+
+## Typical situations
+
+<DataTable
+  columns={['Situation', 'Idea']}
+  rows={[
+    ['Up to 10^6 numbers in C++', "`sync_with_stdio(false)`, `cin.tie(nullptr)` and newline characters instead of `endl`"],
+    ['More than that, or a tight limit in C++', '`readInt` on `getchar`, or `FastInput`'],
+    ['Many test cases in Python', 'read all tokens once, then walk an index'],
+    ['One output line per query', 'collect lines, join, write once'],
+    ['Interactive problems', 'do not buffer reads or writes; flush after every answer'],
+  ]}
+/>
+
+## Variants
+
+- **Whole-input readers** (`sys.stdin.read()`, `FastInput`): fastest, but unusable for interactive problems, which need to answer before the rest of the input exists.
+- **Line readers** (`sys.stdin.readline`): good when the input is naturally line-structured.
+- **Token scanners** (Go `bufio.Scanner` with `ScanWords`): easy; set `Buffer` if a single token can be large.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Storing `getchar()` in a `char`.** The value EOF (-1) is then never recognised and a reading loop never ends. Use an `int`.
+- **Mixing `cin` and `scanf`** after turning synchronisation off.
+- **`endl` in a loop.** It flushes every time; use `'\n'`.
+- **Forgetting to flush.** A `FastOutput` flushes in its destructor, a Go `bufio.Writer` needs `defer writer.Flush()`, and a Python buffer needs `flush()`.
+- **Negating the minimum integer.** `-x` for `INT_MIN` is undefined behaviour; convert to unsigned first.
+- **Line scanners with long lines.** Go's default `bufio.Scanner` line limit is 64 KiB; use `ScanWords` or raise the limit.
+- **Buffering an interactive problem.** The judge waits for your answer before it sends more.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What does sync_with_stdio(false) actually do?">
+    By default the C++ streams are kept in step with C `stdio`, so `cin` and `scanf` can be mixed. Turning that off lets the streams use their own buffers, which is faster, at the price of not mixing the two families.
+  </FaqItem>
+  <FaqItem question="Is cout.tie(nullptr) needed?">
+    No. `cin` is tied to `cout` and flushes it before each read, so `cin.tie(nullptr)` matters. `cout` is not tied to anything, so `cout.tie(nullptr)` does nothing; it is harmless and common.
+  </FaqItem>
+  <FaqItem question="When should I use FastInput instead of cin?">
+    When the input has millions of numbers and the time limit is tight. For ordinary limits, `sync_with_stdio(false)` is enough and far simpler.
+  </FaqItem>
+  <FaqItem question="What happens when the readers hit the end of the input?">
+    The C++ readers return 0 (or an empty string), the Go `BufferedInput` returns an empty token or 0 and records an error, and Python raises an exception from `int()`. Check how many values to read from the input header instead of reading until the end.
+  </FaqItem>
+</Faq>

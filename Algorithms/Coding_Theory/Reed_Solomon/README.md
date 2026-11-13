@@ -1,10 +1,8 @@
 # Reed-Solomon Codes
 
-> Given a message of `k` bytes, Reed-Solomon produces a codeword of `n` bytes (`n > k`) that can be **recovered exactly** even if up to `t = ⌊(n - k) / 2⌋` bytes are corrupted **anywhere** in the codeword, without knowing in advance where the corruption is. If the bad positions *are* known (erasures), it can repair up to `n - k` of them. This is the math behind QR codes, CDs/DVDs, RAID-6, Voyager 2's communications back to Earth, and most modern storage.
+Given a message of `k` bytes, Reed-Solomon produces a codeword of `n` bytes (`n > k`) that can be **recovered exactly** even if up to `t = floor((n - k) / 2)` bytes are corrupted **anywhere** in the codeword, without knowing in advance where the corruption is. If the bad positions *are* known (erasures), it can repair up to `n - k` of them. This is the math behind QR codes, CDs/DVDs, RAID-6, Voyager 2's communications back to Earth, and most modern storage.
 
----
-
-## 🎯 Intuition
+## Intuition
 
 Think of a `k`-byte message as the coefficients of a polynomial of degree `k − 1`. A polynomial of degree `k − 1` is uniquely determined by any `k` points on its graph. So if you send `n` evaluation points (instead of just the `k` coefficients), the receiver can reconstruct the polynomial as long as they can identify **any** `k` of them as correct, even if the others have been tampered with.
 
@@ -21,9 +19,7 @@ In practice we use **systematic encoding**: the message appears verbatim inside 
 
 > **Layout convention used in this repo:** polynomials are stored low-degree-first, so the codeword is `[parity_0 .. parity_(n-k-1) | msg_0 .. msg_(k-1)]` and the message is the **last** `k` bytes. Many references print polynomials high-degree-first and therefore show the message first. It is the same codeword, read from the other end, but erasure positions must be given in the layout your encoder used.
 
----
-
-## 🧮 The Algorithm in Four Steps
+## How It Works: The Algorithm in Four Steps
 
 ### 1. Build the generator polynomial g(x), once per (n, k)
 
@@ -31,7 +27,7 @@ In practice we use **systematic encoding**: the message appears verbatim inside 
 g(x) = (x - alpha^fcr) (x - alpha^(fcr+1)) ... (x - alpha^(fcr+n-k-1))
 ```
 
-`alpha` is a **primitive element** of GF(2⁸): its powers `alpha^0 .. alpha^254` hit every nonzero byte. Which byte that is depends on the field polynomial. Under the Rijndael polynomial 0x11B used in this repo, `alpha = 3`; the byte `2` has order 51 there and is **not** primitive. Under 0x11D (QR codes, many storage systems), `alpha = 2` is primitive. `fcr` is the **first consecutive root**, usually 0 (see [The fcr Parameter](#-the-fcr-parameter)). `g(x)` has degree `n − k`, and every codeword is a multiple of it.
+`alpha` is a **primitive element** of GF(2⁸): its powers `alpha^0 .. alpha^254` hit every nonzero byte. Which byte that is depends on the field polynomial. Under the Rijndael polynomial 0x11B used in this repo, `alpha = 3`; the byte `2` has order 51 there and is **not** primitive. Under 0x11D (QR codes, many storage systems), `alpha = 2` is primitive. `fcr` is the **first consecutive root**, usually 0 (see [The fcr Parameter](#the-fcr-parameter)). `g(x)` has degree `n − k`, and every codeword is a multiple of it.
 
 ### 2. Encode (k bytes → n bytes)
 
@@ -63,9 +59,7 @@ The syndromes form a linear recurrence whose minimal connection polynomial is th
 
 XOR the corrections into the received word, then re-check that all syndromes are now zero.
 
----
-
-## 📊 Visual: The Decoding Pipeline
+## Visual: The Decoding Pipeline
 
 ```
  received r(x)
@@ -91,9 +85,7 @@ XOR the corrections into the received word, then re-check that all syndromes are
 
 The expensive boxes are the syndromes, Berlekamp-Massey, and Chien search; each is O(n · (n − k)) at worst.
 
----
-
-## 🚶 Step-by-Step Trace: RS(7, 5) With Real Numbers
+## Step-by-Step Trace: RS(7, 5) With Real Numbers
 
 These are the actual values the implementations here produce (GF(2⁸) over 0x11B, `alpha = 3`, `fcr = 0`). RS(7, 5) has 2 parity bytes, so `t = 1`.
 
@@ -126,9 +118,7 @@ received [87, 95, 0, 3, 5, 0, 11]          (bytes 2 and 5 wiped)
 
 Real systems use larger `(n, k)`. RS(255, 223) is the classic satellite code that tolerates 16 byte errors per 255-byte block.
 
----
-
-## 🩹 Errors + Erasures
+## Errors + Erasures
 
 An **erasure** is a byte whose *position* is known to be bad: a sector the drive flagged as unreadable, a RAID disk that died, a packet that never arrived. Only its *value* is unknown.
 
@@ -146,9 +136,7 @@ The decoder uses the extra knowledge like this:
 
 Two practical consequences. First, flagging a byte that turns out to be fine is safe, but it still spends one parity byte. Second, RAID-6 is the pure-erasure case: a failed disk is a known position, so 2 parity disks rebuild any 2 failed disks.
 
----
-
-## 🔁 The fcr Parameter
+## The fcr Parameter
 
 `fcr` (first consecutive root) chooses *which* consecutive powers of `alpha` are the roots of `g(x)`: `alpha^fcr .. alpha^(fcr+n-k-1)`. The error-correcting power is the same for every choice, but the codes are different. A codeword of one is generally not a codeword of another.
 
@@ -166,9 +154,7 @@ Two places in the decoder must honor it:
 
 Get either wrong and decoding fails: a perfectly clean `fcr = 1` RS(15, 11) codeword fed to an `fcr = 0` decoder shows syndromes `[190, 0, 0, 0]` and raises `DecodeError`.
 
----
-
-## ⏱️ Complexity
+## Complexity
 
 | Phase | Time | Why |
 |-------|------|-----|
@@ -183,14 +169,12 @@ Get either wrong and decoding fails: a perfectly clean `fcr = 1` RS(15, 11) code
 
 How fast is that in practice? This educational Python version decodes an RS(255, 223) block with 16 errors in about 5 ms (measured on an Apple Silicon laptop). Table-driven C, SIMD libraries, and hardware decoders are orders of magnitude faster, which is what lets storage and satellite links run Reed-Solomon at line rate.
 
----
-
-## 🎯 Capability: How Many Errors?
+## Capability: How Many Errors?
 
 Reed-Solomon with `n − k` parity bytes has minimum distance `d = n − k + 1`, the largest possible for its length and rate (it is an **MDS** code). That buys:
 
 - **Detect** up to `n − k` byte errors (any such pattern leaves a nonzero syndrome).
-- **Correct** up to `t = ⌊(n − k) / 2⌋` byte errors at unknown positions.
+- **Correct** up to `t = floor((n − k) / 2)` byte errors at unknown positions.
 - **Correct mixed errors and erasures** as long as `e + 2v ≤ n − k`, including up to `n − k` pure erasures.
 
 | Code | Parity | Corrects (unknown positions) | Real-world use |
@@ -201,9 +185,17 @@ Reed-Solomon with `n − k` parity bytes has minimum distance `d = n − k + 1`,
 | RS(255, 223) | 32 bytes | 16 bytes | Voyager 2, CCSDS deep-space standard |
 | RS-style P+Q parity | 2 disks | 2 failed disks (erasures) | RAID-6 |
 
----
+## When to Use
 
-## ⚔️ Reed-Solomon vs. Alternatives
+Use Reed-Solomon when:
+
+- errors come in bursts of bytes (scratches, lost sectors, lost packets) and the data is byte oriented,
+- you know which pieces are missing (RAID, erasure-coded storage): erasures cost half as much,
+- you need a hard guarantee of the correction budget, not a probabilistic one.
+
+Do not use it alone when the channel flips many scattered single bits (BCH or LDPC are more efficient), or when blocks must be longer than 255 symbols (use a larger field, or interleave).
+
+## Reed-Solomon vs. Alternatives
 
 | Code | Strength | Weakness | Best for |
 |------|----------|----------|----------|
@@ -216,9 +208,7 @@ Reed-Solomon with `n − k` parity bytes has minimum distance `d = n − k + 1`,
 
 Reed-Solomon's sweet spot is **byte-oriented, hardware-friendly, well-understood, decades of deployment**, and it is often paired with an inner code (convolutional, LDPC) that cleans up random bit errors first.
 
----
-
-## ⚠️ Common Pitfalls
+## Common Pitfalls
 
 1. **Assuming `alpha = 2` is primitive everywhere.** It is under 0x11D but not under 0x11B (order 51). A non-primitive `alpha` builds a broken code that still passes small tests.
 2. **Mismatched code parameters.** Encoder and decoder must agree on the field polynomial, `alpha`, *and* `fcr`. A mismatch produces garbage or decode failures even on clean data (see the `fcr` example above).
@@ -228,9 +218,7 @@ Reed-Solomon's sweet spot is **byte-oriented, hardware-friendly, well-understood
 6. **Forgetting Forney's `X_j^(1 - fcr)` factor.** For `fcr = 0` it is `X_j`; omitting it gives wrong magnitudes that pass small tests and fail in production.
 7. **Mixing up bit and byte capacity.** RS(255, 223) corrects 16 *bytes*. That covers any burst of up to 121 bits wherever it starts (128 if byte-aligned), but 17 scattered single-bit errors in 17 different bytes defeat it. For random bit errors, BCH or LDPC are more efficient.
 
----
-
-## 🔧 Implementations
+## Implementations
 
 | Language | Folder | Notes |
 |----------|--------|-------|
@@ -240,9 +228,7 @@ Reed-Solomon's sweet spot is **byte-oriented, hardware-friendly, well-understood
 
 All three support errors + erasures and a configurable `fcr`, and share the same test fixtures: the RS(7, 5) codeword `[87, 95, 2, 3, 5, 7, 11]` from the trace above, random errors up to `t`, random errors + erasures within `e + 2v ≤ n − k`, several `fcr` values, and beyond-budget detection.
 
----
-
-## 📝 Practice Problems
+## Practice Problems
 
 - Switch the field to 0x11D with `alpha = 2` and `fcr = 0`, then check your parity bytes against a real QR code's error-correction codewords (ISO/IEC 18004).
 - Replace Berlekamp-Massey with the extended Euclidean (Sugiyama) algorithm and check that both give the same locator.
@@ -251,14 +237,8 @@ All three support errors + erasures and a configurable `fcr`, and share the same
 - Benchmark encode/decode throughput, then speed it up (precomputed generator tables, syndrome via Horner with log/antilog tables).
 - Extend to GF(2¹⁶) for codes longer than 255 symbols; observe how table size explodes.
 
----
-
-## 🔗 Related
+## Related
 
 - [Galois Field GF(2⁸)](../Galois_Field/README.md): the arithmetic foundation
 - [Coding Theory overview](../README.md)
 - [Modular Arithmetic](../../Mathematical_Algorithms/Number_Theory/Modular%20Arithmetic/README.md): analogous structure over prime fields
-
----
-
-_Part of [Coding Theory](../README.md)._

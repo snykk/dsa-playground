@@ -1,92 +1,101 @@
 /**
  * Ford-Fulkerson Algorithm Implementation (C++)
+ *
+ * Capacities are int; the residual graph and the flow total are long long so that
+ * several large paths cannot overflow. Vertex ids can be any int.
  */
 
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <climits>
 #include <algorithm>
 
-bool dfsFindPath(const std::unordered_map<int, std::unordered_map<int, int>>& residual,
-                 int u, int sink, std::vector<bool>& visited, std::vector<int>& path) {
-    if (u == sink) {
-        return true;
-    }
-    
-    visited[u] = true;
-    auto it = residual.find(u);
-    if (it != residual.end()) {
-        for (const auto& edge : it->second) {
-            int v = edge.first;
-            int capacity = edge.second;
-            if (!visited[v] && capacity > 0) {
-                path.push_back(v);
-                if (dfsFindPath(residual, v, sink, visited, path)) {
-                    return true;
-                }
-                path.pop_back();
+using ResidualGraph = std::unordered_map<int, std::unordered_map<int, long long>>;
+
+// Iterative DFS for an augmenting path. Returns the vertices from source to sink,
+// or an empty vector when the sink cannot be reached.
+std::vector<int> dfsFindPath(const ResidualGraph& residual, int source, int sink) {
+    using Neighbors = std::unordered_map<int, long long>;
+    static const Neighbors none;
+    auto neighborsOf = [&](int u) -> const Neighbors& {
+        auto it = residual.find(u);
+        return it == residual.end() ? none : it->second;
+    };
+
+    std::unordered_map<int, int> parent;
+    parent[source] = source;
+    std::vector<std::pair<int, Neighbors::const_iterator>> stack;
+    stack.push_back({source, neighborsOf(source).begin()});
+
+    while (!stack.empty()) {
+        int u = stack.back().first;
+        auto& it = stack.back().second;
+        if (it == neighborsOf(u).end()) {
+            stack.pop_back();
+            continue;
+        }
+        int v = it->first;
+        long long capacity = it->second;
+        ++it;
+        if (capacity > 0 && parent.find(v) == parent.end()) {
+            parent[v] = u;
+            if (v == sink) {
+                std::vector<int> path = {sink};
+                while (path.back() != source) path.push_back(parent[path.back()]);
+                std::reverse(path.begin(), path.end());
+                return path;
             }
+            stack.push_back({v, neighborsOf(v).begin()});
         }
     }
-    return false;
+    return {};
 }
 
-int fordFulkerson(const std::unordered_map<int, std::unordered_map<int, int>>& graph,
-                  int source, int sink) {
+long long fordFulkerson(const std::unordered_map<int, std::unordered_map<int, int>>& graph,
+                        int source, int sink) {
     if (source == sink) {
         return 0;
     }
-    
-    // Create residual graph
-    std::unordered_map<int, std::unordered_map<int, int>> residual = graph;
-    
-    // Add reverse edges
+
+    // Residual graph: forward capacities plus a 0-capacity reverse entry per edge.
+    ResidualGraph residual;
     for (const auto& u_pair : graph) {
+        residual[u_pair.first];  // keep vertices without outgoing edges
         for (const auto& v_pair : u_pair.second) {
-            if (residual.find(v_pair.first) == residual.end() ||
-                residual[v_pair.first].find(u_pair.first) == residual[v_pair.first].end()) {
-                residual[v_pair.first][u_pair.first] = 0;
-            }
+            residual[u_pair.first][v_pair.first] += v_pair.second;
+            residual[v_pair.first][u_pair.first] += 0;
         }
     }
-    
-    int maxFlow = 0;
-    
+
+    long long maxFlow = 0;
+
     while (true) {
-        std::vector<bool> visited(1000, false);  // Assuming max vertices
-        std::vector<int> path = {source};
-        
-        if (!dfsFindPath(residual, source, sink, visited, path)) {
+        std::vector<int> path = dfsFindPath(residual, source, sink);
+        if (path.empty()) {
             break;
         }
-        
+
         // Find minimum capacity
-        int minCapacity = INT_MAX;
-        for (size_t i = 0; i < path.size() - 1; i++) {
-            int u = path[i];
-            int v = path[i + 1];
-            minCapacity = std::min(minCapacity, residual[u][v]);
+        long long minCapacity = LLONG_MAX;
+        for (size_t i = 0; i + 1 < path.size(); i++) {
+            minCapacity = std::min(minCapacity, residual[path[i]][path[i + 1]]);
         }
-        
+
         // Update residual graph
-        for (size_t i = 0; i < path.size() - 1; i++) {
-            int u = path[i];
-            int v = path[i + 1];
-            residual[u][v] -= minCapacity;
-            residual[v][u] += minCapacity;
+        for (size_t i = 0; i + 1 < path.size(); i++) {
+            residual[path[i]][path[i + 1]] -= minCapacity;
+            residual[path[i + 1]][path[i]] += minCapacity;
         }
-        
+
         maxFlow += minCapacity;
     }
-    
+
     return maxFlow;
 }
 
-// Example usage (uncomment to use)
-/*
-#include <iostream>
-#ifndef TESTING
 #ifndef IS_TEST_BUILD
+#include <iostream>
 int main() {
     std::unordered_map<int, std::unordered_map<int, int>> graph = {
         {0, {{1, 16}, {2, 13}}},
@@ -95,13 +104,9 @@ int main() {
         {3, {{2, 9}, {5, 20}}},
         {4, {{3, 7}, {5, 4}}}
     };
-    
+
     std::cout << "Ford-Fulkerson Algorithm Example:" << std::endl;
-    int maxFlow = fordFulkerson(graph, 0, 5);
-    std::cout << "Maximum flow: " << maxFlow << std::endl;  // 23
-    
+    std::cout << "Maximum flow: " << fordFulkerson(graph, 0, 5) << std::endl;  // 23
     return 0;
 }
-#endif
-#endif
-*/
+#endif  // !IS_TEST_BUILD

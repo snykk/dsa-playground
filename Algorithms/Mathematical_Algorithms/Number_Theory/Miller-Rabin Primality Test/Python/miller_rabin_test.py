@@ -64,6 +64,43 @@ class TestMillerRabin(unittest.TestCase):
             det_result = miller_rabin_deterministic(n)
             self.assertEqual(prob_result, det_result, f"Inconsistency for {n}")
 
+    def test_matches_trial_division(self):
+        """Both versions agree with trial division for 0..5000"""
+        def trial(n):
+            if n < 2:
+                return False
+            i = 2
+            while i * i <= n:
+                if n % i == 0:
+                    return False
+                i += 1
+            return True
+        for n in range(5001):
+            self.assertEqual(miller_rabin_deterministic(n), trial(n), n)
+            self.assertEqual(is_prime_miller_rabin(n, k=10), trial(n), n)
+
+    def test_large_primes(self):
+        """Primes above 2^32 and up to 2^64 (known primes)"""
+        for p in [4294967291, 4294967311, 1000000000039, 2**61 - 1,
+                  2**63 - 25, 2**64 - 59]:
+            self.assertTrue(miller_rabin_deterministic(p), p)
+            self.assertTrue(is_prime_miller_rabin(p, k=10), p)
+
+    def test_strong_pseudoprimes(self):
+        """Composites that fool several fixed bases"""
+        # 3215031751 = 151 * 751 * 28351 is a strong pseudoprime to 2, 3, 5, 7.
+        # 3825123056546413051 fools the first nine primes (2..23).
+        for c in [3215031751, 3825123056546413051, 2**61 + 1, 2**32 + 1]:
+            self.assertFalse(miller_rabin_deterministic(c), c)
+            self.assertFalse(is_prime_miller_rabin(c, k=20), c)
+
+    def test_deterministic_bound(self):
+        """Twelve bases are exact below 318665857834031151167461, not above"""
+        liar = 399165290221 * 798330580441
+        self.assertEqual(liar, 318665857834031151167461)
+        self.assertTrue(miller_rabin_deterministic(liar))  # wrong answer, by design of the bound
+        self.assertFalse(miller_rabin_deterministic(liar + 1))  # even
+
 
 if __name__ == '__main__':
     unittest.main()

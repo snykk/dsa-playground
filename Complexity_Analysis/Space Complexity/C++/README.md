@@ -1,41 +1,43 @@
-# Space Complexity — C++ Implementation
-
-**Space Complexity** measures the extra memory an algorithm uses beyond its input — both heap and stack. The same algorithm can have dramatically different space footprints in different implementations (recursive vs iterative, owning vs non-owning views).
-
-For the conceptual overview, see the parent README: [../README.md](../README.md)
-
----
+# Space Complexity -- C++ Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `space_complexity.cpp` | Concrete examples contrasting O(1), O(log n), and O(n) space |
-| `space_complexity_test.cpp` | Tests validating space-bound invariants |
+- `space_complexity.cpp`: four examples and `demonstrateSpaceComplexity`. `main` is compiled out when `IS_TEST_BUILD` is defined.
+- `space_complexity_test.cpp`: assert-based tests; it includes the `.cpp` file directly.
 
----
+## API
+
+- `int constantSpaceExample(int n)`: O(1) space.
+- `vector<int> linearSpaceExample(int n)`: O(n) space.
+- `vector<vector<int>> quadraticSpaceExample(int n)`: O(n^2) space.
+- `void inPlaceReverse(vector<int>& arr)`: O(1) auxiliary space.
+
+```cpp
+vector<int> v = {1, 2, 3, 4, 5};
+inPlaceReverse(v);  // {5, 4, 3, 2, 1}
+```
 
 ## C++-Specific Notes
 
-- **Stack vs heap** is explicit in C++: `int arr[100]` is stack, `new int[100]` is heap. Large stack arrays blow the stack (typically 1-8 MB on Linux); prefer `std::vector<int>(100)` for anything runtime-sized.
-- **`std::string_view` / `std::span<T>`** (C++17/20) are non-owning views — O(1) space, perfect for read-only parameters. Replace `const std::string&` / `const std::vector<T>&` when no ownership transfer is needed.
-- **Recursion cost**: each recursive call adds a stack frame. Depth-O(n) recursion on large `n` crashes the stack long before it would allocate O(n) on the heap. Convert to iterative where stability matters.
-- **SSO (Small String Optimization)** and **Small Vector Optimization** (in some libraries) make small containers free — zero heap allocation for `std::string` ≤ 15 chars on libstdc++.
-- **Move semantics vs copy**: passing `std::vector<int>` by value is O(n); by const reference or by `std::move` is O(1).
-
----
+- There are no recursive examples here; the logarithmic, Fibonacci and Merge Sort examples exist only in Python.
+- The call stack is a fixed-size region (commonly 1 to 8 MB). A recursion that is too deep crashes with a stack overflow instead of raising an exception.
+- `vector` growth over-allocates, so `push_back` in a loop can briefly use more than `n` cells.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall space_complexity_test.cpp -o space_complexity_test
-./space_complexity_test
+cd "Complexity_Analysis/Space Complexity/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD space_complexity_test.cpp -o space_test
+./space_test
+
+# the demo program
+g++ -std=c++17 -O2 -Wall space_complexity.cpp -o space_demo
+./space_demo
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
+- Space complexity counts auxiliary memory, including the recursion stack, not the input.
+- Count what is alive at the same time, not everything ever allocated.
+- Recursion depth `d` costs O(d) memory.
 
-1. **Stack and heap are both space.** A recursive DFS with depth-n call stack uses O(n) space even if it never calls `new`. Convert to iterative for O(1) auxiliary heap (at the cost of an explicit stack).
-2. **`string_view` and `span` are free space wins** — pass views instead of owning containers when possible. They're C++'s answer to Go's string slicing semantics.
-3. **Tail recursion is not optimized by C++.** Unlike functional languages, a tail call doesn't become a loop. Convert manually if depth is a concern.

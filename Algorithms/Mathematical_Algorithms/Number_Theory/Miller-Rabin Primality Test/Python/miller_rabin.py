@@ -20,7 +20,7 @@ def miller_rabin(n, k=5):
     Returns:
         True if n is probably prime, False if n is composite
         
-    Time Complexity: O(k log³ n)
+    Time Complexity: O(k log^3 n)
     Space Complexity: O(1)
     """
     if n < 2:
@@ -78,12 +78,16 @@ def is_prime_miller_rabin(n, k=5):
 
 def miller_rabin_deterministic(n):
     """
-    Deterministic Miller-Rabin for n < 2^64
+    Deterministic Miller-Rabin
     
-    Uses specific bases that are known to work for all numbers < 2^64
+    Uses the first twelve primes (2..37) as witnesses. No composite below
+    318,665,857,834,031,151,167,461 (about 3.2e23, far above 2^64) passes
+    all twelve, so the answer is exact for every n < 2^64. Above that bound
+    the test is only probabilistic (the first composite that passes all
+    twelve is 318665857834031151167461).
     
     Args:
-        n: Number to test (should be < 2^64)
+        n: Number to test (exact for n < 318665857834031151167461)
         
     Returns:
         True if n is prime, False if n is composite
@@ -136,7 +140,7 @@ if __name__ == "__main__":
         result = is_prime_miller_rabin(n)
         print(f"{n} is {'probably prime' if result else 'composite'}")
     
-    print("\nDeterministic Miller-Rabin (for n < 2^64):")
+    print("\nDeterministic Miller-Rabin (exact for n < 2^64):")
     for n in test_numbers:
         result = miller_rabin_deterministic(n)
         print(f"{n} is {'prime' if result else 'composite'}")

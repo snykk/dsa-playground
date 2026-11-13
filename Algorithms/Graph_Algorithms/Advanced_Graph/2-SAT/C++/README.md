@@ -1,41 +1,39 @@
-# 2-SAT — C++ Implementation
+# 2-SAT -- C++ Implementation
 
-Linear-time 2-SAT solver using an iterative Tarjan's SCC over the implication graph.
-
-For the conceptual overview, see the parent README: [../README.md](../README.md)
-
----
+Linear-time 2-SAT solver using an iterative Tarjan SCC over the implication graph. For the idea, the trace and the complexity, see the topic README: [../README.md](../README.md).
 
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `two_sat.h` | Header-only `TwoSAT` class with `addClause`, `implies`, `forceTrue`, `solve` |
-| `two_sat_test.cpp` | Assertion-based tests for SAT / UNSAT variants |
+| `two_sat_test.cpp` | 9 assert-based tests: SAT, UNSAT, forced literals, chains, the empty formula |
 
----
+## API
+
+- `TwoSAT(int n_vars)`: a solver for variables `0..n_vars-1`.
+- `void addClause(int a, int b)`: add `(a or b)`; literals are `2*x` and `2*x + 1`.
+- `void implies(int a, int b)`: add `a -> b`.
+- `void forceTrue(int a)`: add `(a or a)`.
+- `std::optional<std::vector<bool>> solve()`: the assignment, or `std::nullopt` when unsatisfiable.
 
 ## C++-Specific Notes
 
-- **`std::optional<std::vector<bool>>`** as the return type: `nullopt` signals UNSAT, otherwise holds the assignment. C++17 feature, cleaner than output parameters or sentinel vectors.
-- **Iterative Tarjan via `std::stack<std::pair<int, int>>`**: the pair is `(node, next-neighbor-index)`. Avoids recursion depth blowouts on large instances.
-- **`std::vector<bool>` for the assignment**: packed bits, 1/8 the memory of `std::vector<int>`. For 10M-variable 2-SAT, that matters.
-- **Literal XOR trick**: `lit ^ 1` negates. Fundamental — memorize it.
-- **Return-by-value into `std::optional`**: NRVO/move elision makes this free. No output-parameter ceremony needed.
-
----
+- **`std::optional`** (C++17) signals UNSAT without an output parameter, so compile with `-std=c++17`.
+- **Iterative Tarjan** with `std::stack<std::pair<int, int>>` holding `(node, next neighbour index)`; it does not recurse, so large instances cannot overflow the call stack.
+- **`std::vector<bool>`** stores the assignment as packed bits.
+- **Assignment rule.** `assignment[x] = comp_[2x] < comp_[2x + 1]`, correct for Tarjan numbering (sinks first).
+- **No literal validation.** A literal `>= 2 * n_vars` is undefined behaviour.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall two_sat_test.cpp -o two_sat_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD two_sat_test.cpp -o two_sat_test
 ./two_sat_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Iterative Tarjan is worth learning.** The recursive version is clearer, but contest inputs with 10⁶ literals can blow the default stack. Converting is mechanical but worth practicing.
-2. **`std::optional<T>` is the modern failure-signalling type.** Prefer it over `std::pair<bool, T>` or throwing exceptions for recoverable failures like UNSAT.
-3. **The assignment rule `comp[2x] < comp[2x+1]`** is specific to Tarjan's finish-order convention. Different SCC algorithms flip the direction — always verify against a known-good test case.
+1. The header is the whole solver; include it and call `solve()`.
+2. UNSAT is a value (`std::nullopt`), not an exception.
+3. The comparison `comp_[2x] < comp_[2x + 1]` only holds for an SCC algorithm that numbers sinks first.

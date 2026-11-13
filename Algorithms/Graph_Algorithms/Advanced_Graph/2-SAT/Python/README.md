@@ -1,40 +1,39 @@
-# 2-SAT — Python Implementation
+# 2-SAT -- Python Implementation
 
-Linear-time 2-SAT solver via implication graph + Tarjan's SCC.
-
-For the conceptual overview, visuals, and complexity proof, see the parent README: [../README.md](../README.md)
-
----
+Linear-time 2-SAT solver: implication graph plus an iterative Tarjan SCC. For the idea, the trace and the complexity, see the topic README: [../README.md](../README.md).
 
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `two_sat.py` | `TwoSAT` class with `add_clause`, `implies`, `force_true`, `solve` |
-| `two_sat_test.py` | Unit tests covering SAT / UNSAT and helper-method semantics |
+| `two_sat_test.py` | 10 unit tests: SAT, UNSAT, forced literals, implication chains, the empty formula |
 
----
+## API
+
+- `TwoSAT(n_vars)`: a solver for variables `0..n_vars-1`.
+- `add_clause(a, b)`: add the clause `(a or b)`. Literals are `2*x` (positive) and `2*x + 1` (negated).
+- `implies(a, b)`: add `a -> b`, that is the clause `(~a or b)`.
+- `force_true(a)`: add `(a or a)`, which pins literal `a` to true.
+- `solve()`: returns `(True, assignment)` where `assignment[i]` is the value of variable `i`, or `(False, None)` when unsatisfiable.
 
 ## Python-Specific Notes
 
-- **Literal encoding `2x` / `2x+1`**: positive `x` → `2x`, negated → `2x+1`. The neat property: `lit ^ 1` gives you the negation for free. No branch, no conditional.
-- **Iterative Tarjan** (not recursive): Python's default recursion limit is 1000; real 2-SAT instances can exceed that. We use an explicit `work` stack so the algorithm survives 1M+ literals.
-- **`sys.setrecursionlimit`** still bumped as a safety net in case of future non-iterative helpers. Always restored via `finally`.
-- **Helpers `implies` and `force_true`**: syntactic sugar over `add_clause`. Clearer at the call site and avoids "what do I pass for the two-literal version of a one-literal clause?" confusion.
-- **Assignment rule**: `x = true iff comp[2x] < comp[2x+1]`. Tarjan assigns lower IDs to SCCs finished first (sinks in the condensation DAG). The literal whose SCC has the _lower_ ID comes later in topological order — that's the "safely forced true" side.
-
----
+- **Literal encoding.** `lit ^ 1` negates a literal without a branch.
+- **Iterative Tarjan.** The DFS keeps an explicit `work` list of `(node, next neighbour index)` pairs, so a long implication chain does not hit Python's recursion limit.
+- **Assignment rule.** `x = comp[2x] < comp[2x + 1]`. Tarjan gives the smallest id to the first SCC it completes, a sink of the condensation, so the smaller id is the later literal in topological order.
+- **No literal validation.** A literal `>= 2 * n_vars` raises `IndexError`.
+- **Return type.** `solve` returns a tuple, not an exception: UNSAT is a normal result.
 
 ## How to Run
 
 ```bash
-python3 -m unittest two_sat_test.py
+python3 -m unittest two_sat_test
+python3 two_sat.py        # demo: prints "Satisfiable: True" and "Assignment: [False, True]"
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **2-SAT is the miracle of 2-literal clauses.** Adding a third literal makes SAT NP-complete. Restricting to 2 makes it linear. Few complexity results are this sharp.
-2. **Implication graph is the trick.** `(a ∨ b)` becomes `¬a → b` and `¬b → a`. Two directed edges per clause. SCC analysis does the rest.
-3. **Tarjan's ID ordering matters.** Different SCC implementations (Tarjan vs. Kosaraju, forward vs. backward) produce different orderings. Understand your tool's convention before writing the assignment rule — flipping `<` vs `>` silently produces garbage.
+1. A clause `(a or b)` becomes the edges `~a -> b` and `~b -> a`; SCCs do the rest.
+2. The satisfiability test is `comp[2x] != comp[2x + 1]` for every variable.
+3. The direction of the assignment comparison depends on the SCC numbering, so check it on a small formula.

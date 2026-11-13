@@ -1,100 +1,38 @@
-# Fast Fourier Transform (Go)
+# Fast Fourier Transform -- Go Implementation
 
-**Fast Fourier Transform (FFT)** is an efficient algorithm for computing the Discrete Fourier Transform (DFT) and its inverse.
+Recursive radix-2 FFT on `complex128`, inverse FFT, polynomial multiplication and convolution.
 
----
+For the concept, see the topic README: [../README.md](../README.md).
 
-## Overview
+## Files
 
-The FFT is one of the most important algorithms in signal processing and numerical analysis. It reduces the time complexity of computing the DFT from O(n²) to O(n log n).
+| File | Purpose |
+|------|---------|
+| `main.go` | `FFT`, `IFFT`, `MultiplyPolynomials`, `Convolve` and a demo `main` |
+| `main_test.go` | 11 tests: lengths, round trip, identity, known values, comparison with a direct DFT, empty input, panic on a bad inverse length, large coefficients |
+| `go.mod` | module definition |
 
-**Key Characteristics:**
-- Efficient: O(n log n) time complexity
-- Applications: Signal processing, polynomial multiplication, convolution
-- Uses divide-and-conquer approach
+## API
 
----
+- `FFT(a []complex128, inverse bool) []complex128`: forward uses `e^(-2*pi*i*j*k/n)`; a non-power-of-two input is zero-padded; with `inverse = true` the result is divided by `n` and a non-power-of-two length panics. Empty input returns an empty slice.
+- `IFFT(a []complex128) []complex128`.
+- `MultiplyPolynomials(p, q []int) []int` and `Convolve(a, b []int) []int`.
 
-## Complexity Analysis
+## Go-Specific Notes
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **FFT** | O(n log n) | O(n) |
-| **IFFT** | O(n log n) | O(n) |
-| **MultiplyPolynomials** | O(n log n) | O(n) |
-| **Convolve** | O(n log n) | O(n) |
+- `int` is 64 bits on 64-bit platforms, so products up to about 9e18 fit; the FFT itself is exact only while outputs stay well below 2^53.
+- `FFT` normalises once at the top; the internal `fftCore` has no scaling.
+- The bad-length inverse panics because the function returns no error; callers that cannot guarantee a power of two should check first.
 
----
-
-## Implementation Details
-
-### Functions
-
-1. **`FFT(a, inverse)`**
-   - Compute Fast Fourier Transform using Cooley-Tukey algorithm
-   - Returns FFT result as slice of complex numbers
-   - Time: O(n log n), Space: O(n)
-
-2. **`IFFT(a)`**
-   - Compute Inverse Fast Fourier Transform
-   - Returns original signal
-   - Time: O(n log n), Space: O(n)
-
-3. **`MultiplyPolynomials(p, q)`**
-   - Multiply two polynomials using FFT
-   - Returns coefficients of product polynomial
-   - Time: O(n log n), Space: O(n)
-
-4. **`Convolve(a, b)`**
-   - Compute convolution of two sequences using FFT
-   - Returns convolution result
-   - Time: O(n log n), Space: O(n)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // FFT example
-    signal := []complex128{1, 2, 3, 4}
-    result := FFT(signal, false)
-    
-    // Polynomial multiplication
-    p := []int{1, 2, 3}
-    q := []int{4, 5}
-    product := MultiplyPolynomials(p, q)
-    fmt.Println(product)  // [4, 13, 22, 15]
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Numerical Recipes" by Press et al.
-- "The Fast Fourier Transform" by Brigham
-
----
-
-_Last Updated: December 2025_
-
+1. A single scaling step at the top is simpler than threading lengths through the recursion.
+2. `complex128` and `math/cmplx` make the butterflies short.
+3. Test against the definition of the DFT, not only against a round trip.

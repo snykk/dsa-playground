@@ -1,95 +1,43 @@
-# Matrix Exponentiation (Go)
+# Matrix Exponentiation -- Go Implementation
 
-**Matrix Exponentiation** computes A^k efficiently using binary exponentiation, where A is a square matrix and k is a non-negative integer.
+Matrix multiplication, identity, recursive and iterative matrix power, and Fibonacci by matrix power on `int64` entries.
 
----
+For the concept, see the topic README: [../README.md](../README.md).
 
-## Overview
+## Files
 
-Matrix exponentiation is a powerful technique for computing high powers of matrices efficiently. It's particularly useful for solving linear recurrences, computing Fibonacci numbers, and solving dynamic programming problems.
+| File | Purpose |
+|------|---------|
+| `main.go` | the functions below and a demo `main` |
+| `main_test.go` | 14 tests: exact small powers, modulus, negative entries, a modulus above 2^32, negative exponents, modulus 0 and 1, the Fibonacci overflow guard |
+| `go.mod` | module definition |
 
-**Key Characteristics:**
-- Efficient: O(n³ log k) time complexity
-- Applications: Fibonacci, linear recurrences, graph paths
-- Supports modular arithmetic
+## API
 
----
+- `MatrixMultiply(A, B [][]int64, mod int64) [][]int64`.
+- `MatrixIdentity(n int) [][]int64`.
+- `MatrixPower(A [][]int64, k, mod int64) [][]int64`: recursive; panics if `k < 0`.
+- `MatrixPowerIterative(A [][]int64, k, mod int64) [][]int64`: iterative; panics if `k < 0`.
+- `FibonacciMatrix(n, mod int64) int64`: panics for `n < 0` and for `n > 92` without a modulus.
 
-## Complexity Analysis
+Pass `-1` (or any value `<= 0`) as `mod` for no modulus.
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **MatrixMultiply** | O(n × m × p) | O(n × p) |
-| **MatrixPower** | O(n³ log k) | O(n²) |
-| **MatrixPowerIterative** | O(n³ log k) | O(n²) |
-| **FibonacciMatrix** | O(log n) | O(1) |
+## Go-Specific Notes
 
----
+- A modulus is applied when `mod > 0`. Entries are normalised into `[0, mod)` and each product uses `bits.Mul64` and `bits.Rem64`, so any modulus up to 2^63 - 1 is exact.
+- Without a modulus the arithmetic is plain `int64`; overflow in `MatrixPower` is not detected.
+- The functions return no error, so invalid arguments panic.
+- Internal helpers (`normalizeMod`, `mulMod`, `identityMod`) are unexported.
 
-## Implementation Details
-
-### Functions
-
-1. **`MatrixMultiply(A, B, mod)`**
-   - Multiply two matrices A and B
-   - Optional modulus for modular arithmetic (use -1 for no mod)
-   - Time: O(n × m × p), Space: O(n × p)
-
-2. **`MatrixPower(A, k, mod)`**
-   - Compute A^k using recursive binary exponentiation
-   - Time: O(n³ log k), Space: O(n²)
-
-3. **`MatrixPowerIterative(A, k, mod)`**
-   - Compute A^k using iterative binary exponentiation
-   - Time: O(n³ log k), Space: O(n²)
-
-4. **`FibonacciMatrix(n, mod)`**
-   - Compute nth Fibonacci number using matrix exponentiation
-   - Time: O(log n), Space: O(1)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // Compute matrix power
-    A := [][]int64{{1, 1}, {1, 0}}
-    A_5 := MatrixPower(A, 5, -1)
-    
-    // Compute Fibonacci
-    fib_10 := FibonacciMatrix(10, -1)
-    fmt.Println(fib_10)  // 55
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Competitive Programming" by Halim & Halim
-
----
-
-_Last Updated: December 2025_
-
+1. `math/bits` gives an exact 128-bit product without `math/big` allocations.
+2. Go's `%` keeps the sign of the dividend: normalise negative entries.
+3. For a function without an error return, a clear panic is better than silent wrong output.

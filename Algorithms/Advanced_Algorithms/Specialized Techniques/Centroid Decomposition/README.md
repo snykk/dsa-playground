@@ -1,151 +1,110 @@
 # Centroid Decomposition
 
-**Centroid Decomposition** is a tree decomposition technique that recursively removes centroids (nodes that split the tree into balanced parts) to create a centroid tree. This decomposition enables efficient solutions to many tree problems.
+Centroid decomposition repeatedly removes the node that splits a tree into pieces of at most half its size, and records which centroid was removed inside which. The records form a *centroid tree* of height O(log N), which turns all-pairs and path problems on a tree from O(N^2) into O(N log N). Building it costs O(N log N).
 
----
+## Intuition
 
-## Overview
+A **centroid** of a tree with N nodes is a node whose removal leaves every component with at most N/2 nodes. Every tree has one. Remove it, and each remaining component again has a centroid; keep going until single nodes remain. Because every component is at most half of the previous one, a node is separated at most floor(log2 N) + 1 times.
 
-A centroid of a tree is a node that, when removed, splits the tree into subtrees each with at most N/2 nodes. Centroid decomposition:
-1. Finds the centroid of the current tree
-2. Removes the centroid and recursively decomposes subtrees
-3. Builds a centroid tree where parent-child relationships represent decomposition
+The invariant that makes it useful: for any two nodes u and v, the path between them passes through their lowest common ancestor in the centroid tree. Every path is therefore handled at exactly one centroid, and each node has only O(log N) centroid ancestors.
 
-Key properties:
-- The centroid tree has height O(log N)
-- Each path in original tree crosses O(log N) centroids
-- Enables divide-and-conquer on trees
+## Visual
 
-This technique is powerful for problems involving:
-- Path queries
-- Distance queries
-- Tree problems requiring divide-and-conquer
+```text
+Original tree (edges 0-1, 0-2, 1-3, 1-4, 2-5, 4-6)
 
----
+        0
+       / \
+      1   2          centroid of the whole tree: 1
+     / \   \         (components {0,2,5}, {3}, {4,6}: all <= 3)
+    3   4   5
+        |
+        6
 
-## Key Characteristics
+Centroid tree (parent = [2, -1, 1, 1, 1, 2, 4])
 
-1. **Recursive Decomposition**: Recursively removes centroids
-2. **Balanced Splits**: Each split creates balanced subtrees
-3. **Logarithmic Height**: Centroid tree has O(log N) height
-4. **Divide and Conquer**: Enables efficient tree algorithms
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `dfs_size(u, p)` | Calculate subtree sizes | O(N) |
-| `find_centroid(u, p, total)` | Find centroid of subtree | O(N) |
-| `decompose(u, p)` | Decompose tree recursively | O(N log N) |
-| `query(u, v)` | Query between nodes | O(log N) |
-| `update(u, val)` | Update node value | O(log N) |
-
----
-
-## Implementation Approaches
-
-### 1. Standard Centroid Decomposition
-- **Pros**: Simple, handles most tree problems
-- **Cons**: O(N log N) construction
-- **Use Case**: Path queries, distance queries
-
-### 2. Centroid with Data Structures
-- **Pros**: Efficient queries with additional structures
-- **Cons**: More complex, more memory
-- **Use Case**: Complex tree problems
-
-### 3. Online Centroid Decomposition
-- **Pros**: Handles dynamic trees
-- **Cons**: Very complex implementation
-- **Use Case**: Dynamic tree problems
-
----
-
-## Applications
-
-1. **Path Queries**: Querying paths in trees
-2. **Distance Queries**: Finding distances between nodes
-3. **Tree Problems**: Many tree problems benefit from centroid decomposition
-4. **Divide and Conquer**: Tree problems requiring divide-and-conquer
-5. **Competitive Programming**: Common in advanced tree problems
-
----
-
-## Example Use Cases
-
-### Building Centroid Tree
-```python
-tree = [[1, 2], [0, 3, 4], [0], [1], [1]]
-cd = CentroidDecomposition(5, tree)
-cd.decompose(0, -1)
-# Builds centroid tree
+        1
+      / | \
+     2  3  4
+    / \    |
+   0   5   6
 ```
 
-### Distance Query
-```python
-distance = cd.query_distance(2, 4)
-# Returns distance between nodes 2 and 4
-```
+## How It Works
 
----
+1. Run a DFS from any node of the current component and compute subtree sizes, ignoring removed nodes. The root's size is `total`.
+2. Starting at the DFS root, move to any child whose size is greater than `total // 2`; stop when there is none. That node is the centroid.
+3. Mark the centroid removed and set `parent[centroid]` to the centroid of the level above (`-1` for the first one).
+4. Recurse into every non-removed neighbor of the centroid, passing the centroid as the parent.
 
-## Implementations
+`build(root)` starts at `root` and resets all state first, so calling it twice gives the same result.
 
-This folder contains implementations in three languages:
+## Step-by-Step Trace
 
-- **Python** (`Python/`) - List-based implementation
-- **C++** (`C++/`) - Vector-based implementation
-- **Go** (`Go/`) - Slice-based implementation
+Tree above, `build(0)`, neighbors visited in adjacency-list order:
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+| Round | Component | Centroid | Why |
+|-------|-----------|----------|-----|
+| 1 | {0,1,2,3,4,5,6} | 1 | rooted at 0, size[1] = 4 > 3, so move to 1; its children have sizes 1 and 2 |
+| 2 | {0,2,5} | 2 | size[2] = 2 > 1, so move to 2 |
+| 2 | {3} | 3 | single node |
+| 2 | {4,6} | 4 | size[6] = 1 is not > 1 |
+| 3 | {0}, {5}, {6} | themselves | parents 2, 2 and 4 |
 
----
+## Complexity
 
-## Complexity Summary
+| Part | Time | Space |
+|------|------|-------|
+| One level of the recursion | O(N) | |
+| Whole `build` | O(N log N) | O(N) |
+| `get_centroid_tree` (Python) | O(N) | O(N) |
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **Construction** | O(N log N) | O(N) |
-| **Find Centroid** | O(N) | O(1) |
-| **Query** | O(log N) | O(1) |
-| **Update** | O(log N) | O(1) |
+Why: components on one level are disjoint, so their DFS passes total at most N nodes, and there are at most floor(log2 N) + 1 levels. The recursion depth of `decompose` is only O(log N).
 
-Where N is number of nodes.
-
----
+The implementations build the decomposition only. The per-query cost (for example "nearest marked node" in O(log N)) comes from walking the O(log N) centroid ancestors of a node, and needs per-centroid data that this code does not contain.
 
 ## When to Use
 
-- **Tree Problems**: Complex tree problems
-- **Path Queries**: When need to query paths
-- **Distance Queries**: Finding distances in trees
-- **Divide and Conquer**: Tree problems requiring divide-and-conquer
+Use it when:
+- the problem is about all pairs of nodes or about paths (count pairs at distance k, nearest marked node, path sums);
+- the tree is static and N is around 10^5.
 
----
+Do not use it when the tree changes shape (edges are added or removed), or when a plain DP on the tree is enough.
 
-## Related Patterns
+## Centroid Decomposition vs. Alternatives
 
-- **Tree Decomposition**: Similar decomposition techniques
-- **Heavy-Light Decomposition**: Alternative tree decomposition
-- **Divide and Conquer**: Core technique used
+| | Centroid decomposition | Heavy-light decomposition | Plain DFS per query |
+|---|---|---|---|
+| Idea | remove balanced separator nodes | split into heavy chains | walk the path |
+| Best for | all-pairs counting, nearest marked node | online path queries and updates | tiny trees |
+| Path cost | O(log N) ancestors | O(log^2 N) with a segment tree | O(N) |
 
----
+## Common Pitfalls
 
-## Further Reading
+- Forgetting the `removed` flag: the DFS walks back into earlier centroids.
+- Reusing subtree sizes from the previous level; recompute them for each component.
+- Taking the DFS root as the centroid; only the walk towards oversized children finds it.
+- Double counting when combining pairs at a centroid: pairs inside the same child component must be excluded.
+- Deep recursion: Python's version uses loops for sizes and the centroid walk, but the C++ size DFS is recursive and can overflow the stack on a very long path.
+- Calling `build` on a forest: it only decomposes the component containing `root`.
 
-- "Competitive Programming" by Halim & Halim
-- "Algorithm Design Manual" by Steven Skiena
-- Codeforces: Centroid Decomposition tutorials
+## Implementations
 
----
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `centroid_decomposition.py` | iterative size DFS and centroid walk; also `get_centroid_tree()` |
+| C++ | [C++/](C++/) | `centroid_decomposition.cpp` | recursive size DFS; `getParent()` |
+| Go | [Go/](Go/) | `main.go` | recursive size DFS; `GetParent()` |
 
-**Note**: Centroid decomposition is most effective for static trees. The O(N log N) construction time comes from recursively finding centroids. For dynamic trees, consider other approaches. The technique is powerful but requires understanding of tree properties and divide-and-conquer.
+No language implements a distance or nearest-marked-node query.
 
----
+## Practice Problems
 
-_Last Updated: December 2025_
+- [CSES - Fixed-Length Paths I](https://cses.fi/problemset/task/2080)
+- [CSES - Fixed-Length Paths II](https://cses.fi/problemset/task/2081)
+
+## Related
+
+- [Heavy-Light Decomposition](../Heavy-Light%20Decomposition/)
+- [Square Root Decomposition](../Square%20Root%20Decomposition/)
+- [Specialized Techniques overview](../)

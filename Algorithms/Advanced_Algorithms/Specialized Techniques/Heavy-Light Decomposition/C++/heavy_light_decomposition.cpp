@@ -58,6 +58,11 @@ public:
     }
     
     void build(int root = 0) {
+        parent.assign(n, -1);
+        depth.assign(n, 0);
+        size.assign(n, 0);
+        heavy.assign(n, -1);
+        curPos = 0;
         dfsSize(root, -1);
         decompose(root, root);
     }

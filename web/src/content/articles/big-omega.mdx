@@ -1,0 +1,170 @@
+---
+topic: "Complexity_Analysis/Time Complexity/Big-Omega (\u03A9)"
+title: Big-Omega Notation
+lead: Big-Omega gives an asymptotic lower bound on how fast a function grows. In algorithm analysis it says a running time is at least that large, and it is the tool behind results such as "no comparison sort beats n log n". It is a bound on a function, not a synonym for the best case.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Meaning
+    value: Lower bound
+    hint: f grows at least as fast as c * g
+  - label: Definition
+    value: c * g(n) <= f(n)
+    hint: for all n >= n0
+  - label: Not the same as
+    value: Best case
+    hint: any case can have an Omega bound
+    tone: warn
+  - label: Classic use
+    value: Problem lower bounds
+    hint: comparison sorting is Omega(n log n)
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - "Complexity_Analysis/Time Complexity/Big-Theta (\u0398)"
+  - Complexity_Analysis/Amortized Analysis
+  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Searching/Linear Search
+---
+
+## Definition
+
+Big-Omega mirrors Big-O. It says a function `f(n)` stays above a constant multiple of `g(n)` once `n` is large enough.
+
+<Equation label="Big-Omega" expr="f(n) = Omega(g(n))  if there are constants c > 0 and n0 such that  0 <= c * g(n) <= f(n)  for all n >= n0" />
+
+It is the reverse of Big-O:
+
+<Equation label="Duality" expr="f(n) = Omega(g(n))  if and only if  g(n) = O(f(n))" />
+
+As with Big-O, the `=` means "is in the set": `n^2 = Omega(n)` is true, `Omega(n) = n^2` is not.
+
+## Intuition
+
+Big-O answers "at most this much"; Big-Omega answers "at least this much". Together they sandwich a function. Big-Omega bounds are as loose as Big-O bounds: `n^2 + 1` is `Omega(n^2)`, and also `Omega(n)` and `Omega(1)`. The statement `Omega(1)` is true of every algorithm and says nothing. Useful lower bounds are the largest ones you can prove.
+
+Big-Omega is where the "best case" confusion most often comes from. It is easy to read "lower bound" as "best case", but those are different things:
+
+- **A case** picks which function you analyse: the fastest input of each size, the slowest, or the average.
+- **A notation** says how you bound that function from one side or both.
+
+You can put an Omega bound on the **worst case** ("some input of size `n` takes at least `n log n` steps") and an O bound on the **best case** ("the fastest input takes at most `n` steps"). Both are valid, and both are common.
+
+<DataTable
+  columns={['Statement', 'Function bounded', 'Notation']}
+  rows={[
+    ['Every input of size n costs at least n steps', 'best case (and so all cases)', 'Omega(n)'],
+    ['Some input of size n costs at least n log n steps', 'worst case', 'Omega(n log n)'],
+    ['The fastest input of size n costs at most n steps', 'best case', 'O(n)'],
+    ['The slowest input of size n costs at most n^2 steps', 'worst case', 'O(n^2)'],
+  ]}
+/>
+
+## Worked examples
+
+### Proving an Omega bound
+
+Claim: `f(n) = n^2 / 2 - 3n` is `Omega(n^2)`. Pick `c = 1/4`. We need `n^2 / 4 <= n^2 / 2 - 3n`, which rearranges to `n^2 / 4 >= 3n`, that is `n >= 12`.
+
+<Equation label="Proof" expr="n^2/4 <= n^2/2 - 3n  for all n >= 12" result="c = 1/4, n0 = 12" />
+
+The choice of `n0` matters: at `n = 11` the inequality fails (30.25 against 27.5).
+
+### The repository's examples, per case
+
+Each function is analysed per case, and the Omega bound that holds for every input is listed separately:
+
+<DataTable
+  columns={['Function', 'Best case', 'Worst case', 'Omega for all inputs']}
+  rows={[
+    ['`linear_search_best_case`', 'Theta(1): target is first', 'Theta(n): target absent', 'Omega(1)'],
+    ['`bubble_sort_best_case` (early exit)', 'Theta(n): already sorted', 'Theta(n^2): reversed', 'Omega(n)'],
+    ['`quick_sort_best_case` (3-way, middle pivot)', 'Theta(n): all keys equal', 'Theta(n^2): lopsided pivots', 'Omega(n)'],
+    ['`matrix_traversal_lower_bound`', 'Theta(n^2)', 'Theta(n^2)', 'Omega(n^2)'],
+  ]}
+/>
+
+Notice that bubble sort has `Omega(n)` on every input, even though its worst case is `Theta(n^2)`. The function names in the code keep a historical "best case" label; read them as the example each Omega bound is illustrated with.
+
+### A lower bound for a whole problem: comparison sorting
+
+Any algorithm that sorts only by comparing elements can be drawn as a decision tree. Each internal node is a comparison, and each leaf is one possible output order. Here is the tree for three elements `a, b, c`:
+
+<TreeDiagram
+  root={{ label: 'a < b?', tone: 'p', children: [
+    { label: 'b < c?', edge: 'yes', children: [
+      { label: 'abc', tone: 'f', edge: 'yes' },
+      { label: 'a < c?', edge: 'no', children: [
+        { label: 'acb', tone: 'f', edge: 'yes' },
+        { label: 'cab', tone: 'f', edge: 'no' },
+      ] },
+    ] },
+    { label: 'a < c?', edge: 'no', children: [
+      { label: 'bac', tone: 'f', edge: 'yes' },
+      { label: 'b < c?', edge: 'no', children: [
+        { label: 'bca', tone: 'f', edge: 'yes' },
+        { label: 'cba', tone: 'f', edge: 'no' },
+      ] },
+    ] },
+  ] }}
+  legend={{ p: 'the first comparison', f: 'a leaf: one of the 3! = 6 possible sorted orders' }}
+  caption='Every correct comparison sort needs a leaf for each of the n! orders. This tree has 6 leaves and depth 3 for 3 elements.'
+/>
+
+A binary tree with `n!` leaves has height at least `log2(n!)`, and the longest path is the number of comparisons in the worst case.
+
+<Equation label="Counting" expr="log2(n!) >= log2((n/2)^(n/2)) = (n/2) log2(n/2)" result="Omega(n log n) comparisons in the worst case" />
+
+This bound is a statement about the **worst case** (and the average case) of any comparison sort, not about every input. Insertion sort and bubble sort with early exit finish a sorted input in `n - 1` comparisons, which is `O(n)`. The tree has short paths too; it just also has a long one.
+
+## Using it in practice
+
+- **State what you bound.** Say "the worst case of comparison sorting is Omega(n log n)", not "comparison sorting is Omega(n log n)" without the case.
+- **Use Omega for impossibility.** To show an algorithm is optimal, match an upper bound with a lower bound: Merge Sort is `O(n log n)` and the problem is `Omega(n log n)`, so both are tight.
+- **Searching an unsorted array** must look at every element in the worst case: `Omega(n)`.
+- **Output size is a lower bound.** Printing all subsets of `n` items takes `Omega(2^n)` just to write them out.
+- **Combine with Big-O** to get Big-Theta when the two bounds meet.
+
+## Implementation
+
+Python has four examples: linear search, bubble sort, a three-way quick sort and matrix traversal. C++ and Go have three (no quick sort). The quick sort example builds new lists and is **not** an `Omega(n log n)` best case: an all-equal input is sorted in linear time, and its extra memory is not `O(log n)`.
+
+<TopicCode topic={'Complexity_Analysis/Time Complexity/Big-Omega (\u03A9)'} />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'Theta(1) to Theta(n)', when: 'Linear search finds the first element: Theta(1). Bubble sort with early exit on sorted input: Theta(n).' },
+    { case: 'Average case', time: 'depends on the input model', when: 'For linear search with the target equally likely anywhere, Theta(n); Omega(1) is still a true but weak bound.' },
+    { case: 'Worst case', time: 'Theta(n) to Theta(n^2)', when: 'Linear search with the target absent: Theta(n). Bubble sort on reversed input: Theta(n^2).' },
+  ]}
+  caption='The cases of the repository examples. Each of these functions can be bounded with O, Omega or Theta.'
+/>
+
+## Common misconceptions
+
+<Callout tone="warning" title="Watch out for these">
+- **"Omega is the best case."** Omega bounds a function from below. The best case is one function you may bound; the worst case is another. "Comparison sorting is Omega(n log n) in the worst case" is an Omega bound on the worst case.
+- **"No comparison sort can beat n log n."** Not on every input. The bound is for the worst and average case. Insertion sort needs `n - 1` comparisons on sorted input.
+- **"Omega(1) is a useful bound."** It holds for every algorithm. Prove the largest lower bound you can.
+- **"Binary search is Theta(log n)."** Its best case (target at the middle) is `Theta(1)`; its worst case is `Theta(log n)`. The statement needs a case.
+- **Mixing up the roles of O and Omega** when comparing: `f = Omega(g)` means `g = O(f)`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is Big-Omega the best case?">
+    No. It is a lower bound on a function. The best, average and worst case are three functions, and each can have O, Omega and Theta bounds. A lower bound on the worst case (such as `n log n` for comparison sorting) is a common and important use.
+  </FaqItem>
+  <FaqItem question="Why does the decision tree give n log n?">
+    A correct sort has at least `n!` leaves, one per possible order. A binary tree with `n!` leaves has height at least `log2(n!)`, which grows like `n log n`.
+  </FaqItem>
+  <FaqItem question="Does Omega(n log n) mean Merge Sort is optimal?">
+    For comparison sorting, yes: Merge Sort is `O(n log n)` in the worst case and the problem needs `Omega(n log n)` comparisons, so the bounds match. Non-comparison sorts such as counting sort avoid the bound by using the key values themselves.
+  </FaqItem>
+  <FaqItem question="What is the relation to Big-O?">
+    `f = Omega(g)` exactly when `g = O(f)`. If `f` is both `O(g)` and `Omega(g)`, then `f = Theta(g)`.
+  </FaqItem>
+</Faq>

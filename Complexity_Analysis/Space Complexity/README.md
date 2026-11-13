@@ -1,350 +1,124 @@
 # Space Complexity
 
-A comprehensive guide to **Space Complexity** analysis, which measures the amount of memory space an algorithm uses relative to the input size.
+Space complexity describes how much memory an algorithm needs as the input grows. By convention you count the extra (auxiliary) memory, including the recursion stack, and leave out the input itself.
 
----
+## Intuition
 
-## Overview
+Memory is used in three places: scalar variables (O(1)), data you build (a list of `n` items is O(n), an `n` by `n` matrix is O(n^2)), and the **call stack**, where every active call keeps a frame. Recursion `d` levels deep holds `d` frames at once, so a recursive function with no arrays can still use O(n) space.
 
-Space complexity describes how memory usage grows with input size. It includes both the space used by the input itself and any auxiliary (extra) space used by the algorithm. In most analyses, we focus on auxiliary space.
+Three terms to keep apart:
 
----
+- **Input space**: the memory that holds the input. Usually not counted.
+- **Auxiliary space**: extra memory the algorithm allocates, including the stack. This is what "space complexity" normally means.
+- **Total space**: input plus auxiliary.
 
-## Key Concepts
+Like the time bounds, space bounds are Big-O statements about a function, here the memory used as a function of `n`. They can be given for the best, average or worst case of the memory used.
 
-### Types of Space
+## Visual
 
-1. **Input Space**: Space used by the input data (usually not counted)
-2. **Auxiliary Space**: Extra space used by the algorithm (what we typically analyze)
-3. **Total Space**: Input space + Auxiliary space
+```text
+logarithmic_space_example(16): the stack at its deepest point
 
-### Why Analyze Space Complexity?
+  | f(1)  |   <- base case, 5 frames alive = log2(16) + 1
+  | f(2)  |
+  | f(4)  |
+  | f(8)  |
+  | f(16) |
+  +-------+
 
-- **Memory constraints**: Limited memory in embedded systems
-- **Scalability**: Understanding how memory grows with input
-- **Trade-offs**: Space vs time complexity trade-offs
-- **Optimization**: Identifying memory bottlenecks
-
----
-
-## Common Space Complexities
-
-### 🔹 O(1) - Constant Space
-
-Uses a fixed amount of memory regardless of input size.
-
-**Examples**:
-- In-place algorithms (swap, reverse)
-- Iterative algorithms with fixed variables
-- Simple calculations
-
-**Implementation**: [Python](./Python/space_complexity.py) | [C++](./C++/space_complexity.cpp) | [Go](./Go/main.go)
-
-```python
-def constant_space_example(n):
-    total = 0  # O(1) space
-    for i in range(1, n + 1):
-        total += i
-    return total
+Calls: 31 in total (time O(n)), but never more than 5 alive at once (space O(log n)).
 ```
 
----
+## How It Works
 
-### 🔹 O(log n) - Logarithmic Space
+To find the space complexity:
 
-Memory usage grows logarithmically with input size.
+1. Name what you count (auxiliary or total, output included or not).
+2. Find the **largest amount of memory alive at the same time**, not the sum of everything ever allocated.
+3. For recursion, take the maximum depth of the call stack, times the memory each frame holds.
+4. Drop constants and lower-order terms.
 
-**Examples**:
-- Balanced recursive algorithms (binary search recursion)
-- Divide-and-conquer with balanced splits
-- Tree traversal with recursion depth
+Examples from the code:
 
-**Implementation**: [Python](./Python/space_complexity.py)
+| Function | Time | Space | Why |
+|----------|------|-------|-----|
+| `constant_space_example(n)` | O(n) | O(1) | one running total |
+| `in_place_reverse(arr)` | O(n) | O(1) | two indices and a swap |
+| `linear_space_example(n)` | O(n) | O(n) | list of n items |
+| `quadratic_space_example(n)` | O(n^2) | O(n^2) | n by n matrix |
+| `logarithmic_space_example(n)` (Python only) | O(n) | O(log n) | two calls on halves, one after the other |
+| `recursive_fibonacci_naive(n)` (Python only) | O(2^n) | O(n) | only one root-to-leaf path is on the stack |
+| `merge_sort_space(arr)` (Python only) | O(n log n) | O(n) | merge buffers form a geometric series |
 
-```python
-def logarithmic_space_example(n):
-    if n <= 1:
-        return n
-    # Recursion depth is log n
-    return logarithmic_space_example(n // 2)
+## Step-by-Step Trace
+
+Why Merge Sort uses O(n) space and not O(n log n). There are log n levels and n elements of work per level, but the memory of a finished merge is freed before the next one starts. The live data is the array plus, at any time, a chain of halves:
+
+```text
+n + n/2 + n/4 + ... < 2n   ->   O(n)
 ```
 
----
+And why naive Fibonacci has O(n) space although it makes exponentially many calls: `fib(n - 1)` returns before `fib(n - 2)` starts, so the stack holds one path of the call tree. Measured maximum depth of `recursive_fibonacci_naive`: 5, 10 and 20 for n = 5, 10 and 20.
 
-### 🔹 O(n) - Linear Space
+## Complexity
 
-Memory usage grows linearly with input size.
+| Bound | Example | Memory for n = 10 / 100 / 1,000 (cells) |
+|-------|---------|------------------------------------------|
+| O(1) | a few variables | 1 / 1 / 1 |
+| O(log n) | balanced recursion depth | 4 / 7 / 10 |
+| O(n) | a copy of the input | 10 / 100 / 1,000 |
+| O(n^2) | n by n matrix | 100 / 10,000 / 1,000,000 |
 
-**Examples**:
-- Arrays and lists
-- Recursion stack (linear depth)
-- Hash tables
-- Merge sort auxiliary space
+| Algorithm | Time | Auxiliary space |
+|-----------|------|-----------------|
+| Binary search, iterative | O(log n) | O(1) |
+| Binary search, recursive | O(log n) | O(log n) |
+| Merge Sort (arrays) | O(n log n) | O(n) |
+| Quick Sort | O(n log n) average | O(log n) if the smaller side is recursed first |
+| Heap Sort | O(n log n) | O(1) |
+| DFS / BFS on a graph | O(V + E) | O(V) |
 
-**Implementation**: [Python](./Python/space_complexity.py) | [C++](./C++/space_complexity.cpp) | [Go](./Go/main.go)
+## When to Use
 
-```python
-def linear_space_example(n):
-    result = []  # O(n) space
-    for i in range(1, n + 1):
-        result.append(i)
-    return result
-```
+- Before choosing between a recursive and an iterative version: depth `n` costs O(n) memory.
+- When memory is limited (embedded systems, huge inputs), to decide whether an in-place algorithm is required.
+- When trading space for time on purpose: hash tables and memoization spend O(n) memory to avoid recomputation; in-place algorithms and streaming do the opposite.
 
----
+## Space Complexity vs. Time Complexity
 
-### 🔹 O(n log n) - Linearithmic Space
+| | Time | Space |
+|---|------|-------|
+| Measures | steps executed | memory alive at once |
+| Accumulates over the run | yes (every step counts) | no (freed memory is reused) |
+| Hidden cost | hidden loops in library calls | stack frames, slicing and copies |
+| Typical trade-off | spend memory to save time | spend time to save memory |
 
-Memory usage grows as n times log n.
+## Common Pitfalls
 
-**Examples**:
-- Some divide-and-conquer algorithms
-- Recursive algorithms with log n depth and n work per level
-
----
-
-### 🔹 O(n²) - Quadratic Space
-
-Memory usage grows quadratically with input size.
-
-**Examples**:
-- 2D matrices (n×n)
-- Adjacency matrices for graphs
-- Nested data structures
-
-**Implementation**: [Python](./Python/space_complexity.py) | [C++](./C++/space_complexity.cpp) | [Go](./Go/main.go)
-
-```python
-def quadratic_space_example(n):
-    matrix = []  # O(n²) space
-    for i in range(n):
-        row = [0] * n
-        matrix.append(row)
-    return matrix
-```
-
----
-
-## Space Complexity Hierarchy
-
-```
-O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(n³) < O(2ⁿ)
-```
-
----
-
-## Common Algorithms Space Complexity
-
-| Algorithm | Time Complexity | Space Complexity | Notes |
-|-----------|----------------|------------------|-------|
-| Binary Search | O(log n) | O(1) | Iterative |
-| Binary Search | O(log n) | O(log n) | Recursive |
-| Merge Sort | O(n log n) | O(n) | Auxiliary array |
-| Quick Sort | O(n log n) | O(log n) | Recursion stack |
-| Heap Sort | O(n log n) | O(1) | In-place |
-| Bubble Sort | O(n²) | O(1) | In-place |
-| DFS (Graph) | O(V + E) | O(V) | Visited array + stack |
-| BFS (Graph) | O(V + E) | O(V) | Queue + visited array |
-
----
-
-## Space-Time Trade-offs
-
-### Trading Space for Time
-
-- **Hash Tables**: O(n) space for O(1) average lookup
-- **Memoization**: O(n) space to avoid recomputation
-- **Lookup Tables**: Precomputed values for faster access
-
-### Trading Time for Space
-
-- **In-place Algorithms**: O(1) space but may be slower
-- **Iterative vs Recursive**: Iterative uses less stack space
-- **Streaming Algorithms**: Process data in chunks to reduce memory
-
----
-
-## In-Place Algorithms
-
-Algorithms that use O(1) auxiliary space are called **in-place** algorithms.
-
-**Examples**:
-- In-place array reversal
-- In-place sorting (heap sort, bubble sort)
-- In-place matrix transpose
-
-**Implementation**: [Python](./Python/space_complexity.py) | [C++](./C++/space_complexity.cpp) | [Go](./Go/main.go)
-
-```python
-def in_place_reverse(arr):
-    left, right = 0, len(arr) - 1
-    while left < right:
-        arr[left], arr[right] = arr[right], arr[left]
-        left += 1
-        right -= 1
-    return arr  # O(1) space
-```
-
----
-
-## Recursion and Space
-
-### Recursion Stack Space
-
-Recursive algorithms use stack space proportional to recursion depth:
-
-- **Linear recursion**: O(n) space (e.g., factorial)
-- **Binary recursion**: O(log n) space (e.g., binary search)
-- **Exponential recursion**: O(n) space (e.g., naive Fibonacci)
-
-### Converting to Iterative
-
-Many recursive algorithms can be converted to iterative to reduce space:
-
-```python
-# Recursive: O(n) space
-def factorial_recursive(n):
-    if n <= 1:
-        return 1
-    return n * factorial_recursive(n - 1)
-
-# Iterative: O(1) space
-def factorial_iterative(n):
-    result = 1
-    for i in range(2, n + 1):
-        result *= i
-    return result
-```
-
----
-
-## Key Concepts
-
-### 1. Auxiliary vs Total Space
-- **Auxiliary space**: Extra space (what we analyze)
-- **Total space**: Input + Auxiliary space
-- **Convention**: Usually analyze auxiliary space
-
-### 2. Space Complexity Rules
-- Constants are ignored: O(5n) = O(n)
-- Lower-order terms ignored: O(n² + n) = O(n²)
-- Focus on dominant term
-
-### 3. When Space Matters
-- **Embedded systems**: Limited memory
-- **Large datasets**: Memory constraints
-- **Distributed systems**: Network bandwidth
-- **Real-time systems**: Predictable memory usage
-
----
+- Believing recursion is free. Every active call has a frame, so depth `d` costs O(d).
+- Counting all calls instead of the calls alive at once (naive Fibonacci is O(n) space, not O(2^n)).
+- Summing allocations over time. Merge Sort's buffers are freed and reused.
+- Slicing in Python: `arr[:mid]` copies. Pass indices to avoid the copies.
+- Mixing input and auxiliary space, or forgetting whether the returned output counts. State your convention.
+- Ignoring language limits: Python raises `RecursionError` after about 1,000 nested calls by default; C++ has a fixed-size stack; Go grows goroutine stacks on demand (starting at 2 KB in current versions).
 
 ## Implementations
 
-Each complexity class is implemented in:
-- **Python** - Readable examples with explanations
-- **C++** - High-performance implementations
-- **Go** - Modern and efficient code
+- [Python](./Python/space_complexity.py): seven examples (constant, linear, quadratic, logarithmic, naive Fibonacci, in-place reverse, Merge Sort).
+- [C++](./C++/space_complexity.cpp): four examples (constant, linear, quadratic, in-place reverse).
+- [Go](./Go/main.go): the same four examples.
 
----
+## Practice Problems
 
-## Usage Examples
+- [Reverse String (LeetCode 344)](https://leetcode.com/problems/reverse-string/): the in-place O(1) reverse.
+- [Climbing Stairs (LeetCode 70)](https://leetcode.com/problems/climbing-stairs/): O(n) memo table, reducible to O(1) with two variables.
+- [Fibonacci Number (LeetCode 509)](https://leetcode.com/problems/fibonacci-number/): compare recursive, memoized and iterative space.
+- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/): compare the space of Merge Sort and Heap Sort.
 
-### Python
-```python
-from space_complexity import (
-    constant_space_example,
-    linear_space_example,
-    quadratic_space_example,
-    in_place_reverse
-)
+## Related
 
-# O(1) space
-result = constant_space_example(100)
-
-# O(n) space
-arr = linear_space_example(10)
-
-# O(n²) space
-matrix = quadratic_space_example(5)
-
-# O(1) in-place
-arr = [1, 2, 3, 4, 5]
-in_place_reverse(arr)
-```
-
-### C++
-```cpp
-#include "space_complexity.cpp"
-
-// O(1) space
-int result = constantSpaceExample(100);
-
-// O(n) space
-vector<int> arr = linearSpaceExample(10);
-
-// O(1) in-place
-vector<int> test = {1, 2, 3, 4, 5};
-inPlaceReverse(test);
-```
-
-### Go
-```go
-// O(1) space
-result := ConstantSpaceExample(100)
-
-// O(n) space
-arr := LinearSpaceExample(10)
-
-// O(1) in-place
-test := []int{1, 2, 3, 4, 5}
-InPlaceReverse(test)
-```
-
----
-
-## Testing
-
-All implementations include comprehensive test suites:
-
-```bash
-# Python
-python space_complexity_test.py
-
-# C++
-g++ -std=c++11 -o test space_complexity.cpp
-./test
-
-# Go
-go test
-```
-
----
-
-## Related Topics
-
-- **[Time Complexity](../Time%20Complexity/)** - Runtime analysis
-- **[Amortized Analysis](../Amortized%20Analysis/)** - Average-case analysis
-- **[Big-O Notation](../Time%20Complexity/Big-O%20Notation/)** - Upper bound analysis
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Data Structures and Algorithms in Python" by Goodrich, Tamassia, Goldwasser
-
----
-
-## Further Reading
-
-- Memory-efficient algorithms
-- Streaming algorithms
-- Space-optimized data structures
-- Cache-aware algorithms
-
----
-
-**Happy Learning! 🚀**
-
-
+- [Big-O Notation](../Time%20Complexity/Big-O%20Notation/)
+- [Amortized Analysis](../Amortized%20Analysis/)
+- [Merge Sort](../../Algorithms/Sorting/Merge%20Sort/)
+- [Quick Sort](../../Algorithms/Sorting/Quick%20Sort/)
+- [Heap Sort](../../Algorithms/Sorting/Heap%20Sort/)

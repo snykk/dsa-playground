@@ -10,9 +10,9 @@ from math import sqrt, ceil
 
 class SqrtDecomposition:
     def __init__(self, arr: List[int]):
-        self.arr = arr
+        self.arr = list(arr)  # copy: update() must not change the caller's list
         self.n = len(arr)
-        self.block_size = int(ceil(sqrt(self.n)))
+        self.block_size = max(1, int(ceil(sqrt(self.n))))
         self.block_count = (self.n + self.block_size - 1) // self.block_size
         self.blocks = [0] * self.block_count
         

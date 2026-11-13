@@ -1,103 +1,31 @@
-# Miller-Rabin Primality Test (C++)
+# Miller-Rabin Primality Test -- C++ Implementation
 
-**Miller-Rabin Primality Test** is a probabilistic algorithm for determining whether a number is prime. It is based on Fermat's little theorem and is widely used in practice.
+## Files
 
----
+- `miller_rabin.cpp`: all functions (no `main`; the test file includes it).
+- `miller_rabin_test.cpp`: assert-based tests (small primes and composites, edge cases, primes and composites near 2^32, 2^61 and 2^63, 2^64 - 59, strong pseudoprimes, Carmichael numbers, negative input, `modPow` with a 60-bit modulus, agreement with trial division for 0..5000).
 
-## Overview
+## API
 
-The Miller-Rabin test is one of the most practical primality tests. It's faster than deterministic tests for large numbers and is commonly used in cryptographic applications.
+- `bool millerRabin(long long n, int k = 5)`: `k` random witnesses from `[2, n - 2]`; true means "probably prime".
+- `bool isPrimeMillerRabin(long long n, int k = 5)`: handles `n < 2` and even `n`, then calls `millerRabin`.
+- `bool millerRabinDeterministic(long long n)`: twelve fixed witnesses; exact for every `long long` (negative `n` is not prime).
+- `bool millerRabinDeterministicU64(unsigned long long n)`: the same for the full range up to 2^64 - 1.
+- `long long modPow(long long base, long long exponent, long long modulus)`: `base^exponent mod modulus` with 128-bit products.
 
-**Key Characteristics:**
-- Probabilistic: Can give false positives (very rare with sufficient iterations)
-- Efficient: O(k log³ n) time complexity
-- Widely used: Standard in cryptography libraries
+## C++-Specific Notes
 
----
+- Products use `unsigned __int128` (a GCC and Clang extension), so every 64-bit modulus is safe. The old code multiplied in `long long` and returned false for primes above about 3.04e9.
+- Witnesses come from `std::mt19937_64` seeded with `std::random_device`, once per thread. The old code used unseeded `rand()`.
+- The `long long` functions accept `n` up to 2^63 - 1; use the `U64` variant above that.
 
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **millerRabin** | O(k log³ n) | O(1) |
-| **isPrimeMillerRabin** | O(k log³ n) | O(1) |
-| **millerRabinDeterministic** | O(log³ n) | O(1) |
-
-Where k is the number of iterations (default: 5)
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`millerRabin(n, k)`**
-   - Miller-Rabin primality test
-   - Returns true if n is probably prime, false if composite
-   - Time: O(k log³ n), Space: O(1)
-
-2. **`isPrimeMillerRabin(n, k)`**
-   - Check if n is prime using Miller-Rabin test
-   - Handles edge cases (n < 2, n == 2, even numbers)
-   - Time: O(k log³ n), Space: O(1)
-
-3. **`millerRabinDeterministic(n)`**
-   - Deterministic version for n < 2^64
-   - Uses specific bases known to work for all numbers < 2^64
-   - Time: O(log³ n), Space: O(1)
-
----
-
-## Usage
-
-```cpp
-#include "miller_rabin.cpp"
-#include <iostream>
-
-int main() {
-    // Probabilistic test
-    if (isPrimeMillerRabin(97, 10)) {
-        std::cout << "97 is probably prime" << std::endl;
-    }
-    
-    // Deterministic test (for n < 2^64)
-    if (millerRabinDeterministic(101)) {
-        std::cout << "101 is prime" << std::endl;
-    }
-    
-    return 0;
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Compile
-g++ -o miller_rabin_test miller_rabin_test.cpp
-
-# Run
-./miller_rabin_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD miller_rabin_test.cpp -o mr_test && ./mr_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ miller_rabin_test.cpp -o miller_rabin_test && ./miller_rabin_test
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 31)
-- "Algorithm Design Manual" by Steven Skiena
-- "Number Theory" by Rosen
-
----
-
-_Last Updated: December 2025_
-
+- Overflow-free modular multiplication is the whole difference between a correct and an incorrect Miller-Rabin above 2^32.
+- Twelve fixed bases make the test deterministic for 64-bit inputs.

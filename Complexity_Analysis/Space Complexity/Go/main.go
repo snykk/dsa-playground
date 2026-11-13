@@ -20,7 +20,7 @@ func LinearSpaceExample(n int) []int {
 	return result
 }
 
-// QuadraticSpaceExample demonstrates O(n²) - Quadratic Space
+// QuadraticSpaceExample demonstrates O(n^2) - Quadratic Space
 func QuadraticSpaceExample(n int) [][]int {
 	matrix := make([][]int, n)
 	for i := 0; i < n; i++ {
@@ -52,9 +52,9 @@ func DemonstrateSpaceComplexity() {
 	arr := LinearSpaceExample(10)
 	fmt.Printf("  Created array of size %d\n\n", len(arr))
 
-	fmt.Println("O(n²) - Quadratic Space:")
+	fmt.Println("O(n^2) - Quadratic Space:")
 	matrix := QuadraticSpaceExample(3)
-	fmt.Printf("  Created %d×%d matrix\n\n", len(matrix), len(matrix[0]))
+	fmt.Printf("  Created %dx%d matrix\n\n", len(matrix), len(matrix[0]))
 
 	test := []int{1, 2, 3, 4, 5}
 	InPlaceReverse(test)

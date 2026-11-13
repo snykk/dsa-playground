@@ -1,59 +1,34 @@
-# Mo's Algorithm - C++
+# Mo's Algorithm -- C++ Implementation
 
-This folder contains a C++ implementation of **Mo's Algorithm** for efficient offline range queries.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `mos_algorithm.cpp` | the `MoSAlgorithm` class, `countDistinctInRanges` and a demo `main()` (compiled out with `-DIS_TEST_BUILD`) |
+| `mos_algorithm_test.cpp` | assert-based tests |
 
-## Concept
+## API
 
-Mo's Algorithm is a square root decomposition technique that efficiently answers multiple range queries offline. It sorts queries by block and processes them in an optimized order.
+| Function | Description |
+|----------|-------------|
+| `MoSAlgorithm(const vector<int>& arr)` | copies the array; block size is `max(1, (int)sqrt(n))` |
+| `vector<int> processQueries(const vector<pair<int,int>>& queries)` | distinct counts for 0-indexed inclusive `(l, r)` pairs, in input order |
+| `int add(int, int, unordered_map<int,int>&)`, `int remove(...)` | update the distinct count |
+| `vector<int> countDistinctInRanges(arr, queries)` | convenience wrapper |
 
-**Key Features:**
-- Square root decomposition
-- Offline query processing
-- Efficient for multiple range queries
-- O((N + Q) × √N) complexity
+## C++-Specific Notes
 
----
+- Uses `unordered_map` for frequencies; a plain array indexed by value is faster when values are small.
+- `using namespace std;` is at file scope because the tests `#include` the `.cpp`.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `countDistinctInRanges(arr, queries)` | Count distinct elements in ranges | O((N+Q)√N) |
-| `MoSAlgorithm.processQueries(queries)` | Process queries using Mo's algorithm | O((N+Q)√N) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Process Queries | O((N+Q)√N) | O(N) |
-| Query Answer | O(1) amortized | O(1) |
-
----
-
-## Usage
-
-```cpp
-#include "mos_algorithm.cpp"
-
-vector<int> arr = {1, 1, 2, 1, 3, 4, 3, 3, 4};
-vector<pair<int, int>> queries = {{0, 4}, {1, 3}, {2, 6}, {0, 8}};
-
-vector<int> results = countDistinctInRanges(arr, queries);
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-g++ -o test mos_algorithm_test.cpp && ./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD mos_algorithm_test.cpp -o test && ./test
+g++ -std=c++17 -O2 mos_algorithm.cpp -o demo && ./demo
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Same algorithm as Python.
+- Answers come back in input order.

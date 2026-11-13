@@ -73,20 +73,27 @@ func CombinedGrundy(states []int, grundyTables [][]int) int {
 	return result
 }
 
-// MisereNimWinner checks winner in Misère Nim
+// MisereNimWinner checks the winner in Misere Nim (the player who takes the
+// last object loses). It is normal Nim unless every pile has at most one
+// object; then the first player wins exactly when the number of non-empty piles
+// is even.
 func MisereNimWinner(piles []int) bool {
 	xorSum := 0
-	allOnes := true
+	bigPile := false
+	nonEmpty := 0
 
 	for _, pile := range piles {
 		xorSum ^= pile
 		if pile > 1 {
-			allOnes = false
+			bigPile = true
+		}
+		if pile > 0 {
+			nonEmpty++
 		}
 	}
 
-	if allOnes {
-		return len(piles)%2 == 0
+	if !bigPile {
+		return nonEmpty%2 == 0
 	}
 	return xorSum != 0
 }

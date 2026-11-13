@@ -1,158 +1,99 @@
 # Rat in a Maze
 
-The **Rat in a Maze** problem is a classic pathfinding problem that finds a path from a source cell to a destination cell in a maze. The maze is represented as a 2D grid where 1 represents a valid path and 0 represents a wall.
+A rat starts in the top-left cell of an n x n grid and must reach the bottom-right cell, moving through open cells only. The backtracking solver in this folder tries right, down, left and up, marks the cells it enters, and returns one path (not necessarily the shortest) or reports that there is none.
 
----
+## Intuition
 
-## Overview
+Walk through a maze with a piece of chalk. At every junction you pick a direction. If you reach a dead end you walk back, rub out your chalk marks on that branch, and try another direction. The one extra rule that keeps this fast: remember every cell you have already entered and never enter it again, because if it led nowhere once it will lead nowhere again.
 
-Given a maze represented as an N×N grid:
-- **1**: Valid path (rat can move)
-- **0**: Wall (rat cannot move)
+Invariant: `solution` marks exactly the cells on the route currently being explored. `visited` marks every cell that has been entered and is never cleared, so each cell is entered at most once.
 
-The rat starts at position (0, 0) and must reach destination (N-1, N-1). The rat can move in four directions:
-- Right (→)
-- Down (↓)
-- Left (←)
-- Up (↑)
+## Visual
 
-The backtracking algorithm:
-1. Mark current cell as part of solution path
-2. Try moving in all four directions
-3. If destination reached, return true
-4. If dead end, backtrack and try different path
-5. Unmark cell when backtracking
+```text
+maze (# = wall)         path found by the code (1 = on path)
 
----
+S . # # #               1 0 0 0 0
+. # # . .               1 0 0 0 0
+. . . . #               1 1 1 1 0
+# # # . .               0 0 0 1 1
+# # # # E               0 0 0 0 1
 
-## Key Characteristics
-
-1. **Pathfinding**: Finds path from source to destination
-2. **Backtracking**: Explores paths and backtracks on dead ends
-3. **Grid-Based**: Works on 2D grid structures
-4. **Multiple Paths**: Can find one or all paths
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `is_safe(maze, x, y, n)` | Check if (x, y) is valid position | O(1) |
-| `solve_maze(maze)` | Find path from (0,0) to (n-1,n-1) | O(2^(n×n)) worst case |
-| `solve_maze_all(maze)` | Find all paths from source to destination | O(2^(n×n)) |
-| `print_solution(solution)` | Display the solution path | O(n²) |
-
----
-
-## Implementation Approaches
-
-### 1. Basic Backtracking
-- **Pros**: Simple, finds one solution
-- **Cons**: Explores many invalid paths
-- **Use Case**: Finding any valid path
-
-### 2. Optimized with Pruning
-- **Pros**: Early termination, better performance
-- **Cons**: More complex
-- **Use Case**: Large mazes, performance critical
-
-### 3. BFS Alternative
-- **Pros**: Finds shortest path
-- **Cons**: Different algorithm, not backtracking
-- **Use Case**: When need shortest path
-
----
-
-## Applications
-
-1. **Pathfinding**: Finding routes in grids
-2. **Game Development**: NPC pathfinding, puzzle games
-3. **Robotics**: Navigation algorithms
-4. **Maze Solving**: Solving physical mazes
-5. **Graph Traversal**: Special case of graph problems
-
----
-
-## Example Use Cases
-
-### Finding Path
-```python
-maze = [
-    [1, 0, 0, 0],
-    [1, 1, 0, 1],
-    [0, 1, 0, 0],
-    [1, 1, 1, 1]
-]
-solution = solve_maze(maze)
-# Returns path matrix with 1s marking the solution
+(0,1) is tried first (right of the start) and is a dead end: it is undone.
 ```
 
-### Checking Reachability
-```python
-if solve_maze(maze):
-    print("Path exists!")
-else:
-    print("No path found")
-```
+## How It Works
 
----
+1. `solve_maze` returns `None` if the maze is empty, not square, or the start or goal is a wall.
+2. `solve_maze_util(maze, x, y, n, solution, visited)` rejects a cell that is outside the grid, a wall (`is_safe`), or already visited.
+3. Otherwise it marks the cell in `visited` and `solution`. At `(n-1, n-1)` it returns true.
+4. It then tries the neighbors in the order right, down, left, up. The first success ends the search.
+5. If none works, it resets `solution[x][y] = 0` and returns false. `visited` stays set.
 
-## Implementations
+## Step-by-Step Trace
 
-This folder contains implementations in three languages:
+For the maze above the cells are entered in this order: `(0,0)`, `(0,1)`, `(1,0)`, `(2,0)`, `(2,1)`, `(2,2)`, `(2,3)`, `(3,3)`, `(3,4)`, `(4,4)`.
 
-- **Python** (`Python/`) - List-based implementation
-- **C++** (`C++/`) - Vector-based implementation
-- **Go** (`Go/`) - Slice-based implementation
+| Cell entered | What happens |
+|--------------|--------------|
+| (0,0) | start; right is `(0,1)` |
+| (0,1) | dead end: right is a wall, down is a wall, left is visited: undone |
+| (1,0) | down from the start |
+| (2,0) | down; right `(2,1)` is next |
+| (2,1), (2,2), (2,3) | straight along row 2; `(2,4)` is a wall, so down |
+| (3,3), (3,4) | right along row 3; down from `(3,4)` |
+| (4,4) | goal: the search succeeds (17 calls in total, including rejected cells) |
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+## Complexity
 
----
+| Case | Time | Space |
+|------|------|-------|
+| Worst | O(n^2) | O(n^2) |
 
-## Complexity Summary
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **is_safe** | O(1) | O(1) |
-| **solve_maze** | O(2^(n²)) worst case | O(n²) |
-| **solve_maze_all** | O(2^(n²)) | O(n² × paths) |
-| **print_solution** | O(n²) | O(1) |
-
-In practice, backtracking with pruning performs much better due to early termination.
-
----
+Each of the n^2 cells is entered at most once, with four constant-time neighbor checks. Space is the `solution` and `visited` matrices plus a recursion stack that can reach n^2 frames in a winding maze. Without `visited` (only un-marking on the way out) the search is exponential: an open 12 x 12 maze with the goal walled off took about 0.65 s in Python with a right-and-down-only search and no dead-end memory, and each size step multiplied the time by about four.
 
 ## When to Use
 
-- **Pathfinding**: Finding paths in grid-based mazes
-- **Puzzle Games**: Maze solving games
-- **Navigation**: Simple navigation algorithms
-- **Algorithm Learning**: Understanding backtracking
+- You only need some path through a grid, or a yes/no answer.
+- You are learning the choose, explore, undo pattern.
+- Use BFS when the path must be shortest.
 
----
+## Rat in a Maze vs. Alternatives
 
-## Related Patterns
+| Approach | Result | Time |
+|----------|--------|------|
+| DFS with visited (this folder) | some path | O(n^2) |
+| [BFS](../../../Graph_Algorithms/Traversal/BFS/README.md) | a shortest path | O(n^2) |
+| Right and down only | a monotone path; misses mazes that need up or left | exponential without memo |
 
-- **Backtracking**: Core technique
-- **BFS/DFS**: Alternative pathfinding approaches
-- **Graph Traversal**: Maze as special graph
+## Common Pitfalls
 
----
+- Moving only right and down fails on mazes that need an upward or left move.
+- Clearing `visited` on backtracking makes the search exponential.
+- Leaving `solution = 1` on a dead end gives a path with extra cells.
+- Reading `maze[x][y]` before the bounds check.
+- The path is not shortest; it depends on the move order.
+- Python: a route longer than about 1,000 cells raises `RecursionError`.
 
-## Further Reading
+## Implementations
 
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- LeetCode: Unique Paths, Path Sum problems
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `rat_in_maze.py` | `solve_maze(maze)` returns a matrix or `None` |
+| C++ | [C++](C++/) | `rat_in_maze.cpp` | `solveMaze(maze)` returns `optional<vector<vector<int>>>` |
+| Go | [Go](Go/) | `main.go` | `solveMaze(maze)` returns a matrix or `nil` |
 
----
+Finding all paths is not implemented.
 
-**Note**: The backtracking approach finds any valid path. For finding the shortest path, BFS is more appropriate. The algorithm works well for small to medium-sized mazes. For very large mazes, consider using A* or other optimized pathfinding algorithms.
+## Practice Problems
 
----
+- [Shortest Path in Binary Matrix (LeetCode 1091)](https://leetcode.com/problems/shortest-path-in-binary-matrix/)
+- [Number of Islands (LeetCode 200)](https://leetcode.com/problems/number-of-islands/)
+- [Unique Paths III (LeetCode 980)](https://leetcode.com/problems/unique-paths-iii/)
 
-_Last Updated: December 2025_
+## Related
+
+- [N-Queens Problem](../N-Queens%20Problem/README.md)
+- [Sudoku Solver](../Sudoku%20Solver/README.md)
+- [Graph Coloring](../Graph%20Coloring/README.md)
+- [DFS](../../../Graph_Algorithms/Traversal/DFS/README.md)

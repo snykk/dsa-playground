@@ -1,150 +1,98 @@
 # N-Queens Problem
 
-The **N-Queens Problem** is a classic constraint satisfaction problem that asks: "Given an N×N chessboard, can you place N queens on the board such that no two queens attack each other?" This problem is a fundamental example of backtracking algorithms.
+The N-Queens problem asks for n queens on an n x n chessboard such that no two queens attack each other. The solver in this folder places one queen per row with backtracking, and can return the first solution or all of them.
 
----
+## Intuition
 
-## Overview
+A queen attacks along its row, its column and both diagonals. Because two queens may never share a row, a solution has exactly one queen in each row. So the question for each row is only "which column?". The solver tries the columns from left to right and, as soon as a row has no safe column, it goes back to the previous row and moves that queen.
 
-The N-Queens problem requires placing N queens on an N×N chessboard so that:
-- No two queens are in the same row
-- No two queens are in the same column
-- No two queens are on the same diagonal
+Invariant: when the recursion works on row `r`, the queens in rows `0..r-1` do not attack each other. A queen is placed only after `is_safe` checks the column above it and both upper diagonals, so any board with n queens is a valid solution.
 
-This problem demonstrates the power of backtracking: we try placing queens one by one, and if we reach an invalid state, we backtrack and try a different position. The algorithm explores the solution space systematically, pruning invalid branches early.
+## Visual
 
----
+```text
+n = 4, first solution found: columns [1, 3, 0, 2]
 
-## Key Characteristics
+  . Q . .
+  . . . Q
+  Q . . .
+  . . Q .
 
-1. **Constraint Satisfaction**: Multiple constraints must be satisfied simultaneously
-2. **Backtracking**: Recursively tries solutions and backtracks on failure
-3. **Pruning**: Early termination when constraints are violated
-4. **Exponential Search Space**: O(N!) possible arrangements to explore
+dead end met on the way (queens at row 0 col 0 and row 1 col 2):
 
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `is_safe(board, row, col, n)` | Check if placing queen at (row, col) is safe | O(n) |
-| `solve_n_queens(n)` | Find one solution for N-Queens | O(N!) worst case |
-| `solve_n_queens_all(n)` | Find all solutions for N-Queens | O(N!) worst case |
-| `count_solutions(n)` | Count number of solutions | O(N!) worst case |
-
----
-
-## Implementation Approaches
-
-### 1. Basic Backtracking
-- **Pros**: Simple, intuitive, easy to understand
-- **Cons**: Explores entire search space in worst case
-- **Use Case**: Learning, small N values
-
-### 2. Optimized Backtracking
-- **Pros**: Early pruning, constraint propagation
-- **Cons**: More complex implementation
-- **Use Case**: Larger N values, production code
-
-### 3. Iterative Deepening
-- **Pros**: Memory efficient, can find first solution quickly
-- **Cons**: May recompute states
-- **Use Case**: When memory is constrained
-
----
-
-## Applications
-
-1. **Constraint Satisfaction**: Template for CSP problems
-2. **Scheduling Problems**: Resource allocation with constraints
-3. **Puzzle Solving**: Similar structure to Sudoku, crosswords
-4. **Optimization**: Finding optimal arrangements
-5. **Algorithm Design**: Teaching backtracking concepts
-
----
-
-## Example Use Cases
-
-### Finding One Solution
-```python
-n = 8
-solution = solve_n_queens(8)
-# Returns one valid arrangement of 8 queens
+  Q x x x        x = attacked square
+  x x Q x        row 2 is completely attacked -> backtrack
+  x x x x
+  x . x x
 ```
 
-### Finding All Solutions
-```python
-n = 4
-all_solutions = solve_n_queens_all(4)
-# Returns all 2 solutions for 4-Queens
-```
+## How It Works
 
-### Counting Solutions
-```python
-n = 8
-count = count_solutions(8)
-# Returns 92 (number of solutions for 8-Queens)
-```
+1. `solve_n_queens(n, find_all)` creates an empty n x n board of 0 and 1.
+2. The recursive helper handles `row`. If `row == n`, it stores a copy of the board; it then returns "stop" when only the first solution is wanted.
+3. Otherwise it tries each `col`. `is_safe(board, row, col, n)` looks at the column above and the upper-left and upper-right diagonals; rows below are empty.
+4. On a safe square it sets `board[row][col] = 1`, recurses into `row + 1`, and resets the square to 0 when the call returns without stopping the search.
 
----
+## Step-by-Step Trace
 
-## Implementations
+Finding the first 4-queens solution (26 calls to `is_safe`):
 
-This folder contains implementations in three languages:
+| Placement so far (row: column) | Next row | Result |
+|--------------------------------|----------|--------|
+| 0:0 | 1 | columns 0 and 1 attacked, column 2 is the first safe one |
+| 0:0, 1:2 | 2 | all four squares attacked: backtrack |
+| 0:0, 1:3 | 2 | column 1 is the first safe one |
+| 0:0, 1:3, 2:1 | 3 | all four squares attacked: backtrack, then row 0 gets column 1 |
+| 0:1, 1:3, 2:0 | 3 | column 2 is the first safe one: solution |
 
-- **Python** (`Python/`) - List-based implementation
-- **C++** (`C++/`) - Vector-based implementation
-- **Go** (`Go/`) - Slice-based implementation
+## Complexity
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+| Case | Time | Space |
+|------|------|-------|
+| First solution | far below n! in practice (876 safety checks for n = 8) | O(n^2) board |
+| All solutions | O(n * n!) upper bound (15,720 safety checks for n = 8) | O(n^2) plus S boards stored |
 
----
-
-## Complexity Summary
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **is_safe** | O(n) | O(1) |
-| **solve_n_queens** | O(N!) worst case | O(N²) |
-| **solve_n_queens_all** | O(N!) | O(N² × solutions) |
-| **count_solutions** | O(N!) | O(N²) |
-
-In practice, backtracking with pruning performs much better than O(N!) due to early termination.
-
----
+At depth k the queens use k different columns, so there are at most n!/(n-k)! partial placements and about e * n! nodes overall. Each node costs an O(n) safety scan. Keeping every board costs n^2 memory per solution (S = number of solutions: 92 for n = 8).
 
 ## When to Use
 
-- **Constraint Satisfaction**: Problems with multiple constraints
-- **Exhaustive Search**: When need to find all valid solutions
-- **Puzzle Problems**: Similar structure to N-Queens
-- **Teaching**: Demonstrating backtracking concepts
+- To learn backtracking with pruning, or to count and list solutions for small n.
+- As a test for search code: the counts for n = 0..9 are 1, 1, 0, 0, 2, 10, 4, 40, 92, 352 (OEIS A000170), and the tests check them.
+- For large n, use column and diagonal sets or bitmasks (O(1) safety check), or a local search such as min-conflicts. They are not implemented here.
 
----
+## N-Queens vs. Alternatives
 
-## Related Patterns
+| Approach | Safety check | Notes |
+|----------|--------------|-------|
+| Board scan (this folder) | O(n) | simple, closest to the problem statement |
+| Column and diagonal sets | O(1) | track column `c`, diagonal `r - c` and anti-diagonal `r + c` |
+| Bitmasks | O(1) | fastest simple counter |
+| [Graph Coloring](../Graph%20Coloring/README.md) | per vertex O(V) | same choose, check, recurse, undo template |
 
-- **Backtracking**: Core technique used here
-- **Constraint Propagation**: Can optimize N-Queens
-- **Recursive Search**: Fundamental pattern
+## Common Pitfalls
 
----
+- Saving the live `board` instead of a copy: every stored solution ends up as the same empty grid.
+- Forgetting `board[row][col] = 0` after a failed branch.
+- Checking only one diagonal direction.
+- Go: `solveNQueens(n, true)` returns one board, not all. Use `solveNQueensAll(n)`.
+- `n = 2` and `n = 3` have no solution; `n = 0` has one (the empty board).
 
-## Further Reading
+## Implementations
 
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Artificial Intelligence: A Modern Approach" by Russell & Norvig
-- LeetCode: N-Queens problem
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `n_queens.py` | `solve_n_queens(n, find_all=False)` returns a list of boards |
+| C++ | [C++](C++/) | `n_queens.cpp` | `solveNQueens(n, findAll = false)` returns `vector<vector<vector<int>>>` |
+| Go | [Go](Go/) | `main.go` | `solveNQueens(n, findAll)` returns one board; `solveNQueensAll(n)` returns all |
 
----
+## Practice Problems
 
-**Note**: The N-Queens problem has been solved for all N values. For N=8, there are 92 solutions. The problem becomes computationally expensive for large N, but optimized backtracking with constraint propagation can handle N up to about 20-30 efficiently.
+- [N-Queens (LeetCode 51)](https://leetcode.com/problems/n-queens/)
+- [N-Queens II (LeetCode 52)](https://leetcode.com/problems/n-queens-ii/)
+- [Chessboard and Queens (CSES)](https://cses.fi/problemset/task/1624)
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Sudoku Solver](../Sudoku%20Solver/README.md)
+- [Graph Coloring](../Graph%20Coloring/README.md)
+- [Rat in a Maze](../Rat%20in%20a%20Maze/README.md)

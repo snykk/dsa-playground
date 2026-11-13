@@ -1,110 +1,98 @@
 # Euclidean Algorithm
 
-A comprehensive implementation of the **Euclidean Algorithm** for computing Greatest Common Divisor (GCD) and Least Common Multiple (LCM).
+The Euclidean algorithm computes the greatest common divisor `gcd(a, b)` by repeatedly replacing `(a, b)` with `(b, a mod b)` until the second number is 0. It takes `O(log min(a, b))` steps. The extended version also returns the Bezout coefficients `x` and `y` with `a*x + b*y = gcd(a, b)`, which is the tool behind modular inverses and the Chinese Remainder Theorem.
 
----
+## Intuition
 
-## Overview
+A common divisor of `a` and `b` also divides `a - k*b` for any integer `k`, and the other way round. So `a` and `b` have exactly the same common divisors as `b` and `a mod b`. The pair gets smaller at every step, and when the remainder reaches 0 the other number divides everything that came before it.
 
-The Euclidean algorithm is one of the oldest algorithms still in use today. It efficiently computes the GCD of two integers and can be extended to solve linear Diophantine equations.
+Invariant: `gcd(a, b) = gcd(b, a mod b)` at every step.
 
-**Key Characteristics:**
-- Efficient: O(log min(a, b)) time complexity
-- Simple: Easy to understand and implement
-- Versatile: Can compute GCD, LCM, and solve linear Diophantine equations
+## Visual
 
----
+Tiling a 48 x 18 rectangle with the largest possible squares mirrors the algorithm. Each quotient is how many squares of the current size fit, and the last square size is the gcd.
 
-## Algorithm
-
-### GCD Computation
-
-The algorithm is based on the property:
-```
-GCD(a, b) = GCD(b, a mod b)
+```text
+48 x 18:  2 squares of 18 x 18, leaving 12 x 18
+18 x 12:  1 square  of 12 x 12, leaving  6 x 12
+12 x  6:  2 squares of  6 x  6, leaving nothing   -> gcd = 6
 ```
 
-**Steps:**
-1. If b = 0, return a
-2. Otherwise, compute GCD(b, a mod b)
+## How It Works
 
-### LCM Computation
+1. If `b = 0`, the answer is `|a|`.
+2. Otherwise replace `(a, b)` by `(b, a mod b)` and repeat.
 
-LCM can be computed using GCD:
-```
-LCM(a, b) = |a × b| / GCD(a, b)
-```
+Extended version: run the same steps on `|a|` and `|b|`, tracking coefficients so that every remainder is a combination `a*x + b*y`. For negative inputs, negate `x` when `a < 0` and `y` when `b < 0`. LCM follows from `lcm(a, b) = |a| / gcd(a, b) * |b|`.
 
-### Extended Euclidean Algorithm
+## Step-by-Step Trace
 
-Finds integers x and y such that:
-```
-ax + by = GCD(a, b)
-```
+`gcd(240, 46)` with the extended coefficients; each remainder `r` equals `240*x + 46*y`:
 
-This is known as Bézout's identity.
+| `r` | quotient | `x` | `y` |
+|-----|----------|-----|-----|
+| 240 | | 1 | 0 |
+| 46 | | 0 | 1 |
+| 10 | 5 | 1 | -5 |
+| 6 | 4 | -4 | 21 |
+| 4 | 1 | 5 | -26 |
+| 2 | 1 | -9 | 47 |
+| 0 | 2 | | |
 
----
+So `gcd(240, 46) = 2` and `240*(-9) + 46*47 = 2`. `extended_gcd(-240, 46)` returns `(2, 9, 47)`: `-240*9 + 46*47 = 2`.
 
-## Complexity Analysis
+## Complexity
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **GCD** | O(log min(a, b)) | O(1) iterative, O(log min(a, b)) recursive |
-| **LCM** | O(log min(a, b)) | O(1) |
-| **Extended GCD** | O(log min(a, b)) | O(log min(a, b)) |
+| Operation | Time | Space |
+|-----------|------|-------|
+| `gcd` (recursive) | O(log min(a, b)) | O(log min(a, b)) stack |
+| `gcd_iterative` | O(log min(a, b)) | O(1) |
+| `lcm` | O(log min(a, b)) | O(1) |
+| `extended_gcd` | O(log min(a, b)) | O(log min(a, b)) stack |
 
----
+Why logarithmic: after two steps the larger number is less than half of what it was (`a mod b < a / 2` whenever `a >= b`). Lame's theorem sharpens this: the number of steps never exceeds five times the number of decimal digits of the smaller input. The worst case is two consecutive Fibonacci numbers: `gcd(89, 55)` needs 9 division steps.
+
+## When to Use
+
+- Reducing fractions, computing lcm, checking coprimality.
+- Modular inverses and congruences (through `extended_gcd`).
+- Solving `a*x + b*y = c` (solvable exactly when `gcd(a, b)` divides `c`).
+- Not for prime factorization: gcd does not find factors by itself.
+
+## Euclidean Algorithm vs. Alternatives
+
+| Method | Time | Notes |
+|--------|------|-------|
+| Euclid (modulo) | O(log n) | the default |
+| Subtraction only | O(n) | `gcd(10^9, 1)` takes 10^9 steps |
+| Binary GCD (Stein) | O(log n) | uses shifts instead of division; not in this repository |
+| Prime factorization | far slower | gives all divisors, not just the gcd |
+
+## Common Pitfalls
+
+- `lcm` as `a * b / gcd`: the product can overflow even when the lcm fits. Divide first: `a / gcd * b`.
+- An extended gcd that applies `abs` to its inputs but not to `x` and `y`: `a*x + b*y` then equals the gcd only for non-negative inputs.
+- Taking `|x|` through floating point (`math.Abs`): it loses precision above 2^53.
+- `gcd(0, 0)` is 0 (and `lcm` with a zero argument is 0): handle it before dividing by the gcd.
+- The recursive versions use stack space of `O(log n)`; the iterative one uses none.
 
 ## Implementations
 
-This folder contains implementations in three languages:
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `euclidean_algorithm.py` | big integers; `gcd`, `gcd_iterative`, `lcm`, `extended_gcd` |
+| C++ | [C++](C++/) | `euclidean_algorithm.cpp` | `long long`; lcm result must fit in 64 bits |
+| Go | [Go](Go/) | `main.go` | `int64`; integer-only absolute value |
 
-- **Python** (`Python/`) - Recursive and iterative implementations
-- **C++** (`C++/`) - Using long long for large numbers
-- **Go** (`Go/`) - Using int64 for large numbers
+## Practice Problems
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+- [Greatest Common Divisor of Strings (LeetCode 1071)](https://leetcode.com/problems/greatest-common-divisor-of-strings/)
+- [Find Greatest Common Divisor of Array (LeetCode 1979)](https://leetcode.com/problems/find-greatest-common-divisor-of-array/)
+- [Water and Jug Problem (LeetCode 365)](https://leetcode.com/problems/water-and-jug-problem/)
+- [Number of Subarrays With GCD Equal to K (LeetCode 2447)](https://leetcode.com/problems/number-of-subarrays-with-gcd-equal-to-k/)
 
----
+## Related
 
-## Applications
-
-1. **Fraction Simplification**: Reduce fractions to lowest terms
-2. **Modular Inverses**: Find modular multiplicative inverse
-3. **Linear Diophantine Equations**: Solve ax + by = c
-4. **Cryptography**: RSA algorithm, modular arithmetic
-5. **Number Theory**: Various number theory problems
-
----
-
-## Properties
-
-- **Commutative**: GCD(a, b) = GCD(b, a)
-- **Associative**: GCD(GCD(a, b), c) = GCD(a, GCD(b, c))
-- **Distributive**: GCD(ka, kb) = k × GCD(a, b) for k > 0
-- **LCM Relationship**: LCM(a, b) × GCD(a, b) = |a × b|
-
----
-
-## Related Algorithms
-
-- **Modular Arithmetic**: Uses GCD for modular inverses
-- **Chinese Remainder Theorem**: Uses Extended GCD
-- **RSA Algorithm**: Uses Extended GCD for key generation
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 31)
-- "Algorithm Design Manual" by Steven Skiena
-- "Number Theory" by Rosen
-
----
-
-_Last Updated: December 2025_
-
+- [Modular Arithmetic](../Modular%20Arithmetic/README.md)
+- [Chinese Remainder Theorem](../Chinese%20Remainder%20Theorem/README.md)
+- [Modular Exponentiation](../Modular%20Exponentiation/README.md)
