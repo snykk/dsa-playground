@@ -89,6 +89,8 @@ export interface ChainState {
 }
 
 const H = 32;
+/** Box height of a compact table (labelled rows with nothing between them, e.g. hash buckets). */
+const H_COMPACT = 26;
 const GAP = 40;
 const PAD = 12;
 const NULL_W = 46;
@@ -229,6 +231,10 @@ export function ChainView({ state }: { state: ChainState }) {
   const { nodes, links, pointers = [], lanes = [], note, strips } = state;
   const ext = union(extentOf(state), state.extent);
   const w = Math.max(40, Math.round(16 + ext.chars * 8.6));
+  // Labelled rows with nothing between them (hash buckets, frequency lists) pack tighter, so a
+  // 16-bucket table still fits the stage.
+  const compact = ext.lanes && !ext.spacious;
+  const h = compact ? H_COMPACT : H;
   const dx = w + GAP;
   const above = Math.max(
     6,
@@ -237,13 +243,13 @@ export function ChainView({ state }: { state: ChainState }) {
     ext.badges ? 14 : 0,
   );
   const below = Math.max(6, ext.linesBelow > 0 ? POINTER_ARROW + 8 + ext.linesBelow * LABEL_LINE : 0, ext.arcBelow ? ARC + 6 : 0);
-  const dy = H + (ext.spacious ? Math.max(56, above + below) : 22);
+  const dy = h + (ext.spacious ? Math.max(56, above + below) : compact ? 4 : 22);
   const left = PAD + (ext.lanes ? LANE_W : 0) + (ext.nullLeft ? NULL_W : 0);
   const top = PAD + above;
   const width = left + (ext.cols - 1) * dx + w + (ext.nullRight ? NULL_W : 0) + (ext.badges ? 30 : 0) + PAD;
-  const height = top + (ext.maxRow - ext.minRow) * dy + H + below + PAD;
+  const height = top + (ext.maxRow - ext.minRow) * dy + h + below + PAD;
   const cx = (col: number) => left + col * dx + w / 2;
-  const cy = (row: number) => top + (row - ext.minRow) * dy + H / 2;
+  const cy = (row: number) => top + (row - ext.minRow) * dy + h / 2;
 
   const target = new Map<string, Pt>();
   for (const n of nodes) target.set(`n:${n.id}`, { x: cx(n.col), y: cy(n.row ?? 0) });
@@ -261,8 +267,8 @@ export function ChainView({ state }: { state: ChainState }) {
     placed.set(key, index + 1);
     const y =
       side === 'above'
-        ? base.y - H / 2 - 3 - POINTER_ARROW - 5 - index * LABEL_LINE
-        : base.y + H / 2 + 3 + POINTER_ARROW + 14 + index * LABEL_LINE;
+        ? base.y - h / 2 - 3 - POINTER_ARROW - 5 - index * LABEL_LINE
+        : base.y + h / 2 + 3 + POINTER_ARROW + 14 + index * LABEL_LINE;
     target.set(`p:${p.name}`, { x: base.x, y });
     labels.push({ p, index, side });
   }
@@ -299,7 +305,7 @@ export function ChainView({ state }: { state: ChainState }) {
     switch (routeOf(a, b, prev, nodes)) {
       case 'loop': {
         // A node that points to itself (a one-node circular list): a loop under the box.
-        const y0 = pa.y + H / 2;
+        const y0 = pa.y + h / 2;
         d = `M ${pa.x + w / 4} ${y0} C ${pa.x + w / 4 + 16} ${y0 + ARC + 4}, ${pa.x - w / 4 - 16} ${y0 + ARC + 4}, ${pa.x - w / 4} ${y0 + 3}`;
         break;
       }
@@ -311,20 +317,20 @@ export function ChainView({ state }: { state: ChainState }) {
         break;
       case 'arc-above': {
         // Skipping over a node that is still in the row: arc above it.
-        const y0 = pa.y - H / 2;
+        const y0 = pa.y - h / 2;
         d = `M ${pa.x + w / 4} ${y0} C ${pa.x + w / 4} ${y0 - ARC}, ${pb.x - w / 4} ${y0 - ARC}, ${pb.x - w / 4} ${y0 - 3}`;
         break;
       }
       case 'arc-below': {
         // Pointing back along the row (a circular list's tail to its head): arc below it.
-        const y0 = pa.y + H / 2;
+        const y0 = pa.y + h / 2;
         const sx = prev ? pa.x - w / 4 : pa.x;
         d = `M ${sx} ${y0} C ${sx} ${y0 + ARC}, ${pb.x} ${y0 + ARC}, ${pb.x} ${y0 + 3}`;
         break;
       }
       default: {
-        const s = boxEdge(pa, pb, w, H);
-        const e = shorten(s, boxEdge(pb, pa, w, H), 3);
+        const s = boxEdge(pa, pb, w, h);
+        const e = shorten(s, boxEdge(pb, pa, w, h), 3);
         d = `M ${s.x} ${s.y} L ${e.x} ${e.y}`;
       }
     }
@@ -375,17 +381,17 @@ export function ChainView({ state }: { state: ChainState }) {
             .join(' ');
           return (
             <g key={`n:${n.id}`} className={cls}>
-              <rect x={p.x - w / 2} y={p.y - H / 2} width={w} height={H} rx={n.shape === 'slot' ? 3 : 7} />
+              <rect x={p.x - w / 2} y={p.y - h / 2} width={w} height={h} rx={n.shape === 'slot' ? 3 : 7} />
               <text className="c-label" x={p.x} y={p.y}>
                 {n.label}
               </text>
               {n.badge !== undefined && (
-                <text className="c-badge" x={p.x + w / 2 + 3} y={p.y - H / 2 - 2}>
+                <text className="c-badge" x={p.x + w / 2 + 3} y={p.y - h / 2 - 2}>
                   {n.badge}
                 </text>
               )}
               {glyph && (
-                <text className="c-badge" x={p.x - w / 2 - 3} y={p.y - H / 2 - 2} style={{ textAnchor: 'end' }}>
+                <text className="c-badge" x={p.x - w / 2 - 3} y={p.y - h / 2 - 2} style={{ textAnchor: 'end' }}>
                   {glyph}
                 </text>
               )}
