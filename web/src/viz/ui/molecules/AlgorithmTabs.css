@@ -1,0 +1,28 @@
+/* AlgorithmTabs molecule: switch between algorithms sharing one player. */
+/* ---------- tabs + input ---------- */
+
+.viz-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.viz-tabs button {
+  font: inherit;
+  font-size: 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text-2);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.viz-tabs button.selected {
+  background: var(--viz-surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}

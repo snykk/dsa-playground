@@ -1,0 +1,31 @@
+---
+/** Link styled as a button (calls to action). */
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary';
+}
+
+const { href, variant = 'secondary' } = Astro.props;
+---
+
+<a class:list={['button', { primary: variant === 'primary' }]} href={href}><slot /></a>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+</style>

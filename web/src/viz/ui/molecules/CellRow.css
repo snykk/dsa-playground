@@ -1,0 +1,33 @@
+/* CellRow molecule: a labelled row of cells, stacked into a grid. */
+
+.cells {
+  display: grid;
+  gap: 4px;
+  font-family: var(--font-mono);
+}
+.cells-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.cells-label {
+  flex: none;
+  width: 72px;
+  font: 12px var(--font-sans);
+  color: var(--text-3);
+  text-align: right;
+  padding-right: 8px;
+}
+.cells-gap {
+  height: 8px;
+}
+.cells-track {
+  --cell-step: 33px; /* cell width 30 + gap 3 */
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: transform 0.35s ease;
+}
+.cells-track.wide {
+  --cell-step: 43px; /* wide cell 40 + gap 3 */
+}
