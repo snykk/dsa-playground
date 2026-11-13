@@ -94,4 +94,4 @@ All three are tested against brute-force game-tree search.
 
 - [Constructive Algorithms](../Constructive_Algorithms/)
 - [Interactive Problems](../Interactive_Problems/)
-- [Bit Manipulation](../../../Problem_Patterns/Bit%20Manipulation/)
+- [Bit Manipulation](../../../Problem_Patterns/Bit_Manipulation/)

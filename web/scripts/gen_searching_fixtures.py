@@ -20,7 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SEARCHING = ROOT / "Algorithms" / "Searching"
-for topic in ("Linear Search", "Binary Search", "Ternary Search", "Interpolation Search"):
+for topic in ("Linear_Search", "Binary_Search", "Ternary_Search", "Interpolation_Search"):
     sys.path.insert(0, str(SEARCHING / topic / "Python"))
 
 from binary_search import binary_search  # noqa: E402

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/Advanced DP/Digit DP
+topic: Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP
 title: Digit DP
 lead: Digit DP counts the numbers in a range whose digits satisfy a rule, such as a given digit sum, by building each number one digit at a time and memoizing on the position, a tight flag and a small running state. It handles bounds up to 10^18 in a few thousand steps.
 level: Advanced
@@ -21,13 +21,13 @@ properties:
   - { label: Needs a small state, value: true }
   - { label: Range queries via subtraction, value: true }
 prerequisites:
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
-  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
 related:
-  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
-  - Problem_Patterns/DP Problem Patterns
-  - Problem_Patterns/Prefix Sum Difference Array
-  - Algorithms/Dynamic_Programming/Advanced DP/DP on Trees
+  - Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
+  - Problem_Patterns/DP_Problem_Patterns
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+  - Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees
 ---
 
 ## When digit DP applies
@@ -119,7 +119,7 @@ count(n, target):
 
 The Python version, `count_numbers_with_digit_sum(n, target_sum)`, counts numbers in `0..n` with the given digit sum. The C++ and Go folders are placeholders: they hold a stub and a test that asserts nothing, so only Python implements the algorithm.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/Advanced DP/Digit DP" />
+<TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP" />
 
 ## Complexity analysis
 

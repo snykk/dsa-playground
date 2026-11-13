@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Advanced_Algorithms/Backtracking/Graph Coloring
+topic: Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring
 title: Graph Coloring
 lead: Graph coloring gives every vertex one of m colors so that no edge joins two vertices of the same color. The backtracking solver colors vertices in index order and undoes a choice when a later vertex has no legal color left. It decides m-colorability and finds the chromatic number on small graphs.
 level: Intermediate
@@ -24,9 +24,9 @@ properties:
 prerequisites:
   - Algorithms/Graph_Algorithms/Traversal/DFS
 related:
-  - Algorithms/Advanced_Algorithms/Backtracking/Sudoku Solver
-  - Algorithms/Advanced_Algorithms/Backtracking/N-Queens Problem
-  - Algorithms/Advanced_Algorithms/Backtracking/Rat in a Maze
+  - Algorithms/Advanced_Algorithms/Backtracking/Sudoku_Solver
+  - Algorithms/Advanced_Algorithms/Backtracking/N_Queens_Problem
+  - Algorithms/Advanced_Algorithms/Backtracking/Rat_in_a_Maze
 ---
 
 ## How graph coloring works
@@ -114,7 +114,7 @@ chromaticNumber(graph):
 
 All three versions share the same structure: `is_safe`, a recursive helper, `graph_coloring(graph, m)` and `chromatic_number(graph)`. A graph is an adjacency matrix of 0 and 1. Python returns a list or `None`, C++ returns `std::optional<std::vector<int>>` and Go returns a slice or `nil`. Colors are numbered from 1, and 0 means "uncolored".
 
-<TopicCode topic="Algorithms/Advanced_Algorithms/Backtracking/Graph Coloring" />
+<TopicCode topic="Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring" />
 
 ## Complexity analysis
 

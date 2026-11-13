@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm
+topic: Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
 title: Bellman-Ford Algorithm
 lead: Bellman-Ford finds the shortest distance from one source to every vertex, even when some edges have negative weights, and it detects a negative cycle reachable from the source. It simply relaxes every edge V - 1 times, which costs O(V * E).
 level: Intermediate
@@ -23,10 +23,10 @@ properties:
   - { label: Single source, value: true }
   - { label: Greedy, value: false }
 prerequisites:
-  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
 related:
-  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
-  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm
   - Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm
   - Algorithms/Graph_Algorithms/Traversal/BFS
 ---
@@ -124,7 +124,7 @@ The input is an edge list of `(u, v, weight)` triples with vertices numbered 0 t
   ]}
 />
 
-<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm" />
+<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm" />
 
 Notes: the C++ and Go versions check every edge endpoint first, so a bad edge cannot be read as a vertex at distance 0. `bellman_ford_with_path` returns `None` both for "unreachable" and for "negative cycle". Distances are plain `int` in C++ and Go and are not checked for overflow, so keep weights well below the integer limits.
 

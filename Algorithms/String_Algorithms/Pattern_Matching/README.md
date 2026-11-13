@@ -6,10 +6,10 @@ Algorithms for finding patterns within strings.
 
 | Algorithm | Description |
 |-----------|-------------|
-| [Naive Pattern Search](Naive%20Pattern%20Search/) | Simple brute-force approach |
-| [KMP Algorithm](KMP%20Algorithm/) | Knuth-Morris-Pratt with failure function |
-| [Rabin-Karp Algorithm](Rabin-Karp%20Algorithm/) | Hash-based pattern matching |
-| [Boyer-Moore Algorithm](Boyer-Moore%20Algorithm/) | Right-to-left with bad character rule |
+| [Naive Pattern Search](Naive_Pattern_Search/) | Simple brute-force approach |
+| [KMP Algorithm](KMP_Algorithm/) | Knuth-Morris-Pratt with failure function |
+| [Rabin-Karp Algorithm](Rabin_Karp_Algorithm/) | Hash-based pattern matching |
+| [Boyer-Moore Algorithm](Boyer_Moore_Algorithm/) | Right-to-left with bad character rule |
 
 ## Complexity Comparison
 

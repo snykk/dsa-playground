@@ -92,7 +92,7 @@ Use it when many queries hit the same static data, or when a value is needed ove
 
 ## Related
 
-- [Prefix Sum and Difference Array](../../../Problem_Patterns/Prefix%20Sum%20Difference%20Array/README.md)
+- [Prefix Sum and Difference Array](../../../Problem_Patterns/Prefix_Sum_Difference_Array/README.md)
 - [Modular Arithmetic Tricks](../Modular_Arithmetic_Tricks/README.md)
-- [Sieve of Eratosthenes](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Sieve%20of%20Eratosthenes/README.md)
+- [Sieve of Eratosthenes](../../../Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes/README.md)
 - [Bitmasking](../Bitmasking/README.md)

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Sorting/Counting Sort
+topic: Algorithms/Sorting/Counting_Sort
 title: Counting Sort
 lead: Counting Sort sorts integers without comparing them. It counts how often each value occurs, turns the counts into positions, and writes every element straight to its final slot. It runs in O(n + k) time, where k is the size of the value range, and it is stable.
 level: Intermediate
@@ -22,12 +22,12 @@ properties:
   - { label: Stable, value: true }
   - { label: Comparison sort, value: false }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Sorting/Radix Sort
-  - Algorithms/Sorting/Bucket Sort
-  - Algorithms/Sorting/Quick Sort
-  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Sorting/Radix_Sort
+  - Algorithms/Sorting/Bucket_Sort
+  - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Sorting/Merge_Sort
 ---
 
 ## How Counting Sort works
@@ -104,7 +104,7 @@ The Python code writes the same steps in a slightly different order (`output[cou
 
 Python's `counting_sort(arr, max_val=None)` finds the maximum itself when `max_val` is omitted; C++ (`countingSort(arr, maxVal)`) and Go (`CountingSort(arr, maxVal)`) require it. All three return a **new** sorted array and leave the input alone (an empty input is returned as is). Python also has `counting_sort_simple`, which skips the prefix sums and rebuilds the output by writing each value `count` times; it is simpler but only suits plain integers, because it cannot move records around.
 
-<TopicCode topic="Algorithms/Sorting/Counting Sort" />
+<TopicCode topic="Algorithms/Sorting/Counting_Sort" />
 
 ## Complexity analysis
 

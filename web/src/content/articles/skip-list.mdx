@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/Linked List/Skip List
+topic: Data_Structures/Linear/Linked_List/Skip_List
 title: Skip List
 lead: A skip list is a sorted linked list with extra "express lane" pointers on top. Each key is randomly given a tower height, so a search can skip many nodes at once and runs in expected O(log n) time, with no rotations or rebalancing.
 level: Advanced
@@ -24,13 +24,13 @@ properties:
   - { label: Duplicate keys, value: false }
   - { label: Random access by index, value: false }
 prerequisites:
-  - Data Structures/Linear/Linked List/Singly
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Data_Structures/Linear/Linked_List/Singly
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
-  - Data Structures/Non_Linear/Trees/Treap
-  - Data Structures/Non_Linear/Trees/AVL Tree
-  - Algorithms/Searching/Binary Search
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+  - Data_Structures/Non_Linear/Trees/Treap
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Algorithms/Searching/Binary_Search
 ---
 
 ## What a skip list is
@@ -131,7 +131,7 @@ Without that last loop, searches would still be correct but would start on empty
 
 All three versions share this structure. The C++ class owns its nodes through a destructor, so its copy constructor and assignment are deleted: a shallow copy would free the same nodes twice. Each C++ instance has its own random generator. Python uses `random.random()`, and Go uses the global `math/rand`.
 
-<TopicCode topic="Data Structures/Linear/Linked List/Skip List" />
+<TopicCode topic="Data_Structures/Linear/Linked_List/Skip_List" />
 
 ## Complexity
 

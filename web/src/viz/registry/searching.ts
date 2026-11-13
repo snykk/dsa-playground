@@ -8,28 +8,28 @@ export const entries: VizInfo[] = [
     title: 'Linear Search',
     group: 'Searching',
     blurb: 'Compare every value from the left until one matches: the only option when the data has no order.',
-    topics: ['Algorithms/Searching/Linear Search'],
+    topics: ['Algorithms/Searching/Linear_Search'],
   },
   {
     id: 'binary-search',
     title: 'Binary Search',
     group: 'Searching',
     blurb: 'Probe the middle of a sorted range and drop the half that cannot hold the target, until one value is left.',
-    topics: ['Algorithms/Searching/Binary Search', 'Algorithms/Divide_and_Conquer/Binary Search', 'Algorithms/Searching'],
+    topics: ['Algorithms/Searching/Binary_Search', 'Algorithms/Searching'],
   },
   {
     id: 'ternary-search',
     title: 'Ternary Search',
     group: 'Searching',
     blurb: 'Two probes split the sorted range into thirds and keep one; it needs more probes than binary search.',
-    topics: ['Algorithms/Searching/Ternary Search'],
+    topics: ['Algorithms/Searching/Ternary_Search'],
   },
   {
     id: 'interpolation-search',
     title: 'Interpolation Search',
     group: 'Searching',
     blurb: 'Guess the position from the value along the line between the range ends: one probe on evenly spread data.',
-    topics: ['Algorithms/Searching/Interpolation Search'],
+    topics: ['Algorithms/Searching/Interpolation_Search'],
   },
 ];
 

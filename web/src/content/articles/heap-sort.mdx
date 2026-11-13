@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Sorting/Heap Sort
+topic: Algorithms/Sorting/Heap_Sort
 title: Heap Sort
 lead: Heap Sort arranges the array into a max-heap, then repeatedly swaps the largest element to the end and repairs the heap. It guarantees O(n log n) time with no extra array, but it is not stable and is usually slower than Quick Sort in practice.
 level: Intermediate
@@ -22,13 +22,13 @@ properties:
   - { label: Comparison sort, value: true }
   - { label: Adaptive, value: false }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
-  - Data Structures/Non_Linear/Heaps/Max Heap
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+  - Data_Structures/Non_Linear/Heaps/Max_Heap
 related:
-  - Algorithms/Sorting/Selection Sort
-  - Algorithms/Sorting/Quick Sort
-  - Algorithms/Sorting/Merge Sort
-  - Data Structures/Non_Linear/Heaps/Max Heap
+  - Algorithms/Sorting/Selection_Sort
+  - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Sorting/Merge_Sort
+  - Data_Structures/Non_Linear/Heaps/Max_Heap
 ---
 
 ## How Heap Sort works
@@ -118,7 +118,7 @@ siftDown(arr, size, i):                 # called heapify in the code
 
 All three versions are the pseudocode above, with the sift-down called `heapify`. Python's `heap_sort` sorts in place and returns the same list; C++ is a template over the element type of a `std::vector` (instantiated for `int` and `double`), returns nothing and returns at once for fewer than two elements; Go sorts a `[]int`. In all three, `heapify` is recursive.
 
-<TopicCode topic="Algorithms/Sorting/Heap Sort" />
+<TopicCode topic="Algorithms/Sorting/Heap_Sort" />
 
 ## Complexity analysis
 

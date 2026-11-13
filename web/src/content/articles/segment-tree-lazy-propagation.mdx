@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)
+topic: Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation
 title: Segment Tree (Lazy Propagation)
 lead: A lazy segment tree adds a pending-update tag to each node, so adding a value to a whole range costs O(log n) instead of touching every element. A tag waits on a node that is fully covered and is pushed to its children only when a later operation has to look inside.
 level: Advanced
@@ -20,11 +20,11 @@ properties:
   - { label: Recursive, value: true }
   - { label: Works for min / max, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Segment Tree
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
 related:
-  - Data Structures/Non_Linear/Trees/Segment Tree
-  - Data Structures/Non_Linear/Trees/Fenwick Tree
-  - Data Structures/Non_Linear/Trees/Sparse Table
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
 ---
 
 ## What lazy propagation is
@@ -134,7 +134,7 @@ Running the repository code on this input confirms the numbers: `query(3, 3)` re
 
 The three versions are the same: a recursive `build`, a `push_down` that applies a tag to both children (scaling by each child's length) and clears it, and recursive update and query functions with the three cases above. The tests cover the examples here, single-element arrays, negative values, repeated overlapping updates and a random differential test against brute force.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation" />
 
 ## Complexity
 

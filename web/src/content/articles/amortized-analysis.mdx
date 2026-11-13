@@ -1,5 +1,5 @@
 ---
-topic: Complexity_Analysis/Amortized Analysis
+topic: Complexity_Analysis/Amortized_Analysis
 title: Amortized Analysis
 lead: Amortized analysis bounds the total cost of any sequence of operations and divides by the number of operations. It explains why a dynamic array can have an occasional O(n) append and still guarantee O(1) per append on average over the sequence, with no probability involved.
 level: Intermediate
@@ -148,7 +148,7 @@ The growth factor matters. Doubling gives O(1) amortized appends. Growing by a f
 
 The Python version contains `DynamicArray` and `BinaryCounter` plus one demo per method (aggregate, accounting and potential). C++ and Go contain the two data structures and a short demo. All three count total copies (`copies`) and total bit flips (`flips`), and the tests assert the aggregate bounds (copies at most 2n, flips at most 2n). An initial capacity of 0 is handled by growing to at least 1.
 
-<TopicCode topic="Complexity_Analysis/Amortized Analysis" />
+<TopicCode topic="Complexity_Analysis/Amortized_Analysis" />
 
 ## Complexity
 

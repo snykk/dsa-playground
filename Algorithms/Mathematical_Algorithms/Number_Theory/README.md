@@ -6,12 +6,12 @@ Fundamental number theory algorithms for competitive programming.
 
 | Algorithm | Description |
 |-----------|-------------|
-| [Euclidean Algorithm](Euclidean%20Algorithm/) | GCD computation |
-| [Sieve of Eratosthenes](Sieve%20of%20Eratosthenes/) | Prime number generation |
-| [Modular Arithmetic](Modular%20Arithmetic/) | Operations under modulo |
-| [Modular Exponentiation](Modular%20Exponentiation/) | Fast power with modulo |
-| [Chinese Remainder Theorem](Chinese%20Remainder%20Theorem/) | Solving modular equations |
-| [Miller-Rabin Primality Test](Miller-Rabin%20Primality%20Test/) | Probabilistic primality test |
+| [Euclidean Algorithm](Euclidean_Algorithm/) | GCD computation |
+| [Sieve of Eratosthenes](Sieve_of_Eratosthenes/) | Prime number generation |
+| [Modular Arithmetic](Modular_Arithmetic/) | Operations under modulo |
+| [Modular Exponentiation](Modular_Exponentiation/) | Fast power with modulo |
+| [Chinese Remainder Theorem](Chinese_Remainder_Theorem/) | Solving modular equations |
+| [Miller-Rabin Primality Test](Miller_Rabin_Primality_Test/) | Probabilistic primality test |
 
 ## Complexity
 

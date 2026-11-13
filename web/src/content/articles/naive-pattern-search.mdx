@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/String_Algorithms/Pattern_Matching/Naive Pattern Search
+topic: Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search
 title: Naive Pattern Search
 lead: The naive (brute-force) search slides the pattern along the text one position at a time and compares character by character. It needs no preprocessing and no extra memory, and it is the baseline that every other string-matching algorithm improves on.
 level: Beginner
@@ -23,12 +23,12 @@ properties:
   - { label: Online (streams the text), value: false }
   - { label: Worst case is linear, value: false }
 prerequisites:
-  - Data Structures/Linear/String/Introduction
+  - Data_Structures/Linear/String/String_Basics
 related:
-  - Algorithms/String_Algorithms/Pattern_Matching/KMP Algorithm
-  - Algorithms/String_Algorithms/Pattern_Matching/Rabin-Karp Algorithm
-  - Algorithms/String_Algorithms/Pattern_Matching/Boyer-Moore Algorithm
-  - Data Structures/Linear/String/Pattern Matching
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching
 ---
 
 ## How the naive search works
@@ -109,9 +109,9 @@ naive_pattern_search(text, pattern):
 
 ## Implementation
 
-All three languages have the same function (`naive_pattern_search`, `naivePatternSearch`, `NaivePatternSearch`) plus `count` and `first` helpers. Both helpers run the full search and then take its length or its first element. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`**. The overview functions in the Pattern Matching topic return every position for an empty pattern instead, so check the convention before swapping them. Python indexes code points; C++ and Go index bytes.
+All three languages have the same function (`naive_pattern_search`, `naivePatternSearch`, `NaivePatternSearch`) plus `count` and `first` helpers. Both helpers run the full search and then take its length or its first element. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`**. The other searches in this section do the same, but library searches report an empty pattern as found at index 0 (`'abc'.find('')`, `std::string::find`, `strings.Index`), so check the convention before swapping one in. Python indexes code points; C++ and Go index bytes.
 
-<TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/Naive Pattern Search" />
+<TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search" />
 
 ## Complexity analysis
 

@@ -20,12 +20,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PATTERNS = ROOT / "Problem_Patterns"
 for topic in (
-    "Two Pointers",
-    "Sliding Window",
-    "Prefix Sum Difference Array",
-    "Monotonic Stack",
-    "Monotonic Queue",
-    "Binary Search on Answer",
+    "Two_Pointers",
+    "Sliding_Window",
+    "Prefix_Sum_Difference_Array",
+    "Monotonic_Stack",
+    "Monotonic_Queue",
+    "Binary_Search_on_Answer",
 ):
     sys.path.insert(0, str(PATTERNS / topic / "Python"))
 

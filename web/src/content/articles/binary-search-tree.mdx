@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Binary Search Tree
+topic: Data_Structures/Non_Linear/Trees/Binary_Search_Tree
 title: Binary Search Tree
 lead: A binary search tree keeps its keys ordered so that every comparison discards a whole subtree. Search, insert and delete cost O(h), the height of the tree. That is O(log n) when the tree is balanced, but O(n) when keys arrive sorted and it degenerates into a chain.
 level: Beginner
@@ -23,12 +23,12 @@ properties:
   - { label: Self-balancing, value: false }
   - { label: Duplicates allowed, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
 related:
-  - Data Structures/Non_Linear/Trees/AVL Tree
-  - Data Structures/Non_Linear/Trees/Red-Black Tree
-  - Data Structures/Non_Linear/Trees/Treap
-  - Data Structures/Non_Linear/Trees/Splay Tree
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Red_Black_Tree
+  - Data_Structures/Non_Linear/Trees/Treap
+  - Data_Structures/Non_Linear/Trees/Splay_Tree
 ---
 
 ## What a binary search tree is
@@ -128,7 +128,7 @@ All three versions have the same API: `insert`, `search`, `delete`, `find_min`, 
 - Empty tree: Python `find_min` returns `None`, C++ throws `std::runtime_error`, Go returns an error.
 - The C++ class owns raw pointers, so its copy constructor and assignment are deleted.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Binary Search Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Binary_Search_Tree" />
 
 ## Complexity
 

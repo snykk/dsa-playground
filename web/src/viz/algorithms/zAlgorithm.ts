@@ -1,6 +1,6 @@
 /**
  * Z-algorithm tracer, mirroring the repository Python
- * (Algorithms/String_Algorithms/Advanced_String/Z-Algorithm/Python):
+ * (Algorithms/String_Algorithms/Advanced_String/Z_Algorithm/Python):
  * build the Z-array of pattern + "$" + text, then report every text position
  * whose Z value is at least the pattern length.
  *

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Sorting/Bubble Sort
+topic: Algorithms/Sorting/Bubble_Sort
 title: Bubble Sort
 lead: Bubble Sort walks along the array swapping neighbours that are out of order, so the largest remaining element sinks to the end on every pass. It is the simplest sort to write and a good way to learn invariants, but at O(n^2) it is a teaching tool, not a production one.
 level: Beginner
@@ -22,12 +22,12 @@ properties:
   - { label: Adaptive, value: true }
   - { label: Comparison sort, value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Sorting/Insertion Sort
-  - Algorithms/Sorting/Selection Sort
-  - Algorithms/Sorting/Merge Sort
-  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Sorting/Insertion_Sort
+  - Algorithms/Sorting/Selection_Sort
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Quick_Sort
 ---
 
 ## How Bubble Sort works
@@ -100,7 +100,7 @@ The test is a strict `>`, so equal elements are never swapped and keep their ori
 
 All three languages sort in place. Python also has `bubble_sort_optimized` (the same code as `bubble_sort`, since the early exit is already built in) and `bubble_sort_recursive`, which does one pass and then recurses on the shorter prefix. C++ is a template over the element type of a `std::vector`. Go has `BubbleSort` for `[]int` and `BubbleSortGeneric` for any slice with a `less` function.
 
-<TopicCode topic="Algorithms/Sorting/Bubble Sort" />
+<TopicCode topic="Algorithms/Sorting/Bubble_Sort" />
 
 ## Complexity analysis
 

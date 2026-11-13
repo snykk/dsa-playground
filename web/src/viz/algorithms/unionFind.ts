@@ -1,7 +1,7 @@
 /**
  * Union-find (disjoint set union) tracer: union by rank plus full path compression.
  *
- * Mirrors Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU/Python/union_find.py:
+ * Mirrors Data_Structures/Advanced_Structures/Disjoint_Set_Union/Python/dsu.py:
  *   find(x): if parent[x] != x: parent[x] = find(parent[x]); return parent[x]
  *   union(x, y): rx, ry = find(x), find(y); equal ranks -> ry goes under rx, rank[rx] += 1
  * Golden fixtures (__fixtures__/graphStructure.json) pin parent/rank after every operation.

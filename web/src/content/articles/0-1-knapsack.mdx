@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+topic: Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
 title: 0/1 Knapsack
 lead: Given items with a weight and a value, 0/1 Knapsack picks the subset of the highest total value that fits in a bag of fixed capacity, taking each item whole or not at all. A table over (items, capacity) solves it in O(n W) time, which greedy choices cannot match.
 level: Intermediate
@@ -24,11 +24,11 @@ properties:
   - { label: Polynomial in input size, value: false }
 prerequisites:
   - Algorithms/Dynamic_Programming
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
 related:
-  - Algorithms/Greedy/Fractional Knapsack
-  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
-  - Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
+  - Algorithms/Greedy/Fractional_Knapsack
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
 ---
 
 ## How 0/1 Knapsack works
@@ -112,7 +112,7 @@ knapsack01Optimized(weights, values, capacity):     # Python only
 
 Python has both the 2D table (`knapsack_01`) and the one-row version (`knapsack_01_optimized`). The C++ and Go versions implement only the 2D table. All three return the best value, not the chosen items, and none validates its input: weights and values must have the same length and the capacity must not be negative.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack" />
+<TopicCode topic="Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack" />
 
 ## Complexity analysis
 

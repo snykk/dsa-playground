@@ -4,7 +4,7 @@ The web visualizer re-implements naive search, Rabin-Karp, Boyer-Moore and the
 Z-algorithm in TypeScript (web/src/viz/algorithms/stringSearch.ts and
 zAlgorithm.ts). These fixtures pin the ports to the reference code in
 Algorithms/String_Algorithms/Pattern_Matching/*/Python and
-Algorithms/String_Algorithms/Advanced_String/Z-Algorithm/Python.
+Algorithms/String_Algorithms/Advanced_String/Z_Algorithm/Python.
 
 Besides each result, a case records `reads`: every integer index the Python
 function reads from the text (or, for the Z-array, from the string), in order.
@@ -25,10 +25,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 STRINGS = ROOT / "Algorithms" / "String_Algorithms"
 for folder in (
-    STRINGS / "Pattern_Matching" / "Naive Pattern Search" / "Python",
-    STRINGS / "Pattern_Matching" / "Rabin-Karp Algorithm" / "Python",
-    STRINGS / "Pattern_Matching" / "Boyer-Moore Algorithm" / "Python",
-    STRINGS / "Advanced_String" / "Z-Algorithm" / "Python",
+    STRINGS / "Pattern_Matching" / "Naive_Pattern_Search" / "Python",
+    STRINGS / "Pattern_Matching" / "Rabin_Karp_Algorithm" / "Python",
+    STRINGS / "Pattern_Matching" / "Boyer_Moore_Algorithm" / "Python",
+    STRINGS / "Advanced_String" / "Z_Algorithm" / "Python",
 ):
     sys.path.insert(0, str(folder))
 

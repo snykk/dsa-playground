@@ -22,7 +22,7 @@ export const propertySchema = z.object({ label: z.string(), value: z.boolean() }
 export type Property = z.infer<typeof propertySchema>;
 
 export const articleSchema = z.object({
-  /** Repository folder the article belongs to, e.g. "Algorithms/Sorting/Quick Sort". */
+  /** Repository folder the article belongs to, e.g. "Algorithms/Sorting/Quick_Sort". */
   topic: z.string(),
   title: z.string(),
   /** One or two sentences under the title: what it is and why it matters. */

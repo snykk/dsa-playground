@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/String_Algorithms/Pattern_Matching/KMP Algorithm
+topic: Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
 title: Knuth-Morris-Pratt (KMP) Algorithm
 lead: KMP finds every occurrence of a pattern in a text in O(n + m) time. It precomputes, for each prefix of the pattern, the longest border that is also a suffix, so after a mismatch it never moves backwards in the text.
 level: Intermediate
@@ -23,13 +23,13 @@ properties:
   - { label: Finds overlapping matches, value: true }
   - { label: Searches several patterns at once, value: false }
 prerequisites:
-  - Algorithms/String_Algorithms/Pattern_Matching/Naive Pattern Search
+  - Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search
 related:
-  - Algorithms/String_Algorithms/Advanced_String/Z-Algorithm
-  - Algorithms/String_Algorithms/Advanced_String/Aho-Corasick
-  - Algorithms/String_Algorithms/Pattern_Matching/Boyer-Moore Algorithm
-  - Algorithms/String_Algorithms/Pattern_Matching/Rabin-Karp Algorithm
-  - Data Structures/Linear/String/Pattern Matching
+  - Algorithms/String_Algorithms/Advanced_String/Z_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Aho_Corasick
+  - Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching
 ---
 
 ## How KMP works
@@ -120,7 +120,7 @@ kmp_search(text, pattern):
 
 All three languages are the same algorithm. Python exposes `build_lps`, `kmp_search`, `kmp_search_count` and `kmp_search_first`; C++ has `buildLPS`, `kmpSearch`, `kmpSearchCount` and `kmpSearchFirst`; Go has `BuildLPS`, `KMPSearch`, `KMPSearchCount` and `KMPSearchFirst`. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`** here, unlike the overview functions in the Pattern Matching topic, where an empty pattern matches at every position. The `First` helpers compute all matches before returning the first. Python indexes code points; C++ and Go index bytes.
 
-<TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/KMP Algorithm" />
+<TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm" />
 
 ## Complexity analysis
 

@@ -1,5 +1,5 @@
 ---
-topic: "Complexity_Analysis/Time Complexity/Big-Theta (\u0398)"
+topic: Complexity_Analysis/Time_Complexity/Big_Theta
 title: Big-Theta Notation
 lead: Big-Theta is a tight asymptotic bound. It says a function grows at exactly the rate of g, bounded above and below by constant multiples of it. It attaches to one function, such as the worst case of an algorithm, not to the algorithm as a whole.
 level: Intermediate
@@ -19,13 +19,13 @@ facts:
     value: Quick Sort
     hint: average Theta(n log n), worst Theta(n^2)
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
-  - "Complexity_Analysis/Time Complexity/Big-Omega (\u03A9)"
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+  - Complexity_Analysis/Time_Complexity/Big_Omega
 related:
-  - Complexity_Analysis/Amortized Analysis
-  - Algorithms/Sorting/Merge Sort
-  - Algorithms/Sorting/Quick Sort
-  - Algorithms/Searching/Binary Search
+  - Complexity_Analysis/Amortized_Analysis
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Searching/Binary_Search
 ---
 
 ## Definition
@@ -120,7 +120,7 @@ Python has four examples: sum, binary search, a real merge sort and naive matrix
 - In C++ and Go, `mergeSortExample` / `MergeSortExample` call the library sort (`std::sort`, `sort.Ints`), not a merge sort. They are `O(n log n)` in the worst case, but not `Theta(n log n)` in every case: Go's `sort.Ints` is a pattern-defeating quicksort that is close to linear on sorted input.
 - The binary search examples return early, so their best case is `Theta(1)`.
 
-<TopicCode topic={'Complexity_Analysis/Time Complexity/Big-Theta (\u0398)'} />
+<TopicCode topic="Complexity_Analysis/Time_Complexity/Big_Theta" />
 
 ## Complexity
 

@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/Binary Search on Answer
+topic: Problem_Patterns/Binary_Search_on_Answer
 title: Binary Search on Answer
 lead: Instead of searching an array for a value, binary search the range of possible answers. If a yes/no check "is X big enough?" is monotone, the smallest X that passes can be found in log(range) checks, which turns many "minimize the maximum" problems into a single greedy scan.
 level: Intermediate
@@ -22,12 +22,11 @@ properties:
   - { label: Needs sorted input, value: false }
   - { label: Needs a monotone predicate, value: true }
 prerequisites:
-  - Algorithms/Searching/Binary Search
+  - Algorithms/Searching/Binary_Search
 related:
   - Algorithms/Greedy
-  - Problem_Patterns/Two Pointers
-  - Problem_Patterns/Sliding Window
-  - Algorithms/Divide_and_Conquer/Binary Search
+  - Problem_Patterns/Two_Pointers
+  - Problem_Patterns/Sliding_Window
 ---
 
 ## When to use it
@@ -115,7 +114,7 @@ The picture below shows the predicate over the capacities. Everything from 15 up
 
 The shared loop is `binary_search_answer` (`binarySearchAnswer` in C++ and Go). Three problems use it: `find_min_capacity` (ship within `days`), `split_array_largest_sum` (split into `m` parts) and `find_kth_smallest_distance` (k-th smallest pair distance). In Python the k-th distance search runs its own loop, and its `count_pairs_with_distance` check uses two pointers. All three return `-1` when there is no answer.
 
-<TopicCode topic="Problem_Patterns/Binary Search on Answer" />
+<TopicCode topic="Problem_Patterns/Binary_Search_on_Answer" />
 
 Behaviour worth knowing: Python and C++ sort the caller's list in the k-th distance function, Go sorts a copy. Empty input is not handled the same way: Python raises, C++ is undefined behaviour and Go returns 0, so validate input first.
 

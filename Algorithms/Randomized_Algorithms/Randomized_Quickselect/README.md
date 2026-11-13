@@ -113,6 +113,6 @@ Do not use it when you need everything sorted (sort), when `k` is tiny or the da
 
 ## Related
 
-- [Quick Sort](../../Sorting/Quick%20Sort/README.md) - the same partition primitive.
+- [Quick Sort](../../Sorting/Quick_Sort/README.md) - the same partition primitive.
 - [Reservoir Sampling](../Reservoir_Sampling/README.md) - another randomized algorithm for large data.
 - [Randomized Algorithms overview](../README.md)

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
+topic: Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
 title: Bitmask DP
 lead: Bitmask DP stores a subset of n items as the bits of one integer and uses that integer as a DP state. It turns searches over all n! orderings into a table of 2^n subsets, which is what makes the Traveling Salesman Problem solvable for around 20 cities.
 level: Advanced
@@ -22,14 +22,14 @@ properties:
   - { label: Polynomial time, value: false }
   - { label: Fits n over 25, value: false }
 prerequisites:
-  - Problem_Patterns/Bit Manipulation
+  - Problem_Patterns/Bit_Manipulation
   - Utilities/Optimization_Techniques/Bitmasking
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
 related:
-  - Problem_Patterns/Meet in the Middle
-  - Algorithms/Dynamic_Programming/Advanced DP/DP on Graphs
-  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
-  - Problem_Patterns/DP Problem Patterns
+  - Problem_Patterns/Meet_in_the_Middle
+  - Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Problem_Patterns/DP_Problem_Patterns
 ---
 
 ## When bitmask DP applies
@@ -146,7 +146,7 @@ tsp(dist):
 
 The Python version is the complete solver and returns `float('inf')` when no tour exists, for example when a city has no usable edge. The C++ and Go folders are placeholders: they contain a stub file and a test that only prints a message. They do not implement bitmask DP yet.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP" />
+<TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP" />
 
 ## Complexity analysis
 

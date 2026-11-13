@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Greedy/Minimum Spanning Tree/Kruskal's Algorithm
+topic: Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
 title: Kruskal's Algorithm
 lead: Kruskal's algorithm builds a minimum spanning tree by sorting all edges by weight and adding each edge unless it closes a cycle. A union-find structure answers the cycle question in almost constant time, so the cost is dominated by the sort, O(E log E).
 level: Intermediate
@@ -24,13 +24,13 @@ properties:
   - { label: Negative weights, value: true }
   - { label: Needs a connected graph, value: false }
 prerequisites:
-  - Data Structures/Advanced_Structures/Disjoint Set Union
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
   - Algorithms/Greedy
 related:
-  - Algorithms/Greedy/Minimum Spanning Tree/Prim's Algorithm
-  - Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU
-  - Algorithms/Greedy/Activity Selection
-  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
+  - Algorithms/Greedy/Activity_Selection
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
 ---
 
 ## How Kruskal's algorithm works
@@ -134,7 +134,7 @@ The input is an edge list of `(u, v, weight)` with vertices numbered 0 to `num_v
   ]}
 />
 
-<TopicCode topic="Algorithms/Greedy/Minimum Spanning Tree/Kruskal's Algorithm" />
+<TopicCode topic="Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm" />
 
 With equal weights there can be several minimum spanning trees. All of them have the same total weight, but the languages may return different edge sets.
 

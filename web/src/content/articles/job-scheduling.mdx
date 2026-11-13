@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Greedy/Job Scheduling
+topic: Algorithms/Greedy/Job_Scheduling
 title: Job Scheduling
 lead: Job scheduling asks for the best order for jobs on one machine. The classic form gives every unit-time job a deadline and a profit and wants the most profit. Take jobs by profit and give each the latest free slot before its deadline. Two Python variants cover lateness and weighted completion time.
 level: Intermediate
@@ -25,12 +25,12 @@ properties:
   - { label: C++ and Go have all variants, value: false }
 prerequisites:
   - Algorithms/Greedy
-  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Sorting/Merge_Sort
 related:
-  - Algorithms/Greedy/Activity Selection
-  - Algorithms/Greedy/Fractional Knapsack
-  - Algorithms/Greedy/Huffman Coding
-  - Data Structures/Advanced_Structures/Disjoint Set Union
+  - Algorithms/Greedy/Activity_Selection
+  - Algorithms/Greedy/Fractional_Knapsack
+  - Algorithms/Greedy/Huffman_Coding
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
 ---
 
 ## How job scheduling works
@@ -98,7 +98,7 @@ jobSchedulingDeadline(jobs):                    # jobs: (id, deadline, profit)
 
 The Python file has all three variants. C++ and Go have only the deadline version (`jobSchedulingDeadline`, and a profit-only wrapper in C++, `JobSchedulingDeadline` in Go). In Python, jobs are tuples; in C++ they are `std::tuple<int, int, int>`; in Go they are `[]int{id, deadline, profit}`.
 
-<TopicCode topic="Algorithms/Greedy/Job Scheduling" />
+<TopicCode topic="Algorithms/Greedy/Job_Scheduling" />
 
 **Differences to know.**
 

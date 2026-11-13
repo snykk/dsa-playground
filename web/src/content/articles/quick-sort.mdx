@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Sorting/Quick Sort
+topic: Algorithms/Sorting/Quick_Sort
 title: Quick Sort
 lead: Quick Sort picks one element as a pivot, moves every smaller element to its left and every larger one to its right, then sorts both sides the same way. It sorts in place, it is fast in practice, and it is the core of most standard-library sorts.
 level: Intermediate
@@ -21,13 +21,13 @@ properties:
   - { label: Stable, value: false }
   - { label: Comparison sort, value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
   - Algorithms/Divide_and_Conquer
 related:
-  - Algorithms/Sorting/Merge Sort
-  - Algorithms/Sorting/Heap Sort
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Heap_Sort
   - Algorithms/Randomized_Algorithms/Randomized_Quickselect
-  - Algorithms/Sorting/Insertion Sort
+  - Algorithms/Sorting/Insertion_Sort
 ---
 
 ## How Quick Sort works
@@ -112,7 +112,7 @@ The `while` loop is the textbook "recurse on both sides", rewritten so that only
 
 The Python version follows the pseudocode above and also includes Hoare's partition (`quick_sort_hoare`). The C++ and Go versions use the same Lomuto partition with the plain two-call recursion. Each language comes with its tests.
 
-<TopicCode topic="Algorithms/Sorting/Quick Sort" />
+<TopicCode topic="Algorithms/Sorting/Quick_Sort" />
 
 ## Complexity analysis
 

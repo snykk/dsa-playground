@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Fenwick Tree
+topic: Data_Structures/Non_Linear/Trees/Fenwick_Tree
 title: Fenwick Tree
 lead: A Fenwick tree (binary indexed tree) stores prefix sums of an array in a single array of the same size, using the lowest set bit of an index to decide which cells to touch. It answers prefix and range sums and applies point updates in O(log n) with very little code.
 level: Intermediate
@@ -25,11 +25,11 @@ properties:
   - { label: Range update, value: false }
   - { label: Implicit tree (no pointers), value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Data Structures/Non_Linear/Trees/Segment Tree
-  - Data Structures/Non_Linear/Trees/Sparse Table
-  - Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
+  - Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation
 ---
 
 ## What a Fenwick tree is
@@ -112,7 +112,7 @@ To add `delta` to `a[i]`, add it to `tree[i]`, then move to `i + lowbit(i)` and 
 
 The three versions are the same: a `tree` array of size `n + 1`, a loop for `update` and a loop for `prefix_sum`. The constructor performs `n` updates. Tests cover the examples above, negative values, index errors and a random differential run against a brute-force array.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Fenwick Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Fenwick_Tree" />
 
 ## Complexity
 

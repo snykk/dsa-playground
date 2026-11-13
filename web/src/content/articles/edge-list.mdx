@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Graph/Edge List
+topic: Data_Structures/Non_Linear/Graph/Edge_List
 title: Edge List
 lead: An edge list stores a graph as a flat list of edges and nothing else. It is the smallest and simplest representation, O(E) space, and the natural input for algorithms that sort or scan all edges, such as Kruskal. Neighbor and edge lookups cost O(E).
 level: Beginner
@@ -23,13 +23,13 @@ properties:
   - { label: Easy to sort by weight, value: true }
   - { label: Directed or undirected, value: true }
 prerequisites:
-  - Data Structures/Non_Linear/Graph/Adjacency List
+  - Data_Structures/Non_Linear/Graph/Adjacency_List
 related:
-  - Data Structures/Non_Linear/Graph/Adjacency List
-  - Data Structures/Non_Linear/Graph/Adjacency Matrix
-  - Data Structures/Non_Linear/Graph/Weighted & Unweighted
-  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm
-  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm
+  - Data_Structures/Non_Linear/Graph/Adjacency_List
+  - Data_Structures/Non_Linear/Graph/Adjacency_Matrix
+  - Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
 ---
 
 ## What an edge list is
@@ -191,7 +191,7 @@ For BFS or DFS in O(V + E), call `to_adjacency_list()` (Python) once and travers
 
 All three versions keep a vector or list of edges plus a vertex set. Python stores tuples (two or three fields depending on `weighted`). C++ keeps two vectors, one of triples and one of pairs. Go stores `Edge{From, To, Weight}` structs and gives unweighted graphs weight 1.0.
 
-<TopicCode topic="Data Structures/Non_Linear/Graph/Edge List" />
+<TopicCode topic="Data_Structures/Non_Linear/Graph/Edge_List" />
 
 ## Frequently asked questions
 

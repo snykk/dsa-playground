@@ -4,8 +4,8 @@
  *
  * Both mirror the repository's Python code step for step, tie-breaking included,
  * and golden fixtures (scripts/gen_greedy_fixtures.py) pin them to it:
- *   Kruskal: Algorithms/Greedy/Minimum Spanning Tree/Kruskal's Algorithm/Python/kruskal.py (kruskal_mst)
- *   Prim:    Algorithms/Greedy/Minimum Spanning Tree/Prim's Algorithm/Python/prim.py (prim_mst_edge_list)
+ *   Kruskal: Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/Python/kruskal.py (kruskal_mst)
+ *   Prim:    Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm/Python/prim.py (prim_mst_edge_list)
  * Vertices are numbered in sorted name order, like the integer ids the Python code uses.
  */
 import { InputError, type Frame, type Role } from '../core/types';

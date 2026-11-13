@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Advanced_Structures/LFU Cache
+topic: Data_Structures/Advanced_Structures/LFU_Cache
 title: LFU Cache
 lead: An LFU (least frequently used) cache has a fixed capacity and, when full, evicts the entry that was accessed the fewest times, breaking ties by evicting the least recently used of them. With a hash map plus one list per frequency, both get and put take O(1) time.
 level: Advanced
@@ -21,12 +21,12 @@ properties:
   - { label: Adapts to shifting popularity, value: false }
   - { label: Thread-safe, value: false }
 prerequisites:
-  - Data Structures/Hashing/Hash Map
-  - Data Structures/Linear/Linked List/Doubly
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Linear/Linked_List/Doubly
 related:
-  - Data Structures/Advanced_Structures/LRU Cache
-  - Data Structures/Hashing/Hash Table
-  - Data Structures/Linear/Queue/Priority Queue
+  - Data_Structures/Advanced_Structures/LRU_Cache
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Linear/Queue/Priority_Queue
 ---
 
 ## What an LFU cache is
@@ -189,7 +189,7 @@ Start with LRU. Move to LFU when popularity is stable and scans pollute an LRU c
 
 Python uses a dictionary of `OrderedDict` buckets (head is the LRU, tail is the MRU). C++ uses `std::list` buckets with the MRU at the front and an iterator stored per key. Go uses `container/list` with the MRU at the front. In all three the eviction order is the same.
 
-<TopicCode topic="Data Structures/Advanced_Structures/LFU Cache" />
+<TopicCode topic="Data_Structures/Advanced_Structures/LFU_Cache" />
 
 ## Frequently asked questions
 

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Searching/Ternary Search
+topic: Algorithms/Searching/Ternary_Search
 title: Ternary Search
 lead: Ternary Search splits a sorted range into three parts with two probes and discards at least one third each round. It is in the same O(log n) class as Binary Search but makes more probes, so for plain lookup it loses. Its real use is finding the peak of a unimodal function.
 level: Intermediate
@@ -24,13 +24,13 @@ properties:
   - { label: Finds a function maximum, value: true }
   - { label: Works with plateaus, value: false }
 prerequisites:
-  - Algorithms/Searching/Binary Search
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Algorithms/Searching/Binary_Search
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Searching/Binary Search
-  - Algorithms/Searching/Interpolation Search
-  - Algorithms/Searching/Linear Search
-  - Problem_Patterns/Binary Search on Answer
+  - Algorithms/Searching/Binary_Search
+  - Algorithms/Searching/Interpolation_Search
+  - Algorithms/Searching/Linear_Search
+  - Problem_Patterns/Binary_Search_on_Answer
 ---
 
 ## How Ternary Search works
@@ -113,7 +113,7 @@ For `f(x) = -(x - 7)^2 + 3` on `[0, 20]` the repository's code narrows the windo
 
 All three languages have the sorted-array search, iterative and recursive. Only Python has the peak finder: `ternary_search_unimodal(func, left, right)` works on **integer** bounds only (float bounds raise `TypeError`) and finds **maxima** only; to find a minimum, search for the maximum of `-f`. C++ includes `<functional>` but has no unimodal function, and neither has Go.
 
-<TopicCode topic="Algorithms/Searching/Ternary Search" />
+<TopicCode topic="Algorithms/Searching/Ternary_Search" />
 
 ## Complexity analysis
 

@@ -151,5 +151,5 @@ All three produce the same results on the shared known-value vectors (the AES ve
 ## Related
 
 - [Reed-Solomon](../Reed_Solomon/README.md): the main user of GF(2^8) arithmetic.
-- [Modular Arithmetic](../../Mathematical_Algorithms/Number_Theory/Modular%20Arithmetic/README.md): the prime-field cousin GF(p).
-- [Fast Fourier Transform](../../Mathematical_Algorithms/Advanced_Math/Fast%20Fourier%20Transform/README.md): also polynomial evaluation, over a different field.
+- [Modular Arithmetic](../../Mathematical_Algorithms/Number_Theory/Modular_Arithmetic/README.md): the prime-field cousin GF(p).
+- [Fast Fourier Transform](../../Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/README.md): also polynomial evaluation, over a different field.

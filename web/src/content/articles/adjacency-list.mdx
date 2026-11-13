@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Graph/Adjacency List
+topic: Data_Structures/Non_Linear/Graph/Adjacency_List
 title: Adjacency List
 lead: An adjacency list stores, for every vertex, the list of vertices it is joined to. It uses O(V + E) space and lists a vertex's neighbors in O(deg) time, which is why it is the default way to hold a sparse graph in memory.
 level: Beginner
@@ -23,12 +23,12 @@ properties:
   - { label: Weights supported, value: true }
   - { label: O(1) edge lookup, value: false }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Data Structures/Non_Linear/Graph/Adjacency Matrix
-  - Data Structures/Non_Linear/Graph/Edge List
-  - Data Structures/Non_Linear/Graph/Directed & Undirected
-  - Data Structures/Non_Linear/Graph/Weighted & Unweighted
+  - Data_Structures/Non_Linear/Graph/Adjacency_Matrix
+  - Data_Structures/Non_Linear/Graph/Edge_List
+  - Data_Structures/Non_Linear/Graph/Directed_and_Undirected
+  - Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted
   - Algorithms/Graph_Algorithms/Traversal/BFS
   - Algorithms/Graph_Algorithms/Traversal/DFS
 ---
@@ -199,7 +199,7 @@ The degree of a vertex is at most V - 1, so the worst case for the per-edge oper
 
 All three versions use a map from vertex to a list of neighbors. Python stores plain ids for unweighted graphs and `(neighbor, weight)` tuples for weighted ones. C++ keeps two maps, one per kind, and Go always stores `Edge{To, Weight}` structs.
 
-<TopicCode topic="Data Structures/Non_Linear/Graph/Adjacency List" />
+<TopicCode topic="Data_Structures/Non_Linear/Graph/Adjacency_List" />
 
 ## Frequently asked questions
 

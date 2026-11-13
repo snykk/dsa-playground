@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/Linked List/Circular
+topic: Data_Structures/Linear/Linked_List/Circular
 title: Circular Linked List
 lead: A circular linked list is a singly linked list whose last node points back to the first, so the chain forms a ring with no null end. It suits round-robin work, where you cycle through items forever. Every operation here is O(n) because the code keeps only a head pointer.
 level: Intermediate
@@ -23,11 +23,11 @@ properties:
   - { label: Tail pointer kept, value: false }
   - { label: Cycle by design, value: true }
 prerequisites:
-  - Data Structures/Linear/Linked List/Singly
+  - Data_Structures/Linear/Linked_List/Singly
 related:
-  - Data Structures/Linear/Linked List/Doubly
-  - Data Structures/Linear/Queue/Circular Queue
-  - Data Structures/Linear/Array
+  - Data_Structures/Linear/Linked_List/Doubly
+  - Data_Structures/Linear/Queue/Circular_Queue
+  - Data_Structures/Linear/Array
 ---
 
 ## What a circular linked list is
@@ -133,7 +133,7 @@ Inserting at the head is `new.next = tail.next; tail.next = new`, and inserting 
 
 The three versions follow the same logic. In Python and Go the tests walk the ring through `head` and `next`. The C++ class owns its nodes: it has a destructor that opens the ring and frees every node, and its copy constructor and assignment are deleted, because two lists would free the same nodes.
 
-<TopicCode topic="Data Structures/Linear/Linked List/Circular" />
+<TopicCode topic="Data_Structures/Linear/Linked_List/Circular" />
 
 ## Complexity
 

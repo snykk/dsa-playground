@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford-Fulkerson
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson
 title: Ford-Fulkerson Method
 lead: Ford-Fulkerson finds the maximum flow in a network by repeatedly finding any path with spare capacity from source to sink and pushing flow along it. Backward edges in the residual graph let it undo earlier choices, and the max-flow min-cut theorem proves the result is optimal.
 level: Advanced
@@ -25,7 +25,7 @@ properties:
 prerequisites:
   - Algorithms/Graph_Algorithms/Traversal/DFS
 related:
-  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds-Karp
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp
   - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow
   - Algorithms/Graph_Algorithms/Traversal/BFS
 ---
@@ -112,7 +112,7 @@ All three languages take a map `u -> {v: capacity}`. The DFS is iterative everyw
 
 Python offers three functions: `ford_fulkerson` (the value), `ford_fulkerson_with_path` (the value and the list of `(path, bottleneck)` pairs) and `min_cut` (the value and the two vertex sets). C++ and Go return the value only. In C++ the capacities are `int`, but the residual graph and the result are `long long`, and vertex ids can be any integer.
 
-<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford-Fulkerson" />
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson" />
 
 ## Complexity analysis
 

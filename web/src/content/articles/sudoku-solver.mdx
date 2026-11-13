@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Advanced_Algorithms/Backtracking/Sudoku Solver
+topic: Algorithms/Advanced_Algorithms/Backtracking/Sudoku_Solver
 title: Sudoku Solver
 lead: A 9 x 9 Sudoku must be filled so that every row, column and 3 x 3 box contains each digit from 1 to 9 once. The backtracking solver checks the givens, then fills the first empty cell with each legal digit in turn and undoes the choice when a later cell has no legal digit.
 level: Intermediate
@@ -24,9 +24,9 @@ properties:
 prerequisites:
   - Algorithms/Graph_Algorithms/Traversal/DFS
 related:
-  - Algorithms/Advanced_Algorithms/Backtracking/N-Queens Problem
-  - Algorithms/Advanced_Algorithms/Backtracking/Graph Coloring
-  - Algorithms/Advanced_Algorithms/Backtracking/Rat in a Maze
+  - Algorithms/Advanced_Algorithms/Backtracking/N_Queens_Problem
+  - Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring
+  - Algorithms/Advanced_Algorithms/Backtracking/Rat_in_a_Maze
 ---
 
 ## How the Sudoku solver works
@@ -127,7 +127,7 @@ solveSudoku(board):
 
 The three versions are identical in structure: `is_valid_puzzle`, `is_valid`, `find_empty`, a recursive search, and `solve_sudoku`, which validates and then searches. All of them solve the board in place and return a boolean. They differ only in naming (`isValidPuzzle`, `solveSudoku` in C++ and Go) and in what they use for the empty-cell lookup: a tuple or `None` in Python, `std::optional` in C++, and an index pair plus a flag in Go.
 
-<TopicCode topic="Algorithms/Advanced_Algorithms/Backtracking/Sudoku Solver" />
+<TopicCode topic="Algorithms/Advanced_Algorithms/Backtracking/Sudoku_Solver" />
 
 ## Complexity analysis
 

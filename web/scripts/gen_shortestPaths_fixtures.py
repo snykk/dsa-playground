@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SP = ROOT / "Algorithms" / "Graph_Algorithms" / "Shortest_Path"
-for folder in ("Bellman-Ford_Algorithm", "Floyd-Warshall_Algorithm", "A_Star_Search_Algorithm"):
+for folder in ("Bellman_Ford_Algorithm", "Floyd_Warshall_Algorithm", "A_Star_Search_Algorithm"):
     sys.path.insert(0, str(SP / folder / "Python"))
 
 from astar import astar, manhattan_distance  # noqa: E402

@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/K-D Tree
+topic: Data_Structures/Non_Linear/Trees/K_D_Tree
 title: K-D Tree
 lead: A K-D tree is a binary search tree for points in k dimensions. Each level splits the space by one coordinate, cycling through the axes, so it answers nearest-neighbour and rectangular range queries by skipping whole regions of space that cannot contain an answer.
 level: Advanced
@@ -24,11 +24,11 @@ properties:
   - { label: Works well in high dimensions, value: false }
   - { label: Any k (Python, Go), value: true }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
 related:
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
-  - Data Structures/Non_Linear/Trees/Segment Tree
-  - Algorithms/Computational_Geometry/Advanced_Geometry/Closest Pair of Points
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points
 ---
 
 ## What a K-D tree is
@@ -160,7 +160,7 @@ Inserting walks down like a BST, using the axis of each level, and attaches the 
 
 The three versions share the same structure: a node with a point, an axis and two children; a median-split build; an iterative insert (Python and Go); a nearest search with plane pruning; and a pruned range search. Tests cross-check nearest and range queries against brute force on random 2D and 3D data, with ties and duplicates.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/K-D Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/K_D_Tree" />
 
 ## Complexity
 

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/String_Algorithms/Advanced_String/Aho-Corasick
+topic: Algorithms/String_Algorithms/Advanced_String/Aho_Corasick
 title: Aho-Corasick
 lead: Aho-Corasick finds every occurrence of every pattern from a whole dictionary in a single pass over the text. It builds a trie of the patterns, adds KMP-style failure links, and runs in O(n + m + z) time.
 level: Advanced
@@ -22,13 +22,13 @@ properties:
   - { label: Reports overlapping matches, value: true }
   - { label: Supports regular expressions, value: false }
 prerequisites:
-  - Algorithms/String_Algorithms/Pattern_Matching/KMP Algorithm
-  - Data Structures/Non_Linear/Trees/Trie
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Data_Structures/Non_Linear/Trees/Trie
 related:
-  - Algorithms/String_Algorithms/Pattern_Matching/KMP Algorithm
-  - Algorithms/String_Algorithms/Pattern_Matching/Rabin-Karp Algorithm
-  - Algorithms/String_Algorithms/Advanced_String/Z-Algorithm
-  - Data Structures/Non_Linear/Trees/Trie
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Z_Algorithm
+  - Data_Structures/Non_Linear/Trees/Trie
 ---
 
 ## How Aho-Corasick works
@@ -145,7 +145,7 @@ search(text):
 
 All three languages follow this structure with hash-map children and no precomputed goto table. Python reports `(end_index, pattern)` with code-point indices. C++ and Go report `(end_index, pattern_id)` with byte indices and give the pattern text back through `pattern(id)` / `Pattern(id)`.
 
-<TopicCode topic="Algorithms/String_Algorithms/Advanced_String/Aho-Corasick" />
+<TopicCode topic="Algorithms/String_Algorithms/Advanced_String/Aho_Corasick" />
 
 ## Complexity analysis
 

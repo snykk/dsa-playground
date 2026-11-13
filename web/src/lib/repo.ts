@@ -33,7 +33,7 @@ const CODE_LANG: Record<string, string> = {
 };
 
 /** Top-level reading order (everything else falls back to alphabetical). */
-const TOP_ORDER = ['Data Structures', 'Algorithms', 'Problem_Patterns', 'Complexity_Analysis', 'Utilities'];
+const TOP_ORDER = ['Data_Structures', 'Algorithms', 'Problem_Patterns', 'Complexity_Analysis', 'Utilities'];
 
 /** Repository-root documents that get their own page. */
 export const STANDALONE_DOCS: Record<string, string> = {

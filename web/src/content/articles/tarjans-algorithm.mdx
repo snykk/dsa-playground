@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm
 title: Tarjan's SCC Algorithm
 lead: Tarjan's algorithm finds every strongly connected component of a directed graph in a single depth-first search. It tags each vertex with a discovery time and a low-link value, and a vertex whose low-link equals its discovery time is the root of a component.
 level: Advanced
@@ -24,8 +24,8 @@ properties:
 prerequisites:
   - Algorithms/Graph_Algorithms/Traversal/DFS
 related:
-  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosaraju's_Algorithm
-  - Algorithms/Graph_Algorithms/Advanced_Graph/2-SAT
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosarajus_Algorithm
+  - Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT
   - Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation
   - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
 ---
@@ -120,7 +120,7 @@ Python and C++ replace the recursion of `strongconnect` with an explicit stack o
 
 Python also provides `tarjan_scc_count`, `is_strongly_connected`, and two extras, `tarjan_bridges` and `tarjan_articulation_points`, which work on undirected adjacency lists. Those two use a recursive DFS, so on a deep graph use the dedicated Tarjan Bridges and Articulation Points topic instead. C++ and Go only have the SCC functions.
 
-<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm" />
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm" />
 
 ## Complexity analysis
 

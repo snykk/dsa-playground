@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/String_Algorithms/Pattern_Matching/Boyer-Moore Algorithm
+topic: Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm
 title: Boyer-Moore Algorithm
 lead: Boyer-Moore compares the pattern from right to left and, on a mismatch, uses the mismatching text character to jump ahead, often by the whole pattern length. On long patterns and large alphabets it reads only a fraction of the text. This repository implements the bad-character rule.
 level: Intermediate
@@ -24,12 +24,12 @@ properties:
   - { label: Finds overlapping matches, value: true }
   - { label: Linear in the worst case, value: false }
 prerequisites:
-  - Algorithms/String_Algorithms/Pattern_Matching/Naive Pattern Search
+  - Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search
 related:
-  - Algorithms/String_Algorithms/Pattern_Matching/KMP Algorithm
-  - Algorithms/String_Algorithms/Pattern_Matching/Rabin-Karp Algorithm
-  - Algorithms/String_Algorithms/Advanced_String/Z-Algorithm
-  - Data Structures/Linear/String/Pattern Matching
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Z_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching
 ---
 
 ## How Boyer-Moore works
@@ -102,9 +102,9 @@ boyer_moore_search(text, pattern):
 
 ## Implementation
 
-All three languages follow the pseudocode. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`**; this differs from the naive and KMP functions in the Pattern Matching topic, which report every position for an empty pattern. Python also has `boyer_moore_search_count` and `boyer_moore_search_first`. In C++ the absent-character lookup uses `find`, because `unordered_map::operator[]` would insert the character with value 0 and shrink the shift. Python indexes code points; C++ and Go index bytes.
+All three languages follow the pseudocode. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`**, as in the other searches in this section. Python also has `boyer_moore_search_count` and `boyer_moore_search_first`. In C++ the absent-character lookup uses `find`, because `unordered_map::operator[]` would insert the character with value 0 and shrink the shift. Python indexes code points; C++ and Go index bytes.
 
-<TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/Boyer-Moore Algorithm" />
+<TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm" />
 
 ## Complexity analysis
 
@@ -189,6 +189,6 @@ The full Boyer-Moore algorithm adds the **good-suffix rule**, which uses the par
     On small alphabets and short patterns, and on adversarial input such as `baaa` in `aaaa...a`. KMP's O(n + m) holds for every input.
   </FaqItem>
   <FaqItem question="What does the empty pattern return?">
-    `[]` in all three languages here. The naive, KMP and Rabin-Karp searches in the Pattern Matching topic return every position instead, so check the convention before swapping algorithms.
+    `[]` in all three languages, as in the naive, KMP and Rabin-Karp searches here. Library searches differ: `'abc'.find('')`, `std::string::find` and `strings.Index` report a match at index 0, so check the convention before swapping one in.
   </FaqItem>
 </Faq>

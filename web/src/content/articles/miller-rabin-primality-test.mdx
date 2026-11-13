@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Mathematical_Algorithms/Number_Theory/Miller-Rabin Primality Test
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test
 title: Miller-Rabin Primality Test
 lead: Miller-Rabin decides whether a large number is prime by testing a property every prime has and almost every composite lacks. A composite slips past one random witness with probability at most 1/4, and twelve fixed witnesses make the answer exact for every 64-bit integer.
 level: Advanced
@@ -23,12 +23,12 @@ properties:
   - { label: Never rejects a prime, value: true }
   - { label: Finds a factor, value: false }
 prerequisites:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
 related:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Sieve of Eratosthenes
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese Remainder Theorem
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem
 ---
 
 ## Definition
@@ -115,7 +115,7 @@ deterministic(n):                       # same loop over a in 2,3,5,...,37 (skip
 
 Python has `miller_rabin` (random witnesses), `is_prime_miller_rabin` and `miller_rabin_deterministic`. C++ and Go have the same three, plus a `U64` variant that accepts the full range up to 2^64 - 1; their `int64` forms accept up to 2^63 - 1 and treat negative input as not prime. Every modular product in C++ and Go goes through a 128-bit multiplication (`unsigned __int128`, `math/bits`). An earlier version multiplied in signed 64 bits and reported primes above about 3.04e9 as composite. C++ draws witnesses from a seeded `std::mt19937_64`, Go from the auto-seeded `math/rand`.
 
-<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Miller-Rabin Primality Test" />
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test" />
 
 ## Complexity
 

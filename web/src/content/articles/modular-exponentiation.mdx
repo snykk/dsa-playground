@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
 title: Modular Exponentiation
 lead: Modular exponentiation computes base^exponent mod m by square and multiply. It squares the base once per bit of the exponent and multiplies the answer in for every 1 bit, so a power with an exponent near 10^18 takes about 120 multiplications instead of 10^18.
 level: Beginner
@@ -22,11 +22,11 @@ properties:
   - { label: Negative exponent (inverse power), value: true }
   - { label: Needs a prime modulus, value: false }
 prerequisites:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
 related:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller-Rabin Primality Test
-  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix Exponentiation
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
 ---
 
 ## Definition
@@ -116,7 +116,7 @@ The recursive Python version `mod_pow_recursive` returns `(f(e/2))^2` for even `
 
 Python has the iterative `mod_pow`, the recursive `mod_pow_recursive` and `mod_inverse`. C++ and Go have `modPow` and `modInverse`. Results are always in `[0, modulus)` (an earlier version returned `-3` for `(-2)^3 mod 5` in C++ and Go). In C++ and Go every product goes through a 128-bit multiplication (`__int128`, `math/bits`); the old 64-bit product gave wrong answers for moduli above about 3.04e9, for example `3^1000000 mod (10^18 + 3)`.
 
-<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation" />
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation" />
 
 ## Complexity
 

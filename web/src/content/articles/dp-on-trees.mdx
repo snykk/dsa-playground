@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/Advanced DP/DP on Trees
+topic: Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees
 title: DP on Trees
 lead: DP on trees solves a problem for every subtree from the leaves upward, combining the answers of a node's children into the node's own answer. It gives linear-time solutions to independent set, maximum path sum and many other problems that look exponential at first.
 level: Advanced
@@ -21,13 +21,13 @@ properties:
   - { label: Needs a rooted tree, value: true }
   - { label: Recursion depth limit, value: true }
 prerequisites:
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
   - Algorithms/Graph_Algorithms/Traversal/DFS
 related:
-  - Algorithms/Dynamic_Programming/Advanced DP/DP on Graphs
-  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
-  - Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)
-  - Problem_Patterns/DP Problem Patterns
+  - Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs
+  - Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
+  - Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray_Kadanes_Algorithm
+  - Problem_Patterns/DP_Problem_Patterns
 ---
 
 ## When to use DP on trees
@@ -144,7 +144,7 @@ maxPathSum(root):
 
 The Python version has `TreeNode(val, children)`, `tree_dp_max_independent_set(root)` and `tree_dp_max_path_sum(root)`. The empty tree gives 0 for the independent set and `-inf` for the path sum. The C++ and Go folders are placeholders (a stub and a test that asserts nothing).
 
-<TopicCode topic="Algorithms/Dynamic_Programming/Advanced DP/DP on Trees" />
+<TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees" />
 
 Both functions recurse once per tree level, so a path-shaped tree deeper than about 1,000 nodes hits Python's recursion limit.
 

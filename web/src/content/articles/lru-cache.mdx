@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Advanced_Structures/LRU Cache
+topic: Data_Structures/Advanced_Structures/LRU_Cache
 title: LRU Cache
 lead: An LRU (least recently used) cache holds a fixed number of key-value pairs and, when full, throws away the entry that has gone unused the longest. A hash map plus a doubly linked list gives O(1) get and put.
 level: Intermediate
@@ -21,12 +21,12 @@ properties:
   - { label: Resists scans, value: false }
   - { label: Thread-safe, value: false }
 prerequisites:
-  - Data Structures/Hashing/Hash Map
-  - Data Structures/Linear/Linked List/Doubly
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Linear/Linked_List/Doubly
 related:
-  - Data Structures/Advanced_Structures/LFU Cache
-  - Data Structures/Hashing/Hash Table
-  - Data Structures/Linear/Queue/Deque
+  - Data_Structures/Advanced_Structures/LFU_Cache
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Linear/Queue/Deque
 ---
 
 ## What an LRU cache is
@@ -169,7 +169,7 @@ The hash lookups are O(1) on average, not worst case, because they depend on the
 
 Python and Go use sentinel head and tail nodes with the front as the most recent end. C++ uses `std::list` with `splice`, which moves a node in O(1) without invalidating the iterators stored in the map.
 
-<TopicCode topic="Data Structures/Advanced_Structures/LRU Cache" />
+<TopicCode topic="Data_Structures/Advanced_Structures/LRU_Cache" />
 
 ## Frequently asked questions
 

@@ -1,8 +1,8 @@
 /**
  * Article checker: every MDX article must compile, match the frontmatter schema, point at
- * real repository folders and visualizations, use only the registered components, and
- * follow the house rules (ASCII source, no horizontal rules, an Implementation section
- * with the code tabs).
+ * real repository folders and visualizations, use only the registered components, follow
+ * the house rules (ASCII source, no horizontal rules, an Implementation section with the
+ * code tabs) and be named after its topic folder.
  *
  * Run one article: npx vitest run src/content/articles.test.ts -t quick-sort
  */
@@ -15,6 +15,7 @@ import { parse as parseYaml } from 'yaml';
 import { MDX_COMPONENT_NAMES } from '../components/mdxNames';
 import { articleSchema } from '../lib/article';
 import { getContent } from '../lib/repo';
+import { slugifySegment } from '../lib/slug';
 import { VIZ_CATALOG } from '../viz/catalog';
 
 const DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'articles');
@@ -101,10 +102,28 @@ describe.each(files)('%s', (file) => {
   });
 });
 
-it('gives every topic at most one article', () => {
-  const topics = files.map((f) => {
+const articleTopics = () =>
+  files.map((f) => {
     const { frontmatter } = split(readFileSync(path.join(DIR, f), 'utf8'));
-    return (parseYaml(frontmatter) as { topic: string }).topic;
+    return { file: f, topic: (parseYaml(frontmatter) as { topic: string }).topic };
   });
+
+it('gives every topic at most one article', () => {
+  const topics = articleTopics().map((a) => a.topic);
   expect(new Set(topics).size).toBe(topics.length);
+});
+
+it('names every article file after its topic folder', () => {
+  // The folder's own name as a slug; the parent's slug goes in front only when two topics share that name.
+  const segment = (rel: string, fromEnd: number) => slugifySegment(rel.split('/').reverse()[fromEnd] ?? '');
+  const uses = new Map<string, number>();
+  for (const node of content.nodes) {
+    if (node.kind === 'topic') uses.set(segment(node.rel, 0), (uses.get(segment(node.rel, 0)) ?? 0) + 1);
+  }
+  const misnamed = articleTopics().flatMap(({ file, topic }) => {
+    const own = segment(topic, 0);
+    const expected = `${(uses.get(own) ?? 0) > 1 ? `${segment(topic, 1)}-${own}` : own}.mdx`;
+    return file === expected ? [] : [`${file} should be ${expected}`];
+  });
+  expect(misnamed).toEqual([]);
 });

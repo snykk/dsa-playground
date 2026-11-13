@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Advanced_Structures/Disjoint Set Union
+topic: Data_Structures/Advanced_Structures/Disjoint_Set_Union
 title: Disjoint Set Union
 lead: A disjoint set union (union-find) keeps a collection of items split into non-overlapping groups. It answers "are these two in the same group?" and merges two groups in nearly constant amortized time, using a forest of parent pointers stored in a plain array.
 level: Intermediate
@@ -22,12 +22,12 @@ properties:
   - { label: Online (unions arrive one at a time), value: true }
   - { label: Supports splitting a set, value: false }
 prerequisites:
-  - Data Structures/Linear/Array
-  - Data Structures/Non_Linear/Trees/Binary Tree
+  - Data_Structures/Linear/Array
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
 related:
-  - Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU
-  - Problem_Patterns/Union-Find Applications
-  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm
+  - Problem_Patterns/Union_Find_Applications
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation
 ---
 
 ## What a disjoint set union is
@@ -77,7 +77,7 @@ Each set is stored as a tree. `parent[x]` is the parent of `x`, and a root is it
   ]}
 />
 
-Names differ slightly per language: C++ calls union `unite` (union is a keyword) and uses `getComponentCount`, `getComponents`, `getSize`. Go uses `NewDSU`, `Find`, `Union`, `Connected`, `GetComponentCount`, `GetComponents`, `GetSize`. Python also has `get_parent(x)`, and C++ and Go have `getParent` and `GetParent`, which read the raw parent without compressing; the tests use them.
+Names differ slightly per language: C++ calls union `unite` (union is a keyword) and uses `getComponentCount`, `getComponents`, `getSize`. Go uses `NewDSU`, `Find`, `Union`, `Connected`, `GetComponentCount`, `GetComponents`, `GetSize`. Python also has `get_parent(x)` and a `count` property (`UnionFind` is an alias of `DSU`), and C++ and Go have `getParent` and `GetParent`, which read the raw parent without compressing; the tests use them.
 
 ### Find with path compression
 
@@ -181,11 +181,15 @@ This repository implements union by rank with full path compression, and also st
 
 ## Applications
 
-This topic is the data structure. For using it on problems, see the Union-Find DSU algorithm topic and the Union-Find Applications pattern (linked above). Typical uses:
+Each language ships helpers that run a DSU over an edge list: `connected_components`, `has_cycle` and `kruskal_mst` (C++ `connectedComponents`, `hasCycle`, `kruskalMST`; Go `ConnectedComponents`, `HasCycle`, `KruskalMST`), plus `largest_component` in Python. They all rest on one fact: `union` returns false exactly when an edge joins two vertices that are already connected.
 
-- **Kruskal's minimum spanning tree:** add an edge only if `union` returns true.
-- **Cycle detection** in an undirected graph while edges arrive.
-- **Connected components** counting, with `get_component_count`.
+- **Connected components:** union every edge, then group vertices by root.
+- **Cycle detection:** the first edge whose `union` returns false closes a cycle. A self-loop or a repeated edge counts as one.
+- **Kruskal's MST:** sort the edges by weight and keep an edge only when `union` merges two sets. It stops after n - 1 edges.
+
+For problem patterns see the Union-Find Applications topic (linked above). More uses:
+
+- **Counting components** online, with `get_component_count`.
 - **Percolation and grid regions,** and image-region labelling.
 - **Equivalence classes,** such as accounts that share an e-mail.
 
@@ -203,9 +207,9 @@ Problems: LeetCode 547 (Number of Provinces), 684 (Redundant Connection), 721 (A
 
 ## Implementation
 
-All three versions use path compression, union by rank, a `size` array and a component counter. The tests include a path-compression check that inspects the parent before and after `find`.
+All three versions use path compression, union by rank, a `size` array and a component counter. The tests include a path-compression check that inspects the parent before and after `find`, and random union/connected sequences compared with a brute-force label array.
 
-<TopicCode topic="Data Structures/Advanced_Structures/Disjoint Set Union" />
+<TopicCode topic="Data_Structures/Advanced_Structures/Disjoint_Set_Union" />
 
 ## Frequently asked questions
 

@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/B-Tree
+topic: Data_Structures/Non_Linear/Trees/B_Tree
 title: B-Tree
 lead: A B-tree is a balanced search tree whose nodes hold many sorted keys, so the tree stays very shallow. Search, insert and delete cost O(log n) comparisons but only O(log<sub>t</sub> n) node visits, which is what matters when each node is a disk page.
 level: Advanced
@@ -24,11 +24,11 @@ properties:
   - { label: Keys in internal nodes, value: true }
   - { label: Duplicates rejected, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
 related:
-  - Data Structures/Non_Linear/Trees/B+ Tree
-  - Data Structures/Non_Linear/Trees/AVL Tree
-  - Data Structures/Non_Linear/Trees/Red-Black Tree
+  - Data_Structures/Non_Linear/Trees/B_Plus_Tree
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Red_Black_Tree
 ---
 
 ## What a B-tree is
@@ -184,7 +184,7 @@ Merging happens when the siblings have nothing to give. Continuing, `delete(30)`
 
 The three versions share the same structure: a node with `keys` and `children`, a proactive `split_child`, `insert_non_full`, and a delete built from `fill_child`, borrow and merge helpers. All three are tested against a sorted reference on thousands of random insert/delete/search operations, with an invariant checker (fill bounds, key order, equal leaf depth) after the run. The C++ tree owns its nodes (destructor, copying disabled).
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/B-Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/B_Tree" />
 
 ## Complexity
 

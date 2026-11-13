@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Sorting/Selection Sort
+topic: Algorithms/Sorting/Selection_Sort
 title: Selection Sort
 lead: Selection Sort repeatedly finds the smallest element of the unsorted part and swaps it to the front. It always makes n(n - 1)/2 comparisons, but at most n - 1 swaps, which makes it the sort to remember when writing is expensive.
 level: Beginner
@@ -22,12 +22,12 @@ properties:
   - { label: Adaptive, value: false }
   - { label: Comparison sort, value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Sorting/Bubble Sort
-  - Algorithms/Sorting/Insertion Sort
-  - Algorithms/Sorting/Heap Sort
-  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Sorting/Bubble_Sort
+  - Algorithms/Sorting/Insertion_Sort
+  - Algorithms/Sorting/Heap_Sort
+  - Algorithms/Sorting/Merge_Sort
 ---
 
 ## How Selection Sort works
@@ -93,7 +93,7 @@ The last round (`i = n - 1`) scans nothing and cannot swap, so running it is har
 
 All three versions sort in place and follow the pseudocode, including the `min_idx != i` guard that skips useless self-swaps. Python's `selection_sort` returns the same list; C++ is a template over the element type of a `std::vector` (instantiated for `int` and `double`) and needs only `operator<`; Go sorts a `[]int`.
 
-<TopicCode topic="Algorithms/Sorting/Selection Sort" />
+<TopicCode topic="Algorithms/Sorting/Selection_Sort" />
 
 ## Complexity analysis
 

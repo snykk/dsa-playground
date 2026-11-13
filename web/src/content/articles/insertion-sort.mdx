@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Sorting/Insertion Sort
+topic: Algorithms/Sorting/Insertion_Sort
 title: Insertion Sort
 lead: Insertion Sort grows a sorted prefix one element at a time, sliding each new element left into its place, like sorting playing cards in your hand. It is quadratic in general but linear on nearly sorted input, which makes it the best simple sort for small arrays.
 level: Beginner
@@ -23,12 +23,12 @@ properties:
   - { label: Online, value: true }
   - { label: Comparison sort, value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Algorithms/Sorting/Bubble Sort
-  - Algorithms/Sorting/Selection Sort
-  - Algorithms/Sorting/Merge Sort
-  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Sorting/Bubble_Sort
+  - Algorithms/Sorting/Selection_Sort
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Quick_Sort
 ---
 
 ## How Insertion Sort works
@@ -98,7 +98,7 @@ The comparison `arr[j] > key` is strict, so an equal element stops the shifting 
 
 Python has `insertion_sort` (in place, returns the same list) and `insertion_sort_recursive`, which sorts the first `n - 1` elements recursively and then inserts the last one. C++ is a template over the element type of a `std::vector`, instantiated for `int` and `double`; its inner loop tests `arr[j - 1] > key` with an unsigned index. Go has `InsertionSort([]int)`.
 
-<TopicCode topic="Algorithms/Sorting/Insertion Sort" />
+<TopicCode topic="Algorithms/Sorting/Insertion_Sort" />
 
 ## Complexity analysis
 

@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
 title: Modular Arithmetic
 lead: Modular arithmetic keeps only remainders, so numbers wrap around after reaching the modulus, like hours on a clock. It lets you add, subtract, multiply and take powers of huge numbers while holding only small ones, and it replaces division with a modular inverse.
 level: Beginner
@@ -21,11 +21,11 @@ properties:
   - { label: Handles negative operands, value: true }
   - { label: Division always possible, value: false }
 prerequisites:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
 related:
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese Remainder Theorem
-  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller-Rabin Primality Test
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test
 ---
 
 ## Definition
@@ -131,7 +131,7 @@ modPower(base, e, m):
 
 Python provides the functions plus its own `extended_gcd`. C++ and Go keep results in `[0, m)`, return `-1` when there is no inverse, and multiply in 128 bits. The modulus must be positive in all three languages. The extended gcd takes absolute values of its inputs and then fixes the signs of `x` and `y`; an earlier version skipped that step and returned 4 instead of 7 for `mod_inverse(-3, 11)`.
 
-<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic" />
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic" />
 
 ## Complexity
 

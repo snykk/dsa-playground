@@ -93,7 +93,7 @@ Use A* for one source and one goal when you can supply a good admissible heurist
 
 ## Related
 
-- [Dijkstra's Algorithm](../Dijkstra's_Algorithm/) - A* with h = 0
+- [Dijkstra's Algorithm](../Dijkstras_Algorithm/) - A* with h = 0
 - [BFS](../../Traversal/BFS/) - fewest edges
-- [Bellman-Ford](../Bellman-Ford_Algorithm/) - negative weights
-- [Floyd-Warshall](../Floyd-Warshall_Algorithm/) - all pairs
+- [Bellman-Ford](../Bellman_Ford_Algorithm/) - negative weights
+- [Floyd-Warshall](../Floyd_Warshall_Algorithm/) - all pairs

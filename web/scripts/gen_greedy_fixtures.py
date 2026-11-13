@@ -17,13 +17,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 GREEDY = ROOT / "Algorithms" / "Greedy"
+MST = ROOT / "Algorithms" / "Graph_Algorithms" / "Minimum_Spanning_Tree"
 for folder in (
-    "Minimum Spanning Tree/Kruskal's Algorithm/Python",
-    "Minimum Spanning Tree/Prim's Algorithm/Python",
-    "Activity Selection/Python",
-    "Fractional Knapsack/Python",
+    MST / "Kruskals_Algorithm" / "Python",
+    MST / "Prims_Algorithm" / "Python",
+    GREEDY / "Activity_Selection" / "Python",
+    GREEDY / "Fractional_Knapsack" / "Python",
 ):
-    sys.path.insert(0, str(GREEDY / folder))
+    sys.path.insert(0, str(folder))
 
 from activity_selection import activity_selection, activity_selection_recursive  # noqa: E402
 from fractional_knapsack import fractional_knapsack, fractional_knapsack_value_only  # noqa: E402
@@ -117,7 +118,7 @@ def main():
     }
     header = {
         "generator": "web/scripts/gen_greedy_fixtures.py",
-        "reference": "Algorithms/Greedy (kruskal.py, prim.py, activity_selection.py, fractional_knapsack.py)",
+        "reference": "Algorithms/Greedy (activity_selection.py, fractional_knapsack.py) and Algorithms/Graph_Algorithms/Minimum_Spanning_Tree (kruskal.py, prim.py)",
     }
     parts = []
     for key, cases in sections.items():

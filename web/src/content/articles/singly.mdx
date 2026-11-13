@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/Linked List/Singly
+topic: Data_Structures/Linear/Linked_List/Singly
 title: Singly Linked List
 lead: A singly linked list is a chain of nodes, each holding a value and a reference to the next node. Inserting at the head is O(1) and nothing is ever shifted, but reaching the i-th element means walking i links. It is the simplest pointer-based structure and the base for stacks, queues and many interview problems.
 level: Beginner
@@ -22,12 +22,12 @@ properties:
   - { label: Dynamic size, value: true }
   - { label: Contiguous memory, value: false }
 prerequisites:
-  - Data Structures/Linear/Array
+  - Data_Structures/Linear/Array
 related:
-  - Data Structures/Linear/Linked List/Doubly
-  - Data Structures/Linear/Linked List/Circular
-  - Data Structures/Linear/Stack/Linked List Based
-  - Data Structures/Linear/Queue/Simple Queue
+  - Data_Structures/Linear/Linked_List/Doubly
+  - Data_Structures/Linear/Linked_List/Circular
+  - Data_Structures/Linear/Stack/Linked_List_Stack
+  - Data_Structures/Linear/Queue/Simple_Queue
 ---
 
 ## What a singly linked list is
@@ -146,7 +146,7 @@ The new head is `prev`. It is O(n) time and O(1) extra space.
 
 The C++ class owns its nodes. A destructor frees the chain, and the copy constructor and assignment are deleted so that two lists never free the same nodes. `head` is private there, so the C++ test uses `to_vector()`.
 
-<TopicCode topic="Data Structures/Linear/Linked List/Singly" />
+<TopicCode topic="Data_Structures/Linear/Linked_List/Singly" />
 
 ## Complexity
 

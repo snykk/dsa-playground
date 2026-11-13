@@ -1,7 +1,7 @@
 ---
-topic: Data Structures/Hashing/Hash Table
+topic: Data_Structures/Hashing/Hash_Table
 title: Hash Table
-lead: A hash table stores key-value pairs in an array of buckets and finds a key by hashing it to a bucket index. With separate chaining and a doubling resize, put, get and remove take O(1) on average, which is why hash tables sit behind dictionaries and sets in most languages.
+lead: A hash table (also called a hash map) stores key-value pairs in an array of buckets and finds a key by hashing it to a bucket index. With separate chaining and a doubling resize, put, get and remove take O(1) on average. It also covers the map helpers (default values, insert if absent, update, copy).
 level: Beginner
 updated: 2026-11-12
 facts:
@@ -23,13 +23,12 @@ properties:
   - { label: Handles collisions, value: true }
   - { label: Resizes automatically, value: true }
 prerequisites:
-  - Data Structures/Linear/Array
-  - Data Structures/Linear/Linked List/Singly
+  - Data_Structures/Linear/Array
+  - Data_Structures/Linear/Linked_List/Singly
 related:
-  - Data Structures/Hashing/Collision Handling
-  - Data Structures/Hashing/Hash Map
-  - Data Structures/Hashing/Hash Set
-  - Data Structures/Hashing/Bloom Filter
+  - Data_Structures/Hashing/Collision_Handling
+  - Data_Structures/Hashing/Hash_Set
+  - Data_Structures/Hashing/Bloom_Filter
 ---
 
 ## What a hash table is
@@ -67,11 +66,32 @@ A good hash function spreads keys evenly, so chains stay short. And the table **
     ['`remove(key)`', 'find the pair in its bucket and unlink it', 'O(1) average'],
     ['`contains(key)`', 'a lookup that reports only presence', 'O(1) average'],
     ['`size`, `is_empty`, `clear`', 'bookkeeping', 'O(1) (`clear`: O(capacity))'],
-    ['`keys`, `values`, `items` (Python)', 'walk all buckets', 'O(capacity + n)'],
+    ['`keys`, `values`, `items` (Python), `Items` (Go)', 'walk all buckets', 'O(capacity + n)'],
+    ['get with default', 'value, or the default if absent', 'O(1) average'],
+    ['insert if absent', 'store only if the key is new; report whether it did', 'O(1) average'],
+    ['update from another map', 'put every pair of the other map', 'O(m) for m pairs'],
+    ['copy', 'an independent table with the same pairs', 'O(m)'],
   ]}
 />
 
-Names differ: C++ has `put`, `get` (returns a pointer or `nullptr`), `remove`, `contains`, `getSize`, `isEmpty`, `clear`. Go has `Put`, `Get` (value and found), `Remove`, `Contains`, `Size`, `IsEmpty`, `Clear`, with `interface{}` keys and values. Python adds `get(key, default)`, `in`, `len`, `table[key]` and `del table[key]`. Only Python offers `keys`, `values` and `items`.
+Names differ: C++ has `put`, `get` (returns a pointer or `nullptr`), `remove`, `contains`, `getSize`, `isEmpty`, `clear`. Go has `Put`, `Get` (value and found), `Remove`, `Contains`, `Size`, `IsEmpty`, `Clear`, with `interface{}` keys and values. Python adds `get(key, default)`, `in`, `len`, `table[key]` and `del table[key]`. Only Python offers `keys`, `values` and `items`; Go offers `Items`.
+
+### The map helpers
+
+<DataTable
+  columns={['Helper', 'Python', 'C++', 'Go']}
+  rows={[
+    ['get with default', '`get_or_default`', '`getOrDefault`', '`GetOrDefault`'],
+    ['insert if absent', '`put_if_absent`', '`putIfAbsent`', '`PutIfAbsent`'],
+    ['update from another map', '`update(dict or HashTable)`', '`update(std::map)`', '`Update(*HashTable)`'],
+    ['copy', '`copy()`', 'copy constructor', '`Copy()`'],
+    ['iteration', '`for k, v in table`', 'no', '`Items()`'],
+  ]}
+/>
+
+The classic use is counting: `get_or_default(word, 0)` replaces an if/else, and writing back `count + 1` updates the entry. For "to be or not to be" the table ends with `to` 2, `be` 2, `or` 1, `not` 1. Then `put_if_absent('to', 99)` returns False (the count stays 2) and `put_if_absent('that', 1)` returns True. "Absent" means the key is missing: a key stored with None is present, so `put_if_absent('k', None)` followed by `put_if_absent('k', 5)` leaves `k` as None.
+
+Iteration visits bucket by bucket, so its order is neither the insertion order nor sorted, and it can change after any resize. Python iteration yields `(key, value)` tuples, unlike `dict`, which yields keys. Python `update` takes a `dict` or a `HashTable`; a list of pairs is not supported.
 
 ### Put and resize
 
@@ -157,6 +177,7 @@ The string hash used here is `h = h * 31 + c`, reduced at each step modulo the c
     'Constant average time for lookup, insert and delete.',
     'Keys can be any type that can be hashed and compared.',
     'Simple to implement with an array of lists.',
+    'Helpers like get-with-default and insert-if-absent remove common branches.',
   ]}
   cons={[
     'No ordering: no sorted traversal, no range queries, no minimum.',
@@ -172,6 +193,9 @@ The string hash used here is `h = h * 31 + c`, reduced at each step modulo the c
 - Two-sum style lookups: store seen values, then ask for the complement in O(1).
 - Detecting duplicates and grouping items by a key.
 - Symbol tables in compilers and interpreters.
+- Grouping (anagram groups, records by a field) and indexing an id to its record.
+
+Use a hash table when you look things up by an arbitrary key. Use a hash set when you only ask whether a key is present, an array when keys are small dense integers, and a sorted map (a balanced tree) when you need sorted order or range queries. In real code use the built-in map of the language.
 
 ## Common mistakes
 
@@ -180,6 +204,8 @@ The string hash used here is `h = h * 31 + c`, reduced at each step modulo the c
 - **Capacity 0.** `hash mod 0` divides by zero. Python raises `ValueError` and C++ throws `std::invalid_argument`; Go replaces a capacity of 0 or less with 16.
 - **Negative remainders.** In Go, `-1 % 8` is `-1`, a bad index. The code folds it into `[0, capacity)`. Go also hashes other key types (int64, float64, bool...) through their printed form; before that they panicked.
 - **Keeping a pointer across a resize in C++.** `get` returns `V*`. The resize splices the list nodes into the new buckets instead of copying, so the pointer stays valid, as with `std::unordered_map`. It dies when the key is removed or the table is destroyed.
+- **Relying on iteration order, or changing the table while iterating.** Putting or removing during a loop can resize and reshuffle buckets.
+- **Passing the wrong thing to Python `update`.** Only a `dict` or `HashTable` works.
 - **Mutable keys.** Changing a key after insertion changes its hash and loses the entry.
 - **A weak hash.** See the callout above: the same few collisions repeat at every size.
 </Callout>
@@ -188,7 +214,7 @@ The string hash used here is `h = h * 31 + c`, reduced at each step modulo the c
 
 All three tables use separate chaining and double their capacity when the load factor passes 0.75. They compare keys with the language equality (`==`). Python hashes strings with `h*31 + c`, C++ uses `std::hash` (with an explicit 31-based hash only for `<std::string, std::string>` tables), and Go hashes ints directly and everything else through a string form.
 
-<TopicCode topic="Data Structures/Hashing/Hash Table" />
+<TopicCode topic="Data_Structures/Hashing/Hash_Table" />
 
 ## Frequently asked questions
 
@@ -200,7 +226,10 @@ All three tables use separate chaining and double their capacity when the load f
     The number of stored pairs divided by the number of buckets. With chaining it is also the average chain length. This table resizes when it passes 0.75.
   </FaqItem>
   <FaqItem question="Is a hash table the same as a hash map?">
-    In practice yes: both mean a key-to-value table built on hashing. Some languages use "hash table" for the structure and "map" for the interface. The Hash Map topic here shows idiomatic helpers on top of it.
+    In practice yes: both mean a key-to-value table built on hashing. Some texts use "hash table" for the structure and "map" for the interface. This topic includes the usual map helpers on top of the table.
+  </FaqItem>
+  <FaqItem question="How do I count things with a table?">
+    Use get-with-default and write back the incremented count: `t.put(x, t.get_or_default(x, 0) + 1)`. In Go write `t.Put(x, t.GetOrDefault(x, 0).(int)+1)`.
   </FaqItem>
   <FaqItem question="Why are iteration orders different between runs or languages?">
     Order follows bucket order, which depends on the hash function and the capacity. A resize reshuffles it. Never rely on it.

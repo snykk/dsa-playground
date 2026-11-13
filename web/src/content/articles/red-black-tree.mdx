@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Red-Black Tree
+topic: Data_Structures/Non_Linear/Trees/Red_Black_Tree
 title: Red-Black Tree
 lead: A red-black tree is a binary search tree whose nodes carry a color bit. Five color rules keep the longest root-to-leaf path at most twice the shortest, so search and insert stay O(log n) with at most two rotations per insert.
 level: Advanced
@@ -22,12 +22,12 @@ properties:
   - { label: Duplicates allowed, value: true }
   - { label: Delete implemented, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
 related:
-  - Data Structures/Non_Linear/Trees/AVL Tree
-  - Data Structures/Non_Linear/Trees/Splay Tree
-  - Data Structures/Non_Linear/Trees/Treap
-  - Data Structures/Non_Linear/Trees/B-Tree
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Splay_Tree
+  - Data_Structures/Non_Linear/Trees/Treap
+  - Data_Structures/Non_Linear/Trees/B_Tree
 ---
 
 ## What a red-black tree is
@@ -139,7 +139,7 @@ The Python version has `find_min`, `find_max` and `height`; the C++ and Go versi
 
 The C++ `RedBlackTree` owns raw nodes, so its copy constructor and copy assignment are deleted. Search and traversal are recursive, which is safe because the height is at most about 2 log<sub>2</sub> n.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Red-Black Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Red_Black_Tree" />
 
 ## Complexity
 

@@ -6,9 +6,9 @@ Algorithms for finding optimal paths in weighted graphs.
 
 | Algorithm | Description |
 |-----------|-------------|
-| [Dijkstra's Algorithm](Dijkstra's_Algorithm/) | Single-source shortest path (non-negative weights) |
-| [Bellman-Ford Algorithm](Bellman-Ford_Algorithm/) | Single-source with negative weights |
-| [Floyd-Warshall Algorithm](Floyd-Warshall_Algorithm/) | All-pairs shortest paths |
+| [Dijkstra's Algorithm](Dijkstras_Algorithm/) | Single-source shortest path (non-negative weights) |
+| [Bellman-Ford Algorithm](Bellman_Ford_Algorithm/) | Single-source with negative weights |
+| [Floyd-Warshall Algorithm](Floyd_Warshall_Algorithm/) | All-pairs shortest paths |
 
 ## Complexity Comparison
 

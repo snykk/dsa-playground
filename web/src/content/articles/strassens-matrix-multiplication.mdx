@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Divide_and_Conquer/Strassen's Matrix Multiplication
+topic: Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication
 title: Strassen's Matrix Multiplication
 lead: Strassen's algorithm multiplies two n x n matrices with seven half-size products instead of eight, which lowers the cost from n^3 to about n^2.81. It is the classic example of a divide and conquer algorithm that wins by saving one recursive call.
 level: Advanced
@@ -23,12 +23,12 @@ properties:
   - { label: Exact on integers, value: true }
   - { label: Numerically stable, value: false }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
   - Algorithms/Divide_and_Conquer
 related:
-  - Algorithms/Divide_and_Conquer/Closest Pair of Points
-  - Algorithms/Sorting/Merge Sort
-  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Quick_Sort
 ---
 
 ## How Strassen's algorithm works
@@ -147,7 +147,7 @@ strassen(A, B):                       # n x n
 
 All three languages follow this pseudocode, including the cutoff of 64 and the odd-size padding. Python also offers `strassen_multiply_general` for rectangular inputs: it pads to the next power of two, multiplies and cuts the result back to `m x p`. The C++ and Go versions work on `int` matrices only, so large products can overflow `int`. Each language comes with tests, including sizes 65, 128 and 130 that reach the seven-product recursion.
 
-<TopicCode topic="Algorithms/Divide_and_Conquer/Strassen's Matrix Multiplication" />
+<TopicCode topic="Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication" />
 
 ## Complexity analysis
 

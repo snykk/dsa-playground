@@ -1,5 +1,5 @@
 ---
-topic: Problem_Patterns/Monotonic Stack
+topic: Problem_Patterns/Monotonic_Stack
 title: Monotonic Stack
 lead: A monotonic stack keeps its elements in sorted order, popping everything that breaks the order before each push. Each pop hands the popped element its answer, so "next greater element", "days until warmer" and "largest rectangle in a histogram" are solved in O(n) instead of O(n<sup>2</sup>).
 level: Intermediate
@@ -23,12 +23,12 @@ properties:
   - { label: Online, value: true }
   - { label: Needs sorted input, value: false }
 prerequisites:
-  - Data Structures/Linear/Stack
+  - Data_Structures/Linear/Stack
 related:
-  - Problem_Patterns/Monotonic Queue
-  - Problem_Patterns/Sliding Window
-  - Problem_Patterns/Two Pointers
-  - Data Structures/Linear/Stack/Array Based
+  - Problem_Patterns/Monotonic_Queue
+  - Problem_Patterns/Sliding_Window
+  - Problem_Patterns/Two_Pointers
+  - Data_Structures/Linear/Stack
 ---
 
 ## When to use it
@@ -120,7 +120,7 @@ All three languages provide `next_greater_element`, `next_smaller_element`, `pre
 
 Which comparison pops matters when values repeat. The next-greater code pops only on `<` and the previous-greater code pops on `<=`; both therefore answer with a **strictly** greater value. `next_greater_element([3, 3, 3, 5])` is `[5, 5, 5, -1]` and `previous_greater_element([3, 3, 3, 5])` is `[-1, -1, -1, -1]`. The histogram pops on `>=`, which is safe because equal bars produce the same rectangle when the last one pops.
 
-<TopicCode topic="Problem_Patterns/Monotonic Stack" />
+<TopicCode topic="Problem_Patterns/Monotonic_Stack" />
 
 Edge cases: the value `-1` means "no answer", so an array that itself contains -1 is ambiguous; return indices if that matters. In C++ and Go the histogram area is an `int`, so `height * width` can overflow for very large inputs.
 

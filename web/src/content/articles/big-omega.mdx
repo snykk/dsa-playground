@@ -1,5 +1,5 @@
 ---
-topic: "Complexity_Analysis/Time Complexity/Big-Omega (\u03A9)"
+topic: Complexity_Analysis/Time_Complexity/Big_Omega
 title: Big-Omega Notation
 lead: Big-Omega gives an asymptotic lower bound on how fast a function grows. In algorithm analysis it says a running time is at least that large, and it is the tool behind results such as "no comparison sort beats n log n". It is a bound on a function, not a synonym for the best case.
 level: Intermediate
@@ -19,12 +19,12 @@ facts:
     value: Problem lower bounds
     hint: comparison sorting is Omega(n log n)
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - "Complexity_Analysis/Time Complexity/Big-Theta (\u0398)"
-  - Complexity_Analysis/Amortized Analysis
-  - Algorithms/Sorting/Merge Sort
-  - Algorithms/Searching/Linear Search
+  - Complexity_Analysis/Time_Complexity/Big_Theta
+  - Complexity_Analysis/Amortized_Analysis
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Searching/Linear_Search
 ---
 
 ## Definition
@@ -129,7 +129,7 @@ This bound is a statement about the **worst case** (and the average case) of any
 
 Python has four examples: linear search, bubble sort, a three-way quick sort and matrix traversal. C++ and Go have three (no quick sort). The quick sort example builds new lists and is **not** an `Omega(n log n)` best case: an all-equal input is sorted in linear time, and its extra memory is not `O(log n)`.
 
-<TopicCode topic={'Complexity_Analysis/Time Complexity/Big-Omega (\u03A9)'} />
+<TopicCode topic="Complexity_Analysis/Time_Complexity/Big_Omega" />
 
 ## Complexity
 

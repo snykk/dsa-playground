@@ -1,5 +1,5 @@
 ---
-topic: Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
+topic: Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
 title: Longest Common Subsequence
 lead: The Longest Common Subsequence (LCS) of two strings is the longest sequence of characters that appears in both in the same order, not necessarily next to each other. A table over prefixes finds its length in O(m n) time, and a walk back through the table recovers the sequence.
 level: Intermediate
@@ -24,11 +24,11 @@ properties:
   - { label: Unicode-aware in C++ and Go, value: false }
 prerequisites:
   - Algorithms/Dynamic_Programming
-  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
 related:
-  - Algorithms/Dynamic_Programming/2D DP/Edit Distance
-  - Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence
-  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+  - Algorithms/Dynamic_Programming/2D_DP/Edit_Distance
+  - Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
 ---
 
 ## How LCS works
@@ -125,7 +125,7 @@ lcsOptimized(s1, s2):                 # Python only: two rows
 
 Python has three functions: `lcs_length`, `lcs_sequence` (with traceback) and `lcs_optimized` (two rows, length only). C++ and Go have only the length (`lcsLength`, `LCSLength`). Python compares Unicode code points; C++ and Go compare bytes, so an accented letter that takes two bytes in UTF-8 is two characters there.
 
-<TopicCode topic="Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence" />
+<TopicCode topic="Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence" />
 
 ## Complexity analysis
 

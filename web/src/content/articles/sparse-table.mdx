@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Sparse Table
+topic: Data_Structures/Non_Linear/Trees/Sparse_Table
 title: Sparse Table
 lead: A sparse table precomputes the minimum (or maximum) of every window whose length is a power of two. Any range query is then the combination of two overlapping windows, answered in O(1), at the price of O(n log n) memory and no updates. It is not really a tree, despite its folder.
 level: Intermediate
@@ -22,11 +22,11 @@ properties:
   - { label: Range sum in O(1), value: false }
   - { label: Needs an idempotent operation, value: true }
 prerequisites:
-  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
-  - Data Structures/Non_Linear/Trees/Segment Tree
-  - Data Structures/Non_Linear/Trees/Fenwick Tree
-  - Data Structures/Non_Linear/Trees/Segment Tree (Lazy Propagation)
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation
 ---
 
 ## What a sparse table is
@@ -90,7 +90,7 @@ Level `j` is built from level `j - 1` for every start `i` with `i + 2^j <= n`. T
 
 The three versions share the same structure: a `table[i][j]` of `n` rows by `floor(log2(n)) + 1` columns, a level-by-level build, and a two-window query. Tests check every possible range of random arrays against brute force, for both min and max.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Sparse Table" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Sparse_Table" />
 
 ## Complexity
 

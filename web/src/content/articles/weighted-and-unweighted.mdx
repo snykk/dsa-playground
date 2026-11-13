@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Graph/Weighted & Unweighted
+topic: Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted
 title: Weighted and Unweighted Graphs
 lead: A weighted graph attaches a number to every edge (distance, cost, time); an unweighted graph treats every edge as equal. Weights decide which algorithm finds the shortest path. BFS counts edges, Dijkstra adds weights, and Bellman-Ford copes with negative ones.
 level: Beginner
@@ -22,15 +22,15 @@ properties:
   - { label: BFS gives cheapest path, value: false }
   - { label: Parallel edges, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Graph/Adjacency List
-  - Data Structures/Non_Linear/Graph/Directed & Undirected
+  - Data_Structures/Non_Linear/Graph/Adjacency_List
+  - Data_Structures/Non_Linear/Graph/Directed_and_Undirected
 related:
-  - Data Structures/Non_Linear/Graph/Edge List
-  - Data Structures/Non_Linear/Graph/Adjacency Matrix
-  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
-  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm
+  - Data_Structures/Non_Linear/Graph/Edge_List
+  - Data_Structures/Non_Linear/Graph/Adjacency_Matrix
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
   - Algorithms/Graph_Algorithms/Traversal/BFS
-  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
 ---
 
 ## What the two kinds are
@@ -193,7 +193,7 @@ The distances come from running Dijkstra on this exact graph. The class `Weighte
 
 All three versions store an adjacency list of `(neighbor, weight)` pairs. Python and C++ keep tuples or pairs in a map. Go stores `Edge{To, Weight}` structs and requires the weight argument, so pass 1.0 for an unweighted edge.
 
-<TopicCode topic="Data Structures/Non_Linear/Graph/Weighted & Unweighted" />
+<TopicCode topic="Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted" />
 
 ## Frequently asked questions
 

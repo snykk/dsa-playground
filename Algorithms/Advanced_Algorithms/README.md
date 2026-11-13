@@ -18,22 +18,22 @@ This folder contains implementations of advanced algorithms in Python, C++, and 
 
 ### 🔹 Backtracking
 
-- **[N-Queens Problem](./Backtracking/N-Queens%20Problem/)**
+- **[N-Queens Problem](Backtracking/N_Queens_Problem/)**
   - Classic backtracking problem
   - Time: O(N!) worst case, typically much better
   - Places N queens on N×N board without conflicts
 
-- **[Sudoku Solver](./Backtracking/Sudoku%20Solver/)**
+- **[Sudoku Solver](Backtracking/Sudoku_Solver/)**
   - Backtracking-based Sudoku solver
   - Time: O(9^m) where m is number of empty cells
   - Solves standard 9×9 Sudoku puzzles
 
-- **[Rat in a Maze](./Backtracking/Rat%20in%20a%20Maze/)**
+- **[Rat in a Maze](Backtracking/Rat_in_a_Maze/)**
   - Find path from source to destination
   - Time: O(2^(n×n)) worst case
   - Backtracking pathfinding algorithm
 
-- **[Graph Coloring](./Backtracking/Graph%20Coloring/)**
+- **[Graph Coloring](Backtracking/Graph_Coloring/)**
   - Color graph with minimum colors
   - Time: O(m × k^n) where k is number of colors
   - Ensures no adjacent vertices share color
@@ -42,22 +42,22 @@ This folder contains implementations of advanced algorithms in Python, C++, and 
 
 ### 🔹 Specialized Techniques
 
-- **[Mo's Algorithm](./Specialized%20Techniques/Mo's%20Algorithm/)**
+- **[Mo's Algorithm](Specialized_Techniques/Mos_Algorithm/)**
   - Square root decomposition for range queries
   - Time: O((N + Q) × √N)
   - Efficient offline range query processing
 
-- **[Heavy-Light Decomposition](./Specialized%20Techniques/Heavy-Light%20Decomposition/)**
+- **[Heavy-Light Decomposition](Specialized_Techniques/Heavy_Light_Decomposition/)**
   - Tree decomposition for path queries
   - Time: O(log² N) per query
   - Efficient tree path operations
 
-- **[Centroid Decomposition](./Specialized%20Techniques/Centroid%20Decomposition/)**
+- **[Centroid Decomposition](Specialized_Techniques/Centroid_Decomposition/)**
   - Tree decomposition by centroids
   - Time: O(N log N) construction
   - Useful for tree problems
 
-- **[Square Root Decomposition](./Specialized%20Techniques/Square%20Root%20Decomposition/)**
+- **[Square Root Decomposition](Specialized_Techniques/Square_Root_Decomposition/)**
   - Array decomposition into blocks
   - Time: O(√N) per query/update
   - Efficient range queries and updates

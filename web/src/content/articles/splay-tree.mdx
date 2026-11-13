@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Non_Linear/Trees/Splay Tree
+topic: Data_Structures/Non_Linear/Trees/Splay_Tree
 title: Splay Tree
 lead: A splay tree is a binary search tree with no balance information. Every access rotates the touched node to the root, which makes every operation O(log n) amortized and makes recently used keys cheap to reach again.
 level: Advanced
@@ -23,11 +23,11 @@ properties:
   - { label: Sorted iteration, value: true }
   - { label: Reads modify the tree, value: true }
 prerequisites:
-  - Data Structures/Non_Linear/Trees/Binary Search Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
 related:
-  - Data Structures/Non_Linear/Trees/AVL Tree
-  - Data Structures/Non_Linear/Trees/Red-Black Tree
-  - Data Structures/Non_Linear/Trees/Treap
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Red_Black_Tree
+  - Data_Structures/Non_Linear/Trees/Treap
 ---
 
 ## What a splay tree is
@@ -147,7 +147,7 @@ All three languages keep a parent pointer in each node and use the same splay co
 
 In C++ a missing key and a key stored with an empty value look the same from `search`, and `findMin` returns `-1` on an empty tree, which collides with a real key `-1`. Traversal, size and destruction are iterative, because sequential inserts build a path and recursion would overflow the stack on large inputs.
 
-<TopicCode topic="Data Structures/Non_Linear/Trees/Splay Tree" />
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Splay_Tree" />
 
 ## Complexity
 

@@ -99,6 +99,6 @@ Each language is tested against an in-process fake judge.
 
 ## Related
 
-- [Binary Search](../../../Algorithms/Searching/Binary%20Search/)
+- [Binary Search](../../../Algorithms/Searching/Binary_Search/)
 - [Constructive Algorithms](../Constructive_Algorithms/)
 - [Game Theory](../Game_Theory/)

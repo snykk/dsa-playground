@@ -1,5 +1,5 @@
 ---
-topic: Data Structures/Linear/Queue/Priority Queue
+topic: Data_Structures/Linear/Queue/Priority_Queue
 title: Priority Queue
 lead: A priority queue serves the item with the best priority first, not the one that arrived first. The repository builds it on a binary min heap, so enqueue and dequeue cost O(log n), peek is O(1), and equal priorities leave in insertion order.
 level: Intermediate
@@ -20,13 +20,13 @@ properties:
   - { label: Stable for ties, value: true }
   - { label: Sorted iteration, value: false }
 prerequisites:
-  - Data Structures/Non_Linear/Heaps/Min Heap
-  - Data Structures/Linear/Queue/Simple Queue
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
+  - Data_Structures/Linear/Queue/Simple_Queue
 related:
-  - Data Structures/Non_Linear/Heaps/Min Heap
-  - Data Structures/Non_Linear/Heaps/Max Heap
-  - Algorithms/Sorting/Heap Sort
-  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
+  - Data_Structures/Non_Linear/Heaps/Max_Heap
+  - Algorithms/Sorting/Heap_Sort
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
 ---
 
 ## What a priority queue is
@@ -117,7 +117,7 @@ Python uses `heapq` for the sift steps, with the tuple `(priority, counter, item
 
 The three versions expose the same `enqueue`, `dequeue`, `peek`, `is_empty`, `size` and `clear`. In Go, the exported `PriorityQueue` type is the raw heap slice and `PriorityQueueWrapper` is the API to use. The C++ tie-break counter is a 64-bit unsigned integer.
 
-<TopicCode topic="Data Structures/Linear/Queue/Priority Queue" />
+<TopicCode topic="Data_Structures/Linear/Queue/Priority_Queue" />
 
 ## Complexity
 
