@@ -1,0 +1,219 @@
+---
+topic: Data_Structures/Non_Linear/Heaps/Min_Heap
+title: Min Heap
+lead: A min heap keeps the smallest element at the root of a complete binary tree stored in a plain array, so you can read the minimum in O(1) and insert or remove in O(log n). It is the standard way to build a priority queue.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Find min
+    value: O(1)
+  - label: Insert
+    value: O(log n)
+  - label: Extract min
+    value: O(log n)
+  - label: Build from array
+    value: O(n)
+    hint: bottom-up heapify, not n inserts
+properties:
+  - { label: Array-backed, value: true }
+  - { label: Duplicates allowed, value: true }
+  - { label: Sorted iteration, value: false }
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Data_Structures/Non_Linear/Heaps/Max_Heap
+  - Data_Structures/Linear/Queue/Priority_Queue
+  - Algorithms/Sorting/Heap_Sort
+  - Data_Structures/Non_Linear/Heaps/Fibonacci_Heap
+---
+
+## What a min heap is
+
+A min heap is a binary tree with two rules:
+
+- **Shape:** it is *complete*. Every level is full except possibly the last, which fills from the left.
+- **Order:** every parent is `<=` its children. The smallest element is therefore always at the root.
+
+The order rule says nothing about siblings or cousins. A heap is only *partially* ordered, and that is exactly why it is cheap to maintain. Because the tree is complete, it has no gaps, so it fits in an array: the node at index `i` has its children at `2i + 1` and `2i + 2` and its parent at `(i - 1) / 2` (integer division).
+
+<TreeDiagram
+  levelOrder={[1, 3, 2, 5, 9, 8, 7]}
+  badges={['0', '1', '2', '3', '4', '5', '6']}
+  tones="f......"
+  legend={{ f: 'the minimum, always at index 0' }}
+  caption="The heap `[1, 3, 2, 5, 9, 8, 7]`. Badges show each node's array index: the children of index 1 are 3 and 4."
+/>
+
+<ArrayDiagram
+  rows={[
+    { label: 'array', values: [1, 3, 2, 5, 9, 8, 7], tones: 'f......', marks: { 0: 'root', 1: 'left', 2: 'right' } },
+  ]}
+/>
+
+<Callout title="Partial order is the whole trick">
+A heap does not keep everything sorted: in the example, 9 comes before 8 and 7 in the array even though it is larger. It only promises that every path from the root down is non-decreasing. Repairing that promise after a change touches one root-to-leaf path, which has length about log<sub>2</sub>(n).
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`peek()`', 'return the root without removing it', 'O(1)'],
+    ['`insert(x)`', 'append `x` at the end, then sift it **up**', 'O(log n)'],
+    ['`extract_min()`', 'remove the root, move the last element to the root, sift it **down**', 'O(log n)'],
+    ['`MinHeap(array)`', 'build a heap from an existing array with bottom-up heapify', 'O(n)'],
+    ['`size()`, `is_empty()`, `clear()`', 'bookkeeping on the array', 'O(1)'],
+  ]}
+/>
+
+All three implementations have the same operations. In Go the constructors are `NewMinHeap()` and `NewMinHeapFromArray(arr)`. The C++ and Go versions store `int` values, while the Python one stores anything comparable.
+
+### Insert: sift up
+
+The new element goes into the only free slot that keeps the tree complete, the end of the array. It may now be smaller than its parent, so it swaps upward until its parent is `<=` it or it reaches the root. Inserting `1` into `[3, 5, 8]`:
+
+<ArrayDiagram
+  legend={{ p: 'the new element', l: 'its parent', f: 'heap order restored' }}
+  rows={[
+    { label: 'append', values: [3, 5, 8, 1], tones: '.l.p', marks: { 3: 'i', 1: 'parent' }, note: 'Index 3 has parent (3 - 1) / 2 = 1. Since 5 > 1, swap.' },
+    { label: 'swap', values: [3, 1, 8, 5], tones: 'lp..', marks: { 1: 'i', 0: 'parent' }, note: 'Index 1 has parent 0. Since 3 > 1, swap again.' },
+    { label: 'swap', values: [1, 3, 8, 5], tones: 'f...', marks: { 0: 'i' }, note: 'At the root: stop. Two swaps, one per level climbed.' },
+  ]}
+/>
+
+### Extract min: sift down
+
+The root is the answer, but removing it leaves a hole at the top. The fix: move the *last* element into the root (the tree stays complete), then push it down, always swapping with the **smaller** child, until both children are larger or it reaches a leaf. Extracting from `[1, 3, 2, 5, 9, 8]`:
+
+<ArrayDiagram
+  legend={{ p: 'element sinking', l: 'its children', f: 'settled' }}
+  rows={[
+    { label: 'remove', values: [8, 3, 2, 5, 9], tones: 'pll..', marks: { 0: 'i = 0' }, note: 'Return 1, move the last element 8 to the root. The children are 3 and 2.' },
+    { label: 'swap', values: [2, 3, 8, 5, 9], tones: 'f.p..', marks: { 2: 'i = 2' }, note: 'The smaller child is 2 and 8 > 2, so swap. Index 2 has no children (5 and 6 are past the end): stop.' },
+  ]}
+/>
+
+Swapping with the smaller child matters. Had 8 swapped with 3, the root would be 3 with 2 below it, which breaks the order rule.
+
+### Build a heap from an array
+
+Inserting n elements one by one costs O(n log n). The constructor instead runs *bottom-up heapify*: every leaf is already a one-element heap, so it sifts down each internal node, from the last one (`n / 2 - 1`) back to the root. Heapifying `[9, 5, 7, 1, 3, 8, 2]`:
+
+<ArrayDiagram
+  legend={{ p: 'node being sifted down', f: 'final heap' }}
+  rows={[
+    { label: 'i = 2', values: [9, 5, 2, 1, 3, 8, 7], tones: '......p', note: 'Children of 7 are 8 and 2; swap with 2. 7 is now a leaf.' },
+    { label: 'i = 1', values: [9, 1, 2, 5, 3, 8, 7], tones: '...p...', note: 'Children of 5 are 1 and 3; swap with 1. 5 is now a leaf.' },
+    { label: 'i = 0', values: [1, 9, 2, 5, 3, 8, 7], tones: '.p.....', note: 'Children of 9 are 1 and 2; swap with 1. 9 keeps sinking...' },
+    { label: 'cont.', values: [1, 3, 2, 5, 9, 8, 7], tones: 'fffffff', note: '...below it now are 5 and 3; swap with 3. Index 4 is a leaf: done.' },
+  ]}
+/>
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['peek', 'O(1)', 'the minimum is always at index 0'],
+    ['insert', 'O(log n)', 'one swap per level on the way up; a complete tree has about log2(n) levels'],
+    ['extract min', 'O(log n)', 'one swap per level on the way down (two comparisons each)'],
+    ['build from array', 'O(n)', 'most nodes are near the bottom and sink only a short way (below)'],
+    ['search for an arbitrary value', 'O(n)', 'no order between siblings, so nothing can be skipped'],
+  ]}
+/>
+
+Extra space is the array itself, O(n). The operations are iterative, so there is no recursion stack.
+
+Why is heapify linear when each sift-down can cost O(log n)? Most nodes sit near the bottom, where sifting is cheap. At most n / 2<sup>h+1</sup> nodes have height h, and a node of height h sinks at most h levels:
+
+<Equation label="Heapify cost" expr="sum over h of (n / 2^{h+1}) * h = n * sum h / 2^{h+1}" result="n * 1 = O(n)" />
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'When to use it']}
+  rows={[
+    ['Max heap', 'parents are `>=` children', 'the largest element first (see Max Heap)'],
+    ['d-ary heap', 'each node has d children', 'fewer levels, so cheaper inserts; used when inserts dominate'],
+    ['Indexed heap', 'also maps item -> position', 'decrease-key in O(log n), e.g. Dijkstra with updates'],
+    ['Fibonacci heap', 'lazy forest of trees', 'decrease-key in O(1) amortized; mostly of theoretical interest'],
+  ]}
+/>
+
+Standard libraries ship the same structure:
+- Python's `heapq` turns a plain list into a min heap.
+- C++ `std::priority_queue` is a **max** heap by default; pass `std::greater<>` for a min heap.
+- Go's `container/heap` works on any type that implements its interface.
+
+## Min heap vs other structures
+
+<DataTable
+  columns={['Structure', { label: 'Find min', kind: 'mono' }, { label: 'Insert', kind: 'mono' }, { label: 'Remove min', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Min heap', 'O(1)', 'O(log n)', 'O(log n)', 'compact array, cache-friendly'],
+    ['Sorted array', 'O(1)', 'O(n)', 'O(1)', 'kept in descending order, so the minimum is the last element; inserts shift elements'],
+    ['Unsorted array', 'O(n)', 'O(1)', 'O(n)', 'fine when you rarely ask for the minimum'],
+    ['Balanced BST', 'O(log n)', 'O(log n)', 'O(log n)', 'also gives sorted iteration and arbitrary search'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Constant-time access to the minimum, logarithmic updates.',
+    'Stored in one array: no pointers, little memory, good cache behaviour.',
+    'Can be built from an existing array in linear time.',
+    'Simple to implement correctly: two short loops.',
+  ]}
+  cons={[
+    'Only the minimum is cheap; finding or deleting any other value is O(n).',
+    'No sorted iteration: reading the elements in order costs O(n log n) of extractions.',
+    'Merging two heaps costs O(n); binomial or Fibonacci heaps merge faster.',
+    'Changing an element priority needs an extra index map (an indexed heap).',
+  ]}
+/>
+
+## Applications
+
+- **Priority queues and schedulers:** always serve the most urgent job next.
+- **Graph algorithms:** Dijkstra's shortest paths and Prim's minimum spanning tree repeatedly take the closest vertex.
+- **Heap Sort:** heapify, then extract n times (with a max heap, in place).
+- **Top k:** to keep the k *largest* of a stream, hold a min heap of size k and pop whenever it grows past k. The root is the k-th largest, and the total cost is O(n log k).
+- **Merging k sorted lists** and the **running median** (a max heap for the lower half plus a min heap for the upper half).
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Swapping with the wrong child.** Sift-down must swap with the *smaller* child; any other choice can leave a child smaller than its new parent.
+- **Mixing 0-based and 1-based formulas.** With index 0 at the root the children are `2i + 1` and `2i + 2`. The textbook `2i` and `2i + 1` assume index 1 at the root.
+- **Starting heapify at the wrong place.** Start at `n / 2 - 1` and go down to 0. Starting at the root, or going upward, does not produce a heap.
+- **Assuming the array is sorted.** Only `heap[0]` is guaranteed; `heap[1]` is not the second smallest.
+- **Reading from an empty heap.** Python raises `IndexError`, C++ throws `std::runtime_error`, and Go panics. Check `is_empty()` first.
+</Callout>
+
+## Implementation
+
+The three versions share the same structure: `heapify_up` (sift up), `heapify_down` (sift down) and a bottom-up build in the constructor. Each language comes with its tests.
+
+<TopicCode topic="Data_Structures/Non_Linear/Heaps/Min_Heap" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is a heap the same as a sorted array?">
+    No. A sorted array is one valid heap, but most heaps are not sorted: `[1, 3, 2, 5, 9, 8, 7]` is a heap. The heap only orders each parent against its children, which is weaker and therefore cheaper to maintain.
+  </FaqItem>
+  <FaqItem question="Why is building a heap O(n) when one insert is O(log n)?">
+    Building with n inserts is O(n log n). Bottom-up heapify is cheaper because half of the nodes are leaves and do no work, a quarter sink at most one level, and so on. The total is a geometric series that adds up to O(n).
+  </FaqItem>
+  <FaqItem question="Why store the tree in an array instead of nodes with pointers?">
+    A complete tree has no gaps, so positions can be computed (`2i + 1`, `2i + 2`) instead of stored. That saves two pointers per element and keeps the data contiguous, which is faster in practice.
+  </FaqItem>
+  <FaqItem question="How do I find the k largest elements with a min heap?">
+    Keep a min heap of at most k elements. For each new value, push it, and if the heap has more than k elements, pop the minimum. At the end the heap holds the k largest, with the k-th largest at the root.
+  </FaqItem>
+</Faq>

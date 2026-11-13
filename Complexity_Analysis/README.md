@@ -20,18 +20,18 @@ This folder contains implementations and explanations of complexity analysis con
 
 Time complexity describes how the runtime of an algorithm grows with input size.
 
-#### **[Big-O Notation (O)](./Time%20Complexity/Big-O%20Notation/)**
+#### **[Big-O Notation (O)](Time_Complexity/Big_O_Notation/)**
 - Upper bound of algorithm's time complexity
 - Represents worst-case scenario
 - Examples: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ), O(n!)
 
-#### **[Big-Theta Notation (Θ)](./Time%20Complexity/Big-Theta%20(%CE%98)/)**
+#### **[Big-Theta Notation (Θ)](Time_Complexity/Big_Theta/)**
 - Tight bound on algorithm's time complexity
 - Represents both upper and lower bounds
 - Used when best case = average case = worst case
 - Examples: Θ(n), Θ(log n), Θ(n log n)
 
-#### **[Big-Omega Notation (Ω)](./Time%20Complexity/Big-Omega%20(%CE%A9)/)**
+#### **[Big-Omega Notation (Ω)](Time_Complexity/Big_Omega/)**
 - Lower bound of algorithm's time complexity
 - Represents best-case scenario
 - Examples: Ω(1), Ω(n), Ω(n log n)
@@ -40,7 +40,7 @@ Time complexity describes how the runtime of an algorithm grows with input size.
 
 ### 🔹 Space Complexity
 
-**[Space Complexity](./Space%20Complexity/)**
+**[Space Complexity](Space_Complexity/)**
 - Measures memory usage relative to input size
 - Includes auxiliary space and input space
 - Common complexities: O(1), O(log n), O(n), O(n²)
@@ -50,7 +50,7 @@ Time complexity describes how the runtime of an algorithm grows with input size.
 
 ### 🔹 Amortized Analysis
 
-**[Amortized Analysis](./Amortized%20Analysis/)**
+**[Amortized Analysis](Amortized_Analysis/)**
 - Average performance over a sequence of operations
 - Methods: Aggregate, Accounting, Potential
 - Common examples: Dynamic arrays, binary counters
@@ -197,7 +197,7 @@ go test
 ## Related Topics
 
 - [Algorithms](../Algorithms/) - Algorithm implementations with complexity analysis
-- [Data Structures](../Data%20Structures/) - Data structure implementations with complexity analysis
+- [Data Structures](../Data_Structures/) - Data structure implementations with complexity analysis
 - [Problem Patterns](../Problem_Patterns/) - Common problem-solving patterns
 
 ---

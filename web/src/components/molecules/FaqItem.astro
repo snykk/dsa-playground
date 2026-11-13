@@ -1,0 +1,70 @@
+---
+import { formatInline } from '../../lib/inline';
+import Icon from '../atoms/Icon.astro';
+
+/** One question that expands to its answer (markdown in MDX). Works without JavaScript. */
+interface Props {
+  question: string;
+  open?: boolean;
+}
+
+const { question, open = false } = Astro.props;
+---
+
+<details class="faq-item" open={open}>
+  <summary>
+    <span set:html={formatInline(question)} />
+    <span class="chevron"><Icon name="chevron-down" size={18} /></span>
+  </summary>
+  <div class="answer"><slot /></div>
+</details>
+
+<style>
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 16px;
+    cursor: pointer;
+    font-weight: 650;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .chevron {
+    color: var(--text-3);
+    transition: transform 0.2s ease;
+  }
+  .faq-item[open] .chevron {
+    transform: rotate(180deg);
+  }
+  .answer {
+    padding: 0 16px 14px;
+    color: var(--text-2);
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+  .answer :global(p) {
+    margin: 0 0 8px;
+  }
+  .answer > :global(:last-child) {
+    margin-bottom: 0;
+  }
+  summary :global(code),
+  .answer :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chevron {
+      transition: none;
+    }
+  }
+</style>

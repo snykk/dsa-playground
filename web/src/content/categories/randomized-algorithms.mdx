@@ -1,0 +1,133 @@
+---
+category: Algorithms/Randomized_Algorithms
+title: Randomized Algorithms
+lead: A randomized algorithm uses random numbers as part of its logic. The two topics here use them in different ways. Randomized Quickselect picks a random pivot so that no input is bad for it, and Reservoir Sampling draws random numbers because a uniform sample cannot be made without them.
+updated: 2026-11-13
+facts:
+  - label: Quickselect, expected
+    value: O(n)
+    hint: the k-th smallest of an unsorted array, on any input
+  - label: Quickselect, worst
+    value: O(n^2)
+    hint: only if every random pivot is unlucky
+    tone: warn
+  - label: Reservoir Sampling
+    value: O(n)
+    hint: one pass, O(k) memory
+  - label: Chance of each item
+    value: k / n
+    hint: exactly, for every item in the stream
+contents:
+  - folder: Randomized_Quickselect
+    note: Partition around a random pivot and keep only the side that holds rank k. O(n) expected time, in place.
+  - folder: Reservoir_Sampling
+    note: Keep k items from a stream of unknown length in one pass, so that every item ends up in the sample with probability k/n.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Sorting
+  - Algorithms/Divide_and_Conquer
+---
+
+## The problem
+
+A deterministic algorithm does the same thing every time on the same input. A randomized algorithm reads random numbers while it runs, so two runs on the same input can take different paths. Randomness buys one of two things:
+
+- **A better guarantee on every input.** The expected running time holds for any input, because the randomness belongs to the algorithm and not to the data. An adversary cannot pick a bad input in advance. Randomized Quickselect works this way.
+- **A result that needs chance.** A uniform random sample has to come from random draws. Reservoir Sampling works this way: its running time is fixed and its output is random.
+
+In both topics the answer has a clear contract. Quickselect always returns the correct element, and only its running time varies from run to run. Reservoir Sampling always returns exactly `k` items, or all of them when the stream is shorter, and a given item's presence in the sample is the random part.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'What is random', 'Input', 'Output', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }]}
+  rows={[
+    ['Randomized Quickselect', 'the pivot of every round', 'an array in memory and a rank k', 'the k-th smallest element, always correct', 'O(n) expected, O(n^2) worst', 'O(1)'],
+    ['Reservoir Sampling', 'which slot a new item replaces, and whether it enters', 'a stream of unknown length and a size k', 'a uniform sample of k items', 'O(n)', 'O(k)'],
+  ]}
+/>
+
+Quickselect reorders the array it is given, so copy it first when the order matters. Reservoir Sampling reads each item once and never stores the stream.
+
+## One stream, many runs
+
+A single run of a randomized algorithm proves little, so look at many. The repository's Python `reservoir_sample` was run 6000 times with a seeded generator, `random.Random(1)`, to sample `k = 2` letters from the stream `abcdef`. That makes 12000 draws, and a uniform sample should show each letter in a third of the runs, which is 2000 times.
+
+<DataTable
+  columns={['Letter', { label: 'Runs that kept it', kind: 'mono' }]}
+  rows={[
+    ['a', '2038'],
+    ['b', '2007'],
+    ['c', '1972'],
+    ['d', '2002'],
+    ['e', '1992'],
+    ['f', '1989'],
+  ]}
+/>
+
+All six counts are close to 2000. Early letters are not favored over late ones, although `a` and `b` are put in the reservoir first and `f` has to win its place with probability `2/6`. The counts differ with the seed.
+
+Quickselect behaves the other way around. Its result is the same on every run, and only the work changes. On `[7, 2, 9, 2, 5, 2, 8]` the 4th smallest, `k = 3`, is always 5.
+
+## Complexity
+
+<DataTable
+  columns={['Topic', { label: 'Best', kind: 'mono' }, { label: 'Expected', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }]}
+  rows={[
+    ['Randomized Quickselect', 'O(n)', 'O(n)', 'O(n^2)', 'O(1)'],
+    ['Reservoir Sampling', 'O(n)', 'O(n)', 'O(n)', 'O(k)'],
+  ]}
+/>
+
+Quickselect's expected linear time comes from a geometric series: a random pivot lies in the middle half of the range with probability 1/2, so on average every two rounds shrink the range to 3/4 or less. Its quadratic worst case needs nearly every pivot to land near the minimum or maximum, which is very unlikely for large `n`. Reservoir Sampling has no best or worst input. It makes one random draw per item after the first `k`, and the cost depends only on the stream length.
+
+## Choosing a technique
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['The median or another single rank of an array in memory', 'Randomized Quickselect', 'O(n) expected, without sorting the rest'],
+    ['Many ranks of the same array, or the sorted order too', 'sort once', 'one O(n log n) sort answers every later rank'],
+    ['A hard worst-case bound on the rank', 'median of medians', 'O(n) worst case, with a larger constant factor'],
+    ['A sample of k items from a stream of unknown length', 'Reservoir Sampling', 'one pass, O(k) memory, and every item has probability k/n'],
+    ['A sample from an array whose length is known', 'pick random indexes', 'no need for a pass over the whole data'],
+    ['A fixed, repeatable result in tests', 'pass a seeded generator', 'both Python functions accept an `rng` argument'],
+  ]}
+/>
+
+## Applications
+
+- **Medians and percentiles** of a batch of measurements without a full sort, with Quickselect.
+- **Top-k selection.** After `quickselect(arr, k - 1)`, the first `k` slots hold the k smallest keys.
+- **Sampling logs and events**, or rows of a file that does not fit in memory, with Reservoir Sampling.
+- **A random node of a linked list** without counting it first, which is the `k = 1` case.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Recursing into both sides in Quickselect.** That is Quick Sort and costs O(n log n). Keep only the side that holds `k`.
+- **A two-way partition in Quickselect.** On many equal keys it becomes quadratic. The code here uses a three-way partition.
+- **Off-by-one on the rank.** Quickselect is 0-indexed here: `k = 0` is the minimum and `k = n - 1` the maximum.
+- **Replacing a fixed slot in Reservoir Sampling.** The accept test is right only if the replaced slot is chosen uniformly.
+- **Calling a shuffle reservoir sampling.** A shuffle needs all the data in memory, while the point here is one pass.
+- **Forgetting to seed the generator in tests.** An unseeded random result makes a test flaky. Pass an `rng`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is a randomized algorithm correct only with some probability?">
+    It depends on the kind. Quickselect always returns the right answer and only its running time is random. Algorithms of this kind are called Las Vegas algorithms. Others, called Monte Carlo algorithms, may return a wrong answer with a small probability. Neither topic here is of the second kind.
+  </FaqItem>
+  <FaqItem question="Why is a random pivot better than the last element?">
+    A fixed pivot rule has bad inputs. The last element is the worst possible pivot on sorted input, which gives O(n^2). With a random pivot no input is bad: every input has the same expected O(n) time. The bad outcome still exists, but it depends on the random draws and not on the data.
+  </FaqItem>
+  <FaqItem question="Why does Reservoir Sampling need no knowledge of the stream length?">
+    After `i` items, every one of them is in the reservoir with probability exactly `k / i`. The next item enters with probability `k / (i + 1)`, and each old item survives with probability `i / (i + 1)`, which keeps the same invariant. So the reservoir is a valid sample at every moment, and you can stop whenever the stream ends.
+  </FaqItem>
+  <FaqItem question="How are these topics related to Quick Sort?">
+    Randomized Quickselect uses Quick Sort's partition, with a random pivot, and follows only the side that holds the wanted rank. That is why its work shrinks geometrically and Quick Sort's does not. Read Quick Sort first.
+  </FaqItem>
+</Faq>

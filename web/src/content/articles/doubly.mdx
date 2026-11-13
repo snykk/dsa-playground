@@ -1,0 +1,219 @@
+---
+topic: Data_Structures/Linear/Linked_List/Doubly
+title: Doubly Linked List
+lead: A doubly linked list gives every node two links, one to the next node and one to the previous, so you can walk in both directions and unlink a node without finding its predecessor first. This repository keeps only a head pointer, so only insertion at the head is O(1).
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Insert at head
+    value: O(1)
+  - label: Insert at tail
+    value: O(n)
+    hint: no tail pointer in this code
+    tone: warn
+  - label: Delete by value
+    value: O(n)
+    hint: O(1) once the node is in hand
+  - label: Memory per node
+    value: Two links
+    hint: next and prev
+properties:
+  - { label: Walk both ways, value: true }
+  - { label: Random access, value: false }
+  - { label: Tail pointer kept, value: false }
+  - { label: Contiguous memory, value: false }
+prerequisites:
+  - Data_Structures/Linear/Linked_List/Singly
+related:
+  - Data_Structures/Linear/Linked_List/Circular
+  - Data_Structures/Linear/Queue/Deque
+  - Data_Structures/Advanced_Structures/LRU_Cache
+  - Data_Structures/Linear/Array
+---
+
+## What a doubly linked list is
+
+Each node holds a value, a `next` reference and a `prev` reference. The first node has `prev = None`, the last has `next = None`, and the list object stores the `head`. Every link has a mirror image: if `a.next` is `b` then `b.prev` is `a`. Keeping both halves of that pair in sync is the whole difficulty of the structure.
+
+<ListDiagram
+  kind="doubly"
+  values={[10, 20, 30]}
+  pointers={{ 0: 'head', 2: 'last' }}
+  tones="f.."
+  legend={{ f: 'the head, the only node the list object points at' }}
+  caption="The list built by insert_at_head(10), insert_at_tail(20), insert_at_tail(30). The code does not store a pointer to the last node: it finds it by walking."
+/>
+
+The extra `prev` link costs one reference per node. In return, a node can be removed without searching for its predecessor, and the list can be read backward.
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`insert_at_head(x)`', 'new node in front; old head gets `prev = new`', 'O(1)'],
+    ['`insert_at_tail(x)`', 'walk to the last node, link the new node after it', 'O(n)'],
+    ['`delete_value(x)`', 'find the first match, rewire its neighbours', 'O(n)'],
+    ['`traverse_forward()`', 'print from head to tail', 'O(n)'],
+    ['`traverse_backward()`', 'walk to the last node, then follow `prev` links', 'O(n)'],
+  ]}
+/>
+
+Python names are shown; C++ uses `insertAtHead`, `insertAtTail`, `deleteValue`, `traverseForward`, `traverseBackward`, and Go the same in capitalised form. The traversals print rather than return a sequence. Python's `delete_value` returns `True` if it removed a node and `False` otherwise; the C++ and Go versions return nothing.
+
+### Insert at head: two pointer writes
+
+Inserting `5` into `[10, 20]`: the new node's `next` is the old head, the old head's `prev` is the new node, and `head` moves.
+
+<ListDiagram
+  kind="doubly"
+  values={[5, 10, 20]}
+  pointers={{ 0: 'new head', 1: 'old head' }}
+  tones="pl."
+  legend={{ p: 'the new node', l: 'the old head, whose prev was set' }}
+  caption="Three writes: new.next = old head, old head.prev = new, head = new. No walk, so O(1)."
+/>
+
+### Insert at tail: a walk, then two writes
+
+The code follows `next` until it reaches a node with no successor, then sets `last.next = new` and `new.prev = last`. The walk is the O(n). With a stored tail pointer the same insertion would be O(1), but this implementation has none.
+
+### Delete by value: rewire both neighbours
+
+Deleting `20` from `[10, 20, 30]` after finding it:
+
+<ListDiagram
+  kind="doubly"
+  values={[10, 20, 30]}
+  pointers={{ 0: 'prev', 1: 'found', 2: 'next' }}
+  tones="lpl"
+  legend={{ p: 'the node to delete', l: 'its neighbours, which get rewired' }}
+  caption="Step 1: found the match."
+/>
+
+<ListDiagram
+  kind="doubly"
+  values={[10, 30]}
+  pointers={{ 0: 'head', 1: 'tail' }}
+  tones="ff"
+  legend={{ f: 'rewired: 10.next = 30 and 30.prev = 10' }}
+  caption="Step 2: two writes, prev.next = found.next and next.prev = found.prev. The removed node is skipped in both directions."
+/>
+
+There are three shapes to handle, and each guards a null:
+
+<DataTable
+  columns={['Match is...', 'prev.next', 'next.prev', 'head']}
+  rows={[
+    ['the head', 'n/a (no prev)', '`next.prev = None`', '`head = next`'],
+    ['in the middle', '`prev.next = next`', '`next.prev = prev`', 'unchanged'],
+    ['the last node', '`prev.next = None`', 'n/a (no next)', 'unchanged'],
+    ['the only node', 'n/a', 'n/a', '`head = next` (None)'],
+  ]}
+/>
+
+In C++ the matched node is then freed with `delete`. In Python and Go the garbage collector reclaims it once nothing refers to it.
+
+### Backward traversal
+
+The list stores only `head`, so `traverse_backward` first walks to the last node and then follows `prev` links to the front. It prints the same values in reverse. Reading backward costs O(n) here, not O(1) per step, only because of that initial walk.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Effect']}
+  rows={[
+    ['Head and tail pointers', 'the list also stores `tail`', 'insert at tail and delete the last node become O(1)'],
+    ['Sentinel (dummy) nodes', 'a permanent dummy head and tail that carry no value', 'every real node has non-null neighbours, so the null checks above disappear'],
+    ['Circular doubly linked list', '`last.next = head` and `head.prev = last`', 'the tail is `head.prev`, reachable in O(1)'],
+    ['Intrusive list', 'the links live inside the stored objects', 'no allocation per element; used when an object sits in several lists'],
+  ]}
+/>
+
+This repository implements the plain version: head only, no sentinel, no tail pointer.
+
+## Implementation
+
+The C++ class owns its nodes. It has a destructor that frees the chain, and its copy constructor and assignment are deleted because two lists must not free the same nodes. The public `head` field is what the tests walk.
+
+<TopicCode topic="Data_Structures/Linear/Linked_List/Doubly" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'This code', kind: 'mono' }, { label: 'With a tail pointer', kind: 'mono' }, 'Why']}
+  rows={[
+    ['insert at head', 'O(1)', 'O(1)', 'two writes, no walk'],
+    ['insert at tail', 'O(n)', 'O(1)', 'finding the last node takes n - 1 steps'],
+    ['delete a known node', 'not offered', 'O(1)', 'its two neighbours are one link away'],
+    ['delete by value', 'O(n)', 'O(n)', 'a search comes first'],
+    ['search, backward read', 'O(n)', 'O(n)', 'no random access'],
+  ]}
+/>
+
+"Delete a known node" is the real strength of the doubly linked list. This code takes a value, not a node, so it cannot offer that O(1) form. Space is O(n), with two references per node.
+
+## Doubly vs singly linked list
+
+<DataTable
+  columns={['Property', 'Singly', 'Doubly']}
+  rows={[
+    ['links per node', '1', '2'],
+    ['walk backward', 'no', 'yes'],
+    ['delete a node you already hold', 'needs the previous node: O(n) to find it', 'O(1)'],
+    ['insert at head', 'O(1)', 'O(1)'],
+    ['pointer updates per insert or delete', 'fewer', 'more, and they must stay consistent'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Traverses in both directions.',
+    'A node can be removed in O(1) when you hold a reference to it.',
+    'No shifting of elements on insert or delete, unlike an array.',
+    'Basis for deques, LRU caches and editor buffers.',
+  ]}
+  cons={[
+    'An extra reference per node, and more pointer writes per operation.',
+    'No random access: reaching position i is O(n).',
+    'Poor cache locality compared with arrays.',
+    'Easy to leave `prev` and `next` out of sync.',
+  ]}
+/>
+
+## Applications
+
+- **LRU cache:** a hash map points into a doubly linked list so that moving an entry to the front and evicting from the back are O(1). See the LRU Cache topic.
+- **Deques:** push and pop at both ends.
+- **Undo/redo and browser history:** step back and forward along a sequence.
+- **Text editor buffers and playlists** where the cursor moves in both directions.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Updating only one direction.** After a delete, both `prev.next` and `next.prev` must change, or a backward walk still sees the removed node.
+- **Null dereference at the ends.** The head has no `prev` and the tail has no `next`. Guard both writes, or use sentinel nodes.
+- **Forgetting to move `head`** when the head is deleted.
+- **Order of writes on insert.** Set the new node's own links before overwriting a neighbour's, so you do not lose the reference you still need.
+- **Assuming insert at tail is O(1).** Without a stored tail it walks the list.
+- **Leaking or double-freeing in C++.** Free every node in the destructor and never copy a list that owns raw nodes.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does a doubly linked list delete in O(1) if this code needs O(n)?">
+    The O(1) figure assumes you already hold the node. This implementation deletes by value, so it must search first. A design that hands out node handles (as an LRU cache does) gets the O(1) removal.
+  </FaqItem>
+  <FaqItem question="Is insert at tail O(1) in a doubly linked list?">
+    Only if the list stores a tail pointer. Here it does not, so the code walks from the head.
+  </FaqItem>
+  <FaqItem question="What do sentinel nodes buy me?">
+    A dummy head and a dummy tail make every real node have both neighbours, so insert and delete need no special cases for the first, last and only node.
+  </FaqItem>
+  <FaqItem question="How is this different from a deque?">
+    A deque is an interface (push and pop at both ends). A doubly linked list with head and tail pointers is one way to implement it; a ring buffer or a chunked array is another.
+  </FaqItem>
+</Faq>

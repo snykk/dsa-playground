@@ -5,7 +5,10 @@
  * Key: Flush output after each query!
  */
 
-#include <bits/stdc++.h>
+#include <iostream>
+#include <queue>
+#include <string>
+#include <vector>
 using namespace std;
 
 // Output Flushing
@@ -72,16 +75,17 @@ int findMinimumInteractive(int n) {
     };
     
     int lo = 0, hi = n - 1;
+    int hiVal = query(hi);  // asked once: hi changes only to mid, whose value we already know
     
     while (lo < hi) {
         int mid = (lo + hi) / 2;
         int midVal = query(mid);
-        int hiVal = query(hi);
         
         if (midVal > hiVal) {
             lo = mid + 1;
         } else {
             hi = mid;
+            hiVal = midVal;
         }
     }
     
@@ -233,6 +237,8 @@ void solve() {
     cout.flush();
 }
 
+#ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
@@ -246,4 +252,5 @@ int main() {
     
     return 0;
 }
-
+#endif
+#endif  // !IS_TEST_BUILD

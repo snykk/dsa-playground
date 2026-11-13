@@ -1,0 +1,222 @@
+---
+topic: Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points
+title: Closest Pair of Points
+lead: Given n points in the plane, find the two that are closest together. Checking all pairs takes O(n^2); divide and conquer does it in O(n log n) by splitting the points at a vertical line, solving each half, and then checking only a narrow strip around the split line, where each point needs just a handful of comparisons.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Divide and conquer
+    value: O(n log n)
+    hint: sort once, then linear work per recursion level
+  - label: Brute force
+    value: O(n^2)
+    hint: all n(n-1)/2 pairs
+    tone: warn
+  - label: Extra space
+    value: O(n)
+    hint: the y-sorted lists of one level, plus the strip
+  - label: Strip check
+    value: constant per point
+    hint: a packing argument bounds the neighbors to compare
+properties:
+  - { label: Exact, value: true }
+  - { label: Handles duplicate points, value: true }
+  - { label: Handles equal x values, value: true }
+prerequisites:
+  - Algorithms/Divide_and_Conquer
+  - Algorithms/Sorting/Merge_Sort
+related:
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating_Calipers
+  - Algorithms/Sorting/Quick_Sort
+---
+
+## How the algorithm works
+
+The idea is the same as in Merge Sort: split, solve both halves, combine. The only difficulty is the combine step, where a closer pair may have one point in each half.
+
+<Steps>
+  <Step title="Sort twice, once">
+    Sort the points by x (ties by y) into `points_x`, and by y into `points_y`. Both lists are built a single time; the recursion only splits them.
+  </Step>
+  <Step title="Divide">
+    If there are at most 3 points, compare all pairs and return. Otherwise split `points_x` in the middle: the first `n / 2` points are the left half, the rest the right half. The vertical dividing line passes through the first point of the right half.
+  </Step>
+  <Step title="Split the y-list consistently">
+    Split `points_y` into the same two halves while keeping its y order. A point goes left exactly when it belongs to the left half of `points_x`. This must be done by membership: splitting by the test `x <= mid_x` breaks when several points share the dividing x value.
+  </Step>
+  <Step title="Conquer">
+    Recurse into both halves. Let `delta` be the smaller of the two best distances.
+  </Step>
+  <Step title="Combine through the strip">
+    Keep the points of `points_y` whose x is closer than `delta` to the dividing line. Scan this strip in y order. For each point compare it with the following points while their y is less than `delta` above it, and update the best pair.
+  </Step>
+</Steps>
+
+<Callout title="Why the strip scan is cheap">
+Take a point in the strip and look at the box of width 2&middot;delta and height delta above it. The dividing line cuts it into two squares of side delta, one per half. Points of one half are at least delta apart, so a square of side delta holds at most 4 of them. That gives at most 8 points in the box including the point itself, so at most 7 others can be within delta above it, and the scan is O(n) per level. The capped variant `closest_pair_optimized` looks at only the next 6 points; it agreed with brute force in all the tests.
+</Callout>
+
+## Worked example
+
+Eight points: `A (0,0)`, `B (1,6)`, `C (2,2)`, `D (4,5)`, `E (5,6)`, `F (7,1)`, `G (8,8)` and `H (9,3)`. Sorted by x they are already in this order, so the left half is A to D and the right half is E to H, and the dividing line is x = 5.
+
+<GraphDiagram
+  edges="A-C, F-H, D-E"
+  positions={{ A: [0, 100], B: [11, 25], C: [22, 75], D: [44, 38], E: [56, 25], F: [78, 88], G: [89, 0], H: [100, 63] }}
+  tones={{ A: 'l', B: 'l', C: 'l', D: 'f', E: 'f', F: 'r', G: 'r', H: 'r' }}
+  edgeTones={{ 'A-C': 'l', 'F-H': 'r', 'D-E': 'f' }}
+  width={400}
+  height={300}
+  legend={{ l: 'left half and its best pair A-C', r: 'right half and its best pair F-H', f: 'the closest pair D-E straddles the dividing line' }}
+  caption="Both halves have a best distance of 2.83, but D and E, on different sides of the line x = 5, are only 1.41 apart."
+/>
+
+<DataTable
+  columns={['Step', 'What happens', 'Result']}
+  rows={[
+    ['Left half', 'best pair A-C: (0,0) and (2,2)', '2.828'],
+    ['Right half', 'best pair F-H: (7,1) and (9,3)', '2.828'],
+    ['delta', 'the smaller of the two', '2.828'],
+    ['Strip', 'points with |x - 5| < 2.828: D (x=4), E (x=5), F (x=7), sorted by y: F, D, E', 'three points'],
+    ['Scan F', 'next point D is 4 above F, which is not less than delta: stop', 'no distance computed'],
+    ['Scan D', 'next point E is 1 above D: distance between (4,5) and (5,6)', '1.414, new best'],
+    ['Answer', 'closest pair D-E', '1.414'],
+  ]}
+  caption="The top level of the recursion. The whole run computes 9 distances, against 28 pairs for brute force."
+/>
+
+Each half has four points, so it is divided again into two pairs, and every pair is compared directly (the base case). The 4-point halves also run their own strip scan, which is part of the 9 distances.
+
+## Pseudocode
+
+```text
+closestPair(points):
+    if size(points) < 2: error
+    pointsX = points sorted by (x, y)
+    pointsY = points sorted by (y, x)
+    return recurse(pointsX, pointsY)
+
+recurse(pointsX, pointsY):
+    n = size(pointsX)
+    if n <= 3: return bruteForce(pointsX)
+    mid = n / 2;  midX = pointsX[mid].x
+    leftX = pointsX[0 .. mid), rightX = pointsX[mid .. n)
+    (leftY, rightY) = split pointsY by membership in leftX, keeping y order
+    best = smaller of recurse(leftX, leftY) and recurse(rightX, rightY);  delta = best.distance
+    strip = [p in pointsY where |p.x - midX| < delta]
+    for i in strip:
+        j = i + 1
+        while j < size(strip) and strip[j].y - strip[i].y < delta:
+            if distance(strip[i], strip[j]) < delta: update best and delta
+            j = j + 1
+    return best
+```
+
+## Implementation
+
+All three versions follow the pseudocode. Python takes a list of `(x, y)` tuples and returns `(distance, point1, point2)`; C++ takes a vector of `Point` and returns a `Result`; Go takes a `[]Point` and returns a `Result`. With fewer than two points Python raises `ValueError`, C++ throws `std::invalid_argument` and Go panics. Duplicate points give distance 0, and the input is not reordered.
+
+Python splits the y-list by counting coordinates, so duplicates and equal x values go to the same side as in the x-sorted list. C++ and Go tag every point with its rank in the x order and split by rank. Python also has `closest_pair_optimized`, which sorts ties by the other coordinate and caps the strip scan at 6 following points; C++ and Go have a single variant.
+
+<TopicCode topic="Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points" />
+
+## Complexity analysis
+
+The recursion splits the points in two halves and does linear work to split the y-list, build the strip and scan it:
+
+<Equation label="Recurrence" expr="T(n) = 2 T(n/2) + O(n)" result="O(n log n)" />
+
+The two initial sorts cost another <BigO of="n log n" />, which has the same order. In one run on 2,000 random points with coordinates up to 10<sup>6</sup>, the Python version computed 2,287 distances against 1,999,000 pairs for brute force. This is not the O(n log<sup>2</sup>n) of versions that re-sort the strip at every level; here the y-order is inherited from the first sort.
+
+<ComplexityTable
+  rows={[
+    { case: 'Divide and conquer', time: 'O(n log n)', space: 'O(n)', when: 'Every level does linear splitting, strip building and scanning; the recursion is about log2(n) deep. The y-lists of one level together hold n points.' },
+    { case: 'Brute force', time: 'O(n^2)', space: 'O(1)', when: 'Compares all n(n-1)/2 pairs. Used here for sets of at most 3 points.' },
+  ]}
+/>
+
+## Variants and design choices
+
+<DataTable
+  columns={['Approach', 'Time', 'In this repository', 'Idea']}
+  rows={[
+    ['Brute force', 'O(n^2)', 'base case only', 'compare every pair'],
+    ['Divide and conquer, presorted y', 'O(n log n)', 'Yes', 'split, solve, scan the strip; y-order inherited'],
+    ['Divide and conquer, re-sort the strip', 'O(n log^2 n)', 'No', 'simpler, sorts the strip at each level'],
+    ['Sweep line with a balanced tree', 'O(n log n)', 'No', 'sweep by x, keep recent points ordered by y'],
+    ['Randomized grid', 'expected O(n)', 'No', 'a hash grid with cell size delta, rebuilt when delta shrinks'],
+  ]}
+/>
+
+## Divide and conquer vs brute force
+
+<DataTable
+  columns={['', 'Divide and conquer', 'Brute force']}
+  highlight={0}
+  rows={[
+    ['Time', 'O(n log n)', 'O(n^2)'],
+    ['Space', 'O(n)', 'O(1)'],
+    ['Code', 'longer, with a subtle split of the y-list', '5 lines'],
+    ['Wins when', 'n is more than a few hundred', 'n is small'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Optimal O(n log n) in the comparison model, and a classic showcase of the combine step.',
+    'Exact: it returns the true minimum, including duplicate points (distance 0).',
+    'The strip argument gives a strong constant-per-point bound without any extra data structure.',
+  ]}
+  cons={[
+    'Several moving parts: two sorted lists that must stay consistent through every split.',
+    'Brute force is faster for small n.',
+    'Only the closest pair is found, not, say, all pairs within a given distance.',
+    'Floating-point coordinates are compared with plain arithmetic, so near-equal distances may pick either pair.',
+  ]}
+/>
+
+## Applications
+
+- **Collision and proximity detection.** Finding the two nearest objects.
+- **Clustering.** The nearest pair is the first merge in single-linkage clustering.
+- **Air-traffic and GIS style problems.** Detecting the closest approach among a set of positions.
+- **Teaching.** A standard example of a divide and conquer whose combine step is not trivial.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Splitting the y-list by `x <= mid_x`.** With repeated x values the points on the dividing line land on the wrong side, so the y-list no longer matches the x-half. The answers stayed correct in testing because the strips of the parent levels re-check those points, but the invariant the proof depends on is broken. Split by membership or by rank.
+- **Not stopping the strip scan.** End the inner loop as soon as the y-gap is at least `delta`; without that stop the scan degrades towards quadratic.
+- **Re-sorting the strip at every level.** It works but costs an extra log factor.
+- **Forgetting the strip entirely.** The best pair may straddle the dividing line, as in the example.
+- **Comparing points by object identity or by value only.** Duplicates are legitimate input; both copies must be counted.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is it enough to look at a constant number of neighbors?">
+    All points in the strip are within delta of the line, and points of one half are at least delta apart. In the box of width 2&middot;delta and height delta above a point, a packing argument allows at most 8 points in total (4 per half), so at most 7 others. The strip is scanned in y order, so those are the next few points.
+  </FaqItem>
+  <FaqItem question="What if the points are on a line?">
+    Nothing special happens. For points on a horizontal or vertical line the strip scan simply compares neighbors, and the tests cover both cases.
+  </FaqItem>
+  <FaqItem question="What is the answer for duplicate points?">
+    Distance 0, with the two copies as the pair.
+  </FaqItem>
+  <FaqItem question="Is the answer always unique?">
+    The distance is unique, but several pairs can share it. The code returns one of them, and which one depends on the sort order.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Minimum Euclidean Distance (CSES)', 'the squared distance of the closest pair among n points'],
+  ]}
+/>

@@ -1,0 +1,179 @@
+---
+category: Problem_Patterns
+title: Problem Solving Patterns
+lead: A pattern is a reusable shape of solution that a problem statement gives away. The thirteen patterns here differ in the signal that suggests them, such as a sorted array, a window, a range query, a yes/no check or a small n, and in the cost they remove.
+updated: 2026-11-13
+facts:
+  - label: Patterns
+    value: "13"
+    hint: Beginner to Advanced
+  - label: One pass
+    value: O(n)
+    hint: two pointers, sliding window, monotonic stack and queue
+  - label: Range query
+    value: O(1)
+    hint: prefix sums, after one O(n) build
+  - label: Largest input
+    value: n of 30 to 45
+    hint: meet in the middle, where 2^n is too slow
+    tone: warn
+contents:
+  - folder: Two_Pointers
+    note: Two indices replace a nested loop. Each step proves one end useless, so it moves and never comes back.
+  - folder: Sliding_Window
+    note: Keep a contiguous range and move both ends forward, updating the answer instead of recomputing it.
+  - folder: Prefix_Sum_Difference_Array
+    note: Running totals answer range sums in O(1). Their inverse applies range updates in O(1).
+  - folder: Binary_Search_on_Answer
+    note: Binary search the range of answers when a yes/no check flips once, then verify each guess greedily.
+  - folder: Monotonic_Stack
+    note: Pop everything that breaks the order before each push. Each pop gives the popped element its nearest greater or smaller neighbour.
+  - folder: Monotonic_Queue
+    note: A deque kept in sorted order puts the maximum or minimum of a sliding window at its front.
+  - folder: Union_Find_Applications
+    note: Track groups that only merge. Union reports whether two items were already joined, which finds cycles and components.
+  - folder: Graph_Traversal_Problems
+    note: Grids, prerequisites and mazes as graphs. BFS, DFS and Kahn's algorithm visit each vertex and edge once.
+  - folder: Bit_Manipulation
+    note: Work on the binary digits of an integer. A few identities replace loops, and one mask can stand for a subset.
+  - folder: Coordinate_Compression
+    note: Replace values up to 10^9 by their ranks so that an array or a Fenwick tree can index them.
+  - folder: DP_Problem_Patterns
+    note: The recipe for any DP (state, transition, order, base case), with knapsack, LCS and LIS as examples.
+  - folder: Inclusion_Exclusion_Principle
+    note: Count elements that satisfy at least one condition by adding, subtracting and adding back overlaps over 2^k subsets.
+  - folder: Meet_in_the_Middle
+    note: Split a 2^n search into two halves of 2^(n/2) and join them by sorting or hashing. The advanced pattern.
+prerequisites:
+  - Data_Structures/Linear/Array
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Greedy
+  - Algorithms/Graph_Algorithms
+  - Utilities/Optimization_Techniques
+---
+
+## The problem
+
+A new problem rarely looks like one you have solved. What carries over is its shape: a sorted array, a contiguous range, many queries on fixed data, a yes/no question that flips once. Each pattern in this section names a shape and the saving that comes with it, usually one nested loop removed.
+
+The patterns fall into four groups:
+
+- **Scans over a sequence:** two pointers, sliding window, and the monotonic stack and queue. They run in O(n) because each index moves forward and is never revisited, or is pushed and popped once.
+- **Precomputed structure:** prefix sums and difference arrays, and coordinate compression. They spend one pass up front so that later steps are O(1) or O(log n).
+- **Search and counting:** binary search on the answer, DP patterns, inclusion-exclusion, and meet in the middle. They cut the search space instead of walking it.
+- **Structure of the problem:** union-find, graph traversal, and bit manipulation. They change what you represent, such as groups, a graph or a subset in one integer.
+
+The skill is to read the statement for the signal first and pick the pattern second.
+
+## At a glance
+
+<DataTable
+  columns={['Pattern', 'Signal in the statement', 'What it removes', { label: 'Typical cost', kind: 'mono' }]}
+  rows={[
+    ['Two pointers', 'a sorted array, a pair or a palindrome, or an in-place filter', 'the inner loop over the other element', 'O(n)'],
+    ['Sliding window', 'the best contiguous subarray or substring under a constraint', 'recomputing each window from scratch', 'O(n)'],
+    ['Prefix sum, difference array', 'many range sums, or many range additions and one final read', 'a loop per query or per update', 'O(1) per operation'],
+    ['Binary search on answer', 'minimize the maximum, or maximize the minimum, with a yes/no check', 'trying every answer', 'O(C log R)'],
+    ['Monotonic stack', 'the next or previous greater or smaller element', 'scanning ahead from every index', 'O(n)'],
+    ['Monotonic queue', 'the maximum or minimum of every window of size k', 'rescanning the window, or a heap', 'O(n)'],
+    ['Union-find', 'items merge into groups, and you ask whether two are connected', 'a graph search per query', 'O(alpha(n)) per operation'],
+    ['Graph traversal', 'a grid, a maze or prerequisites in disguise', 'ad hoc search', 'O(V + E)'],
+    ['Bit manipulation', 'XOR cancellation, powers of two, or subsets of a few items', 'loops and extra memory', 'O(1) per operation'],
+    ['Coordinate compression', 'huge values, but only their order matters', 'an array of size 10^9', 'O(n log n)'],
+    ['DP patterns', 'optimal substructure and overlapping subproblems', 'repeated work in recursion', 'states times work per state'],
+    ['Inclusion-exclusion', 'count elements that satisfy at least one condition', 'double counting', 'O(2^k) terms'],
+    ['Meet in the middle', 'subsets of about 40 items, with large values', 'one factor of 2^(n/2)', 'O(2^(n/2) * n)'],
+  ]}
+  caption="C is the cost of one check and R the size of the answer range. The costs are the ones the topic articles give."
+/>
+
+## See them side by side
+
+Each tab runs one pattern on its own example. Open Two Pointers and Sliding Window first and use their **Classic** examples: `2, 7, 11, 15; target 9` and `eceba; k 2`. Then compare the Monotonic Stack (`2, 1, 2, 4, 3`) with the Monotonic Queue (`1, 3, -1, -3, 5, 3, 6, 7; k 3`) to see a stack answer "next greater" and a deque answer "window maximum".
+
+<ArticleViz ids={['two-pointers', 'sliding-window', 'prefix-sum', 'difference-array', 'binary-search-on-answer', 'monotonic-stack', 'monotonic-queue', 'union-find']} />
+
+## Complexity
+
+<DataTable
+  columns={['Pattern', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Cost driver']}
+  rows={[
+    ['Two pointers', 'O(n)', 'O(1)', 'each pointer moves at most n steps; three sum is O(n^2)'],
+    ['Sliding window', 'O(n)', 'O(1) to O(k)', 'a running sum, or a frequency map for variable windows'],
+    ['Prefix sum, difference array', 'O(n) build, O(1) per operation', 'O(n)', 'one pass; an updated array costs one more pass'],
+    ['Binary search on answer', 'O(C log R)', 'O(1)', 'C is the cost of one check'],
+    ['Monotonic stack', 'O(n)', 'O(n)', 'each index is pushed once and popped once'],
+    ['Monotonic queue', 'O(n)', 'O(k)', 'each index enters and leaves the deque once'],
+    ['Union-find', 'O(alpha(n)) amortized', 'O(n)', 'with union by rank and path compression'],
+    ['Graph traversal', 'O(V + E)', 'O(V)', 'each vertex and edge once; a grid is O(R * C)'],
+    ['Bit manipulation', 'O(1) per operation', 'O(1)', 'all subsets is O(n * 2^n)'],
+    ['Coordinate compression', 'O(n log n) build', 'O(k)', 'sorting the k distinct values'],
+    ['DP patterns', 'knapsack O(N * W), LCS O(N * M), LIS O(N log N)', 'O(W), O(min(N, M)), O(N)', 'states times work per state'],
+    ['Inclusion-exclusion', 'O(2^k) terms', 'O(1) to O(s)', 'one term per non-empty subset of the k conditions'],
+    ['Meet in the middle', 'O(2^(n/2) * n)', 'O(2^(n/2))', 'the stored sums of one half'],
+  ]}
+  caption="These are not best, average and worst cases. Most patterns have one bound that holds on every input."
+/>
+
+## Choosing a pattern
+
+Several patterns can fit one problem, and they often combine. Binary search on the answer uses a greedy check, and sometimes a two-pointer check inside it. The Monotonic Queue is a sliding window with a faster maximum.
+
+<DataTable
+  columns={['If the statement says', 'Try', 'Why']}
+  rows={[
+    ['a sorted array and a target sum', 'Two pointers', 'the sum tells you which end to move'],
+    ['longest or shortest substring with at most k of something', 'Sliding window', 'shrinking a valid window keeps it valid'],
+    ['a fixed window size k and its maximum', 'Monotonic queue', 'the front of the deque is the maximum'],
+    ['the next greater element, or the largest rectangle', 'Monotonic stack', 'a pop hands the popped element its answer'],
+    ['many sum queries on an array that does not change', 'Prefix sum', 'each query is one subtraction'],
+    ['many range additions, then one read of the array', 'Difference array', 'two writes per update and one final sweep'],
+    ['updates and queries mixed together', 'Fenwick or segment tree', 'prefix sums and difference arrays need static or offline data'],
+    ['the smallest capacity so that a plan fits', 'Binary search on answer', 'feasibility flips once as the capacity grows'],
+    ['groups that only merge, or the first edge that closes a cycle', 'Union-find', 'union tells you whether two items were already joined'],
+    ['fewest steps in a grid or a graph without weights', 'Graph traversal', 'BFS counts edges layer by layer'],
+    ['values up to 10^9 and a Fenwick tree', 'Coordinate compression', 'only the order of the values matters'],
+    ['count the numbers divisible by a, b or c', 'Inclusion-exclusion', 'add the sets and subtract the overlaps'],
+    ['n is about 40 and the values are large', 'Meet in the middle', 'two halves of 2^20 sums are small, 2^40 is not'],
+  ]}
+/>
+
+## Applications
+
+- **Interviews and contests.** Most array, string and graph problems reduce to one of these shapes.
+- **Streaming and monitoring.** A sliding window with a monotonic queue tracks a rolling maximum over the last k readings.
+- **Offline analytics.** Prefix sums and difference arrays answer or apply thousands of range operations in one pass.
+- **Networks and clustering.** Union-find tracks connected components as links appear.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forcing a pattern without its precondition.** Two pointers from both ends need a sorted or monotone array, a sliding window needs monotone validity, and binary search on the answer needs a check that flips once.
+- **Using prefix sums when updates and queries mix.** They are static or offline tools. Use a Fenwick tree or a segment tree for online updates.
+- **Treating union-find as reversible.** It only merges. It cannot split a group or delete an edge.
+- **Using BFS on a weighted graph.** BFS counts edges, not weights, so the distances it reports are wrong when edges differ in cost.
+- **Guessing the cost of 2^n.** Bitmask enumeration is practical for about 20 to 25 items, and meet in the middle stretches that to about 30 to 45. Beyond that, look for another formulation.
+- **Mixing up the two monotonic structures.** The stack has no front eviction and answers neighbour questions. The queue evicts from the front when an index leaves the window.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I learn them?">
+    Start with two pointers, sliding window and prefix sums: they are the Beginner topics and they appear in a large share of array and string problems. Then take binary search on the answer, the monotonic stack and queue, union-find and graph traversal. Bit manipulation, coordinate compression, DP patterns and inclusion-exclusion come next, and meet in the middle comes last.
+  </FaqItem>
+  <FaqItem question="How do I tell two pointers from a sliding window?">
+    Two pointers usually move toward each other on a sorted array and decide which end to drop from a comparison. A sliding window keeps a contiguous range and moves both ends forward, growing and shrinking it until a constraint holds. A window answers questions about subarrays and substrings, and opposite-end pointers answer questions about pairs.
+  </FaqItem>
+  <FaqItem question="Which patterns need a sorted array?">
+    Opposite-end two pointers do, and so does any binary search over values. The sliding window, the monotonic stack and queue, and prefix sums work on an array in any order.
+  </FaqItem>
+  <FaqItem question="Do these replace dynamic programming and greedy algorithms?">
+    No. They sit beside them. Binary search on the answer pairs with a greedy check, the DP patterns topic is the recipe for the DP family, and inclusion-exclusion and bitmasks often feed a DP. The Algorithms folder holds the full DP and greedy topics.
+  </FaqItem>
+  <FaqItem question="What if no pattern fits?">
+    Write the brute force, find the repeated work in it, and ask which pattern removes that repetition. A repeated range sum points to prefix sums, a repeated scan to the next greater element points to a monotonic stack, and a repeated subproblem points to DP.
+  </FaqItem>
+</Faq>

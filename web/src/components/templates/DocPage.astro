@@ -1,0 +1,78 @@
+---
+import type { RenderedMarkdown } from '../../lib/markdown';
+import { githubUrl, topicsUnder, type DocNode, type StandaloneDoc } from '../../lib/repo';
+import { vizForTopic } from '../../viz/catalog';
+import Chip from '../atoms/Chip.astro';
+import SectionTitle from '../atoms/SectionTitle.astro';
+import Breadcrumbs from '../molecules/Breadcrumbs.astro';
+import Implementations from '../organisms/Implementations.astro';
+import TopicCards from '../organisms/TopicCards.astro';
+import VizSection from '../organisms/VizSection.astro';
+import BaseLayout from './BaseLayout.astro';
+
+/**
+ * Page for one repository folder (topic or category) or one root document:
+ * title, quick facts, the visualization right under the title, the README,
+ * then sub-topics (categories) or the Python / C++ / Go sources (topics).
+ */
+interface Props {
+  node?: DocNode;
+  doc?: StandaloneDoc;
+  rendered: RenderedMarkdown;
+}
+
+const { node, doc, rendered } = Astro.props;
+
+/** Split rendered HTML after its first <h1> so the visualization can sit under the title. */
+const end = rendered.html.indexOf('</h1>');
+const titleHtml = end === -1 ? '' : rendered.html.slice(0, end + 5);
+const bodyHtml = end === -1 ? rendered.html : rendered.html.slice(end + 5);
+
+const title = node?.title ?? doc?.title ?? '';
+const description = node?.description || doc?.description || undefined;
+const vizzes = node ? vizForTopic(node.rel) : [];
+const childTopics = node?.kind === 'category' ? topicsUnder(node).length : 0;
+const section = doc?.slug === 'overview' ? 'overview' : doc?.slug === 'study-guide' ? 'study-guide' : undefined;
+const sourceLink = node ? githubUrl(node.rel, true) : githubUrl(doc?.rel ?? '', false);
+---
+
+<BaseLayout title={title} description={description} currentSlug={node?.slug ?? doc?.slug} toc={rendered.headings} section={section}>
+  {node && <Breadcrumbs node={node} />}
+
+  <article class="prose">
+    {titleHtml ? <Fragment set:html={titleHtml} /> : <h1>{title}</h1>}
+  </article>
+
+  <div class="page-meta">
+    {node?.kind === 'topic' && node.languages.map((l) => <Chip href={`#impl-${l.id}`}>{l.label}</Chip>)}
+    {node?.kind === 'category' && <Chip>{childTopics} topics</Chip>}
+    {vizzes.length > 0 && <Chip href="#visualize">&#x25cf; {vizzes.length === 1 ? 'Visualization' : `${vizzes.length} visualizations`}</Chip>}
+    <Chip href={sourceLink} external>View source on GitHub &#x2197;</Chip>
+  </div>
+
+  {vizzes.length > 0 && <VizSection vizzes={vizzes} />}
+
+  <article class="prose">
+    {bodyHtml ? <Fragment set:html={bodyHtml} /> : node?.description && <p>{node.description}</p>}
+  </article>
+
+  {
+    node?.kind === 'category' && node.children.length > 0 && (
+      <section aria-labelledby="children-title">
+        <SectionTitle id="children-title">In this section</SectionTitle>
+        <TopicCards nodes={node.children} />
+      </section>
+    )
+  }
+
+  {node?.kind === 'topic' && node.languages.length > 0 && <Implementations node={node} />}
+</BaseLayout>
+
+<style>
+  .page-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 24px;
+  }
+</style>

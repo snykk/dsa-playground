@@ -1,0 +1,87 @@
+/* ---------- pseudocode + state ---------- */
+
+/* Pseudocode gets the full width (lines are long); state sits below it. */
+.viz-panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+.viz-vars table {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  column-gap: 16px;
+}
+.viz-vars tbody {
+  display: contents;
+}
+.viz-vars tr {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.viz-panels h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+}
+.viz-code,
+.viz-vars {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  min-width: 0;
+}
+.viz-code ol {
+  margin: 0;
+  padding-left: 2.2em;
+  font: 13px/1.6 var(--font-mono);
+  color: var(--text-3);
+  overflow-x: auto;
+}
+.viz-code li {
+  padding: 0 6px;
+  border-radius: 4px;
+}
+.viz-code li code {
+  white-space: pre;
+  color: var(--text-2);
+}
+.viz-code li.current {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.viz-code li.current code {
+  color: var(--text);
+  font-weight: 600;
+}
+.viz-vars table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.viz-vars th,
+.viz-vars td {
+  text-align: left;
+  padding: 3px 6px;
+  vertical-align: top;
+}
+.viz-vars th {
+  color: var(--text-2);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.viz-vars td {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+.viz-complexity {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--text-2);
+}

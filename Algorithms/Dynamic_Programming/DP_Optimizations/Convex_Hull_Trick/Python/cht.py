@@ -10,7 +10,8 @@ Both solve the problem:
     Given a set of lines y = m*x + b, answer "min y at x = q" queries.
 """
 
-from typing import List, Optional, Tuple
+from collections import deque
+from typing import Deque, Optional, Tuple
 
 
 class MonotonicCHT:
@@ -22,7 +23,7 @@ class MonotonicCHT:
     """
 
     def __init__(self) -> None:
-        self._lines: List[Tuple[int, int]] = []    # list of (m, b)
+        self._lines: Deque[Tuple[int, int]] = deque()    # (m, b), slopes strictly decreasing
 
     @staticmethod
     def _bad(l1: Tuple[int, int], l2: Tuple[int, int], l3: Tuple[int, int]) -> bool:
@@ -37,6 +38,11 @@ class MonotonicCHT:
         return (b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)
 
     def add_line(self, m: int, b: int) -> None:
+        if self._lines and self._lines[-1][0] == m:
+            # Equal slopes: only the lower intercept can ever be optimal.
+            if self._lines[-1][1] <= b:
+                return
+            self._lines.pop()
         while len(self._lines) >= 2 and self._bad(
             self._lines[-2], self._lines[-1], (m, b)
         ):
@@ -51,7 +57,7 @@ class MonotonicCHT:
             m1, b1 = self._lines[0]
             m2, b2 = self._lines[1]
             if m1 * x + b1 >= m2 * x + b2:
-                self._lines.pop(0)
+                self._lines.popleft()
             else:
                 break
         m, b = self._lines[0]

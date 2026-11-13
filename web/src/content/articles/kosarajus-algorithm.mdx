@@ -1,0 +1,194 @@
+---
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosarajus_Algorithm
+title: Kosaraju's Algorithm
+lead: Kosaraju's algorithm finds the strongly connected components of a directed graph with two depth-first searches, one on the graph and one on its reverse. The order in which vertices finish in the first pass tells the second pass where each component starts.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V + E)
+    hint: two DFS passes plus building the transpose
+  - label: Extra space
+    value: O(V + E)
+    hint: the transposed graph, plus O(V) for the finish order
+    tone: warn
+  - label: Passes
+    value: '2'
+    hint: on G, then on the reversed graph
+  - label: Output order
+    value: Source SCC first
+    hint: topological order of the condensation
+properties:
+  - { label: Iterative DFS, value: true }
+  - { label: Single pass, value: false }
+  - { label: Gives the condensation DAG, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm
+  - Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation
+---
+
+## How Kosaraju's algorithm works
+
+A strongly connected component (SCC) is a maximal set of vertices in which every vertex can reach every other. Collapsing each SCC into one node gives the **condensation**, which is always a DAG. The algorithm peels this DAG from its source end.
+
+<Steps>
+  <Step title="DFS on G, recording finish order">
+    Run a DFS from every unvisited vertex. When a vertex has no more unvisited neighbours it is finished: append it to the finish order.
+  </Step>
+  <Step title="Reverse every edge">
+    Build the transpose `G^T`. It has exactly the same SCCs as `G`, but the arrows between components point the other way.
+  </Step>
+  <Step title="DFS on the transpose, latest finisher first">
+    Take vertices in decreasing finish time. If a vertex is unvisited, a DFS from it on `G^T` collects exactly one SCC. Skip vertices that already belong to a component.
+  </Step>
+</Steps>
+
+<Callout title="Why the finish order works">
+Take two SCCs `C` and `C'` with an edge from `C` to `C'`. The latest finish time in `C` is always later than the latest finish time in `C'`. So the vertex that finishes last overall lies in a **source** SCC of `G`. In `G^T` that component has no outgoing edges, so a DFS started there cannot leak into another component. Once it is collected, the next unvisited vertex with the latest finish time is in a source of what remains, and the argument repeats.
+</Callout>
+
+## See it in action
+
+Press play or step through one edge at a time. The first pass fills a finish-order list, then the edges flip, and the second pass floods one component at a time. The legend under the picture says what each colour means, and you can type your own directed edges or press Random.
+
+<ArticleViz ids={['kosaraju']} />
+
+## A worked example
+
+Graph with edges `0->1, 1->2, 2->0, 2->3, 3->4, 4->3, 4->5` (the dictionary may list vertex 5 with an empty neighbour list or leave it out: the result is the same). DFS from 0 visits 0, 1, 2, 3, 4, 5 and finishes them in the order 5, 4, 3, 2, 1, 0.
+
+<GraphDiagram
+  edges="0->1, 1->2, 2->0, 2->3, 3->4, 4->3, 4->5"
+  positions={{ 0: [6, 50], 1: [22, 12], 2: [38, 50], 3: [58, 50], 4: [76, 12], 5: [94, 50] }}
+  tones={{ 0: 'l', 1: 'l', 2: 'l', 3: 'r', 4: 'r', 5: 'f' }}
+  badges={{ 0: 'fin 6', 1: 'fin 5', 2: 'fin 4', 3: 'fin 3', 4: 'fin 2', 5: 'fin 1' }}
+  legend={{ l: 'SCC {0, 1, 2}', r: 'SCC {3, 4}', f: 'SCC {5}' }}
+  caption="Pass 1 on G. The badge is the position in the finish order (6 = finished last). The condensation is the chain {0,1,2} -> {3,4} -> {5}."
+  label="Directed graph with three strongly connected components"
+/>
+
+Pass 2 walks the finish order backwards (0, 1, 2, 3, 4, 5) on the transpose `G^T`:
+
+<DataTable
+  columns={['Start', 'Already in a component?', 'DFS on G^T reaches', 'Component']}
+  rows={[
+    ['0', 'No', '0, then 2 (edge 0 -> 2 in G^T), then 1', '{0, 2, 1}'],
+    ['1', 'Yes', '-', 'skipped'],
+    ['2', 'Yes', '-', 'skipped'],
+    ['3', 'No', '3, then 4 (edge 3 -> 4 in G^T); the edge 3 -> 2 leads to a visited vertex', '{3, 4}'],
+    ['4', 'Yes', '-', 'skipped'],
+    ['5', 'No', '5; its edge to 4 leads to a visited vertex', '{5}'],
+  ]}
+/>
+
+The Python code returns `[[0, 2, 1], [3, 4], [5]]`: components come out source first, in topological order of the condensation. The order of vertices inside a component is the DFS discovery order and carries no meaning.
+
+If the second pass used the **increasing** finish order instead, it would start at 5. The DFS on `G^T` would go 5, 4, 3, 2, 1, 0 and merge everything into one wrong component.
+
+## Pseudocode
+
+```text
+kosaraju(graph):
+    visited = {}; finish = []
+    for each vertex s in graph:
+        if s not in visited: dfs1(s)          # appends a vertex when it finishes
+    rev = transpose(graph)                    # a vertex only seen as a neighbour gets an entry
+    visited = {}; sccs = []
+    for v in reverse(finish):
+        if v not in visited:
+            component = []
+            dfs2(v, rev, component)           # collects everything reachable in rev
+            sccs.append(component)
+    return sccs
+```
+
+## Implementation
+
+Python and C++ run both passes with an explicit stack of (vertex, next neighbour) pairs, so a path or cycle of a million vertices does not overflow the call stack (Python's recursion limit is only about 1000). Go uses recursive closures, which is fine because goroutine stacks grow on demand.
+
+Graphs are maps from a vertex to its neighbour list. A vertex that only appears as a neighbour is handled in all three languages and ends up as its own component if nothing leads back. Vertex ids can be any integer in every language. An empty graph returns no components, and `is_strongly_connected` of an empty graph is false in all three.
+
+Python also provides `kosaraju_scc_count`, `is_strongly_connected` and `kosaraju_condensation_graph` (a map from component index to the components it points to). C++ has `kosarajuSCC`, `kosarajuSCCCount` and `isStronglyConnected`; Go has `KosarajuSCC`, `KosarajuSCCCount` and `IsStronglyConnected`.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosarajus_Algorithm" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Pass 1 (DFS on G)', time: 'O(V + E)', space: 'O(V)', when: 'Every vertex and edge is visited once; the finish order has V entries.' },
+    { case: 'Transpose', time: 'O(V + E)', space: 'O(V + E)', when: 'One pass over all edges, building a second adjacency list.' },
+    { case: 'Pass 2 (DFS on G^T)', time: 'O(V + E)', space: 'O(V)', when: 'A visited set keeps each vertex and edge to one visit.' },
+    { case: 'Total', time: 'O(V + E)', space: 'O(V + E)', when: 'The transpose dominates the space: it is as large as the graph.' },
+  ]}
+/>
+
+<Equation label="Total" expr="T = O(V + E) + O(V + E) + O(V + E)" result="O(V + E)" />
+
+## Kosaraju vs Tarjan
+
+<DataTable
+  columns={['', 'Kosaraju', 'Tarjan']}
+  rows={[
+    ['DFS passes', '2 (one on the reverse graph)', '1'],
+    ['Extra memory', 'transposed graph, O(V + E)', 'stack and low-link arrays, O(V)'],
+    ['Idea', 'finish order, then reverse edges', 'low-link values and a component stack'],
+    ['Output order', 'topological order of the condensation (sources first)', 'reverse topological order (sinks first)'],
+    ['2-SAT assignment test', '`comp[x] > comp[~x]`', '`comp[x] < comp[~x]`'],
+  ]}
+/>
+
+Both produce the same partition into components on every graph. Only the order of the list differs.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Easy to understand and to prove: two plain DFS passes.',
+    'Components come out in topological order of the condensation, ready for DP on the DAG.',
+    'The same DFS routine can be reused for both passes.',
+  ]}
+  cons={[
+    'Needs the transposed graph, so memory is O(V + E).',
+    'Two passes, so it is slower than Tarjan by a constant factor.',
+    'Pass 1 must finish completely before pass 2 can start, so nothing is reported until the whole graph has been searched.',
+  ]}
+/>
+
+## Applications
+
+- **Is the graph strongly connected?** Exactly one component, as in CSES Flight Routes Check.
+- **Condensation DAG.** Contract every component, then run DP or topological sort on the DAG.
+- **2-SAT.** Components of the implication graph decide satisfiability and the assignment.
+- **Cycle detection in a directed graph.** A component with more than one vertex, or a vertex with a self-loop, contains a cycle.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Wrong pass-2 order.** Process vertices by decreasing finish time. The increasing order merges components.
+- **Forgetting to reverse.** A second DFS on the original graph just collects reachable sets, not components.
+- **Neighbour-only vertices.** A vertex that is never a key of the dictionary still needs an entry in the transpose; the repository uses `setdefault` for this.
+- **Recursive DFS.** Deep graphs overflow the stack; use an explicit stack in Python and C++.
+- **Quoting O(V) space.** The transpose makes the memory O(V + E).
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why reverse the edges in the second pass?">
+    The first vertex of pass 2 sits in a source component of `G`. In the original graph a DFS from it would escape into every component it points to. In the reverse graph those arrows point inward, so the DFS stays inside its own component.
+  </FaqItem>
+  <FaqItem question="Do the two DFS passes need the same vertex order?">
+    No. Pass 1 can start anywhere, because any DFS forest gives finish times with the property above. Pass 2 must follow the finish order.
+  </FaqItem>
+  <FaqItem question="Which is faster, Kosaraju or Tarjan?">
+    Both are linear. Tarjan makes one pass and needs no transposed graph, so it is usually a bit faster and lighter. Kosaraju is easier to remember and to prove.
+  </FaqItem>
+  <FaqItem question="Does the algorithm work with self-loops and multiple edges?">
+    Yes. A self-loop only affects a single-vertex component, and repeated edges are just visited twice.
+  </FaqItem>
+</Faq>

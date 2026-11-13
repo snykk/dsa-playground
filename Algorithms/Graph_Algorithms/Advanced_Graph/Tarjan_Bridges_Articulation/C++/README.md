@@ -1,29 +1,26 @@
-# Tarjan's Bridges & Articulation Points — C++ Implementation
+# Tarjan's Bridges and Articulation Points -- C++ Implementation
 
-Single-pass O(V + E) DFS finding all bridges (critical edges) and articulation points (cut vertices) in an undirected graph.
-
-For the conceptual overview, visuals, and walkthrough, see the parent README: [../README.md](../README.md)
-
----
+One O(V + E) DFS that finds the bridges and the articulation points of an undirected graph. For the idea, the trace and the rules, see the topic README: [../README.md](../README.md).
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `tarjan_bridges.h` | Header-only `TarjanBridges` class producing a `TarjanResult` struct |
-| `tarjan_bridges_test.cpp` | Assertion-based tests covering standard topologies and edge cases |
+| `tarjan_bridges.h` | Header-only `TarjanBridges` class and the `TarjanResult` struct |
+| `tarjan_bridges_test.cpp` | 12 assert-based tests: standard shapes, parallel edges, a cycle with a bridge, a 10^6-vertex path, a self-loop |
 
----
+## API
+
+- `TarjanBridges(int n, const std::vector<std::pair<int, int>>& edges)`: a graph on vertices `0..n-1`.
+- `TarjanResult compute()`: `bridges` (sorted `(min, max)` pairs) and `articulations` (sorted vertex ids).
 
 ## C++-Specific Notes
 
-- **Edge-indexed adjacency**: `std::vector<std::pair<int, int>>` per vertex (neighbor, edge ID). Handles parallel edges correctly — a pure vertex-parent check silently fails on multigraphs.
-- **Struct return via `TarjanResult`** keeps the API clean — no output parameters. RVO makes this zero-cost.
-- **`std::set<std::pair<int,int>>` for bridges** ensures uniqueness and sorted output. For performance-critical code, a `std::vector` with post-sort + unique is faster.
-- **Structured bindings** (`auto& [v, eid] : adj_[u]`) — C++17 feature. Clean iteration with named components.
-- **Recursive DFS**: acceptable for typical graphs (≤ 10⁶ vertices on a default stack). For worst-case chains, convert to iterative — the pattern is well-documented.
-
----
+- **Edge ids in the adjacency lists.** Each entry is `(neighbour, edge id)`, so parallel edges are handled.
+- **Iterative DFS.** A `std::vector<Frame>` replaces recursion; a recursive DFS overflows the stack at about 10^5 vertices, while this version handles 10^6.
+- **Sets for the output.** `std::set` gives unique, sorted bridges and articulation points.
+- **Labels.** A vertex label outside `0..n-1` is undefined behaviour.
+- **C++17.** The code uses structured bindings.
 
 ## How to Run
 
@@ -32,10 +29,8 @@ g++ -std=c++17 -O2 -Wall tarjan_bridges_test.cpp -o tarjan_bridges_test
 ./tarjan_bridges_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Single DFS, two outputs.** The magic of Tarjan: bridges and articulation points share the same `disc`/`low` machinery. Don't be tempted to write two separate passes.
-2. **Edge IDs beat vertex parents.** For any production graph algorithm that might encounter parallel edges, track the incoming edge ID rather than the parent vertex.
-3. **`low[v] > disc[u]` vs `low[v] >= disc[u]`.** Strict for bridges, non-strict for articulation. The reason is that a back edge to `u` itself lets the subtree "escape" through `u`'s own position — enough for articulation but not enough to spare the bridge.
+1. Edge ids, not parent vertices, make the algorithm safe on multigraphs.
+2. An explicit frame stack scales to a million-vertex path.
+3. Strict `>` for bridges, `>=` for articulation points.

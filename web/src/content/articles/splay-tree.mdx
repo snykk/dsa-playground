@@ -1,0 +1,246 @@
+---
+topic: Data_Structures/Non_Linear/Trees/Splay_Tree
+title: Splay Tree
+lead: A splay tree is a binary search tree with no balance information. Every access rotates the touched node to the root, which makes every operation O(log n) amortized and makes recently used keys cheap to reach again.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Search, insert, delete
+    value: O(log n)
+    hint: amortized
+  - label: Worst single operation
+    value: O(n)
+    tone: warn
+    hint: the tree can be a path
+  - label: Balance data per node
+    value: none
+    hint: only a parent pointer
+  - label: Approach
+    value: splay to root
+properties:
+  - { label: Self-adjusting, value: true }
+  - { label: Worst-case O(log n) per op, value: false }
+  - { label: Sorted iteration, value: true }
+  - { label: Reads modify the tree, value: true }
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+related:
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Red_Black_Tree
+  - Data_Structures/Non_Linear/Trees/Treap
+---
+
+## What a splay tree is
+
+A splay tree is an ordinary binary search tree, plus one rule: **after every access, move the accessed node to the root** by a sequence of rotations called *splaying*. There are no colors, heights or priorities to maintain.
+
+Why this helps:
+
+- Keys that are used often stay near the top, so the tree adapts to the access pattern.
+- A splay also roughly halves the depth of every node on the access path, which repairs bad shapes. A long path is expensive once, and then it is mostly gone.
+
+The price: a single operation can take O(n) (a splay tree built from sorted inserts is a path), and even a read changes the tree. Only the *amortized* cost over a sequence is O(log n).
+
+<TreeDiagram
+  levelOrder={[40, 20, 70, null, 30, 50]}
+  tones="f......"
+  legend={{ f: 'root: the most recently accessed key' }}
+  caption="A splay tree after inserting 50, 30, 70, 20, 40. The last insert, 40, was splayed to the root."
+/>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`insert(key, value)`', 'BST insert, then splay the new node. An existing key gets its value overwritten and is splayed', 'O(log n) amortized'],
+    ['`search(key)`', 'find the key, then splay it. On a miss, the last visited node is splayed', 'O(log n) amortized'],
+    ['`delete(key)`', 'splay the key, remove the root, join the two halves. On a miss, the last visited node is splayed', 'O(log n) amortized'],
+    ['`find_min()`, `find_max()`', 'walk to the end of the left or right spine, then splay it', 'O(log n) amortized'],
+    ['`inorder_traversal()`, `size()`', 'iterative, so deep trees are safe', 'O(n)'],
+  ]}
+/>
+
+### The three splay cases
+
+Let `x` be the node, `p` its parent and `g` its grandparent. Each step looks at the shape of the path `g - p - x`:
+
+<DataTable
+  columns={['Case', 'Shape', 'Rotations']}
+  rows={[
+    ['Zig', '`p` is the root', 'one rotation at `p`'],
+    ['Zig-zig', '`x` and `p` are both left children (or both right)', 'rotate at `g` first, then at `p`'],
+    ['Zig-zag', '`x` is a left child and `p` a right child (or the reverse)', 'rotate at `p`, then at `g`'],
+  ]}
+/>
+
+The order in zig-zig matters. Rotating the grandparent first is what makes a long path shrink, while rotating `x` upward twice (as the naive "move to root" does) can leave the tree just as deep.
+
+### Worked example: zig-zig
+
+Inserting 1, 2, 3 in order gives a left path, because each insert splays the new key to the root. Searching for 1 (the deepest node) then does one zig-zig:
+
+<TreeDiagram
+  levelOrder={[3, 2, null, 1]}
+  tones="rl.p"
+  legend={{ r: 'g, the grandparent', l: 'p, the parent', p: 'x, the accessed node' }}
+  caption="Before: the path 3 - 2 - 1 after inserting 1, 2, 3. The search for 1 is a zig-zig."
+/>
+
+<TreeDiagram
+  levelOrder={[1, null, 2, null, 3]}
+  tones="f.l.r"
+  legend={{ f: 'x, now the root', l: 'old p', r: 'old g' }}
+  caption="After: 1 is the root and the path leans the other way. The tree is still a path, but 1 is now free to reach, and the next access to 2 or 3 will shorten it."
+/>
+
+### Worked example: zig-zag
+
+Insert 3, 1, 2. Inserting 2 puts it as the right child of 1, which is the left child of 3, so it is a zig-zag:
+
+<TreeDiagram
+  levelOrder={[3, 1, null, null, 2]}
+  tones="rl..p"
+  legend={{ r: 'g', l: 'p', p: 'x, the new node' }}
+  caption="2 has just been attached under 1. Rotating left at 1, then right at 3, lifts it."
+/>
+
+<TreeDiagram
+  levelOrder={[2, 1, 3]}
+  tones="fll"
+  legend={{ f: 'x, the root', l: 'the two former ancestors, now its children' }}
+  caption="After the zig-zag the tree is perfectly balanced."
+/>
+
+### Delete: split and join
+
+Delete splays the key to the root, then glues the halves back together. The code detaches both subtrees and clears their parent pointers, splays the **maximum of the left subtree** to the top of that subtree (it then has no right child), and hangs the right subtree there.
+
+<TreeDiagram
+  levelOrder={[20, null, 40, 30, 70, null, null, 50]}
+  tones="p"
+  legend={{ p: 'key 20, splayed to the root and removed' }}
+  caption="Searching for 20 in the earlier tree splays it to the root. The left subtree is empty, so deleting it just promotes the right subtree."
+/>
+
+<TreeDiagram
+  levelOrder={[40, 30, 70, null, null, 50]}
+  tones="f"
+  legend={{ f: 'the new root' }}
+  caption="After the delete: 40 is the root. Had the left subtree been non-empty, its maximum would be the root and 40 would hang on its right."
+/>
+
+## Implementation
+
+All three languages keep a parent pointer in each node and use the same splay code. The behaviour on edge cases differs a little:
+
+<DataTable
+  columns={['Case', 'Python', 'C++', 'Go']}
+  rows={[
+    ['value type', 'anything', '`std::string`', '`string`'],
+    ['`search` miss', '`None`', 'empty string', 'zero value and `false`'],
+    ['`find_min` on empty tree', '`None`', '`-1`', '`0, false`'],
+    ['`delete` / `remove`', '`delete`', '`remove`', '`Delete`'],
+    ['copying the tree', 'shares nodes', 'deleted', 'shares nodes'],
+  ]}
+/>
+
+In C++ a missing key and a key stored with an empty value look the same from `search`, and `findMin` returns `-1` on an empty tree, which collides with a real key `-1`. Traversal, size and destruction are iterative, because sequential inserts build a path and recursion would overflow the stack on large inputs.
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Splay_Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Amortized', kind: 'mono' }, { label: 'Worst single op', kind: 'mono' }]}
+  rows={[
+    ['search, insert, delete', 'O(log n)', 'O(n)'],
+    ['m operations on n keys', 'O((m + n) log n)', '-'],
+    ['traversal, size', 'O(n)', 'O(n)'],
+    ['space', 'O(n)', 'O(n) (iterative, no recursion stack)'],
+  ]}
+/>
+
+### Why amortized O(log n)
+
+Define a potential equal to the sum over all nodes of log<sub>2</sub> of the subtree size. A tall thin tree has high potential, and a balanced one has low potential. The *access lemma* of Sleator and Tarjan shows that splaying a node costs at most 3 log<sub>2</sub> n + 1 amortized: expensive splays pay for themselves by lowering the potential.
+
+<Equation label="Amortized cost of one splay" expr="actual cost + change in potential" result="<= 3 log2(n) + 1" />
+
+The bound only holds if **every** access splays, including failed searches and failed deletes. That is why the code splays the last visited node on a miss. Without it, repeated searches for a missing key below a deep path would each cost O(n).
+
+The same potential argument gives further guarantees: accessing all keys in sorted order costs O(n) in total, and a skewed access pattern costs about the entropy of the pattern.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Trade-off']}
+  rows={[
+    ['Bottom-up splay (this code)', 'uses parent pointers and rotates from the node upward', 'simple, one extra pointer per node'],
+    ['Top-down splay', 'splits the tree while descending, no parent pointers', 'less memory, harder to read'],
+    ['Semi-splay', 'only rotates half as much on long paths', 'a little less restructuring per access'],
+  ]}
+/>
+
+## Splay tree vs alternatives
+
+<DataTable
+  columns={['Structure', 'Guarantee', 'Extra data per node', 'Reads modify the tree']}
+  highlight={0}
+  rows={[
+    ['Splay tree', 'amortized O(log n)', 'none', 'yes'],
+    ['AVL tree', 'worst-case O(log n)', 'height', 'no'],
+    ['Red-black tree', 'worst-case O(log n)', '1 color bit', 'no'],
+    ['Treap', 'expected O(log n)', 'random priority', 'no'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'No balance fields to store or update.',
+    'Adapts to the workload: frequently or recently used keys are near the root.',
+    'Simple split and join operations built on splay.',
+    'Sequential access is cheap (O(n) for a full in-order scan by search).',
+  ]}
+  cons={[
+    'A single operation can cost O(n); not suitable when every operation must be fast.',
+    'Reads restructure the tree, which is a problem for concurrent readers.',
+    'Typically slower in practice than a red-black tree on uniformly random access.',
+    'Deep trees mean long paths for the first access after bad inserts.',
+  ]}
+/>
+
+## Applications
+
+- Caches and lookup tables where a small set of keys is hot.
+- Sorted maps where the access pattern is skewed or sequential.
+- Building blocks for data structures that need split and join, because both are natural in a splay tree.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Not splaying on a miss.** Failed searches and failed deletes must still splay the last visited node, or the amortized bound is lost.
+- **Dangling parent pointers in delete.** After detaching the two subtrees, clear their `parent` links before splaying inside the left one. Skipping this once corrupted the tree in the C++ and Go versions (a deleted node was rotated back in).
+- **Zig-zig in the wrong order.** Rotate the grandparent first, then the parent.
+- **Recursive traversal.** Sequential inserts make the tree a path; recursive size or traversal then overflows the stack.
+- **Copying the tree.** Nodes are owned by one tree, so copying must be disabled (C++) or avoided (Go, Python share nodes).
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is amortized O(log n) the same as average O(log n)?">
+    No. Amortized is a worst-case bound on the total cost of any sequence of operations divided by their number. Average-case would assume random inputs. A splay tree can have one very slow operation, but it cannot have many in a row.
+  </FaqItem>
+  <FaqItem question="Why does searching change the tree?">
+    Moving the accessed node to the root is the whole mechanism for adaptation and for the amortized bound. A search is not read-only in a splay tree.
+  </FaqItem>
+  <FaqItem question="Why not just rotate the accessed node to the root one rotation at a time?">
+    That works for a single access, but a sequence of accesses to a path can then cost O(n) each. The zig-zig and zig-zag cases halve the depth of the nodes on the path, which the amortized proof needs.
+  </FaqItem>
+  <FaqItem question="Which implementation detail is easiest to get wrong?">
+    Delete. The key must be splayed to the root first, and both subtrees detached with cleared parent pointers before the maximum of the left subtree is splayed.
+  </FaqItem>
+</Faq>

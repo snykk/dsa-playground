@@ -18,22 +18,22 @@ This folder contains implementations of fundamental string algorithms in Python,
 
 ### 🔹 Pattern Matching Algorithms
 
-- **[Naive Pattern Search](./Pattern_Matching/Naive%20Pattern%20Search/)**
+- **[Naive Pattern Search](Pattern_Matching/Naive_Pattern_Search/)**
   - Simplest string matching algorithm
   - Time: O(n × m), Space: O(1)
   - No preprocessing required
 
-- **[KMP Algorithm](./Pattern_Matching/KMP%20Algorithm/)**
+- **[KMP Algorithm](Pattern_Matching/KMP_Algorithm/)**
   - Efficient pattern matching with preprocessing
   - Time: O(n + m), Space: O(m)
   - Uses LPS array to avoid rechecking
 
-- **[Rabin-Karp Algorithm](./Pattern_Matching/Rabin-Karp%20Algorithm/)**
+- **[Rabin-Karp Algorithm](Pattern_Matching/Rabin_Karp_Algorithm/)**
   - Hash-based pattern matching
   - Time: O(n + m) average, O(n × m) worst
   - Uses rolling hash function
 
-- **[Boyer-Moore Algorithm](./Pattern_Matching/Boyer-Moore%20Algorithm/)**
+- **[Boyer-Moore Algorithm](Pattern_Matching/Boyer_Moore_Algorithm/)**
   - Efficient for long patterns
   - Time: O(n/m) best case, O(n × m) worst
   - Uses bad character and good suffix heuristics
@@ -42,22 +42,22 @@ This folder contains implementations of fundamental string algorithms in Python,
 
 ### 🔹 Advanced String Algorithms
 
-- **[Z-Algorithm](./Advanced_String/Z-Algorithm/)**
+- **[Z-Algorithm](Advanced_String/Z_Algorithm/)**
   - Constructs Z-array for pattern matching
   - Time: O(n + m), Space: O(n + m)
   - Useful for string processing
 
-- **[Suffix Array](./Advanced_String/Suffix Array/)**
+- **[Suffix Array](Advanced_String/Suffix_Array/)**
   - Sorted array of all suffixes
   - Time: O(n log n) construction, O(m log n) search
   - Powerful for string processing
 
-- **[Longest Common Substring](./Advanced_String/Longest%20Common%20Substring/)**
+- **[Longest Common Substring](Advanced_String/Longest_Common_Substring/)**
   - Finds longest common substring between two strings
   - Time: O(m × n), Space: O(m × n)
   - Uses dynamic programming
 
-- **[Longest Palindromic Substring (Manacher's)](./Advanced_String/Longest%20Palindromic%20Substring%20(Manacher's)/)**
+- **[Longest Palindromic Substring (Manacher's)](Advanced_String/Longest_Palindromic_Substring_Manachers/)**
   - Finds longest palindromic substring in linear time
   - Time: O(n), Space: O(n)
   - Optimal algorithm for palindrome detection

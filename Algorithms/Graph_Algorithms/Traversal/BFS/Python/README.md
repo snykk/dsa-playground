@@ -1,185 +1,52 @@
-# BFS (Breadth-First Search) - Python
+# BFS -- Python Implementation
 
-**BFS (Breadth-First Search)** is a graph traversal algorithm that explores all vertices at the current depth level before moving to vertices at the next depth level.
+Breadth-First Search over an adjacency list (`Dict[int, List[int]]`) with `collections.deque` as the queue.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `bfs.py` | the five BFS functions |
+| `bfs_test.py` | 22 unit tests (`unittest`) |
 
-BFS is a fundamental graph traversal algorithm that:
-- Explores level by level (breadth-first)
-- Uses a queue data structure
-- Finds shortest path in unweighted graphs
-- Can detect cycles and connected components
+## API
 
-**Key Insight**: Visit all neighbors before moving to next level.
+| Function | Returns |
+|----------|---------|
+| `bfs_adjacency_list(graph, start)` | vertices in BFS order; `[]` if `start` is not a key |
+| `bfs_with_path(graph, start, target)` | a shortest path as a list, or `None`; `[start]` when `start == target` |
+| `bfs_level_order(graph, start)` | a list of levels, each a list of vertices |
+| `bfs_connected_components(graph)` | components of an undirected (symmetric) graph, each in BFS order |
+| `bfs_shortest_distance(graph, start)` | `{vertex: hops}` for every reachable vertex |
 
----
-
-## Algorithm
-
-1. **Start**: Add starting vertex to queue and mark as visited
-2. **Process**: While queue is not empty:
-   - Dequeue a vertex
-   - Visit all unvisited neighbors
-   - Add neighbors to queue and mark as visited
-3. **Repeat**: Continue until queue is empty
-
----
-
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(V + E) | O(V) |
-
-**Note**: 
-- V = number of vertices
-- E = number of edges
-- O(V) space for queue and visited set
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`bfs_adjacency_list(graph, start)`**
-   - Basic BFS traversal
-   - Returns list of vertices in BFS order
-   - Time: O(V + E), Space: O(V)
-
-2. **`bfs_with_path(graph, start, target)`**
-   - Finds shortest path from start to target
-   - Returns path as list of vertices
-   - Time: O(V + E), Space: O(V)
-
-3. **`bfs_level_order(graph, start)`**
-   - Returns vertices grouped by level
-   - Useful for level-order problems
-   - Time: O(V + E), Space: O(V)
-
-4. **`bfs_connected_components(graph)`**
-   - Finds all connected components
-   - Returns list of components
-   - Time: O(V + E), Space: O(V)
-
-5. **`bfs_shortest_distance(graph, start)`**
-   - Finds shortest distance to all vertices
-   - Returns dictionary of distances
-   - Time: O(V + E), Space: O(V)
-
----
-
-## Usage
+All run in O(V + E) time and O(V) space. Example on `{1: [2, 4], 2: [3], 3: [], 4: []}`:
 
 ```python
-from bfs import (
-    bfs_adjacency_list,
-    bfs_with_path,
-    bfs_level_order,
-    bfs_connected_components,
-    bfs_shortest_distance
-)
+from bfs import bfs_adjacency_list, bfs_with_path, bfs_level_order, bfs_shortest_distance
 
-# Basic BFS
-graph = {
-    1: [2, 4],
-    2: [3],
-    3: [],
-    4: []
-}
-result = bfs_adjacency_list(graph, 1)
-print(result)  # [1, 2, 4, 3]
-
-# Find shortest path
-path = bfs_with_path(graph, 1, 3)
-print(path)  # [1, 2, 3]
-
-# Level order
-levels = bfs_level_order(graph, 1)
-print(levels)  # [[1], [2, 4], [3]]
-
-# Connected components
-components = bfs_connected_components(graph)
-print(components)  # [[1, 2, 3, 4]]
-
-# Shortest distances
-distances = bfs_shortest_distance(graph, 1)
-print(distances)  # {1: 0, 2: 1, 4: 1, 3: 2}
+graph = {1: [2, 4], 2: [3], 3: [], 4: []}
+print(bfs_adjacency_list(graph, 1))     # [1, 2, 4, 3]
+print(bfs_with_path(graph, 1, 3))       # [1, 2, 3]
+print(bfs_level_order(graph, 1))        # [[1], [2, 4], [3]]
+print(bfs_shortest_distance(graph, 1))  # {1: 0, 2: 1, 4: 1, 3: 2}
 ```
 
----
+## Python-Specific Notes
 
-## Important Notes
+- `deque.popleft()` is O(1); `list.pop(0)` would be O(V).
+- A vertex that appears only in neighbor lists is handled (`graph.get(v, [])`), so `bfs_with_path({0: [1]}, 0, 1)` returns `[0, 1]`.
+- `bfs_with_path` keeps a `parent` dict and rebuilds the path once, so it stays O(V + E) on long paths.
+- `bfs_connected_components` shares one visited set. It is meant for symmetric adjacency lists; on a directed graph it returns the vertices first reached from each unvisited key.
 
-1. **Queue-based**: Uses deque for efficient queue operations
-2. **Visited tracking**: Must track visited vertices to avoid cycles
-3. **Unweighted graphs**: BFS finds shortest path only in unweighted graphs
-4. **Level-by-level**: Processes all vertices at same level before next level
-
----
-
-## Advantages
-
-1. ✅ **Shortest path**: Finds shortest path in unweighted graphs
-2. ✅ **Level order**: Natural level-by-level traversal
-3. ✅ **Simple**: Easy to understand and implement
-4. ✅ **Complete**: Visits all reachable vertices
-
----
-
-## Disadvantages
-
-1. ❌ **Memory**: Requires O(V) space for queue
-2. ❌ **Not optimal for deep graphs**: May explore many vertices
-3. ❌ **Unweighted only**: Doesn't work for weighted shortest path
-
----
-
-## When to Use
-
-- ✅ Finding shortest path in unweighted graphs
-- ✅ Level-order traversal
-- ✅ Finding connected components
-- ✅ Finding minimum steps in grid problems
-- ❌ Weighted graphs (use Dijkstra's instead)
-- ❌ When depth-first is more natural
-
----
-
-## Testing
+## How to Run
 
 ```bash
-python bfs_test.py
+cd Algorithms/Graph_Algorithms/Traversal/BFS/Python
+python3 -m unittest bfs_test
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **DFS**: Depth-First Search for different traversal order
-- **Dijkstra's**: Shortest path in weighted graphs
-- **A\***: Informed search with heuristics
-
----
-
-## Applications
-
-1. **Shortest Path**: Find shortest path in unweighted graphs
-2. **Social Networks**: Find degrees of separation
-3. **Puzzle Solving**: Find minimum moves to solve puzzle
-4. **Web Crawling**: Crawl web pages level by level
-5. **Network Broadcasting**: Broadcast messages in network
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 22)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+- Mark a vertex visited when you enqueue it, not when you dequeue it.
+- Use `deque` for the queue and a parent map for paths.
+- BFS gives fewest edges, not least weight.

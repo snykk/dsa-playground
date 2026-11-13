@@ -1,0 +1,194 @@
+---
+topic: Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search
+title: Naive Pattern Search
+lead: The naive (brute-force) search slides the pattern along the text one position at a time and compares character by character. It needs no preprocessing and no extra memory, and it is the baseline that every other string-matching algorithm improves on.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Best case
+    value: O(n)
+    hint: the first character mismatches at every alignment
+  - label: Worst case
+    value: O(n*m)
+    hint: long partial matches at every alignment
+    tone: warn
+  - label: Preprocessing
+    value: None
+  - label: Extra space
+    value: O(1)
+    hint: besides the list of results
+properties:
+  - { label: Needs preprocessing, value: false }
+  - { label: Finds overlapping matches, value: true }
+  - { label: Online (streams the text), value: false }
+  - { label: Worst case is linear, value: false }
+prerequisites:
+  - Data_Structures/Linear/String/String_Basics
+related:
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching
+---
+
+## How the naive search works
+
+A text of length `n` has `n - m + 1` places where a pattern of length `m` could start. The naive search simply tries them all.
+
+<Steps>
+  <Step title="Pick a starting position">
+    For each `i` from `0` to `n - m`, line the pattern up under `text[i]`.
+  </Step>
+  <Step title="Compare left to right">
+    Set `j = 0` and advance `j` while `j < m` and `text[i + j] == pattern[j]`. The first mismatch ends the attempt.
+  </Step>
+  <Step title="Record a match">
+    If `j` reached `m`, every character matched: record `i`.
+  </Step>
+  <Step title="Move one position right">
+    Whatever happened, the next attempt starts at `i + 1`. Nothing learned from the previous attempt is reused.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+When the attempt at `i` ends, the answer for position `i` is final: either all `m` characters matched or one did not. Because every start in `0..n-m` is tried, no occurrence can be missed, and overlapping occurrences are found naturally.
+</Callout>
+
+## See it in action
+
+Enter a text and a pattern and step through the alignments. The window shows the pattern under the text, the character comparisons are marked as matches or mismatches, and a counter tracks the work. Load the worst-case example (`AAAA...AB` with pattern `AAAAB`) to see every attempt run to the last character.
+
+<ArticleViz ids={['naive-search']} />
+
+## Worked example
+
+Search `ABABCABC` in `ABABDABACDABABCABC` (18 characters, so 11 possible starts). Each row is one attempt:
+
+<DataTable
+  columns={['Start i', 'Matched before the mismatch', 'Comparisons', 'Result']}
+  rows={[
+    ['0', '`ABAB`, then `D` vs `C`', '5', 'no'],
+    ['1', 'none: `B` vs `A`', '1', 'no'],
+    ['2', '`AB`, then `D` vs `A`', '3', 'no'],
+    ['3', 'none: `B` vs `A`', '1', 'no'],
+    ['4', 'none: `D` vs `A`', '1', 'no'],
+    ['5', '`ABA`, then `C` vs `B`', '4', 'no'],
+    ['6', 'none: `B` vs `A`', '1', 'no'],
+    ['7', '`A`, then `C` vs `B`', '2', 'no'],
+    ['8', 'none: `C` vs `A`', '1', 'no'],
+    ['9', 'none: `D` vs `A`', '1', 'no'],
+    ['10', 'all eight characters', '8', '**match at 10**'],
+  ]}
+/>
+
+The search makes 28 comparisons for an 18-character text, and the answer is `[10]`. The picture for the last attempt:
+
+<ArrayDiagram
+  legend={{ f: 'the matching window', m: 'text before the window' }}
+  rows={[
+    { label: 'text', values: ['A', 'B', 'A', 'B', 'D', 'A', 'B', 'A', 'C', 'D', 'A', 'B', 'A', 'B', 'C', 'A', 'B', 'C'], tones: 'mmmmmmmmmmffffffff', marks: { 10: 'i = 10' } },
+    { label: 'pattern', values: ['A', 'B', 'A', 'B', 'C', 'A', 'B', 'C'], tones: 'ffffffff', note: 'All eight characters equal the text from index 10 to 17.' },
+  ]}
+/>
+
+## Pseudocode
+
+```text
+naive_pattern_search(text, pattern):
+    if pattern is empty: return []
+    if text is empty or len(pattern) > len(text): return []
+    n = len(text); m = len(pattern); result = []
+    for i = 0 to n - m:
+        j = 0
+        while j < m and text[i + j] == pattern[j]:
+            j += 1
+        if j == m:
+            result.append(i)
+    return result
+```
+
+## Implementation
+
+All three languages have the same function (`naive_pattern_search`, `naivePatternSearch`, `NaivePatternSearch`) plus `count` and `first` helpers. Both helpers run the full search and then take its length or its first element. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`**. The other searches in this section do the same, but library searches report an empty pattern as found at index 0 (`'abc'.find('')`, `std::string::find`, `strings.Index`), so check the convention before swapping one in. Python indexes code points; C++ and Go index bytes.
+
+<TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n)', when: 'The first pattern character mismatches at every alignment: one comparison per alignment, n - m + 1 in total.' },
+    { case: 'Average case', time: 'O(n)', when: 'On random text over a reasonably large alphabet most attempts fail after one or two comparisons.' },
+    { case: 'Worst case', time: 'O(n*m)', when: 'Almost the whole pattern matches at every alignment, for example text `AAAA...AB` and pattern `AAAAB`: (n - m + 1) attempts of m comparisons each.' },
+  ]}
+/>
+
+For the worst-case example, a text of 20 characters with the 5-character pattern `AAAAB` makes 16 attempts of 5 comparisons each: 80 in total.
+
+<Equation label="Worst case" expr="(n - m + 1) alignments x m comparisons" result="O(n*m)" />
+
+Extra space is O(1) besides the result list.
+
+## Naive search vs alternatives
+
+<DataTable
+  columns={['Algorithm', { label: 'Worst', kind: 'mono' }, { label: 'Preprocessing', kind: 'mono' }, 'Idea']}
+  highlight={0}
+  rows={[
+    ['Naive', 'O(n*m)', 'none', 'try every alignment'],
+    ['KMP', 'O(n + m)', 'O(m)', 'reuse the longest border after a mismatch'],
+    ['Rabin-Karp', 'O(n*m)', 'O(m)', 'compare window hashes first'],
+    ['Boyer-Moore (bad character)', 'O(n*m)', 'O(m)', 'compare right to left, jump by the bad character'],
+    ['Z-algorithm', 'O(n + m)', 'O(n + m)', 'prefix matches of pattern + $ + text'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Simplest possible algorithm: a few lines, hard to get wrong.',
+    'No preprocessing and O(1) extra space.',
+    'Fast on typical text, where most attempts fail on the first character.',
+    'Finds overlapping matches without any special care.',
+  ]}
+  cons={[
+    'O(n*m) on repetitive input such as long runs of one character.',
+    'Forgets everything after a mismatch, so it re-reads text characters.',
+    'Does not stream: it re-reads up to m - 1 earlier characters at each step.',
+    'Slower than KMP or Boyer-Moore on long patterns.',
+  ]}
+/>
+
+## Applications
+
+- **Short patterns and small texts**, where setup cost would outweigh the saving.
+- **A baseline and test oracle** for faster algorithms: every other search here is checked against it.
+- **Teaching** the idea of an alignment and why preprocessing helps.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Off-by-one in the loop bound.** The last start is `n - m`, not `n - m - 1` and not `n`. Starting beyond `n - m` reads past the text.
+- **Not checking `m > n` first.** The range `0..n-m` is empty, but with unsigned sizes (`size_t` in C++) `n - m` wraps around to a huge number.
+- **Skipping ahead after a match.** Moving by `m` instead of 1 misses overlapping matches (`aa` in `aaaa`).
+- **Assuming it is O(n).** It is O(n) only when mismatches come early. A long run of equal characters makes it quadratic.
+- **Empty-pattern convention.** This implementation returns `[]`; other implementations return every position.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is the best case O(n)?">
+    Yes, when the first character of the pattern differs from the text character at every alignment: one comparison each, n - m + 1 in total. A search that finds an early match still has to finish scanning the rest of the text.
+  </FaqItem>
+  <FaqItem question="When is naive search good enough?">
+    For short patterns, small texts, or one-off searches. On natural text most attempts fail on the first or second character, so it runs in nearly linear time. It only degrades on highly repetitive input.
+  </FaqItem>
+  <FaqItem question="What input makes it slowest?">
+    A text of repeated characters with a pattern that matches almost to the end, such as `AAAA...AB` for the pattern `AAAAB`. Every alignment compares the full pattern before failing.
+  </FaqItem>
+  <FaqItem question="Which algorithm should I learn next?">
+    KMP. It keeps the idea of scanning left to right but uses the pattern's own structure (the LPS table) so that the text pointer never moves back and the worst case is O(n + m).
+  </FaqItem>
+</Faq>

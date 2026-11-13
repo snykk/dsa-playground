@@ -1,0 +1,243 @@
+---
+topic: Data_Structures/Linear/Linked_List/Singly
+title: Singly Linked List
+lead: A singly linked list is a chain of nodes, each holding a value and a reference to the next node. Inserting at the head is O(1) and nothing is ever shifted, but reaching the i-th element means walking i links. It is the simplest pointer-based structure and the base for stacks, queues and many interview problems.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Insert at head
+    value: O(1)
+  - label: Insert at tail
+    value: O(n)
+    hint: no tail pointer is kept
+    tone: warn
+  - label: Delete by value
+    value: O(n)
+  - label: Access by index
+    value: O(n)
+    hint: walk from the head
+properties:
+  - { label: Random access, value: false }
+  - { label: Walk backward, value: false }
+  - { label: Dynamic size, value: true }
+  - { label: Contiguous memory, value: false }
+prerequisites:
+  - Data_Structures/Linear/Array
+related:
+  - Data_Structures/Linear/Linked_List/Doubly
+  - Data_Structures/Linear/Linked_List/Circular
+  - Data_Structures/Linear/Stack/Linked_List_Stack
+  - Data_Structures/Linear/Queue/Simple_Queue
+---
+
+## What a singly linked list is
+
+A node is a small record with two fields: `data` and `next`. The list object stores one thing, the `head`, a reference to the first node. The last node's `next` is `None` (null), which marks the end. Nodes live wherever the allocator put them, and the `next` links are the only thing that holds the sequence together.
+
+<ListDiagram
+  kind="singly"
+  values={[7, 3, 9, 5]}
+  pointers={{ 0: 'head', 3: 'last' }}
+  tones="f..."
+  legend={{ f: 'the head: the only node the list itself knows about' }}
+  caption="A list of four nodes. Everything else is reached by following next from the head."
+/>
+
+An empty list is `head = None`. Because there is no index arithmetic, you reach a node only by following links from the head.
+
+<Callout title="Losing the head loses the list">
+The head is the only handle on the chain. If you overwrite it before saving what it pointed to, every node behind it becomes unreachable. Every operation below is an exercise in updating `next` references in the right order.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`insert_at_head(x)`', 'new node whose `next` is the old head; head moves to it', 'O(1)'],
+    ['`insert_at_tail(x)`', 'walk to the last node, set its `next` to the new node', 'O(n)'],
+    ['`delete(key)`', 'unlink the first node holding `key`; nothing happens if absent', 'O(n)'],
+    ['`display()`', 'return the values from head to tail', 'O(n)'],
+  ]}
+/>
+
+Python and Go use `insert_at_head` / `InsertAtHead` and `delete` / `Delete`. C++ uses `insert_at_head`, `insert_at_tail` and `delete_node`. `display` returns a list in Python and a slice in Go, while the C++ version prints; C++ also has a `to_vector()` helper that returns the values. There is no search, size or reverse in the code.
+
+### Insert at head: two writes
+
+Inserting `1` into `[7, 3]`: point the new node at the old head first, then move `head`. The order matters; moving `head` first would lose the old chain.
+
+<ListDiagram
+  kind="singly"
+  values={[1, 7, 3]}
+  pointers={{ 0: 'head' }}
+  tones="pl."
+  legend={{ p: 'the new node', l: 'the old head' }}
+  caption="new.next = old head, then head = new. No walk, so O(1)."
+/>
+
+### Insert at tail: walk first
+
+With only a head, the last node is found by following `next` until it is `None`. Then `last.next = new`. Appending `4` to `[7, 3]`:
+
+<ListDiagram
+  kind="singly"
+  values={[7, 3, 4]}
+  pointers={{ 0: 'head', 1: 'curr (last)' }}
+  tones=".cp"
+  legend={{ c: 'curr stopped here: curr.next is None', p: 'the new node' }}
+  caption="n - 1 steps to find the last node: O(n). A stored tail pointer would make this O(1)."
+/>
+
+### Delete by value: keep a prev pointer
+
+Deleting needs the node before the match, so the code walks with two pointers, `prev` and `curr`, until `curr` holds the key, then writes `prev.next = curr.next`. Deleting `3` from `[7, 3, 9]`:
+
+<ListDiagram
+  kind="singly"
+  values={[7, 3, 9]}
+  pointers={{ 0: 'prev', 1: 'curr' }}
+  tones="lp."
+  legend={{ l: 'prev', p: 'curr, the match' }}
+  caption="curr holds 3, so the walk stops."
+/>
+
+<ListDiagram
+  kind="singly"
+  values={[7, 9]}
+  pointers={{ 0: 'head' }}
+  tones="f."
+  legend={{ f: 'prev.next now skips the deleted node' }}
+  caption="prev.next = curr.next. The node holding 3 is no longer reachable."
+/>
+
+The cases are:
+
+<DataTable
+  columns={['Match is...', 'What the code does']}
+  rows={[
+    ['the head (`prev` is none)', '`head = curr.next`'],
+    ['in the middle or at the tail', '`prev.next = curr.next`'],
+    ['the only node', '`head = curr.next`, which is `None`: the list is empty'],
+    ['not present', 'the walk ends with `curr = None`; nothing changes'],
+    ['present twice', 'only the first match is removed'],
+  ]}
+/>
+
+C++ then calls `delete` on the unlinked node. Python and Go rely on garbage collection.
+
+### Reversing a list (not in the code)
+
+A classic exercise reverses the links in place with three pointers: `prev` (initially none), `curr` (the head) and `next`. Each step does `next = curr.next`, `curr.next = prev`, `prev = curr`, `curr = next`. Reversing `[1, 2, 3]`:
+
+<DataTable
+  columns={['Step', 'prev', 'curr', 'Links after the step']}
+  rows={[
+    ['start', 'none', '1', '1 -> 2 -> 3'],
+    ['1', '1', '2', '1 -> none, 2 -> 3'],
+    ['2', '2', '3', '2 -> 1 -> none, 3 stays'],
+    ['3', '3', 'none', '3 -> 2 -> 1 -> none'],
+  ]}
+/>
+
+The new head is `prev`. It is O(n) time and O(1) extra space.
+
+## Implementation
+
+The C++ class owns its nodes. A destructor frees the chain, and the copy constructor and assignment are deleted so that two lists never free the same nodes. `head` is private there, so the C++ test uses `to_vector()`.
+
+<TopicCode topic="Data_Structures/Linear/Linked_List/Singly" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['insert at head', 'O(1)', 'two pointer writes, no traversal'],
+    ['insert at tail', 'O(n)', 'follow n - 1 links to the last node (O(1) with a tail pointer)'],
+    ['delete by value', 'O(n)', 'search with a prev pointer; the rewrite itself is O(1)'],
+    ['search, access by index', 'O(n)', 'only forward walking is possible'],
+    ['traverse', 'O(n)', 'one visit per node'],
+  ]}
+/>
+
+Space is O(n): one node per element, each carrying a link (8 bytes on a typical 64-bit machine, plus allocator overhead and the value). All operations need O(1) extra space.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Change', 'Effect']}
+  rows={[
+    ['Tail pointer', 'the list stores `tail` too', 'insert at tail O(1); deleting the last node is still O(n)'],
+    ['Sentinel head', 'a dummy node before the first real node', 'head insert and delete need no special case'],
+    ['Doubly linked', 'each node also has `prev`', 'walk backward, O(1) delete of a held node'],
+    ['Circular', 'last node points to the head', 'cycle endlessly, no null end'],
+  ]}
+/>
+
+## Linked list vs array
+
+<DataTable
+  columns={['Operation', 'Singly linked list', 'Dynamic array']}
+  highlight={0}
+  rows={[
+    ['access by index', 'O(n)', 'O(1)'],
+    ['insert at front', 'O(1)', 'O(n)'],
+    ['insert at the end', 'O(n), O(1) with a tail pointer', 'O(1) amortized'],
+    ['insert or delete next to a node you hold', 'O(1)', 'O(n)'],
+    ['memory', 'a link per node, scattered', 'compact and contiguous'],
+    ['cache behaviour', 'poor: pointer chasing', 'good: sequential reads'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Insert and delete at the head are O(1) and never shift elements.',
+    'Grows one node at a time: no capacity, no resize, no copy.',
+    'Inserting after a node you already hold is O(1).',
+    'Simple, and the base of stacks, queues and hash-table chaining.',
+  ]}
+  cons={[
+    'No random access: the i-th element costs i steps.',
+    'A link per node, plus allocator overhead.',
+    'Poor cache locality compared with arrays.',
+    'Cannot walk backward, and deleting needs the previous node.',
+  ]}
+/>
+
+## Applications
+
+- **Stacks and queues:** a stack is push and pop at the head; with a tail pointer a queue is O(1) too.
+- **Hash-table chaining:** each bucket holds a short list.
+- **Adjacency lists** in graphs.
+- **Interview classics:** reversing, detecting a cycle, merging two sorted lists, finding the middle.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Losing the head.** Always connect the new node to the old chain before you move `head`.
+- **Null dereference.** Check `curr` before reading `curr.next`, and handle the empty list.
+- **Deleting without `prev`.** To unlink a node you need its predecessor. Track it while you walk.
+- **Forgetting the head case.** When the match is the head there is no `prev`; move `head` instead.
+- **Assuming tail insertion is O(1).** Without a tail pointer it walks the whole list.
+- **Leaks in C++.** Every `new` needs a matching `delete`; the destructor frees the chain, and copying must be forbidden or deep.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is insert at tail O(n) here?">
+    The list stores only the head. To append, the code walks to the last node. Storing a `tail` pointer fixes it, at the price of keeping that pointer correct on every delete.
+  </FaqItem>
+  <FaqItem question="Why do I need a prev pointer to delete?">
+    A node has no link back to its predecessor, and the predecessor's `next` is the reference that must change. You carry it along while searching.
+  </FaqItem>
+  <FaqItem question="When is a linked list better than an array?">
+    When you insert and remove near known positions (especially the front) and do not need indexing. For most workloads arrays are faster in practice because of cache locality, so measure before choosing.
+  </FaqItem>
+  <FaqItem question="How do I find the middle of a list in one pass?">
+    Move a slow pointer one step and a fast pointer two steps at a time. When the fast pointer reaches the end, the slow pointer is at the middle.
+  </FaqItem>
+</Faq>

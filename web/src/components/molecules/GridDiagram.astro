@@ -1,0 +1,117 @@
+---
+import { toneAt, toneClass } from '../../lib/diagram';
+import { formatInline } from '../../lib/inline';
+import DiagramLegend from './DiagramLegend.astro';
+
+/**
+ * A static grid for articles: DP tables, matrices, boards (N-Queens, Sudoku, mazes).
+ * rows holds the cell values; tones holds one tone string per row (see src/lib/diagram.ts).
+ */
+interface Props {
+  rows: Array<Array<string | number>>;
+  tones?: string[];
+  rowLabels?: Array<string | number>;
+  colLabels?: Array<string | number>;
+  /** Text in the top-left header cell, e.g. "i \\ j". */
+  corner?: string;
+  /** Draw thicker lines every k cells (Sudoku boxes: 3). */
+  blocks?: number;
+  /** Shade alternate cells like a chess board. */
+  checker?: boolean;
+  legend?: Record<string, string>;
+  caption?: string;
+  label?: string;
+}
+
+const { rows, tones = [], rowLabels, colLabels, corner = '', blocks, checker = false, legend, caption, label } = Astro.props;
+const cols = Math.max(0, ...rows.map((r) => r.length));
+/** With blocks set, a narrow empty spacer separates groups of k rows / columns (Sudoku boxes). */
+const gapBefore = (i: number) => Boolean(blocks && i > 0 && i % blocks === 0);
+---
+
+<figure class="dg-figure grid-diagram">
+  {legend && <DiagramLegend legend={legend} />}
+  <div class="dg-stage">
+    <table class="grid" aria-label={label ?? 'Grid'}>
+      {
+        colLabels && (
+          <thead>
+            <tr>
+              {rowLabels && <th class="corner">{corner}</th>}
+              {colLabels.map((c, i) => (
+                <Fragment>
+                  {gapBefore(i) && <th class="spacer" aria-hidden="true" />}
+                  <th scope="col">{c}</th>
+                </Fragment>
+              ))}
+            </tr>
+          </thead>
+        )
+      }
+      <tbody>
+        {
+          rows.map((row, r) => (
+            <Fragment>
+              {gapBefore(r) && (
+                <tr class="spacer-row" aria-hidden="true">
+                  <td colspan={cols + Math.floor((cols - 1) / (blocks ?? cols)) + (rowLabels ? 1 : 0)} />
+                </tr>
+              )}
+              <tr>
+                {rowLabels && <th scope="row">{rowLabels[r] ?? ''}</th>}
+                {Array.from({ length: cols }, (_, c) => (
+                  <Fragment>
+                    {gapBefore(c) && <td class="spacer" aria-hidden="true" />}
+                    <td class:list={[toneClass(toneAt(tones[r], c)), { dark: checker && (r + c) % 2 === 1 }]}>{row[c] ?? ''}</td>
+                  </Fragment>
+                ))}
+              </tr>
+            </Fragment>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  {caption && <figcaption class="dg-caption" set:html={formatInline(caption)} />}
+</figure>
+
+<style>
+  .grid {
+    border-collapse: separate;
+    border-spacing: 3px;
+    margin: 0 auto;
+  }
+  th {
+    font: 600 12px var(--font-mono);
+    color: var(--text-3);
+    padding: 0 4px;
+    min-width: 22px;
+    text-align: center;
+  }
+  td {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 4px;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 6px;
+    background: var(--dg-fill);
+    border: var(--dg-stroke-width) solid var(--dg-stroke);
+    color: var(--dg-ink);
+    font: 600 14px var(--font-mono);
+    white-space: nowrap;
+  }
+  td.dark:not(.tone-p):not(.tone-l):not(.tone-f):not(.tone-r) {
+    background: var(--surface-3);
+  }
+  .spacer,
+  tr.spacer-row td {
+    width: 4px;
+    min-width: 4px;
+    height: 4px;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+</style>

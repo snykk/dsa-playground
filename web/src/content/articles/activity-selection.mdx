@@ -1,0 +1,208 @@
+---
+topic: Algorithms/Greedy/Activity_Selection
+title: Activity Selection
+lead: Given activities with a start and a finish time, pick as many as possible so that no two overlap. Sort by finish time and always take the next activity that fits; this simple greedy rule is provably optimal, and it is the model example of a greedy proof.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n log n)
+    hint: the sort; the scan is O(n)
+  - label: Extra space
+    value: O(n)
+    hint: an indexed, sorted copy of the input
+  - label: Approach
+    value: Greedy
+    hint: earliest finish time first
+  - label: Weighted version
+    value: Greedy fails
+    hint: needs dynamic programming
+    tone: warn
+properties:
+  - { label: Greedy, value: true }
+  - { label: Always optimal for the count, value: true }
+  - { label: Optimal for weights, value: false }
+  - { label: Needs sorted input, value: false }
+prerequisites:
+  - Algorithms/Greedy
+  - Algorithms/Sorting/Merge_Sort
+related:
+  - Algorithms/Greedy/Job_Scheduling
+  - Algorithms/Greedy/Fractional_Knapsack
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+---
+
+## How Activity Selection works
+
+One person (or one room, or one machine) can do a single activity at a time. Each activity `i` occupies the half-open interval from `start` to `finish`, so two activities are compatible when one finishes no later than the other starts: `start >= last_finish`. The goal is the **largest set of pairwise compatible activities**.
+
+<Steps>
+  <Step title="Sort by finish time">
+    Order the activities by `finish`, smallest first. The code keeps each activity's original index so it can return indices into the caller's list.
+  </Step>
+  <Step title="Take the first activity">
+    The activity that finishes earliest is always part of some optimal answer. Remember its finish time as `last_finish`.
+  </Step>
+  <Step title="Scan the rest once">
+    For each remaining activity in sorted order, if `start >= last_finish` select it and set `last_finish` to its finish time. Otherwise skip it: it overlaps the activity you already hold.
+  </Step>
+</Steps>
+
+<Callout title="Why earliest finish is the right rule">
+Finishing early leaves the largest possible room for everything that comes after. Take any optimal schedule and look at its first activity. The earliest-finishing activity ends no later, so swapping it in cannot collide with the rest of the schedule, and the count stays the same. So some optimal schedule contains the greedy choice. What remains is the same problem on the activities that start at or after that finish, and the argument repeats (induction).
+</Callout>
+
+## See it in action
+
+Press play, or step through one activity at a time. Each bar is an activity on a time axis. Bars are checked in order of finish time: the one being checked is highlighted, a fitting activity becomes selected, and an overlapping one is hatched and then skipped. You can type your own activities.
+
+<ArticleViz ids={['activity-selection']} />
+
+## Worked example
+
+Eleven activities, already listed in order of finish time (the input to `activity_selection` can be in any order; sorting is its first step). The greedy scan returns the indices `[0, 3, 7, 10]`:
+
+<ArrayDiagram
+  legend={{ f: 'selected', c: 'being checked', m: 'skipped (overlaps the last selected one)' }}
+  rows={[
+    { label: 'input', values: ['1-4', '3-5', '0-6', '5-7', '3-9', '5-9', '6-10', '8-11', '8-12', '2-14', '12-16'], marks: { 0: 'i0', 1: 'i1', 2: 'i2', 3: 'i3', 4: 'i4', 5: 'i5', 6: 'i6', 7: 'i7', 8: 'i8', 9: 'i9', 10: 'i10' }, note: 'Each cell is `start-finish`.' },
+    { label: 'step 1', values: ['1-4', '3-5', '0-6', '5-7', '3-9', '5-9', '6-10', '8-11', '8-12', '2-14', '12-16'], tones: 'f..........', note: 'Take 1-4. `last_finish = 4`.' },
+    { label: 'step 2', values: ['1-4', '3-5', '0-6', '5-7', '3-9', '5-9', '6-10', '8-11', '8-12', '2-14', '12-16'], tones: 'fmmc.......', note: '3-5 and 0-6 start before 4: skipped. 5-7 starts at 5 >= 4: take it. `last_finish = 7`.' },
+    { label: 'step 3', values: ['1-4', '3-5', '0-6', '5-7', '3-9', '5-9', '6-10', '8-11', '8-12', '2-14', '12-16'], tones: 'fmmfmmmc...', note: '3-9, 5-9 and 6-10 start before 7: skipped. 8-11 starts at 8 >= 7: take it. `last_finish = 11`.' },
+    { label: 'step 4', values: ['1-4', '3-5', '0-6', '5-7', '3-9', '5-9', '6-10', '8-11', '8-12', '2-14', '12-16'], tones: 'fmmfmmmfmmc', note: '8-12 and 2-14 start before 11: skipped. 12-16 starts at 12 >= 11: take it.' },
+  ]}
+/>
+
+Four activities fit and no schedule can fit five. A helpful way to see this: the chosen activities finish at 4, 7, 11 and 16, and each one is the earliest-finishing activity that starts after the previous finish.
+
+## Pseudocode
+
+```text
+activitySelection(activities):
+    if activities is empty: return []
+    order = indices of activities sorted by finish time
+    selected = [order[0]]
+    lastFinish = finish of activities[order[0]]
+    for k = 1 to n - 1:
+        i = order[k]
+        if start of activities[i] >= lastFinish:
+            append i to selected
+            lastFinish = finish of activities[i]
+    return selected
+```
+
+The result lists indices into the original input, in order of finish time.
+
+## Implementation
+
+All three languages use the same algorithm. The Python version also has the weighted variant (`activity_selection_with_weights`, a dynamic program that returns the best total weight) and a recursive version (`activity_selection_recursive`). The C++ and Go versions only have the greedy function.
+
+<TopicCode topic="Algorithms/Greedy/Activity_Selection" />
+
+**Tie-breaking.** When two activities finish at the same time, which one is picked depends on the sort. Python's `sorted` is stable, so the one that comes first in the input wins. C++ `std::sort` and Go `sort.Slice` are not stable, so the chosen index among ties is not specified. The number of activities selected is the same in all cases.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Sorting', time: 'O(n log n)', space: 'O(n)', when: 'Comparison sort of the indexed copy by finish time. This dominates the cost.' },
+    { case: 'Scan', time: 'O(n)', space: 'O(n)', when: 'One pass; each activity is compared with `last_finish` once. The selected list can hold up to n indices.' },
+    { case: 'Total', time: 'O(n log n)', space: 'O(n)', when: 'If the input is already sorted by finish time, only the O(n) scan remains.' },
+  ]}
+/>
+
+The recursive Python version is slower on purpose: it slices `activities[1:]` and builds `selected + [idx]` in every call, which is <BigO of="n^2" /> time and space, and it recurses n levels deep, so it hits Python's recursion limit on large inputs.
+
+The weighted dynamic program in Python scans backwards for the last compatible activity, which is <BigO of="n^2" /> in the worst case. A binary search over finish times would make it <BigO of="n log n" />; the repository does not do that.
+
+## Other greedy rules fail
+
+Sorting by finish time is not the only plausible rule, and the others are wrong:
+
+<DataTable
+  columns={['Rule', 'Counterexample (start-finish)', 'Rule picks', 'Optimum']}
+  rows={[
+    ['Earliest start', '0-10, 1-2, 3-4', '1 activity (0-10)', '2 activities (1-2, 3-4)'],
+    ['Shortest duration', '0-5, 4-6, 5-10', '1 activity (4-6)', '2 activities (0-5, 5-10)'],
+    ['Earliest finish', 'any input', 'optimal', 'optimal'],
+  ]}
+/>
+
+## Weighted activity selection
+
+If every activity has a weight and you want the largest total weight, earliest finish is no longer enough. With `(1, 4, 10)`, `(3, 5, 5)`, `(0, 6, 15)` and `(5, 7, 7)`, the best set is `(1, 4)` and `(5, 7)` with weight 17, while the single heavy activity `(0, 6)` is worth only 15. The Python function `activity_selection_with_weights` solves it with dynamic programming: sort by finish, and let `dp[i]` be the best weight using the first `i` activities, either skipping activity `i` or taking it together with `dp[j]` for the last compatible `j`.
+
+## Activity Selection vs alternatives
+
+<DataTable
+  columns={['Problem', 'Method', 'Time', 'Note']}
+  highlight={0}
+  rows={[
+    ['Maximum number of compatible activities', 'greedy, earliest finish', 'O(n log n)', 'this article'],
+    ['Maximum total weight', 'dynamic programming', 'O(n^2) here', 'greedy gives wrong answers'],
+    ['Fewest rooms for all activities', 'sort starts, min-heap of finishes', 'O(n log n)', 'a different problem: schedule all, not a maximum subset'],
+    ['Jobs with deadlines and profits', 'sort by profit, latest free slot', 'see Job Scheduling', 'deadlines instead of fixed intervals'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Optimal for the count, with a short and clean proof.',
+    'Fast: one sort plus one scan, and no recursion in the main version.',
+    'Very little code in any language.',
+    'The "sort by finish, keep a frontier" pattern solves many interval problems.',
+  ]}
+  cons={[
+    'Only optimal for the count; it fails for weighted activities.',
+    'Handles a single resource; scheduling on several machines is a different problem.',
+    'Needs the whole input up front to sort it.',
+    'The choice among ties is not specified in C++ and Go.',
+  ]}
+/>
+
+## Applications
+
+- **Single-room booking.** Accept the largest number of meetings for one room.
+- **Interval clean-up.** Dropping the fewest intervals so the rest do not overlap is the same problem: answer is n minus the maximum number kept.
+- **Resource allocation.** One machine, one antenna, one lecture hall: any exclusive resource with fixed time slots.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Sorting by start time.** It looks natural and it is wrong; see the counterexamples above.
+- **Using `>` instead of `>=`.** Activities may touch: `1-2` and `2-3` are compatible. With `>` you would drop valid activities.
+- **Forgetting the original indices.** After sorting, positions no longer match the input. The code sorts `(index, activity)` pairs so it can return the original indices.
+- **Starting `last_finish` at -1 (or 0).** A sentinel that is a real time breaks inputs with negative times; the Python recursive version once did this. Start from the first selected activity, or from negative infinity.
+- **Using it for weights.** A heavy activity can outweigh several short ones; use dynamic programming.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is sorting by finish time correct but sorting by duration is not?">
+    The proof only needs that the chosen activity ends no later than the first activity of an optimal schedule. Earliest finish guarantees that. A short activity can still sit in the middle of the day and block two long ones, as `0-5, 4-6, 5-10` shows.
+  </FaqItem>
+  <FaqItem question="Is the answer unique?">
+    The size of the answer is unique, the set is not. Different tie-breaks or different optimal schedules can produce different index lists of the same length.
+  </FaqItem>
+  <FaqItem question="What if an activity has zero length?">
+    Nothing special happens: it is selected when `start >= last_finish`, like any other activity, and then `last_finish` becomes its finish time.
+  </FaqItem>
+  <FaqItem question="How do I solve it when the intervals carry weights?">
+    Use dynamic programming over the intervals sorted by finish time, as `activity_selection_with_weights` does. It is the same sort, but each step chooses between skipping an interval and taking it plus the best result before it.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['LeetCode 435, Non-overlapping Intervals', 'n minus the maximum compatible set, found by this greedy'],
+    ['LeetCode 452, Minimum Number of Arrows to Burst Balloons', 'sort by right end; shoot at the end of the first balloon'],
+    ['LeetCode 253, Meeting Rooms II', 'a related problem: the number of rooms needed, not a maximum subset'],
+    ['LeetCode 1235, Maximum Profit in Job Scheduling', 'the weighted version: DP over intervals sorted by end time'],
+  ]}
+/>

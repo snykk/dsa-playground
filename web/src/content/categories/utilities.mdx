@@ -1,0 +1,81 @@
+---
+category: Utilities
+title: Competitive Programming Utilities
+lead: "The tools around the algorithms in a contest: starter templates in three languages, techniques that make a correct solution fast enough, and problem types defined by their format. This folder holds no new data structure, and it is used together with the rest of the repository."
+updated: 2026-11-13
+facts:
+  - label: Templates
+    value: 3 languages
+    hint: C++, Go and Python boilerplates
+  - label: Optimization techniques
+    value: 4 topics
+    hint: Fast I/O, Precomputation, Bitmasking, modular arithmetic
+  - label: Problem types
+    value: 3 topics
+    hint: constructive, interactive, game theory
+contents:
+  - folder: Templates
+    note: The C++, Go and Python boilerplates, each with its tests, to copy at the start of a contest.
+  - folder: Optimization_Techniques
+    note: Four ways to make a solution fit its time limit, from fast input to modular arithmetic.
+  - folder: Problem_Types
+    note: Constructive, interactive and game problems, which are defined by their format and each need their own proof.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Problem_Patterns
+  - Algorithms
+  - Data_Structures
+---
+
+## What this area covers
+
+Choosing the algorithm is only part of a contest. You also have to start from a working file, read and write fast enough, keep integers exact, and recognise problems that are not about computing a value at all. This folder collects those skills.
+
+- **Templates** is a starting point: a boilerplate per language with fast input, math helpers and common structures.
+- **Optimization Techniques** is for a solution whose idea is right but that is too slow, too big or wrong at the edge of the integer range.
+- **Problem Types** is for problems defined by format: build an object, talk to a judge, or decide who wins a game.
+
+None of these replaces an algorithm. They sit beside the Algorithms and Problem Patterns folders.
+
+## At a glance
+
+<DataTable
+  columns={['Sub-area', 'Use it when', 'Contains']}
+  rows={[
+    ['Templates', 'you start a contest or a new problem', 'C++, Go and Python boilerplates'],
+    ['Optimization Techniques', 'the algorithm is right and the program is too slow or overflows', 'Fast I/O, Precomputation, Bitmasking, Modular Arithmetic Tricks'],
+    ['Problem Types', 'the statement asks for an object, a dialogue or a winner', 'Constructive Algorithms, Interactive Problems, Game Theory'],
+  ]}
+/>
+
+## A suggested path
+
+1. **Copy a template** for your language, and read what it gives you: buffered input, a modular power and inverse, and a few structures.
+2. **Fast I/O**, then **Precomputation**, the Beginner and first Intermediate topics of Optimization Techniques.
+3. **Bitmasking** and **Modular Arithmetic Tricks**, when you meet subsets or counting modulo a prime.
+4. **Constructive Algorithms** and **Interactive Problems**, once you are comfortable with greedy solutions and binary search.
+5. **Game Theory**, the Advanced topic, after Bit Manipulation and dynamic programming.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Trusting a template blindly.** Read it first and test it on small inputs. A helper you do not understand can fail silently.
+- **Optimizing before the algorithm is right.** These techniques change constants, not the order of growth.
+- **Skipping the proof in a constructive problem.** A pattern that works on small cases is not yet a solution.
+- **Buffering in an interactive problem.** Read and write one query at a time, and flush after every answer.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does Templates have no overview page of its own?">
+    It has no topic articles. It holds three boilerplates, one per language, each with a README and tests. The folder is listed in this page's contents so that it is reachable from here.
+  </FaqItem>
+  <FaqItem question="Where do I start?">
+    With Optimization Techniques, beginning at Fast I/O, because every contest solution reads input. Problem Types matter once you meet a statement that asks for an object or a dialogue.
+  </FaqItem>
+  <FaqItem question="How does this relate to Problem Patterns?">
+    Problem Patterns teach recurring solution shapes such as two pointers and sliding window. Utilities teach the surrounding skills, such as speed, exactness and special problem formats. Some topics link both ways, for example Bitmasking builds on Bit Manipulation.
+  </FaqItem>
+</Faq>

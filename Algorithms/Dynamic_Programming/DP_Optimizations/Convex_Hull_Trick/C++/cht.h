@@ -13,6 +13,11 @@ class MonotonicCHT {
  public:
     // Lines must be added with non-increasing slope; queries in non-decreasing x.
     void addLine(long long m, long long b) {
+        if (!lines_.empty() && lines_.back().first == m) {
+            // Equal slopes: only the lower intercept can ever be optimal.
+            if (lines_.back().second <= b) return;
+            lines_.pop_back();
+        }
         while (lines_.size() >= 2 && isBad(
                    lines_[lines_.size() - 2],
                    lines_.back(),
@@ -40,8 +45,9 @@ class MonotonicCHT {
     // Cross-multiplied: intersection(l1, l3).x <= intersection(l1, l2).x?
     static bool isBad(const Line& l1, const Line& l2, const Line& l3) {
         // (b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)
-        __int128 lhs = (__int128)(l3.second - l1.second) * (l1.first - l2.first);
-        __int128 rhs = (__int128)(l2.second - l1.second) * (l1.first - l3.first);
+        // Widen before subtracting so differences of large intercepts cannot overflow.
+        __int128 lhs = ((__int128)l3.second - l1.second) * ((__int128)l1.first - l2.first);
+        __int128 rhs = ((__int128)l2.second - l1.second) * ((__int128)l1.first - l3.first);
         return lhs <= rhs;
     }
 };

@@ -117,7 +117,7 @@ git push origin feature/your-feature-name
 
 ```
 dsa-playground/
-├── Data Structures/
+├── Data_Structures/
 │   ├── Linear/
 │   │   ├── Array/
 │   │   │   ├── Python/
@@ -140,6 +140,12 @@ dsa-playground/
 └── Algorithms/
     └── ...
 ```
+
+### Folder Names
+
+Every content folder is named in `Title_Case_With_Underscores`, ASCII only: no spaces, apostrophes, parentheses, `&`, `+` or other symbols. Examples: `Binary_Search_Tree`, `Dijkstras_Algorithm`, `B_Plus_Tree`, `Divide_and_Conquer`. The language folders are always `Python/`, `C++/` and `Go/`.
+
+Each topic has exactly one folder. When a topic belongs to two areas (for example Kruskal's algorithm, which is both greedy and a graph algorithm), it lives in the area where readers look for it first, and the other area's overview links to it.
 
 ### Required Files for Each Implementation
 
@@ -236,17 +242,42 @@ func (bst *BinarySearchTree) Insert(value int) {
 
 ### README.md Structure
 
-Each implementation should have a README.md with:
+Every topic folder has a **topic README** (the explanation) and one **language README** per language folder (that implementation and how to run it). The web site has its own, richer article for each topic; the READMEs are the GitHub-side documentation and must stand on their own.
 
-1. **Title** - Name of the data structure/algorithm
-2. **Overview** - Brief description
-3. **Concept** - Key concepts and properties
-4. **Operations** - Table of operations with descriptions
-5. **Complexity** - Time and space complexity table
-6. **Usage Examples** - Code examples in the language
-7. **Running Tests** - How to run tests
-8. **When to Use** - Use cases and applications
-9. **Notes** - Additional information
+Rules for every README:
+
+- Plain headings and lists: no emoji, no check / cross marks (write "Yes" / "No", or put pros and cons under their own headings).
+- Facts must match the code in the folder (variant, tie-breaking, API, what each language does differently). If a change alters behaviour, update the README in the same change.
+- No "Last Updated" stamps; git history has the date.
+- Diagrams are ASCII art inside a ` ```text ` block.
+
+**Topic README** (`<Topic>/README.md`), sections in this order:
+
+1. `# <Topic name>`, then one short paragraph: what it is, the problem it solves, its headline complexity.
+2. `## Intuition` - the idea in plain words (an analogy if it helps) and the invariant that makes it correct.
+3. `## Visual` - an ASCII diagram of the structure or of one step.
+4. `## How It Works` (algorithms) or `## Operations` (data structures) - numbered steps, or one subsection per operation.
+5. `## Step-by-Step Trace` - a small input traced to the answer (a table or a short list).
+6. `## Complexity` - time and space per case or per operation, and *why* (the recurrence, the amortized argument).
+7. `## When to Use` - when it is the right tool, and when it is not.
+8. `## <Topic> vs. <Alternatives>` - a short comparison table.
+9. `## Common Pitfalls` - the bugs people actually write (off-by-one, overflow, empty input, duplicates, ...).
+10. `## Implementations` - a table: language, folder, main file, notes on how the languages differ.
+11. `## Practice Problems` - three to six problems with links.
+12. `## Related` - links to related topic folders.
+
+Theory topics (for example Big-O notation) may call section 4 `## Definition`; the other sections still apply.
+
+**Language README** (`<Topic>/<Language>/README.md`):
+
+1. `# <Topic> -- <Language> Implementation`
+2. `## Files` - each file and what it contains.
+3. `## API` - the public functions and types, one line each.
+4. `## <Language>-Specific Notes` - idioms, memory handling, overflow, differences from the other languages.
+5. `## How to Run` - the exact commands for the tests (and the demo, if there is one).
+6. `## Key Takeaways` - two to four bullets.
+
+Check a folder with `python3 scripts/check_readme_style.py "<topic folder>"` (or `--all`).
 
 ### Code Comments
 
@@ -339,7 +370,7 @@ Before submitting, ensure:
 
 ---
 
-## 📚 Adding New Data Structures/Algorithms
+## 📚 Adding New Data_Structures/Algorithms
 
 ### Step-by-Step Guide
 
@@ -349,7 +380,7 @@ Before submitting, ensure:
 
 2. **Create the folder structure**
    ```
-   Data Structures/Non_Linear/Trees/Your Data Structure/
+   Data_Structures/Non_Linear/Trees/Your Data Structure/
    ├── Python/
    ├── C++/
    ├── Go/

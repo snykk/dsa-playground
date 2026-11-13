@@ -1,0 +1,223 @@
+---
+topic: Data_Structures/Non_Linear/Trees/Treap
+title: Treap
+lead: A treap is a binary search tree on keys that is also a max-heap on random priorities. The random priorities give it the shape of a BST built from shuffled input, so every operation is O(log n) in expectation, with very short code built on split and merge.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Search, insert, delete
+    value: O(log n)
+    hint: expected
+  - label: Worst case
+    value: O(n)
+    tone: warn
+    hint: exponentially unlikely
+  - label: Extra data per node
+    value: 1 priority
+  - label: Approach
+    value: split and merge
+properties:
+  - { label: Randomized, value: true }
+  - { label: Deterministic worst case, value: false }
+  - { label: Sorted iteration, value: true }
+  - { label: Duplicates allowed, value: false }
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+  - Data_Structures/Non_Linear/Heaps/Max_Heap
+related:
+  - Data_Structures/Non_Linear/Trees/Cartesian_Tree
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Red_Black_Tree
+  - Data_Structures/Non_Linear/Trees/Splay_Tree
+---
+
+## What a treap is
+
+A treap is a **tree** plus a **heap**. Every node holds a key and a random priority, and the tree obeys two rules at once:
+
+- **BST order on keys:** left keys are smaller, right keys are larger.
+- **Heap order on priorities:** a parent's priority is at least its children's (a max-heap).
+
+For a given set of keys and priorities there is exactly one such tree: the highest-priority node is the root, smaller keys go to its left, larger keys to its right, and the same rule applies recursively. Priorities are random, which makes this the same tree as a plain BST built by inserting the keys in a uniformly random order. The expected height of such a tree is O(log n), so it needs no rotations or balance fields.
+
+<TreeDiagram
+  levelOrder={[5, 2, 6, null, null, null, 8]}
+  badges={['0.9', '0.6', '0.7', null, null, null, '0.4']}
+  tones="f"
+  legend={{ f: 'root: the highest priority (badge = priority)' }}
+  caption="A treap on keys 2, 5, 6, 8. Read the keys left to right for BST order. The badges decrease going down: 0.9, then 0.6 and 0.7, then 0.4."
+/>
+
+## Operations
+
+Everything is built from two operations, `split` and `merge`.
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Expected time', kind: 'mono' }]}
+  rows={[
+    ['`split(t, k)`', 'cut `t` into the keys `< k` and the keys `>= k`', 'O(log n)'],
+    ['`merge(a, b)`', 'join two treaps where every key in `a` is smaller than every key in `b`', 'O(log n)'],
+    ['`insert(key)`', 'reject a duplicate; split at `key`; merge left, new node, right', 'O(log n)'],
+    ['`delete(key)`', 'split at `key`, drop the minimum of the right part (it is `key`), merge the rest', 'O(log n)'],
+    ['`contains(key)`', 'plain BST search', 'O(log n)'],
+    ['`inorder()`', 'all keys in sorted order', 'O(n)'],
+  ]}
+/>
+
+### Split
+
+`split(node, k)` returns `(left, right)` with all keys `< k` in `left` and all keys `>= k` in `right`. If `node.key < k`, the node and its left subtree go to `left`: split the right subtree and attach its left part as `node.right`. Otherwise do the mirror image. The recursion follows one root-to-leaf path.
+
+### Merge
+
+`merge(a, b)` looks at the two roots. The higher priority stays on top. If it is `a`, then `a.right = merge(a.right, b)`; otherwise `b.left = merge(a, b.left)`. This preserves both orders, because every key in `a` is smaller than every key in `b`.
+
+### Worked example: insert 6, then delete 5
+
+The treap above is built from keys 5, 2, 8 with priorities 0.9, 0.6, 0.4. Priorities are fixed by hand here so that the run is repeatable; the code draws them at random. Before the insert:
+
+<TreeDiagram
+  levelOrder={[5, 2, 8]}
+  badges={['0.9', '0.6', '0.4']}
+  tones="f"
+  legend={{ f: 'root' }}
+  caption="Keys 5, 2, 8 with priorities 0.9, 0.6, 0.4."
+/>
+
+To insert 6 with priority 0.7, split at 6 into `{2, 5}` and `{8}`:
+
+<TreeDiagram
+  levelOrder={[5, 2]}
+  badges={['0.9', '0.6']}
+  tones="l"
+  legend={{ l: 'left part: keys less than 6' }}
+  caption="split(root, 6): the left part is 5 with 2 under it. The right part is the single node 8."
+/>
+
+Then `merge(left, 6)`: 5 has priority 0.9 > 0.7, so 6 goes down the right side of 5. Then merge with `{8}`: 6 (0.7) beats 8 (0.4), so 8 goes under 6. The result is the tree in the first diagram.
+
+To delete 5, split at 5 into `{2}` and `{5, 6, 8}`. The smallest key of the right part is 5 itself, so dropping that minimum removes it and leaves 6 with 8 beneath it. Merging `{2}` with `{6, 8}`: 6 has the higher priority, so it becomes the root:
+
+<TreeDiagram
+  levelOrder={[6, 2, 8]}
+  badges={['0.7', '0.6', '0.4']}
+  tones="f"
+  legend={{ f: 'new root after the delete' }}
+  caption="After delete(5): 6 is the root, with 2 on its left and 8 on its right."
+/>
+
+## Implementation
+
+All three versions are the split/merge formulation with these API differences:
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['priority', '`random.random()` float', '`std::mt19937` 32-bit, seeded from `std::random_device`', '`rand.Uint32()`'],
+    ['insert / remove', '`insert`, `delete`', '`insert`, `erase`', '`Insert`, `Delete`'],
+    ['membership', '`key in treap`', '`contains`', '`Contains`'],
+    ['size', '`len(treap)`', '`size()`', '`Len()`'],
+    ['duplicates', 'rejected (`False`)', 'rejected (`false`)', 'rejected (`false`)'],
+    ['key type', 'anything ordered', '`int`', '`int`'],
+  ]}
+/>
+
+Delete does not split at `key + 1`. That trick overflows at the largest integer (C++ undefined behavior, Go wraps around and silently leaves the key behind) and means nothing for float keys. Instead the code splits at `key` and drops the minimum node of the right part, which is exactly the key being deleted.
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Treap" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Expected', kind: 'mono' }, { label: 'Worst case', kind: 'mono' }]}
+  rows={[
+    ['search, insert, delete', 'O(log n)', 'O(n)'],
+    ['split, merge', 'O(log n)', 'O(n)'],
+    ['space', 'O(n)', 'O(n)'],
+  ]}
+/>
+
+Why expected O(log n): fix the keys. A node's depth is the number of ancestors it has, and a key `j` is an ancestor of key `i` exactly when `j` has the highest priority among all keys between them. With random priorities that probability is 1 / (|i - j| + 1), so the expected depth is a harmonic sum:
+
+<Equation label="Expected depth of key i" expr="sum over j != i of 1 / (|i - j| + 1)" result="<= 2 ln(n) = O(log n)" />
+
+The worst case needs very unlucky priorities. Priorities are drawn by the program, so someone who controls only the keys cannot force a deep tree.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Use']}
+  rows={[
+    ['Rotation-based treap', 'insert as a leaf, then rotate it up while its priority is higher than its parent', 'same shape, same bounds; this repository uses split/merge instead'],
+    ['Implicit treap', 'key is the position, found through subtree sizes', 'sequence operations: reverse a range, cut and paste'],
+    ['Augmented treap', 'subtree size or sum stored per node', 'order statistics, range sums'],
+    ['Persistent treap', 'copy the path on each update', 'keep old versions'],
+  ]}
+/>
+
+## Treap vs alternatives
+
+<DataTable
+  columns={['Tree', 'Balance guarantee', 'Rebalancing', 'Code size']}
+  highlight={0}
+  rows={[
+    ['Treap', 'expected O(log n)', 'split and merge', 'small'],
+    ['AVL tree', 'worst-case O(log n)', 'rotations, up to O(log n) on delete', 'medium'],
+    ['Red-black tree', 'worst-case O(log n)', 'at most 2 rotations per insert, 3 per delete', 'large'],
+    ['Splay tree', 'amortized O(log n)', 'rotates on every access', 'small'],
+    ['Skip list', 'expected O(log n)', 'random levels', 'small'],
+  ]}
+/>
+
+A treap is a Cartesian tree built on `(key, priority)` pairs; see the Cartesian Tree topic.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Short code: insert and delete are a few lines on top of split and merge.',
+    'Split and merge are available for free, which makes range operations easy.',
+    'No balance bookkeeping, only one random number per node.',
+    'Sorted iteration and ordered queries like a BST.',
+  ]}
+  cons={[
+    'The bound is probabilistic, not worst case.',
+    'Extra memory for a priority in every node.',
+    'Needs a good random source.',
+    'Recursive split and merge use stack space proportional to the tree height.',
+  ]}
+/>
+
+## Applications
+
+- Ordered sets and maps in competitive programming, where short code matters.
+- Implicit treaps for sequences: range reversal, cut and paste, insert at a position.
+- Order-statistic queries (k-th smallest, rank) when each node stores its subtree size.
+- Merging and splitting ordered collections.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Splitting off a single key with `key + 1`.** It overflows at the top of the integer range and fails for non-integer keys. Drop the minimum of the right part instead.
+- **Weak or reused randomness.** Equal priorities or a predictable generator weaken the balance.
+- **Merging in the wrong order.** `merge(a, b)` requires every key of `a` to be smaller than every key of `b`.
+- **Leaving the duplicate policy open.** Decide up front: this code rejects duplicates and returns false.
+- **Forgetting augmented data.** If nodes store size or sum, update it after every split and merge step.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why are treaps balanced?">
+    The priority order decides the shape, and random priorities make the shape that of a BST built from shuffled keys. Such trees have expected depth O(log n).
+  </FaqItem>
+  <FaqItem question="Do treaps need rotations?">
+    Not in this code. Split and merge restructure the tree along one path each. A rotation-based treap exists and gives the same shape.
+  </FaqItem>
+  <FaqItem question="What if two nodes get the same priority?">
+    Ties are rare with floats or 32-bit random values, and the code breaks them without error (in merge, the second treap's root wins). Heavy ties would hurt balance but never correctness.
+  </FaqItem>
+  <FaqItem question="Why a max-heap on priorities and not a min-heap?">
+    It is only a convention. The code keeps the largest priority at the root, which is what `merge` checks with `a.priority > b.priority`.
+  </FaqItem>
+</Faq>

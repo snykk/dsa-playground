@@ -13,16 +13,33 @@ from collections import defaultdict
 def construct_permutation(n: int, k: int) -> Optional[List[int]]:
     """
     Pattern 1: Permutation Construction
-    Build a permutation with exactly k distinct adjacent differences
+    Build a permutation of 1..n whose adjacent differences |p[i+1] - p[i]|
+    take exactly k distinct values (1 <= k <= n - 1; n = 1 needs k = 0).
+
+    Zig-zag the first k + 1 numbers (1, k+1, 2, k, ...), which produces the
+    differences k, k-1, ..., 1, then continue upwards with k+2..n (difference
+    1 or at most k, so no new value appears).
     """
-    if k >= n:
+    if n < 1:
+        return None
+    if n == 1:
+        return [1] if k == 0 else None
+    if k < 1 or k >= n:
         return None  # Impossible
-    
-    perm = list(range(1, n + 1))
-    
-    # Reverse suffix to create k differences
-    perm[n - k - 1:] = reversed(perm[n - k - 1:])
-    
+
+    perm = []
+    lo, hi = 1, k + 1
+    take_low = True
+    while lo <= hi:
+        if take_low:
+            perm.append(lo)
+            lo += 1
+        else:
+            perm.append(hi)
+            hi -= 1
+        take_low = not take_low
+    perm.extend(range(k + 2, n + 1))
+
     return perm
 
 
@@ -50,7 +67,7 @@ def construct_array_with_sum(n: int, total: int, min_val: int, max_val: int) -> 
 def construct_graph(degrees: List[int]) -> Optional[List[Tuple[int, int]]]:
     """
     Pattern 3: Graph Construction
-    Build a simple graph with given degree sequence (Erdős–Gallai)
+    Build a simple graph with given degree sequence (Havel-Hakimi)
     """
     n = len(degrees)
     edges = []
@@ -87,6 +104,8 @@ def construct_string(n: int, count_a: int, count_b: int) -> Optional[str]:
     Pattern 4: String Construction
     Build string with given character counts, no two same adjacent
     """
+    if count_a < 0 or count_b < 0 or n != count_a + count_b:
+        return None  # Impossible: the counts must add up to n
     if count_a > count_b + 1 or count_b > count_a + 1:
         return None  # Impossible
     
@@ -158,12 +177,17 @@ def construct_matrix(row_sums: List[int], col_sums: List[int]) -> Optional[List[
 def construct_by_decomposition(target: int) -> List[int]:
     """
     Pattern 7: Decomposition
-    Express target as sum of powers of 2
+    Express target as sum of powers of 2 (smallest first).
+    A target below 1 has no such expression, so an empty list is returned.
     """
     result = []
-    for bit in range(30):
+    if target < 1:
+        return result
+    bit = 0
+    while target >> bit:
         if target & (1 << bit):
             result.append(1 << bit)
+        bit += 1
     return result
 
 
@@ -190,16 +214,20 @@ def construct_tree(n: int, parent_constraints: List[int]) -> Optional[List[Tuple
 def construct_balanced_string(s: str) -> Optional[str]:
     """
     Construct a balanced string from given characters
-    (equal number of each character type)
+    (equal number of each character type; the characters come back sorted)
     """
     from collections import Counter
     count = Counter(s)
     
     n = len(s)
+    if n == 0:
+        return ""
     if n % len(count) != 0:
         return None
     
     target = n // len(count)
+    if any(c != target for c in count.values()):
+        return None  # Some character occurs more or less often than the rest
     
     result = []
     chars = sorted(count.keys())

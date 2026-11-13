@@ -1,0 +1,217 @@
+---
+topic: Problem_Patterns/Coordinate_Compression
+title: Coordinate Compression
+lead: Coordinate compression replaces each value by its rank among the distinct values, so numbers up to 10^9 become indices 0..k-1 that fit an array, a Fenwick tree or a segment tree. Only the order of the values is kept, which is all that many algorithms need.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Build
+    value: O(n log n)
+    hint: sort the distinct values
+  - label: Lookup
+    value: O(1) or O(log n)
+    hint: hash map or tree map, or binary search on the sorted list
+  - label: Space
+    value: O(k)
+    hint: k distinct values
+  - label: Keeps
+    value: order only
+    hint: gaps between values are lost
+    tone: warn
+properties:
+  - { label: Order-preserving, value: true }
+  - { label: Reversible, value: true }
+  - { label: Keeps distances, value: false }
+prerequisites:
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Searching/Binary_Search
+related:
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+  - Problem_Patterns/Sliding_Window
+  - Problem_Patterns/Monotonic_Stack
+  - Problem_Patterns/DP_Problem_Patterns
+---
+
+## When to use it
+
+The signal is a mismatch between the **range of the values** and the **number of values**: values up to 10<sup>9</sup> or 10<sup>18</sup>, but only n &le; 2 &middot; 10<sup>5</sup> of them.
+
+- You want an array, a Fenwick tree or a segment tree indexed by value.
+- The algorithm compares values (smaller, larger, equal) but never does arithmetic on them. Counting inversions, "how many earlier elements are smaller", and rank queries all fit.
+- A sweep line over intervals or rectangles with huge coordinates, where only the endpoints are interesting.
+
+If the algorithm needs the actual difference between values (a length, an area, a distance), compression alone is not enough; see the pitfalls below.
+
+## How it works
+
+<Steps>
+  <Step title="Collect every value you will ever index">
+    Include the values from the queries as well as the data, or you cannot map a query endpoint later.
+  </Step>
+  <Step title="Sort and remove duplicates">
+    The sorted distinct values `v[0] < v[1] < ... < v[k-1]` define the ranks. The repository code does this with `sorted(set(values))`, a `set` in C++, and a map plus `sort.Ints` in Go.
+  </Step>
+  <Step title="Map each value to its rank">
+    The rank of `v[i]` is `i`. The code stores this as a dictionary `value -> rank`; a binary search (lower bound) in the sorted list gives the same result without a hash map.
+  </Step>
+  <Step title="Work in rank space">
+    Use ranks as array or tree indices. Translate an answer back through the sorted list (`decompress_coordinates` returns it, indexed by rank).
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+For any two values `a` and `b`, `a < b` exactly when `rank(a) < rank(b)`, and `a == b` exactly when the ranks are equal. Every algorithm that depends only on these comparisons gives the same answer on ranks as on the original values.
+</Callout>
+
+## A worked example
+
+Compress `[1000, 5, 200, 1000, 5, 50]`. The distinct values sorted are `5, 50, 200, 1000`, so the mapping is `{5: 0, 50: 1, 200: 2, 1000: 3}` (computed by the repository code).
+
+<ArrayDiagram
+  legend={{ p: 'the largest value, 1000 (rank 3)', l: 'the smallest value, 5 (rank 0)', c: 'the values in between (50, 200)' }}
+  rows={[
+    { label: 'original', values: [1000, 5, 200, 1000, 5, 50], tones: 'plcplc', note: 'Values up to 1000 (or 10^9 in a real problem).' },
+    { label: 'ranks', values: [3, 0, 2, 3, 0, 1], tones: 'plcplc', note: 'Duplicates share a rank. The order of the values is unchanged.' },
+  ]}
+/>
+
+Now an array of size 4 is enough to count occurrences, or a Fenwick tree of size 4 to count how many earlier elements are smaller.
+
+## Template
+
+```text
+compress(values):
+    sorted_vals = sorted(distinct(values))
+    rank = map: sorted_vals[i] -> i
+    return rank, sorted_vals
+
+# With a binary search instead of a map (also works for values not in the list):
+rank_of(x) = lower_bound(sorted_vals, x)    # index of the first value >= x
+
+# Typical use: count earlier elements smaller than each element
+for x in values:
+    r = rank[x]
+    answer = fenwick.prefix_sum(r - 1)       # how many earlier ranks are < r
+    fenwick.add(r, 1)
+```
+
+## Implementation
+
+All three languages provide `compress_coordinates` (a value-to-rank mapping), `decompress_coordinates` (the values in rank order) and a 2D version that compresses x and y separately. Python uses a dictionary, C++ uses `std::map`, so lookups there are O(log k), and Go uses a `map`. The functions work on integers and keep ranks `0..k-1`, in sorted order.
+
+<TopicCode topic="Problem_Patterns/Coordinate_Compression" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Build', time: 'O(n log n)', when: 'Deduplicating is O(n) with a hash set, and sorting the k distinct values costs O(k log k).' },
+    { case: 'Lookup', time: 'O(1) to O(log k)', when: 'A Python dict or Go map is O(1) on average; C++ std::map and a binary search are O(log k).' },
+    { case: 'Space', time: 'O(k)', when: 'One entry per distinct value.' },
+  ]}
+/>
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Count inversions or smaller elements to the left', 'compress, then a Fenwick tree over ranks'],
+    ['Sparse range updates over a huge coordinate line', 'compress the endpoints, then a difference array over ranks'],
+    ['Union area or length of intervals', 'compress the endpoints, keep original gaps as weights, sweep'],
+    ['Longest increasing subsequence with large values', 'compress to ranks, then use an array-based structure'],
+    ['Points in 2D with huge coordinates', 'compress x and y separately, then a grid or sweep line'],
+    ['Offline queries over huge value ranges', 'compress data and query values together'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'How it works', 'Notes']}
+  rows={[
+    ['Dense ranks (this repository)', 'equal values share a rank, ranks are 0..k-1', 'most common'],
+    ['Unique ranks', 'sort indices so that equal values get different ranks', 'for permutation-style problems'],
+    ['Compress by sort and lower bound', 'keep only the sorted list, rank = binary search', 'works for query values not in the data'],
+    ['Weighted compression', 'keep the gaps between neighbouring values as lengths', 'area, length and sweep problems'],
+    ['2D compression', 'compress x and y independently', 'point and rectangle problems'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forgetting the query values.** Compress data and query endpoints together. A query value that was not in the list has no rank.
+- **Losing the gaps.** Distances between compressed points are not preserved. For a covered length, an area or a distance, store the original value of each rank and use the differences of the originals as weights, as in the example below.
+- **Off-by-one on ranges.** A range `[l, r]` becomes `[rank(l), rank(r)]`, but a half-open range may need `rank(r) - 1`, or an extra point at `r + 1`.
+- **Assuming all values map.** `compress_coordinates` ranks only the values you pass in.
+- **Compressing 2D points together.** Compress x and y separately, then keep the pairs.
+</Callout>
+
+### The gap pitfall in numbers
+
+Segments `[0, 10]`, `[5, 20]` and `[100, 110]` have a union of length 30. Compress the endpoints to `0, 5, 10, 20, 100, 110` (ranks 0 to 5). Between neighbouring ranks the original lengths are 5, 5, 10, 80, 10, and each elementary piece is either covered or not:
+
+<DataTable
+  columns={['Piece (original)', 'Length', 'Covered by']}
+  rows={[
+    ['[0, 5]', '5', '[0, 10]'],
+    ['[5, 10]', '5', '[0, 10] and [5, 20]'],
+    ['[10, 20]', '10', '[5, 20]'],
+    ['[20, 100]', '80', 'nothing'],
+    ['[100, 110]', '10', '[100, 110]'],
+  ]}
+/>
+
+The covered length is 5 + 5 + 10 + 10 = 30. Counting the *number* of covered pieces (4 of 5) would give a meaningless answer, which is why lengths must come from the original coordinates.
+
+## Compression vs alternatives
+
+<DataTable
+  columns={['Approach', 'Time per operation', 'Use when']}
+  highlight={0}
+  rows={[
+    ['Coordinate compression', 'O(log n) with a Fenwick tree', 'offline: all values known in advance'],
+    ['Hash map keyed by value', 'O(1) average', 'only equality matters, no order or range queries'],
+    ['Dynamic (sparse) segment tree', 'O(log V)', 'online: values arrive unknown, V is manageable'],
+    ['Balanced BST or order-statistic tree', 'O(log n)', 'online rank queries'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Turns a huge value range into a small dense one, so arrays and Fenwick or segment trees apply.',
+    'Simple: sort, deduplicate, map.',
+    'Preserves all comparisons, so order-based algorithms are unchanged.',
+  ]}
+  cons={[
+    'Offline only: all values must be known before building the mapping.',
+    'Loses distances between values.',
+    'The build costs O(n log n), more than the O(n) work some algorithms need afterwards.',
+  ]}
+/>
+
+## Applications
+
+- Fenwick-tree solutions for inversion counting and order statistics on large values.
+- Sweep-line problems on rectangles, skylines and intervals (the Skyline Problem and Rectangle Area II are classic examples).
+- Reducing a sparse grid with huge coordinates to a small dense grid.
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Do duplicates get the same rank?">
+    Yes. The mapping is built from the set of distinct values, so equal values share one rank and the ranks are exactly `0..k-1` with no gaps.
+  </FaqItem>
+  <FaqItem question="Can I compress online?">
+    Not with this method: it needs every value first. For online data use a balanced tree, a dynamic segment tree, or an offline pass if the queries can be read in advance.
+  </FaqItem>
+  <FaqItem question="Why does the repository use a dictionary and not a sorted list?">
+    A dictionary gives direct lookups of the rank of a known value. A sorted list with binary search is the alternative; it also handles values that are not in the list, with a lower-bound search.
+  </FaqItem>
+  <FaqItem question="Does compression change the answer to my problem?">
+    Not if the algorithm only uses comparisons between values. If the answer involves sums, differences or lengths of the values themselves, keep the original values and use them as weights.
+  </FaqItem>
+</Faq>

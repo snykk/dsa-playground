@@ -1,0 +1,218 @@
+---
+topic: Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+title: Dijkstra's Algorithm
+lead: Dijkstra's algorithm finds the cheapest path from one source to every other vertex in a graph whose edge weights are non-negative. It repeatedly settles the closest unsettled vertex, using a priority queue, and runs in O((V + E) log V) time.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O((V + E) log V)
+    hint: binary heap with lazy deletion
+  - label: Extra space
+    value: O(V + E)
+    hint: the heap can hold one entry per edge
+  - label: Approach
+    value: Greedy
+  - label: Edge weights
+    value: Non-negative only
+    hint: a negative edge can make the answer wrong without any error
+    tone: warn
+properties:
+  - { label: Single source, value: true }
+  - { label: Greedy, value: true }
+  - { label: Negative weights, value: false }
+  - { label: Works on directed graphs, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Data_Structures/Non_Linear/Heaps
+related:
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm
+---
+
+## How Dijkstra's algorithm works
+
+Think of BFS on a graph where an edge takes w minutes to cross: you cannot simply process vertices in the order you discover them. Dijkstra keeps a tentative distance for every vertex and always **settles the vertex with the smallest tentative distance**. Settling means its distance is now final.
+
+<Steps>
+  <Step title="Initialize">
+    Set `dist[start] = 0` and every other distance to infinity. Put `(0, start)` in a min-priority queue.
+  </Step>
+  <Step title="Pop the closest entry">
+    Remove the entry with the smallest distance. If its vertex is already settled, it is a stale entry from an earlier, worse push: ignore it.
+  </Step>
+  <Step title="Settle it and relax its edges">
+    Mark the vertex settled. For each edge (v, u, w) to an unsettled neighbor, if `dist[v] + w < dist[u]`, lower `dist[u]` and push `(dist[u], u)`.
+  </Step>
+  <Step title="Repeat">
+    Continue until the queue is empty. Every reachable vertex is settled; the others stay at infinity.
+  </Step>
+</Steps>
+
+<Callout title="Why a settled distance is final">
+Suppose v has the smallest tentative distance d among unsettled vertices. Any other route to v must leave the settled region through some unsettled vertex x, and dist[x] is already at least d. Adding the rest of the route can only add non-negative weights, so that route costs at least d. Nothing beats d, so v is final. A negative edge breaks exactly this step.
+</Callout>
+
+## See it in action
+
+Step through and watch the vertex being settled, the tentative distances on its edges, and the settled region grow with the shortest-path tree. Type your own edges, such as `A-B 4, A-C 2`, with non-negative weights, and finish with `; start A`. The visualization rejects negative weights, as the algorithm requires.
+
+<ArticleViz ids={['dijkstra']} />
+
+## Worked example
+
+An undirected weighted graph, source A. The numbers above the vertices are the final distances.
+
+<GraphDiagram
+  edges="A-B 4, A-C 2, B-C 5, B-D 10, C-E 3, E-D 4, D-F 11"
+  positions={{ A: [6, 50], B: [34, 10], C: [34, 90], D: [66, 10], E: [66, 90], F: [94, 50] }}
+  tones={{ A: 'p', B: 'f', C: 'f', D: 'f', E: 'f', F: 'f' }}
+  badges={{ A: '0', B: '4', C: '2', D: '9', E: '5', F: '20' }}
+  path="A,C,E,D,F"
+  legend={{ p: 'source', f: 'settled; the highlighted edges are the shortest path to F, cost 20' }}
+  caption="D is reached first through B (cost 14) but later through E (cost 9), which is cheaper."
+/>
+
+The priority queue as the repository code runs it (letters A to F are 0 to 5 in the code):
+
+<DataTable
+  columns={['Pop', 'Distance', 'Relaxations pushed']}
+  rows={[
+    ['A', '0', 'B = 4, C = 2'],
+    ['C', '2', 'E = 5 (B via C would cost 7, not better than 4)'],
+    ['B', '4', 'D = 14'],
+    ['E', '5', 'D = 9 (better than 14, so D is pushed again)'],
+    ['D', '9', 'F = 20'],
+    ['D', '14', 'stale entry: D is already settled, skipped'],
+    ['F', '20', 'nothing; queue empty'],
+  ]}
+/>
+
+`dijkstra(g, 0)` returns `{0: 0, 1: 4, 2: 2, 3: 9, 4: 5, 5: 20}` and `dijkstra_with_path(g, 0, 5)` returns `(20, [0, 2, 4, 3, 5])`, that is A, C, E, D, F. The stale entry shows why the heap can hold more than V entries: Dijkstra does not decrease keys, it pushes a new entry and skips the old one when it comes out.
+
+## Pseudocode
+
+```text
+dijkstra(graph, start):
+    dist[v] = infinity for every vertex       # keys AND neighbor-only vertices
+    dist[start] = 0
+    pq = [(0, start)]
+    settled = {}
+    while pq is not empty:
+        d, v = pq.popMin()
+        if v in settled: continue             # stale entry
+        settled.add(v)
+        for (u, w) in graph.get(v, []):
+            if u in settled: continue
+            if d + w < dist[u]:
+                dist[u] = d + w
+                previous[u] = v               # only in the path version
+                pq.push((dist[u], u))
+    return dist
+```
+
+`dijkstra_with_path` stops as soon as the target is popped and walks `previous` back to the start.
+
+## Implementation
+
+All three languages take an adjacency list of `(neighbor, weight)` pairs and return distances to every reachable vertex, plus a version that returns one path. A vertex that appears only as a neighbor counts as a vertex with no outgoing edges. Python also has `dijkstra_all_pairs`, which runs Dijkstra from every vertex.
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['Distance type', 'int, or float infinity', '`long long`, `LLONG_MAX` if unreachable', '`int`, `math.MaxInt` if unreachable'],
+    ['No path (path version)', '`None`', '`(-1, {})`', '`(-1, nil)`'],
+    ['Empty graph, `dijkstra`', '`{start: 0}`', 'empty map', 'empty map'],
+    ['All pairs', '`dijkstra_all_pairs`', 'none', 'none'],
+  ]}
+/>
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm" />
+
+The C++ version uses 64-bit distances, so two large weights cannot overflow a 32-bit sum. Python integers are unbounded. Go's `int` is 64-bit on common platforms.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Binary heap', time: 'O((V + E) log V)', space: 'O(V + E)', when: 'Each edge can push one entry (E pushes, each O(log E) = O(log V)), and each pop is O(log V). This is the implementation here.' },
+    { case: 'Array, no heap', time: 'O(V^2)', space: 'O(V)', when: 'Scan all vertices for the minimum. Better on dense graphs where E is about V^2.' },
+    { case: 'Fibonacci heap', time: 'O(E + V log V)', space: 'O(V)', when: 'Decrease-key in O(1) amortized. Rarely worth it in practice.' },
+  ]}
+/>
+
+<Equation label="Binary heap" expr="V pops * O(log V) + E pushes * O(log V)" result="O((V + E) log V)" />
+
+## What goes wrong with negative edges
+
+Dijkstra never revisits a settled vertex, so a negative edge into one cannot fix it. Take the directed graph `0->1 (2), 0->2 (5), 2->1 (-4)`. The repository code settles vertex 1 at distance 2 first. The route 0, 2, 1 costs 5 - 4 = 1, but vertex 1 is already settled, so `dijkstra` returns `{0: 0, 1: 2, 2: 5}` with no error. Use Bellman-Ford when weights can be negative.
+
+Zero weights are fine. Parallel edges and self-loops are also fine, since only the cheapest relaxation wins.
+
+## Dijkstra vs alternatives
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, 'Weights', 'Gives']}
+  highlight={0}
+  rows={[
+    ['Dijkstra (heap)', 'O((V + E) log V)', 'non-negative', 'one source to all'],
+    ['BFS', 'O(V + E)', 'all equal', 'one source to all, by edge count'],
+    ['Bellman-Ford', 'O(V * E)', 'negative allowed', 'one source to all'],
+    ['A*', 'depends on the heuristic', 'non-negative', 'one source to one goal'],
+    ['Floyd-Warshall', 'O(V^3)', 'negative allowed', 'all pairs'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Fast: near-linear with a binary heap on sparse graphs.',
+    'Settles vertices in increasing distance order, so it can stop early once the target is popped.',
+    'Simple to implement with a standard priority queue.',
+    'The same loop generalizes to A* and underlies Prim-like growth.',
+  ]}
+  cons={[
+    'Wrong answers (silently) when any edge weight is negative.',
+    'Computes distances from one source only; all pairs needs V runs or Floyd-Warshall.',
+    'Lazy deletion lets the heap grow to O(E) entries.',
+    'Explores in all directions: with a single goal and a good heuristic, A* expands fewer vertices.',
+  ]}
+/>
+
+## Applications
+
+- **Road and route planning**: least travel time or distance between places.
+- **Network routing**: link-state protocols such as OSPF compute shortest paths over weighted links with Dijkstra's algorithm.
+- **Weighted grids and games**: movement with different terrain costs, with A* as the usual speed-up.
+- **A subroutine**: Johnson's algorithm and many "cheapest path" problems with modified weights.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Negative weights.** The answer is wrong without any warning. Use Bellman-Ford.
+- **No stale-entry check.** Without skipping settled vertices, an old queue entry is processed again and the work can blow up.
+- **Marking visited on push.** A vertex must be settled when it is popped, not when it is first pushed; the first push is not the cheapest.
+- **Ignoring neighbor-only vertices.** A vertex that appears only in neighbor lists needs an initial distance too, or the lookup fails.
+- **Overflow.** In a 32-bit integer, two large weights overflow. Use 64-bit distances.
+- **Social-network "degrees of separation".** That is an unweighted problem: BFS is simpler and faster.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does Dijkstra fail with negative edges?">
+    Its correctness rests on the claim that the smallest tentative distance is final. A negative edge can later offer a cheaper route into a vertex that is already settled, and the algorithm never goes back to update it.
+  </FaqItem>
+  <FaqItem question="Does a priority queue need decrease-key?">
+    Not necessarily. Pushing a new entry and skipping stale ones (lazy deletion) gives the same O((V + E) log V) bound, at the price of a heap with up to E entries.
+  </FaqItem>
+  <FaqItem question="Can I stop early?">
+    Yes, when you only need one target. Settled distances are final, so the moment the target is popped its distance is known. `dijkstra_with_path` does exactly that.
+  </FaqItem>
+  <FaqItem question="What does it return for unreachable vertices?">
+    Infinity: `float('inf')` in Python, `LLONG_MAX` in C++ and `math.MaxInt` in Go. The path functions return `None` in Python and `(-1, {})` or `(-1, nil)` in C++ and Go.
+  </FaqItem>
+</Faq>

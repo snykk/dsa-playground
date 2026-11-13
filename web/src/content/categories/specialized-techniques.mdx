@@ -1,0 +1,149 @@
+---
+category: Algorithms/Advanced_Algorithms/Specialized_Techniques
+title: Specialized Techniques
+lead: Four ways to split a big structure into pieces that are cheap to combine. Square root decomposition and Mo's algorithm answer range queries on an array, heavy-light and centroid decomposition work on trees. They differ in what they answer, whether updates are allowed, and whether queries must be known in advance.
+updated: 2026-11-13
+facts:
+  - label: Square root blocks
+    value: O(sqrt n)
+    hint: range query; point update is O(1)
+  - label: Mo's algorithm
+    value: O((N + Q) sqrt N)
+    hint: all Q queries, offline only
+    tone: warn
+  - label: Heavy-light
+    value: O(log n)
+    hint: chains on any path, and one LCA query
+  - label: Centroid
+    value: O(n log n)
+    hint: build; the centroid tree has O(log n) levels
+contents:
+  - folder: Square_Root_Decomposition
+    note: Blocks of about sqrt(n) elements with one sum each. Range sums with point updates, answered online.
+  - folder: Mos_Algorithm
+    note: Sort offline queries so a sliding window moves little. Counts distinct values per range, with no updates.
+  - folder: Heavy_Light_Decomposition
+    note: Cut a tree into chains so any path crosses O(log n) of them. Gives the LCA and the segments of a path.
+  - folder: Centroid_Decomposition
+    note: Remove the centroid, recurse on the pieces and record who was removed inside whom. A second tree of height O(log n).
+prerequisites:
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Advanced_Algorithms
+  - Algorithms/Advanced_Algorithms/Backtracking
+  - Algorithms/Divide_and_Conquer
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Problem_Patterns/Two_Pointers
+---
+
+## The problem
+
+A plain scan answers a range query in O(n) and a plain DFS answers a path query in O(n). With many queries that is too slow. Each technique here pays a setup cost to cut the data into pieces, so that a query touches only a few pieces and a few elements.
+
+The techniques split along two lines:
+
+- **The data.** Square root decomposition and Mo's algorithm work on an array. Heavy-light and centroid decomposition work on a tree.
+- **How queries arrive.** Square root decomposition answers each query as it comes (online) and allows point updates. Mo's algorithm needs every query up front (offline) and the array must not change. Heavy-light decomposition is online on a fixed tree shape. Centroid decomposition is a divide-and-conquer on a fixed tree.
+
+## At a glance
+
+<DataTable
+  columns={['Technique', 'Works on', 'Splits into', 'Answers', 'Updates', 'Queries']}
+  rows={[
+    ['Square root decomposition', 'array', 'blocks of about sqrt(n) elements', 'range sum (the code); any mergeable summary', 'point update in O(1)', 'online'],
+    ['Mo\'s algorithm', 'array', 'blocks of queries by left end', 'a statistic that adds and removes one element in O(1); the code counts distinct values', 'none between queries', 'offline'],
+    ['Heavy-light decomposition', 'tree', 'vertical chains of heavy edges', 'LCA, and the array segments that cover a path', 'values only, with a segment tree on top (not in this repository)', 'online'],
+    ['Centroid decomposition', 'tree', 'pieces of at most half the size, around the centroid', 'the centroid tree; used for path, distance and nearest-marked-node problems', 'not for edges', 'online, once built'],
+  ]}
+/>
+
+## One array and one tree
+
+The array is `[1, 2, 1, 3, 2, 1, 4, 2, 3]` and the queries are `(0, 4)`, `(2, 7)`, `(3, 8)` and `(1, 5)`, all with inclusive ends. Both techniques use blocks of size 3 here. All numbers come from running the Python code.
+
+<DataTable
+  columns={['Technique', 'Question', 'Answers', 'Work']}
+  rows={[
+    ['Square root decomposition', 'sum of each range', '`[9, 13, 15, 9]`', 'block sums `[4, 6, 9]`; a query scans at most two partial blocks'],
+    ['Square root decomposition', 'after `update(4, 10)`', 'block sums `[4, 14, 9]`, sums `[17, 21, 23, 17]`', 'one array write and one block-sum change'],
+    ['Mo\'s algorithm', 'number of distinct values in each range', '`[3, 4, 4, 3]`', '12 add or remove steps for the 4 queries'],
+  ]}
+/>
+
+A plain scan of the four ranges would read 22 elements, so the saving is small on such a short array. The point of the example is the shape of the work. Square root decomposition answers one query at a time and survives an update. Mo's algorithm answers a harder question, distinct values, which the block sums cannot answer, but only after sorting the queries and only while the array stays fixed.
+
+Now a tree with 9 vertices and the edges `0-1, 0-2, 1-3, 1-4, 3-6, 3-7, 2-5, 5-8`, rooted at 0:
+
+<DataTable
+  columns={['Technique', 'Result']}
+  rows={[
+    ['Heavy-light decomposition', 'four chains: `0, 1, 3, 6` and `2, 5, 8` and the single vertices `4` and `7`'],
+    ['`lca(6, 4)` and `lca(8, 7)`', '1 and 0'],
+    ['`query_path(6, 4)`', 'two segments of the position array, `[(5, 5), (1, 3)]`'],
+    ['Centroid decomposition', 'vertex 1 is the root of the centroid tree; the deepest chain of centroids is `1, 2, 5, 8`, so 4 levels'],
+  ]}
+/>
+
+## Complexity
+
+<DataTable
+  columns={['Technique', 'Build', 'Query', 'Update', 'Extra space']}
+  rows={[
+    ['Square root decomposition', 'O(n)', 'O(sqrt n)', 'O(1) for a point', 'O(sqrt n) plus a copy of the array'],
+    ['Mo\'s algorithm', 'O(Q log Q) to sort the queries', 'O((N + Q) sqrt N) for all of them', 'not supported', 'O(N + Q)'],
+    ['Heavy-light decomposition', 'O(n)', 'O(log n) for LCA or the path segments', 'not in the code', 'O(n)'],
+    ['Centroid decomposition', 'O(n log n)', 'O(log n) per centroid ancestor in a typical use', 'not supported', 'O(n)'],
+  ]}
+/>
+
+A heavy-light path query that also asks for a sum, with a segment tree over the positions, costs O(log^2 n): O(log n) segments, each a range query in O(log n). That segment tree is not part of this repository. The centroid query cost is the template in the topic article, where each vertex has O(log n) centroid ancestors.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Range sums with point updates, and you want simple code', 'Square root decomposition', 'one array and one block-sum array; a segment tree or Fenwick tree is faster at O(log n)'],
+    ['Many range queries on a fixed array, statistic hard to merge', 'Mo\'s algorithm', 'only needs add and remove of one element; all queries must be known first'],
+    ['Path queries or the LCA on a fixed tree', 'Heavy-light decomposition', 'any path becomes O(log n) contiguous ranges of one array'],
+    ['Count paths of a given length, or nearest marked vertex', 'Centroid decomposition', 'every path passes through a centroid at some level, and the levels are O(log n)'],
+    ['Range sums with no updates', 'Prefix sums', 'O(n) build and O(1) per query, no decomposition needed'],
+  ]}
+/>
+
+## Applications
+
+- **Competitive programming.** All four are standard tools for range and tree queries with large limits.
+- **Offline analytics.** Mo's algorithm answers batches of distinct-count or frequency queries on logs.
+- **Hierarchies.** Heavy-light decomposition gives the LCA and path aggregates on trees such as organisation charts or file systems.
+- **Network and road trees.** Centroid decomposition answers nearest-facility queries after each facility is marked.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **A block size of 0.** `sqrt(0)` is 0 and `i // 0` fails. Both array topics use a minimum block size of 1.
+- **Using Mo's algorithm online or with updates.** It sorts all queries first and assumes the array never changes.
+- **Shrinking Mo's window before expanding it.** The window can go invalid and a count can go negative. Expand first.
+- **A slow add or remove in Mo's algorithm.** An O(log n) step makes the total O((N + Q) sqrt N log N).
+- **Treating `pos` as the vertex id.** Segment tree indexes in heavy-light decomposition are `pos[u]`, not `u`.
+- **Stale sizes or a missing removed flag in centroid decomposition.** Recompute sizes for each piece and never walk back into a removed centroid.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Square root decomposition first: it introduces blocks and the sqrt(n) balance. Mo's algorithm builds on it and on the two-pointer idea. The two tree techniques are independent of those two. Read heavy-light decomposition first, because it is the more common one, then centroid decomposition.
+  </FaqItem>
+  <FaqItem question="Why sqrt(n) for the block size?">
+    A query scans up to two partial blocks of B elements and up to n/B whole blocks. B + n/B is smallest when B is about sqrt(n). Mo's algorithm balances pointer moves in the same way.
+  </FaqItem>
+  <FaqItem question="Do I need these if I know a segment tree?">
+    For sums with updates, a segment tree is faster at O(log n) per operation. Square root decomposition wins on simplicity, and Mo's algorithm answers statistics that a segment tree cannot merge. Heavy-light decomposition is usually paired with a segment tree.
+  </FaqItem>
+  <FaqItem question="How do heavy-light and centroid decomposition differ?">
+    Heavy-light decomposition cuts the tree into chains once and answers queries on paths between two vertices. Centroid decomposition removes the middle vertex repeatedly and answers questions about all pairs or the nearest marked vertex. Both give O(log n) levels or chains, but they organise the tree differently.
+  </FaqItem>
+</Faq>

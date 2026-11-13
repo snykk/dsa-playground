@@ -18,7 +18,8 @@ type Sampler struct {
 }
 
 // NewSampler returns a sampler with reservoir size k, seeded for reproducibility.
-// Pass seed=0 to use a time-based seed; any other value gives deterministic output.
+// Pass seed=0 to use a random seed (drawn from the global source); any other
+// value gives deterministic output.
 func NewSampler(k int, seed int64) *Sampler {
 	if k < 0 {
 		panic("k must be non-negative")

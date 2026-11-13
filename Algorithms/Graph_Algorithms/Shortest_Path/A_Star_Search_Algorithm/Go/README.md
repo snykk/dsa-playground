@@ -1,78 +1,57 @@
-# A* Search Algorithm - Go
+# A* Search Algorithm -- Go Implementation
 
-**A* Search Algorithm** is an informed search algorithm that finds the shortest path using a heuristic function.
+A* over `map[int][]struct{Neighbor, Weight int}` using `container/heap`.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | `Node`, `PriorityQueue` (a `heap.Interface`) and `AStar` (`package main`, no `main` function) |
+| `main_test.go` | 8 tests (`go test`) |
+| `go.mod` | module definition |
 
-A* implementation in Go using:
-- `container/heap` for priority queue
-- Function type for heuristic
-- `map[int][]struct` for graph representation
+## API
 
----
+| Function | Returns |
+|----------|---------|
+| `AStar(graph, start, goal, heuristic)` | `(cost int, path []int)`, or `(-1, nil)` if the goal is unreachable; `(0, []int{start})` when `start == goal` |
 
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Best Case** | O(b^d) | O(b^d) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`AStar(graph, start, goal, heuristic)`**
-   - Finds shortest path from start to goal
-   - Returns `(int, []int)` of (distance, path)
-   - Time: O(b^d), Space: O(b^d)
-
----
-
-## Usage
+`heuristic` is a `func(int) int`. The graph type is an anonymous struct slice, so a test builds it like this:
 
 ```go
-package main
-
-import "fmt"
-
-func main() {
-    graph := map[int][]struct {
-        Neighbor int
-        Weight   int
-    }{
-        0: {{Neighbor: 1, Weight: 4}, {Neighbor: 2, Weight: 2}},
-        1: {{Neighbor: 3, Weight: 5}},
-        2: {{Neighbor: 3, Weight: 1}},
-        3: {},
-    }
-    
-    heuristic := func(node int) int {
-        if node == 3 {
-            return 0
-        }
-        return 1
-    }
-    
-    distance, path := AStar(graph, 0, 3, heuristic)
-    fmt.Printf("Distance: %d, Path: %v\n", distance, path)
-    // Distance: 3, Path: [0 2 3]
+graph := map[int][]struct {
+    Neighbor int
+    Weight   int
+}{
+    0: {{Neighbor: 1, Weight: 4}, {Neighbor: 2, Weight: 2}},
+    1: {{Neighbor: 3, Weight: 5}},
+    2: {{Neighbor: 3, Weight: 1}},
+    3: {},
 }
+cost, path := AStar(graph, 0, 3, func(v int) int {
+    if v == 3 {
+        return 0
+    }
+    return 1
+}) // 3, [0 2 3]
 ```
 
----
+## Go-Specific Notes
 
-## Running Tests
+- The priority queue orders by `fScore` only; equal-f ties can pop in any order.
+- No closed set: a vertex is pushed again when a cheaper `gScore` is found, and stale entries are skipped. The result is optimal for any admissible heuristic.
+- Each node holds a copy of its path (`append([]int{}, current.path...)`).
+- Costs are `int`. The package has no `func main`, so `go run .` does not work; use the tests.
+
+## How to Run
 
 ```bash
-go test -v
+cd Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm/Go
+go test ./...
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
-
+- `container/heap` needs `Len`, `Less`, `Swap`, `Push` and `Pop`.
+- Re-opening vertices makes an admissible heuristic enough for optimality.
+- A zero heuristic gives Dijkstra's algorithm.

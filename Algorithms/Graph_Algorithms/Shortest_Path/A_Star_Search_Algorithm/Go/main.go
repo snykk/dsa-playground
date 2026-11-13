@@ -48,13 +48,14 @@ func (pq *PriorityQueue) Pop() interface{} {
 // AStar finds shortest path from start to goal using A* search
 // heuristic: function that estimates distance from node to goal
 // Returns (distance, path) or (-1, nil) if no path exists
+// Optimal for any admissible heuristic on non-negative weights: a vertex is
+// re-expanded when a cheaper route to it is found later (no closed set).
 // Time Complexity: O(b^d), Space Complexity: O(b^d)
 func AStar(graph map[int][]struct {
 	Neighbor int
 	Weight   int
 }, start, goal int, heuristic func(int) int) (int, []int) {
 	pq := make(PriorityQueue, 0)
-	visited := make(map[int]bool)
 	gScores := make(map[int]int)
 
 	startNode := &Node{
@@ -74,19 +75,13 @@ func AStar(graph map[int][]struct {
 			return current.gScore, current.path
 		}
 
-		if visited[current.vertex] {
-			continue
+		if current.gScore > gScores[current.vertex] {
+			continue // stale entry: a cheaper route to this vertex was found after this push
 		}
-
-		visited[current.vertex] = true
 
 		for _, edge := range graph[current.vertex] {
 			neighbor := edge.Neighbor
 			weight := edge.Weight
-
-			if visited[neighbor] {
-				continue
-			}
 
 			tentativeG := current.gScore + weight
 
