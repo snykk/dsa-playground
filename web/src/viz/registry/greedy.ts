@@ -24,14 +24,14 @@ export const entries: VizInfo[] = [
     title: 'Activity Selection',
     group: 'Greedy',
     blurb: 'Sort by finish time, then keep every activity that starts after the last chosen one ends.',
-    topics: ['Algorithms/Greedy/Activity_Selection'],
+    topics: ['Algorithms/Greedy/Activity_Selection', 'Algorithms/Greedy'],
   },
   {
     id: 'fractional-knapsack',
     title: 'Fractional Knapsack',
     group: 'Greedy',
     blurb: 'Pack the most value per unit of weight first and cut the last item to fit, unlike 0/1 knapsack.',
-    topics: ['Algorithms/Greedy/Fractional_Knapsack'],
+    topics: ['Algorithms/Greedy/Fractional_Knapsack', 'Algorithms/Greedy'],
   },
 ];
 

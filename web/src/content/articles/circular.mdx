@@ -49,6 +49,12 @@ An empty list has `head = None`. A list with one node has `head.next == head`: t
 Most circular-list bugs live in the one-node case. There the head and the tail are the same node, so code that says "move head to head.next" leaves head unchanged. The delete operation here handles it first and sets `head` to `None`.
 </Callout>
 
+## See it in action
+
+Try **Delete the only node**, the case the callout above warns about, then **Delete head, middle, tail**; every insert first walks to the tail, because the tail's link must point at the head.
+
+<ArticleViz ids={['circular-linked-list']} />
+
 ## Operations
 
 <DataTable

@@ -53,6 +53,12 @@ The queue is not stored in index order: it is the slots from `front` up to `rear
 `next(i) = (i + 1) % capacity`. Dequeue advances `front` with it, enqueue advances `rear` with it, and nothing else ever moves. That is why both operations are O(1).
 </Callout>
 
+## See it in action
+
+The ring and the list under it are the same slots. **Wrap around** runs the example below and shows `rear` wrapping from slot 4 to slot 0, **Full queue** shows the `OverflowError`, and **Empty again (-1)** shows both indices returning to the sentinel.
+
+<ArticleViz ids={['circular-queue']} />
+
 ## Operations
 
 <DataTable

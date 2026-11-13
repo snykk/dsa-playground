@@ -1,7 +1,12 @@
 #include "array_stack.cpp"
 #include <cassert>
 #include <iostream>
+#include <type_traits>
 using namespace std;
+
+// Regression: the stack owns a raw array, so a copy would free it twice and must not compile.
+static_assert(!is_copy_constructible<ArrayStack>::value, "ArrayStack must not be copyable");
+static_assert(!is_copy_assignable<ArrayStack>::value, "ArrayStack must not be copy-assignable");
 
 int main() {
     ArrayStack s(10);

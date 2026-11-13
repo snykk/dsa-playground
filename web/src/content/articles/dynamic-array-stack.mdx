@@ -49,6 +49,12 @@ The word *dynamic* means the array is not a fixed size. When it fills up, it is 
 Only the end of the array is ever read or changed, and the end is always the most recently pushed item. That is what makes the order LIFO and every operation cheap.
 </Callout>
 
+## See it in action
+
+The animation runs the Python version and also draws the slots CPython keeps allocated behind the list. **Grow 0, 4, 8** shows a full list moving its items into a bigger block, and **Grow to 16, shrink to 12** shows that a Python list also gives memory back when fewer than half of its slots are in use.
+
+<ArticleViz ids={['dynamic-array-stack']} />
+
 ## Operations
 
 <DataTable
@@ -107,7 +113,7 @@ A single push that triggers a resize costs O(n), but resizes become rarer as the
 
 Growing by a fixed amount (+10 slots, say) does not work: the copies add up to about n<sup>2</sup>/20, so push would be O(n) amortized. The growth must be by a constant factor.
 
-None of the three implementations shrinks the array on pop. After many pushes and pops the capacity can stay larger than the size.
+On pop, C++ `vector::pop_back` and Go reslicing never shrink the array, so after many pushes and pops their capacity can stay larger than the size. CPython's `list.pop` does shrink: once fewer than half of the allocated slots are in use, the list moves to a smaller block, as the animation above shows.
 
 ## Implementation
 

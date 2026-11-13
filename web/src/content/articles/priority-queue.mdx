@@ -51,6 +51,12 @@ Every entry stores three things: the priority, an insertion counter and the item
 The counter makes equal priorities behave like an ordinary queue. `fix bug` and `review` both have priority 1, and `fix bug` leaves first because its counter (1) is smaller than the counter of `review` (4).
 </Callout>
 
+## See it in action
+
+The animation follows Python's `heapq` exactly, in the tree and in the array at once. **Tasks, ties keep order** enqueues the five tasks of the example above under short names, then dequeues them: `fix` leaves before `rev` because its counter is smaller.
+
+<ArticleViz ids={['priority-queue']} />
+
 ## Operations
 
 <DataTable
@@ -90,6 +96,8 @@ The root is the answer. The last entry replaces it and sinks, swapping with the 
     { label: 'swap', values: ['1 #4', '2 #3', '3 #2', '3 #0'], tones: 'fp.l', marks: { 1: 'i = 1' }, note: 'The smaller child is `1 #4`, so swap. Index 1 has one child `3 #0`, which is larger: stop.' },
   ]}
 />
+
+This is what the C++ `heapify_down` does. Python's `heapq` reaches the same array by another route: it moves the smaller child up at every level without comparing the sinking entry, so `3 #0` moves up too and `2 #3` lands in the leaf at index 3. Only then is `2 #3` compared with its parents: it swaps back up to index 1 and stops under `1 #4`. The animation above shows this route.
 
 Dequeuing everything from this queue gives `fix bug`, `review`, `deploy`, `write report`, `email`.
 

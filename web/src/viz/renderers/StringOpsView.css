@@ -1,0 +1,89 @@
+/* StringOpsView: rows of character cells, index labels, named positions and copies that glide. */
+.string-ops {
+  overflow-x: auto;
+}
+.so-stage {
+  position: relative;
+  margin: 0 auto;
+  font-family: var(--font-mono);
+}
+.so-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: transform 0.38s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.so-cell.ghost {
+  opacity: 0.35;
+}
+
+.so-label {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font: 12px var(--font-sans);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.so-row.ghost .so-label {
+  opacity: 0.5;
+}
+.so-len {
+  position: absolute;
+}
+.so-len-caption {
+  position: absolute;
+  height: 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font: 11px var(--font-sans);
+  color: var(--text-3);
+}
+
+/* An allocated character that has not been written yet. */
+.so-slot {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1.5px dashed var(--border-strong);
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.so-marker-inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  white-space: nowrap;
+}
+.so-marker-name {
+  font: 700 12px/15px var(--font-sans);
+  color: var(--role);
+}
+.so-marker.role-idle .so-marker-name {
+  color: var(--text-2);
+}
+.so-arrow {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+}
+.so-arrow.down {
+  border-top: 8px solid var(--role);
+  margin-top: 1px;
+}
+.so-arrow.up {
+  border-bottom: 8px solid var(--role);
+  margin-bottom: 1px;
+}

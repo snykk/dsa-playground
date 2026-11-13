@@ -48,6 +48,12 @@ The repository code has five functions: access a character, get the length, trav
 The string `h` + e-with-acute-accent + `llo` has 5 characters (code points), 6 bytes in UTF-8 and 5 code units in UTF-16. A language fixes which one `len` and `s[i]` use. Python counts code points; C++ `std::string` and Go count bytes. This is the first thing to check when moving string code between languages.
 </Callout>
 
+## See it in action
+
+The visualization runs the Python functions on your own string: the **Out of range** example shows `s[7]` raising `IndexError` while `s[3:99]` quietly clamps its end, and **Index, slice, concatenate** shows `s + t` allocating a new string and copying both operands into it.
+
+<ArticleViz ids={['string-basics']} />
+
 ## What each language counts
 
 <DataTable

@@ -59,6 +59,12 @@ The constructor splits the text in halves until a piece has at most 10 character
 Everything above is O(log n) only while the tree height is O(log n). A rope that just joins ropes under a new root grows one level per append, and after a few thousand appends it is a linked list: index becomes O(n) and a recursive walk overflows the stack. This implementation therefore keeps sibling heights within 1 with an AVL-style join (below).
 </Callout>
 
+## See it in action
+
+Every node sits at the level of its cached height and every circle holds its weight, so you can watch the AVL join balance the tree: **Typing at the end** makes the third append trigger a single rotation, and **A long insert** a double rotation.
+
+<ArticleViz ids={['rope']} />
+
 ## Operations
 
 <DataTable
@@ -74,7 +80,7 @@ Everything above is O(log n) only while the tree height is O(log n). A rope that
   ]}
 />
 
-Names differ by language: `to_string` / `toString` / `ToString`, `len(r)` / `length()` / `Len()`, `delete` / `deleteStr` / `Delete`. A split or insert position that is out of range is clamped to the ends. The C++ and Go ropes also have a `height()` / `Height()` method. A position counts code points in Python and bytes in C++ and Go, so Go's `Split(4)` on `caf` plus an accented e cuts inside that letter and yields two invalid UTF-8 halves.
+Names differ by language: `to_string` / `toString` / `ToString`, `len(r)` / `length()` / `Len()`, `delete` / `deleteStr` / `Delete`. A split or insert position that is out of range is clamped to the ends. All three ropes expose their height: `height()` in Python and C++, `Height()` in Go. A position counts code points in Python and bytes in C++ and Go, so Go's `Split(4)` on `caf` plus an accented e cuts inside that letter and yields two invalid UTF-8 halves.
 
 ### Index: follow the weights
 

@@ -146,6 +146,12 @@ A 3 by 3 grid is stored as 9 consecutive slots, row after row. Cell `(i, j)` is 
 
 Walking the grid row by row touches consecutive addresses; walking it column by column jumps `cols` slots each time and loses the cache advantage. A list of lists (nested slices, nested vectors) allows rows of different lengths but stores each row in its own block.
 
+## See it in action
+
+The **Nine appends, seven pops** example replays the traces above on the Python `DynamicArray`: watch each resize copy every element into a new block, the capacity halve once only a quarter of the slots are used, and **IndexError cases** reject `a[3]` although slot 3 exists.
+
+<ArticleViz ids={['dynamic-array']} />
+
 ## See it in the code
 
 The Python folder has three files: `static_array.py`, `multi_dimensional_array.py` (both demonstrations built on `array.array` and nested lists) and `dynamic_array.py`, the only reusable type. In C++ and Go all three files are small demonstration programs over `std::vector`, C arrays and slices, because those languages already ship a dynamic array. Their tests therefore exercise the language built-ins, not repository code. Only `dynamic_array_test.py` tests repository code.

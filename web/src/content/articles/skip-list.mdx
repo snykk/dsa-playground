@@ -56,6 +56,12 @@ A search starts on the sparsest level, moves right while the next key is still s
 A balanced tree keeps its shape with rotations. A skip list does not keep any shape: it flips a coin for each new key to choose its height. The heights are random but, with overwhelming probability, they are spread like the levels of a balanced tree, so searches are logarithmic. The guarantee is probabilistic: a bad run of coin flips can make the structure slow but cannot make it wrong.
 </Callout>
 
+## See it in action
+
+**Search 19** builds the list above with fixed towers (`insert 6^2` puts 6 on levels 0 to 2) and replays the search; in **Coin flips (seed 7)** the heights come from a seeded generator in place of Python's `random.random()`, so the same seed always builds the same towers and another seed builds others.
+
+<ArticleViz ids={['skip-list']} />
+
 ## Operations
 
 <DataTable

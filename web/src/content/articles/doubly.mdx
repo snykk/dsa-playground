@@ -46,6 +46,12 @@ Each node holds a value, a `next` reference and a `prev` reference. The first no
 
 The extra `prev` link costs one reference per node. In return, a node can be removed without searching for its predecessor, and the list can be read backward.
 
+## See it in action
+
+Every pointer write is its own step, so you can watch `next` and `prev` stay mirror images; try **Delete keeps prev links**, which ends by printing the list backward through the `prev` links.
+
+<ArticleViz ids={['doubly-linked-list']} />
+
 ## Operations
 
 <DataTable

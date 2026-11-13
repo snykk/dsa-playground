@@ -61,6 +61,12 @@ Storage decides the cost of each operation. A contiguous block gives O(1) access
 
 Memory differs as well. The array has no per-item overhead and is cache-friendly. A linked list adds at least one pointer and one allocation to every item. A ring queue and a static stack fix their size when they are created.
 
+## See them side by side
+
+One visualization from each area, in reading order: a dynamic array that doubles and shrinks, a singly linked list that relinks nodes instead of shifting them, a stack that only touches its top, a circular queue whose front and rear wrap around a fixed ring, and a string that is copied, never changed, by every operation. Each area's overview shows all of its structures.
+
+<ArticleViz ids={['dynamic-array', 'singly-linked-list', 'static-array-stack', 'circular-queue', 'string-basics']} />
+
 ## A path through the section
 
 1. **Array.** Start here. Index access, resizing and the cost of shifting explain most of what follows.
