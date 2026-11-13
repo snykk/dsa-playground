@@ -1,70 +1,53 @@
-# 🔗 Linked List
+# Linked List
 
-A **Linked List** is a fundamental **linear data structure** consisting of nodes, where each node contains **data** and a **pointer/reference** to the next node (or previous node, depending on the type). Linked Lists are dynamic in size, allowing **efficient insertion and deletion** compared to arrays.
+A linked list stores items in nodes joined by links, so inserting needs no shifting but reaching the i-th item means following i links. The four kinds here differ in the links: one way, both ways, a ring, or extra skip lanes on a sorted list.
 
-This folder contains implementations of the three main types of Linked Lists:
+## Topics
 
-1. **Singly Linked List (SLL)**  
-   Each node points only to the next node.  
-   → Ideal for simple structures with one-way traversal.
+Read them in this order.
 
-2. **Doubly Linked List (DLL)**  
-   Each node points to both the next and previous nodes.  
-   → Facilitates two-way traversal and faster deletion of nodes.
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Singly Linked List](Singly/) | The base case. Each node has one next link, so you can only walk forward. Insert at the head is O(1). | Beginner |
+| 2 | [Doubly Linked List](Doubly/) | Each node also links back, so the list can be walked both ways and a known node can be unlinked in O(1). | Intermediate |
+| 3 | [Circular Linked List](Circular/) | The last node points back to the first, forming a ring with no null end. Suits round-robin work. | Intermediate |
+| 4 | [Skip List](Skip_List/) | A sorted list with random express lanes. Search, insert and delete take expected O(log n) without rebalancing. | Advanced |
 
-3. **Circular Linked List (CLL)**  
-   The last node points back to the first node.  
-   → Useful for systems requiring continuous cycles, such as round-robin scheduling.
+These versions keep only a head pointer, with no tail pointer and no stored length. That is why inserting at the tail walks the whole list.
 
----
+## How They Compare
 
-## 💡 Key Learning Points
+| Kind | Links per node | Key property | Insert at head | Insert at tail | Delete by value |
+|------|----------------|--------------|----------------|----------------|-----------------|
+| Singly | one (`next`) | simplest; walks forward only | O(1) | O(n) | O(n) |
+| Doubly | two (`next`, `prev`) | walks both ways; unlinking a known node is O(1) | O(1) | O(n) | O(n) |
+| Circular | one (`next`) | no null end: the last node points to the head | O(n) | O(n) | O(n) |
+| Skip list | one per level, random heights | sorted keys, no duplicates, no rebalancing | not applicable | not applicable | O(log n) expected |
 
-- **Node**: The basic building block of a Linked List.
-- **Head/Tail**: Pointers to manage traversal.
-- **Insertion**:
-  - At the head
-  - At the tail
-  - After a specific node
-- **Deletion**:
-  - Specific node
-  - Head or tail
-- **Traversal**:
-  - SLL: one-way
-  - DLL: two-way
-  - CLL: potentially infinite loop (cycle)
-- **Complexity**:
+The circular list is O(n) at the head because it must update the tail's link, and the code finds the tail by walking from the head. The skip list inserts a key at its sorted position, so it has no head or tail insert. Search is O(n) in the first three and O(log n) expected (O(n) worst) in the skip list.
 
-| Operation       | Singly | Doubly | Circular |
-| --------------- | ------ | ------ | -------- |
-| Access by index | O(n)   | O(n)   | O(n)     |
-| Search          | O(n)   | O(n)   | O(n)     |
-| Insert at head  | O(1)   | O(1)   | O(1)     |
-| Insert at tail  | O(n)   | O(1)   | O(1)     |
-| Delete head     | O(1)   | O(1)   | O(1)     |
-| Delete tail     | O(n)   | O(1)   | O(n)     |
+## Choosing One
 
----
+| Situation | Use | Why |
+|-----------|-----|-----|
+| Items are added and removed at the front | Singly | O(1) at the head with one link per node |
+| You need to walk backward, or you hold a node and must unlink it | Doubly | the `prev` link removes the search for the predecessor |
+| Work cycles through items forever, such as round-robin | Circular | after the last item the walk continues at the head |
+| A sorted collection with fast search and simple code | Skip list | expected O(log n) without rotations |
+| Index access or a lot of scanning | an [array](../Array/) | one contiguous block is faster and needs no links |
 
-## 📝 Tips & Best Practices
+## Common Pitfalls
 
-- Always **update pointers** carefully when adding or removing nodes to avoid losing parts of the list.
-- For **unit testing**, verify that traversals return the expected sequence.
-- Use **Circular Linked List** for cyclic systems or continuous iteration.
-- Use **Doubly Linked List** if two-way traversal or frequent deletion is required.
-- Singly Linked List suffices for simple one-way traversal needs.
+- Set the new node's `next` before you change the old links, or the rest of the list becomes unreachable.
+- Deleting the first node must move `head`. In the circular list the tail's link changes too.
+- A circular list has no null end, so stop a walk when you are back at the head.
+- Insert at the tail is O(n) here, because there is no tail pointer.
+- The skip list's O(log n) is expected, not worst case, and it does not store duplicate keys.
 
----
+## Related
 
-## 📚 References
-
-- [GeeksforGeeks - Linked List](https://www.geeksforgeeks.org/data-structures/linked-list/)
-- [Visualgo - Linked List Visualization](https://visualgo.net/en/list)
-
----
-
-## 🚀 Next Steps
-
-- Explore each linked list type in its subfolder.
-- Implement from scratch to reinforce understanding.
-- Use the provided unit tests to validate your implementations.
+- [Array](../Array/): read first.
+- [Linked List Stack](../Stack/Linked_List_Stack/): a head pointer is a stack.
+- [Deque](../Queue/Deque/): a list with two ends works as a queue.
+- [LRU Cache](../../Advanced_Structures/LRU_Cache/): a doubly linked list moves an entry to the front in O(1).
+- [Binary Search Tree](../../Non_Linear/Trees/Binary_Search_Tree/): the skip list is the randomized alternative to a balanced tree.

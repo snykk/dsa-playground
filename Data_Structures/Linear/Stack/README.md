@@ -1,123 +1,50 @@
-# 🗄️ Stack Data Structure
+# Stack Data Structure
 
-[![Language](https://img.shields.io/badge/Language-Python%20|%20C++%20|%20Go-blue.svg)]()
-[![Concept](https://img.shields.io/badge/Concept-Linear%20DS-orange.svg)]()
+A stack gives back the item pushed last. The three versions here share one API and the same O(1) operations and differ only in where the items live, so the choice is about capacity and memory, not about behavior.
 
-> A **Stack** is a **linear data structure** that follows the **LIFO (Last In, First Out)** principle.  
-> The last element added is the first one to be removed. Think of it like a stack of plates: you can only take the top plate off first.
+## Topics
 
-Stacks are **fundamental** in computer science and widely used in **real-world applications**.
+Read them in this order.
 
----
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Static Size Array Stack](Static_Array_Stack/) | A fixed-capacity array allocated once. Push on a full stack fails with an overflow error instead of growing. | Beginner |
+| 2 | [Dynamic Size Array Stack](Dynamic_Array_Stack/) | A growable array with no capacity limit. Push is O(1) amortized because the array grows by a constant factor. | Beginner |
+| 3 | [Linked List Stack](Linked_List_Stack/) | One node per item and a pointer to the top. Push and pop are O(1) in the worst case and nothing is ever copied. | Beginner |
 
-## 🎯 Why Study Stacks?
+All three offer the same operations in Python, C++ and Go: `push(x)`, `pop()`, `peek()`, `is_empty()` and `size()`. `pop` and `peek` on an empty stack fail with an error (`IndexError` in Python).
 
-Stacks are crucial because they:
+## How They Compare
 
-- Form the basis of **function call stacks** in programming languages.
-- Allow **efficient backtracking**, such as in maze solving, puzzle solving, or undo/redo features.
-- Facilitate **expression evaluation** and parsing, e.g., converting infix expressions to postfix.
-- Serve as building blocks for **more advanced data structures** like stacks of queues, stacks in graphs, or DFS traversal.
+| Version | Storage | When full | Per-item memory | Push | Pop, peek | Space |
+|---------|---------|-----------|-----------------|------|-----------|-------|
+| Static array | one array of fixed capacity, allocated once (default 100) | `push` raises `OverflowError` and the stack is unchanged | one slot | O(1) worst case | O(1) | O(capacity) |
+| Dynamic array | a growable array (`list`, `vector`, slice) | never full: the array grows, and an occasional push copies it | one slot, plus spare capacity | O(1) amortized | O(1) | O(n) |
+| Linked list | one node per item, linked from the top | never full: each push allocates one node | value + pointer | O(1) worst case | O(1) | O(n) |
 
----
+The static stack's capacity must be at least 1; a smaller value raises `ValueError` in Python. It pays for its whole capacity up front, even when empty. Before the capacity bound is reached, the three stacks behave identically.
 
-## ⚙️ Core Operations
+## Choosing One
 
-| Operation   | Description                          | Time Complexity |
-| ----------- | ------------------------------------ | --------------- |
-| `push(x)`   | Insert element at the top            | O(1)            |
-| `pop()`     | Remove element from the top          | O(1)            |
-| `peek()`    | Get the top element without removing | O(1)            |
-| `isEmpty()` | Check if stack is empty              | O(1)            |
-| `size()`    | Return the number of elements        | O(1)            |
+| Situation | Use | Why |
+|-----------|-----|-----|
+| The maximum depth is known, or must be enforced | Static array | memory is fixed and overflow is an explicit error |
+| General use, the size is not known in advance | Dynamic array | compact, cache-friendly and no limit other than memory |
+| Every push must be O(1) in the worst case, not just on average | Linked list | no resize ever happens, so no single push is slow |
+| Items are small and there are many of them | Dynamic array | the linked list adds a pointer and an allocation to every item |
 
-> 💡 Tip: For array-based stacks, maintain a counter for `size()`. For linked-list-based stacks, maintain a `count` variable for O(1) size retrieval.
+## Common Pitfalls
 
----
+- Popping or peeking an empty stack raises an error (`IndexError` in Python). Check `is_empty()` first.
+- A full static stack rejects the push and keeps the old state, so a swallowed overflow error loses the item.
+- The static stack never grows: its capacity is fixed when you create it.
+- In the array versions, slots above the top may hold old values. Use `peek()` and `size()`, not the raw array.
+- Dynamic push is O(1) on average, but one push in a while copies the whole array.
 
-## 🧱 Implementation Approaches
+## Related
 
-### 1️⃣ Array-Based Stack
-
-- Uses a **contiguous block of memory**.
-- Can be:
-  - **Static Size**: fixed capacity
-  - **Dynamic Size**: resizable array that grows automatically
-- **Pros**: Simple, excellent cache performance
-- **Cons**: Static arrays may waste memory; dynamic arrays occasionally need resizing.
-
-### 2️⃣ Linked List-Based Stack
-
-- Uses **nodes** where each node points to the next.
-- Dynamic size by nature.
-- **Pros**: Exact memory usage, constant-time push/pop
-- **Cons**: Extra memory per node, slightly worse cache performance.
-
----
-
-## 💡 Learning Tips
-
-- Visualize the **LIFO principle**; it helps in debugging and reasoning.
-- Compare **array-based vs linked list-based stacks**:
-  - Arrays → fast access, may require resizing
-  - Linked lists → memory-efficient, no resizing, pointer overhead
-- Practice implementing both types in **Python, C++, and Go**.
-- Understand real-world applications: expression evaluation, DFS, undo/redo operations.
-
----
-
-## 📂 Folder Structure
-
-```text
-Stack/
-|-- Static_Array_Stack/     fixed capacity, overflow is an error
-|   |-- Python/  C++/  Go/
-|-- Dynamic_Array_Stack/    grows by doubling, amortized O(1) push
-|   |-- Python/  C++/  Go/
-`-- Linked_List_Stack/      one node per item, O(1) push in the worst case
-    |-- Python/  C++/  Go/
-```
-
-- Each language folder contains:
-  - Implementation file
-  - Unit tests
-  - README.md with usage examples
-
----
-
-## 🔧 Applications
-
-- Expression evaluation: **infix → postfix**, **prefix evaluation**
-- Undo-redo operations in editors
-- Backtracking algorithms (e.g., N-Queens, Maze solving)
-- Depth-First Search (DFS) in graphs
-- Function call management in recursion
-
----
-
-## 🧠 Key Insights
-
-- Stack is **simple yet powerful**; often hidden behind complex algorithms.
-- Choose **array-based** or **linked-list-based** depending on:
-  - Memory efficiency
-  - Dynamic growth needs
-  - Operation speed requirements
-- Always maintain `size()` for efficient length checks.
-
----
-
-## 📖 References & Further Reading
-
-- [Visualgo - Stack Visualization](https://visualgo.net/en/stack)
-- [Stack on GeeksforGeeks](https://www.geeksforgeeks.org/stack-data-structure/)
-- "Introduction to Algorithms" – Cormen et al.
-- "Data Structures and Algorithms in Python" – Goodrich et al.
-
----
-
-**Pro Tip:**  
-Before memorizing stack implementations, **try to implement your own from scratch in all three languages**. This builds a strong foundation and prepares you for interviews and real-world problem-solving.
-
----
-
-**Happy Stacking! 🚀**
+- [Array](../Array/): read first.
+- [Singly Linked List](../Linked_List/Singly/): read first.
+- [Queue](../Queue/): the first-in, first-out counterpart.
+- [Monotonic Stack](../../../Problem_Patterns/Monotonic_Stack/): next greater element and similar questions.
+- [Depth-First Search](../../../Algorithms/Graph_Algorithms/Traversal/DFS/): an explicit stack replaces the call stack.
