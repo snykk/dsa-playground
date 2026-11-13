@@ -61,6 +61,9 @@ const { rows, legend, caption } = Astro.props;
     margin: 0;
     padding: 0;
     display: grid;
+    /* One column that may be narrower than a row's cells: a wide array then scrolls inside
+       its own box instead of widening the page on a phone. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
   }
   /* Label, cells and note side by side; the note drops below the cells when the
