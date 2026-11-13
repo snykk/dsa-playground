@@ -60,7 +60,7 @@ void testGCD() {
     assert(gcd(100, 25) == 25);
     assert(gcd(0, 5) == 5);
     assert(gcd(7, 7) == 7);
-    cout << "✓ testGCD passed" << endl;
+    cout << "[PASS] testGCD passed" << endl;
 }
 
 void testLCM() {
@@ -68,7 +68,7 @@ void testLCM() {
     assert(lcm(3, 5) == 15);
     assert(lcm(12, 18) == 36);
     assert(lcm(7, 1) == 7);
-    cout << "✓ testLCM passed" << endl;
+    cout << "[PASS] testLCM passed" << endl;
 }
 
 void testPower() {
@@ -78,11 +78,11 @@ void testPower() {
     assert(power(5, 1) == 5);
     // Test with modular arithmetic
     assert(power(2, 30, MOD) == (1LL << 30) % MOD);
-    cout << "✓ testPower passed" << endl;
+    cout << "[PASS] testPower passed" << endl;
 }
 
 void testModInverse() {
-    // Test: a * modInverse(a) ≡ 1 (mod MOD)
+    // Test: a * modInverse(a) == 1 (mod MOD)
     ll a = 12345;
     ll inv = modInverse(a);
     assert((a * inv) % MOD == 1);
@@ -90,7 +90,7 @@ void testModInverse() {
     a = 1000000;
     inv = modInverse(a);
     assert((a * inv) % MOD == 1);
-    cout << "✓ testModInverse passed" << endl;
+    cout << "[PASS] testModInverse passed" << endl;
 }
 
 void testDSU() {
@@ -119,7 +119,7 @@ void testDSU() {
     // Cannot unite already connected elements
     assert(dsu.unite(0, 2) == false);
     
-    cout << "✓ testDSU passed" << endl;
+    cout << "[PASS] testDSU passed" << endl;
 }
 
 void testMacros() {
@@ -139,7 +139,7 @@ void testMacros() {
     assert(v[0] == 9);
     assert(v[v.size()-1] == 1);
     
-    cout << "✓ testMacros passed" << endl;
+    cout << "[PASS] testMacros passed" << endl;
 }
 
 int main() {

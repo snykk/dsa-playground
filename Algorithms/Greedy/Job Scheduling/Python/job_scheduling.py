@@ -17,7 +17,7 @@ def job_scheduling_deadline(jobs):
         Tuple of (max_profit, scheduled_jobs)
         
     Time Complexity: O(n log n + n * min(D, n)), D = largest deadline
-    Space Complexity: O(n)
+    Space Complexity: O(n + D): the sorted jobs and D + 1 slots
     """
     if not jobs:
         return 0, []

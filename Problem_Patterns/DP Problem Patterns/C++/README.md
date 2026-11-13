@@ -1,27 +1,34 @@
-# DP Patterns in C++
+# DP Problem Patterns -- C++ Implementation
 
-Implementation of 0/1 Knapsack, LCS, and LIS in C++.
+The same three DPs as the Python version, as static methods of a `DPPatterns` class.
 
-## Usage
+## Files
 
-```cpp
-#include "dp_patterns.cpp"
+| File | Description |
+|------|-------------|
+| `dp_patterns.cpp` | `DPPatterns::knapsack01`, `lcs`, `lis` and a demo `main` (disabled when `IS_TEST_BUILD` is defined) |
+| `dp_patterns_test.cpp` | Assertion-based tests (3 functions); it includes the `.cpp` file |
 
-// Knapsack
-int val = DPPatterns::knapsack01({10, 20}, {60, 100}, 30);
+## API
 
-// LCS
-int len = DPPatterns::lcs("abc", "ac");
+- `static int knapsack01(const vector<int>& weights, const vector<int>& values, int capacity)`: maximum value, each item once. O(N * W) time, O(W) space.
+- `static int lcs(string text1, string text2)`: LCS length. O(N * M) time, O(min(N, M)) space.
+- `static int lis(const vector<int>& nums)`: length of the longest strictly increasing subsequence, via `std::lower_bound`. O(N log N).
 
-// LIS
-int lis = DPPatterns::lis({10, 9, 2});
-```
+## C++-Specific Notes
 
-## Compilation and Testing
+- Values and sums are `int`; use `long long` for large values, since the sums can overflow 32 bits.
+- `capacity` must be non-negative (the DP array has `capacity + 1` entries).
+- `std::lower_bound` gives the strict version; `std::upper_bound` would allow equal elements.
 
-Compile the test file:
+## How to Run
 
 ```bash
-g++ dp_patterns_test.cpp -o test
-./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD dp_patterns_test.cpp -o dp_patterns_test
+./dp_patterns_test
 ```
+
+## Key Takeaways
+
+- The test file includes the `.cpp`, so build it alone with `-DIS_TEST_BUILD` (otherwise `main` is defined twice).
+- The inner loop of the 1D knapsack runs downwards to use each item once.

@@ -1,116 +1,49 @@
-# BFS (Breadth-First Search) - C++
+# BFS -- C++ Implementation
 
-**BFS (Breadth-First Search)** is a graph traversal algorithm that explores all vertices at the current depth level before moving to vertices at the next depth level.
+Breadth-First Search over `unordered_map<int, vector<int>>` with `std::queue` and `unordered_set`.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `bfs.cpp` | the four BFS functions |
+| `bfs_test.cpp` | 12 test functions using `assert`; it `#include`s `bfs.cpp` |
 
-BFS is a fundamental graph traversal algorithm implemented using:
-- `std::queue` for efficient queue operations
-- `std::unordered_map` for adjacency list representation
-- `std::unordered_set` for visited tracking
+## API
 
----
+| Function | Returns |
+|----------|---------|
+| `bfsAdjacencyList(graph, start)` | `vector<int>` in BFS order; empty if `start` is not a key |
+| `bfsWithPath(graph, start, target)` | a shortest path as `vector<int>`; empty if none; `{start}` when `start == target` |
+| `bfsLevelOrder(graph, start)` | `vector<vector<int>>`, one vector per level |
+| `bfsShortestDistance(graph, start)` | `unordered_map<int, int>` of hops to every reachable vertex |
 
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(V + E) | O(V) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`bfsAdjacencyList(graph, start)`**
-   - Basic BFS traversal
-   - Returns `vector<int>` of vertices in BFS order
-   - Time: O(V + E), Space: O(V)
-
-2. **`bfsWithPath(graph, start, target)`**
-   - Finds shortest path from start to target
-   - Returns `vector<int>` representing path
-   - Time: O(V + E), Space: O(V)
-
-3. **`bfsLevelOrder(graph, start)`**
-   - Returns vertices grouped by level
-   - Returns `vector<vector<int>>` where each inner vector is a level
-   - Time: O(V + E), Space: O(V)
-
-4. **`bfsShortestDistance(graph, start)`**
-   - Finds shortest distance to all vertices
-   - Returns `unordered_map<int, int>` mapping vertex to distance
-   - Time: O(V + E), Space: O(V)
-
----
-
-## Usage
+All run in O(V + E) time and O(V) space.
 
 ```cpp
-#include "bfs.cpp"
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-int main() {
-    unordered_map<int, vector<int>> graph = {
-        {1, {2, 4}},
-        {2, {3}},
-        {3, {}},
-        {4, {}}
-    };
-    
-    // Basic BFS
-    vector<int> result = bfsAdjacencyList(graph, 1);
-    // result: [1, 2, 4, 3]
-    
-    // Find shortest path
-    vector<int> path = bfsWithPath(graph, 1, 3);
-    // path: [1, 2, 3]
-    
-    // Level order
-    vector<vector<int>> levels = bfsLevelOrder(graph, 1);
-    // levels: [[1], [2, 4], [3]]
-    
-    // Shortest distances
-    unordered_map<int, int> distances = bfsShortestDistance(graph, 1);
-    // distances: {1: 0, 2: 1, 4: 1, 3: 2}
-    
-    return 0;
-}
+unordered_map<int, vector<int>> graph = {{1, {2, 4}}, {2, {3}}, {3, {}}, {4, {}}};
+vector<int> order = bfsAdjacencyList(graph, 1);  // 1 2 4 3
+vector<int> path = bfsWithPath(graph, 1, 3);     // 1 2 3
 ```
 
----
+## C++-Specific Notes
 
-## Compilation
+- Needs C++17. The test file already includes `bfs.cpp`, so compile the test file alone; passing both files to the compiler gives duplicate-symbol errors.
+- Neighbors are read only when the vertex is a key of the map, so a vertex that appears only in neighbor lists is handled. The function never inserts into the graph (it is `const`).
+- `bfsWithPath` stores one parent per vertex and rebuilds the path once, so it is O(V + E).
+- "Not found" is an empty vector, which cannot be told apart from an empty result; check `start == target` and key membership if you need to.
+- Connected components exist only in the Python version.
+
+## How to Run
 
 ```bash
-g++ -std=c++17 bfs_test.cpp -o bfs_test
+cd Algorithms/Graph_Algorithms/Traversal/BFS/C++
+g++ -std=c++17 -O2 -Wall bfs_test.cpp -o bfs_test
 ./bfs_test
 ```
 
----
+## Key Takeaways
 
-## Important Notes
-
-1. **C++17 required**: Uses structured bindings and other C++17 features
-2. **STL containers**: Uses `std::queue`, `std::unordered_map`, `std::unordered_set`
-3. **Template support**: Can be easily templated for different vertex types
-
----
-
-## Testing
-
-```bash
-g++ -std=c++17 bfs_test.cpp -o bfs_test && ./bfs_test
-```
-
----
-
-_Last Updated: December 2025_
-
+- Compile only the test file; it includes the implementation.
+- Keep the graph `const` and read neighbors without `operator[]`.
+- Mark vertices when they are enqueued.

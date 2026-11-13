@@ -1,92 +1,33 @@
-# Boyer-Moore Algorithm (Go)
+# Boyer-Moore Algorithm -- Go Implementation
 
-**Boyer-Moore Algorithm** is an efficient string matching algorithm that uses bad character and good suffix heuristics to skip characters during pattern matching.
+Boyer-Moore search with the bad-character rule.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | package `main`: `buildBadCharTable`, `BoyerMooreSearch`, and a demo `main` |
+| `main_test.go` | a table-driven `TestBoyerMooreSearch` (matches, overlaps, no match, empty inputs, the textbook example) and `TestBuildBadCharTable` |
+| `go.mod` | module `boyer_moore` |
 
-The Boyer-Moore algorithm is particularly efficient for long patterns. It matches from right to left and uses two heuristics to skip characters:
-- **Bad Character Rule**: When a mismatch occurs, shift the pattern to align the bad character with its last occurrence in the pattern
-- **Good Suffix Rule**: When a suffix of the pattern matches, shift to align with the next occurrence of that suffix
+## API
 
-**Key Characteristics:**
-- Efficient for long patterns
-- Best case: O(n/m) time complexity
-- Worst case: O(n × m) time complexity
-- Space: O(m) for bad character table
+- `BoyerMooreSearch(text, pattern string) []int`: all start indices, in increasing order; an empty slice for an empty pattern, an empty text, or a pattern longer than the text.
+- `buildBadCharTable(pattern string) map[byte]int` (unexported): each byte to its rightmost index.
 
----
+## Go-Specific Notes
 
-## Complexity Analysis
+- Strings are indexed by byte, so indices are byte offsets.
+- A missing key is detected with the `ok` form of the map lookup, so an absent byte counts as `-1`.
+- Only the bad-character rule is implemented.
 
-| Aspect | Complexity |
-|--------|------------|
-| **Best Time** | O(n/m) |
-| **Worst Time** | O(n × m) |
-| **Space** | O(m) |
-
-Where:
-- n = length of text
-- m = length of pattern
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`buildBadCharTable(pattern)`**
-   - Build bad character table for Boyer-Moore algorithm
-   - Returns map mapping bytes to their last occurrence index
-   - Time: O(m), Space: O(m)
-
-2. **`BoyerMooreSearch(text, pattern)`**
-   - Find all occurrences of pattern in text using Boyer-Moore algorithm
-   - Returns slice of starting indices
-   - Time: O(n/m) best case, O(n × m) worst case
-   - Space: O(m)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    text := "ABABDABACDABABCABC"
-    pattern := "ABABCABC"
-    
-    occurrences := BoyerMooreSearch(text, pattern)
-    fmt.Println(occurrences)  // [10]
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## References
-
-- Boyer, R. S., & Moore, J. S. (1977). "A fast string searching algorithm"
-- "Introduction to Algorithms" by CLRS (Chapter 32)
-
----
-
-_Last Updated: December 2025_
-
+1. The rightmost occurrence goes in the table.
+2. Clamp the shift to at least 1.

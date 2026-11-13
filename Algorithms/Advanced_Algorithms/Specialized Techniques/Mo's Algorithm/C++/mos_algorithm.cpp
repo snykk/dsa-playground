@@ -19,7 +19,7 @@ private:
 public:
     MoSAlgorithm(const vector<int>& arr) : arr(arr) {
         n = arr.size();
-        blockSize = sqrt(n);
+        blockSize = max(1, (int)sqrt(n));
     }
     
     int add(int currentAns, int value, unordered_map<int, int>& freq) {

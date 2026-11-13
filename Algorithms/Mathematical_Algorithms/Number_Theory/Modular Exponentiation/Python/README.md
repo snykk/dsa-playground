@@ -1,126 +1,40 @@
-# Modular Exponentiation (Python)
+# Modular Exponentiation -- Python Implementation
 
-**Modular Exponentiation** computes (base^exponent) mod modulus efficiently using binary exponentiation (also known as fast exponentiation).
+## Files
 
----
+- `modular_exponentiation.py`: the functions below plus a demo under `__main__`.
+- `modular_exponentiation_test.py`: unit tests (basics, exponent 0, base 0, modulus 1, `2^100 mod 1000 = 376`, recursive version, negative base, negative exponent, inverses including negative numbers, a signed extended-gcd identity check, 500 random cases against built-in `pow`).
 
-## Overview
+## API
 
-Modular exponentiation is a fundamental operation in number theory and cryptography. The naive approach of computing base^exponent first and then taking modulo is inefficient for large numbers. Binary exponentiation reduces the time complexity from O(exponent) to O(log exponent).
-
-**Key Characteristics:**
-- Efficient: O(log exponent) time complexity
-- Essential for cryptography: RSA, Diffie-Hellman
-- Uses binary representation of exponent
-
----
-
-## Algorithm
-
-### Binary Exponentiation
-
-The algorithm uses the binary representation of the exponent:
-- If exponent is even: base^exponent = (base^(exponent/2))^2
-- If exponent is odd: base^exponent = base × base^(exponent-1)
-
-**Steps:**
-1. Initialize result = 1
-2. While exponent > 0:
-   - If exponent is odd, multiply result by base
-   - Square base and halve exponent
-3. Return result mod modulus
-
----
-
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **mod_pow** | O(log exponent) | O(1) |
-| **mod_pow_recursive** | O(log exponent) | O(log exponent) |
-| **mod_inverse** | O(log min(a, m)) | O(log min(a, m)) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`mod_pow(base, exponent, modulus)`**
-   - Compute (base^exponent) mod modulus using iterative binary exponentiation
-   - Returns result
-   - Time: O(log exponent), Space: O(1)
-
-2. **`mod_pow_recursive(base, exponent, modulus)`**
-   - Compute (base^exponent) mod modulus using recursive binary exponentiation
-   - Returns result
-   - Time: O(log exponent), Space: O(log exponent)
-
-3. **`mod_inverse(a, m)`**
-   - Compute modular multiplicative inverse using Extended Euclidean Algorithm
-   - Returns inverse x where (a * x) mod m = 1, or None if it doesn't exist
-   - Time: O(log min(a, m)), Space: O(log min(a, m))
-
----
-
-## Usage
+- `mod_pow(base, exponent, modulus)`: iterative square and multiply; result in `0 .. modulus-1`. A negative exponent gives the inverse power (or `None` if `base` has no inverse).
+- `mod_pow_recursive(base, exponent, modulus)`: the same result, recursive.
+- `mod_inverse(a, m)`: `x` in `0 .. m-1` with `a*x = 1 (mod m)`, or `None`; negative `a` is fine.
+- `extended_gcd_inline(a, b)`: `(g, x, y)` with `a*x + b*y == g == gcd(a, b)`, for inputs of any sign.
 
 ```python
-from modular_exponentiation import mod_pow, mod_inverse
+from modular_exponentiation import mod_pow
 
-# Compute modular exponentiation
-result = mod_pow(2, 10, 1000)
-print(result)  # 24
-
-# Compute modular inverse
-inv = mod_inverse(3, 11)
-print(inv)  # 4
-print((3 * inv) % 11)  # 1 (verification)
+print(mod_pow(5, 13, 11))   # 4
+print(mod_pow(2, -1, 11))   # 6
 ```
 
----
+## Python-Specific Notes
 
-## Applications
+- Integers have arbitrary precision, so there is no overflow.
+- The built-in `pow(base, exponent, modulus)` (and `pow(base, -1, modulus)` from 3.8) does the same thing in C and is what you should use in real code.
+- The recursive version uses `O(log e)` stack, about two frames per bit of the exponent.
+- The modulus must be positive. Python 3.9 and later.
 
-1. **Cryptography**: RSA encryption/decryption
-2. **Diffie-Hellman Key Exchange**: Secure key generation
-3. **Primality Testing**: Miller-Rabin test
-4. **Discrete Logarithms**: Various cryptographic protocols
-5. **Number Theory**: Various mathematical problems
-
----
-
-## Important Notes
-
-- **Modulus must be positive**: For modulus = 1, result is always 0
-- **Exponent should be non-negative**: Negative exponents require modular inverse
-- **Modular Inverse**: Only exists when GCD(a, m) = 1 (coprime)
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-python -m unittest modular_exponentiation_test.py
+python3 -m unittest modular_exponentiation_test
+python3 modular_exponentiation.py
 ```
 
-Or:
+## Key Takeaways
 
-```bash
-python modular_exponentiation_test.py
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 31)
-- "Algorithm Design Manual" by Steven Skiena
-- "Number Theory" by Rosen
-
----
-
-_Last Updated: December 2025_
-
+- Square the base for every bit, multiply it in for every 1 bit.
+- Reduce after every multiplication.
+- A negative exponent needs a modular inverse.

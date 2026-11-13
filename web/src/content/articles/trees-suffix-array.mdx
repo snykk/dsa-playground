@@ -1,0 +1,198 @@
+---
+topic: Data Structures/Non_Linear/Trees/Suffix Array
+title: Suffix Array
+lead: A suffix array lists the start positions of all suffixes of a string in sorted order. Because equal prefixes sit next to each other, binary search finds every occurrence of a pattern, and the LCP array between neighbours answers repeat questions.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Search
+    value: O(m log n)
+    hint: binary search over the sorted suffixes
+  - label: Build (this repo)
+    value: O(n^2 log n)
+    hint: sorts materialized suffix strings
+    tone: warn
+  - label: Space (this repo)
+    value: O(n^2)
+    hint: every suffix is copied
+    tone: warn
+  - label: Stored in the array
+    value: n integers
+    hint: the text is kept alongside
+properties:
+  - { label: Static (built once, never updated), value: true }
+  - { label: Finds all occurrences of a pattern, value: true }
+  - { label: Handles an empty pattern, value: true }
+prerequisites:
+  - Data Structures/Linear/String/Pattern Matching
+related:
+  - Data Structures/Non_Linear/Trees/Suffix Tree
+  - Algorithms/String_Algorithms/Advanced_String/Suffix Array
+  - Data Structures/Non_Linear/Trees/Trie
+  - Algorithms/String_Algorithms/Advanced_String/Longest Common Substring
+---
+
+## What a suffix array is
+
+For a text of length `n` there are `n` suffixes: the substrings that start at index `i` and run to the end. Sort them alphabetically and keep only their start indices. That array of `n` integers is the suffix array `SA`.
+
+For `banana`:
+
+<DataTable
+  columns={['Rank', 'SA[rank]', 'Suffix', { label: 'LCP with previous', kind: 'mono' }]}
+  rows={[
+    ['0', '5', '`a`', '-'],
+    ['1', '3', '`ana`', '1'],
+    ['2', '1', '`anana`', '3'],
+    ['3', '0', '`banana`', '0'],
+    ['4', '4', '`na`', '0'],
+    ['5', '2', '`nana`', '2'],
+  ]}
+/>
+
+So `SA = [5, 3, 1, 0, 4, 2]`. The key property: **all suffixes that start with a given pattern form one contiguous block** of the array, because they share a prefix and the order is alphabetical. The LCP column is the length of the common prefix of each suffix with its neighbour above. The repository computes one such value with `longest_common_prefix(i, j)` (Python only), which compares two suffixes character by character.
+
+Compared with a suffix tree, the array stores `n` integers instead of a tree of nodes, and it is much simpler. The price is a `log n` factor on search.
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', 'Time']}
+  rows={[
+    ['Build', 'sort all suffixes, keep their indices', 'O(n^2 log n) here'],
+    ['`search(pattern)`', 'all start indices of the pattern, in increasing order', 'O(m log n) ideal; O(n log n) here'],
+    ['`get_suffixes()`', 'the suffixes in sorted order (Python only)', 'O(n^2)'],
+    ['`longest_common_prefix(i, j)`', 'common prefix length of two suffixes (Python only)', 'O(n)'],
+  ]}
+/>
+
+## Building the array
+
+The code builds the array in the most direct way: slice every suffix, sort the pairs, and keep the indices. Python uses `text[i:]`, C++ `text.substr(i)` and Go `text[i:]`.
+
+```text
+build(text):
+    pairs = [(text[i:], i) for i in 0 .. n-1]
+    sort pairs by suffix string
+    return the indices
+```
+
+Sorting compares strings, and two suffixes can share up to `n` characters, so one comparison costs O(n) in the worst case. In Python and C++ every suffix is also copied, so memory is O(n<sup>2</sup>): for `aaaa...a` of length 8000 the copies alone are tens of megabytes. Go slices a string without copying, so it is O(n) in memory, but the sort still compares long prefixes. The textbook constructions (prefix doubling in O(n log n) or O(n log<sup>2</sup> n), or SA-IS in O(n)) avoid this and are not implemented here; the algorithm view of the structure is in the Advanced String topic.
+
+## Searching with binary search
+
+`search` runs two binary searches over the ranks. The first finds the **first** suffix that starts with the pattern, the second the **last**. Every rank between them is an occurrence. Here is `search("ana")` on `banana`:
+
+<ArrayDiagram
+  legend={{ c: 'probed rank', f: 'suffix starts with the pattern', m: 'suffix does not' }}
+  rows={[
+    { label: 'ranks', values: ['a', 'ana', 'anana', 'banana', 'na', 'nana'], tones: '......', note: '`SA = [5, 3, 1, 0, 4, 2]`; the pattern is `ana`.' },
+    { label: 'first, mid = 2', values: ['a', 'ana', 'anana', 'banana', 'na', 'nana'], tones: '..f...', marks: { 2: 'mid' }, note: '`anana` starts with `ana`: record rank 2, search the left half.' },
+    { label: 'first, mid = 0', values: ['a', 'ana', 'anana', 'banana', 'na', 'nana'], tones: 'm.f...', marks: { 0: 'mid' }, note: '`a` is smaller than `ana` and does not start with it: go right.' },
+    { label: 'first, mid = 1', values: ['a', 'ana', 'anana', 'banana', 'na', 'nana'], tones: 'mff...', marks: { 1: 'mid' }, note: '`ana` matches: the first occurrence is rank 1.' },
+    { label: 'last', values: ['a', 'ana', 'anana', 'banana', 'na', 'nana'], tones: 'mffmmm', marks: { 3: 'mid' }, note: 'Probing ranks 3, 1 and 2 in the range 1..5 shows the block ends at rank 2.' },
+    { label: 'answer', values: [5, 3, 1, 0, 4, 2], tones: '.ff...', note: 'Ranks 1 and 2 hold `SA = 3` and `SA = 1`. Sorted: `[1, 3]`.' },
+  ]}
+/>
+
+The result list is sorted by position at the end, because the block is ordered by suffix, not by position. A pattern that is absent returns `[]` after the first search. The empty pattern is a prefix of every suffix, so on a non-empty text it returns every index `0..n-1`; on an empty text it returns `[]`.
+
+Each probe compares up to `m` characters, so the ideal cost is O(m log n). The Python and C++ code copies the probed suffix first (`text[idx:]`, `text.substr(idx)`), adding O(n) per probe. Go uses `strings.HasPrefix` on a slice, with no copy, and matches the bound.
+
+<Callout title="Why one block">
+Sorted order puts strings with the same first `m` characters next to each other: any string that sorts between two suffixes starting with `ana` must also start with `ana`. That is why two binary searches, for the first and the last match, are enough.
+</Callout>
+
+## The LCP array
+
+The LCP array stores `LCP[k]`, the common prefix length of the suffixes at ranks `k-1` and `k`. For `banana` it is `[-, 1, 3, 0, 0, 2]`. It turns questions about repeated text into array scans:
+
+- the longest repeated substring is the largest LCP value (3, the substring `ana`);
+- the number of distinct substrings is `n(n+1)/2` minus the sum of the LCP values;
+- the longest common prefix of any two suffixes is the minimum of the LCP values between their ranks.
+
+The repository has no LCP array. `longest_common_prefix(i, j)` in Python computes one value in O(n), so building the whole array with it costs O(n<sup>2</sup>). Kasai's algorithm builds it in O(n), and is part of the algorithm view in the Advanced String topic.
+
+## Implementation
+
+All three languages sort materialized suffixes and expose `search`. Python adds `get_suffixes` and `longest_common_prefix`. Indices are code points in Python and bytes in C++ and Go.
+
+<TopicCode topic="Data Structures/Non_Linear/Trees/Suffix Array" />
+
+## Complexity
+
+<DataTable
+  columns={['', { label: 'This repository', kind: 'mono' }, { label: 'Textbook', kind: 'mono' }]}
+  rows={[
+    ['Build time', 'O(n^2 log n) worst case', 'O(n log n) doubling, O(n) SA-IS'],
+    ['Space', 'O(n^2) in Python and C++, O(n) in Go', 'O(n)'],
+    ['Search', 'O(m log n) in Go; O(n log n) in Python and C++', 'O(m log n)'],
+    ['LCP of two suffixes', 'O(n)', 'O(1) after an LCP array and a range-minimum structure'],
+  ]}
+/>
+
+The search is logarithmic because each probe halves the range of ranks; each probe is a string comparison that stops at the first difference or after `m` characters.
+
+## Suffix array vs suffix tree
+
+<DataTable
+  columns={['', 'Suffix array', 'Suffix tree']}
+  rows={[
+    ['Memory', 'n integers', 'a node per branch, several words each'],
+    ['Pattern search', 'O(m log n)', 'O(m)'],
+    ['Implementation', 'a sort and two binary searches', 'much longer'],
+    ['Cache behaviour', 'sequential array', 'pointer chasing'],
+    ['Repeat questions', 'need an LCP array', 'read directly from the tree'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Very small and simple: an array of integers plus the text.',
+    'Finds all occurrences of any pattern after one preprocessing step.',
+    'The preprocessing depends only on the text, so one array serves unlimited queries.',
+    'Works with any alphabet that can be compared.',
+  ]}
+  cons={[
+    'The code here builds in O(n<sup>2</sup> log n) time and may use O(n<sup>2</sup>) memory.',
+    'Static: appending a character means rebuilding.',
+    'Search costs a `log n` factor over a suffix tree.',
+    'Needs an LCP array for repeat and distinct-substring queries, which this code does not have.',
+  ]}
+/>
+
+## Applications
+
+- **Fixed text, many pattern queries.** Index the text once, then search each pattern in O(m log n).
+- **Longest repeated substring** and **distinct substring counting**, with the LCP array.
+- **Longest common substring** of two strings, by indexing both with a separator.
+- **Burrows-Wheeler transform**, which is read off the suffix array.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Comparing the whole suffix instead of a prefix.** The test is "suffix starts with the pattern", not "suffix equals the pattern".
+- **Forgetting that the block is not sorted by position.** Sort the result if callers expect increasing indices, as `search` does.
+- **Assuming the build is cheap.** Sorting copied suffixes is quadratic in memory on repetitive text such as `aaaa...a`.
+- **Mixing offsets.** Python offsets are code points; C++ and Go offsets are bytes.
+- **Empty inputs.** An empty pattern matches every start index of a non-empty text, while an empty text matches nothing.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the pattern occupy a contiguous block?">
+    Because the suffixes are in alphabetical order. Every suffix that begins with the pattern is at least as large as the pattern and smaller than the pattern followed by the largest character, and nothing without that prefix can lie in between.
+  </FaqItem>
+  <FaqItem question="Is the build here O(n log n)?">
+    No. It sorts n strings that can be up to n characters long, so comparisons cost O(n) and the sort costs O(n<sup>2</sup> log n) in the worst case. It is correct and clear, but for large inputs use prefix doubling or SA-IS.
+  </FaqItem>
+  <FaqItem question="Why does search sort its result?">
+    The matching suffixes are ordered alphabetically, which is unrelated to where they occur. Sorting turns the block of `SA` values into increasing text positions.
+  </FaqItem>
+  <FaqItem question="What is the LCP array for?">
+    It records how much each suffix shares with the one before it in sorted order. The maximum is the longest repeated substring, and the sum tells you how many distinct substrings the text has.
+  </FaqItem>
+</Faq>

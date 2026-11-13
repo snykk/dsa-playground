@@ -22,7 +22,7 @@ def edmonds_karp(graph: Dict[int, Dict[int, int]], source: int, sink: int) -> in
     Returns:
         Maximum flow value
         
-    Time Complexity: O(V × E²)
+    Time Complexity: O(V * E^2)
     Space Complexity: O(V + E)
     """
     if source == sink:

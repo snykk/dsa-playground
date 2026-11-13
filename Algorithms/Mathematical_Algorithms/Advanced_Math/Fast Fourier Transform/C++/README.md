@@ -1,107 +1,40 @@
-# Fast Fourier Transform (C++)
+# Fast Fourier Transform -- C++ Implementation
 
-**Fast Fourier Transform (FFT)** is an efficient algorithm for computing the Discrete Fourier Transform (DFT) and its inverse.
+Recursive radix-2 FFT on `std::complex<double>`, inverse FFT, polynomial multiplication and convolution.
 
----
+For the concept, see the topic README: [../README.md](../README.md).
 
-## Overview
+## Files
 
-The FFT is one of the most important algorithms in signal processing and numerical analysis. It reduces the time complexity of computing the DFT from O(n²) to O(n log n).
+| File | Purpose |
+|------|---------|
+| `fast_fourier_transform.cpp` | `fft`, `ifft`, `multiplyPolynomials`, `convolve` (implementation in the `.cpp`, included by the test) |
+| `fast_fourier_transform_test.cpp` | 11 tests: lengths, round trip, identity, known values, comparison with a direct DFT, empty input, rejected inverse length, product overflow |
 
-**Key Characteristics:**
-- Efficient: O(n log n) time complexity
-- Applications: Signal processing, polynomial multiplication, convolution
-- Uses divide-and-conquer approach
+## API
 
----
+- `ComplexVector fft(const ComplexVector& a, bool inverse = false)`: forward uses `e^(-2*pi*i*j*k/n)`; a non-power-of-two input is zero-padded; the inverse throws `std::invalid_argument` for a non-power-of-two length. Empty input returns empty output.
+- `ComplexVector ifft(const ComplexVector& a)`.
+- `std::vector<long long> multiplyPolynomials(const std::vector<int>& p, const std::vector<int>& q)`.
+- `std::vector<long long> convolve(const std::vector<int>& a, const std::vector<int>& b)`.
+- `Complex` and `ComplexVector` are typedefs for `std::complex<double>` and a vector of it.
 
-## Complexity Analysis
+## C++-Specific Notes
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **fft** | O(n log n) | O(n) |
-| **ifft** | O(n log n) | O(n) |
-| **multiplyPolynomials** | O(n log n) | O(n) |
-| **convolve** | O(n log n) | O(n) |
+- The result type is `long long`: with `int`, a product such as `1e5 * 1e5` overflows.
+- Exactness holds only while the largest output coefficient is well below 2^53 (double precision).
+- The inverse divides by 2 at every level of the recursion, which adds up to a division by `n`.
+- There is no `main` in the source file: the file is meant to be included, as the tests do.
 
----
-
-## Implementation Details
-
-### Functions
-
-1. **`fft(a, inverse)`**
-   - Compute Fast Fourier Transform using Cooley-Tukey algorithm
-   - Returns FFT result as vector of complex numbers
-   - Time: O(n log n), Space: O(n)
-
-2. **`ifft(a)`**
-   - Compute Inverse Fast Fourier Transform
-   - Returns original signal
-   - Time: O(n log n), Space: O(n)
-
-3. **`multiplyPolynomials(p, q)`**
-   - Multiply two polynomials using FFT
-   - Returns coefficients of product polynomial
-   - Time: O(n log n), Space: O(n)
-
-4. **`convolve(a, b)`**
-   - Compute convolution of two sequences using FFT
-   - Returns convolution result
-   - Time: O(n log n), Space: O(n)
-
----
-
-## Usage
-
-```cpp
-#include "fast_fourier_transform.cpp"
-#include <vector>
-#include <complex>
-
-int main() {
-    // FFT example
-    ComplexVector signal = {Complex(1, 0), Complex(2, 0), Complex(3, 0)};
-    ComplexVector result = fft(signal);
-    
-    // Polynomial multiplication
-    std::vector<int> p = {1, 2, 3};
-    std::vector<int> q = {4, 5};
-    std::vector<int> product = multiplyPolynomials(p, q);
-    
-    return 0;
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Compile
-g++ -o fast_fourier_transform_test fast_fourier_transform_test.cpp
-
-# Run
-./fast_fourier_transform_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD fast_fourier_transform_test.cpp -o fft_test
+./fft_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ fast_fourier_transform_test.cpp -o fast_fourier_transform_test && ./fast_fourier_transform_test
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Numerical Recipes" by Press et al.
-- "The Fast Fourier Transform" by Brigham
-
----
-
-_Last Updated: December 2025_
-
+1. Choose the output type so that the products cannot overflow.
+2. Throw on inputs whose result would be meaningless, such as an inverse of the wrong length.
+3. Compare against a direct O(n^2) DFT in tests; it catches sign and scaling mistakes.

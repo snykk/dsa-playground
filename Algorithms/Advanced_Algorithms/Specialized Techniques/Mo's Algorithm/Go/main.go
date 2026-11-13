@@ -15,6 +15,9 @@ type MoSAlgorithm struct {
 func NewMoSAlgorithm(arr []int) *MoSAlgorithm {
 	n := len(arr)
 	blockSize := int(math.Sqrt(float64(n)))
+	if blockSize < 1 {
+		blockSize = 1
+	}
 	return &MoSAlgorithm{
 		arr:       arr,
 		n:         n,
@@ -41,12 +44,6 @@ func (mo *MoSAlgorithm) remove(currentAns int, value int, freq map[int]int) int 
 		return currentAns - 1
 	}
 	return currentAns
-}
-
-type Query struct {
-	idx int
-	l   int
-	r   int
 }
 
 func (mo *MoSAlgorithm) processQueries(queries [][]int) []int {

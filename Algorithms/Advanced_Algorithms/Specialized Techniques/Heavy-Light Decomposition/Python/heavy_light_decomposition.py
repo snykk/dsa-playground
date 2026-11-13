@@ -20,41 +20,53 @@ class HLD:
         self.pos = [0] * n
         self.cur_pos = 0
     
-    def dfs_size(self, u: int, p: int) -> int:
-        """Calculate subtree sizes."""
-        self.size[u] = 1
-        self.parent[u] = p
-        max_size = 0
-        
-        for v in self.adj[u]:
-            if v != p:
-                self.depth[v] = self.depth[u] + 1
-                child_size = self.dfs_size(v, u)
-                self.size[u] += child_size
-                if child_size > max_size:
-                    max_size = child_size
+    def dfs_size(self, root: int, p: int) -> int:
+        """Calculate subtree sizes, depths and heavy children (iterative)."""
+        self.parent[root] = p
+        self.depth[root] = 0
+        order = [root]
+        for u in order:
+            self.size[u] = 1
+            for v in self.adj[u]:
+                if v != self.parent[u]:
+                    self.parent[v] = u
+                    self.depth[v] = self.depth[u] + 1
+                    order.append(v)
+        for u in reversed(order):
+            if self.parent[u] != -1 and u != root:
+                self.size[self.parent[u]] += self.size[u]
+        for u in order:
+            max_size = 0
+            for v in self.adj[u]:
+                if v != self.parent[u] and self.size[v] > max_size:
+                    max_size = self.size[v]
                     self.heavy[u] = v
-        
-        return self.size[u]
-    
-    def decompose(self, u: int, h: int):
-        """Decompose tree into chains."""
-        self.head[u] = h
-        self.pos[u] = self.cur_pos
-        self.cur_pos += 1
-        
-        if self.heavy[u] != -1:
-            self.decompose(self.heavy[u], h)
-        
-        for v in self.adj[u]:
-            if v != self.parent[u] and v != self.heavy[u]:
-                self.decompose(v, v)
-    
+        return self.size[root]
+
+    def decompose(self, root: int, h: int):
+        """Decompose tree into chains (iterative pre-order, heavy child first)."""
+        stack = [(root, h)]
+        while stack:
+            u, head = stack.pop()
+            self.head[u] = head
+            self.pos[u] = self.cur_pos
+            self.cur_pos += 1
+            for v in reversed(self.adj[u]):
+                if v != self.parent[u] and v != self.heavy[u]:
+                    stack.append((v, v))
+            if self.heavy[u] != -1:
+                stack.append((self.heavy[u], head))
+
     def build(self, root: int = 0):
-        """Build HLD structure."""
+        """Build HLD structure (safe to call more than once)."""
+        self.parent = [-1] * self.n
+        self.depth = [0] * self.n
+        self.size = [0] * self.n
+        self.heavy = [-1] * self.n
+        self.cur_pos = 0
         self.dfs_size(root, -1)
         self.decompose(root, root)
-    
+
     def lca(self, u: int, v: int) -> int:
         """Find Lowest Common Ancestor."""
         while self.head[u] != self.head[v]:

@@ -61,13 +61,13 @@ This folder contains implementations of fundamental graph algorithms in Python, 
   - Edge-based approach
   - Best for sparse graphs
   - Time: O(E log E), Space: O(V)
-  - _See full implementation: [Greedy Algorithms](../../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/)_
+  - _See full implementation: [Greedy Algorithms](../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/)_
 
 - **[Prim's Algorithm](./Minimum_Spanning_Tree/Prim's_Algorithm/)**
   - Vertex-based approach
   - Best for dense graphs
   - Time: O((V + E) log V), Space: O(V)
-  - _See full implementation: [Greedy Algorithms](../../Greedy/Minimum%20Spanning%20Tree/Prim's%20Algorithm/)_
+  - _See full implementation: [Greedy Algorithms](../Greedy/Minimum%20Spanning%20Tree/Prim's%20Algorithm/)_
 
 ---
 
@@ -168,8 +168,8 @@ Each algorithm includes:
 ## Related Topics
 
 - **Data Structures**: [Graph Data Structures](../../Data%20Structures/Non_Linear/Graph/)
-- **Greedy Algorithms**: [Greedy Algorithms](../../Greedy/)
-- **Dynamic Programming**: [DP on Graphs](../../Dynamic_Programming/Advanced%20DP/DP%20on%20Graphs/)
+- **Greedy Algorithms**: [Greedy Algorithms](../Greedy/)
+- **Dynamic Programming**: [DP on Graphs](../Dynamic_Programming/Advanced%20DP/DP%20on%20Graphs/)
 
 ---
 

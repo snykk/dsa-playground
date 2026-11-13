@@ -1,53 +1,36 @@
-# Counting Sort — C++ Implementation
-
-**Counting Sort** tallies how many times each distinct value appears, then produces the sorted output directly from the counts. O(n + k) — linear in input size when the value range `k` is bounded.
-
-For the conceptual overview, stable vs unstable variants, and role as the Radix Sort building block, see the parent README: [../README.md](../README.md)
-
----
+# Counting Sort -- C++ Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `counting_sort.cpp` | `countingSort(const std::vector<int>&, int maxVal)` returning sorted vector |
-| `counting_sort_test.cpp` | Assertion tests |
+- `counting_sort.cpp`: `countingSort`.
+- `counting_sort_test.cpp`: assert-based tests (basic, negative numbers, too-small `maxVal`). It `#include`s `counting_sort.cpp` directly.
 
----
+## API
 
-## Complexity
+- `std::vector<int> countingSort(const std::vector<int>& arr, int maxVal)`: stable counting sort; returns a new vector. Throws `std::invalid_argument` if an element is larger than `maxVal`. An empty input returns an empty vector. Negative values are allowed.
 
-| Aspect | Value |
-|--------|-------|
-| Time | O(n + k) |
-| Space | O(n + k) |
-| Stable? | Yes (when using prefix-sum variant) |
-| Comparison-based? | **No** |
+```cpp
+#include "counting_sort.cpp"
 
-`k` = `maxVal - min + 1`, the size of the value range. Only useful when `k` is O(n) or smaller.
-
----
+std::vector<int> sorted = countingSort({4, 2, 2, 8, 3, 3, 1}, 8);
+```
 
 ## C++-Specific Notes
 
-- **`std::max_element` for range detection**: `*std::max_element(arr.begin(), arr.end())` gives the upper bound. Cheap O(n).
-- **`std::vector<int>` for the count array**: zero-initialized, fast indexed access. For very large `k` with sparse values, a `std::unordered_map<int, int>` is more memory-efficient.
-- **Prefix-sum variant for stability**: transform the count array into a running total, then walk the input backwards to place each element at `count[value] - 1`. Preserves relative order of equal elements — required for use as a Radix Sort building block.
-- **Negative values**: the code counts value `x` at index `x - minVal` (64-bit index math), so negatives need no special case. A `maxVal` smaller than the largest value throws `std::invalid_argument`.
-
----
+- It is a plain function over `std::vector<int>`, not a template, and `maxVal` is required (Python detects it).
+- `minVal` comes from `std::min_element`; the slot of `x` is `x - minVal`, computed in 64-bit so that a wide range (for example `INT_MIN` to `INT_MAX`) does not overflow `int`. Such a range would still ask for gigabytes of count array.
+- The input is `const` and untouched; the output is a separate vector.
+- The test file includes the implementation, so compile only the test file.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall counting_sort_test.cpp -o counting_sort_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD counting_sort_test.cpp -o counting_sort_test
 ./counting_sort_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Linear time — but only if `k` is bounded.** Sorting 10⁶ integers in the range [0, 100] is ~10⁷ ops. Sorting 10⁶ integers in [0, 2³²] with Counting Sort needs 16 GB of count memory — use Radix Sort instead.
-2. **The stable variant is the workhorse of Radix Sort.** Always implement the prefix-sum form, not the naive "decrement count and write" — the latter is unstable.
-3. **Not a general-purpose sort.** Counting Sort fails on floats, strings, and any unbounded domain. It's a specialist: integers with small range.
+- Offset by the minimum; validate `maxVal`.
+- Walk the input backwards for stability.
+- Memory is `maxVal - minVal + 1` counters plus the output.

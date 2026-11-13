@@ -1,81 +1,38 @@
-# Two Pointers - C++
+# Two Pointers -- C++ Implementation
 
-This folder contains a C++ implementation of the **Two Pointers** technique for solving array and string problems efficiently.
+Opposite-end and read/write pointer scans. See the [topic README](../README.md) for the idea.
 
----
+## Files
 
-## Concept
+| File | Contents |
+|------|----------|
+| `two_pointers.cpp` | Five functions and a demo `main` |
+| `two_pointers_test.cpp` | Assert-based tests including empty and tiny inputs (includes the `.cpp`) |
 
-The two pointers technique uses two pointers moving through a data structure:
-- **Left-Right Pointers**: Start from both ends, move towards center
-- **Fast-Slow Pointers**: Move at different speeds (common in linked lists)
+## API
 
-**Key Features:**
-- Efficient O(n) or O(n²) time complexity
-- O(1) space complexity typically
-- Works well with sorted arrays
-- Useful for pair/triplet problems
+- `vector<int> twoSumSorted(const vector<int>& arr, int target)`: `{left, right}` or an empty vector.
+- `vector<vector<int>> threeSum(vector<int>& arr, int target)`: sorts `arr` in place.
+- `bool isPalindrome(const string& s)`: ignores non-alphanumeric characters and case (ASCII).
+- `int removeDuplicates(vector<int>& arr)`: compacts in place, returns the new length.
+- `int containerWithMostWater(const vector<int>& heights)`
 
----
+## C++-Specific Notes
 
-## Functions
+- `threeSum` takes a non-const reference and reorders the caller's vector.
+- `arr.size()` is unsigned: the loop bound is written `i + 2 < size` so vectors with fewer than 3 elements are safe.
+- `isalnum` and `tolower` are called on `char`; non-ASCII bytes are not handled.
+- The area is an `int`; use `long long` for very large inputs.
+- The demo `main` is compiled out when `IS_TEST_BUILD` is defined.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `twoSumSorted(arr, target)` | Find two numbers summing to target | O(n) |
-| `threeSum(arr, target)` | Find all triplets summing to target | O(n²) |
-| `isPalindrome(s)` | Check if string is palindrome | O(n) |
-| `removeDuplicates(arr)` | Remove duplicates in-place | O(n) |
-| `containerWithMostWater(heights)` | Find maximum water area | O(n) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Two Sum | O(n) | O(1) |
-| Three Sum | O(n²) | O(1) |
-| Palindrome Check | O(n) | O(1) |
-| Remove Duplicates | O(n) | O(1) |
-
----
-
-## Usage
-
-```cpp
-#include "two_pointers.cpp"
-
-vector<int> arr = {2, 7, 11, 15};
-vector<int> result = twoSumSorted(arr, 9);  // Returns [0, 1]
-```
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++17 two_pointers.cpp two_pointers_test.cpp -o two_pointers_test
-./two_pointers_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD two_pointers_test.cpp -o tp_test && ./tp_test
 ```
 
----
+## Key Takeaways
 
-## Examples
-
-1. **Two Sum**: Find indices of two numbers summing to target
-   - Array: [2, 7, 11, 15], target = 9
-   - Result: [0, 1]
-
-2. **Three Sum**: Find all triplets summing to target
-   - Array: [-1, 0, 1, 2, -1, -4], target = 0
-   - Result: [[-1, -1, 2], [-1, 0, 1]]
-
-3. **Container with Most Water**: Maximum area
-   - Heights: [1, 8, 6, 2, 5, 4, 8, 3, 7]
-   - Result: 49
-
----
-
-_Last Updated: December 2025_
-
+- Each pointer moves at most n steps, so the scans are O(n).
+- Opposite-end pair search needs sorted input.
+- Skip duplicates in `three_sum` to avoid repeated triplets.

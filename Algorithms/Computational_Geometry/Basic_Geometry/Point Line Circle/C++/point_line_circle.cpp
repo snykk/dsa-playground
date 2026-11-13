@@ -1,20 +1,21 @@
-#include <iostream>
 #include <cmath>
-#include <vector>
 #include <iomanip>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+#include <vector>
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-
-const double EPS = 1e-9;
 
 struct Point {
     double x, y;
 
     Point(double x = 0, double y = 0) : x(x), y(y) {}
 
+    // Exact coordinate equality (no tolerance).
     bool operator==(const Point& other) const {
-        return std::abs(x - other.x) < EPS && std::abs(y - other.y) < EPS;
+        return x == other.x && y == other.y;
     }
 
     double distanceTo(const Point& other) const {
@@ -43,19 +44,26 @@ struct Line {
         return p1.distanceSquared(p2);
     }
 
+    // inf for a vertical line, nan for a zero-length line (it has no direction).
+    // The test is exact, so it does not depend on the scale.
     double slope() const {
-        if (std::abs(p2.x - p1.x) < EPS) {
+        if (p1 == p2) {
+            return std::numeric_limits<double>::quiet_NaN();
+        }
+        if (p2.x == p1.x) {
             return std::numeric_limits<double>::infinity();
         }
         return (p2.y - p1.y) / (p2.x - p1.x);
     }
 
+    // Exactly equal x, and not a zero-length line.
     bool isVertical() const {
-        return std::abs(p2.x - p1.x) < EPS;
+        return p2.x == p1.x && p2.y != p1.y;
     }
 
+    // Exactly equal y, and not a zero-length line.
     bool isHorizontal() const {
-        return std::abs(p2.y - p1.y) < EPS;
+        return p2.y == p1.y && p2.x != p1.x;
     }
 };
 
@@ -63,7 +71,12 @@ struct Circle {
     Point center;
     double radius;
 
-    Circle(const Point& center, double radius) : center(center), radius(radius) {}
+    // Throws std::invalid_argument for a negative (or NaN) radius.
+    Circle(const Point& center, double radius) : center(center), radius(radius) {
+        if (!(radius >= 0)) {
+            throw std::invalid_argument("radius must be non-negative");
+        }
+    }
 
     double area() const {
         return M_PI * radius * radius;
@@ -73,65 +86,74 @@ struct Circle {
         return 2 * M_PI * radius;
     }
 
+    // Inside or on the circle (exact comparison of squared distances).
     bool containsPoint(const Point& point) const {
-        return center.distanceSquared(point) <= radius * radius + EPS;
+        return center.distanceSquared(point) <= radius * radius;
     }
 
+    // Exactly on the boundary (exact comparison).
     bool pointOnCircle(const Point& point) const {
-        double distSq = center.distanceSquared(point);
-        return std::abs(distSq - radius * radius) < EPS;
+        return center.distanceSquared(point) == radius * radius;
     }
 };
 
 // Geometric utility functions
 
 double crossProduct(const Point& o, const Point& a, const Point& b) {
-    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+    // Two statements, so a compiler cannot fuse the products into one FMA instruction
+    // and change the rounding of the result.
+    double left = (a.x - o.x) * (b.y - o.y);
+    double right = (a.y - o.y) * (b.x - o.x);
+    return left - right;
 }
 
 double dotProduct(const Point& o, const Point& a, const Point& b) {
     return (a.x - o.x) * (b.x - o.x) + (a.y - o.y) * (b.y - o.y);
 }
 
+// 0 collinear, 1 clockwise, 2 counterclockwise. Exact: the sign of the cross product.
 int orientation(const Point& p, const Point& q, const Point& r) {
     double val = crossProduct(p, q, r);
-    if (std::abs(val) < EPS) {
+    if (val == 0) {
         return 0;  // Collinear
     }
     return (val > 0) ? 2 : 1;  // Counterclockwise : Clockwise
 }
 
+// Angle AOB in radians, in [0, pi]. Uses atan2(|cross|, dot), which stays accurate for
+// angles near 0 and pi. Returns 0 if A or B coincides with O.
 double angleBetweenPoints(const Point& o, const Point& a, const Point& b) {
     double oa_x = a.x - o.x;
     double oa_y = a.y - o.y;
     double ob_x = b.x - o.x;
     double ob_y = b.y - o.y;
-    
-    double dot = oa_x * ob_x + oa_y * ob_y;
-    double mag_oa = std::sqrt(oa_x * oa_x + oa_y * oa_y);
-    double mag_ob = std::sqrt(ob_x * ob_x + ob_y * ob_y);
-    
-    if (mag_oa < EPS || mag_ob < EPS) {
+
+    if ((oa_x == 0 && oa_y == 0) || (ob_x == 0 && ob_y == 0)) {
         return 0.0;
     }
-    
-    double cos_angle = dot / (mag_oa * mag_ob);
-    cos_angle = std::max(-1.0, std::min(1.0, cos_angle));
-    return std::acos(cos_angle);
+
+    double cross = oa_x * ob_y - oa_y * ob_x;
+    double dot = oa_x * ob_x + oa_y * ob_y;
+    return std::atan2(std::abs(cross), dot);
 }
 
+// Inside the triangle or on its boundary (either orientation). A degenerate triangle
+// (collinear or repeated vertices) contains no point.
 bool pointInTriangle(const Point& p, const Point& a, const Point& b, const Point& c) {
+    if (crossProduct(a, b, c) == 0) {
+        return false;
+    }
+
     double d1 = crossProduct(p, a, b);
     double d2 = crossProduct(p, b, c);
     double d3 = crossProduct(p, c, a);
-    
+
     bool has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
     bool has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
-    
+
     return !(has_neg && has_pos);
 }
 
-#ifndef TESTING
 #ifndef IS_TEST_BUILD
 int main() {
     std::cout << "Point, Line, and Circle Operations Examples:" << std::endl;
@@ -170,5 +192,4 @@ int main() {
 
     return 0;
 }
-#endif
 #endif  // !IS_TEST_BUILD

@@ -1,0 +1,208 @@
+---
+topic: Algorithms/Randomized_Algorithms/Reservoir_Sampling
+title: Reservoir Sampling
+lead: Reservoir sampling picks k items uniformly at random from a stream whose length you do not know in advance, in one pass and with only O(k) memory. After n items, every one of them is in the sample with probability exactly k/n.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n)
+    hint: one pass, O(1) work per item
+  - label: Memory
+    value: O(k)
+    hint: only the reservoir is stored
+  - label: Chance of each item
+    value: k / n
+    hint: exactly, for every item
+  - label: Passes
+    value: '1'
+    hint: the stream length is never needed
+properties:
+  - { label: Single pass, value: true }
+  - { label: Online, value: true }
+  - { label: Uniform, value: true }
+  - { label: Needs n in advance, value: false }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Algorithms/Randomized_Algorithms/Randomized_Quickselect
+  - Algorithms/Sorting/Quick Sort
+---
+
+## How reservoir sampling works
+
+Keep a **reservoir** of `k` items. Fill it with the first `k` stream items. After that, the i-th item (1-indexed) gets in with probability `k / i`, and when it does it replaces a uniformly chosen reservoir slot. This is "Algorithm R".
+
+<Steps>
+  <Step title="Fill phase">
+    For `i <= k`, append the item. The first `k` items are all in the sample, as they should be when `n <= k`.
+  </Step>
+  <Step title="Draw a number">
+    For `i > k`, draw `j` uniformly from `0 .. i - 1`.
+  </Step>
+  <Step title="Replace with probability k / i">
+    If `j < k`, overwrite `reservoir[j]` with the new item. Otherwise drop the item. The single draw does both jobs: `j < k` has probability `k / i`, and `j` is then a uniform slot.
+  </Step>
+  <Step title="Read the sample at any time">
+    The reservoir is a uniform sample of everything seen so far, so you can stop whenever the stream ends.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+After `i` items, every one of them is in the reservoir with probability exactly `k / i`. Step `i + 1` keeps the invariant: the new item enters with probability `k / (i + 1)`, and an old item stays with probability `i / (i + 1)`, so it remains with `(k / i) * (i / (i + 1)) = k / (i + 1)`.
+</Callout>
+
+## Why every item has probability k / n
+
+Item number `i` (with `i > k`) ends in the final reservoir if it enters at step `i` and then survives every later step `j = i + 1 ... n`. At step `j` the item is evicted only if the new item enters (probability `k / j`) **and** picks this slot (probability `1 / k`), so it survives with probability `1 - 1/j = (j - 1) / j`.
+
+<Equation label="Entry and survival" expr="P(i in sample) = (k / i) * (i / (i + 1)) * ((i + 1) / (i + 2)) * ... * ((n - 1) / n)" result="k / n" />
+
+The product telescopes: all the middle terms cancel and `i / n` is left, which cancels the `i` in `k / i`. The result does not depend on `i`, so late items are not favored, and neither are early ones. Items `i <= k` enter with probability 1 and survive by the same product, so they also end with `k / n`.
+
+Check with `k = 2` and `n = 4`:
+
+<DataTable
+  columns={['Item', 'Enters', 'Survives later steps', 'Total']}
+  rows={[
+    ['1 and 2', '1', '(2/3) * (3/4)', '1/2'],
+    ['3', '2/3', '3/4', '1/2'],
+    ['4', '2/4', '1', '1/2'],
+  ]}
+/>
+
+Every item ends with `2/4`, and the four probabilities sum to the sample size 2, as they must.
+
+## Worked example
+
+Sample `k = 2` items from the stream `a b c d e f`. These draws come from running the repository's Python algorithm with `random.Random(8)`.
+
+<ArrayDiagram
+  legend={{ p: 'new item', l: 'just replaced', f: 'in the final sample', m: 'rejected' }}
+  rows={[
+    { label: 'i = 1, 2: fill', values: ['a', 'b'], tones: 'll', note: 'The first `k` items go straight in.' },
+    { label: 'i = 3, item c', values: ['c', 'b'], tones: 'lm', marks: { 0: 'j = 0' }, note: 'Draw `j = 0 < 2`: c replaces slot 0 (it had a 2/3 chance of entering).' },
+    { label: 'i = 4, item d', values: ['c', 'b'], tones: 'mm', note: 'Draw `j = 2 >= 2`: d is rejected (it had a 2/4 chance of entering).' },
+    { label: 'i = 5, item e', values: ['c', 'b'], tones: 'mm', note: 'Draw `j = 3 >= 2`: e is rejected.' },
+    { label: 'i = 6, item f', values: ['c', 'f'], tones: 'ff', marks: { 1: 'j = 1' }, note: 'Draw `j = 1 < 2`: f replaces slot 1. The sample is `[c, f]`.' },
+  ]}
+/>
+
+A single run is random, of course: a different seed gives a different sample, and over many runs each of the six letters appears in a third of the samples.
+
+## Pseudocode
+
+```text
+reservoirSample(stream, k):
+    reservoir = []
+    seen = 0
+    for item in stream:
+        seen = seen + 1
+        if seen <= k:
+            reservoir.append(item)
+        else:
+            j = random integer in [0, seen - 1]
+            if j < k:
+                reservoir[j] = item
+    return reservoir
+```
+
+## Implementation
+
+Each language offers a one-shot function and a stateful sampler for items that arrive one at a time.
+
+- **Python:** `reservoir_sample(stream, k, rng=None)` accepts any iterable, and `ReservoirSampler(k, rng)` has `offer`, `sample` and `len`.
+- **C++:** the class template `ReservoirSampler` (`offer`, `sample`, `size`, `seen`) and `reservoirSample(container, k, seed)`. The item counter is a 64-bit integer, so streams longer than 2<sup>31</sup> items work.
+- **Go:** `Sampler` and `ReservoirSample` work on `int` only. `NewSampler(k, seed)` uses a random seed when `seed` is 0.
+
+`k = 0` returns an empty sample, a negative `k` is an error in every language, and a stream shorter than `k` returns all its items. `sample()` returns a copy.
+
+<TopicCode topic="Algorithms/Randomized_Algorithms/Reservoir_Sampling" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(n)', when: 'One random draw and at most one write per item, in every case.' },
+    { case: 'Memory', time: 'O(k)', when: 'Only the reservoir is kept; the stream is never stored.' },
+    { case: 'Random numbers', time: 'n - k', when: 'One draw for each item after the first k.' },
+  ]}
+/>
+
+There is no best or worst input: the running time depends only on the stream length. Because the acceptance probability `k / i` shrinks, most items are rejected once `i` is large. **Algorithm L** exploits this by drawing how many items to skip, which takes expected time <BigO of="k (1 + log(n/k))" /> when the stream can be skipped over cheaply (for example an indexed array).
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Use when']}
+  rows={[
+    ['Algorithm R (here)', 'one draw per item, replace with probability k/i', 'general streams; simple and exact'],
+    ['Algorithm L', 'skip ahead by a random gap instead of drawing per item', 'huge n and small k, with cheap skipping'],
+    ['Weighted (A-Res)', 'sample with probabilities proportional to item weights', 'items have unequal weights'],
+    ['Merging reservoirs', 'combine samples from shards, weighted by how many items each saw', 'distributed counting; the merge must account for the shard sizes'],
+  ]}
+/>
+
+## Reservoir sampling vs alternatives
+
+<DataTable
+  columns={['Technique', 'Needs n first', { label: 'Memory', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Reservoir sampling', 'No', 'O(k)', 'one pass over a stream of unknown length'],
+    ['Shuffle, take the first k', 'Yes', 'O(n)', 'all the data must be in memory'],
+    ['Pick k random indexes', 'Yes', 'O(k)', 'needs random access and n'],
+    ['Bernoulli sampling with probability p', 'No', 'O(pn)', 'the sample size is random, not exactly k'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'One pass, O(k) memory, and no need to know the stream length.',
+    'Exactly uniform, with a short proof.',
+    'Any prefix of the stream has a valid sample, so you can query it at any time.',
+    'It works on iterables, files and linked lists that cannot be counted cheaply.',
+  ]}
+  cons={[
+    'One random draw per item with Algorithm R, unless you switch to Algorithm L.',
+    'It cannot sample with unequal weights without a different algorithm.',
+    'The sample order is arbitrary; do not read meaning into slot positions.',
+    'Randomness quality matters: a biased generator gives a biased sample.',
+  ]}
+/>
+
+## Applications
+
+- **Sampling a log or event stream:** keep `k` representative lines without knowing how many will arrive.
+- **Random node of a linked list** without counting it first (LeetCode 382 "Linked List Random Node").
+- **Random index among equal values** in an array (LeetCode 398 "Random Pick Index"), the `k = 1` case.
+- **Large files:** sample rows from a file that does not fit in memory.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Always replacing slot 0.** The accept test is right, but the slot must be uniform. A fixed slot skews the sample.
+- **Off-by-one on the range.** With `i` counted from 1, draw from `0 .. i - 1` and accept `j < k`. If you draw from `0 .. i` you give the item too small a chance.
+- **A 32-bit counter.** A long-running stream can pass 2<sup>31</sup> items. The C++ sampler used an `int` counter that overflowed; it is now 64-bit.
+- **Sharing a generator between threads.** Give each thread its own generator, and a fixed seed in tests.
+- **Calling a shuffle reservoir sampling.** Shuffling needs all the data and a second pass over it; the whole point here is one pass.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does a later item still have a fair chance?">
+    A later item enters with a lower probability, `k / i`, but it also has fewer steps in which it can be evicted. The two effects cancel exactly, which is the telescoping product above.
+  </FaqItem>
+  <FaqItem question="What if the stream has fewer than k items?">
+    Then every item is kept and the reservoir is the whole stream. All three implementations return it unchanged.
+  </FaqItem>
+  <FaqItem question="Is the order of the sample random?">
+    Not by design. The sample as a set is uniform, but slots are filled in arrival order and then overwritten. Shuffle the result if you need a random order.
+  </FaqItem>
+  <FaqItem question="How do I sample with weights?">
+    Use a weighted variant such as A-Res (Efraimidis and Spirakis), which assigns each item a random key based on its weight and keeps the `k` largest keys. It is a different algorithm from the one in this repository.
+  </FaqItem>
+</Faq>

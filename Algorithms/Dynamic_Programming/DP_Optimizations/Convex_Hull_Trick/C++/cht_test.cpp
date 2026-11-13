@@ -42,6 +42,27 @@ void testMonotonicRandom() {
     }
 }
 
+void testMonotonicEqualSlopes() {
+    // Regression: the middle line {2, 1} used to be dropped
+    MonotonicCHT cht;
+    for (auto& l : std::vector<LinePair>{{2, 5}, {2, 1}, {2, 3}}) cht.addLine(l.first, l.second);
+    assert(cht.query(0) == 1);
+
+    std::mt19937 rng(11);
+    for (int round = 0; round < 300; ++round) {
+        std::vector<LinePair> lines;
+        long long m = 20;
+        int count = 1 + (int)(rng() % 12);
+        for (int i = 0; i < count; ++i) {
+            m -= (long long)(rng() % 4);  // 0 allowed: equal slopes
+            lines.push_back({m, (long long)(rng() % 61) - 30});
+        }
+        MonotonicCHT c;
+        for (auto& l : lines) c.addLine(l.first, l.second);
+        for (long long x = -15; x <= 15; ++x) assert(c.query(x) == bruteMin(lines, x));
+    }
+}
+
 void testLiChaoClassic() {
     LiChaoTree lc(-20, 20);
     std::vector<LinePair> lines = {{2, 5}, {1, 3}, {-1, 7}, {3, -2}, {0, 8}};
@@ -70,8 +91,9 @@ void testLiChaoArbitraryOrder() {
 int main() {
     testMonotonicClassic();
     testMonotonicRandom();
+    testMonotonicEqualSlopes();
     testLiChaoClassic();
     testLiChaoArbitraryOrder();
-    std::cout << "All 4 tests passed!" << std::endl;
+    std::cout << "All 5 tests passed!" << std::endl;
     return 0;
 }

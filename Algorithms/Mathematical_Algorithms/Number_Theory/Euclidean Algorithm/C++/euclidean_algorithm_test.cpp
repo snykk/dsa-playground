@@ -3,6 +3,7 @@
  */
 
 #include <cassert>
+#include <numeric>
 #include <iostream>
 #include "euclidean_algorithm.cpp"
 
@@ -76,6 +77,49 @@ void testExtendedGcdCoprime() {
     assert(17 * result.x + 13 * result.y == 1);
 }
 
+void testExtendedGcdNegativeInputs() {
+    ExtendedGCD r = extendedGcd(-48, 18);
+    assert(r.gcd == 6);
+    assert(-48 * r.x + 18 * r.y == 6);
+    r = extendedGcd(48, -18);
+    assert(48 * r.x - 18 * r.y == 6);
+    r = extendedGcd(-48, -18);
+    assert(-48 * r.x - 18 * r.y == 6);
+}
+
+void testExtendedGcdIdentityRandomSigned() {
+    unsigned seed = 2026;
+    auto next = [&seed]() { seed = seed * 1103515245u + 12345u; return seed >> 8; };
+    for (int i = 0; i < 20000; i++) {
+        long long a = static_cast<long long>(next() % 2000001) - 1000000;
+        long long b = static_cast<long long>(next() % 2000001) - 1000000;
+        ExtendedGCD r = extendedGcd(a, b);
+        assert(r.gcd == std::gcd(a, b));
+        assert(a * r.x + b * r.y == r.gcd);
+    }
+}
+
+void testExtendedGcdZero() {
+    ExtendedGCD r = extendedGcd(0, 0);
+    assert(r.gcd == 0 && r.x == 1 && r.y == 0);
+    r = extendedGcd(-7, 0);
+    assert(r.gcd == 7 && -7 * r.x == 7);
+    r = extendedGcd(0, -7);
+    assert(r.gcd == 7 && -7 * r.y == 7);
+}
+
+void testLcmDoesNotOverflow() {
+    // |a * b| = 1.6e19 does not fit in 64 bits, the lcm 4e9 does.
+    assert(lcm(4000000000LL, 4000000000LL) == 4000000000LL);
+    assert(lcm(-4000000000LL, 4000000000LL) == 4000000000LL);
+    assert(lcm(100000007LL, 100000037LL) == 10000004400000259LL);
+}
+
+void testGcdLargeValues() {
+    assert(gcd(9007199254740993LL, 3) == 3);  // 2^53 + 1
+    assert(gcdIterative(9007199254740993LL, 3) == 3);
+}
+
 int main() {
     testGcdBasic();
     testGcdCommutative();
@@ -88,6 +132,11 @@ int main() {
     testLcmGcdRelationship();
     testExtendedGcd();
     testExtendedGcdCoprime();
+    testExtendedGcdNegativeInputs();
+    testExtendedGcdIdentityRandomSigned();
+    testExtendedGcdZero();
+    testLcmDoesNotOverflow();
+    testGcdLargeValues();
     
     std::cout << "All tests passed!" << std::endl;
     return 0;

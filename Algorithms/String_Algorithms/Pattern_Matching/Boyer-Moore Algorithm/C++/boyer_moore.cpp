@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 
 std::unordered_map<char, int> buildBadCharTable(const std::string& pattern) {
     std::unordered_map<char, int> table;

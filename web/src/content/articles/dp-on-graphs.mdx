@@ -1,0 +1,223 @@
+---
+topic: Algorithms/Dynamic_Programming/Advanced DP/DP on Graphs
+title: DP on Graphs
+lead: On a directed acyclic graph (DAG) every node's best value depends only on its successors, so a memoized DFS or a topological sweep solves longest-path, path-counting and similar problems in O(V + E). A cycle breaks that order, which is why detecting cycles matters.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: DAG longest path
+    value: O(V + E)
+    hint: each node and edge is processed once
+  - label: Space
+    value: O(V)
+    hint: memo table plus recursion stack
+  - label: Requirement
+    value: no cycles
+    hint: the code raises ValueError on a reachable cycle
+    tone: warn
+  - label: Approach
+    value: Memoized DFS over successors
+properties:
+  - { label: Needs a DAG, value: true }
+  - { label: Detects cycles, value: true }
+  - { label: Handles edge weights, value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Graph_Algorithms/Traversal
+related:
+  - Algorithms/Dynamic_Programming/Advanced DP/DP on Trees
+  - Algorithms/Dynamic_Programming/Advanced DP/Bitmask DP
+  - Problem_Patterns/Graph Traversal Problems
+  - Algorithms/Graph_Algorithms/Shortest_Path
+---
+
+## When to use DP on graphs
+
+Use it when a question about paths in a **directed graph without cycles** can be answered from the answers for the node's neighbours.
+
+- "Longest path", "number of paths", or "maximum total value along a path" in a DAG.
+- A scheduling problem with dependencies, such as the critical path of a project.
+- The graph is given as prerequisites ("task A needs task B"), so cycles would mean the input is invalid.
+
+On a graph with cycles the same recurrence can loop forever (or be undefined for longest path), so you first need to know whether the graph is a DAG.
+
+## How it works
+
+Define `dp[v]` as the answer for paths **starting at** `v`. A path from `v` is one edge to a successor `w` followed by a path from `w`, so:
+
+<Equation label="Longest path recurrence" expr="dp[v] = 0 if v has no successors, otherwise 1 + max over edges v->w of dp[w]" result="answer = dp[start]" />
+
+<Steps>
+  <Step title="Recurse into successors first">
+    To compute `dp[v]`, call the function on every successor. In a DAG this recursion always ends, because following edges can never return to `v`.
+  </Step>
+  <Step title="Memoize finished nodes">
+    Store each result in a dictionary. A node reached by several paths is computed once, which is what makes the total time O(V + E) instead of the number of paths.
+  </Step>
+  <Step title="Mark nodes in progress">
+    Keep a set of nodes whose call has started but not finished. Meeting one of them again means an edge points back into the current path: a cycle.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+When a call for `v` returns, every node reachable from `v` has a finished memo entry. The three states (not started, in progress, finished) are the same colours as a DFS cycle check; in a DAG the in-progress state is never met twice.
+</Callout>
+
+## A worked example
+
+A DAG with 7 nodes. Each badge is `dp[v]`: the number of edges on the longest path that starts at that node.
+
+<GraphDiagram
+  edges="0->1, 0->2, 0->3, 1->2, 1->4, 2->4, 2->5, 3->5, 4->6, 5->6"
+  positions={{ 0: [4, 50], 1: [24, 20], 2: [48, 50], 3: [24, 82], 4: [72, 20], 5: [72, 82], 6: [96, 50] }}
+  badges={{ 0: '4', 1: '3', 2: '2', 3: '2', 4: '1', 5: '1', 6: '0' }}
+  tones={{ 0: 'p', 6: 'r' }}
+  path="0,1,2,4,6"
+  width={560}
+  height={300}
+  legend={{ p: 'start node', r: 'sink (no successors)', f: 'edges of one longest path: 0, 1, 2, 4, 6' }}
+  caption="Badges show dp[v] for each node. The highlighted walk is one of the longest paths; 2 to 5 to 6 ties with 2 to 4 to 6."
+/>
+
+The calls evaluate in this order of completion: 6 first (value 0), then 4 and 5 (value 1), then 2 (1 + max(1, 1) = 2), then 1 (1 + max(2, 1) = 3), then 3 (1 + 1 = 2) and finally 0 (1 + max(3, 2, 2) = 4). Node 2 and node 5 are reached from several parents but computed once each. The repository code returns 4 for this graph; from node 3 it returns 2 and from node 6 it returns 0.
+
+### When there is a cycle
+
+For `{0: [1], 1: [2], 2: [0]}` the call chain 0, 1, 2 reaches 0 again while 0 is still in progress. The code raises `ValueError`. Before this check existed, the function returned 2 for this graph, a wrong answer.
+
+<GraphDiagram
+  edges="0->1, 1->2, 2->0"
+  tones={{ 0: 'c', 1: 'p', 2: 'p' }}
+  edgeTones={{ '2->0': 'r' }}
+  legend={{ c: 'node already in progress when it is met again', p: 'nodes on the current call chain', r: 'the back edge that closes the cycle' }}
+  caption="The recursion 0, 1, 2 follows the edge 2 to 0 back into a node that has not finished."
+/>
+
+## Pseudocode
+
+```text
+longestPath(graph, start):
+    dp = empty map              # finished nodes -> nodes on longest path from there
+    onStack = empty set         # nodes whose call is still running
+
+    visit(v):
+        if v in dp: return dp[v]
+        if v in onStack: error "graph has a cycle"
+        onStack.add(v)
+        best = 0
+        for w in graph[v] (empty if v is not a key):
+            best = max(best, visit(w))
+        onStack.remove(v)
+        dp[v] = best + 1
+        return dp[v]
+
+    return visit(start) - 1     # edges, not nodes
+```
+
+## Implementation
+
+The Python version has one function, `dag_longest_path(graph, start)`. The graph is a dictionary from a node to a list of successor ids; a node missing from the dictionary has no successors. The C++ and Go folders are placeholders: a stub and a test that asserts nothing.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Advanced DP/DP on Graphs" />
+
+The recursion depth is the length of the longest path, so a path graph of more than about 1,000 nodes reaches Python's default recursion limit.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(V + E)', when: 'Each node is expanded once, and each edge is looked at once, when its source node is expanded. Only nodes reachable from start are visited.' },
+    { case: 'Space', time: 'O(V)', when: 'The memo, the in-progress set and the recursion stack each hold at most one entry per reachable node.' },
+  ]}
+/>
+
+Without the memo the same recurrence takes time proportional to the number of distinct paths, which can be exponential (a chain of diamonds has 2<sup>k</sup> paths for 3k + 1 nodes).
+
+## Problems that fit
+
+<DataTable
+  columns={['Problem', 'State and transition']}
+  rows={[
+    ['Longest path in a DAG', '`dp[v] = 1 + max dp[w]` over successors'],
+    ['Count paths from `s` to `t`', '`ways[v] = sum ways[w]`, with `ways[t] = 1`'],
+    ['Maximum weight path', '`dp[v] = max(weight(v, w) + dp[w])`'],
+    ['Project critical path', 'longest path over tasks weighted by duration'],
+    ['Shortest path in a DAG', 'same recurrence with min; no Dijkstra needed'],
+    ['Paths with a constraint', 'add the constraint to the state: `dp[v][k]`'],
+  ]}
+/>
+
+Only the first row is implemented in the repository; the others use the same skeleton with a different combine step.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'How it differs', 'Notes']}
+  rows={[
+    ['Memoized DFS (this code)', 'recursion over successors', 'visits only nodes reachable from `start`'],
+    ['Topological order sweep', 'compute a topological order, then process nodes in reverse (or forward with predecessors)', 'no recursion, so no depth limit; also finds the order'],
+    ['Edge-weighted DP', 'add the edge weight to the transition', 'not supported by the repository function, whose neighbours are bare ids'],
+    ['Graphs with cycles', 'collapse strongly connected components first', 'the condensation graph is a DAG'],
+  ]}
+/>
+
+## DAG DP vs alternatives
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['DAG DP', 'O(V + E)', 'longest or shortest path, counting; needs no cycles'],
+    ['Dijkstra', 'O((V + E) log V)', 'shortest path on any graph with non-negative weights'],
+    ['Bellman-Ford', 'O(V * E)', 'shortest path with negative weights'],
+    ['Longest path on a general graph', 'NP-hard', 'no polynomial algorithm is known'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time, and simple code: one recursive function with a memo.',
+    'The same skeleton counts paths and optimizes weights.',
+    'Detects invalid (cyclic) input as a by-product.',
+  ]}
+  cons={[
+    'Only valid for acyclic graphs: longest path is NP-hard in general.',
+    'Recursion depth equals the longest path, which can hit language limits.',
+    'The repository version supports unweighted edges only.',
+  ]}
+/>
+
+## Applications
+
+- Build systems and task schedulers: the critical path is a longest path in the dependency DAG.
+- Counting the ways to reach a state in games or state machines whose transitions never repeat.
+- Dynamic programs written as graphs, since every DP's dependency structure is a DAG.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Not detecting cycles.** With only a visited set a back edge looks like a finished node and the answer is silently wrong. You need the in-progress state.
+- **Counting nodes instead of edges.** `dp` here counts nodes and the function subtracts 1; mix the two and every answer is off by one.
+- **Recomputing shared nodes.** Without the memo a diamond-heavy DAG takes exponential time.
+- **Assuming all nodes are keys.** Nodes with no entry in the dictionary are treated as sinks, which is convenient but can hide typos in node ids.
+- **Cycles that are not reachable.** The function checks only the part reachable from `start`; a cycle elsewhere is not reported.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is longest path easy on a DAG but hard in general?">
+    On a DAG a path can never revisit a node, so the best path from `v` depends only on its successors. With cycles a path must remember which nodes it has used, and no way is known to avoid exploring exponentially many paths.
+  </FaqItem>
+  <FaqItem question="Do I need a topological sort?">
+    Not for the memoized DFS: the recursion finds the order itself. A topological sweep is an alternative that avoids recursion.
+  </FaqItem>
+  <FaqItem question="How would I count paths instead?">
+    Replace the combine step: `ways[v]` is the sum of `ways[w]` over successors, with `ways[target] = 1`. Everything else, including the memo and the cycle check, stays the same.
+  </FaqItem>
+  <FaqItem question="What is the difference between the longest path and the shortest path in a DAG?">
+    Only `max` versus `min` in the transition. The DP is the same, and both run in O(V + E), which is faster than Dijkstra or Bellman-Ford.
+  </FaqItem>
+</Faq>

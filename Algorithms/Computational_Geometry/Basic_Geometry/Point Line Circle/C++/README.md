@@ -1,135 +1,32 @@
-# Point, Line, and Circle Operations - C++
+# Point Line Circle -- C++ Implementation
 
-This folder contains a C++ implementation of basic geometric operations for **Point**, **Line**, and **Circle** structures.
+## Files
 
----
+- `point_line_circle.cpp`: `Point`, `Line`, `Circle`, `crossProduct`, `dotProduct`, `orientation`, `angleBetweenPoints`, `pointInTriangle`; `main` is compiled out with `-DIS_TEST_BUILD`.
+- `point_line_circle_test.cpp`: assert-based tests (point, line and circle basics, cross and dot product, orientation codes at several scales, angles including tiny angles and vectors, point in triangle with boundary and degenerate triangles, circle tests at small scale, negative radius, zero-length lines, exact equality).
 
-## Concept
+## API
 
-This module provides fundamental geometric primitives and operations that form the foundation of computational geometry algorithms. The implementation uses C++ structs for efficient memory layout.
+- `Point`: `distanceTo`, `distanceSquared`, exact `operator==`.
+- `Line`: `length`, `lengthSquared`, `slope` (infinity if vertical, NaN if zero length), `isVertical`, `isHorizontal`.
+- `Circle(center, radius)`: `area`, `circumference`, `containsPoint`, `pointOnCircle`; throws `std::invalid_argument` for a negative radius.
+- `crossProduct`, `dotProduct`, `orientation` (0, 1 clockwise, 2 counterclockwise), `angleBetweenPoints`, `pointInTriangle`.
 
-**Key Features:**
-- Struct-based design for efficiency
-- Floating-point tolerance for accurate comparisons
-- Comprehensive geometric utility functions
-- Foundation for advanced geometry algorithms
+## C++-Specific Notes
 
----
+- Needs `<limits>` (included) for infinity and NaN; no EPS constant is used any more.
+- `crossProduct` computes its two products in separate statements so a compiler cannot fuse them into an FMA.
+- Integer coordinates are exact while the products stay below 2^53.
+- The test file includes the `.cpp` directly; define `IS_TEST_BUILD` to drop the demo `main`.
 
-## Data Structures
-
-### Point Struct
-Represents a 2D point with x and y coordinates.
-
-**Methods:**
-- `distanceTo(other)`: Calculate Euclidean distance
-- `distanceSquared(other)`: Calculate squared distance (faster)
-- `operator==`: Equality comparison
-
-### Line Struct
-Represents a line segment defined by two points.
-
-**Methods:**
-- `length()`: Calculate line segment length
-- `slope()`: Calculate slope (returns inf for vertical lines)
-- `isVertical()`: Check if line is vertical
-- `isHorizontal()`: Check if line is horizontal
-
-### Circle Struct
-Represents a circle with center point and radius.
-
-**Methods:**
-- `area()`: Calculate circle area
-- `circumference()`: Calculate circle circumference
-- `containsPoint(point)`: Check if point is inside circle
-- `pointOnCircle(point)`: Check if point is on circle boundary
-
----
-
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `crossProduct(o, a, b)` | Calculate cross product of vectors | O(1) |
-| `dotProduct(o, a, b)` | Calculate dot product of vectors | O(1) |
-| `orientation(p, q, r)` | Determine orientation (0=collinear, 1=clockwise, 2=counterclockwise) | O(1) |
-| `angleBetweenPoints(o, a, b)` | Calculate angle AOB in radians | O(1) |
-| `pointInTriangle(p, a, b, c)` | Check if point is inside triangle | O(1) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Point Distance | O(1) | O(1) |
-| Line Length | O(1) | O(1) |
-| Circle Area | O(1) | O(1) |
-| Cross Product | O(1) | O(1) |
-| Orientation | O(1) | O(1) |
-
----
-
-## Usage
-
-```cpp
-#include "point_line_circle.cpp"
-
-// Point operations
-Point p1(0, 0);
-Point p2(3, 4);
-double distance = p1.distanceTo(p2);  // 5.0
-
-// Line operations
-Line line(Point(0, 0), Point(3, 4));
-double length = line.length();  // 5.0
-double slope = line.slope();  // 1.333...
-
-// Circle operations
-Circle circle(Point(0, 0), 5.0);
-double area = circle.area();  // ~78.54
-bool is_inside = circle.containsPoint(Point(3, 4));  // true
-
-// Geometric functions
-Point p(0, 0);
-Point q(4, 4);
-Point r(1, 2);
-int orient = orientation(p, q, r);  // 2 (counterclockwise)
-```
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++11 point_line_circle.cpp -o point_line_circle
-./point_line_circle
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD point_line_circle_test.cpp -o point_line_circle_test && ./point_line_circle_test
 ```
 
----
+## Key Takeaways
 
-## Run Test
-
-```bash
-g++ -std=c++11 point_line_circle_test.cpp -o test && ./test
-```
-
----
-
-## Important Notes
-
-1. **Floating-Point Precision**: All comparisons use epsilon tolerance (1e-9)
-2. **Vertical Lines**: Slope returns `std::numeric_limits<double>::infinity()` for vertical lines
-3. **Distance Squared**: Use `distanceSquared` when comparing distances (avoids sqrt)
-
----
-
-## Related Files
-
-- Main README: `../README.md`
-- Python Implementation: `../../Python/`
-- Go Implementation: `../../Go/`
-
----
-
-_Last Updated: December 2025_
+- The sign of the cross product answers left, right or straight.
+- Use atan2(abs(cross), dot) for angles, not acos.
+- Exact comparisons make results independent of the coordinate scale.

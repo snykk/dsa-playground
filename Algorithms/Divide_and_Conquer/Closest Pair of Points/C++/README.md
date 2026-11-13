@@ -1,93 +1,29 @@
-# Closest Pair of Points (C++)
+# Closest Pair of Points -- C++ Implementation
 
-**Closest Pair of Points** finds the closest pair of points in a 2D plane using divide and conquer.
+## Files
 
----
+- `closest_pair.cpp`: `Point`, `Result`, `distance`, `bruteForceClosestPair`, `closestPairRecursive`, `closestPair`. It has no `main`.
+- `closest_pair_test.cpp`: assert-based tests (two points, square, lines, closest pair across the divide, duplicates, negative and shared x, too few points, the y-list invariant, and random sets against brute force).
 
-## Overview
+## API
 
-Given n points in a 2D plane, find the pair of points with the smallest Euclidean distance. The divide and conquer approach achieves O(n log n) time complexity.
+- `closestPair(std::vector<Point>& points)`: returns `Result {dist, p1, p2}`. Throws `std::invalid_argument` for fewer than two points. The vector is not modified.
+- `bruteForceClosestPair(points, start, end)`: O(n^2) on a range.
 
----
+## C++-Specific Notes
 
-## Complexity Analysis
+- Every point is tagged with its rank in the x order, and the y-list is split by rank, so equal x values and duplicates are handled exactly.
+- The test file includes the `.cpp` directly, so compile just the test file (compiling both files together gives duplicate symbols).
+- Needs `<limits>` (included).
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(n log n) | O(n) |
-
----
-
-## Usage
-
-```cpp
-#include "closest_pair.cpp"
-
-std::vector<Point> points = {{0, 0}, {1, 1}, {2, 2}, {3, 3}};
-Result result = closestPair(points);
-std::cout << "Distance: " << result.dist << std::endl;
-std::cout << "Points: (" << result.p1.x << "," << result.p1.y 
-          << ") and (" << result.p2.x << "," << result.p2.y << ")" << std::endl;
-```
-
----
-
-## Implementation Details
-
-### Structures
-
-- **`Point`**: Represents a 2D point with x, y coordinates
-- **`Result`**: Contains distance and the two closest points
-
-### Functions
-
-- **`closestPair(points)`**: Main function
-- **`closestPairRecursive(...)`**: Recursive divide and conquer
-- **`bruteForceClosestPair(...)`**: O(n²) for small sets
-- **`distance(p1, p2)`**: Euclidean distance
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++11 closest_pair.cpp closest_pair_test.cpp -o test
-./test
+g++ -std=c++17 -O2 -Wall closest_pair_test.cpp -o closest_pair_test && ./closest_pair_test
 ```
 
----
+## Key Takeaways
 
-## Testing
-
-Run the test suite:
-
-```bash
-g++ -std=c++11 closest_pair.cpp closest_pair_test.cpp -o test && ./test
-```
-
----
-
-## When to Use
-
-- ✅ Finding closest points in 2D
-- ✅ Computational geometry problems
-- ✅ Large point sets (> 100 points)
-- ❌ Small sets (use brute force)
-
----
-
-## Related Algorithms
-
-- **Convex Hull**: Another computational geometry problem
-- **Line Segment Intersection**: Related geometric algorithm
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 33)
-- "Computational Geometry" by de Berg et al.
-
----
-
-_Last Updated: December 2025_
+- Sort by x and y once; split the y-list consistently with the x-list.
+- Only the strip around the dividing line needs checking, with a constant number of neighbors per point.
+- O(n log n) time, O(n) space, and exact for duplicates and equal x values.

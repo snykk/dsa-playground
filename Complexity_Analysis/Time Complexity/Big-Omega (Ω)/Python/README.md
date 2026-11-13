@@ -1,114 +1,41 @@
-# Big-Omega (Ω) Notation (Python)
+# Big-Omega (Omega) -- Python Implementation
 
-**Big-Omega (Ω) Notation** describes the lower bound of an algorithm's time complexity, representing the best-case scenario.
+## Files
 
----
+- `big_omega.py`: four example functions and `demonstrate_big_omega`.
+- `big_omega_test.py`: unit tests, including one that shows all-equal input is sorted in a single partition.
 
-## Overview
+## API
 
-Big-Omega notation provides a lower bound, meaning the algorithm's growth rate is bounded below by a function. It describes the best-case performance.
-
----
-
-## Formal Definition
-
-f(n) = Ω(g(n)) if there exist positive constants c and n₀ such that:
-```
-0 ≤ c·g(n) ≤ f(n) for all n ≥ n₀
-```
-
-This means f(n) is bounded below by g(n).
-
----
-
-## Key Characteristics
-
-1. **Lower Bound**: Describes the best-case scenario
-2. **Minimum Performance**: Guarantees algorithm won't be faster than this
-3. **Complement to Big-O**: Together they provide bounds on performance
-
----
-
-## Common Big-Omega Complexities
-
-| Notation | Description | Example |
-|----------|-------------|---------|
-| **Ω(1)** | Constant lower bound | Linear search (target at first) |
-| **Ω(log n)** | Logarithmic lower bound | Binary search |
-| **Ω(n)** | Linear lower bound | Bubble sort (already sorted) |
-| **Ω(n log n)** | Linearithmic lower bound | Quick sort (balanced partition) |
-| **Ω(n²)** | Quadratic lower bound | Matrix traversal |
-
----
-
-## Examples
-
-### Ω(1) - Constant Lower Bound
-```python
-def linear_search_best_case(arr, target):
-    for i, element in enumerate(arr):
-        if element == target:
-            return i  # Found immediately (best case)
-    return -1
-# Best case: O(1), Worst case: O(n)
-```
-
-### Ω(n) - Linear Lower Bound
-```python
-def bubble_sort_best_case(arr):
-    # Even if already sorted, must check all elements
-    # Best case: Ω(n), Worst case: O(n²)
-```
-
-### Ω(n log n) - Linearithmic Lower Bound
-```python
-def quick_sort_best_case(arr):
-    # Best case: balanced partition
-    # Best case: Ω(n log n), Worst case: O(n²)
-```
-
----
-
-## Big-O vs Big-Omega vs Big-Theta
-
-| Notation | Bound | Description | Example |
-|----------|-------|-------------|---------|
-| **O** | Upper | Worst case | Linear search: O(n) |
-| **Ω** | Lower | Best case | Linear search: Ω(1) |
-| **Θ** | Tight | Best = Worst | Binary search: Θ(log n) |
-
----
-
-## Usage
+- `linear_search_best_case(arr, target)`: index of `target` or -1. `Omega(1)` on every input; best case `Theta(1)`, worst case `Theta(n)`.
+- `bubble_sort_best_case(arr)`: sorts in place with the early-exit flag and returns the list. `Omega(n)` on every input; best case `Theta(n)`, worst case `Theta(n^2)`.
+- `quick_sort_best_case(arr)`: three-way, out-of-place quick sort with the middle element as pivot; returns a new list.
+- `matrix_traversal_lower_bound(matrix)`: sum of all elements, `Theta(n^2)` for an `n` by `n` matrix.
 
 ```python
-from big_omega import (
-    linear_search_best_case,
-    bubble_sort_best_case,
-    quick_sort_best_case
-)
+from big_omega import linear_search_best_case, bubble_sort_best_case
 
-python big_omega.py
+linear_search_best_case([5, 3, 8, 1, 9], 5)   # 0
+bubble_sort_best_case([5, 4, 3, 2, 1])        # [1, 2, 3, 4, 5]
 ```
 
----
+## Python-Specific Notes
 
-## Testing
+- `quick_sort_best_case` is a list-building quick sort: time `Theta(n)` for all-equal keys, `Theta(n log n)` on average, `Theta(n^2)` for lopsided pivots; it allocates new lists at every call.
+- `bubble_sort_best_case` sorts the list it is given; pass `arr.copy()` to keep the original.
+- Only Python has the quick sort example.
+
+## How to Run
 
 ```bash
-python big_omega_test.py
+cd "Complexity_Analysis/Time Complexity/Big-Omega (Ω)/Python"
+python3 -m unittest big_omega_test
+python3 big_omega.py
 ```
 
----
+## Key Takeaways
 
-## Related Topics
+- Big-Omega is a lower bound on a function; best, average and worst case are different functions you can bound.
+- Useful lower bounds are the largest you can prove; `Omega(1)` is always true.
+- Comparison sorting is `Omega(n log n)` in the worst case, not on every input.
 
-- **Big-O (O)**: Upper bound notation
-- **Big-Theta (Θ)**: Tight bound notation
-- **Space Complexity**: Memory usage analysis
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS

@@ -167,4 +167,3 @@ func TestLinearSearchGeneric(t *testing.T) {
 		t.Errorf("Expected 2, got %d", resultStr)
 	}
 }
-

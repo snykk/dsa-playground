@@ -1,50 +1,43 @@
-# Pattern Matching — Python Implementation
+# Pattern Matching -- Python Implementation
 
-Pattern matching answers the question: **"at which positions does pattern `P` appear inside text `T`?"** This folder collects the four textbook algorithms side-by-side so you can see each one's trade-offs.
-
-For the conceptual overview, complexity proofs, and when-to-use decision table, see the parent README: [../README.md](../README.md)
-
----
+Four pattern-matching algorithms side by side: each returns the list of start indices where `pattern` occurs in `text`.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `pattern_matching.py` | Naive, KMP, Rabin-Karp, Boyer-Moore (bad character) |
-| `pattern_matching_test.py` | Unit tests covering each algorithm with shared fixtures |
+| File | Contents |
+|------|----------|
+| `pattern_matching.py` | `naive_search`, `compute_lps`, `kmp_search`, `rabin_karp_search`, `bad_char_table`, `boyer_moore_search` |
+| `pattern_matching_test.py` | 7 `unittest` tests: one per algorithm on `ababcabcabc` / `abc`, plus the empty pattern, a pattern longer than the text, and overlapping matches, each run on all four algorithms |
 
----
+## API
 
-## Algorithms Covered
+- `naive_search(text, pattern) -> list`: compare every window. O(n*m).
+- `compute_lps(pattern) -> list`: the LPS table (`lps[i]` = longest proper prefix of `pattern[0..i]` that is also a suffix). O(m).
+- `kmp_search(text, pattern) -> list`: KMP search. O(n + m).
+- `rabin_karp_search(text, pattern, q=101) -> list`: rolling hash with base 256 modulo `q`; every hash hit is verified. O(n + m) expected.
+- `bad_char_table(pattern) -> dict`: character to its last index in the pattern.
+- `boyer_moore_search(text, pattern) -> list`: right-to-left comparison with bad-character shifts only. O(n/m) best, O(n*m) worst.
 
-| Algorithm | Preprocessing | Match | Good when... |
-|-----------|---------------|-------|--------------|
-| **Naive** | O(1) | O(n·m) | Pattern is tiny or matches are expected early |
-| **KMP** | O(m) | O(n + m) | You want guaranteed linear time — always safe |
-| **Rabin-Karp** | O(m) | O(n + m) expected | Multi-pattern search (one hash table of patterns) |
-| **Boyer-Moore** | O(m + σ) | O(n/m) best, O(n·m) worst | Long patterns over large alphabets (skips chunks) |
-
----
+Edge cases: an empty pattern returns `[0, 1, ..., len(text)]` in all four; a pattern longer than the text returns `[]`.
 
 ## Python-Specific Notes
 
-- **`str.find()` and `in` are already fast.** CPython uses a variant of Boyer-Moore / Horspool internally. Hand-rolled implementations here are educational — in production, `T.find(P)` is your answer.
-- **Rabin-Karp uses rolling hashes.** We use modular arithmetic (`(hash * base + new_char) % mod`) to get O(1) hash updates. Watch out for mod bias — in Python, arbitrary-precision ints make this safer than in C++.
-- **KMP's `failure` array is the star of the show.** Understand how `fail[i]` is defined ("longest proper prefix of P[0..i] that is also a suffix") before memorizing the code — the loop structure is hard to re-derive otherwise.
-- **Boyer-Moore's "bad character rule" alone is not enough for the full O(n/m).** The real Boyer-Moore also uses the "good suffix rule". We implement bad-character only — enough to demonstrate the shift-table idea.
-
----
+- Indices are **code points**, not bytes: `"cafe cafe"`-style offsets in non-ASCII text differ from the C++ and Go versions.
+- `str.find` and `in` are implemented in C and are what you should use in real code.
+- Rabin-Karp uses Python's arbitrary-precision integers, and `%` is always non-negative, so no negative-hash correction is needed. The default `q = 101` is small on purpose; spurious hash hits are rejected by the comparison, so results stay correct.
+- The first window hashes are built with `pow(d, m-i-1, q)` per character (O(m log m)); a Horner loop would be O(m).
+- Boyer-Moore here uses only the bad-character rule, so its worst case is O(n*m).
 
 ## How to Run
 
 ```bash
-python3 -m unittest pattern_matching_test.py
+python3 -m unittest pattern_matching_test
 ```
 
----
+(Run it from this folder.)
 
-## Key Takeaways for Learners
+## Key Takeaways
 
-1. **Pattern matching is a preprocessing story.** Naive does zero prep and walks text quadratically; KMP and Boyer-Moore invest O(m) up front to walk text in (near-)linear time.
-2. **KMP is the one to master first.** It's the foundation for Aho-Corasick (multi-pattern), Z-algorithm (another preprocessing idea), and suffix automata. Every string algorithm builds on its intuitions.
-3. **Rabin-Karp shines for multi-pattern search.** Searching for one pattern? Use KMP. Searching for k patterns? Hash all k, scan text once, compare matching hashes — that's Rabin-Karp's killer use case.
+1. The algorithms differ in what they reuse after a mismatch: nothing (naive), a border (KMP), a hash (Rabin-Karp), or the mismatching character (Boyer-Moore).
+2. KMP is the one with a guaranteed O(n + m) bound; the LPS table is the part to understand.
+3. Test the edges: empty pattern, pattern longer than the text, overlapping matches.

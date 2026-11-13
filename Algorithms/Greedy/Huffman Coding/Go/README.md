@@ -1,43 +1,37 @@
-# Huffman Coding (Go)
+# Huffman Coding -- Go Implementation
 
-Go scaffold for Huffman Coding, a greedy algorithm that builds an optimal prefix-free binary code for lossless data compression based on character frequencies. The full implementation is in the Python directory.
+This folder is a placeholder. The only function, `HuffmanEncode`, returns an empty map; the full algorithm exists in Python only (see `../Python/huffman_coding.py`).
 
 ## Files
 
-| File | Description |
+| File | Contents |
+|------|----------|
+| `main.go` | the placeholder `HuffmanEncode` (`package main`, no `main` function) |
+| `main_test.go` | one test that only checks that the placeholder returns a non-nil map |
+| `go.mod` | module definition (`huffmancoding`) |
+
+## API
+
+| Name | Description |
 |------|-------------|
-| `main.go` | Placeholder with `HuffmanEncode` signature (see Python for full implementation) |
-| `main_test.go` | Basic encode test |
-| `go.mod` | Go module definition (`huffmancoding`) |
+| `HuffmanEncode(text string) map[rune]string` | placeholder: always returns an empty, non-nil map |
+
+There is no tree type, no heap, no decoder and no compression-ratio helper in Go. Writing them is future work.
+
+## Go-Specific Notes
+
+- A real port would use `container/heap` for the min-heap and `rune` keys, which the signature already uses, so that Unicode text works.
+- Equal frequencies leave the exact code table dependent on the heap order, as in Python.
+- The package has no `func main`, so `go run .` does not work; use the tests.
 
 ## How to Run
 
 ```bash
+cd "Algorithms/Greedy/Huffman Coding/Go"
 go test ./...
 ```
 
-## Key Functions
+## Key Takeaways
 
-| Function | Description | Time Complexity |
-|----------|-------------|-----------------|
-| `HuffmanEncode(text string) map[rune]string` | Returns a map of runes to their Huffman codes (placeholder) | O(n log n) |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n log n) for building the Huffman tree via a priority queue |
-| Space | O(n) for the tree and code table |
-
-## Notes
-
-- Huffman coding assigns shorter codes to more frequent characters and longer codes to rarer ones.
-- The algorithm greedily merges the two lowest-frequency nodes until a single tree remains.
-- The resulting codes are prefix-free, meaning no code is a prefix of another.
-- Uses `rune` type for Unicode character support in Go.
-- The Python implementation contains the complete tree builder, encoder, decoder, and compression ratio calculator.
-- See `../Python/huffman_coding.py` for the full working implementation.
-
----
-
-_Last Updated: April 2026_
+- Nothing is implemented here yet; use the Python version.
+- A passing test does not mean the algorithm works in Go.

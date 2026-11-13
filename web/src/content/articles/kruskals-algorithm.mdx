@@ -1,0 +1,218 @@
+---
+topic: Algorithms/Greedy/Minimum Spanning Tree/Kruskal's Algorithm
+title: Kruskal's Algorithm
+lead: Kruskal's algorithm builds a minimum spanning tree by sorting all edges by weight and adding each edge unless it closes a cycle. A union-find structure answers the cycle question in almost constant time, so the cost is dominated by the sort, O(E log E).
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(E log E)
+    hint: the sort; union-find adds O(E alpha(V))
+  - label: Extra space
+    value: O(V)
+    hint: union-find arrays, plus the sorted edge list
+  - label: Approach
+    value: Greedy
+    hint: lightest safe edge first
+  - label: Disconnected graph
+    value: Spanning forest
+    hint: fewer than V - 1 edges, no error
+    tone: warn
+properties:
+  - { label: Greedy, value: true }
+  - { label: Works on an edge list, value: true }
+  - { label: Negative weights, value: true }
+  - { label: Needs a connected graph, value: false }
+prerequisites:
+  - Data Structures/Advanced_Structures/Disjoint Set Union
+  - Algorithms/Greedy
+related:
+  - Algorithms/Greedy/Minimum Spanning Tree/Prim's Algorithm
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU
+  - Algorithms/Greedy/Activity Selection
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm
+---
+
+## How Kruskal's algorithm works
+
+A spanning tree connects all V vertices with V - 1 edges and no cycle. A **minimum** spanning tree is the one with the smallest total weight. Kruskal's idea is the simplest greedy rule: look at the edges from lightest to heaviest and keep an edge whenever it joins two vertices that are not yet connected.
+
+<Steps>
+  <Step title="Sort the edges">
+    Order all edges by weight, lightest first.
+  </Step>
+  <Step title="Start with V separate vertices">
+    Create a union-find structure where every vertex is in its own set. Each set is one tree of the growing forest.
+  </Step>
+  <Step title="Scan the sorted edges">
+    For each edge (u, v, w): if `find(u) != find(v)` the endpoints are in different trees, so keep the edge and `union` them. Otherwise the edge would close a cycle, so skip it.
+  </Step>
+  <Step title="Stop early">
+    Once V - 1 edges are kept the tree is complete and the remaining edges are not examined. If the edges run out first, the graph was disconnected.
+  </Step>
+</Steps>
+
+<Callout title="Why the greedy choice is safe: the cut property">
+Take any edge e that is a lightest edge crossing some cut (a split of the vertices into two groups). Then some minimum spanning tree contains e. When Kruskal examines an edge that joins two different trees, that edge is a lightest edge leaving one of those trees, since every lighter edge was already examined and either kept or skipped. So it is always safe to keep.
+</Callout>
+
+## See it in action
+
+Step through the sorted edges. Each one is examined, then either added to the tree or skipped because both ends are already in the same tree. Try the negative-weight and disconnected examples, or type your own: `A-B 4, B-C 1, A-C 2; start A` (Kruskal ignores the start vertex).
+
+<ArticleViz ids={['kruskal']} />
+
+## Worked example
+
+Seven vertices A to G (0 to 6 in the code), eleven edges. The tree edges are highlighted; the dimmed edges were skipped because they would close a cycle.
+
+<GraphDiagram
+  edges="A-B 7, A-D 5, B-C 8, B-D 9, B-E 7, C-E 5, D-E 15, D-F 6, E-F 8, E-G 9, F-G 11"
+  positions={{ A: [8, 22], B: [40, 6], C: [84, 14], D: [16, 74], E: [56, 54], F: [44, 96], G: [94, 84] }}
+  edgeTones={{ 'A-D': 'f', 'C-E': 'f', 'D-F': 'f', 'A-B': 'f', 'B-E': 'f', 'E-G': 'f', 'B-C': 'm', 'E-F': 'm', 'B-D': 'm', 'F-G': 'm', 'D-E': 'm' }}
+  legend={{ f: 'tree edge, kept', m: 'skipped: it would close a cycle' }}
+  caption="Total weight 5 + 5 + 6 + 7 + 7 + 9 = 39, with 6 edges for 7 vertices."
+/>
+
+The sorted edge list and each decision, as `kruskal_mst` makes it:
+
+<DataTable
+  columns={['Edge', 'Weight', 'Decision', 'Why']}
+  rows={[
+    ['A-D', '5', 'keep', 'A and D are in different sets'],
+    ['C-E', '5', 'keep', 'different sets'],
+    ['D-F', '6', 'keep', 'F joins the set {A, D}'],
+    ['A-B', '7', 'keep', 'B joins {A, D, F}'],
+    ['B-E', '7', 'keep', 'merges {A, B, D, F} with {C, E}'],
+    ['B-C', '8', 'skip', 'B and C are already connected through E'],
+    ['E-F', '8', 'skip', 'E and F are already connected through B, A, D'],
+    ['B-D', '9', 'skip', 'already connected through A'],
+    ['E-G', '9', 'keep', 'G is the last vertex; 6 edges, so the scan stops'],
+    ['F-G', '11', 'not examined', 'the tree already has V - 1 edges'],
+    ['D-E', '15', 'not examined', 'the tree already has V - 1 edges'],
+  ]}
+/>
+
+`kruskal_mst(edges, 7)` returns `[(0, 3, 5), (2, 4, 5), (3, 5, 6), (0, 1, 7), (1, 4, 7), (4, 6, 9)]` and the total 39.
+
+## Union-find
+
+Kruskal is only fast because "are u and v already connected?" is nearly free. The repository's `UnionFind` stores a `parent` array and a `rank` array.
+
+- **find(x)** follows parent links to the root and, on the way back, points every visited vertex directly at the root (*path compression*).
+- **union(x, y)** finds both roots. If they are equal it returns false (a cycle). Otherwise it hangs the root of lower rank under the other (*union by rank*) and returns true.
+
+With both tricks a find costs O(alpha(V)) amortized, where alpha is the inverse Ackermann function, below 5 for any input that fits in memory. The `union` result doubles as the cycle test, which is why the main loop has no separate `find` calls.
+
+## Pseudocode
+
+```text
+kruskal(edges, n):
+    if n == 0: return [], 0
+    sort edges by weight                  # Python: stable; C++ and Go: not stable
+    uf = UnionFind(n)
+    mst = []; total = 0
+    for (u, v, w) in edges:
+        if uf.union(u, v):                # different trees: no cycle
+            mst.append((u, v, w)); total += w
+            if len(mst) == n - 1: break
+    return mst, total
+```
+
+## Implementation
+
+The input is an edge list of `(u, v, weight)` with vertices numbered 0 to `num_vertices - 1`.
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['Function', '`kruskal_mst`, `kruskal_mst_with_details`', '`kruskalMST`', '`KruskalMST`'],
+    ['Returns', '`(edges, total_weight)`', 'edges only (a vector of tuples)', '`(edges, total)`'],
+    ['Sorts', 'a copy (`sorted`), stable', 'the input vector, in place', 'the input slice, in place'],
+    ['Equal-weight ties', 'input order', 'unspecified (`std::sort`)', 'unspecified (`sort.Slice`)'],
+    ['Connectivity flag', '`is_connected` in the details function', 'none', 'none'],
+  ]}
+/>
+
+<TopicCode topic="Algorithms/Greedy/Minimum Spanning Tree/Kruskal's Algorithm" />
+
+With equal weights there can be several minimum spanning trees. All of them have the same total weight, but the languages may return different edge sets.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'All cases', time: 'O(E log E)', space: 'O(V)', when: 'Sorting E edges costs O(E log E); the E union-find operations cost O(E alpha(V)), which is smaller.' },
+  ]}
+/>
+
+Since E is at most V<sup>2</sup>, log E is at most 2 log V, so O(E log E) is the same as O(E log V). If the weights are small integers, a counting sort makes the sort linear and the whole algorithm nearly O(E).
+
+## Disconnected graphs and negative weights
+
+- **Disconnected input** is not an error. Kruskal returns a **minimum spanning forest**: one tree per component. For edges `(0,1,5), (2,3,3)` on 4 vertices it returns 2 edges with total 8. `kruskal_mst_with_details` reports `is_connected` as `False`, because the result has fewer than V - 1 edges. Prim's algorithm on the same input covers only the start component.
+- **Negative weights** are fine: only the order of the weights matters, never their sign. On `(0,1,-2), (0,2,7), (1,2,3), (1,3,-5), (2,3,1)` the total is -6.
+
+## Kruskal vs Prim
+
+<DataTable
+  columns={['', 'Kruskal', 'Prim']}
+  highlight={0}
+  rows={[
+    ['Idea', 'merge trees by the globally lightest safe edge', 'grow one tree from a start vertex'],
+    ['Input', 'edge list', 'adjacency list or matrix'],
+    ['Main structure', 'sort + union-find', 'priority queue'],
+    ['Time', 'O(E log E)', 'O(E log V) with a heap; O(V^2) with an array'],
+    ['Usually better on', 'sparse graphs', 'dense graphs'],
+    ['Disconnected graph', 'spanning forest', 'start component only'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Short and easy to implement with sorting and union-find.',
+    'Works directly on an edge list; no adjacency structure needed.',
+    'Handles disconnected graphs (a spanning forest) and negative weights.',
+    'Fast on sparse graphs; the sort dominates.',
+  ]}
+  cons={[
+    'Needs all edges in memory and sorted before the first decision.',
+    'The sort costs O(E log E) even when the answer is a tiny part of the graph.',
+    'Less natural than Prim when edges are generated lazily or the graph is very dense.',
+  ]}
+/>
+
+## Applications
+
+- **Network design.** Connect sites, such as cables, pipes or roads, at the least total cost.
+- **Clustering.** Stop Kruskal before the last k - 1 edges to get k clusters (single-linkage clustering).
+- **Approximation algorithms.** A minimum spanning tree is a building block for the metric travelling-salesman 2-approximation.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Skipping the cycle check.** Without union-find (or a similar test) the lightest edges can form a cycle.
+- **Assuming a connected graph.** Check `len(mst) == V - 1` (or `is_connected`) before treating the result as a spanning tree.
+- **Forgetting that the sort mutates.** The C++ and Go versions sort the edge list you pass in, in place.
+- **Relying on a unique answer.** With equal weights, languages can return different edge sets of the same total weight.
+- **Vertices outside 0 to V - 1.** The union-find arrays are sized V. Relabel arbitrary ids first.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does Kruskal's algorithm never create a cycle?">
+    It keeps an edge only when its endpoints are in different union-find sets, that is, in different trees of the forest. Joining two different trees by one edge cannot create a cycle.
+  </FaqItem>
+  <FaqItem question="Is the minimum spanning tree unique?">
+    Only if all edge weights are distinct. With ties there can be several trees of the same minimum total weight.
+  </FaqItem>
+  <FaqItem question="Does Kruskal work with negative weights?">
+    Yes. It only compares weights, so negative values change nothing. This differs from Dijkstra's algorithm, which breaks on negative edges.
+  </FaqItem>
+  <FaqItem question="Kruskal or Prim?">
+    Kruskal for sparse graphs and edge lists; Prim for dense graphs or when the graph is already an adjacency structure. Both are correct and give the same total weight.
+  </FaqItem>
+</Faq>

@@ -1,61 +1,35 @@
-# Centroid Decomposition - Go
+# Centroid Decomposition -- Go Implementation
 
-This folder contains a Go implementation of **Centroid Decomposition** for tree problems.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `main.go` | the `CentroidDecomposition` type and a demo `main()` |
+| `main_test.go` | tests |
+| `go.mod` | module `centroid_decomposition` |
 
-## Concept
+## API
 
-Centroid Decomposition recursively decomposes a tree by repeatedly removing centroids. Useful for solving various tree problems efficiently.
+| Function | Description |
+|----------|-------------|
+| `NewCentroidDecomposition(n int, adj [][]int) *CentroidDecomposition` | stores the adjacency list of a tree on `0..n-1` |
+| `Build(root int)` | resets state and decomposes the component containing `root` |
+| `GetParent() []int` | centroid-tree parent of each node, `-1` for the root (the internal slice, not a copy) |
 
-**Key Features:**
-- Tree decomposition by centroids
-- Divide-and-conquer approach
-- O(N log N) construction
-- Useful for tree problems
+## Go-Specific Notes
 
----
+- The size DFS is recursive; Go grows goroutine stacks on demand, so long paths are fine.
+- The adjacency list is stored, not copied, and `GetParent` returns the live slice.
+- `Build` resets both `parent` and `removed`.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `CentroidDecomposition.Build(root)` | Build centroid tree | O(N log N) |
-| `GetParent()` | Get parent array | O(1) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Build Decomposition | O(N log N) | O(N) |
-| Get Parent | O(1) | O(N) |
-
----
-
-## Usage
-
-```go
-n := 7
-adj := make([][]int, n)
-// ... build adjacency list
-
-cd := NewCentroidDecomposition(n, adj)
-cd.Build(0)
-
-parent := cd.GetParent()
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-go test
+go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Same algorithm as Python and C++.
+- `Build` can be called repeatedly and gives the same parent array.

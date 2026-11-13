@@ -14,11 +14,13 @@ def count_numbers_with_digit_sum(n, target_sum):
         target_sum: Target digit sum
         
     Returns:
-        Count of numbers
+        Count of numbers (0 when n < 0, so count(R) - count(L - 1) works for L = 0)
         
-    Time Complexity: O(log n × target_sum)
-    Space Complexity: O(log n × target_sum)
+    Time Complexity: O(digits * target_sum * 10)
+    Space Complexity: O(digits * target_sum)
     """
+    if n < 0:
+        return 0
     digits = list(map(int, str(n)))
     memo = {}
     

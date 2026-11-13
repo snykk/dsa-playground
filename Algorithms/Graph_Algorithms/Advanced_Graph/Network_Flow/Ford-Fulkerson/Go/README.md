@@ -1,78 +1,37 @@
-# Ford-Fulkerson Algorithm (Go)
+# Ford-Fulkerson Method -- Go Implementation
 
-**Ford-Fulkerson Algorithm** finds the maximum flow in a flow network using DFS to find augmenting paths.
+Maximum flow with DFS augmenting paths. For the idea, the trace and the complexity, see the topic README: [../README.md](../README.md).
 
----
+## Files
 
-## Overview
+| File | Purpose |
+|------|---------|
+| `main.go` | `fordFulkerson`, the recursive `dfsFindPath`, and a demo `main` |
+| `main_test.go` | 8 tests: classic network, unreachable sink, key-less sink, same source and sink, anti-parallel edges, small network (flow 11), large vertex ids, a 20000-vertex chain |
+| `go.mod` | Module definition (`go 1.21`) |
 
-Ford-Fulkerson algorithm is a greedy method for computing maximum flow. It repeatedly finds augmenting paths and pushes flow along them.
+## API
 
----
+- `fordFulkerson(graph map[int]map[int]int, source, sink int) int`: maximum flow value. Returns 0 when `source == sink` or the sink is unreachable.
 
-## Complexity Analysis
+The helper `dfsFindPath` is unexported. There is no path list or min-cut function in Go (Python has them).
 
-| Operation | Time | Space |
-|-----------|------|-------|
-| **Maximum Flow** | O(E × max_flow) | O(V + E) |
+## Go-Specific Notes
 
----
+- **Recursive DFS.** Goroutine stacks start at about 2 KB and grow on demand, so a 20000-vertex chain is fine.
+- **Maps for everything.** Visited state and the residual graph are maps, so vertex ids can be any `int`.
+- **Random iteration order.** The augmenting paths can differ between runs; the flow value does not.
+- **64-bit `int`.** No overflow for capacities that fit in 32 bits.
 
-## Usage
-
-```go
-graph := map[int]map[int]int{
-    0: {1: 16, 2: 13},
-    1: {2: 10, 3: 12},
-    2: {1: 4, 4: 14},
-    3: {2: 9, 5: 20},
-    4: {3: 7, 5: 4},
-}
-
-maxFlow := fordFulkerson(graph, 0, 5)
-```
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    graph := map[int]map[int]int{
-        0: {1: 16, 2: 13},
-        1: {2: 10, 3: 12},
-        2: {1: 4, 4: 14},
-        3: {2: 9, 5: 20},
-        4: {3: 7, 5: 4},
-    }
-    
-    maxFlow := fordFulkerson(graph, 0, 5)
-    fmt.Printf("Maximum flow: %d\n", maxFlow)  // 23
-}
-```
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test ./...
+go run main.go      # demo: prints "Maximum flow: 23"
 ```
 
-## References
+## Key Takeaways
 
-- Ford, L. R., & Fulkerson, D. R. (1956). "Maximal flow through a network"
-- "Introduction to Algorithms" by CLRS (Chapter 26)
-
----
-
-_Last Updated: December 2025_
-
+1. The same residual-graph logic as Python and C++, in a few lines.
+2. Result values are deterministic even though the paths are not.
+3. Only the value is returned.

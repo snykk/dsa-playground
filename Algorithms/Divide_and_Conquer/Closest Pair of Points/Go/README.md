@@ -1,94 +1,29 @@
-# Closest Pair of Points (Go)
+# Closest Pair of Points -- Go Implementation
 
-**Closest Pair of Points** finds the closest pair of points in a 2D plane using divide and conquer.
+## Files
 
----
+- `main.go`: `Point`, `Result`, `distance`, `bruteForceClosestPair`, `closestPairRecursive`, `ClosestPair`. It has no `main` function.
+- `main_test.go`: tests (two points, square, lines, closest pair across the divide, duplicates, negative and shared x, too few points, the y-list invariant, and random sets against brute force).
 
-## Overview
+## API
 
-Given n points in a 2D plane, find the pair of points with the smallest Euclidean distance. The divide and conquer approach achieves O(n log n) time complexity.
+- `ClosestPair(points []Point) Result`: `Dist`, `P1`, `P2`. Panics for fewer than two points. The input slice is copied, not reordered.
+- `bruteForceClosestPair(points []Point) Result`: O(n^2).
 
----
+## Go-Specific Notes
 
-## Complexity Analysis
+- Every point is tagged with its rank in the x order, and the y-list is split by rank, so equal x values and duplicates are handled exactly.
+- The module name is `closestpair`; the code is in `package main` without a `main` function, so it is built and tested with `go test`.
+- The file is `gofmt`-clean.
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(n log n) | O(n) |
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    points := []Point{{0, 0}, {1, 1}, {2, 2}, {3, 3}}
-    result := ClosestPair(points)
-    fmt.Printf("Distance: %f\n", result.Dist)
-    fmt.Printf("Points: (%.1f,%.1f) and (%.1f,%.1f)\n", 
-               result.P1.X, result.P1.Y, result.P2.X, result.P2.Y)
-}
-```
-
----
-
-## Implementation Details
-
-### Types
-
-- **`Point`**: Represents a 2D point with X, Y coordinates
-- **`Result`**: Contains distance and the two closest points
-
-### Functions
-
-- **`ClosestPair(points)`**: Main function
-- **`closestPairRecursive(...)`**: Recursive divide and conquer
-- **`bruteForceClosestPair(points)`**: O(n²) for small sets
-- **`distance(p1, p2)`**: Euclidean distance
-
----
-
-## Testing
-
-Run the test suite:
+## How to Run
 
 ```bash
-go test
+go test ./...
 ```
 
-Run with verbose output:
+## Key Takeaways
 
-```bash
-go test -v
-```
-
----
-
-## When to Use
-
-- ✅ Finding closest points in 2D
-- ✅ Computational geometry problems
-- ✅ Large point sets (> 100 points)
-- ❌ Small sets (use brute force)
-
----
-
-## Related Algorithms
-
-- **Convex Hull**: Another computational geometry problem
-- **Line Segment Intersection**: Related geometric algorithm
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 33)
-- "Computational Geometry" by de Berg et al.
-
----
-
-_Last Updated: December 2025_
+- Sort by x and y once; split the y-list consistently with the x-list.
+- Only the strip around the dividing line needs checking, with a constant number of neighbors per point.
+- O(n log n) time, O(n) space, and exact for duplicates and equal x values.

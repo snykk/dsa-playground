@@ -1,161 +1,98 @@
 # Rotating Calipers
 
-Algorithm for solving various geometric problems using the **rotating calipers** technique. Requires a convex hull as input.
+Rotating calipers sweeps two parallel supporting lines once around a convex polygon. In linear time it finds the **diameter** (the farthest pair of vertices) and the **width** (the narrowest strip that contains the polygon). The input is the polygon's vertices in order, for example the output of the [Convex Hull](../Convex%20Hull/README.md) topic.
 
----
+## Intuition
 
-## Overview
+Clamp a pair of calipers onto a convex shape. Each jaw touches the shape and has all of it on one side. Turn the calipers around the shape while keeping the jaws parallel. The vertices that touch the two jaws at the same moment are **antipodal**, and the farthest pair of points is always one of them. There are only O(n) antipodal pairs, against n^2 pairs in total.
 
-Rotating calipers is a technique used to solve several geometric problems efficiently after computing the convex hull. It uses two parallel lines that "rotate" around the convex polygon to find optimal solutions.
+The code walks the edges in order and keeps a pointer `j` on the vertex farthest from the current edge. The distance of a vertex from an edge is proportional to the triangle area `|cross(i, i+1, k)|`, and on a convex polygon that area rises and then falls, so `j` only needs to move forward while the next vertex has a strictly larger area.
 
-**Key Characteristics:**
-- Efficient: O(n) time complexity after convex hull computation
-- Versatile: Solves multiple geometric problems
-- Optimal: Linear time for diameter, width, and other properties
-- Foundation: Builds upon convex hull algorithms
+Invariant: for every edge `(i, i+1)`, `j` is a vertex of maximum distance from the line through that edge; `j` never moves backwards.
 
----
+## Visual
 
-## Algorithms
-
-### Diameter (Maximum Distance)
-Finds the maximum distance between any two points on the convex hull.
-
-**Time Complexity:** O(n)  
-**Space Complexity:** O(1)
-
-### Width (Minimum Distance Between Parallel Lines)
-Finds the minimum distance between two parallel supporting lines of the convex hull.
-
-**Time Complexity:** O(n)  
-**Space Complexity:** O(1)
-
-### Perimeter
-Calculates the perimeter of the convex hull.
-
-**Time Complexity:** O(n)  
-**Space Complexity:** O(1)
-
-### Area
-Calculates the area of the convex hull using the shoelace formula.
-
-**Time Complexity:** O(n)  
-**Space Complexity:** O(1)
-
----
-
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **Diameter** | O(n) | O(1) |
-| **Width** | O(n) | O(1) |
-| **Perimeter** | O(n) | O(1) |
-| **Area** | O(n) | O(1) |
-
-Note: These complexities assume convex hull is already computed. Total complexity including convex hull is O(n log n).
-
----
-
-## Implementations
-
-This folder contains implementations in three languages:
-
-- **Python** (`Python/`) - Clean, readable implementation
-- **C++** (`C++/`) - Efficient implementation
-- **Go** (`Go/`) - Slice-based implementation
-
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
-
----
-
-## Applications
-
-1. **Shape Analysis**: Find maximum extent of shape
-2. **Collision Detection**: Determine minimum separation
-3. **Path Planning**: Calculate safe navigation corridors
-4. **Computer Graphics**: Bounding box calculations
-5. **Robotics**: Workspace analysis
-
----
-
-## Usage Examples
-
-### Python
-```python
-from rotating_calipers import Point, graham_scan, rotating_calipers_diameter
-
-points = [Point(0, 0), Point(4, 0), Point(4, 3), Point(0, 3)]
-hull = graham_scan(points)
-diameter, p1, p2 = rotating_calipers_diameter(hull)
+```text
+        D (2,5)
+       / \
+ E (-1,3) \          diameter: C-E, length sqrt(37) = 6.083
+     |     C (5,2)   width: edge C-D with farthest vertex A = 4.950
+     |    /
+     A---B
+   (0,0) (4,0)
 ```
 
-### C++
-```cpp
-std::vector<Point> hull = {{0, 0}, {4, 0}, {4, 3}, {0, 3}};
-auto result = rotatingCalipersDiameter(hull);
-```
+## How It Works
 
-### Go
-```go
-hull := []Point{{0, 0}, {4, 0}, {4, 3}, {0, 3}}
-result := rotatingCalipersDiameter(hull)
-```
+1. Clean the polygon: remove consecutive repeated vertices and vertices on an edge (zero cross product). If all points are collinear only the two end points remain.
+2. For each edge `(i, i+1)`, advance `j` while vertex `j + 1` has a strictly larger `|cross|` with the edge than vertex `j`.
+3. Diameter: compare the squared distances from `i` and `i + 1` to `j`, and also to `j + 1` when its area ties (a parallel edge).
+4. Width: take `|cross(i, i+1, j)| / length(i, i+1)`, the height of `j` over the edge; the width is the smallest over all edges.
+5. Return the square root of the best squared distance, or the smallest height. Fewer than three distinct corners give width 0.
 
----
+The module also has `perimeter` (sum of edge lengths) and `area` (shoelace formula). These are plain sums, not caliper algorithms.
 
-## Important Notes
+## Step-by-Step Trace
 
-1. **Convex Hull Required**: Input must be a convex hull (use Graham's Scan or Jarvis March)
-2. **Counterclockwise Order**: Points should be in counterclockwise order
-3. **Antipodal Pairs**: Algorithm finds antipodal pairs efficiently
-4. **Shoelace Formula**: Area calculation uses shoelace formula
+Polygon `A (0,0)`, `B (4,0)`, `C (5,2)`, `D (2,5)`, `E (-1,3)`:
 
----
+| Edge | Farthest vertex j | Height of j | Candidate pairs (distance) |
+|------|-------------------|-------------|----------------------------|
+| A-B | D | 5.0000 | A-D 5.385, B-D 5.385 |
+| B-C | E | 5.8138 | B-E 5.831, C-E 6.083 |
+| C-D | A | 4.9497 | C-A 5.385, D-A 5.385 |
+| D-E | B | 5.2697 | D-B 5.385, E-B 5.831 |
+| E-A | C | 5.3759 | E-C 6.083, A-C 5.385 |
+
+Diameter 6.083 (C-E), width 4.9497, perimeter 17.25, area 20.
+
+## Complexity
+
+| Operation | Time | Space |
+|-----------|------|-------|
+| `diameter`, `width` | O(n) | O(n) for the cleaned copy |
+| `perimeter`, `area` | O(n) | O(1) |
+| Hull first, from a point set | O(n log n) | O(n) |
+
+The edge index goes once around the polygon and the pointer `j` moves forward at most about 2n times in total, so the sweep is linear. Computing the hull from raw points dominates.
 
 ## When to Use
 
-- **Diameter**: Finding maximum distance in point set
-- **Width**: Finding minimum width of shape
-- **Perimeter/Area**: Calculating geometric properties
-- **After Convex Hull**: When you need additional properties of convex hull
+- You need the farthest pair or the narrowest strip of a point set: compute the hull, then run the calipers.
+- The polygon is already convex and ordered (clockwise or counterclockwise both work).
+- Not for non-convex or unordered input; the answers would be meaningless.
 
----
+## Rotating Calipers vs. Alternatives
 
-## Related Algorithms
+| Approach | Diameter time | Notes |
+|----------|---------------|-------|
+| Rotating calipers on the hull | O(n) after the hull | needs convex ordered input |
+| All pairs | O(n^2) | simple; can also be run on the hull vertices only |
+| Minimum-area rectangle, polygon distance | calipers variants | not implemented here |
 
-- **Convex Hull**: Required preprocessing step
-- **Closest Pair**: Related geometric problem
-- **Line Intersection**: Used in geometric queries
+## Common Pitfalls
 
----
+- Climbing on vertex-to-vertex distance can stop at a local maximum (104.96 instead of 104.98 on the fan hull in the tests). Drive the pointer with the area.
+- Collinear or repeated vertices stall the area pointer; the code removes them first.
+- Test both `i` and `i + 1` against `j`, and `j + 1` on a tie.
+- A hull with fewer than three distinct corners has width 0, not infinity.
+- The input must be a convex polygon in order; a raw point set is not accepted.
 
-## Testing
+## Implementations
 
-Run tests with:
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `rotating_calipers.py` | `rotating_calipers_diameter` returns `(distance, p1, p2)` |
+| C++ | [C++](C++/) | `rotating_calipers.cpp` | `rotatingCalipersDiameter` returns a `DiameterResult` |
+| Go | [Go](Go/) | `main.go` | `rotatingCalipersDiameter` returns a `DiameterResult` |
 
-```bash
-# Python
-python -m unittest rotating_calipers_test.py
+## Practice Problems
 
-# C++
-g++ -o test rotating_calipers_test.cpp && ./test
+- [Beauty Contest (POJ 2187)](http://poj.org/problem?id=2187)
 
-# Go
-go test -v
-```
+## Related
 
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 33)
-- "Computational Geometry in C" by Joseph O'Rourke
-- Shamos, M. I. (1978). "Computational geometry"
-
----
-
-_Last Updated: December 2025_
+- [Convex Hull](../Convex%20Hull/README.md)
+- [Line Intersection](../../Basic_Geometry/Line%20Intersection/README.md)
+- [Point Line Circle](../../Basic_Geometry/Point%20Line%20Circle/README.md)
+- [Closest Pair of Points](../../../Divide_and_Conquer/Closest%20Pair%20of%20Points/README.md)

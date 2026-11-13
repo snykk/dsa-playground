@@ -17,7 +17,7 @@ def insertion_sort(arr):
     Returns:
         The sorted array (same reference as input)
         
-    Time Complexity: O(n²)
+    Time Complexity: O(n^2)
     Space Complexity: O(1)
     """
     # Traverse through 1 to len(arr)
@@ -47,7 +47,7 @@ def insertion_sort_recursive(arr, n=None):
     Returns:
         The sorted array (same reference as input)
         
-    Time Complexity: O(n²)
+    Time Complexity: O(n^2)
     Space Complexity: O(n) due to recursion stack
     """
     if n is None:

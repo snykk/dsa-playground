@@ -112,5 +112,59 @@ class TestHLDPositions(unittest.TestCase):
             self.assertEqual(hld.head[i], 0)
 
 
+class TestHLDRobustness(unittest.TestCase):
+    def test_long_path_does_not_overflow_recursion(self):
+        n = 5000
+        hld = HLD(n, make_chain(n))
+        hld.build(0)
+        self.assertEqual(hld.lca(n - 1, n // 2), n // 2)
+        self.assertEqual(sorted(hld.pos), list(range(n)))
+
+    def test_build_twice_gives_same_result(self):
+        adj = [[1, 2], [0, 3, 4], [0, 5], [1], [1, 6], [2], [4]]
+        hld = HLD(7, adj)
+        hld.build(0)
+        first = (list(hld.pos), list(hld.head), list(hld.depth))
+        hld.build(0)
+        self.assertEqual((hld.pos, hld.head, hld.depth), first)
+        self.assertEqual(sorted(hld.pos), list(range(7)))
+
+    def test_lca_and_path_against_naive_on_random_trees(self):
+        import random
+        rng = random.Random(3)
+        for _ in range(200):
+            n = rng.randint(1, 25)
+            adj = [[] for _ in range(n)]
+            par = [-1] * n
+            for v in range(1, n):
+                u = rng.randrange(v)
+                par[v] = u
+                adj[u].append(v)
+                adj[v].append(u)
+            hld = HLD(n, adj)
+            hld.build(0)
+
+            def ancestors(x):
+                out = [x]
+                while par[x] != -1:
+                    x = par[x]
+                    out.append(x)
+                return out
+
+            for _ in range(10):
+                u, v = rng.randrange(n), rng.randrange(n)
+                au = ancestors(u)
+                av = set(ancestors(v))
+                expected = next(a for a in au if a in av)
+                self.assertEqual(hld.lca(u, v), expected)
+                # the segments cover exactly the nodes of the u-v path
+                path_nodes = set(a for a in au if a not in av or a == expected)
+                path_nodes |= set(a for a in ancestors(v) if a not in set(au) or a == expected)
+                covered = set()
+                for lo, hi in hld.query_path(u, v):
+                    covered.update(range(lo, hi + 1))
+                self.assertEqual(covered, set(hld.pos[x] for x in path_nodes))
+
+
 if __name__ == "__main__":
     unittest.main()

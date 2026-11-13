@@ -40,7 +40,7 @@ class UnionFind:
         Returns:
             Root of set containing x
             
-        Time Complexity: O(α(n)) amortized (inverse Ackermann function)
+        Time Complexity: O(alpha(n)) amortized (inverse Ackermann function)
         """
         if self.parent[x] != x:
             self.parent[x] = self.find(self.parent[x])  # Path compression
@@ -57,7 +57,7 @@ class UnionFind:
         Returns:
             True if union occurred, False if already in same set
             
-        Time Complexity: O(α(n)) amortized
+        Time Complexity: O(alpha(n)) amortized
         """
         root_x = self.find(x)
         root_y = self.find(y)
@@ -88,7 +88,7 @@ class UnionFind:
         Returns:
             True if x and y are in same set, False otherwise
             
-        Time Complexity: O(α(n)) amortized
+        Time Complexity: O(alpha(n)) amortized
         """
         return self.find(x) == self.find(y)
     
@@ -130,7 +130,7 @@ def union_find_connected_components(edges: List[tuple], n: int) -> List[List[int
     Returns:
         List of connected components, each as list of vertices
         
-    Time Complexity: O(E × α(n))
+    Time Complexity: O(E x alpha(n))
     Space Complexity: O(n)
     """
     uf = UnionFind(n)
@@ -153,7 +153,7 @@ def union_find_cycle_detection(edges: List[tuple], n: int) -> bool:
     Returns:
         True if cycle detected, False otherwise
         
-    Time Complexity: O(E × α(n))
+    Time Complexity: O(E x alpha(n))
     Space Complexity: O(n)
     """
     uf = UnionFind(n)
@@ -176,7 +176,7 @@ def union_find_kruskal_mst(edges: List[tuple], n: int) -> List[tuple]:
     Returns:
         List of edges in MST as (u, v, weight) tuples
         
-    Time Complexity: O(E log E + E × α(n))
+    Time Complexity: O(E log E + E x alpha(n))
     Space Complexity: O(n)
     """
     # Sort edges by weight
@@ -205,7 +205,7 @@ def union_find_largest_component(edges: List[tuple], n: int) -> List[int]:
     Returns:
         List of vertices in largest component
         
-    Time Complexity: O(E × α(n))
+    Time Complexity: O(E x alpha(n))
     Space Complexity: O(n)
     """
     uf = UnionFind(n)

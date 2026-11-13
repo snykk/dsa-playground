@@ -53,6 +53,8 @@ public:
     }
     
     void build(int root = 0) {
+        removed.assign(n, false);
+        parent.assign(n, -1);
         decompose(root, -1);
     }
     

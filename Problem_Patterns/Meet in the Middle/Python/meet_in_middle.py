@@ -30,11 +30,21 @@ def closest_subset_sum(nums: List[int], target: int) -> int:
         target: Target sum
         
     Returns:
-        Largest subset sum <= target
-        
+        Largest subset sum <= target (the empty subset, sum 0, counts)
+
+    Raises:
+        ValueError: if nums has a negative number (the pruning below is only
+            valid for non-negative values) or if target is negative (then even
+            the empty subset exceeds it, so no subset qualifies)
+
     Time Complexity: O(2^(N/2) * N)
     Space Complexity: O(2^(N/2))
     """
+    if any(x < 0 for x in nums):
+        raise ValueError("nums must be non-negative")
+    if target < 0:
+        raise ValueError("target must be non-negative")
+
     n = len(nums)
     if n == 0:
         return 0
@@ -75,8 +85,6 @@ def main():
     print("=== Meet in the Middle: Closest Subset Sum ===")
     nums = [5, 3, 2, 7, 10]
     target = 14
-    # Possible sums: 
-    # 10+2+1? No 1. 10+3=13, 10+2+? 5+7+2=14.
     result = closest_subset_sum(nums, target)
     print(f"Nums: {nums}, Target: {target}")
     print(f"Closest subset sum <= target: {result}") # Expected: 14 (5+2+7)

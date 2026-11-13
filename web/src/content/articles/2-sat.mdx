@@ -1,0 +1,202 @@
+---
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/2-SAT
+title: 2-SAT
+lead: 2-SAT asks whether n boolean variables can be set so that every clause "a or b" holds. Each clause becomes two implications, so the question reduces to strongly connected components of a graph, and a yes-or-no answer plus an assignment come out in linear time.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n + m)
+    hint: n variables, m clauses
+  - label: Extra space
+    value: O(n + m)
+    hint: implication graph with 2n nodes and 2m edges
+  - label: Approach
+    value: Implication graph + SCC
+  - label: Clause length
+    value: Exactly 2
+    hint: with 3 literals the problem is NP-complete
+    tone: warn
+properties:
+  - { label: Decides satisfiability, value: true }
+  - { label: Builds an assignment, value: true }
+  - { label: Counts all solutions, value: false }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosaraju's_Algorithm
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation
+---
+
+## How 2-SAT works
+
+A clause `(a or b)` says that at least one of the two literals is true. Equivalently: if `a` is false then `b` must be true, and if `b` is false then `a` must be true. So every clause is a pair of implications, and a formula is a directed graph:
+
+- one node per literal, so `2n` nodes: the variable and its negation;
+- for each clause `(a or b)`, the edges `~a -> b` and `~b -> a`.
+
+<Steps>
+  <Step title="Encode literals">
+    Variable `x` is node `2x` and its negation is node `2x + 1`. Then `lit ^ 1` negates any literal, with no branching.
+  </Step>
+  <Step title="Add two edges per clause">
+    For `(a or b)` add `a^1 -> b` and `b^1 -> a`. A single literal `a` is the clause `(a or a)`, which becomes the edge `~a -> a`.
+  </Step>
+  <Step title="Find the SCCs">
+    Run Tarjan's algorithm. The repository uses an iterative version, so deep implication chains are safe.
+  </Step>
+  <Step title="Check every variable">
+    If `x` and `~x` are in the same SCC, then `x -> ~x -> x`, which no assignment can satisfy: report UNSAT.
+  </Step>
+  <Step title="Read off an assignment">
+    Tarjan numbers SCCs in the order they finish, so sink components get the **smallest** ids. Set `x = true` exactly when `comp[2x] < comp[2x + 1]`, that is, when `x` lies in the component that is later in topological order.
+  </Step>
+</Steps>
+
+<Callout title="Why the later component is the safe choice">
+Truth only ever flows forward along implications, from a true literal to the literals it forces. If a literal is true, everything reachable from it must be true as well. Choosing for each variable the literal that sits later in topological order means that nothing reachable from a chosen literal can be a false one, so no implication is ever broken.
+</Callout>
+
+## A worked example
+
+Take `(x0 or x1) and (~x0 or x1) and (~x0 or ~x1)`. Nodes: `x0 = 0`, `~x0 = 1`, `x1 = 2`, `~x1 = 3`. The six edges are the ones the Python code builds:
+
+<GraphDiagram
+  edges="x0->x1, x0->nx1, nx0->x1, x1->nx0, nx1->x0, nx1->nx0"
+  positions={{ x0: [8, 15], nx1: [8, 85], x1: [92, 15], nx0: [92, 85] }}
+  tones={{ x1: 'f', nx0: 'f', x0: 'l', nx1: 'l' }}
+  badges={{ x0: 'comp 1', nx1: 'comp 1', x1: 'comp 0', nx0: 'comp 0' }}
+  legend={{ l: 'SCC {x0, ~x1}: comp 1, finished last', f: 'SCC {x1, ~x0}: comp 0, a sink, finished first' }}
+  caption="Nodes are written `nx0` for ~x0 and `nx1` for ~x1. The edge x0 -> x1 is the only edge between the two components."
+  label="Implication graph with two strongly connected components"
+/>
+
+The components are `{x0, ~x1}` and `{x1, ~x0}`. No variable has both literals in one component, so the formula is satisfiable. The sink `{x1, ~x0}` has the smaller id (0), so its literals are chosen:
+
+<DataTable
+  columns={['Variable', 'comp[x]', 'comp[~x]', 'comp[x] < comp[~x]', 'Value']}
+  rows={[
+    ['x0', '1', '0', 'No', 'false'],
+    ['x1', '0', '1', 'Yes', 'true'],
+  ]}
+/>
+
+The result `x0 = false, x1 = true` is what the Python code returns, and it satisfies all three clauses: `(F or T)`, `(T or T)`, `(T or F)`.
+
+An unsatisfiable formula looks different. `(x0 or x1) and (x0 or ~x1) and (~x0 or x1) and (~x0 or ~x1)` produces edges `~x0 -> x1`, `~x0 -> ~x1`, `~x1 -> x0`, `~x1 -> ~x0`, `x1 -> x0`, `x1 -> ~x0`, `x0 -> x1`, `x0 -> ~x1`. All four literals lie on one cycle, so `solve()` returns `(False, None)`.
+
+## Pseudocode
+
+```text
+addClause(a, b):                  # a, b are literals; negation is lit ^ 1
+    graph[a ^ 1].append(b)
+    graph[b ^ 1].append(a)
+
+solve():
+    comp = tarjanSCC(graph)       # ids in finishing order: sinks first
+    for x in 0 .. n - 1:
+        if comp[2x] == comp[2x + 1]:
+            return UNSAT
+        value[x] = comp[2x] < comp[2x + 1]
+    return SAT, value
+```
+
+## Implementation
+
+All three versions use the same literal encoding and the same iterative Tarjan with an explicit stack of `(node, next neighbour index)` pairs. They also share three helpers: `implies(a, b)` adds the clause `(~a or b)`, `force_true(a)` adds `(a or a)`, and `solve` returns the answer. Python returns `(bool, list or None)`, C++ returns `std::optional<std::vector<bool>>` and Go returns `(bool, []bool)`.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/2-SAT" />
+
+No version checks that a literal is below `2n`: an out-of-range literal raises `IndexError` in Python and is undefined behaviour in C++ and a panic in Go.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Build the graph', time: 'O(n + m)', space: 'O(n + m)', when: 'Two edges per clause, 2n nodes.' },
+    { case: 'Find SCCs', time: 'O(n + m)', space: 'O(n)', when: 'Tarjan visits each node and edge once: the graph has 2n nodes and 2m edges.' },
+    { case: 'Check and assign', time: 'O(n)', space: 'O(n)', when: 'One comparison per variable.' },
+  ]}
+/>
+
+<Equation label="Total" expr="T = O(2n + 2m) = O(n + m)" />
+
+The jump from 2 to 3 literals per clause is the cliff between P and NP-complete. A 3-clause `(a or b or c)` does not decompose into implications between single literals: `~a` only implies `(b or c)`, which is not a node of the graph.
+
+## Variants and extensions
+
+<DataTable
+  columns={['Task', 'How', 'Cost']}
+  rows={[
+    ['Force a literal', 'add `(a or a)`, the edge `~a -> a`', 'O(1) per literal'],
+    ['Implication a -> b', 'add `(~a or b)`', 'O(1) per clause'],
+    ['At most one of k variables', 'add prefix variables p_i = "one of the first i is chosen" with implications between neighbours', 'O(k) extra variables and clauses'],
+    ['Exactly one of two', 'add `(a or b)` and `(~a or ~b)`', 'O(1)'],
+    ['Lexicographically smallest assignment', 'fix variables in order, retry with DFS reachability', 'O(n (n + m))'],
+  ]}
+/>
+
+The solver in this repository returns one assignment. It does not enumerate all solutions and it does not optimise anything.
+
+## 2-SAT vs related problems
+
+<DataTable
+  columns={['Problem', 'Clause shape', 'Complexity', 'Technique']}
+  highlight={0}
+  rows={[
+    ['2-SAT', 'exactly 2 literals', 'P: O(n + m)', 'implication graph + SCC'],
+    ['Horn-SAT', 'at most 1 positive literal', 'P: linear', 'unit propagation'],
+    ['3-SAT', '3 literals', 'NP-complete', 'SAT solvers (CDCL)'],
+    ['MAX-2-SAT', '2 literals, satisfy as many as possible', 'NP-hard', 'approximation'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time, exact answer, and a witness assignment.',
+    'Reuses Tarjan or Kosaraju without changes: all the work is in modelling.',
+    'The same graph explains UNSAT: a variable on a cycle with its own negation.',
+  ]}
+  cons={[
+    'Only works when every constraint involves at most two variables.',
+    'Gives one assignment, not the best one or all of them.',
+    'Modelling bugs (wrong sign, wrong literal id) fail silently.',
+  ]}
+/>
+
+## Applications
+
+- **Pairwise choices.** Each item is in or out, and rules say "A or B must be chosen", "A and B cannot both be chosen" or "A requires B".
+- **Two options per object.** Placing each object on the left or the right, or choosing one of two time slots, with conflicts between pairs of objects.
+- **Feasibility checks.** Deciding whether any valid configuration exists before searching for the best one.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Reversed assignment rule.** With Tarjan ids, a variable is true when `comp[2x] < comp[2x + 1]`, because sinks get the smaller ids. With Kosaraju, whose components come out in topological order, the comparison flips. Test the rule on a tiny formula.
+- **Forgetting the second edge.** Every clause adds two edges, `~a -> b` and `~b -> a`. Adding only one makes the graph unsymmetric and the assignment wrong.
+- **Single-literal clauses.** `(x)` must be encoded as `(x or x)`; otherwise nothing forces `x`.
+- **Not 2-SAT.** Sudoku needs "at least one of nine" clauses, so it does not reduce to 2-SAT.
+- **Mixed literal conventions.** Use `2x` and `2x + 1` everywhere and negate with `^ 1`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does comp[x] == comp[~x] mean UNSAT?">
+    Both literals are on a common cycle, so `x` implies `~x` and `~x` implies `x`. If `x` is true then `~x` must be true, and if `x` is false then `x` must be true. Neither value works.
+  </FaqItem>
+  <FaqItem question="Why is the assignment always valid when no variable collides?">
+    The implication graph is symmetric: an edge `a -> b` always comes with `~b -> ~a`. Because of that, choosing the later literal of every variable never leaves a true literal pointing at a false one.
+  </FaqItem>
+  <FaqItem question="Can I use Kosaraju instead of Tarjan?">
+    Yes. The satisfiability test is identical. The assignment comparison flips, because Kosaraju numbers components in topological order, not in reverse.
+  </FaqItem>
+  <FaqItem question="Does the solver find all solutions?">
+    No. It returns one satisfying assignment. Counting all of them is #P-complete even for 2-SAT.
+  </FaqItem>
+</Faq>

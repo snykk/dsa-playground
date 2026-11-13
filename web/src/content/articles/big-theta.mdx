@@ -1,0 +1,164 @@
+---
+topic: "Complexity_Analysis/Time Complexity/Big-Theta (\u0398)"
+title: Big-Theta Notation
+lead: Big-Theta is a tight asymptotic bound. It says a function grows at exactly the rate of g, bounded above and below by constant multiples of it. It attaches to one function, such as the worst case of an algorithm, not to the algorithm as a whole.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Meaning
+    value: Tight bound
+    hint: both O(g) and Omega(g)
+  - label: Definition
+    value: c1 * g(n) <= f(n) <= c2 * g(n)
+    hint: for all n >= n0
+  - label: Common mistake
+    value: Theta needs best = worst
+    hint: false; Theta bounds one case at a time
+    tone: warn
+  - label: Example
+    value: Quick Sort
+    hint: average Theta(n log n), worst Theta(n^2)
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - "Complexity_Analysis/Time Complexity/Big-Omega (\u03A9)"
+related:
+  - Complexity_Analysis/Amortized Analysis
+  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Searching/Binary Search
+---
+
+## Definition
+
+`f(n) = Theta(g(n))` means that `f` is squeezed between two constant multiples of `g` from some point on.
+
+<Equation label="Big-Theta" expr="f(n) = Theta(g(n))  if there are constants c1, c2 > 0 and n0 such that  0 <= c1 * g(n) <= f(n) <= c2 * g(n)  for all n >= n0" />
+
+Equivalently, `f` is both `O(g)` and `Omega(g)`:
+
+<Equation label="Characterisation" expr="f(n) = Theta(g(n))  if and only if  f(n) = O(g(n)) and f(n) = Omega(g(n))" />
+
+Unlike Big-O and Big-Omega, which are loose by default (`n` is `O(n^2)`), Theta pins the growth rate down: `n` is not `Theta(n^2)`. Like them, it describes a **function**, and the `=` means "is in the set".
+
+## Intuition
+
+Picture `f(n)` between two copies of `g(n)`, one scaled down by `c1` and one scaled up by `c2`. Past `n0` the curve never leaves that band, so `f` grows exactly like `g`.
+
+Theta is where the "cases" misconception does the most damage. The popular rule "use Theta only when best = average = worst" is wrong. Theta is just a tight bound, and an algorithm has several functions you can bound:
+
+- the best-case running time `B(n)`,
+- the average-case running time `A(n)`,
+- the worst-case running time `W(n)`.
+
+Each of them may have its own Theta. When the cases differ, you state one Theta per case. When they all have the same Theta, the running time on every input is `Theta(g)` and you can say it of the whole algorithm.
+
+<DataTable
+  columns={['Algorithm', 'Best case', 'Average case', 'Worst case', 'One Theta for all inputs?']}
+  rows={[
+    ['Quick Sort (fixed pivot)', 'Theta(n log n)', 'Theta(n log n)', 'Theta(n^2)', 'No'],
+    ['Binary search', 'Theta(1)', 'Theta(log n)', 'Theta(log n)', 'No'],
+    ['Linear search', 'Theta(1)', 'Theta(n)', 'Theta(n)', 'No'],
+    ['Merge Sort', 'Theta(n log n)', 'Theta(n log n)', 'Theta(n log n)', 'Yes: Theta(n log n)'],
+    ['Naive matrix multiplication', 'Theta(n^3)', 'Theta(n^3)', 'Theta(n^3)', 'Yes: Theta(n^3)'],
+  ]}
+  caption='Every cell is a tight bound on one case function. "Quick Sort is Theta(n log n)" is wrong; "its average case is Theta(n log n) and its worst case is Theta(n^2)" is right.'
+/>
+
+## Worked examples
+
+### Proving a Theta bound
+
+Claim: `f(n) = 3n^2 + 5n + 2` is `Theta(n^2)`.
+
+- Lower: `3n^2 <= 3n^2 + 5n + 2` for all `n >= 1`, so `c1 = 3`.
+- Upper: for `n >= 1`, `5n <= 5n^2` and `2 <= 2n^2`, so `f(n) <= 10 n^2`, giving `c2 = 10`.
+
+<Equation label="Proof" expr="3 n^2 <= 3n^2 + 5n + 2 <= 10 n^2  for all n >= 1" result="c1 = 3, c2 = 10, n0 = 1" />
+
+<ArrayDiagram
+  legend={{ l: 'lower bound c1 * g(n) = 3n^2', f: 'f(n) = 3n^2 + 5n + 2', r: 'upper bound c2 * g(n) = 10n^2' }}
+  rows={[
+    { label: 'n', values: [1, 2, 3, 4, 5, 6] },
+    { label: 'c1 * g(n) = 3n^2', values: [3, 12, 27, 48, 75, 108], tones: 'llllll' },
+    { label: 'f(n)', values: [10, 24, 44, 70, 102, 140], tones: 'ffffff' },
+    { label: 'c2 * g(n) = 10n^2', values: [10, 40, 90, 160, 250, 360], tones: 'rrrrrr', note: 'Each column is ordered: lower bound <= f(n) <= upper bound. The band keeps widening in absolute terms, but f stays inside it.' },
+  ]}
+/>
+
+### Common closed forms
+
+- `n(n + 1)/2 = Theta(n^2)`: the sum 1 + 2 + &hellip; + n.
+- `a_k n^k + ... + a_0 = Theta(n^k)` for a positive leading coefficient: every polynomial has the Theta of its leading term.
+- `log2(n!) = Theta(n log n)`.
+- `log_a n = Theta(log n)` for every base `a > 1`.
+
+### Cases of the repository examples
+
+Binary search returns as soon as it finds the target. Measured with a list that counts reads (`n = 1,023`): a target in the middle needs 1 read, an absent target needs 20 reads (10 probes with 2 comparisons each). So binary search has a best case of `Theta(1)` and a worst case of `Theta(log n)`, and no single Theta covers the algorithm.
+
+<DataTable
+  columns={['Function', 'Case', 'Tight bound']}
+  rows={[
+    ['`tight_bound_example` (sum)', 'every input', 'Theta(n)'],
+    ['`binary_search_example`', 'best / worst', 'Theta(1) / Theta(log n)'],
+    ['`merge_sort_example` (Python)', 'every input', 'Theta(n log n)'],
+    ['`matrix_multiplication_naive` (Python)', 'every input', 'Theta(n^3)'],
+  ]}
+/>
+
+## Using it in practice
+
+1. Bound the function from above (O) and from below (Omega). If you can make them meet, you have a Theta.
+2. State the case: "worst-case time is Theta(n^2)". Without a case, a single Theta is only valid if every input costs the same order.
+3. Prefer Theta when you mean "exactly this order". Saying `O(n)` for a loop that always does `n^2` steps is true and misleading; `Theta(n^2)` is informative.
+4. Use Theta to say two algorithms have the same growth rate: `f = Theta(g)` is an equivalence relation (reflexive, symmetric and transitive).
+
+## Implementation
+
+Python has four examples: sum, binary search, a real merge sort and naive matrix multiplication. C++ and Go have three (no matrix multiplication). Two honest caveats about the code:
+
+- In C++ and Go, `mergeSortExample` / `MergeSortExample` call the library sort (`std::sort`, `sort.Ints`), not a merge sort. They are `O(n log n)` in the worst case, but not `Theta(n log n)` in every case: Go's `sort.Ints` is a pattern-defeating quicksort that is close to linear on sorted input.
+- The binary search examples return early, so their best case is `Theta(1)`.
+
+<TopicCode topic={'Complexity_Analysis/Time Complexity/Big-Theta (\u0398)'} />
+
+## Complexity
+
+Binary search shows why one algorithm needs several Thetas:
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'Theta(1)', when: 'The target sits at the first middle probe: one read.' },
+    { case: 'Average case', time: 'Theta(log n)', when: 'Over all positions of a present target, the typical search ends after about log2(n) - 1 probes.' },
+    { case: 'Worst case', time: 'Theta(log n)', when: 'The target is absent or found in the last probe: about log2(n) probes.' },
+  ]}
+  caption='Each row is a tight bound on a different function of n. Together they show that no single Theta describes binary search as a whole.'
+/>
+
+## Common misconceptions
+
+<Callout tone="warning" title="Watch out for these">
+- **"Theta only applies when best = average = worst."** False. Theta bounds one function tightly. The worst case of Quick Sort is `Theta(n^2)` and its average case is `Theta(n log n)`; both are correct Theta statements.
+- **"We cannot say Quick Sort is Theta(n log n)."** The statement without a case is unclear. For the average case it is correct.
+- **"Theta is always the best bound to use."** It needs a matching lower bound, which is sometimes unknown. Then you state O and Omega separately.
+- **"Binary search is Theta(log n)."** Only its worst and average cases are. Its best case is `Theta(1)` because it returns early.
+- **"Library sort is a Theta(n log n) merge sort."** In C++ and Go here it is not: it is `O(n log n)`, and Go's version can be close to linear on sorted input.
+- **Theta is not exactness of the constant.** `Theta(n)` hides constants: `3n` and `300n` are both `Theta(n)`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Does Theta mean best case equals worst case?">
+    No. Theta is a tight bound on a function. If you bound the worst case and the best case separately, they may have different Thetas. A single Theta for the whole algorithm exists only when they agree.
+  </FaqItem>
+  <FaqItem question="How do O, Omega and Theta relate?">
+    `f = Theta(g)` exactly when `f = O(g)` and `f = Omega(g)`. Big-O gives the ceiling, Big-Omega the floor, and Theta says the two meet.
+  </FaqItem>
+  <FaqItem question="Why is Quick Sort's worst case Theta(n^2) and its average Theta(n log n)?">
+    The worst case follows the recurrence `T(n) = T(n - 1) + Theta(n)`, which gives `Theta(n^2)`. On random input the split is balanced on average, giving `T(n) = 2T(n/2) + Theta(n)` and `Theta(n log n)`.
+  </FaqItem>
+  <FaqItem question="Can a function be both O(n) and Theta(n^2)?">
+    No. `Theta(n^2)` implies `Omega(n^2)`, which is larger than every `O(n)` function for large `n`.
+  </FaqItem>
+</Faq>

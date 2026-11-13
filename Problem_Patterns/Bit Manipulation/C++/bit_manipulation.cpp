@@ -14,9 +14,13 @@ bool isPowerOfTwo(int64_t n) {
 
 /**
  * Count the number of 1-bits using Brian Kernighan's algorithm.
+ * A negative n is counted as a 64-bit two's complement value (-1 has 64 set
+ * bits), the same as the Python and Go versions. Working on the unsigned value
+ * avoids signed overflow in n - 1.
  * Time Complexity: O(k) where k is the number of set bits
  */
-int countSetBits(int64_t n) {
+int countSetBits(int64_t value) {
+    uint64_t n = static_cast<uint64_t>(value);
     int count = 0;
     while (n) {
         n &= (n - 1);

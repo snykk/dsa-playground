@@ -13,7 +13,8 @@ using namespace std;
  * Space Complexity: O(1)
  */
 int maxSumSubarray(const vector<int>& arr, int k) {
-    if (arr.size() < k) {
+    // 0 for k <= 0 or k > size (the same in the Python and Go versions)
+    if (k <= 0 || arr.size() < static_cast<size_t>(k)) {
         return 0;
     }
     

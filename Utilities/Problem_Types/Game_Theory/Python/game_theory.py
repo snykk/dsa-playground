@@ -81,26 +81,33 @@ def combined_grundy(states: List[int], grundy_tables: List[List[int]]) -> int:
 
 def misere_nim_winner(piles: List[int]) -> bool:
     """
-    Misère Nim: Last to move loses.
-    Different from normal Nim only when all piles are 1.
+    Misere Nim: the player who takes the last object loses.
+    Same as normal Nim unless every pile has at most one object. Then the
+    first player wins exactly when the number of NON-EMPTY piles is even
+    (empty piles do not count).
     """
     xor_sum = 0
-    all_ones = True
-    
+    big_pile = False
+    non_empty = 0
+
     for pile in piles:
         xor_sum ^= pile
         if pile > 1:
-            all_ones = False
-    
-    if all_ones:
-        # Odd number of piles = second player wins
-        return len(piles) % 2 == 0
+            big_pile = True
+        if pile > 0:
+            non_empty += 1
+
+    if not big_pile:
+        return non_empty % 2 == 0
     return xor_sum != 0
 
 
 def staircase_nim(stairs: List[int]) -> bool:
     """
-    Staircase Nim: Only odd-indexed stairs matter.
+    Staircase Nim: a move shifts any number of stones from stairs[i] down to
+    stairs[i - 1]; stairs[0] is the ground, where stones are out of play.
+    Only the odd-indexed stairs matter; the first player wins iff their XOR
+    is non-zero.
     """
     xor_sum = 0
     for i in range(1, len(stairs), 2):
@@ -211,39 +218,62 @@ def fibonacci_nim_winner(n: int) -> bool:
 
 # Game Graph Analysis
 
+WIN, LOSE, DRAW = "win", "lose", "draw"
+
+
+def game_graph_outcomes(n: int, edges: List[Tuple[int, int]]) -> List[str]:
+    """
+    Outcome of a token-moving game on a directed graph (cycles allowed), for
+    the player to move at each node: "win", "lose" or "draw" (the game never
+    ends with best play). A player with no move loses.
+
+    Retrograde analysis: start from the nodes with no moves (lose), mark a
+    node "win" as soon as one move reaches a "lose" node, mark it "lose" when
+    all its moves reach "win" nodes. Nodes never settled are draws.
+    """
+    adj = [[] for _ in range(n)]
+    rev = [[] for _ in range(n)]
+    for u, v in edges:
+        adj[u].append(v)
+        rev[v].append(u)
+
+    outcome = [None] * n
+    remaining = [len(adj[u]) for u in range(n)]
+    queue = []
+    for u in range(n):
+        if remaining[u] == 0:
+            outcome[u] = LOSE
+            queue.append(u)
+
+    head = 0
+    while head < len(queue):
+        v = queue[head]
+        head += 1
+        for u in rev[v]:
+            if outcome[u] is not None:
+                continue
+            if outcome[v] == LOSE:
+                outcome[u] = WIN
+                queue.append(u)
+            else:
+                remaining[u] -= 1
+                if remaining[u] == 0:
+                    outcome[u] = LOSE
+                    queue.append(u)
+
+    return [o if o is not None else DRAW for o in outcome]
+
+
 def analyze_game_graph(n: int, edges: List[Tuple[int, int]]) -> List[bool]:
     """
     Analyze directed game graph where players move a token.
     edges[i] = (from, to) representing possible moves.
-    Returns winning[i] = True if player to move at node i wins.
+    Returns winning[i] = True if the player to move at node i wins.
+    Cycles are allowed: a draw counts as not winning (see game_graph_outcomes
+    to tell draws and losses apart). On an acyclic graph this is the same as
+    "Grundy number is non-zero".
     """
-    adj = [[] for _ in range(n)]
-    for u, v in edges:
-        adj[u].append(v)
-    
-    # Calculate Grundy numbers
-    grundy = [-1] * n
-    
-    def calc_grundy(u: int) -> int:
-        if grundy[u] != -1:
-            return grundy[u]
-        
-        if not adj[u]:  # No moves
-            grundy[u] = 0
-            return 0
-        
-        reachable = set()
-        for v in adj[u]:
-            reachable.add(calc_grundy(v))
-        
-        grundy[u] = mex(reachable)
-        return grundy[u]
-    
-    for i in range(n):
-        calc_grundy(i)
-    
-    # Non-zero Grundy = winning position
-    return [g > 0 for g in grundy]
+    return [o == WIN for o in game_graph_outcomes(n, edges)]
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ func NewUnionFind(size int) *UnionFind {
 
 // Find returns the representative (root) of the set containing x.
 // Applies Path Compression.
-// Time Complexity: O(α(n))
+// Time Complexity: O(alpha(n))
 func (uf *UnionFind) Find(x int) int {
 	if uf.parent[x] != x {
 		uf.parent[x] = uf.Find(uf.parent[x])
@@ -38,7 +38,7 @@ func (uf *UnionFind) Find(x int) int {
 // Union merges the sets containing x and y.
 // Applies Union by Rank.
 // Returns true if sets were merged, false if they were already same.
-// Time Complexity: O(α(n))
+// Time Complexity: O(alpha(n))
 func (uf *UnionFind) Union(x, y int) bool {
 	rootX := uf.Find(x)
 	rootY := uf.Find(y)

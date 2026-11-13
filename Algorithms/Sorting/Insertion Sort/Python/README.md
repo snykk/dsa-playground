@@ -1,30 +1,36 @@
-# Insertion Sort (Python)
+# Insertion Sort -- Python Implementation
 
-**Insertion Sort** builds the final sorted array one item at a time by inserting each element into its correct position.
+## Files
 
----
+- `insertion_sort.py`: the two functions below.
+- `insertion_sort_test.py`: unit tests (basic, sorted, reversed, empty, single, duplicates, recursive version, stability).
 
-## Complexity
+## API
 
-- **Time**: O(n²) worst/average, O(n) best (already sorted)
-- **Space**: O(1)
-
----
-
-## Usage
+- `insertion_sort(arr)`: sorts `arr` in place and returns the same list.
+- `insertion_sort_recursive(arr, n=None)`: sorts the first `n - 1` elements recursively, then inserts the last one. Returns the same list.
 
 ```python
 from insertion_sort import insertion_sort
 
-arr = [64, 34, 25, 12, 22, 11, 90]
-sorted_arr = insertion_sort(arr.copy())
+print(insertion_sort([64, 34, 25, 12, 22, 11, 90]))  # [11, 12, 22, 25, 34, 64, 90]
 ```
 
----
+## Python-Specific Notes
 
-## Testing
+- Works on any items that support `>`.
+- Stable: only a strict `>` shifts an element.
+- `insertion_sort_recursive` has recursion depth `n`; with Python's default limit of about 1,000 frames it raises `RecursionError` for lists of a few thousand elements. It is for teaching.
+- Python 3.9 and later.
+
+## How to Run
 
 ```bash
-python insertion_sort_test.py
+python3 -m unittest insertion_sort_test
 ```
 
+## Key Takeaways
+
+- The prefix `arr[0..i-1]` is always sorted.
+- The number of shifts equals the number of inversions, so nearly sorted input is fast.
+- Prefer `sorted()` or `list.sort()` in real code.

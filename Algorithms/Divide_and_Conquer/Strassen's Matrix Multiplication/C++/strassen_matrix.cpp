@@ -2,7 +2,7 @@
  * Strassen's Matrix Multiplication Implementation (C++)
  * 
  * Divide and conquer algorithm for matrix multiplication
- * Time Complexity: O(n^log₂ 7) ≈ O(n^2.81)
+ * Time Complexity: O(n^log2(7)) ~ O(n^2.81)
  */
 
 #include <vector>
@@ -86,6 +86,27 @@ Matrix strassenMultiply(const Matrix& A, const Matrix& B) {
                 for (int k = 0; k < n; ++k) {
                     C[i][j] += A[i][k] * B[k][j];
                 }
+            }
+        }
+        return C;
+    }
+    
+    // An odd size cannot be split into equal quadrants: pad by one zero row and
+    // column, multiply, and cut the padding off again.
+    if (n % 2 == 1) {
+        Matrix PA(n + 1, std::vector<int>(n + 1, 0));
+        Matrix PB(n + 1, std::vector<int>(n + 1, 0));
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                PA[i][j] = A[i][j];
+                PB[i][j] = B[i][j];
+            }
+        }
+        Matrix PC = strassenMultiply(PA, PB);
+        Matrix C(n, std::vector<int>(n));
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                C[i][j] = PC[i][j];
             }
         }
         return C;

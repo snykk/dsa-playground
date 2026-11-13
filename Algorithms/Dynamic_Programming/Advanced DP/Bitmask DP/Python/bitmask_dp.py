@@ -13,10 +13,11 @@ def traveling_salesman_dp(distances):
         distances: 2D matrix of distances between cities
         
     Returns:
-        Minimum cost to visit all cities and return to start
+        Minimum cost to visit all cities and return to start; float('inf')
+        if no tour exists (every tour uses a missing edge); 0 for no cities
         
-    Time Complexity: O(n² × 2^n)
-    Space Complexity: O(n × 2^n)
+    Time Complexity: O(n^2 * 2^n)
+    Space Complexity: O(n * 2^n)
     """
     n = len(distances)
     if n == 0:
@@ -27,6 +28,8 @@ def traveling_salesman_dp(distances):
     dp[1][0] = 0  # Start at city 0
     
     for mask in range(1, 1 << n):
+        if not (mask & 1):
+            continue  # every tour starts at city 0
         for last in range(n):
             if not (mask & (1 << last)):
                 continue
@@ -46,5 +49,5 @@ def traveling_salesman_dp(distances):
     for last in range(n):
         result = min(result, dp[(1 << n) - 1][last] + distances[last][0])
     
-    return result if result != float('inf') else 0
+    return result
 

@@ -2,11 +2,12 @@
  * Big-O Notation Implementation and Examples
  *
  * Big-O notation describes the upper bound of an algorithm's time complexity.
- * It represents the worst-case scenario for how the runtime grows with input size.
+ * It is an upper bound on a function; that function can be the best, average or
+ * worst-case running time (O is not a synonym for 'worst case').
  *
  * Formal Definition:
- * f(n) = O(g(n)) if there exist positive constants c and n₀ such that
- * 0 ≤ f(n) ≤ c·g(n) for all n ≥ n₀
+ * f(n) = O(g(n)) if there exist positive constants c and n_0 such that
+ * 0 <= f(n) <= c*g(n) for all n >= n_0
  */
 
 #include <iostream>
@@ -74,18 +75,19 @@ vector<int> linearithmicTimeExample(vector<int> arr) {
         return arr;
     }
     
-    // Using built-in sort (typically O(n log n))
+    // Library sort, not a hand-written merge sort. std::sort is O(n log n)
+    // in the worst case (introsort in common implementations).
     sort(arr.begin(), arr.end());
     return arr;
 }
 
 /**
- * O(n²) - Quadratic Time
+ * O(n^2) - Quadratic Time
  * Time complexity grows quadratically with input size.
  * Common in nested loops, bubble sort, selection sort.
  * 
- * Time Complexity: O(n²)
- * Space Complexity: O(n²)
+ * Time Complexity: O(n^2)
+ * Space Complexity: O(n^2)
  */
 vector<pair<int, int>> quadraticTimeExample(const vector<int>& arr) {
     vector<pair<int, int>> pairs;
@@ -98,11 +100,11 @@ vector<pair<int, int>> quadraticTimeExample(const vector<int>& arr) {
 }
 
 /**
- * O(n³) - Cubic Time
+ * O(n^3) - Cubic Time
  * Time complexity grows cubically with input size.
  * Common in triple nested loops, matrix multiplication (naive).
  * 
- * Time Complexity: O(n³)
+ * Time Complexity: O(n^3)
  * Space Complexity: O(1)
  */
 int cubicTimeExample(int n) {
@@ -118,11 +120,12 @@ int cubicTimeExample(int n) {
 }
 
 /**
- * O(2ⁿ) - Exponential Time
+ * O(2^n) - Exponential Time
  * Time complexity grows exponentially with input size.
  * Common in recursive algorithms without memoization (naive Fibonacci).
  * 
- * Time Complexity: O(2ⁿ)
+ * Time Complexity: O(2^n) (valid but loose; the exact growth is Theta(phi^n),
+ * phi = (1 + sqrt(5)) / 2, about 1.618)
  * Space Complexity: O(n) due to recursion stack
  */
 int exponentialTimeExample(int n) {
@@ -167,8 +170,8 @@ void demonstrateBigO() {
     }
     cout << "\n\n";
     
-    // O(n²) - Quadratic
-    cout << "O(n²) - Quadratic Time:\n";
+    // O(n^2) - Quadratic
+    cout << "O(n^2) - Quadratic Time:\n";
     vector<int> testArr = {1, 2, 3, 4};
     vector<pair<int, int>> pairs = quadraticTimeExample(testArr);
     cout << "  All pairs: ";
@@ -177,14 +180,14 @@ void demonstrateBigO() {
     }
     cout << "\n\n";
     
-    // O(n³) - Cubic
-    cout << "O(n³) - Cubic Time:\n";
+    // O(n^3) - Cubic
+    cout << "O(n^3) - Cubic Time:\n";
     int n = 5;
     int count = cubicTimeExample(n);
     cout << "  n=" << n << ": " << count << " operations\n\n";
     
-    // O(2ⁿ) - Exponential
-    cout << "O(2ⁿ) - Exponential Time:\n";
+    // O(2^n) - Exponential
+    cout << "O(2^n) - Exponential Time:\n";
     for (int i = 0; i < 10; i++) {
         int result = exponentialTimeExample(i);
         cout << "  Fibonacci(" << i << ") = " << result << "\n";

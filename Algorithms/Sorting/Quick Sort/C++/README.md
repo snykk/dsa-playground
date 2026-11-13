@@ -1,52 +1,39 @@
-# Quick Sort — C++ Implementation
-
-**Quick Sort** picks a pivot, partitions the array into "less than pivot" and "greater than pivot", and recursively sorts each side. Average O(n log n), worst O(n²) — but with good pivot selection, worst case is vanishingly rare in practice.
-
-For the conceptual overview, pivot strategies, and comparison with Merge Sort, see the parent README: [../README.md](../README.md)
-
----
+# Quick Sort -- C++ Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `quick_sort.cpp` | `quickSort(std::vector<int>&)` with Lomuto or Hoare partition |
-| `quick_sort_test.cpp` | Assertion tests for sorted / reversed / random / duplicates |
+- `quick_sort.cpp`: the `partition` and `quickSort` templates, instantiated for `int` and `double`.
+- `quick_sort_test.cpp`: assert-based tests (basic sort, and edge cases including 2,000 sorted, reversed and all-equal elements). It `#include`s `quick_sort.cpp` directly.
 
----
+## API
 
-## Complexity
+- `template <typename T> void quickSort(std::vector<T>& arr)`: sorts the whole vector in place; does nothing for fewer than two elements.
+- `template <typename T> void quickSort(std::vector<T>& arr, size_t low, size_t high)`: sorts the inclusive range `[low, high]`.
+- `template <typename T> size_t partition(std::vector<T>& arr, size_t low, size_t high)`: Lomuto partition with `arr[high]` as the pivot; returns the pivot's final index.
 
-| Case | Time | Space |
-|------|------|-------|
-| Best | O(n log n) | O(log n) |
-| Average | O(n log n) | O(log n) |
-| Worst | **O(n²)** | O(n) (unbalanced recursion) |
+```cpp
+#include "quick_sort.cpp"
 
-Worst case happens when every pivot is the min or max — e.g., already-sorted input with "first element" pivot strategy.
-
----
+std::vector<int> arr = {64, 34, 25, 12, 22, 11, 90};
+quickSort(arr);
+```
 
 ## C++-Specific Notes
 
-- **`std::sort` is (almost certainly) IntroSort**: it starts as Quick Sort, switches to Heap Sort if recursion goes too deep, and uses Insertion Sort on small ranges. This hybrid avoids the O(n²) worst case while keeping Quick Sort's small constants.
-- **Pivot selection matters.** "First element" is the textbook bug. Use median-of-three, a random pivot, or `std::nth_element` for median selection. `std::sort` uses median-of-three.
-- **`std::partition`** does the partition step for you: `auto mid = std::partition(begin, end, pred)`. Use it for clean, iterator-based implementation.
-- **Tail-call optimization via manual loop**: recurse into the smaller partition, loop into the larger one. Keeps recursion depth at O(log n) even on adversarial inputs.
-
----
+- Lomuto partition only; there is no Hoare version, and the pivot is always the last element.
+- Plain two-call recursion: on sorted or all-equal input the depth is n, so a very large such input can overflow the stack (and takes O(n^2) time). `quickSort(arr, low, pi - 1)` is guarded by `pi > 0` because the indices are unsigned.
+- Not stable.
+- `std::sort` is an introsort (Quick Sort with a Heap Sort fallback and Insertion Sort for small ranges); use it in production.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall quick_sort_test.cpp -o quick_sort_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD quick_sort_test.cpp -o quick_sort_test
 ./quick_sort_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **`std::sort` already does Quick Sort better than you will.** Hand-rolling is for learning; in production, always use the stdlib.
-2. **Pivot choice is the entire algorithm.** First-element on sorted input → O(n²). Random or median-of-three → O(n log n) with overwhelming probability.
-3. **IntroSort is the production answer.** Quick Sort's speed + Heap Sort's worst-case guarantee + Insertion Sort's small-array efficiency. Reading the libstdc++ sort implementation is a good exercise.
+- With unsigned indices, guard `pi - 1` when `pi` can be 0.
+- The last-element pivot makes sorted input the worst case.
+- Recurse into the smaller side to bound the stack.

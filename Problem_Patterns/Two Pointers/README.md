@@ -1,157 +1,112 @@
-# Two Pointers Pattern
+# Two Pointers
 
-A **Two Pointers** technique uses two pointers to traverse data structures efficiently. It's commonly used for sorted arrays, linked lists, and string problems, often reducing time complexity from O(n²) to O(n) by eliminating nested loops.
+Two pointers scan a sequence with two indices instead of a nested loop. When each step can prove that one end cannot be part of the best answer, that pointer moves and never comes back, so pair search, partitioning and palindrome checks run in O(n) time and O(1) extra space.
 
----
+## Intuition
 
-## Overview
+Two shapes cover most problems:
 
-The two pointers pattern maintains two pointers that move through the data structure, either:
-- **Opposite Ends**: Starting at opposite ends and moving toward each other
-- **Same Direction**: Starting at the same end and moving in the same direction (often called "fast and slow pointers")
-- **Sliding Window**: A variant where pointers maintain a window (covered in Sliding Window pattern)
+- Opposite ends: `left` starts at the front, `right` at the back, and they move towards each other. This needs an order to prune with, usually a sorted array.
+- Same direction: a `read` pointer runs ahead of a `write` pointer to filter or partition in place.
 
-This pattern is fundamental for optimizing array and string problems, providing elegant O(n) solutions where brute force would require O(n²).
+Why it is correct, for two sum on a sorted array: if `arr[left] + arr[right]` is smaller than the target, then every pair `(left, j)` with `j < right` is smaller still, so `arr[left]` has no partner and moves up. If the sum is larger, `arr[right]` has no partner and moves down. Nothing that could be the answer is skipped.
 
----
+Signals: a sorted array and "find a pair or triplet", "palindrome", "remove duplicates in place", "maximize the area between two positions".
 
-## Key Characteristics
+## Visual
 
-1. **Efficient Traversal**: Single pass through data structure
-2. **Optimization**: Reduces nested loops to single pass
-3. **Flexible**: Works with sorted and unsorted arrays
-4. **In-Place**: Often allows in-place operations without extra space
+```text
+arr = [1, 3, 4, 6, 8, 10, 13]   target = 17
 
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `two_sum_sorted(arr, target)` | Find two numbers summing to target | O(n) |
-| `three_sum(arr, target)` | Find all triplets summing to target | O(n²) |
-| `is_palindrome(s)` | Check if string is palindrome | O(n) |
-| `remove_duplicates(arr)` | Remove duplicates in-place | O(n) |
-| `container_with_most_water(heights)` | Find maximum water area | O(n) |
-| `merge_sorted_arrays(arr1, m, arr2, n)` | Merge arrays in-place | O(m + n) |
-
----
-
-## Implementation Approaches
-
-### 1. Opposite Ends (Most Common)
-- **Pros**: Simple, intuitive for sorted arrays
-- **Cons**: Requires sorted data
-- **Use Case**: Two sum, palindrome checking, container problems
-
-### 2. Same Direction (Fast & Slow)
-- **Pros**: Works with unsorted data
-- **Cons**: More complex logic
-- **Use Case**: Linked list problems, removing duplicates
-
-### 3. Sliding Window Variant
-- **Pros**: Combines two pointers with window constraints
-- **Cons**: More complex boundary management
-- **Use Case**: Subarray/substring problems with constraints
-
----
-
-## Applications
-
-1. **Two Sum / Three Sum**: Finding pairs/triplets with target sum
-2. **Palindrome Problems**: Checking or constructing palindromes
-3. **Array Manipulation**: Removing duplicates, merging arrays
-4. **Container Problems**: Maximum area, trapping water
-5. **Linked List Problems**: Cycle detection, finding middle
-6. **String Problems**: Valid palindrome, reverse string
-
----
-
-## Example Use Cases
-
-### Two Sum in Sorted Array
-```python
-arr = [2, 7, 11, 15]
-target = 9
-result = two_sum_sorted(arr, target)  # Returns (0, 1)
+ L                    R         1 + 13 = 14 < 17   move L
+    L                 R         3 + 13 = 16 < 17   move L
+       L              R         4 + 13 = 17        found: [2, 6]
 ```
 
-### Palindrome Check
-```python
-s = "racecar"
-result = is_palindrome(s)  # Returns True
+## How It Works
+
+1. Place the pointers (both ends, or read and write indices).
+2. Compare the current pair and decide which pointer to move, using the order of the data.
+3. Stop when `left < right` fails (or `read` reaches the end).
+
+```text
+left = 0; right = n - 1
+while left < right:
+    s = arr[left] + arr[right]
+    if s == target: return [left, right]
+    if s < target:  left += 1
+    else:           right -= 1
 ```
 
-### Remove Duplicates
-```python
-arr = [1, 1, 2, 2, 2, 3, 4, 4, 5]
-new_len = remove_duplicates(arr)  # Returns 5, arr becomes [1, 2, 3, 4, 5]
-```
+`three_sum` sorts, fixes index `i`, scans `i + 1 .. n - 1` for `target - arr[i]`, and skips equal values to avoid duplicate triplets. `container_with_most_water` always moves the shorter wall, because moving the taller one can only shrink the width without raising the height limit.
 
-### Container With Most Water
-```python
-heights = [1, 8, 6, 2, 5, 4, 8, 3, 7]
-result = container_with_most_water(heights)  # Returns 49
-```
+## Step-by-Step Trace
 
----
+`container_with_most_water([1, 8, 6, 2, 5, 4, 8, 3, 7])`:
 
-## Implementations
+| left | right | Heights | Area | Best | Move |
+|------|-------|---------|------|------|------|
+| 0 | 8 | 1, 7 | 8 | 8 | left |
+| 1 | 8 | 8, 7 | 49 | 49 | right |
+| 1 | 7 | 8, 3 | 18 | 49 | right |
+| 1 | 6 | 8, 8 | 40 | 49 | right |
+| 1 | 5 | 8, 4 | 16 | 49 | right |
+| 1 | 4 | 8, 5 | 15 | 49 | right |
+| 1 | 3 | 8, 2 | 4 | 49 | right |
+| 1 | 2 | 8, 6 | 6 | 49 | right, then they meet |
 
-This folder contains implementations in three languages:
+The answer is 49.
 
-- **Python** (`Python/`) - List-based implementation
-- **C++** (`C++/`) - Vector-based implementation
-- **Go** (`Go/`) - Slice-based implementation
+## Complexity
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
-
----
-
-## Complexity Summary
-
-| Problem Type | Time Complexity | Space Complexity |
-|--------------|----------------|------------------|
-| **Two Sum** | O(n) | O(1) |
-| **Three Sum** | O(n²) | O(1) excluding output |
-| **Palindrome** | O(n) | O(1) |
-| **Remove Duplicates** | O(n) | O(1) |
-| **Container** | O(n) | O(1) |
-| **Merge Arrays** | O(m + n) | O(1) |
-
----
+| Algorithm | Time | Space |
+|-----------|------|-------|
+| Opposite-end scan | O(n) | O(1) |
+| Three sum | O(n^2) after an O(n log n) sort | O(1) beyond the output (Go also copies the array) |
+| Read/write filter | O(n) | O(1) |
 
 ## When to Use
 
-- **Sorted Arrays**: Most effective with sorted data
-- **Optimization Needed**: When need to optimize from O(n²) to O(n)
-- **Opposite Direction**: When need to traverse from both ends
-- **In-Place Operations**: When need to modify array without extra space
-- **Linked Lists**: Cycle detection, finding middle node
+Use it on sorted data, for palindromes, and for in-place filtering. Do not use the opposite-end form on unsorted data (sort first, or use a hash map), and do not expect it to find a subset that is not contiguous or pairwise.
 
----
+## Two Pointers vs. Alternatives
 
-## Related Patterns
+| Approach | Time | Extra space | Needs |
+|----------|------|-------------|-------|
+| Two pointers | O(n) | O(1) | sorted input for pair search |
+| Hash map two sum | O(n) | O(n) | nothing |
+| Nested loops | O(n^2) | O(1) | nothing |
+| Binary search per element | O(n log n) | O(1) | sorted input |
 
-- **Sliding Window**: Similar technique with window constraints
-- **Binary Search**: Sometimes combined with two pointers
-- **Sorting**: Often requires sorted array as prerequisite
+## Common Pitfalls
 
----
+- Using the opposite-end scan on an unsorted array.
+- Not skipping duplicates in `three_sum`, which repeats triplets.
+- `left <= right` instead of `left < right`: a pair needs two different elements.
+- C++ `arr.size() - 2` wraps around for short arrays; the code uses `i + 2 < size`.
+- `three_sum` sorts the caller's array in Python and C++; Go sorts a copy.
+- `remove_duplicates` returns the new length but leaves old values after it; only `arr[:length]` is meaningful.
+- `two_sum_sorted` returns `None` in Python, an empty vector in C++ and `nil` in Go when no pair exists.
 
-## Further Reading
+## Implementations
 
-- "Algorithm Design Manual" by Steven Skiena
-- "Cracking the Coding Interview" by Gayle Laakmann McDowell
-- LeetCode two pointers problems
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `two_pointers.py` | `three_sum` sorts in place |
+| C++ | [C++/](C++/) | `two_pointers.cpp` | `three_sum` takes a non-const reference and sorts it |
+| Go | [Go/](Go/) | `main.go` | `three_sum` copies first; unexported functions |
 
----
+## Practice Problems
 
-**Note**: The two pointers pattern is most effective when working with sorted arrays or when the problem structure allows for efficient traversal from both ends. Always consider sorting as a preprocessing step if needed.
+- [LeetCode 167. Two Sum II - Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
+- [LeetCode 15. 3Sum](https://leetcode.com/problems/3sum/)
+- [LeetCode 125. Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
+- [LeetCode 26. Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
+- [LeetCode 11. Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Sliding Window](../Sliding%20Window/)
+- [Binary Search on Answer](../Binary%20Search%20on%20Answer/)
+- [Binary Search](../../Algorithms/Searching/Binary%20Search/)
+- [Monotonic Stack](../Monotonic%20Stack/)

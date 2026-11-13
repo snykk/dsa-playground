@@ -18,7 +18,7 @@ void testTightBoundLinear() {
     
     vector<int> arr3 = {};
     assert(tightBoundExample(arr3) == 0);
-    cout << "✓ Tight bound linear tests passed\n";
+    cout << "OK Tight bound linear tests passed\n";
 }
 
 void testBinarySearchTightBound() {
@@ -33,7 +33,7 @@ void testBinarySearchTightBound() {
     assert(binarySearchExample(arr, 0) == -1);
     assert(binarySearchExample(arr, 20) == -1);
     assert(binarySearchExample(arr, 6) == -1);
-    cout << "✓ Binary search tight bound tests passed\n";
+    cout << "OK Binary search tight bound tests passed\n";
 }
 
 void testMergeSortTightBound() {
@@ -46,7 +46,7 @@ void testMergeSortTightBound() {
     vector<int> sorted2 = mergeSortExample(arr2);
     vector<int> expected2 = {1, 2, 5, 8, 9};
     assert(sorted2 == expected2);
-    cout << "✓ Merge sort tight bound tests passed\n";
+    cout << "OK Merge sort tight bound tests passed\n";
 }
 
 int main() {
@@ -56,6 +56,6 @@ int main() {
     testBinarySearchTightBound();
     testMergeSortTightBound();
     
-    cout << "\nAll tests passed! ✓\n";
+    cout << "\nAll tests passed! OK\n";
     return 0;
 }

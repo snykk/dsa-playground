@@ -1,0 +1,232 @@
+---
+topic: Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+title: Fibonacci Numbers
+lead: Each Fibonacci number is the sum of the two before it. Computing it by direct recursion repeats the same work exponentially often, so it is the standard first example of dynamic programming. Memoization or a bottom-up loop brings it to O(n), and matrix powers to O(log n).
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Naive recursion
+    value: O(2^n)
+    hint: the same values are recomputed again and again
+    tone: warn
+  - label: Memoization / table
+    value: O(n)
+    hint: each F(k) is computed once
+  - label: Two variables
+    value: O(n) time, O(1) space
+    hint: only the last two values are needed
+  - label: Matrix power
+    value: O(log n)
+    hint: counted in arithmetic operations
+properties:
+  - { label: Overlapping subproblems, value: true }
+  - { label: Optimal substructure, value: false }
+  - { label: Fits in 64 bits up to n = 92, value: true }
+  - { label: Python has no overflow, value: true }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix Exponentiation
+---
+
+## How Fibonacci numbers work
+
+The sequence starts `F(0) = 0`, `F(1) = 1`, and every later term is the sum of the previous two: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, ... The definition is already a recurrence, which is why it is the first problem for dynamic programming. Dynamic programming applies when the recursion has **overlapping subproblems**: `F(n)` and `F(n-1)` both need `F(n-2)`, and so on down.
+
+<Steps>
+  <Step title="Write the recurrence">
+    `F(n) = F(n-1) + F(n-2)` for `n >= 2`, with base cases `F(0) = 0` and `F(1) = 1`.
+  </Step>
+  <Step title="Notice the repetition">
+    The recursion tree computes the same `F(k)` many times (see the picture below). There are only `n + 1` distinct values.
+  </Step>
+  <Step title="Store each value once">
+    Top-down (memoization): keep a dictionary of results and return the stored value on a repeat. Bottom-up (tabulation): fill `dp[0..n]` in increasing order.
+  </Step>
+  <Step title="Keep only what is needed">
+    Each value depends only on the previous two, so two variables replace the table.
+  </Step>
+</Steps>
+
+<Callout title="The idea behind all of dynamic programming">
+Naive recursion takes about 1.6<sup>n</sup> calls, but there are only n + 1 different subproblems. Computing each one once turns an exponential algorithm into a linear one.
+</Callout>
+
+## The recursion tree
+
+This is the call tree of `fibonacci_naive(5)`. It makes 15 calls. The orange nodes are repeated work: values that an earlier call has already computed. Only 6 of the 15 calls are first occurrences.
+
+<TreeDiagram
+  legend={{ p: 'repeated work: this value was already computed earlier' }}
+  root={{
+    label: 'F5',
+    children: [
+      {
+        label: 'F4',
+        children: [
+          { label: 'F3', children: [
+            { label: 'F2', children: [{ label: 'F1' }, { label: 'F0' }] },
+            { label: 'F1', tone: 'p' },
+          ] },
+          { label: 'F2', tone: 'p', children: [{ label: 'F1', tone: 'p' }, { label: 'F0', tone: 'p' }] },
+        ],
+      },
+      {
+        label: 'F3',
+        tone: 'p',
+        children: [
+          { label: 'F2', tone: 'p', children: [{ label: 'F1', tone: 'p' }, { label: 'F0', tone: 'p' }] },
+          { label: 'F1', tone: 'p' },
+        ],
+      },
+    ],
+  }}
+/>
+
+The number of calls grows as fast as the sequence: `fibonacci_naive(10)` makes 177 calls, `fibonacci_naive(20)` makes 21,891 and `fibonacci_naive(30)` makes 2,692,537. With memoization, `F(5)` needs 9 calls and `F(10)` needs 19, a linear count.
+
+## See it in action
+
+Press play to fill the table from left to right. Each new entry is the sum of the two entries before it, which are marked while it is filled. Enter any `n` from 0 to 20.
+
+<ArticleViz ids={['fibonacci']} />
+
+## Worked example
+
+Bottom-up for `n = 10`, using `fibonacci_tabulation`:
+
+<ArrayDiagram
+  legend={{ f: 'filled', l: 'the two entries being added', p: 'the entry being computed' }}
+  rows={[
+    { label: 'base cases', values: [0, 1, '', '', '', '', '', '', '', '', ''], tones: 'ff.........', note: '`dp[0] = 0`, `dp[1] = 1`.' },
+    { label: 'i = 2', values: [0, 1, 1, '', '', '', '', '', '', '', ''], tones: 'llp........', marks: { 2: 'i' }, note: '`dp[2] = dp[1] + dp[0] = 1`.' },
+    { label: 'i = 3', values: [0, 1, 1, 2, '', '', '', '', '', '', ''], tones: 'fllp.......', marks: { 3: 'i' }, note: '`dp[3] = dp[2] + dp[1] = 2`.' },
+    { label: 'i = 6', values: [0, 1, 1, 2, 3, 5, 8, '', '', '', ''], tones: 'ffffllp....', marks: { 6: 'i' }, note: '`dp[6] = dp[5] + dp[4] = 8`.' },
+    { label: 'i = 10', values: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55], tones: 'ffffffffllp', marks: { 10: 'i' }, note: '`dp[10] = dp[9] + dp[8] = 55`, the answer.' },
+  ]}
+/>
+
+## Pseudocode
+
+```text
+fibMemo(n, memo):                       # top-down
+    if n <= 1: return n
+    if n in memo: return memo[n]
+    memo[n] = fibMemo(n-1, memo) + fibMemo(n-2, memo)
+    return memo[n]
+
+fibTable(n):                            # bottom-up
+    if n <= 1: return n
+    dp[0] = 0; dp[1] = 1
+    for i = 2 to n: dp[i] = dp[i-1] + dp[i-2]
+    return dp[n]
+
+fibOptimized(n):                        # O(1) space
+    prev2 = 0; prev1 = 1
+    for i = 2 to n:
+        current = prev1 + prev2
+        prev2 = prev1; prev1 = current
+    return prev1
+
+fibMatrix(n):                           # Python only
+    return the top-right entry of [[1,1],[1,0]] raised to the power n
+```
+
+Every function rejects a negative `n`: Python raises `ValueError`, C++ throws `std::invalid_argument` and Go panics.
+
+## Implementation
+
+Python has all the approaches (`fibonacci_naive`, `fibonacci_memoization`, `fibonacci_tabulation`, `fibonacci_optimized`, `fibonacci_matrix`) plus `fibonacci_sequence`. C++ has tabulation, the optimized loop and memoization. Go has tabulation and the optimized loop. C++ and Go return 64-bit integers, so they are exact only up to `F(92)`; Python integers are unbounded.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers" />
+
+## Complexity analysis
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Note']}
+  rows={[
+    ['Naive recursion', 'O(2^n)', 'O(n)', 'the call count grows like the sequence itself'],
+    ['Memoization', 'O(n)', 'O(n)', 'recursion depth n: Python raises RecursionError at about n = 1000'],
+    ['Tabulation', 'O(n)', 'O(n)', 'no recursion'],
+    ['Two variables', 'O(n)', 'O(1)', 'the usual choice'],
+    ['Matrix power', 'O(log n) multiplications', 'O(log n) stack in this code', 'the recursive power in Python uses a stack of depth about log n'],
+  ]}
+/>
+
+The naive time satisfies a recurrence that mirrors the definition:
+
+<Equation label="Naive recursion" expr="T(n) = T(n-1) + T(n-2) + O(1)" result="Theta(1.618^n)" />
+
+Big integers matter at scale: `F(n)` has about 0.2 n digits, so the additions are not constant time for large `n` in Python, and the "O(n)" and "O(log n)" counts are operations, not machine steps.
+
+## The matrix method
+
+The product of the matrix `[[1, 1], [1, 0]]` with the pair `(F(k+1), F(k))` gives `(F(k+2), F(k+1))`. So raising it to the power `n` gives `F(n)` in its top-right entry:
+
+<Equation label="Matrix form" expr="[[1,1],[1,0]]^n = [[F(n+1), F(n)], [F(n), F(n-1)]]" />
+
+Exponentiation by squaring uses O(log n) matrix products. `fibonacci_matrix(100)` returns 354224848179261915075, the same as the loop.
+
+## Fibonacci numbers vs other approaches
+
+<DataTable
+  columns={['Method', 'Idea', 'Good for', 'Catch']}
+  rows={[
+    ['Two-variable loop', 'keep the last two values', 'almost everything', 'O(n) steps'],
+    ['Memoization', 'cache the recursion', 'learning top-down DP', 'recursion depth limits'],
+    ['Matrix power', 'repeated squaring', 'huge n, or n modulo m', 'more code; big integers grow'],
+    ['Closed formula (Binet)', 'powers of the golden ratio, rounded', 'small n only', 'floating-point error for large n'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'The simplest example of overlapping subproblems and memoization.',
+    'The optimized loop is trivial and uses constant memory.',
+    'The matrix method reaches huge indices with few operations.',
+    'The same pattern appears in many recurrences (stairs, tilings, coin counts).',
+  ]}
+  cons={[
+    'Naive recursion is unusable beyond n of about 40.',
+    'Fixed-width integers overflow quickly: F(93) does not fit in 64 bits.',
+    'The memoized recursion hits the recursion limit in Python.',
+    'Memoization and tabulation use O(n) memory that the loop does not need.',
+  ]}
+/>
+
+## Applications
+
+- **Teaching DP.** It shows every technique on a recurrence with one parameter.
+- **Counting.** Climbing stairs with steps 1 and 2 and tilings of a 2 x n strip with dominoes follow the same recurrence.
+- **Matrix and fast-doubling methods.** Computing `F(n)` modulo a number for a huge `n` is a standard exercise.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Overflow.** `F(92)` is the last value that fits in a signed 64-bit integer. In C++ the overflow beyond it is undefined behavior; in Go it silently wraps around.
+- **Recursion depth.** `fibonacci_memoization(3000)` raises `RecursionError` in Python. Use the loop for large `n`.
+- **Wrong base case.** `F(0) = 0` and `F(1) = 1`; starting both at 1 shifts every index by one.
+- **Negative n.** The repository functions reject it (an error or panic), they do not extend the sequence to negative indices.
+- **Naive recursion in a test.** It works for `n = 30`, and then takes minutes for `n = 50`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is the naive recursion exponential?">
+    Each call makes two more calls and the arguments shrink by only 1 or 2, so the number of calls obeys the same recurrence as the numbers themselves. It grows like 1.618<sup>n</sup>.
+  </FaqItem>
+  <FaqItem question="Memoization or tabulation?">
+    Both do O(n) work. Memoization keeps the recursive shape and computes only what is needed; tabulation avoids recursion and its depth limit. For Fibonacci, the two-variable loop beats both.
+  </FaqItem>
+  <FaqItem question="What is the largest n that fits in 64 bits?">
+    `F(92) = 7540113804746346429` fits in a signed 64-bit integer. `F(93) = 12200160415121876738` does not.
+  </FaqItem>
+  <FaqItem question="Does the matrix method really beat the loop?">
+    In the number of arithmetic operations yes: O(log n) against O(n). For small `n` the loop is faster in practice, and for large `n` the cost is dominated by the multiplication of very large integers.
+  </FaqItem>
+</Faq>

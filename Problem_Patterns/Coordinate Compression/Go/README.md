@@ -1,45 +1,37 @@
-# Coordinate Compression — Go Implementation
+# Coordinate Compression -- Go Implementation
 
-**Coordinate Compression** takes a set of values from a sparse, huge range (e.g. `[0, 10⁹]`) and maps them to a dense small range (e.g. `[0, n)`) while preserving relative order. It's the enabling trick behind applying arrays / Fenwick trees / segment trees to problems with big coordinates.
-
-For the conceptual overview, canonical problems (Count of Range Sum, 2D events), and step-by-step walkthrough, see the parent README: [../README.md](../README.md)
-
----
+Maps `int` values to dense ranks `0..k-1` with a `map` and `sort.Ints`.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | `Compress(values []int) (compressed []int, mapping map[int]int)` and inverse |
-| `main_test.go` | Table-driven tests for uniqueness, ordering, and duplicates |
+| File | Description |
+|------|-------------|
+| `main.go` | `compressCoordinates`, `decompressCoordinates`, `compress2DCoordinates` and a demo `main` |
+| `main_test.go` | Tests (4) |
+| `go.mod` | Module `coordinate_compression` |
 
----
+## API
+
+These functions are unexported (package `main`):
+
+- `compressCoordinates(coords []int) map[int]int`: value to rank in sorted order.
+- `decompressCoordinates(mapping map[int]int) []int`: the values in rank order.
+- `compress2DCoordinates(points [][]int) (map[int]int, map[int]int)`: independent x and y mappings; each point is a slice `{x, y}`.
 
 ## Go-Specific Notes
 
-- **`sort.Slice` + dedup is the two-step idiom**:
-  ```go
-  sorted := append([]int{}, values...)
-  sort.Ints(sorted)
-  sorted = unique(sorted) // remove adjacent duplicates
-  ```
-  Then build a `map[int]int` from original value → compressed index.
-- **`sort.SearchInts` for rank lookup**: once you have the sorted-unique slice, `sort.SearchInts(sorted, v)` gives you the compressed index in O(log n). Faster than a map when values are dense or when memory is tight.
-- **Stable mapping on duplicates**: the map-based approach naturally collapses duplicates. If you instead want each occurrence to get a distinct rank (useful for some offline problems), use `sort.SliceStable` with a secondary key.
-- **Int64 for large coordinates**: if inputs exceed `math.MaxInt32`, use `int64` throughout — but the compressed indices will still be `int` (safe for `n ≤ ~10⁹`, which is all that matters for segment-tree sizes).
-
----
+- Go map iteration order is random, so the code collects the distinct values and sorts them before assigning ranks.
+- To rank a value that is not in the data, keep the sorted slice and use `sort.SearchInts`.
+- `compress2DCoordinates` panics if a point has fewer than two elements.
 
 ## How to Run
 
 ```bash
-go test -v ./...
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **The trick is: the algorithm doesn't care about actual values, only their order.** If your segment tree needs to index by position and positions can be huge, compress them — you only ever needed the ranks.
-2. **`sort + dedup + map` is the mechanical recipe.** Master this three-step pattern once and you'll apply it dozens of times in competitive-programming problems.
-3. **Don't compress when you don't need to.** If the value range is small (e.g. `[0, 10⁶]`), use a plain array directly — compression adds constant-factor overhead and obscures intent.
+- Sort the distinct values; the rank is the index.
+- Never rely on map iteration order.

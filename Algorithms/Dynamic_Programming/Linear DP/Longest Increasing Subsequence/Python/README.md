@@ -1,203 +1,51 @@
-# Longest Increasing Subsequence (Python)
+# Longest Increasing Subsequence -- Python Implementation
 
-**Longest Increasing Subsequence (LIS)** finds the longest subsequence of a given sequence such that all elements of the subsequence are sorted in strictly increasing order.
+Four ways to find the LIS, from exponential recursion to O(n log n).
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `lis.py` | the functions below |
+| `lis_test.py` | `unittest` cases |
 
-LIS is a fundamental problem in dynamic programming and binary search. A subsequence is obtained by deleting some (or no) elements from the original sequence, without changing the order of remaining elements. The problem has two main approaches: O(n²) DP and O(n log n) binary search.
+## API
 
-**Example**:
-- Array: [10, 9, 2, 5, 3, 7, 101, 18]
-- LIS: [2, 3, 7, 18] or [2, 5, 7, 101]
-- Length: 4
+| Function | Description | Time | Space |
+|----------|-------------|------|-------|
+| `lis_naive(arr)` | length by take-or-skip recursion | O(2^n) | O(n) |
+| `lis_dp(arr)` | length by the `dp[i]` table | O(n^2) | O(n) |
+| `lis_binary_search(arr)` | length by the sorted tails array and `bisect_left` | O(n log n) | O(n) |
+| `lis_with_sequence(arr)` | `(length, sequence)` using a parent array | O(n^2) | O(n) |
 
----
-
-## Algorithm
-
-### DP Approach (O(n²))
-
-1. **DP State**: `dp[i]` = length of LIS ending at index `i`
-2. **Recurrence**: 
-   - `dp[i] = max(dp[j] + 1)` for all `j < i` where `arr[j] < arr[i]`
-   - For each position, check all previous positions
-3. **Base Case**: `dp[i] = 1` for all `i` (each element is LIS of length 1)
-4. **Result**: `max(dp)` over all indices
-
-### Binary Search Approach (O(n log n))
-
-1. **Maintain array `tails`**: `tails[i]` = smallest tail of all increasing subsequences of length `i+1`
-2. **For each element**:
-   - Use binary search to find position in `tails`
-   - If element is larger than all tails, append it
-   - Otherwise, replace first element >= current element
-3. **Result**: Length of `tails` array
-
-**Key Insight**: We only care about the smallest tail for each length, allowing binary search optimization.
-
----
-
-## Complexity Analysis
-
-| Approach | Time | Space | Notes |
-|----------|------|-------|-------|
-| **Naive Recursive** | O(2^n) | O(n) | Exponential, not practical |
-| **DP Tabulation** | O(n²) | O(n) | Standard DP approach |
-| **Binary Search** | O(n log n) | O(n) | Optimal for length only |
-| **With Sequence** | O(n²) | O(n) | DP plus parent pointers |
-
-**Note**: Binary search approach is optimal for finding length. `lis_binary_search` returns only the length, but the same method can also rebuild the sequence if each element remembers the index of its predecessor (the current tail one pile to its left).
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`lis_dp(arr)`**
-   - Standard DP approach
-   - Returns length of LIS
-   - Time: O(n²), Space: O(n)
-
-2. **`lis_binary_search(arr)`**
-   - Optimized binary search approach
-   - Returns length of LIS
-   - Time: O(n log n), Space: O(n)
-   - Best for large arrays when only length is needed
-
-3. **`lis_with_sequence(arr)`**
-   - Returns both length and actual LIS sequence
-   - Uses DP with backtracking
-   - Returns (length, sequence)
-   - Time: O(n²), Space: O(n)
-
-4. **`lis_naive(arr)`**
-   - Naive recursive implementation (take-or-skip each element)
-   - O(2^n) time complexity
-   - For educational purposes only
-
----
-
-## Usage
+All return 0 (or `(0, [])`) for an empty list, and all treat the subsequence as strictly increasing.
 
 ```python
-from lis import (
-    lis_dp,
-    lis_binary_search,
-    lis_with_sequence,
-    lis_naive
-)
+from lis import lis_dp, lis_binary_search, lis_with_sequence
 
 arr = [10, 9, 2, 5, 3, 7, 101, 18]
-
-# DP approach (standard)
-length = lis_dp(arr)
-print(length)  # Output: 4
-
-# Binary search (faster for large arrays)
-length = lis_binary_search(arr)
-print(length)  # Output: 4
-
-# Get actual sequence
-length, sequence = lis_with_sequence(arr)
-print(length)   # Output: 4
-print(sequence) # Output: [2, 3, 7, 18] or [2, 5, 7, 101]
-
-# Edge cases
-arr = [1, 2, 3, 4, 5]
-length = lis_dp(arr)  # Output: 5 (entire array is increasing)
-
-arr = [5, 4, 3, 2, 1]
-length = lis_dp(arr)  # Output: 1 (each element is LIS of length 1)
+print(lis_dp(arr))               # 4
+print(lis_binary_search(arr))    # 4
+print(lis_with_sequence(arr))    # (4, [2, 5, 7, 101])
 ```
 
----
+## Python-Specific Notes
 
-## Important Notes
+- `lis_binary_search` uses the standard `bisect` module; `bisect_left` is what makes equal values non-increasing.
+- `lis_naive` has no memoization and also recurses `n` deep, so keep it to small inputs.
+- `lis_with_sequence` starts from the first index with the maximum `dp`, so on ties it follows the earliest end.
+- Integers are unbounded; values only need to be comparable.
 
-1. **Subsequence vs Subarray**: 
-   - Subsequence: non-contiguous (LIS)
-   - Subarray: contiguous (different problem)
-2. **Strictly increasing**: Usually means `arr[i] < arr[j]` (can be modified to `<=`)
-3. **Multiple LIS**: There may be multiple LIS of same length
-4. **Binary search optimization**: `lis_binary_search` returns only the length; storing a predecessor index for each element lets the O(n log n) method reconstruct the sequence too
-5. **Patience sorting**: Binary search approach is related to patience card game
+## How to Run
 
----
-
-## Advantages
-
-1. ✅ **Optimal**: Binary search gives O(n log n) for length
-2. ✅ **Efficient**: DP gives O(n²) which is acceptable for most cases
-3. ✅ **Flexible**: Can get length or actual sequence
-4. ✅ **Educational**: Great for learning DP and binary search
-
----
-
-## Disadvantages
-
-1. ❌ **Quadratic time**: DP approach is O(n²) which can be slow for large n
-2. ❌ **Sequence reconstruction**: Here only the O(n²) `lis_with_sequence` returns the sequence (the O(n log n) method would need extra predecessor indices)
-3. ❌ **Memory**: O(n) space for both approaches
-
----
-
-## When to Use
-
-- ✅ **Binary Search**: When only length is needed and n is large
-- ✅ **DP Approach**: When actual sequence is needed or n is moderate
-- ✅ **Large arrays**: Binary search is better for n > 10^4
-- ❌ **Naive Recursive**: Never in production, only for learning
-
----
-
-## Comparison: DP vs Binary Search
-
-| Aspect | DP Approach | Binary Search |
-|--------|------------|---------------|
-| **Time** | O(n²) | O(n log n) |
-| **Space** | O(n) | O(n) |
-| **Sequence** | Can reconstruct | Length only here (predecessor indices would recover it) |
-| **Best For** | Small-medium n, need sequence | Large n, length only |
-
----
-
-## Testing
-
-Run the test suite:
+From this folder:
 
 ```bash
-python lis_test.py
+python3 -m unittest lis_test
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **Longest Common Subsequence**: Similar DP structure
-- **Longest Decreasing Subsequence**: Reverse the problem
-- **Longest Bitonic Subsequence**: Combination of LIS and LDS
-- **Russian Doll Envelopes**: 2D version of LIS
-
----
-
-## Applications
-
-1. **Stock Market**: Find longest period of increasing prices
-2. **Scheduling**: Optimize task scheduling with dependencies
-3. **Bioinformatics**: Find longest increasing subsequence in DNA
-4. **Data Analysis**: Find trends in time series data
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 15)
-- "Algorithm Design Manual" by Steven Skiena
-- LeetCode Problem 300: Longest Increasing Subsequence
-
----
-
-_Last Updated: December 2025_
+- The answer is the maximum over all `dp[i]`.
+- The tails array gives the length but is not a subsequence of the input.
+- Strictness comes from `<` and `bisect_left`.

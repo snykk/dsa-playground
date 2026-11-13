@@ -1,19 +1,15 @@
-# Reed-Solomon — Python Implementation
+# Reed-Solomon -- Python Implementation
 
-Full Reed-Solomon over GF(2⁸): systematic encoder, Berlekamp-Massey decoder, Forney magnitudes, and Chien search, with **combined error + erasure decoding** and a configurable **first consecutive root (`fcr`)**. Verified against Voyager 2's RS(255, 223) code with 16-byte error correction.
+Full Reed-Solomon over GF(2^8): systematic encoder, Berlekamp-Massey decoder, Forney magnitudes, and Chien search, with **combined error + erasure decoding** and a configurable **first consecutive root (`fcr`)**. Tested on an RS(255, 223) code with 16 byte errors.
 
 For the conceptual overview, see the parent README: [../README.md](../README.md)
-
----
 
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `reed_solomon.py` | `ReedSolomon(n, k, alpha=3, fcr=0)` with `encode()` / `decode(received, erasures=None)`, plus `DecodeError` |
-| `reed_solomon_test.py` | 27 tests: 0..t errors, erasures only (up to `n - k`), mixed errors + erasures, several `fcr` values, beyond-budget detection, Voyager RS(255, 223), boundary cases |
-
----
+| `reed_solomon_test.py` | 28 tests: 0..t errors, erasures only (up to `n - k`), mixed errors + erasures, several `fcr` values, beyond-budget detection, Voyager RS(255, 223), boundary cases |
 
 ## Usage
 
@@ -35,7 +31,13 @@ fresh[0] = fresh[1] = fresh[2] = fresh[3] = 0
 rs.decode(fresh, erasures=[0, 1, 2, 3])      # -> original: 4 erasures fit 4 parity bytes
 ```
 
----
+## API
+
+- `ReedSolomon(n, k, alpha=3, fcr=0)`: validates `0 < k < n <= 255`, builds the generator; `t = (n - k) // 2`.
+- `encode(message)`: any iterable of `k` ints; returns the `n`-byte systematic codeword `[parity | message]`.
+- `decode(received, erasures=None)`: returns the `k` message bytes; raises `DecodeError` when the damage exceeds the budget `e + 2v <= n - k`, and `ValueError` for malformed input.
+- `DecodeError`: subclass of `Exception`.
+- Internal steps: `_compute_syndromes`, `_berlekamp_massey`, `_find_error_positions`, `_forney`.
 
 ## Python-Specific Notes
 
@@ -47,8 +49,6 @@ rs.decode(fresh, erasures=[0, 1, 2, 3])      # -> original: 4 erasures fit 4 par
 - **Forney uses `X_j^(1 - fcr)`**: `X_j` for `fcr = 0`, `1` for `fcr = 1`. Skipping or hard-coding this factor is the #1 way to get wrong magnitudes that pass small tests but fail in production.
 - **Inputs are any iterable** (`bytes`, `tuple`, `list`); outputs are `list[int]`.
 
----
-
 ## How to Run
 
 ```bash
@@ -56,11 +56,9 @@ python3 -m unittest reed_solomon_test      # tests
 python3 reed_solomon.py                    # demo: errors-only and erasure + error decode
 ```
 
----
-
-## Key Takeaways for Learners
+## Key Takeaways
 
 1. **The primitive element matters.** Picking `alpha = 2` because "it's the smallest" silently corrupts decoders for codes longer than ~51 bytes. Always check that `alpha` generates the full multiplicative group; for the Rijndael field 0x11B, use `alpha = 3`.
 2. **An erasure costs half an error.** For an unknown error the decoder must find two unknowns (where, and by how much); for an erasure only the value is unknown. That is why the budget is `e + 2v <= n - k`, and why RS(7, 5) can repair 2 bytes only when it is told where they are.
 3. **`fcr` is part of the code's identity.** The same message encoded with `fcr = 1` is not a valid codeword for an `fcr = 0` decoder. A real decoder must match the standard's field polynomial, `alpha`, *and* `fcr`.
-4. **Berlekamp-Massey + Forney + Chien is "linear algebra on syndromes."** Once you see that the syndromes pin down the locator uniquely (within the budget), the rest is mechanical. The hard part is the field arithmetic: get GF(2⁸) right and RS just works.
+4. **Berlekamp-Massey + Forney + Chien is "linear algebra on syndromes."** Once you see that the syndromes pin down the locator uniquely (within the budget), the rest is mechanical. The hard part is the field arithmetic: get GF(2^8) right and RS just works.

@@ -72,6 +72,46 @@ class TestSieveOfEratosthenes(unittest.TestCase):
         count = sum(1 for i in range(2, n + 1) if sieve[i])
         self.assertEqual(count, len(primes))
 
+    def test_negative_index_is_not_prime(self):
+        """A negative n must not wrap around to the end of the list"""
+        sieve = sieve_boolean(101)
+        self.assertTrue(sieve[101])  # 101 is prime
+        self.assertFalse(is_prime_sieve(-1, sieve))
+        self.assertFalse(is_prime_sieve(-101, sieve))
+        self.assertFalse(is_prime_sieve(-2, sieve))
+
+    def test_beyond_the_sieve_is_false(self):
+        self.assertFalse(is_prime_sieve(103, sieve_boolean(100)))
+
+    def test_negative_limit(self):
+        self.assertEqual(sieve_of_eratosthenes(-5), [])
+        self.assertEqual(sieve_boolean(-5), [])
+
+    def test_matches_trial_division_to_20000(self):
+        def trial(n):
+            if n < 2:
+                return False
+            i = 2
+            while i * i <= n:
+                if n % i == 0:
+                    return False
+                i += 1
+            return True
+        sieve = sieve_boolean(20000)
+        for n in range(20001):
+            self.assertEqual(sieve[n], trial(n), n)
+        self.assertEqual(len(sieve_of_eratosthenes(20000)), 2262)
+
+    def test_perfect_squares_of_primes(self):
+        """Marking starts at p*p, so p*p itself must still be crossed out"""
+        sieve = sieve_boolean(50)
+        for p in (2, 3, 5, 7):
+            self.assertFalse(sieve[p * p])
+
+    def test_prime_counts(self):
+        self.assertEqual(len(sieve_of_eratosthenes(1000)), 168)
+        self.assertEqual(len(sieve_of_eratosthenes(10**5)), 9592)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -16,7 +16,9 @@ def longest_common_substring(s1: str, s2: str) -> Tuple[str, int, int, int]:
         s2: Second string
         
     Returns:
-        Tuple of (substring, length, end_index_in_s1, end_index_in_s2)
+        Tuple of (substring, length, start_index_in_s1, start_index_in_s2).
+        With no common character it is ("", 0, 0, 0). Among substrings of the
+        same maximum length, the one that ends first in s1 wins.
     """
     m, n = len(s1), len(s2)
     dp = [[0] * (n + 1) for _ in range(m + 1)]

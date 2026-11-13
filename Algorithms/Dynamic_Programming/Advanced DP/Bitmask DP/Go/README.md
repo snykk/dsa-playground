@@ -1,14 +1,23 @@
-# Bitmask DP (Go)
+# Bitmask DP -- Go Implementation
 
-Go scaffold for Bitmask Dynamic Programming, a technique that uses bitmasks to represent subsets of elements as DP states. The full implementation is in the Python directory.
+A placeholder. This folder does not implement bitmask DP yet; the working solver is the Python version.
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `main.go` | Placeholder structure (see Python for full implementation) |
-| `main_test.go` | Basic structure test |
-| `go.mod` | Go module definition (`bitmaskdp`) |
+| `main.go` | `package main` with comments only, no functions |
+| `main_test.go` | One test that only logs a message; it asserts nothing |
+| `go.mod` | Module `bitmaskdp` (Go 1.21) |
+
+## API
+
+None. There are no functions or types.
+
+## Go-Specific Notes
+
+- A real port would use `[][]int64` (or a flat slice), a large sentinel for infinity chosen so that adding a distance cannot overflow, and `int` masks with `1 << uint(j)`.
+- Because the test cannot fail, passing it proves nothing about bitmask DP.
 
 ## How to Run
 
@@ -16,28 +25,7 @@ Go scaffold for Bitmask Dynamic Programming, a technique that uses bitmasks to r
 go test ./...
 ```
 
-## Key Concepts
+## Key Takeaways
 
-| Concept | Description | Typical Complexity |
-|---------|-------------|-------------------|
-| Traveling Salesman (TSP) | Visit all cities with minimum cost using bitmask to track visited set | O(n^2 * 2^n) |
-| Subset enumeration | Iterate over all subsets of n elements via bitmask | O(2^n) |
-| State: `dp[mask][i]` | Minimum cost to reach city `i` having visited the cities in `mask` | -- |
-
-## Complexity
-
-| Aspect | Complexity |
-|--------|-----------|
-| Time | O(n^2 * 2^n) for TSP-style problems |
-| Space | O(n * 2^n) for the DP table |
-
-## Notes
-
-- Bitmask DP is used when the state space involves subsets of a small set (typically n <= 20).
-- Each bit in the mask represents whether an element is included in the current subset.
-- The Python implementation contains a complete Traveling Salesman Problem solver.
-- See `../Python/bitmask_dp.py` for the full working implementation.
-
----
-
-_Last Updated: April 2026_
+- Treat this folder as a stub; see `../Python/bitmask_dp.py` for the algorithm.
+- The expected cost for a port is O(n^2 * 2^n) time and O(n * 2^n) space.

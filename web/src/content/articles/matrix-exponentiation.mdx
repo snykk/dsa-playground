@@ -1,0 +1,217 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix Exponentiation
+title: Matrix Exponentiation
+lead: Matrix exponentiation computes A^k for a square matrix A with O(log k) matrix multiplications by repeated squaring. It turns any linear recurrence, such as Fibonacci, into a matrix power, so the k-th term costs O(d^3 log k) instead of O(k).
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n^3 log k)
+    hint: n x n matrix, exponent k
+  - label: Space
+    value: O(n^2)
+    hint: a few matrices; the recursive version adds an O(log k) stack
+  - label: Fibonacci F(k)
+    value: O(log k)
+    hint: a 2 x 2 matrix, so the cost per multiplication is constant
+  - label: Overflow
+    value: F(93)
+    hint: the first Fibonacci number that does not fit in 64 bits; pass a modulus
+    tone: warn
+properties:
+  - { label: Needs a square matrix, value: true }
+  - { label: Works modulo m, value: true }
+  - { label: Exact for any size without a modulus, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
+  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+related:
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast Fourier Transform
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+---
+
+## How it works
+
+Computing A<sup>k</sup> by k multiplications is too slow when k is huge. The same trick as fast integer exponentiation applies, because matrix multiplication is associative: write k in binary and build A<sup>1</sup>, A<sup>2</sup>, A<sup>4</sup>, A<sup>8</sup>, &hellip; by squaring. The answer is the product of the powers that match the set bits of k.
+
+<Steps>
+  <Step title="Start">
+    `result = I` (the identity matrix) and `base = A`. If a modulus is given, reduce the entries of `base` first.
+  </Step>
+  <Step title="Look at the lowest bit of k">
+    If it is 1, multiply `result` by `base`.
+  </Step>
+  <Step title="Square the base">
+    Replace `base` by `base * base` and shift k right by one bit.
+  </Step>
+  <Step title="Repeat">
+    Stop when k reaches 0. About log<sub>2</sub>(k) squarings and at most as many extra multiplications are performed.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+At the start of every round, `result * base^k` equals A<sup>k0</sup>, the power requested at the beginning. When k reaches 0, `result` is the answer. Associativity is what lets the powers be regrouped; commutativity is not needed, because every factor is a power of the same matrix A.
+</Callout>
+
+## Fibonacci as a matrix power
+
+The recurrence F(n+1) = F(n) + F(n-1) is a linear map on the pair (F(n), F(n-1)):
+
+<Equation label="Step" expr="[F(n+1); F(n)] = [[1, 1], [1, 0]] * [F(n); F(n-1)]" />
+<Equation label="Power" expr="A^n = [[F(n+1), F(n)], [F(n), F(n-1)]]" result="F(n) is the top right entry" />
+
+`fibonacci_matrix(n)` raises A = [[1, 1], [1, 0]] to the power n-1 and multiplies the result by the vector (F(1), F(0)) = (1, 0).
+
+## Worked example: A^11
+
+Binary 11 is 1011, so A<sup>11</sup> = A<sup>8</sup> &middot; A<sup>2</sup> &middot; A<sup>1</sup>. The squares below are computed by the repository's `matrix_power`:
+
+<DataTable
+  columns={['Power', 'Matrix', 'Used? (bit of 11)']}
+  rows={[
+    ['A^1', '`[[1, 1], [1, 0]]`', 'Yes (bit 0 = 1)'],
+    ['A^2', '`[[2, 1], [1, 1]]`', 'Yes (bit 1 = 1)'],
+    ['A^4', '`[[5, 3], [3, 2]]`', 'No (bit 2 = 0)'],
+    ['A^8', '`[[34, 21], [21, 13]]`', 'Yes (bit 3 = 1)'],
+  ]}
+/>
+
+Multiplying the used powers: A<sup>8</sup> &middot; A<sup>2</sup> = A<sup>10</sup> = [[89, 55], [55, 34]], and A<sup>10</sup> &middot; A<sup>1</sup> = A<sup>11</sup> = [[144, 89], [89, 55]]. The result matches the formula: F(12) = 144 sits at the top left, F(11) = 89 at the top right and bottom left, and F(10) = 55 at the bottom right.
+
+<GridDiagram
+  legend={{ f: 'Fibonacci numbers F(12), F(11) and F(10)', p: 'F(11), the top right entry, which is F(n) of A^n' }}
+  label="A to the power 11"
+  rows={[[144, 89], [89, 55]]}
+  tones={['fp', 'ff']}
+  rowLabels={['row 0', 'row 1']}
+  colLabels={['col 0', 'col 1']}
+/>
+
+## Pseudocode
+
+```text
+matrix_power_iterative(A, k, mod):
+    if k < 0: error
+    result = identity(n)              # mod 1 -> all zeros
+    base = A (entries reduced mod m when m > 0)
+    while k > 0:
+        if k is odd: result = result * base   (mod m)
+        base = base * base                    (mod m)
+        k = k // 2
+    return result
+
+matrix_power(A, k, mod):              # recursive form used by the other function
+    if k < 0: error
+    if k == 0: return identity(n)
+    if k == 1: return A (reduced)
+    if k is even: h = matrix_power(A, k/2); return h * h
+    else: return A * matrix_power(A, k - 1)
+
+matrix_multiply(A, B, mod):
+    result[i][j] = sum over t of A[i][t] * B[t][j]   (reduced after each term when mod > 0)
+```
+
+A modulus is applied when it is a positive number. `None`, 0 and negative values mean no modulus in all three languages.
+
+## Implementation
+
+The Python version has `matrix_multiply`, `matrix_identity`, a recursive `matrix_power`, an iterative `matrix_power_iterative` and `fibonacci_matrix`; C++ and Go have the same functions with `long long` and `int64` entries. Behaviour that is the same in all three after the fixes:
+
+- With a positive modulus every result is in [0, mod), including for negative entries. C++ multiplies with a 128-bit intermediate and Go with `math/bits`, so moduli above 2<sup>32</sup> are exact (Python integers are unbounded).
+- A negative exponent is rejected: `ValueError` in Python, `std::invalid_argument` in C++, a panic in Go.
+- With modulus 1 everything is 0, including A<sup>0</sup>.
+- Without a modulus `fibonacci_matrix` accepts n up to 92 in C++ and Go (F(92) is the largest value that fits in 64 bits) and throws or panics beyond that; Python returns the exact big integer.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix Exponentiation" />
+
+## Complexity analysis
+
+Multiplying two n &times; n matrices with the schoolbook triple loop costs <BigO of="n^3" />. Repeated squaring performs at most about 2 log<sub>2</sub>(k) multiplications.
+
+<ComplexityTable
+  rows={[
+    { case: 'A^k', time: 'O(n^3 log k)', space: 'O(n^2)', when: 'about log2(k) squarings plus up to log2(k) extra multiplications, each O(n^3).' },
+    { case: 'Fibonacci F(k)', time: 'O(log k)', space: 'O(log k)', when: 'the matrix is 2 x 2, so a multiplication is constant work; the recursive matrix_power uses O(log k) stack.' },
+    { case: 'Naive loop', time: 'O(n^3 k)', when: 'k multiplications; hopeless for k near 10^18.' },
+  ]}
+/>
+
+<Equation label="Recurrence" expr="T(k) = T(k/2) + O(n^3)" result="O(n^3 log k)" />
+
+## Where the technique applies
+
+Any sequence defined by a linear recurrence with constant coefficients, and any count of walks in a graph, becomes a matrix power.
+
+<DataTable
+  columns={['Problem', 'Matrix', 'Answer']}
+  rows={[
+    ['Fibonacci F(n)', '`[[1, 1], [1, 0]]`', 'top right entry of A^n'],
+    ['Order-d recurrence a(n) = c1 a(n-1) + ... + cd a(n-d)', 'companion matrix: first row `c1 ... cd`, ones just below the diagonal', 'apply A^(n-d+1) to the initial values'],
+    ['Walks of length k in a graph', 'adjacency matrix', 'entry (u, v) of A^k counts the walks from u to v'],
+    ['Linear DP with a fixed transition', 'transition matrix', 'state vector after k steps'],
+  ]}
+/>
+
+For the triangle graph (three vertices, all joined), the repository gives A<sup>3</sup> = [[2, 3, 3], [3, 2, 3], [3, 3, 2]]: there are 2 closed walks of length 3 from a vertex to itself and 3 walks to each other vertex.
+
+## Matrix power vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Time for F(n)', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Matrix exponentiation', 'O(log n)', 'exact, works modulo m, generalises to any linear recurrence'],
+    ['Simple loop (DP)', 'O(n)', 'fine for n up to about 10^7'],
+    ['Fast doubling', 'O(log n)', 'specific to Fibonacci, fewer operations'],
+    ['Binet formula in floating point', 'O(1)', 'loses exactness for large n'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Handles exponents up to 10^18 with a few dozen multiplications.',
+    'One routine covers every linear recurrence and walk-counting problem.',
+    'Works modulo a number with no special cases beyond reducing after each product.',
+  ]}
+  cons={[
+    'O(d^3) per multiplication, so large recurrences (d in the hundreds) are slow.',
+    'Without a modulus the numbers grow exponentially and overflow fixed-width integers.',
+    'Not useful for non-linear recurrences.',
+  ]}
+/>
+
+## Applications
+
+- **Competitive programming:** n-th term of a recurrence modulo 10<sup>9</sup> + 7.
+- **Graph counting:** number of walks of a given length.
+- **Linear DP with huge step counts,** where the transition between states is the same every step.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Overflow without a modulus.** F(93) does not fit in 64 bits. The C++ and Go `fibonacci_matrix` refuse n above 92 without a modulus; `matrix_power` itself does not check, so choose a modulus or a big-integer type.
+- **Forgetting to reduce negative entries.** A recurrence with a negative coefficient needs entries in [0, mod). The code now normalises them; hand-written code often does not.
+- **Wrong initial vector or exponent.** `fibonacci_matrix` uses A<sup>n-1</sup> applied to (F(1), F(0)). Using A<sup>n</sup> gives F(n+1).
+- **Negative exponents.** A matrix inverse is not computed; `k < 0` is an error.
+- **Modulus 0.** It means no modulus here, not a division by zero.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does repeated squaring work for matrices?">
+    It only needs associativity of the product: A<sup>k</sup> = A<sup>k1</sup> A<sup>k2</sup> whenever k = k1 + k2, and all the factors are powers of the same matrix, so the order does not matter.
+  </FaqItem>
+  <FaqItem question="How do I handle a recurrence of order d?">
+    Build the d &times; d companion matrix, raise it to the power n-d+1, and multiply by the vector of the d initial terms. The cost is O(d<sup>3</sup> log n).
+  </FaqItem>
+  <FaqItem question="Does the modulus have to be prime?">
+    No. Only multiplication and addition are used, never division, so any positive modulus works.
+  </FaqItem>
+  <FaqItem question="Which is better, the recursive or the iterative version?">
+    They return the same results. The iterative `matrix_power_iterative` uses no recursion stack; the recursive `matrix_power` is shorter and uses O(log k) stack, which is the reason `fibonacci_matrix` is O(log n) in space rather than O(1).
+  </FaqItem>
+</Faq>

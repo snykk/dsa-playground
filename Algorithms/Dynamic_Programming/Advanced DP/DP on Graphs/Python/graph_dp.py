@@ -14,26 +14,30 @@ def dag_longest_path(graph, start):
         start: Starting node
         
     Returns:
-        Length of longest path
+        Length (in edges) of the longest path starting at start
+
+    Raises:
+        ValueError: if a cycle is reachable from start
         
     Time Complexity: O(V + E)
     Space Complexity: O(V)
     """
-    def dfs(node, visited, dp):
-        if node in visited:
-            return dp.get(node, 0)
-        
-        visited.add(node)
+    def dfs(node):
+        if node in dp:
+            return dp[node]
+        if node in on_stack:
+            raise ValueError("graph has a cycle: longest path is undefined")
+
+        on_stack.add(node)
         max_path = 0
-        
+
         for neighbor in graph.get(node, []):
-            path_len = dfs(neighbor, visited, dp)
-            max_path = max(max_path, path_len)
-        
+            max_path = max(max_path, dfs(neighbor))
+
+        on_stack.discard(node)
         dp[node] = max_path + 1
         return dp[node]
-    
-    visited = set()
-    dp = {}
-    return dfs(start, visited, dp) - 1
 
+    on_stack = set()  # nodes whose DFS call is still running
+    dp = {}  # finished nodes: number of nodes on the longest path starting there
+    return dfs(start) - 1

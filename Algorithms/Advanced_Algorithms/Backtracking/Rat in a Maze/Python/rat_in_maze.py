@@ -12,52 +12,56 @@ def is_safe(maze: List[List[int]], x: int, y: int, n: int) -> bool:
     return 0 <= x < n and 0 <= y < n and maze[x][y] == 1
 
 
-def solve_maze_util(maze: List[List[int]], x: int, y: int, n: int, 
-                    solution: List[List[int]]) -> bool:
-    """Backtracking utility function."""
+MOVES = ((0, 1), (1, 0), (0, -1), (-1, 0))  # right, down, left, up
+
+
+def solve_maze_util(maze: List[List[int]], x: int, y: int, n: int,
+                    solution: List[List[int]], visited: List[List[bool]]) -> bool:
+    """Backtracking utility function (four directions, every cell entered at most once)."""
+    if not is_safe(maze, x, y, n) or visited[x][y]:
+        return False
+
+    # Never enter this cell again, even after backtracking: a cell that failed once
+    # fails again, so this keeps the search at O(n^2) instead of exponential.
+    visited[x][y] = True
+    solution[x][y] = 1
+
     # Base case: reached destination
     if x == n - 1 and y == n - 1:
-        solution[x][y] = 1
         return True
-    
-    if is_safe(maze, x, y, n):
-        # Mark current cell as part of solution
-        solution[x][y] = 1
-        
-        # Move right
-        if solve_maze_util(maze, x, y + 1, n, solution):
+
+    for dx, dy in MOVES:
+        if solve_maze_util(maze, x + dx, y + dy, n, solution, visited):
             return True
-        
-        # Move down
-        if solve_maze_util(maze, x + 1, y, n, solution):
-            return True
-        
-        # If none of the above work, backtrack
-        solution[x][y] = 0
-        return False
-    
+
+    # No direction works: this cell is not on the path
+    solution[x][y] = 0
     return False
 
 
 def solve_maze(maze: List[List[int]]) -> Optional[List[List[int]]]:
     """
     Solve Rat in a Maze problem.
-    
+
     Args:
-        maze: N×N maze where 1 represents open path and 0 represents wall
-        
+        maze: nxn maze where 1 represents open path and 0 represents wall
+
     Returns:
-        Solution path matrix if solution exists, None otherwise
+        Matrix with 1 on the cells of a path from (0, 0) to (n-1, n-1) (moves: right,
+        down, left, up), or None if there is no path, the maze is empty, or it is not square.
     """
     n = len(maze)
-    if n == 0 or maze[0][0] == 0 or maze[n-1][n-1] == 0:
+    if n == 0 or any(len(row) != n for row in maze):
         return None
-    
+    if maze[0][0] == 0 or maze[n-1][n-1] == 0:
+        return None
+
     solution = [[0 for _ in range(n)] for _ in range(n)]
-    
-    if solve_maze_util(maze, 0, 0, n, solution):
+    visited = [[False for _ in range(n)] for _ in range(n)]
+
+    if solve_maze_util(maze, 0, 0, n, solution, visited):
         return solution
-    
+
     return None
 
 

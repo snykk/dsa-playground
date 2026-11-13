@@ -1,61 +1,35 @@
-# Square Root Decomposition - Python
+# Square Root Decomposition -- Python Implementation
 
-This folder contains a Python implementation of **Square Root Decomposition** for efficient range queries.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `square_root_decomposition.py` | the `SqrtDecomposition` class and a demo `main()` |
+| `square_root_decomposition_test.py` | unit tests (queries, updates, empty input, caller's list untouched, partial last block, randomized check against brute force) |
 
-## Concept
+## API
 
-Square Root Decomposition divides an array into blocks of size √N to enable efficient range queries and updates. Each query/update takes O(√N) time.
+| Member | Description | Time |
+|--------|-------------|------|
+| `SqrtDecomposition(arr)` | copies `arr`, block size `max(1, ceil(sqrt(n)))`, builds block sums | O(n) |
+| `update(index, value)` | sets `arr[index]` to `value` | O(1) |
+| `query(left, right)` | sum of `arr[left..right]`, inclusive | O(sqrt n) |
+| `arr`, `blocks`, `block_size`, `block_count` | the stored state | |
 
-**Key Features:**
-- Array decomposition into blocks
-- Efficient range queries
-- Point updates
-- O(√N) per operation
+## Python-Specific Notes
 
----
+- The constructor copies the list, so `update` never changes the caller's list.
+- Python integers do not overflow.
+- Indices are not validated.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `SqrtDecomposition.update(index, value)` | Update value at index | O(1) |
-| `SqrtDecomposition.query(left, right)` | Query sum in range | O(√N) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Query | O(√N) | O(1) |
-| Update | O(1) | O(1) |
-| Construction | O(N) | O(√N) |
-
----
-
-## Usage
-
-```python
-from square_root_decomposition import SqrtDecomposition
-
-arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-sd = SqrtDecomposition(arr)
-
-result = sd.query(2, 7)  # Sum of range [2, 7]
-sd.update(5, 20)  # Update index 5 to 20
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-python square_root_decomposition_test.py
+python3 -m unittest square_root_decomposition_test
+python3 square_root_decomposition.py
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Point update O(1), range sum O(sqrt n).
+- Only sums are implemented; no range updates.

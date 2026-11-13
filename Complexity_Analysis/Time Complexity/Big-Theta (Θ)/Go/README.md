@@ -1,40 +1,38 @@
-# Big-Theta (Θ) Notation — Go Implementation
-
-**Big-Theta (Θ)** is the **tight asymptotic bound** — the algorithm is _both_ O(f(n)) and Ω(f(n)). It's the strongest statement you can make about complexity: "this runs in Θ(f(n)) time for every input, no exceptions."
-
-For the conceptual overview and comparison with O / Ω, see the parent README: [../README.md](../README.md)
-
----
+# Big-Theta (Theta) -- Go Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `main.go` | Concrete Θ-analysis examples |
-| `main_test.go` | Tests asserting the tight bounds |
-| `go.mod` | Module definition |
+- `main.go`: three example functions and `DemonstrateBigTheta` (package `main`, so it cannot be imported).
+- `main_test.go`: tests for every example.
+- `go.mod`: the Go module for the folder.
 
----
+## API
+
+- `TightBoundExample(arr []int) int`: sum, `Theta(n)` on every input.
+- `BinarySearchExample(arr []int, target int) int`: index or -1; best case `Theta(1)`, worst case `Theta(log n)`.
+- `MergeSortExample(arr []int) []int`: sorts a copy with `sort.Ints`.
+
+```go
+idx := BinarySearchExample([]int{1, 3, 5, 7, 9, 11}, 9) // 4
+```
 
 ## Go-Specific Notes
 
-- **Merge Sort, Heap Sort** are Θ(n log n) — best, average, and worst cases all agree. Input-independent bounds.
-- **Quick Sort is O(n log n) expected, O(n²) worst** — neither Θ. The distinction matters: "Quick Sort is O(n log n) on average" is different from "Quick Sort is Θ(n log n)".
-- **`sort.Slice` in Go**: pdqsort (pattern-defeating quicksort) since Go 1.19 is Θ(n log n) worst case — it achieves the tight bound that plain Quick Sort doesn't.
-- **Θ is strongest for algorithmic claims.** When writing performance docs, prefer "this is Θ(n)" to "this is O(n)" if the tight bound actually holds — it rules out "maybe it's faster on lucky input."
-
----
+- `MergeSortExample` is not a merge sort: `sort.Ints` is a pattern-defeating quicksort, `O(n log n)` in the worst case but close to linear on sorted input (measured 65,547 comparisons for 65,536 sorted ints against 1,098,760 for random ones in the audit). It is therefore not `Theta(n log n)` for every input.
+- `mid := (left + right) / 2` can overflow on huge slices; `left + (right-left)/2` avoids it.
+- There is no matrix multiplication example in Go.
 
 ## How to Run
 
 ```bash
-go test -v ./...
+cd "Complexity_Analysis/Time Complexity/Big-Theta (Θ)/Go"
+go test ./...
+go run .
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
+- Big-Theta is a tight bound on one function; best, average and worst case each get their own Theta.
+- `f = Theta(g)` exactly when `f = O(g)` and `f = Omega(g)`.
+- Binary search is `Theta(1)` in the best case and `Theta(log n)` in the worst case.
 
-1. **Θ is the tight bound.** `f = Θ(g)` ⟺ `f = O(g) ∧ f = Ω(g)`. When both bounds match, you've fully characterized the growth rate.
-2. **Not every algorithm has a Θ bound at all** — some have different upper and lower bounds depending on input (Quick Sort, Insertion Sort). Those are O and Ω separately, not Θ.
-3. **Use Θ for academic rigor, O in practice.** Papers and formal analysis prefer Θ; engineering writeups say O(n log n) because readers interpret it correctly regardless.

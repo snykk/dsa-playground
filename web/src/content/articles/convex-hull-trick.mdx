@@ -1,0 +1,256 @@
+---
+topic: Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick
+title: Convex Hull Trick and Li Chao Tree
+lead: The Convex Hull Trick answers "smallest value of m*x + b over a set of lines" in amortized O(1) when slopes and queries are sorted, and a Li Chao tree does it in O(log V) in any order. It speeds DP transitions of the form dp[i] = min(m<sub>j</sub> * x<sub>i</sub> + b<sub>j</sub>) from O(n) to near-constant per step.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Monotonic CHT
+    value: O(1) amortized
+    hint: slopes added in non-increasing order, queries with non-decreasing x
+  - label: Li Chao tree
+    value: O(log V)
+    hint: any insertion and query order over a fixed range of x
+  - label: DP speedup
+    value: O(n^2) to O(n)
+    hint: or O(n log V) with a Li Chao tree
+  - label: Overflow risk
+    value: m*x + b
+    hint: the products must fit the integer type
+    tone: warn
+properties:
+  - { label: Exact (integer arithmetic), value: true }
+  - { label: Needs sorted slopes, value: false }
+  - { label: Online (any order), value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
+  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+related:
+  - Algorithms/Dynamic_Programming/Advanced DP/DP on Trees
+  - Problem_Patterns/Monotonic Queue
+  - Problem_Patterns/Binary Search on Answer
+  - Problem_Patterns/DP Problem Patterns
+---
+
+## What problem it solves
+
+Many DPs have the form
+
+<Equation label="Linear-in-i transition" expr="dp[i] = min over j < i of ( m_j * x_i + b_j )" result="one line y = m_j * x + b_j per earlier state j" />
+
+Each earlier state `j` contributes a **line** whose slope and intercept depend on `j`, and the query point `x_i` depends on `i`. Scanning all `j` costs O(n) per state and O(n<sup>2</sup>) overall. Only the lines on the **lower envelope**, the pointwise minimum of all lines, can ever be the answer. The envelope is a convex piecewise-linear function, so it can be stored compactly.
+
+## The lower envelope
+
+Take the lines `y = 3x`, `y = 2x + 4`, `y = x + 3` and `y = 7`. Values at the integer points 0 to 6, with the winner in each column highlighted:
+
+<GridDiagram
+  corner="line \ x"
+  colLabels={[0, 1, 2, 3, 4, 5, 6]}
+  rowLabels={['3x', '2x + 4', 'x + 3', '7']}
+  rows={[[0, 3, 6, 9, 12, 15, 18], [4, 6, 8, 10, 12, 14, 16], [3, 4, 5, 6, 7, 8, 9], [7, 7, 7, 7, 7, 7, 7]]}
+  tones={['ff.....', 'mmmmmmm', '..ffp..', '....pff']}
+  legend={{ f: 'the minimum at this x (the envelope)', p: 'a tie for the minimum', m: 'never the minimum: this line is not on the envelope' }}
+  caption="The envelope is 3x up to x = 1.5, then x + 3 up to x = 4, then 7. The line 2x + 4 is never the smallest."
+/>
+
+The envelope uses three of the four lines. A line that never wins, like `2x + 4` here, can be thrown away when it is inserted.
+
+## How it works: the monotonic version
+
+Two conditions make a simple deque enough: lines arrive with **non-increasing slopes**, and queries come with **non-decreasing x**. Then the line that is best moves from the steep lines to the flat ones as `x` grows.
+
+<Steps>
+  <Step title="Keep a deque of useful lines">
+    The deque holds the envelope from left to right, with strictly decreasing slopes.
+  </Step>
+  <Step title="Insert: pop from the back">
+    Before adding line `l3`, look at the last two lines `l1`, `l2`. If `l2` is never strictly best once `l3` exists, remove it. Repeat, then push `l3`. A new line with the same slope as the last keeps only the lower intercept.
+  </Step>
+  <Step title="Query: pop from the front">
+    While the first line is no better than the second at `x`, remove it. Since later queries are at least as large, a line that lost once never wins again. Answer with the first line.
+  </Step>
+</Steps>
+
+<Callout title="Why the back test uses cross-multiplication">
+With slopes `m1 > m2 > m3`, line `l2` is redundant when `l3` overtakes `l1` no later than `l2` does: the intersection of `l1` and `l3` is at or before that of `l1` and `l2`. Dividing would introduce rounding, so multiply both sides by the (positive) slope differences instead: `(b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)`. This is exactly the predicate in the code. It needs strictly decreasing slopes, which is why equal slopes are handled before the test.
+</Callout>
+
+## A worked example
+
+Insert `(3, 0)`, `(2, 4)`, `(1, 3)`, `(0, 7)` in this order, then query `x = 0, 1, ..., 6`. Each row shows the deque after the step (computed by the repository code).
+
+<DataTable
+  columns={['Step', 'Deque (m, b)', 'Why']}
+  rows={[
+    ['add (3, 0)', '(3,0)', 'first line'],
+    ['add (2, 4)', '(3,0) (2,4)', 'fewer than two lines: nothing to test'],
+    ['add (1, 3)', '(3,0) (1,3)', 'test (3,0), (2,4), (1,3): `3 * 1 = 3 <= 4 * 2 = 8`, so (2,4) is popped'],
+    ['add (0, 7)', '(3,0) (1,3) (0,7)', 'test (3,0), (1,3), (0,7): `7 * 2 = 14 <= 3 * 3 = 9` is false, keep (1,3)'],
+    ['query x = 0', '(3,0) (1,3) (0,7)', '0 versus 3: the first line wins, answer 0'],
+    ['query x = 1', '(3,0) (1,3) (0,7)', '3 versus 4: still the first line, answer 3'],
+    ['query x = 2', '(1,3) (0,7)', '6 >= 5: pop (3,0), answer 5'],
+    ['query x = 4', '(0,7)', 'at 4: (1,3) = 7 >= (0,7) = 7: pop, answer 7'],
+  ]}
+/>
+
+The answers for `x = 0..6` are `0, 3, 5, 6, 7, 7, 7`, which matches the minimum in the grid above.
+
+## Li Chao tree: any order
+
+When slopes or queries are not sorted, use a segment tree over the range of `x`. Each node stores **one line**: the one that is best at the node's midpoint among the lines that reached it.
+
+<Steps>
+  <Step title="Insert a line into a node">
+    Compare the new line and the stored one at the midpoint of the node's range. Keep the better one in the node.
+  </Step>
+  <Step title="Send the loser to one side">
+    The loser can only still win where it is better at an end of the range: if it is better at the left end, recurse left; if better at the right end, recurse right; otherwise discard it.
+  </Step>
+  <Step title="Query at x">
+    Walk from the root to the leaf containing `x`, taking the minimum of the stored lines on the path.
+  </Step>
+</Steps>
+
+For the four lines above over the range 0 to 7, the tree ends like this:
+
+<TreeDiagram
+  root={{
+    label: 'y = x + 3',
+    badge: '0..7',
+    tone: 'p',
+    children: [
+      { label: 'y = 3x', badge: '0..3', tone: 'l', edge: 'left' },
+      { label: 'y = 7', badge: '4..7', tone: 'l', edge: 'right' },
+    ],
+  }}
+  legend={{ p: 'root: best at the midpoint 3 of the whole range', l: 'best at the midpoint of its half' }}
+  caption="The line 2x + 4 was inserted, then lost to better lines on both sides and was discarded."
+/>
+
+Each insertion follows one root-to-leaf path and each query follows one too, so both cost O(log V) for a range of V integer points. Nodes are created lazily, at most one per inserted line.
+
+## Pseudocode
+
+```text
+MonotonicCHT.addLine(m, b):            # slopes non-increasing
+    if last line has slope m:
+        if last.b <= b: return         # the new line is never better
+        pop last
+    while size >= 2 and bad(second_last, last, (m, b)):
+        pop last
+    push (m, b)
+
+bad(l1, l2, l3):                       # slopes strictly decreasing
+    return (b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)
+
+MonotonicCHT.query(x):                 # x non-decreasing
+    while size >= 2 and value(first, x) >= value(second, x):
+        pop front
+    return value(first, x)
+
+LiChao.insert(node, lo, hi, line):
+    if node is empty: store line; return
+    mid = (lo + hi) / 2
+    if line(mid) < node.line(mid): swap(line, node.line)
+    if lo == hi: return
+    if line(lo) < node.line(lo):  insert(left child, lo, mid, line)
+    else if line(hi) < node.line(hi): insert(right child, mid + 1, hi, line)
+```
+
+## Implementation
+
+All three languages have `MonotonicCHT` and `LiChaoTree` for the **minimum**. The monotonic version uses a deque in Python and C++ and a slice in Go. The C++ cross-multiplication uses `__int128` and the Go version uses `big.Int`, so the back test does not overflow; the line values `m * x + b` themselves must still fit in 64 bits. Querying an empty structure raises `ValueError` in Python and is a precondition violation in C++ (undefined behaviour) and Go (a panic).
+
+<TopicCode topic="Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick" />
+
+## Complexity analysis
+
+<DataTable
+  columns={['Variant', { label: 'Insert', kind: 'mono' }, { label: 'Query', kind: 'mono' }, 'Requirement']}
+  rows={[
+    ['Monotonic CHT', 'O(1) amortized', 'O(1) amortized', 'slopes and queries monotone'],
+    ['CHT with binary search', 'O(1) amortized', 'O(log n)', 'slopes monotone, queries arbitrary'],
+    ['Li Chao tree', 'O(log V)', 'O(log V)', 'a fixed range of V query points'],
+  ]}
+/>
+
+In the monotonic version every line is pushed once and popped at most once, so a sequence of n operations costs O(n) in total. This needs O(1) pops at both ends: the Python version uses `collections.deque` for that, because `list.pop(0)` would make a query sweep quadratic. Space is O(n) for the lines, and O(n) nodes for the Li Chao tree.
+
+<Equation label="DP with CHT" expr="n states * O(1) amortized per CHT operation" result="O(n) instead of O(n^2)" />
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'When to use it']}
+  rows={[
+    ['Maximum instead of minimum', 'upper envelope; flip the comparisons, or negate slopes and intercepts', 'maximizing DPs'],
+    ['Binary-search CHT', 'keep the hull as an array, binary search the query', 'sorted slopes, unsorted queries'],
+    ['Li Chao tree', 'segment tree of lines, no ordering needed', 'arbitrary order or online DP'],
+    ['Dynamic or compressed Li Chao', 'over a huge range, create nodes lazily or compress the x values', 'x up to 10^9 or more'],
+    ['Li Chao on a tree', 'merge Li Chao trees from children', 'DP on trees with line transitions'],
+  ]}
+/>
+
+## CHT vs alternatives
+
+<DataTable
+  columns={['Technique', { label: 'Time', kind: 'mono' }, 'Use when']}
+  highlight={0}
+  rows={[
+    ['Monotonic CHT', 'O(n)', 'sorted slopes and sorted queries'],
+    ['Li Chao tree', 'O(n log V)', 'arbitrary order, any values of x in a known range'],
+    ['Divide and conquer DP', 'O(n log n)', 'the cost satisfies the quadrangle inequality, not linear in i'],
+    ['Plain scan over all lines', 'O(n^2)', 'n up to a few thousand'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Turns a quadratic DP into a linear or near-linear one.',
+    'Integer arithmetic only: no precision issues when the predicate is cross-multiplied.',
+    'The monotonic version is about thirty lines; the Li Chao tree needs no ordering.',
+  ]}
+  cons={[
+    'Only applies when the transition is linear in the query variable.',
+    'The monotonic version depends on sorted slopes and queries; breaking either silently gives wrong answers.',
+    'Intermediate products can overflow: the back test needs wide integers, and `m * x + b` must fit the type.',
+    'A Li Chao tree needs a known, bounded range of x.',
+  ]}
+/>
+
+## Applications
+
+- DP optimizations in competitive programming, such as splitting an array into groups with a setup cost per group.
+- Cost minimization where the cost of a segment is quadratic: expanding `(x_i - x_j)^2` gives a line in `x_i` for each `j`.
+- Any problem that repeatedly asks for the minimum of many linear functions at a point.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Equal slopes.** Three lines with the same slope make the cross-multiplied test see 0 on both sides, and an unprotected version drops the line with the lowest intercept. Keep only the lowest intercept per slope. This repository did not do so before this fix: `(2,5), (2,1), (2,3)` queried at 0 returned 3 instead of 1.
+- **Wrong order.** Slopes must be non-increasing and queries non-decreasing for the minimum. Violating the order gives wrong answers with no error.
+- **Min versus max.** The predicate flips for the upper envelope. Write the maximum version separately.
+- **Floating point.** Comparing intersection points with division loses exactness; cross-multiply.
+- **Overflow.** Products of coordinates need 128-bit integers in C++ or `big.Int` in Go, and the query value must fit in 64 bits.
+- **Empty queries.** Query an empty structure and C++ has undefined behaviour while Go panics; check first.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How do I know my DP can use CHT?">
+    Expand the cost. If `dp[i] = min over j of (dp[j] + f(j, i))` and `f(j, i)` splits into a part that depends only on `j` plus `m_j` times a part that depends only on `i`, then each `j` is a line evaluated at an `i`-dependent point.
+  </FaqItem>
+  <FaqItem question="What if the slopes are not sorted?">
+    Use the Li Chao tree, or keep the hull in an ordered container with binary search. The deque version cannot handle unsorted slopes.
+  </FaqItem>
+  <FaqItem question="Is the Li Chao tree always slower?">
+    It costs a logarithmic factor, but it is simpler to reason about and has no ordering requirements, so it is often the safer choice when the limits allow.
+  </FaqItem>
+  <FaqItem question="Why does the code pop the front when values are equal?">
+    When two lines tie at `x` and queries never decrease, the one with the larger slope can only get worse afterwards, so the front line is no longer needed.
+  </FaqItem>
+</Faq>

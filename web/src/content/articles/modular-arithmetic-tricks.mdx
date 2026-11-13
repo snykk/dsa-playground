@@ -1,0 +1,200 @@
+---
+topic: Utilities/Optimization_Techniques/Modular_Arithmetic_Tricks
+title: Modular Arithmetic Tricks
+lead: Counting problems ask for the answer modulo a prime such as 10^9 + 7, because the true value is astronomically large. A handful of tricks, safe reduction, fast exponentiation, inverses, factorial tables, Lucas and the Chinese remainder theorem, keep every step exact and fast.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: add, sub, mul
+    value: O(1)
+    hint: reduce after every operation
+  - label: Power
+    value: O(log e)
+    hint: binary exponentiation
+  - label: nCr after setup
+    value: O(1)
+    hint: factorial tables built in O(n)
+  - label: Product overflow
+    value: 64-bit
+    hint: a plain product breaks once the modulus exceeds about 3e9
+    tone: warn
+properties:
+  - { label: Exact (no rounding), value: true }
+  - { label: Division needs a prime modulus (Fermat), value: true }
+  - { label: Works for any modulus without care, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Arithmetic
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular Exponentiation
+related:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese Remainder Theorem
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix Exponentiation
+  - Utilities/Optimization_Techniques/Precomputation
+---
+
+## When to use it
+
+- The statement says "print the answer modulo 10<sup>9</sup> + 7" or modulo 998244353.
+- A count involves products, powers, factorials or binomial coefficients that grow far beyond 64 bits.
+- You need a division (an average, a probability, a binomial) inside modular arithmetic.
+- A system of congruences must be combined into one.
+
+## How it works
+
+Arithmetic modulo m keeps every value in [0, m). Addition, subtraction and multiplication can be reduced at any moment without changing the final residue. Division is the odd one out: it needs an inverse.
+
+<Steps>
+  <Step title="Reduce after every operation">
+    `mod(x, m) = ((x % m) + m) % m`. The extra `+ m` matters in C++ and Go, where `%` of a negative number is negative. Python's `%` is already non-negative.
+  </Step>
+  <Step title="Multiply without overflow">
+    Both factors are below m, so the product is below m<sup>2</sup>. For m = 10<sup>9</sup> + 7 that fits in 64 bits. For moduli above about 3&times;10<sup>9</sup> it does not, and the product must go through a 128-bit intermediate (C++ `__int128`, Go `math/bits`). Python integers never overflow.
+  </Step>
+  <Step title="Power by squaring">
+    `power(b, e, m)` squares the base and multiplies it into the result for each set bit of the exponent: O(log e) multiplications.
+  </Step>
+  <Step title="Divide with an inverse">
+    For a prime m and `a` not a multiple of m, Fermat gives a<sup>-1</sup> = a<sup>m-2</sup> mod m. For any modulus with gcd(a, m) = 1, the extended Euclidean algorithm finds x with ax + my = 1; x is the inverse.
+  </Step>
+  <Step title="Precompute factorials">
+    Build `fact[i]` and `invFact[i]` once in O(n) (one inverse, then a backward loop). Then C(n, r) = fact[n] &middot; invFact[r] &middot; invFact[n-r] in O(1).
+  </Step>
+</Steps>
+
+<Callout title="Why the sums and products can be reduced early">
+Modular reduction respects addition and multiplication: (a + b) mod m = ((a mod m) + (b mod m)) mod m, and the same holds for products. So the intermediate values never need to be larger than m<sup>2</sup>, however large the true number is. Division is different: the quotient a / b is only defined mod m when b has an inverse.
+</Callout>
+
+## Template
+
+```text
+mod(x, m)      = ((x % m) + m) % m
+add(a, b, m)   = (a%m + b%m) % m
+mul(a, b, m)   = (a%m) * (b%m) % m          # 128-bit product in C++ / Go
+
+power(b, e, m):
+    result = 1 % m                           # 0 when m == 1
+    b = b % m
+    while e > 0:
+        if e is odd: result = result * b % m
+        b = b * b % m
+        e = e >> 1
+    return result
+
+inverse(a, m):  prime m ->  power(a, m - 2, m)
+                any m   ->  (g, x, y) = extGCD(a, m); g == 1 ? x mod m : none
+
+Lucas(n, r, p):  r == 0 ? 1 : Lucas(n/p, r/p, p) * C(n%p, r%p)   (p prime)
+
+CRT: merge x = r1 (mod m1) with x = r2 (mod m2): needs (r2 - r1) divisible by gcd(m1, m2);
+     the result is unique modulo lcm(m1, m2)
+```
+
+## Worked example
+
+### Binary exponentiation: 3<sup>13</sup> mod 1000
+
+13 is 1101 in binary. Reading bits from the lowest, the table of squares of the base (mod 1000) is the left column; a set bit multiplies the result by it:
+
+<ArrayDiagram
+  legend={{ f: 'bit is 1: multiply the result by this power', m: 'bit is 0: skip' }}
+  rows={[
+    { label: '3^(2^i) mod 1000', values: [3, 9, 81, 561], tones: 'fmff', note: 'Each entry is the square of the previous one: 9 * 9 = 81, 81 * 81 = 6561 which is 561 mod 1000.' },
+    { label: 'bits of 13, lowest first', values: [1, 0, 1, 1], tones: 'fmff', note: 'Result after each set bit: 3, then 3 * 81 = 243, then 243 * 561 = 136323 which is 323 mod 1000.' },
+  ]}
+/>
+
+So 3<sup>13</sup> = 1,594,323 leaves 323. For the common modulus, `power(2, 100)` returns 976371285 and the inverse of 3 is 333333336 (3 &times; 333333336 = 1,000,000,008, which is 1 mod 10<sup>9</sup> + 7).
+
+### Lucas: C(100, 37) mod 37
+
+Write n = 100 = 2&middot;37 + 26 and r = 37 = 1&middot;37 + 0. Lucas gives C(100, 37) &equiv; C(2, 1) &middot; C(26, 0) = 2 &middot; 1 = 2 (mod 37), which matches the exact binomial reduced modulo 37.
+
+### Generalised CRT
+
+For pairwise coprime moduli, `chinese_remainder([2, 3, 2], [3, 5, 7])` returns 23. The moduli need not be coprime: x &equiv; 1 (mod 2) and x &equiv; 3 (mod 4) give 3, while x &equiv; 1 (mod 2) and x &equiv; 2 (mod 4) have no solution, and the function raises `ValueError`.
+
+## Implementation
+
+All three languages provide `mod`, `add`, `sub`, `mul`, `power`, the two inverses (Fermat and extended gcd), a factorial table (`Factorials` class in Python and Go, global arrays and `precompute()` in C++) with `nCr` and `nPr`, and Lucas' theorem. They differ in extras:
+
+- Python also has `div_mod`, `chinese_remainder` (generalised, raises on inconsistent systems), matrix power and `fibonacci`.
+- C++ also has `mulmod` and `mulmodSlow` with explicit 128-bit and shift-and-add products, and `safeMod`. Call `precompute()` before `nCr`.
+- Go has `divMod` but no CRT or matrix power. Its functions are unexported helpers in `package main`.
+- `mul` is exact for any modulus below 2<sup>62</sup> in C++ and Go; `power(x, 0, 1)` is 0 everywhere.
+- `lucas_nCr` in Python needs a `Factorials(p - 1, p)` built for the same prime and rejects anything else. C++ and Go compute the small binomials directly modulo p, so they do not depend on tables.
+
+<TopicCode topic="Utilities/Optimization_Techniques/Modular_Arithmetic_Tricks" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['`mod`, `add`, `sub`, `mul`', 'O(1)', 'O(1)', 'constant-size integers'],
+    ['`power`', 'O(log e)', 'O(1)', 'about 2 log2(e) multiplications'],
+    ['`mod_inverse` (Fermat)', 'O(log m)', 'O(1)', 'a power with exponent m - 2'],
+    ['`mod_inverse_ext_gcd`', 'O(log m)', 'O(log m)', 'recursive Euclid'],
+    ['factorial tables', 'O(n)', 'O(n)', 'one inverse, then a backward loop'],
+    ['`nCr` with tables', 'O(1)', 'O(1)', 'two multiplications'],
+    ['Lucas (this code)', 'O(p log_p(n))', 'O(log_p(n))', 'C++ and Go compute each small binomial in O(p); Python reads tables in O(1) each'],
+    ['`chinese_remainder`', 'O(k log M)', 'O(k)', 'k congruences, M = lcm of the moduli'],
+  ]}
+/>
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Number of paths, arrangements, subsets modulo 10^9 + 7', 'factorial tables and `nCr`'],
+    ['a^(b^c) mod p', 'reduce the exponent modulo p - 1 (Fermat), then `power` twice'],
+    ['Average or probability as a fraction p / q', '`p * inverse(q)` modulo the prime'],
+    ['C(n, r) modulo a small prime with huge n', "Lucas' theorem"],
+    ['Combine remainders from several moduli', 'CRT, or the generalised version when they share factors'],
+    ['n-th term of a linear recurrence', 'matrix power modulo m'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Need', 'Method', 'Requirement']}
+  rows={[
+    ['Inverse, prime modulus', 'Fermat: a^(m-2)', 'm prime, a not a multiple of m'],
+    ['Inverse, any modulus', 'extended Euclid', 'gcd(a, m) = 1'],
+    ['Many inverses at once', 'inverse factorials', 'prime modulus larger than n'],
+    ['Product with a huge modulus', '128-bit multiply, or shift-and-add (`mulmodSlow`)', 'modulus below 2^62 for these helpers'],
+    ['Binomial modulo a prime power or composite', 'not covered here', 'needs a generalisation of Lucas'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Negative remainders.** C++ and Go `%` keep the sign of the dividend; add the modulus before the final `%`.
+- **Overflow in the product.** `a * b` with both near 10<sup>10</sup> overflows 64 bits. Use the 128-bit helpers.
+- **Fermat with a composite modulus.** `mod_inverse(a, m)` silently returns a wrong value unless m is prime; use the extended Euclid version.
+- **Inverse of a multiple of m.** It does not exist; Fermat returns 0.
+- **Lucas with the wrong tables.** The small binomials must be computed modulo p, not modulo 10<sup>9</sup> + 7. An earlier C++ version read the wrong tables and returned 3 for C(36, 18) mod 37, whose true value is 1.
+- **CRT with a shared factor.** The plain formula needs coprime moduli. Use the generalised merge, which also detects inconsistent systems.
+- **x<sup>0</sup> modulo 1.** Everything is 0 modulo 1, so `power(x, 0, 1)` is 0.
+- **Forgetting `precompute()`** in the C++ file: the tables are zeros until it runs.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why 10^9 + 7?">
+    It is a prime below 2<sup>30</sup>, so sums fit in 32 bits and products fit in 64 bits, and being prime it gives modular inverses through Fermat's theorem.
+  </FaqItem>
+  <FaqItem question="Why does Fermat's inverse need a prime modulus?">
+    Fermat's little theorem states a<sup>p-1</sup> &equiv; 1 (mod p) for a prime p and a not divisible by p, so a &middot; a<sup>p-2</sup> &equiv; 1. For a composite modulus the exponent m - 2 has no such meaning.
+  </FaqItem>
+  <FaqItem question="Can I take a modulus in the middle of a division?">
+    No. Replace the division by a multiplication with the inverse of the denominator, and reduce each factor separately.
+  </FaqItem>
+  <FaqItem question="When is Lucas' theorem needed?">
+    When n is larger than the prime modulus p, so that n! contains a factor p and the factorial-table formula breaks. Lucas splits n and r into base-p digits and multiplies small binomials.
+  </FaqItem>
+</Faq>

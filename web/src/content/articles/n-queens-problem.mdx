@@ -1,0 +1,214 @@
+---
+topic: Algorithms/Advanced_Algorithms/Backtracking/N-Queens Problem
+title: N-Queens Problem
+lead: Place n queens on an n x n chessboard so that no two attack each other. The backtracking solver puts one queen per row, tries the columns left to right, and abandons a row as soon as every square in it is attacked. It is the standard introduction to constraint search with pruning.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Search space
+    value: O(n!)
+    hint: one queen per row, columns never repeat
+    tone: warn
+  - label: Solutions
+    value: 2 for n = 4, 92 for n = 8
+    hint: none for n = 2 and n = 3
+  - label: Extra space
+    value: O(n^2)
+    hint: the board; the recursion is only n deep
+  - label: Approach
+    value: Backtracking
+properties:
+  - { label: Exact, value: true }
+  - { label: Finds all solutions, value: true }
+  - { label: Polynomial time, value: false }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Advanced_Algorithms/Backtracking/Sudoku Solver
+  - Algorithms/Advanced_Algorithms/Backtracking/Graph Coloring
+  - Algorithms/Advanced_Algorithms/Backtracking/Rat in a Maze
+---
+
+## How the N-Queens search works
+
+A queen attacks along its row, its column and both diagonals. Two queens in the same row are never allowed, so a solution has exactly one queen per row. The solver uses this to shrink the search: instead of choosing n squares out of n<sup>2</sup>, it only decides **which column** each row gets.
+
+<Steps>
+  <Step title="Work on one row at a time">
+    The recursive call for `row` assumes rows `0..row-1` already hold safe queens. When `row == n`, all n queens are placed and the board is a solution.
+  </Step>
+  <Step title="Try every column in the row">
+    For each `col` from 0 to n-1, `is_safe` looks upward: the column above the square and the two diagonals above it. Rows below are still empty, so they need no check.
+  </Step>
+  <Step title="Place, recurse, undo">
+    On a safe square set `board[row][col] = 1` and solve `row + 1`. When the call returns without stopping the search, set the square back to 0 and try the next column.
+  </Step>
+  <Step title="Stop or continue">
+    With `find_all = False` the first complete board ends the search. With `find_all = True` every board is copied into the result and the search continues until all branches are exhausted.
+  </Step>
+</Steps>
+
+<Callout title="Pruning is what makes it work">
+A partial placement that already contains an attack is never extended. Whole subtrees of the search disappear: for n = 8 the solver makes 15,720 safety checks to list all 92 solutions, while the number of orderings of columns alone is 8! = 40,320.
+</Callout>
+
+## Worked example: n = 4
+
+The first solution is found after a dead end. Queens sit at row 0, column 0 and row 1, column 2 (counting from 0). Orange cells are queens and grey cells are attacked:
+
+<GridDiagram
+  rows={[['Q', '', '', ''], ['', '', 'Q', ''], ['', '', '', ''], ['', '', '', '']]}
+  tones={['prrr', 'rrpr', 'rrrr', 'r.rr']}
+  checker
+  legend={{ p: 'queen', r: 'attacked square' }}
+  caption="Row 2 has no free square, so the solver backs up and moves the queen in row 1."
+/>
+
+The solver goes back to row 1 and tries column 3, then fails again in row 3. It finally backs up to row 0 and moves that queen to column 1. The search then succeeds with the columns `[1, 3, 0, 2]`:
+
+<GridDiagram
+  rows={[['', 'Q', '', ''], ['', '', '', 'Q'], ['Q', '', '', ''], ['', '', 'Q', '']]}
+  tones={['.p..', '...p', 'p...', '..p.']}
+  checker
+  legend={{ p: 'queen' }}
+  caption="The first 4-queens solution the code returns. The only other one is its mirror image, [2, 0, 3, 1]."
+/>
+
+<DataTable
+  columns={['Placement so far (row: column)', 'Next row', 'Result']}
+  rows={[
+    ['0:0', '1', 'columns 0 and 1 attacked, column 2 is the first safe one'],
+    ['0:0, 1:2', '2', 'all four squares attacked: backtrack'],
+    ['0:0, 1:3', '2', 'column 1 is the first safe one'],
+    ['0:0, 1:3, 2:1', '3', 'all four squares attacked: backtrack, then row 0 gets column 1'],
+    ['0:1, 1:3, 2:0', '3', 'column 2 is the first safe one: solution'],
+  ]}
+  caption="The whole search for the first 4-queens solution takes 26 calls to is_safe."
+/>
+
+## Pseudocode
+
+```text
+isSafe(board, row, col, n):
+    for i = 0 to row - 1:                       # column above
+        if board[i][col] == 1: return false
+    for (i, j) = (row - 1, col - 1); i >= 0 and j >= 0; i--, j--:    # upper-left
+        if board[i][j] == 1: return false
+    for (i, j) = (row - 1, col + 1); i >= 0 and j < n; i--, j++:     # upper-right
+        if board[i][j] == 1: return false
+    return true
+
+solve(board, row, n, solutions, findAll):
+    if row == n:
+        solutions.append(copy of board)
+        return not findAll                      # true means: stop searching
+    for col = 0 to n - 1:
+        if isSafe(board, row, col, n):
+            board[row][col] = 1
+            if solve(board, row + 1, n, solutions, findAll):
+                return true
+            board[row][col] = 0                 # backtrack
+    return false
+```
+
+## Implementation
+
+Python and C++ return a list of boards (each board is an n x n grid of 0 and 1, where 1 is a queen). With `find_all` false the list holds one board, in column-lexicographic order, so `n = 8` gives the columns `[0, 4, 7, 5, 2, 6, 1, 3]`. Both return an empty list when no solution exists, and one empty board for `n = 0`.
+
+Go has the same search, but `solveNQueens(n, true)` returns only the first board, as a single grid. Use `solveNQueensAll(n)` to get every solution.
+
+<TopicCode topic="Algorithms/Advanced_Algorithms/Backtracking/N-Queens Problem" />
+
+## Complexity analysis
+
+At depth k the queens occupy k different columns, so there are at most n!/(n-k)! partial placements. Summing over k gives about e &middot; n! nodes, which is <BigO of="n!" />. Every node runs an <BigO of="n" /> safety check, so the code costs at most <BigO of="n * n!" /> in the worst case. Pruning keeps real runs far below that bound.
+
+<ComplexityTable
+  rows={[
+    { case: 'First solution', time: 'much less than n!', space: 'O(n^2)', when: 'The search stops at the first complete board. For n = 8 it needs 876 safety checks.' },
+    { case: 'All solutions', time: 'O(n * n!) bound', space: 'O(n^2 * S)', when: 'Visits every safe partial placement. S is the number of solutions, and each copy is an n x n board; for n = 8 it needs 15,720 checks and stores 92 boards.' },
+  ]}
+/>
+
+<Equation label="Partial placements at depth k" expr="P(k) <= n! / (n - k)!" result="total nodes = O(n!)" />
+
+The board uses <BigO of="n^2" /> cells and the recursion is only n deep. Python and C++ keep every board they find, so listing all solutions needs <BigO of="S * n^2" /> memory.
+
+## Variants and design choices
+
+`is_safe` here scans the board in O(n). Practical solvers track the attacked lines instead:
+
+<DataTable
+  columns={['Variant', 'Safety check', 'State', 'Note']}
+  rows={[
+    ['Board scan (this repository)', 'O(n)', 'n x n grid', 'simple, closest to the problem statement'],
+    ['Column and diagonal sets', 'O(1)', 'three boolean arrays', 'column `c`, diagonal `r - c` and anti-diagonal `r + c` are all that matters'],
+    ['Bitmasks', 'O(1) with bit tricks', 'three integers', 'the fastest simple counter'],
+    ['Symmetry reduction', 'unchanged', 'unchanged', 'only search half of the first row and mirror the results'],
+    ['Min-conflicts (local search)', 'n/a', 'one queen per column', 'finds one solution for very large n, no completeness guarantee'],
+  ]}
+/>
+
+The two diagonals are the key to the O(1) variants: all squares on one diagonal share `r - c`, and all squares on one anti-diagonal share `r + c`.
+
+## N-Queens vs similar searches
+
+<DataTable
+  columns={['', 'N-Queens', 'Graph Coloring', 'Sudoku']}
+  highlight={0}
+  rows={[
+    ['Choice per step', 'a column for each row', 'a color for each vertex', 'a digit for each empty cell'],
+    ['Constraint', 'no shared column or diagonal', 'no shared color on an edge', 'no repeat in row, column, box'],
+    ['Search depth', 'n', 'V', 'number of blanks'],
+    ['Exact count of solutions', 'known only by search (OEIS A000170)', 'depends on the graph', 'usually exactly one'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Complete: it finds every solution, so counts such as 92 for n = 8 can be verified.',
+    'Pruning at the row level removes most of the n<sup>n</sup> naive placements.',
+    'The code is short and shows the choose, check, recurse, undo template clearly.',
+  ]}
+  cons={[
+    'Exponential growth: counting all solutions gets slow quickly as n grows, especially with the board scan.',
+    'The O(n) check and the full board copy for each solution waste time and memory.',
+    'Every solution has up to seven symmetric variants that the search finds separately.',
+  ]}
+/>
+
+## Applications
+
+- **Teaching backtracking and pruning.** It is the classic example for the pattern.
+- **Constraint satisfaction benchmarks.** Solvers and heuristics are often compared on n-queens instances.
+- **Parallel search.** The branches under different first-row columns are independent.
+- **Testing.** The solution counts form a known sequence, which makes them a convenient correctness test for search code.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Checking the lower half.** Only rows above `row` hold queens during the search; checking below is wasted work, and writing the check over the whole board is a common source of bugs.
+- **Appending the live board.** Saving `board` itself instead of a copy leaves every stored solution pointing at the same grid, which ends up empty after backtracking.
+- **Forgetting to undo.** Without `board[row][col] = 0` the failed queen stays on the board and blocks later branches.
+- **Checking only one diagonal direction.** Both upper-left and upper-right are needed.
+- **Mixing up the Go API.** `solveNQueens(n, true)` in Go returns one board, not all of them.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why one queen per row?">
+    Two queens in a row attack each other, and a board with n queens and n rows therefore needs exactly one per row. Choosing a row at a time turns a search over subsets of squares into a search over column choices, which is far smaller.
+  </FaqItem>
+  <FaqItem question="Does a solution exist for every n?">
+    No. There are none for n = 2 and n = 3. For n = 1 and every n of 4 or more at least one solution exists. The numbers of solutions for n = 1 to 9 are 1, 0, 0, 2, 10, 4, 40, 92, 352.
+  </FaqItem>
+  <FaqItem question="How can I make it faster?">
+    Replace the board scan by three boolean arrays (columns, diagonals, anti-diagonals) or by bitmasks, so the safety check is O(1), and return a list of column indexes instead of an n x n grid.
+  </FaqItem>
+  <FaqItem question="Why is the first solution for n = 8 not symmetric looking?">
+    The solver always takes the smallest safe column first, so it returns the lexicographically smallest solution, `[0, 4, 7, 5, 2, 6, 1, 3]`, which is the first of 92 in that order.
+  </FaqItem>
+</Faq>

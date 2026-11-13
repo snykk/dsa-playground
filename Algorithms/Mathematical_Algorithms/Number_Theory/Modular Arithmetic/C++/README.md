@@ -1,114 +1,31 @@
-# Modular Arithmetic (C++)
+# Modular Arithmetic -- C++ Implementation
 
-**Modular Arithmetic** is a system of arithmetic for integers, where numbers "wrap around" after reaching a certain value (the modulus).
+## Files
 
----
+- `modular_arithmetic.cpp`: all functions (no `main`; the test file includes it).
+- `modular_arithmetic_test.cpp`: assert-based tests (basics, ring properties, negative operands, a signed extended-gcd identity check on 20,000 pairs, inverses of negative numbers, negative exponents, moduli of 10^18 and 2^63 - 25).
 
-## Overview
+## API
 
-Modular arithmetic is fundamental in number theory, cryptography, and computer science. It operates on the principle of congruence modulo m, where two numbers are considered equivalent if their difference is divisible by m.
+- `long long modAdd(a, b, m)`, `modSubtract(a, b, m)`, `modMultiply(a, b, m)`: results in `[0, m)`.
+- `long long modInverse(a, m)`: inverse in `[0, m)`, or `-1`.
+- `long long modDivide(a, b, m)`: `a * b^-1 mod m`, or `-1` if `b` has no inverse.
+- `long long modPower(base, exponent, m)`: binary exponentiation; a negative exponent gives the inverse power, or `-1`.
+- `ExtendedGCD extendedGcd(a, b)`: `{gcd, x, y}` with `a*x + b*y == gcd`, for any signs.
 
-**Key Characteristics:**
-- Operations: Addition, subtraction, multiplication, division, exponentiation
-- Essential for cryptography: RSA, Diffie-Hellman, elliptic curves
-- Efficient: O(1) for basic operations
+## C++-Specific Notes
 
----
+- `%` keeps the sign of the dividend in C++, so every function normalizes with `floorMod` first. Results are always non-negative, which makes the `-1` sentinel unambiguous.
+- Products use `__int128` (GCC and Clang), and sums compare against `m - y`, so any modulus up to `LLONG_MAX` is safe. The old code overflowed above about 3.04e9.
+- `LLONG_MIN` as an argument is not supported.
 
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **modAdd** | O(1) | O(1) |
-| **modSubtract** | O(1) | O(1) |
-| **modMultiply** | O(1) | O(1) |
-| **modDivide** | O(log min(b, m)) | O(log min(b, m)) |
-| **modInverse** | O(log min(a, m)) | O(log min(a, m)) |
-| **modPower** | O(log exponent) | O(1) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`modAdd(a, b, m)`**
-   - Compute (a + b) mod m
-   - Time: O(1), Space: O(1)
-
-2. **`modSubtract(a, b, m)`**
-   - Compute (a - b) mod m (always non-negative)
-   - Time: O(1), Space: O(1)
-
-3. **`modMultiply(a, b, m)`**
-   - Compute (a × b) mod m
-   - Time: O(1), Space: O(1)
-
-4. **`modDivide(a, b, m)`**
-   - Compute (a / b) mod m using modular inverse
-   - Returns -1 if inverse doesn't exist
-   - Time: O(log min(b, m)), Space: O(log min(b, m))
-
-5. **`modInverse(a, m)`**
-   - Compute modular multiplicative inverse
-   - Returns -1 if inverse doesn't exist
-   - Time: O(log min(a, m)), Space: O(log min(a, m))
-
-6. **`modPower(base, exponent, m)`**
-   - Compute (base^exponent) mod m using binary exponentiation
-   - Time: O(log exponent), Space: O(1)
-
----
-
-## Usage
-
-```cpp
-#include "modular_arithmetic.cpp"
-
-long long m = 11;
-
-// Addition
-long long result = modAdd(7, 5, m);  // 1
-
-// Multiplication
-result = modMultiply(7, 5, m);  // 2
-
-// Exponentiation
-result = modPower(2, 5, m);  // 10
-
-// Inverse
-long long inv = modInverse(3, m);  // 4
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Compile
-g++ -o modular_arithmetic_test modular_arithmetic_test.cpp
-
-# Run
-./modular_arithmetic_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD modular_arithmetic_test.cpp -o ma_test && ./ma_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ modular_arithmetic_test.cpp -o modular_arithmetic_test && ./modular_arithmetic_test
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 31)
-- "Number Theory" by Rosen
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+- Normalize negative operands before anything else.
+- Use a 128-bit product for `(a * b) % m` with a 64-bit modulus.

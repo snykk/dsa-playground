@@ -106,4 +106,3 @@ func main() {
 	first := KMPSearchFirst(text, pattern)
 	fmt.Printf("First occurrence at index: %d\n", first)
 }
-

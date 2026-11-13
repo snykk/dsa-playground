@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -15,7 +16,7 @@ private:
 public:
     SqrtDecomposition(const vector<int>& arr) : arr(arr) {
         n = arr.size();
-        blockSize = ceil(sqrt(n));
+        blockSize = max(1, (int)ceil(sqrt(n)));
         blockCount = (n + blockSize - 1) / blockSize;
         blocks.assign(blockCount, 0);
         

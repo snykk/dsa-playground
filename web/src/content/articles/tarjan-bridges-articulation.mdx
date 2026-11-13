@@ -1,0 +1,191 @@
+---
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation
+title: Bridges and Articulation Points
+lead: A bridge is an edge, and an articulation point is a vertex, whose removal disconnects an undirected graph. Tarjan's algorithm finds all of them in one DFS, using a discovery time and a low-link value for every vertex, and it is the standard tool for single points of failure in a network.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V + E)
+    hint: one DFS; each edge is seen twice
+  - label: Extra space
+    value: O(V + E)
+    hint: adjacency lists with edge ids, plus disc, low and the DFS stack
+  - label: Input
+    value: Undirected multigraph
+    hint: parallel edges and self-loops are fine
+  - label: Vertex labels
+    value: 0 .. n-1
+    hint: other labels are not supported
+    tone: warn
+properties:
+  - { label: Single DFS pass, value: true }
+  - { label: Handles parallel edges, value: true }
+  - { label: Works on directed graphs, value: false }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+---
+
+## How the algorithm works
+
+Run a DFS on the undirected graph. Every edge becomes either a **tree edge** (the DFS walked along it to find a new vertex) or a **back edge** (it leads to an already discovered vertex, necessarily an ancestor). Two numbers per vertex capture the structure:
+
+- `disc[u]`: the time at which the DFS discovered `u`.
+- `low[u]`: the smallest `disc` that can be reached from `u`'s subtree using tree edges and at most one back edge.
+
+<Steps>
+  <Step title="Discover u">
+    Set `disc[u] = low[u] = timer` and increase the timer.
+  </Step>
+  <Step title="Scan each edge of u, except the one we arrived on">
+    Skip the edge by its **id**, not by the parent vertex. For an undiscovered neighbour `v`, descend (a tree edge). For a discovered `v`, it is a back edge: `low[u] = min(low[u], disc[v])`.
+  </Step>
+  <Step title="Return from a child v">
+    Update `low[u] = min(low[u], low[v])`, then test two rules: the tree edge `(u, v)` is a **bridge** if `low[v] > disc[u]`, and `u` is an **articulation point** if `low[v] >= disc[u]` and `u` is not the root.
+  </Step>
+  <Step title="Finish the root">
+    The root is an articulation point exactly when it has two or more DFS children.
+  </Step>
+</Steps>
+
+<Callout title="Why the two rules differ by one symbol">
+If `low[v] > disc[u]`, the subtree of `v` cannot reach even `u` by a back edge, so the tree edge `(u, v)` is the only link: cutting the edge disconnects it. If `low[v] == disc[u]`, the subtree can reach `u` but nothing above it: the edge is not a bridge, but removing the vertex `u` cuts the subtree off. The root has nothing above it, so for it the test is "at least two children" instead.
+</Callout>
+
+## See it in action
+
+Press play or step through. The animation shows the DFS tree growing with discovery and low-link badges, and each tree edge gets tested as it is finished. Bridges and cut vertices are painted as they are found; the legend under the picture explains the colours. You can type your own edges, repeat an edge to make a parallel edge, or press Random.
+
+<ArticleViz ids={['bridges-articulation']} />
+
+## A worked example
+
+Two triangles joined by an edge: `0-1, 1-2, 2-0, 2-3, 3-4, 4-5, 5-3`. Python returns bridges `[(2, 3)]` and articulation points `[2, 3]`. The badges show `disc / low` after the search:
+
+<GraphDiagram
+  edges="0-1, 1-2, 2-0, 2-3, 3-4, 4-5, 5-3"
+  positions={{ 0: [6, 14], 1: [6, 86], 2: [34, 50], 3: [66, 50], 4: [94, 14], 5: [94, 86] }}
+  tones={{ 2: 'p', 3: 'p', 0: 'l', 1: 'l', 4: 'r', 5: 'r' }}
+  edgeTones={{ '2-3': 'p' }}
+  badges={{ 0: '0 / 0', 1: '1 / 0', 2: '2 / 0', 3: '3 / 3', 4: '4 / 3', 5: '5 / 3' }}
+  legend={{ p: 'articulation point (vertices 2 and 3); the highlighted edge 2-3 is the bridge', l: 'left triangle', r: 'right triangle' }}
+  caption="disc / low for each vertex, from a DFS started at 0. The back edges 2-0 and 5-3 pull low down to 0 and 3."
+  label="Two triangles joined by a bridge, with discovery and low-link values"
+/>
+
+<DataTable
+  columns={['Child returns', 'low[child]', 'disc[parent]', 'Bridge? (>)', 'Cut vertex? (>=)']}
+  rows={[
+    ['5 to 4', '3', '4', 'No', 'No'],
+    ['4 to 3', '3', '3', 'No', 'Yes: vertex 3'],
+    ['3 to 2', '3', '2', 'Yes: edge 2-3', 'Yes: vertex 2'],
+    ['2 to 1', '0', '1', 'No', 'No'],
+    ['1 to 0', '0', '0', 'No', 'root: only one child'],
+  ]}
+/>
+
+The edge `2-3` is the only link between the triangles, so it is a bridge. Both of its ends are articulation points because each one has something on the other side to cut off: vertex 2 separates `{3, 4, 5}` from `{0, 1}`, and vertex 3 separates `{4, 5}` from the rest.
+
+## Pseudocode
+
+```text
+dfs(u, parentEdge):
+    disc[u] = low[u] = timer++
+    children = 0
+    for each (v, edgeId) in adj[u]:
+        if edgeId == parentEdge: continue          # skip by edge id
+        if disc[v] == -1:                          # tree edge
+            children += 1
+            dfs(v, edgeId)
+            low[u] = min(low[u], low[v])
+            if low[v] > disc[u]:                   mark edge (u, v) as a bridge
+            if parentEdge != -1 and low[v] >= disc[u]:  mark u as a cut vertex
+        else:                                      # back edge (or a self-loop)
+            low[u] = min(low[u], disc[v])
+    if parentEdge == -1 and children > 1: mark u as a cut vertex
+```
+
+## Implementation
+
+The input is the number of vertices `n` and a list of edges between `0 .. n-1`. Python returns `(bridges, articulation_points)` as sorted lists from `find_bridges_and_articulations(n, edges)`. C++ builds `TarjanBridges(n, edges)` and calls `compute()` to get a `TarjanResult` with two vectors. Go returns a `Result` from `FindBridgesAndArticulations(n, edges)`. Bridges are reported as `(min, max)` pairs.
+
+Python and C++ use an iterative DFS with an explicit stack of frames, so a path of 100000 or a million vertices works. Go uses a recursive closure, which is safe because goroutine stacks grow on demand. A vertex label at or above `n` is not checked: Python raises `KeyError`, C++ has undefined behaviour and Go panics.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(V + E)', when: 'Each vertex is discovered once and each edge is scanned from both endpoints; every update of low is O(1).' },
+    { case: 'Space', time: 'O(V + E)', space: 'O(V + E)', when: 'Adjacency lists with edge ids, plus disc, low and the DFS stack of at most V frames.' },
+  ]}
+/>
+
+## Bridges vs articulation points
+
+<DataTable
+  columns={['', 'Bridge', 'Articulation point']}
+  rows={[
+    ['What it is', 'an edge', 'a vertex'],
+    ['Removal', 'increases the number of components', 'increases the number of components'],
+    ['Test on tree edge (u, v)', '`low[v] > disc[u]`', '`low[v] >= disc[u]`, u not the root'],
+    ['Root', 'no special case', 'cut vertex if it has 2 or more DFS children'],
+    ['Parallel edge', 'a doubled edge is never a bridge', 'unaffected'],
+  ]}
+/>
+
+A bridge endpoint with another edge besides the bridge is always an articulation point. A leaf at the end of a bridge is not. A vertex can be an articulation point without touching any bridge, such as the shared vertex of two triangles that meet in one point.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time with a single DFS; no repeated removal and recount.',
+    'Finds bridges and articulation points together.',
+    'Handles parallel edges and self-loops when the parent is tracked by edge id.',
+  ]}
+  cons={[
+    'Only for undirected graphs. Directed graphs need SCC algorithms.',
+    'A recursive implementation overflows the stack on long paths.',
+    'Edge ids are needed for multigraphs, which costs a little memory.',
+  ]}
+/>
+
+## Applications
+
+- **Network reliability.** Cables whose failure splits the network are bridges, routers whose failure does so are articulation points. This is LeetCode 1192, Critical Connections in a Network.
+- **2-edge-connected components.** Delete all bridges: the pieces that remain are the 2-edge-connected components.
+- **Block-cut trees and biconnected components.** Articulation points separate the blocks.
+- **Cycle structure.** An edge lies on a cycle exactly when it is not a bridge.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Skipping the parent vertex.** With parallel edges the second copy of the edge back to the parent is a real back edge. Skip only the edge id you arrived by.
+- **Mixing `>` and `>=`.** Bridges use a strict comparison, articulation points do not.
+- **Forgetting the root rule.** A root is a cut vertex only with at least two DFS children.
+- **Raising the recursion limit.** In Python, `sys.setrecursionlimit` for a long path ends in a crash of the interpreter instead of a clean error. Use an explicit stack.
+- **Directed input.** Treat each undirected edge as two entries, and do not run this on a digraph.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Does an articulation point always touch a bridge?">
+    No. Two cycles sharing a single vertex have no bridge at all, but the shared vertex is an articulation point.
+  </FaqItem>
+  <FaqItem question="How are parallel edges treated?">
+    Two parallel edges between the same pair are never bridges, because removing one leaves the other. The implementation skips the arriving edge by id, so the other copy shows up as a back edge and lowers `low`.
+  </FaqItem>
+  <FaqItem question="Why is low updated with disc[v] and not low[v] for a back edge?">
+    The definition of `low` allows exactly one back edge. Using `low[v]` of the ancestor would let the search follow a second back edge, which can hide an articulation point at that ancestor (it would still give the right bridges, but not the right cut vertices). Using `disc[v]` is correct for both.
+  </FaqItem>
+  <FaqItem question="How do I find the components after removing the bridges?">
+    Run a second search that ignores bridge edges, or use a union-find structure over the non-bridge edges. Each result is a 2-edge-connected component.
+  </FaqItem>
+</Faq>

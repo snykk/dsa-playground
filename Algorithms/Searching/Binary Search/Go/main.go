@@ -102,4 +102,3 @@ func BinarySearchLastOccurrence(arr []int, target int) int {
 
 	return result
 }
-

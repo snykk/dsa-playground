@@ -1,105 +1,104 @@
 # Interactive Problems
 
-Interactive problems require communication with a judge program that responds to queries.
+In an interactive problem your program talks to a judge program while it runs: you send queries, read replies and must find a hidden value within a query budget. Flushing, exact formats and a good search strategy matter more than raw speed. The usual tool is binary search, which needs O(log n) queries.
 
-## Key Rules
+## Intuition
 
-1. **Always flush output** after each query
-2. **Read response** before next query
-3. **Handle errors** gracefully (usually -1 means error)
-4. **Query limits** - don't exceed allowed queries
+Each reply removes part of the search space. A good strategy removes as much as possible per query, so you should know the worst-case number of queries before coding. The protocol adds one hard rule: standard output is buffered, so every query must be flushed or the judge never sees it and both programs wait forever.
 
-## Output Flushing
+## Visual
 
-### C++
-```cpp
-// Method 1: endl (slower but auto-flushes)
-cout << "? " << x << endl;
-
-// Method 2: explicit flush (preferred)
-cout << "? " << x << "\n";
-cout.flush();
+```text
+solution                          judge
+   | ---- "? 5"   (flush) ---->     |    secret = 7
+   | <---- "higher" -------------   |
+   | ---- "? 8"   (flush) ---->     |
+   | <---- "lower" --------------   |
+   | ---- "? 6"   (flush) ---->     |
+   | <---- "higher" -------------   |
+   | ---- "! 7"   (flush) ---->     |    interval [7, 7]: answer
 ```
 
-### Python
-```python
-# Always use flush=True
-print(f"? {x}", flush=True)
+## How It Works
 
-# Or flush manually
-import sys
-print(f"? {x}")
-sys.stdout.flush()
-```
+1. Read the protocol: query format (`? x`), answer format (`! x`), reply format, error reply (often `-1`), query limit.
+2. Count queries for your strategy in the worst case.
+3. Loop: print the query, flush, read the reply, update what you know. On `-1`, exit at once.
+4. Print the final answer once, in the required format, and flush it.
 
-### Go
-```go
-import "bufio"
-var writer = bufio.NewWriter(os.Stdout)
-fmt.Fprintln(writer, "?", x)
-writer.Flush()
-```
+Flushing:
 
-## Common Patterns
+| Language | How |
+|----------|-----|
+| Python | `print(x, flush=True)` |
+| C++ | `cout << x << endl;` or `cout << x << "\n"; cout.flush();` |
+| Go | write to a `bufio.Writer` and call `Flush()` |
 
-### Binary Search
-```cpp
-int lo = 1, hi = n;
-while (lo < hi) {
-    int mid = (lo + hi) / 2;
-    cout << "? " << mid << "\n";
-    cout.flush();
-    
-    string resp;
-    cin >> resp;
-    
-    if (resp == "higher") lo = mid + 1;
-    else hi = mid;
-}
-cout << "! " << lo << "\n";
-```
+## Step-by-Step Trace
 
-### Graph Exploration
-```python
-def get_neighbors(u):
-    print(f"? {u}", flush=True)
-    return list(map(int, input().split()))
+`guess_number(10)` with the secret 7 (replies `higher`, `lower` or `correct`):
 
-# BFS to explore
-visited = set([1])
-queue = [1]
-while queue:
-    u = queue.pop(0)
-    for v in get_neighbors(u):
-        if v not in visited:
-            visited.add(v)
-            queue.append(v)
-```
+| Query | Interval before | Reply | Interval after |
+|-------|-----------------|-------|----------------|
+| `? 5` | [1, 10] | higher | [6, 10] |
+| `? 8` | [6, 10] | lower | [6, 7] |
+| `? 6` | [6, 7] | higher | [7, 7] |
 
-### Comparison-Based
-```cpp
-auto compare = [](int i, int j) {
-    cout << "? " << i << " " << j << "\n";
-    cout.flush();
-    int res; cin >> res;
-    return res;  // 1 if i > j, -1 if i < j
-};
-```
+One value is left, so the program prints `! 7`: 3 queries. If the judge ever replies `correct`, the function returns without printing `! x`, because in this protocol the judge ends the game.
 
-## Tips
+## Complexity
 
-1. **Plan queries** - Know maximum queries allowed
-2. **Binary search** - Reduces linear to logarithmic queries
-3. **Batch when possible** - Some problems allow multiple queries at once
-4. **Track state** - Remember previous responses
-5. **Handle edge cases** - First/last elements, empty responses
+| Strategy | Queries |
+|----------|---------|
+| `guess_number` / `guessNumber` / `GuessNumber` | at most floor(log2 n) + 1 |
+| `findMinimumInteractive` (rotated array) | at most ceil(log2 n) + 1 |
+| `binary_subset_search` | bit length of n |
+| `find_maximum`, `tournament` | n - 1 comparisons |
+| `guess_subset` | n |
+| `explore_graph` | one per reachable node |
 
-## Query Complexity
+The local running time is the number of queries plus bookkeeping; the judge's query limit is the constraint that matters.
 
-| Strategy | Queries | Use Case |
-|----------|---------|----------|
-| Linear | O(n) | Simple search |
-| Binary Search | O(log n) | Sorted/monotonic |
-| Ternary Search | O(log n) | Unimodal functions |
-| Divide & Conquer | O(log n) | Recursive partitioning |
+## When to Use
 
+Use these patterns when the input is hidden and reachable only through a limited query interface. Binary search needs a monotone oracle; comparison strategies need a comparison oracle; graph exploration needs a neighbor oracle.
+
+## Interactive Strategies vs. Alternatives
+
+| Strategy | Queries | Needs |
+|----------|---------|-------|
+| Linear scan | O(n) | any oracle |
+| Binary search | O(log n) | monotone / sorted structure |
+| Tournament | n - 1, in log n batchable rounds | comparisons |
+| Bit-by-bit | log n | mask oracle |
+
+## Common Pitfalls
+
+- Forgetting to flush a query or the final answer.
+- Debug output on stdout (the judge reads it as a query); use stderr.
+- Reading a reply that was never sent, or ignoring `-1`.
+- Wasting queries: re-asking a value you already know (the C++ `findMinimumInteractive` now asks `hi` once).
+- Answering twice, or not at all.
+
+## Implementations
+
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `interactive.py` | query/answer helpers and 7 strategies |
+| C++ | [C++/](C++/) | `interactive.cpp` | 9 functions; `queryWithEndl`, `queryWithFlush` show both flushing styles |
+| Go | [Go/](Go/) | `main.go` | `Query`, `Answer`, `GuessNumber`, `BinarySearchAnswer` |
+
+Each language is tested against an in-process fake judge.
+
+## Practice Problems
+
+- [LeetCode 374 - Guess Number Higher or Lower](https://leetcode.com/problems/guess-number-higher-or-lower/)
+- [LeetCode 278 - First Bad Version](https://leetcode.com/problems/first-bad-version/)
+- [LeetCode 702 - Search in a Sorted Array of Unknown Size](https://leetcode.com/problems/search-in-a-sorted-array-of-unknown-size/)
+- [LeetCode 1095 - Find in Mountain Array](https://leetcode.com/problems/find-in-mountain-array/)
+
+## Related
+
+- [Binary Search](../../../Algorithms/Searching/Binary%20Search/)
+- [Constructive Algorithms](../Constructive_Algorithms/)
+- [Game Theory](../Game_Theory/)

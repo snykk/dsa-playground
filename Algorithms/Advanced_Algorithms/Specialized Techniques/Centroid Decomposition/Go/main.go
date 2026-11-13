@@ -58,6 +58,7 @@ func (cd *CentroidDecomposition) decompose(u, p int) {
 func (cd *CentroidDecomposition) Build(root int) {
 	for i := range cd.parent {
 		cd.parent[i] = -1
+		cd.removed[i] = false
 	}
 	cd.decompose(root, -1)
 }

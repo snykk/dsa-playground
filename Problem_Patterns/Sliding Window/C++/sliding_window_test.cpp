@@ -12,6 +12,10 @@ int main() {
     
     vector<int> arr3 = {1, 2, 3};
     assert(maxSumSubarray(arr3, 5) == 0);
+    // Regression: k <= 0 is rejected the same way in all three languages.
+    assert(maxSumSubarray(arr3, 0) == 0);
+    assert(maxSumSubarray(arr3, -1) == 0);
+    assert(maxSumSubarray(vector<int>{-5, -2, -9}, 2) == -7);
     
     // Test longestSubstringKDistinct
     assert(longestSubstringKDistinct("eceba", 2) == 3);

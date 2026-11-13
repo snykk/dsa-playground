@@ -25,7 +25,9 @@ def _fft_recursive(a, inverse=False):
 
     # Combine
     result = [0] * n
-    sign = -1 if inverse else 1
+    # Convention: forward transform uses e^(-2*pi*i*k/n) (textbook / numpy),
+    # the inverse uses e^(+2*pi*i*k/n) and divides by n.
+    sign = 1 if inverse else -1
 
     for k in range(n // 2):
         t = cmath.exp(sign * 2j * cmath.pi * k / n) * odd[k]
@@ -37,11 +39,16 @@ def _fft_recursive(a, inverse=False):
 
 def fft(a, inverse=False):
     """
-    Compute Fast Fourier Transform using Cooley-Tukey algorithm
+    Compute the Discrete Fourier Transform with the Cooley-Tukey algorithm.
+
+    Convention: X[k] = sum_j a[j] * e^(-2*pi*i*j*k/n), so fft([1, 2, 3, 4])
+    is [10, -2+2j, -2, -2-2j] (the same as numpy.fft.fft).
 
     Args:
-        a: List of complex numbers (will be padded to power of 2 if needed)
-        inverse: If True, compute inverse FFT
+        a: List of complex numbers. A forward transform pads with zeros to the
+           next power of two; the inverse requires a power-of-two length
+           (raises ValueError otherwise).
+        inverse: If True, compute the inverse FFT (divides by n)
 
     Returns:
         List of complex numbers (FFT result)
@@ -51,27 +58,32 @@ def fft(a, inverse=False):
     """
     n = len(a)
 
+    if n == 0:
+        return []
+
+    power_of_two = (n & (n - 1)) == 0
+    if inverse and not power_of_two:
+        raise ValueError(
+            "inverse FFT needs a power-of-two length; got %d "
+            "(a zero-padded spectrum is not the spectrum of the original signal)" % n)
+
     # Base case
     if n == 1:
-        return a
+        return list(a)
 
-    # Ensure n is power of 2 (pad with zeros if needed)
-    original_n = n
-    if n & (n - 1) != 0:
-        # Find next power of 2
+    # Forward transform of a non-power-of-two input: pad with zeros to the next
+    # power of two (this is the DFT of the zero-padded signal).
+    if not power_of_two:
         next_power = 1
         while next_power < n:
             next_power <<= 1
-        a = a + [0] * (next_power - n)
+        a = list(a) + [0] * (next_power - n)
         n = next_power
 
     result = _fft_recursive(a, inverse)
 
     if inverse:
         result = [x / n for x in result]
-        # Return only original length if padded
-        if original_n < n:
-            return result[:original_n]
 
     return result
 

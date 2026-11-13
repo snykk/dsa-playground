@@ -17,16 +17,16 @@ class TwoSAT {
  public:
     explicit TwoSAT(int n_vars) : n_(n_vars), graph_(2 * n_vars) {}
 
-    // Add clause (a ∨ b). Literals are 2*x or 2*x+1.
+    // Add clause (a or b). Literals are 2*x or 2*x+1.
     void addClause(int a, int b) {
         graph_[a ^ 1].push_back(b);
         graph_[b ^ 1].push_back(a);
     }
 
-    // Shortcut for a → b, equivalent to (¬a ∨ b).
+    // Shortcut for a -> b, equivalent to (~a or b).
     void implies(int a, int b) { addClause(a ^ 1, b); }
 
-    // Force literal `a` to be true via (a ∨ a).
+    // Force literal `a` to be true via (a or a).
     void forceTrue(int a) { addClause(a, a); }
 
     // Returns (true, assignment) on SAT, or (false, std::nullopt) on UNSAT.
@@ -81,14 +81,12 @@ class TwoSAT {
                         }
                         ++scc_count;
                     }
-                    int finished = u;
                     int finished_low = low[u];
                     work.pop();
                     if (!work.empty()) {
                         int parent = work.top().first;
                         low[parent] = std::min(low[parent], finished_low);
                     }
-                    (void)finished;
                 }
             }
         }

@@ -1,8 +1,9 @@
 /*
- * Big-Theta (Θ) Notation Implementation and Examples
+ * Big-Theta (Theta) Notation Implementation and Examples
  *
- * Big-Theta notation describes a tight bound on an algorithm's time complexity.
- * It represents both the upper and lower bounds.
+ * Big-Theta notation is a tight bound on a function (O and Omega together). In
+ * algorithm analysis it attaches to a chosen case (best, average or worst), not to
+ * the algorithm as a whole.
  */
 
 #include <iostream>
@@ -11,7 +12,7 @@
 
 using namespace std;
 
-// Θ(n) - Tight bound example
+// Theta(n) - Tight bound example
 int tightBoundExample(const vector<int>& arr) {
     int total = 0;
     for (int element : arr) {
@@ -20,7 +21,8 @@ int tightBoundExample(const vector<int>& arr) {
     return total;
 }
 
-// Θ(log n) - Binary search tight bound
+// Binary search: best case Theta(1) (target at the first middle probe),
+// worst case Theta(log n).
 int binarySearchExample(const vector<int>& arr, int target) {
     int left = 0, right = arr.size() - 1;
     
@@ -37,7 +39,9 @@ int binarySearchExample(const vector<int>& arr, int target) {
     return -1;
 }
 
-// Θ(n log n) - Merge sort tight bound
+// Library sort, NOT a hand-written merge sort (the name is historical).
+// std::sort is O(n log n) in the worst case, but it is not Theta(n log n) in
+// every case: an implementation may finish sorted input faster.
 vector<int> mergeSortExample(vector<int> arr) {
     if (arr.size() <= 1) {
         return arr;
@@ -48,23 +52,23 @@ vector<int> mergeSortExample(vector<int> arr) {
 }
 
 void demonstrateBigTheta() {
-    cout << "=== Big-Theta (Θ) Notation Examples ===\n\n";
-    cout << "Big-Theta provides a TIGHT BOUND (both upper and lower)\n\n";
+    cout << "=== Big-Theta (Theta) Notation Examples ===\n\n";
+    cout << "Big-Theta is a TIGHT BOUND on a function (O and Omega together)\n\n";
     
-    // Θ(n)
+    // Theta(n)
     vector<int> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    cout << "Θ(n) - Linear Tight Bound:\n";
+    cout << "Theta(n) - Linear Tight Bound:\n";
     cout << "  Sum: " << tightBoundExample(arr) << "\n\n";
     
-    // Θ(log n)
+    // Theta(log n)
     vector<int> sorted = {1, 3, 5, 7, 9, 11, 13, 15};
-    cout << "Θ(log n) - Logarithmic Tight Bound:\n";
+    cout << "Theta(log n) - Logarithmic Tight Bound:\n";
     cout << "  Binary search for 11: index " << binarySearchExample(sorted, 11) << "\n\n";
     
-    // Θ(n log n)
+    // Theta(n log n)
     vector<int> unsorted = {64, 34, 25, 12, 22, 11, 90};
     vector<int> sorted_result = mergeSortExample(unsorted);
-    cout << "Θ(n log n) - Linearithmic Tight Bound:\n";
+    cout << "Library sort (O(n log n) worst case):\n";
     cout << "  Sorted: ";
     for (int val : sorted_result) {
         cout << val << " ";

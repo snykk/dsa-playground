@@ -6,47 +6,53 @@ import (
 	"math/cmplx"
 )
 
-// FFT computes Fast Fourier Transform using Cooley-Tukey algorithm
+// FFT computes the Discrete Fourier Transform with the Cooley-Tukey algorithm.
+//
+// Convention: X[k] = sum_j a[j] * e^(-2*pi*i*j*k/n), so FFT({1, 2, 3, 4}) is
+// {10, -2+2i, -2, -2-2i} (the same as numpy.fft.fft). The inverse uses
+// e^(+2*pi*i*j*k/n) and divides by n.
+//
+// A forward transform of a non-power-of-two input is zero-padded to the next
+// power of two. The inverse requires a power-of-two length and panics
+// otherwise. An empty input returns an empty slice.
 // Time Complexity: O(n log n)
 func FFT(a []complex128, inverse bool) []complex128 {
 	n := len(a)
-	originalN := n
+	if n == 0 {
+		return []complex128{}
+	}
+	powerOfTwo := n&(n-1) == 0
+	if inverse && !powerOfTwo {
+		panic(fmt.Sprintf("fft: inverse needs a power-of-two length, got %d", n))
+	}
 
-	// Ensure n is power of 2 (pad with zeros if needed)
-	if n&(n-1) != 0 {
-		// Find next power of 2
+	if !powerOfTwo {
 		nextPower := 1
 		for nextPower < n {
 			nextPower <<= 1
 		}
 		padded := make([]complex128, nextPower)
 		copy(padded, a)
-		for i := n; i < nextPower; i++ {
-			padded[i] = 0
-		}
-		result := fftCore(padded, inverse, originalN)
-		if inverse {
-			// Adjust normalization: fftCore normalized by padded length, but we need original length
-			nextPower := len(padded)
-			for i := 0; i < originalN; i++ {
-				result[i] = result[i] * complex(float64(nextPower)/float64(originalN), 0)
-			}
-			return result[:originalN]
-		}
-		return result
+		a = padded
 	}
 
-	return fftCore(a, inverse, originalN)
+	result := fftCore(a, inverse)
+	if inverse {
+		scale := complex(float64(len(result)), 0)
+		for i := range result {
+			result[i] /= scale
+		}
+	}
+	return result
 }
 
-// Core FFT implementation (assumes n is power of 2)
-// originalLen is the original input length before padding
-func fftCore(a []complex128, inverse bool, originalLen int) []complex128 {
+// Core FFT implementation (assumes n is a power of 2, no normalization).
+func fftCore(a []complex128, inverse bool) []complex128 {
 	n := len(a)
 
 	// Base case
 	if n == 1 {
-		return a
+		return []complex128{a[0]}
 	}
 
 	// Divide: split into even and odd indices
@@ -59,14 +65,14 @@ func fftCore(a []complex128, inverse bool, originalLen int) []complex128 {
 		odd = append(odd, a[i])
 	}
 
-	evenFFT := fftCore(even, inverse, originalLen)
-	oddFFT := fftCore(odd, inverse, originalLen)
+	evenFFT := fftCore(even, inverse)
+	oddFFT := fftCore(odd, inverse)
 
 	// Combine
 	result := make([]complex128, n)
-	sign := 1.0
+	sign := -1.0
 	if inverse {
-		sign = -1.0
+		sign = 1.0
 	}
 
 	for k := 0; k < n/2; k++ {
@@ -76,29 +82,18 @@ func fftCore(a []complex128, inverse bool, originalLen int) []complex128 {
 		result[k+n/2] = evenFFT[k] - t
 	}
 
-	// Only normalize at the top level (when n == originalLen or n is the padded size)
-	if inverse && n == originalLen {
-		// Normalize by dividing by n (which equals originalLen)
-		for i := range result {
-			result[i] /= complex(float64(n), 0)
-		}
-	} else if inverse && n > originalLen {
-		// This is the padded level, normalize by n but we'll adjust at the top level
-		for i := range result {
-			result[i] /= complex(float64(n), 0)
-		}
-	}
-
 	return result
 }
 
-// IFFT computes Inverse Fast Fourier Transform
+// IFFT computes the inverse FFT (length must be a power of two, see FFT)
 // Time Complexity: O(n log n)
 func IFFT(a []complex128) []complex128 {
 	return FFT(a, true)
 }
 
-// MultiplyPolynomials multiplies two polynomials using FFT
+// MultiplyPolynomials multiplies two polynomials using FFT.
+// Double precision keeps the result exact only while the largest output
+// coefficient stays well below 2^53 (about 9e15); see the README.
 // Time Complexity: O(n log n)
 func MultiplyPolynomials(p, q []int) []int {
 	// Pad polynomials to same length (power of 2)

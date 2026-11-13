@@ -1,8 +1,8 @@
-#include <iostream>
+#include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <optional>
-
-const double EPS = 1e-9;
+#include <utility>
 
 struct Point {
     double x, y;
@@ -15,9 +15,16 @@ struct Line {
 };
 
 double crossProduct(const Point& o, const Point& a, const Point& b) {
-    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+    // Two statements, so a compiler cannot fuse the products into one FMA instruction
+    // and change the rounding of the result.
+    double left = (a.x - o.x) * (b.y - o.y);
+    double right = (a.y - o.y) * (b.x - o.x);
+    return left - right;
 }
 
+// Intersection point of the two infinite lines through the endpoints of l1 and l2.
+// Returns nullopt if the lines are parallel, which includes coincident lines (no single
+// intersection point) and a Line whose two endpoints are equal (no direction).
 std::optional<Point> lineIntersection(const Line& l1, const Line& l2) {
     double x1 = l1.p1.x, y1 = l1.p1.y;
     double x2 = l1.p2.x, y2 = l1.p2.y;
@@ -25,8 +32,8 @@ std::optional<Point> lineIntersection(const Line& l1, const Line& l2) {
     double x4 = l2.p2.x, y4 = l2.p2.y;
 
     double denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-    if (std::abs(denom) < EPS) {
-        return std::nullopt;  // Lines are parallel
+    if (denom == 0) {
+        return std::nullopt;  // Lines are parallel (exact test, so it does not depend on the scale)
     }
 
     double t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
@@ -36,48 +43,76 @@ std::optional<Point> lineIntersection(const Line& l1, const Line& l2) {
     return Point(x, y);
 }
 
-std::optional<Point> segmentIntersection(const Line& l1, const Line& l2) {
-    double x1 = l1.p1.x, y1 = l1.p1.y;
-    double x2 = l1.p2.x, y2 = l1.p2.y;
-    double x3 = l2.p1.x, y3 = l2.p1.y;
-    double x4 = l2.p2.x, y4 = l2.p2.y;
+static int signOf(double v) {
+    return (v > 0) - (v < 0);
+}
 
-    double denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-    if (std::abs(denom) < EPS) {
+// True if p lies in the bounding box of a and b (used for collinear points).
+static bool withinBox(const Point& a, const Point& b, const Point& p) {
+    return std::min(a.x, b.x) <= p.x && p.x <= std::max(a.x, b.x) &&
+           std::min(a.y, b.y) <= p.y && p.y <= std::max(a.y, b.y);
+}
+
+// True if the segments share at least one point. Exact orientation tests: crossing, touching
+// at an endpoint, T-junctions, collinear overlap and zero-length segments all count.
+bool segmentsIntersect(const Line& l1, const Line& l2) {
+    const Point &p1 = l1.p1, &p2 = l1.p2, &p3 = l2.p1, &p4 = l2.p2;
+    double o1 = crossProduct(p1, p2, p3);
+    double o2 = crossProduct(p1, p2, p4);
+    double o3 = crossProduct(p3, p4, p1);
+    double o4 = crossProduct(p3, p4, p2);
+
+    // Proper crossing: each segment's endpoints are strictly on opposite sides of the other
+    if (signOf(o1) * signOf(o2) < 0 && signOf(o3) * signOf(o4) < 0) {
+        return true;
+    }
+
+    // An endpoint lying on the other segment (collinear with it and inside its box)
+    if (o1 == 0 && withinBox(p1, p2, p3)) return true;
+    if (o2 == 0 && withinBox(p1, p2, p4)) return true;
+    if (o3 == 0 && withinBox(p3, p4, p1)) return true;
+    if (o4 == 0 && withinBox(p3, p4, p2)) return true;
+    return false;
+}
+
+// A common point of the two segments, or nullopt. Segments that cross or touch in a single
+// point give that point (an endpoint is returned exactly). Collinear segments that overlap
+// share many points; the first of them in (x, y) order is returned. A zero-length segment
+// gives its own point if it lies on the other segment.
+std::optional<Point> segmentIntersection(const Line& l1, const Line& l2) {
+    if (!segmentsIntersect(l1, l2)) {
         return std::nullopt;
     }
 
-    double t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
-    double u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+    const Point &p1 = l1.p1, &p2 = l1.p2, &p3 = l2.p1, &p4 = l2.p2;
+    double denom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
 
-    if (0 <= t && t <= 1 && 0 <= u && u <= 1) {
-        double x = x1 + t * (x2 - x1);
-        double y = y1 + t * (y2 - y1);
-        return Point(x, y);
+    if (denom == 0) {
+        // Collinear overlap, touching ends or a point segment: the overlap starts at the
+        // larger of the two lower ends (points on one line are ordered by (x, y))
+        std::pair<double, double> lo1 = std::min(std::make_pair(p1.x, p1.y), std::make_pair(p2.x, p2.y));
+        std::pair<double, double> lo2 = std::min(std::make_pair(p3.x, p3.y), std::make_pair(p4.x, p4.y));
+        std::pair<double, double> lo = std::max(lo1, lo2);
+        return Point(lo.first, lo.second);
     }
 
-    return std::nullopt;
+    // One endpoint lies on the other segment's line: it is the intersection point
+    if (crossProduct(p1, p2, p3) == 0) return p3;
+    if (crossProduct(p1, p2, p4) == 0) return p4;
+    if (crossProduct(p3, p4, p1) == 0) return p1;
+    if (crossProduct(p3, p4, p2) == 0) return p2;
+
+    return lineIntersection(l1, l2);
 }
 
-bool segmentsIntersect(const Line& l1, const Line& l2) {
-    return segmentIntersection(l1, l2).has_value();
-}
-
+// Exact test; a zero-length segment is a single point.
 bool pointOnSegment(const Point& p, const Line& line) {
-    if (std::abs(crossProduct(line.p1, line.p2, p)) > EPS) {
+    if (crossProduct(line.p1, line.p2, p) != 0) {
         return false;
     }
-
-    double min_x = std::min(line.p1.x, line.p2.x);
-    double max_x = std::max(line.p1.x, line.p2.x);
-    double min_y = std::min(line.p1.y, line.p2.y);
-    double max_y = std::max(line.p1.y, line.p2.y);
-
-    return min_x - EPS <= p.x && p.x <= max_x + EPS &&
-           min_y - EPS <= p.y && p.y <= max_y + EPS;
+    return withinBox(line.p1, line.p2, p);
 }
 
-#ifndef TESTING
 #ifndef IS_TEST_BUILD
 int main() {
     std::cout << "Line Intersection Examples:" << std::endl;
@@ -98,5 +133,4 @@ int main() {
 
     return 0;
 }
-#endif
 #endif  // !IS_TEST_BUILD

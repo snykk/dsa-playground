@@ -1,111 +1,33 @@
-# Rotating Calipers - C++
+# Rotating Calipers -- C++ Implementation
 
-This folder contains a C++ implementation of the **rotating calipers** technique for solving various geometric problems.
+## Files
 
----
+- `rotating_calipers.cpp`: `Point`, `crossProduct`, `cleanPolygon`, `rotatingCalipersDiameter`, `rotatingCalipersWidth`, `rotatingCalipersPerimeter`, `rotatingCalipersArea`; `main` is compiled out with `-DIS_TEST_BUILD`.
+- `rotating_calipers_test.cpp`: assert-based tests (rectangle, perimeter and area, the fan hull that defeats a distance hill climb, collinear and repeated vertices, degenerate inputs, a triangle, orientation independence, and 500 random polygons against brute force).
 
-## Concept
+## API
 
-Rotating calipers is a technique used to solve several geometric problems efficiently after computing the convex hull. It uses two parallel lines that "rotate" around the convex polygon to find optimal solutions.
+- `rotatingCalipersDiameter(hull)`: returns `DiameterResult {dist, p1, p2}`.
+- `rotatingCalipersWidth(hull)`: width; 0 for fewer than three distinct corners.
+- `rotatingCalipersPerimeter(hull)` and `rotatingCalipersArea(hull)`.
+- `cleanPolygon(hull)`: drops repeated and edge-collinear vertices.
 
-**Key Features:**
-- Efficient: O(n) time complexity after convex hull computation
-- Versatile: Solves multiple geometric problems
-- Requires convex hull as input
-- Efficient struct-based implementation
+`hull` is a `std::vector<Point>` forming a convex polygon in order, clockwise or counterclockwise.
 
----
+## C++-Specific Notes
 
-## Functions
+- Coordinates are `double`; integer coordinates are exact while cross products stay below 2^53.
+- `crossProduct` computes its two products in separate statements so a compiler cannot fuse them into an FMA.
+- The test file includes the `.cpp` directly; define `IS_TEST_BUILD` to drop the demo `main`.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `rotatingCalipersDiameter(hull)` | Find maximum distance between any two points | O(n) |
-| `rotatingCalipersWidth(hull)` | Find minimum distance between parallel lines | O(n) |
-| `rotatingCalipersPerimeter(hull)` | Calculate perimeter of convex hull | O(n) |
-| `rotatingCalipersArea(hull)` | Calculate area using shoelace formula | O(n) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Diameter | O(n) | O(1) |
-| Width | O(n) | O(1) |
-| Perimeter | O(n) | O(1) |
-| Area | O(n) | O(1) |
-
-**Note:** These complexities assume convex hull is already computed. Total complexity including convex hull is O(n log n).
-
----
-
-## Usage
-
-```cpp
-#include "rotating_calipers.cpp"
-#include <vector>
-
-std::vector<Point> hull = {
-    {0, 0}, {4, 0}, {4, 3}, {0, 3}
-};
-
-// Find diameter
-auto diameter_result = rotatingCalipersDiameter(hull);
-
-// Find width
-double width = rotatingCalipersWidth(hull);
-
-// Calculate perimeter
-double perimeter = rotatingCalipersPerimeter(hull);
-
-// Calculate area
-double area = rotatingCalipersArea(hull);
-```
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++11 rotating_calipers.cpp -o rotating_calipers
-./rotating_calipers
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD rotating_calipers_test.cpp -o rotating_calipers_test && ./rotating_calipers_test
 ```
 
----
+## Key Takeaways
 
-## Run Test
-
-```bash
-g++ -std=c++11 rotating_calipers_test.cpp -o test && ./test
-```
-
----
-
-## Important Notes
-
-1. **Convex Hull Required**: Input must be a convex hull (use Graham's Scan or Jarvis March)
-2. **Counterclockwise Order**: Points should be in counterclockwise order
-3. **Struct Return**: Diameter function returns `DiameterResult` struct
-4. **Vector Input**: Uses `std::vector<Point>` for hull input
-
----
-
-## When to Use
-
-- **Diameter**: Finding maximum distance in point set
-- **Width**: Finding minimum width of shape
-- **Perimeter/Area**: Calculating geometric properties
-- **After Convex Hull**: When you need additional properties of convex hull
-
----
-
-## Related Files
-
-- Main README: `../README.md`
-- Python Implementation: `../../Python/`
-- Go Implementation: `../../Go/`
-
----
-
-_Last Updated: December 2025_
+- Drive the far pointer with triangle area, not with distance.
+- Clean repeated and collinear vertices first.
+- One sweep is O(n); the hull itself costs O(n log n).

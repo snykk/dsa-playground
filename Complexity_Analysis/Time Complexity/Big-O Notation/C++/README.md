@@ -1,143 +1,46 @@
-# Big-O Notation (C++)
+# Big-O Notation -- C++ Implementation
 
-**Big-O Notation** describes the upper bound of an algorithm's time complexity, representing the worst-case scenario for how runtime grows with input size.
+## Files
 
----
+- `big_o_notation.cpp`: seven example functions and `demonstrateBigO`. `main` is compiled out when `IS_TEST_BUILD` is defined.
+- `big_o_notation_test.cpp`: assert-based tests; it includes the `.cpp` file directly.
 
-## Overview
+## API
 
-Big-O notation is used to classify algorithms according to how their runtime or space requirements grow as the input size increases. It provides an asymptotic upper bound.
+- `int constantTimeExample(int n)`: O(1).
+- `int logarithmicTimeExample(int n)`: number of halvings, O(log n).
+- `int linearTimeExample(const vector<int>&)`: sum, O(n).
+- `vector<int> linearithmicTimeExample(vector<int>)`: sorts a copy with `std::sort`, O(n log n).
+- `vector<pair<int,int>> quadraticTimeExample(const vector<int>&)`: all pairs, O(n^2).
+- `int cubicTimeExample(int n)`: counts `n^3` iterations.
+- `int exponentialTimeExample(int n)`: naive Fibonacci, O(2^n) (valid but loose).
 
----
-
-## Formal Definition
-
-f(n) = O(g(n)) if there exist positive constants c and n₀ such that:
-```
-0 ≤ f(n) ≤ c·g(n) for all n ≥ n₀
-```
-
-This means that for sufficiently large n, f(n) is bounded above by a constant multiple of g(n).
-
----
-
-## Common Big-O Complexities
-
-| Notation | Name | Description | Example |
-|----------|------|-------------|---------|
-| **O(1)** | Constant | Time doesn't depend on input size | Array access, hash table lookup |
-| **O(log n)** | Logarithmic | Time grows logarithmically | Binary search, balanced tree operations |
-| **O(n)** | Linear | Time grows linearly with input | Single loop, array traversal |
-| **O(n log n)** | Linearithmic | Time grows as n times log n | Merge sort, heap sort |
-| **O(n²)** | Quadratic | Time grows quadratically | Nested loops, bubble sort |
-| **O(n³)** | Cubic | Time grows cubically | Triple nested loops, naive matrix multiplication |
-| **O(2ⁿ)** | Exponential | Time grows exponentially | Naive recursive Fibonacci, subset generation |
-| **O(n!)** | Factorial | Time grows factorially | Generating all permutations, brute-force solutions |
-
----
-
-## Examples
-
-### O(1) - Constant Time
 ```cpp
-int constantTimeExample(int n) {
-    return 42;  // Always takes the same time
-}
+vector<int> v = {64, 34, 25, 12};
+vector<int> sorted = linearithmicTimeExample(v);  // {12, 25, 34, 64}
 ```
 
-### O(log n) - Logarithmic Time
-```cpp
-int logarithmicTimeExample(int n) {
-    int count = 0;
-    int i = n;
-    while (i > 1) {
-        i = i / 2;
-        count++;
-    }
-    return count;
-}
-```
+## C++-Specific Notes
 
-### O(n) - Linear Time
-```cpp
-int linearTimeExample(const vector<int>& arr) {
-    int total = 0;
-    for (int element : arr) {
-        total += element;
-    }
-    return total;
-}
-```
+- The linearithmic example calls `std::sort` instead of implementing merge sort. Common implementations use introsort, which is O(n log n) in the worst case.
+- `int` overflows for large inputs: `cubicTimeExample` and `exponentialTimeExample` are meant for small `n`.
+- There is no factorial example in C++.
 
-### O(n log n) - Linearithmic Time
-```cpp
-vector<int> linearithmicTimeExample(vector<int> arr) {
-    sort(arr.begin(), arr.end());  // O(n log n)
-    return arr;
-}
-```
-
-### O(n²) - Quadratic Time
-```cpp
-vector<pair<int, int>> quadraticTimeExample(const vector<int>& arr) {
-    vector<pair<int, int>> pairs;
-    for (size_t i = 0; i < arr.size(); i++) {
-        for (size_t j = i + 1; j < arr.size(); j++) {
-            pairs.push_back({arr[i], arr[j]});
-        }
-    }
-    return pairs;
-}
-```
-
----
-
-## Usage
+## How to Run
 
 ```bash
-# Compile
-g++ -std=c++11 -o big_o_notation big_o_notation.cpp
+cd "Complexity_Analysis/Time Complexity/Big-O Notation/C++"
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD big_o_notation_test.cpp -o big_o_test
+./big_o_test
 
-# Run
-./big_o_notation
-
-# Run tests
-g++ -std=c++11 -o big_o_notation_test big_o_notation_test.cpp
-./big_o_notation_test
+# the demo program
+g++ -std=c++17 -O2 -Wall big_o_notation.cpp -o big_o_demo
+./big_o_demo
 ```
 
----
+## Key Takeaways
 
-## Testing
-
-```bash
-g++ -std=c++11 -o test big_o_notation_test.cpp
-./test
-```
-
----
-
-## Key Points
-
-1. **Upper Bound**: Big-O describes the worst-case scenario
-2. **Asymptotic**: Focuses on behavior as n approaches infinity
-3. **Constants Ignored**: O(2n) = O(n), constants are dropped
-4. **Lower Terms Ignored**: O(n² + n) = O(n²), lower order terms are dropped
-5. **Multiplicative Constants**: O(5n) = O(n), constants are ignored
-
----
-
-## Related Topics
-
-- **Big-Theta (Θ)**: Tight bound (both upper and lower)
-- **Big-Omega (Ω)**: Lower bound
-- **Space Complexity**: Memory usage analysis
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
+- Big-O is an upper bound on a function; best, average and worst case are different functions you can bound.
+- Drop constants and lower-order terms; keep the dominant term.
+- To prove a bound, exhibit `c` and `n0`.
 

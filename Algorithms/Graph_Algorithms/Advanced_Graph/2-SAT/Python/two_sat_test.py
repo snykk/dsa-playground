@@ -22,14 +22,14 @@ def check_assignment(clauses, assignment):
 class TestTwoSAT(unittest.TestCase):
     def test_single_clause_satisfiable(self):
         s = TwoSAT(2)
-        s.add_clause(lit(0), lit(1))   # x0 ∨ x1
+        s.add_clause(lit(0), lit(1))   # x0 or x1
         ok, a = s.solve()
         self.assertTrue(ok)
         self.assertTrue(a[0] or a[1])
 
     def test_tautology(self):
         s = TwoSAT(1)
-        s.add_clause(lit(0), lit(0, positive=False))  # x0 ∨ ¬x0 — always true
+        s.add_clause(lit(0), lit(0, positive=False))  # x0 or ~x0 -- always true
         ok, a = s.solve()
         self.assertTrue(ok)
 
@@ -42,7 +42,7 @@ class TestTwoSAT(unittest.TestCase):
 
     def test_force_false(self):
         s = TwoSAT(1)
-        s.force_true(lit(0, positive=False))  # force ¬x0
+        s.force_true(lit(0, positive=False))  # force ~x0
         ok, a = s.solve()
         self.assertTrue(ok)
         self.assertFalse(a[0])
@@ -56,16 +56,16 @@ class TestTwoSAT(unittest.TestCase):
         self.assertIsNone(a)
 
     def test_contradiction_via_chain(self):
-        # x0 → x1 → ¬x0, and x0 is forced true
+        # x0 -> x1 -> ~x0, and x0 is forced true
         s = TwoSAT(2)
-        s.implies(lit(0), lit(1))                         # x0 → x1
-        s.implies(lit(1), lit(0, positive=False))         # x1 → ¬x0
+        s.implies(lit(0), lit(1))                         # x0 -> x1
+        s.implies(lit(1), lit(0, positive=False))         # x1 -> ~x0
         s.force_true(lit(0))                              # x0 forced
         ok, _ = s.solve()
         self.assertFalse(ok)
 
     def test_textbook_example(self):
-        # (x0 ∨ x1) ∧ (¬x0 ∨ x1) ∧ (¬x0 ∨ ¬x1)
+        # (x0 or x1) and (~x0 or x1) and (~x0 or ~x1)
         s = TwoSAT(2)
         clauses = [
             (lit(0), lit(1)),
@@ -79,7 +79,7 @@ class TestTwoSAT(unittest.TestCase):
         self.assertTrue(check_assignment(clauses, a))
 
     def test_implies_helper(self):
-        # x0 → x1, x1 → x2, x2 → x3, x0 forced
+        # x0 -> x1, x1 -> x2, x2 -> x3, x0 forced
         s = TwoSAT(4)
         s.implies(lit(0), lit(1))
         s.implies(lit(1), lit(2))
@@ -90,14 +90,14 @@ class TestTwoSAT(unittest.TestCase):
         self.assertTrue(a[0] and a[1] and a[2] and a[3])
 
     def test_no_constraints(self):
-        # Empty formula — any assignment works
+        # Empty formula -- any assignment works
         s = TwoSAT(5)
         ok, a = s.solve()
         self.assertTrue(ok)
         self.assertEqual(len(a), 5)
 
     def test_multiple_vars_satisfiable(self):
-        # (x0 ∨ ¬x1) ∧ (¬x0 ∨ x2) ∧ (x1 ∨ x2)
+        # (x0 or ~x1) and (~x0 or x2) and (x1 or x2)
         s = TwoSAT(3)
         clauses = [
             (lit(0), lit(1, False)),

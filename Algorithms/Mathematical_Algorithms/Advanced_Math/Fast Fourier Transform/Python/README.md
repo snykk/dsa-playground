@@ -1,138 +1,39 @@
-# Fast Fourier Transform (FFT) (Python)
+# Fast Fourier Transform -- Python Implementation
 
-**Fast Fourier Transform (FFT)** is an efficient algorithm for computing the Discrete Fourier Transform (DFT) and its inverse.
+Recursive radix-2 Cooley-Tukey FFT, inverse FFT, polynomial multiplication and convolution.
 
----
+For the concept, see the topic README: [../README.md](../README.md).
 
-## Overview
+## Files
 
-The FFT is one of the most important algorithms in signal processing and numerical analysis. It reduces the time complexity of computing the DFT from O(n²) to O(n log n) using the divide-and-conquer approach.
+| File | Purpose |
+|------|---------|
+| `fast_fourier_transform.py` | `fft`, `ifft`, `multiply_polynomials`, `convolve` |
+| `fast_fourier_transform_test.py` | 13 tests: lengths, round trip, identity, known values, comparison with a direct DFT, empty input, rejected inverse length, large coefficients |
 
-**Key Characteristics:**
-- Efficient: O(n log n) time complexity
-- Divide and conquer: Cooley-Tukey algorithm
-- Essential for signal processing, polynomial multiplication
-- Inverse FFT: Reconstructs original signal
+## API
 
----
+- `fft(a, inverse=False)`: list of complex numbers in, list out. Forward uses `e^(-2*pi*i*j*k/n)`; a non-power-of-two input is zero-padded; `inverse=True` divides by `n` and raises `ValueError` for a non-power-of-two length. An empty list returns `[]`.
+- `ifft(a)`: `fft(a, inverse=True)`.
+- `multiply_polynomials(p, q)`: coefficient lists (lowest degree first), returns the product as a list of ints (rounded).
+- `convolve(a, b)`: same as `multiply_polynomials`.
 
-## Algorithm
+## Python-Specific Notes
 
-### Cooley-Tukey FFT Algorithm
+- The twiddle factors come from `cmath.exp`, so each butterfly is accurate without accumulating error.
+- Results are exact for integer products only while the largest output coefficient stays well below 2^53; Python's own integers are unbounded, but the FFT is not.
+- The recursion builds new lists at every level; the depth is only `log2(n)`.
+- `fft([1, 2, 3, 4])` is `[10, -2+2j, -2, -2-2j]`, the same as `numpy.fft.fft`.
 
-The algorithm uses divide-and-conquer:
-1. Divide: Split signal into even and odd indices
-2. Conquer: Recursively compute FFT of halves
-3. Combine: Merge results using twiddle factors
-
-**Key Insight:**
-- FFT of even indices + FFT of odd indices with phase shifts
-- Uses symmetry properties of complex exponentials
-
----
-
-## Complexity Analysis
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **fft** | O(n log n) | O(n) |
-| **ifft** | O(n log n) | O(n) |
-| **multiply_polynomials** | O(n log n) | O(n) |
-| **convolve** | O(n log n) | O(n) |
-
-Where n is the length of the input (padded to power of 2).
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`fft(a, inverse=False)`**
-   - Compute Fast Fourier Transform
-   - Returns list of complex numbers
-   - Time: O(n log n), Space: O(n)
-
-2. **`ifft(a)`**
-   - Compute Inverse Fast Fourier Transform
-   - Returns original signal
-   - Time: O(n log n), Space: O(n)
-
-3. **`multiply_polynomials(p, q)`**
-   - Multiply two polynomials using FFT
-   - Returns coefficients of product polynomial
-   - Time: O(n log n), Space: O(n)
-
-4. **`convolve(a, b)`**
-   - Compute convolution of two sequences
-   - Returns convolution result
-   - Time: O(n log n), Space: O(n)
-
----
-
-## Usage
-
-```python
-from fast_fourier_transform import fft, ifft, multiply_polynomials
-
-# Compute FFT
-signal = [1, 2, 3, 4]
-signal_complex = [complex(x, 0) for x in signal]
-fft_result = fft(signal_complex)
-
-# Inverse FFT
-recovered = ifft(fft_result)
-
-# Polynomial multiplication
-p = [1, 2, 3]  # 1 + 2x + 3x^2
-q = [4, 5]     # 4 + 5x
-product = multiply_polynomials(p, q)
-```
-
----
-
-## Applications
-
-1. **Signal Processing**: Audio, image processing, filtering
-2. **Polynomial Multiplication**: Fast polynomial operations
-3. **Convolution**: Efficient convolution computation
-4. **Data Compression**: JPEG, MP3 algorithms
-5. **Numerical Analysis**: Solving differential equations
-
----
-
-## Important Notes
-
-- **Power of 2**: Input is padded to next power of 2 if needed
-- **Complex Numbers**: FFT operates on complex numbers
-- **Floating Point**: Results may have small floating point errors
-- **Inverse**: IFFT recovers original signal (within numerical precision)
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-python -m unittest fast_fourier_transform_test.py
+python3 -m unittest fast_fourier_transform_test
+python3 fast_fourier_transform.py        # demo
 ```
 
-Or:
+## Key Takeaways
 
-```bash
-python fast_fourier_transform_test.py
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 30)
-- "Algorithm Design Manual" by Steven Skiena
-- Cooley, J. W., & Tukey, J. W. (1965). "An algorithm for the machine calculation of complex Fourier series"
-
----
-
-_Last Updated: December 2025_
-
+1. Even/odd splitting turns one size-`n` transform into two of size `n/2`.
+2. The same code gives the inverse with the opposite sign and a division by `n`.
+3. Floating point limits exactness; check the size of the result.

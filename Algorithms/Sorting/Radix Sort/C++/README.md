@@ -1,53 +1,37 @@
-# Radix Sort — C++ Implementation
-
-**Radix Sort** sorts numbers by processing one digit at a time, from least significant (LSD) to most significant — typically using Counting Sort as the stable per-digit sort. O(d·(n + k)) where `d` is digit count and `k` is the base (usually 10 or 256).
-
-For the conceptual overview, LSD vs MSD variants, and comparison with comparison-based sorts, see the parent README: [../README.md](../README.md)
-
----
+# Radix Sort -- C++ Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `radix_sort.cpp` | LSD Radix Sort implementation using Counting Sort per digit |
-| `radix_sort_test.cpp` | Assertion tests |
+- `radix_sort.cpp`: `radixSort` and `countingSortByDigit`.
+- `radix_sort_test.cpp`: assert-based tests (basic, negative numbers, large values including `INT_MIN` and `INT_MAX`, empty input). It `#include`s `radix_sort.cpp` directly.
 
----
+## API
 
-## Complexity
+- `void radixSort(std::vector<int>& arr)`: LSD radix sort, base 10, in place. Negative values are allowed; an empty vector is a no-op.
+- `void countingSortByDigit(std::vector<int>& arr, long long exp, long long offset = 0)`: one stable pass on the digit `((value - offset) / exp) % 10`.
 
-| Aspect | Value |
-|--------|-------|
-| Time | O(d · (n + k)) |
-| Space | O(n + k) |
-| Stable? | Yes (requires stable per-digit sort) |
-| Comparison-based? | **No** |
+```cpp
+#include "radix_sort.cpp"
 
-For 32-bit ints with base 256, `d = 4` and `k = 256`, giving effectively O(n) — faster than O(n log n) comparison sorts on large inputs of bounded integers.
-
----
+std::vector<int> arr = {170, 45, 75, 90, 802, 24, 2, 66};
+radixSort(arr);
+```
 
 ## C++-Specific Notes
 
-- **Use base 256 (byte-level) on modern hardware**, not base 10. Four passes for 32-bit ints, eight for 64-bit. Cache-friendly because the count array fits in L1.
-- **Per-digit sort must be stable**. Counting Sort is naturally stable — but if you substitute an unstable sort, Radix Sort breaks silently.
-- **Negative numbers**: when the minimum is negative, `radixSort` takes the digits of `value - min` (a 64-bit key, never negative, same order as the values). Byte-wise radix sorts usually bias by `INT_MIN` or treat the sign bit separately instead.
-- **`std::vector<int>` over raw arrays**: automatic sizing and bounds safety. The `count` array can be `std::array<int, 256>` (stack-allocated, no allocation cost).
-
----
+- It is int-only, not a template.
+- The key offset, the maximum key and the exponent are `long long`, so `exp * 10` cannot overflow for any `int` input and the spread from `INT_MIN` to `INT_MAX` is handled.
+- Each pass allocates an output vector of `n` elements.
+- The test file includes the implementation, so compile only the test file.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall radix_sort_test.cpp -o radix_sort_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD radix_sort_test.cpp -o radix_sort_test
 ./radix_sort_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Non-comparison sorts beat the Ω(n log n) lower bound.** Radix Sort is O(n · d) — linear in `n` when `d` is constant. The trade-off: you need _structured_ data (integers, fixed-length strings) rather than arbitrary comparable values.
-2. **LSD vs MSD**: LSD is the standard go-to; it processes digits right-to-left and guarantees stability. MSD is recursive and can terminate early on distinguishable prefixes — useful for strings.
-3. **Stability of the per-digit sort is mandatory.** Substitute a non-stable sort (Quick Sort, Heap Sort) for the digit pass and Radix Sort silently produces wrong results.
+- Use 64-bit arithmetic for the key and the exponent.
+- Place elements back to front to keep each pass stable.

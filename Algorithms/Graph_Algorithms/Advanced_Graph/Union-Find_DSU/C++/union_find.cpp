@@ -66,36 +66,31 @@ bool unionFindCycleDetection(const std::vector<std::pair<int, int>>& edges, int 
     return false;
 }
 
-// Example usage (uncomment to use)
-/*
-#include <iostream>
-#ifndef TESTING
 #ifndef IS_TEST_BUILD
+#include <iostream>
 int main() {
     std::cout << "Union-Find Example:" << std::endl;
-    
+
     UnionFind uf(5);
     std::cout << "Initial count: " << uf.getCount() << std::endl;  // 5
-    
+
     uf.unite(0, 1);
-    std::cout << "After union(0,1): count=" << uf.getCount() 
+    std::cout << "After union(0,1): count=" << uf.getCount()
               << ", connected(0,1)=" << (uf.connected(0, 1) ? "true" : "false") << std::endl;
-    
+
     uf.unite(2, 3);
     std::cout << "After union(2,3): count=" << uf.getCount() << std::endl;
-    
+
     uf.unite(1, 2);
-    std::cout << "After union(1,2): count=" << uf.getCount() 
+    std::cout << "After union(1,2): count=" << uf.getCount()
               << ", connected(0,3)=" << (uf.connected(0, 3) ? "true" : "false") << std::endl;
-    
+
     // Cycle detection
     std::cout << "\nCycle Detection Example:" << std::endl;
     std::vector<std::pair<int, int>> edges = {{0, 1}, {1, 2}, {2, 0}};
     bool hasCycle = unionFindCycleDetection(edges, 3);
     std::cout << "Graph with cycle: " << (hasCycle ? "true" : "false") << std::endl;
-    
+
     return 0;
 }
-#endif
-#endif
-*/
+#endif  // !IS_TEST_BUILD

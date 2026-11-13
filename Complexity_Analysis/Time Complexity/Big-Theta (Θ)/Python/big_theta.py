@@ -1,23 +1,26 @@
 """
-Big-Theta (Θ) Notation Implementation and Examples
+Big-Theta (Theta) Notation Implementation and Examples
 
-Big-Theta notation describes a tight bound on an algorithm's time complexity.
-It represents both the upper and lower bounds, meaning the algorithm's growth
-rate is bounded both above and below by the same function.
+Big-Theta notation is a tight bound on a function: it bounds the function from
+above and below by the same g(n). In algorithm analysis the function is a running
+time for one chosen case (best, average or worst). Theta attaches to a case, not to
+the algorithm: "quick sort is Theta(n log n)" is meaningless, but "quick sort's
+average case is Theta(n log n) and its worst case is Theta(n^2)" is correct.
 
 Formal Definition:
-f(n) = Θ(g(n)) if there exist positive constants c₁, c₂, and n₀ such that
-0 ≤ c₁·g(n) ≤ f(n) ≤ c₂·g(n) for all n ≥ n₀
+f(n) = Theta(g(n)) if there exist positive constants c_1, c_2, and n_0 such that
+0 <= c_1*g(n) <= f(n) <= c_2*g(n) for all n >= n_0
 
-This means f(n) is bounded both above and below by g(n).
+This means f(n) is bounded both above and below by multiples of g(n).
+It is equivalent to f(n) = O(g(n)) and f(n) = Omega(g(n)).
 """
 
 
 def tight_bound_example(arr):
     """
-    Θ(n) - Tight bound example
-    This function has both upper and lower bounds of O(n).
-    It must process every element exactly once.
+    Theta(n) - Tight bound example
+    It processes every element exactly once, so its running time is bounded
+    above by O(n) and below by Omega(n) on every input.
     
     Args:
         arr: List of elements
@@ -25,7 +28,7 @@ def tight_bound_example(arr):
     Returns:
         Sum of all elements
         
-    Time Complexity: Θ(n) - tight bound
+    Time Complexity: Theta(n) - tight bound
     Space Complexity: O(1)
     """
     total = 0
@@ -36,11 +39,12 @@ def tight_bound_example(arr):
 
 def merge_sort_example(arr):
     """
-    Θ(n log n) - Tight bound for merge sort
-    Merge sort has a tight bound because:
-    - Best case: Θ(n log n)
-    - Average case: Θ(n log n)
-    - Worst case: Θ(n log n)
+    Theta(n log n) - merge sort (this is a real merge sort).
+    Each of its cases has the same tight bound, because the recursion always
+    splits in half and every merge level touches all n elements:
+    - Best case: Theta(n log n)
+    - Average case: Theta(n log n)
+    - Worst case: Theta(n log n)
     
     Args:
         arr: List of elements to sort
@@ -48,7 +52,7 @@ def merge_sort_example(arr):
     Returns:
         Sorted list
         
-    Time Complexity: Θ(n log n) - tight bound
+    Time Complexity: Theta(n log n) - tight bound
     Space Complexity: O(n)
     """
     if len(arr) <= 1:
@@ -58,7 +62,7 @@ def merge_sort_example(arr):
     left = merge_sort_example(arr[:mid])
     right = merge_sort_example(arr[mid:])
     
-    # Merge step: Θ(n)
+    # Merge step: Theta(n)
     result = []
     i = j = 0
     while i < len(left) and j < len(right):
@@ -76,9 +80,10 @@ def merge_sort_example(arr):
 
 def binary_search_example(arr, target):
     """
-    Θ(log n) - Tight bound for binary search
-    Binary search has a tight bound because it always
-    eliminates half of the search space.
+    Binary search. It returns as soon as it finds the target, so:
+    - Best case (target at the first middle probe): Theta(1)
+    - Worst case (target absent or found in the last probe): Theta(log n)
+    Theta(log n) is the tight bound of the worst case only.
     
     Args:
         arr: Sorted list of elements
@@ -87,7 +92,7 @@ def binary_search_example(arr, target):
     Returns:
         Index of target if found, -1 otherwise
         
-    Time Complexity: Θ(log n) - tight bound
+    Time Complexity: best case Theta(1), worst case Theta(log n)
     Space Complexity: O(1)
     """
     left, right = 0, len(arr) - 1
@@ -106,19 +111,18 @@ def binary_search_example(arr, target):
 
 def matrix_multiplication_naive(A, B):
     """
-    Θ(n³) - Tight bound for naive matrix multiplication
-    For n×n matrices, we must compute n² elements,
-    each requiring n multiplications.
+    Theta(n^3) - naive matrix multiplication, in every case.
+    For n x n matrices, n^2 result elements each take n multiplications.
     
     Args:
-        A: First matrix (n×n)
-        B: Second matrix (n×n)
+        A: First matrix (nxn)
+        B: Second matrix (nxn)
         
     Returns:
-        Product matrix (n×n)
+        Product matrix (nxn)
         
-    Time Complexity: Θ(n³) - tight bound
-    Space Complexity: O(n²)
+    Time Complexity: Theta(n^3) - tight bound
+    Space Complexity: O(n^2)
     """
     n = len(A)
     C = [[0] * n for _ in range(n)]
@@ -135,49 +139,48 @@ def demonstrate_big_theta():
     """
     Demonstrate Big-Theta notation with examples.
     """
-    print("=== Big-Theta (Θ) Notation Examples ===\n")
-    print("Big-Theta provides a TIGHT BOUND (both upper and lower)\n")
+    print("=== Big-Theta (Theta) Notation Examples ===\n")
+    print("Big-Theta is a TIGHT BOUND on a function (O and Omega together)\n")
     
-    # Θ(n) - Linear tight bound
-    print("Θ(n) - Linear Tight Bound:")
+    # Theta(n) - Linear tight bound
+    print("Theta(n) - Linear Tight Bound:")
     arr = list(range(1, 11))
     result = tight_bound_example(arr)
     print(f"  Sum of {len(arr)} elements: {result}")
     print("  Explanation: Must process every element exactly once\n")
     
-    # Θ(log n) - Logarithmic tight bound
-    print("Θ(log n) - Logarithmic Tight Bound:")
+    # Theta(log n) - Logarithmic tight bound
+    print("Theta(log n) - Logarithmic Tight Bound:")
     sorted_arr = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
     target = 11
     index = binary_search_example(sorted_arr, target)
     print(f"  Binary search for {target}: found at index {index}")
-    print("  Explanation: Always eliminates half the search space\n")
+    print("  Explanation: worst case Theta(log n); best case Theta(1) (target at the middle)\n")
     
-    # Θ(n log n) - Linearithmic tight bound
-    print("Θ(n log n) - Linearithmic Tight Bound:")
+    # Theta(n log n) - Linearithmic tight bound
+    print("Theta(n log n) - Linearithmic Tight Bound:")
     unsorted = [64, 34, 25, 12, 22, 11, 90]
     sorted_result = merge_sort_example(unsorted)
     print(f"  Merge sort: {sorted_result}")
-    print("  Explanation: Always requires n log n operations\n")
+    print("  Explanation: best, average and worst case are all Theta(n log n)\n")
     
-    # Θ(n³) - Cubic tight bound
-    print("Θ(n³) - Cubic Tight Bound:")
+    # Theta(n^3) - Cubic tight bound
+    print("Theta(n^3) - Cubic Tight Bound:")
     n = 3
     A = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     B = [[9, 8, 7], [6, 5, 4], [3, 2, 1]]
     C = matrix_multiplication_naive(A, B)
-    print(f"  Matrix multiplication ({n}×{n}):")
+    print(f"  Matrix multiplication ({n}x{n}):")
     for row in C:
         print(f"    {row}")
-    print("  Explanation: Always requires n³ operations\n")
+    print("  Explanation: Always requires n^3 operations\n")
     
-    print("=== Key Difference: Big-O vs Big-Theta ===\n")
-    print("Big-O (O): Upper bound only (worst case)")
-    print("  Example: Quick sort is O(n²) worst case, but O(n log n) average")
-    print("  → Cannot use Θ(n log n) because worst case is worse\n")
-    print("Big-Theta (Θ): Tight bound (best = average = worst)")
-    print("  Example: Merge sort is Θ(n log n) in all cases")
-    print("  → Can use Θ(n log n) because all cases are the same\n")
+    print("=== Theta attaches to a case ===\n")
+    print("Theta bounds one function (one case) from above and below.")
+    print("  Quick sort: worst case Theta(n^2), average case Theta(n log n)")
+    print("  Binary search: best case Theta(1), worst case Theta(log n)")
+    print("  Merge sort: every case Theta(n log n)")
+    print("A single Theta for the whole algorithm exists only if all cases agree.\n")
 
 
 if __name__ == "__main__":

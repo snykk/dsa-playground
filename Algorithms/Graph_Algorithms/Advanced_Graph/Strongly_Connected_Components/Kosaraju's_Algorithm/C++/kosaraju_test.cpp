@@ -24,6 +24,24 @@ void testBasicKosaraju() {
     std::cout << "Basic Kosaraju test passed" << std::endl;
 }
 
+// The condensation of this graph is a chain {0,1,2} -> {3,4} -> {5}. Kosaraju emits
+// components source first, so the order is deterministic here.
+void testComponentContents() {
+    std::unordered_map<int, std::vector<int>> graph = {
+        {0, {1}}, {1, {2}}, {2, {0, 3}}, {3, {4}}, {4, {3, 5}}, {5, {}}
+    };
+    auto sccs = kosarajuSCC(graph);
+    assert(sccs.size() == 3);
+    std::vector<std::vector<int>> expected = {{0, 1, 2}, {3, 4}, {5}};
+    for (auto& c : sccs) std::sort(c.begin(), c.end());
+    assert(sccs == expected);
+
+    std::unordered_map<int, std::vector<int>> selfLoop = {{7, {7}}};
+    assert(kosarajuSCCCount(selfLoop) == 1);
+
+    std::cout << "Component contents test passed" << std::endl;
+}
+
 void testStronglyConnected() {
     std::unordered_map<int, std::vector<int>> graph = {
         {1, {2}},
@@ -76,6 +94,7 @@ void testDeepGraphs() {
 int main() {
     std::cout << "Running Kosaraju's Algorithm tests..." << std::endl;
     testBasicKosaraju();
+    testComponentContents();
     testStronglyConnected();
     testNegativeIdsAndNeighborOnlyVertices();
     testDeepGraphs();

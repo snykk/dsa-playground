@@ -1,0 +1,200 @@
+---
+topic: Algorithms/String_Algorithms/Pattern_Matching/KMP Algorithm
+title: Knuth-Morris-Pratt (KMP) Algorithm
+lead: KMP finds every occurrence of a pattern in a text in O(n + m) time. It precomputes, for each prefix of the pattern, the longest border that is also a suffix, so after a mismatch it never moves backwards in the text.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n + m)
+    hint: in every case; at most 2n steps while matching
+  - label: Preprocessing
+    value: O(m)
+    hint: the LPS table
+  - label: Extra space
+    value: O(m)
+    hint: one integer per pattern character
+  - label: Approach
+    value: Border reuse
+    hint: lps[j-1] says how much stays matched
+properties:
+  - { label: Never moves back in the text, value: true }
+  - { label: Online (streams the text), value: true }
+  - { label: Finds overlapping matches, value: true }
+  - { label: Searches several patterns at once, value: false }
+prerequisites:
+  - Algorithms/String_Algorithms/Pattern_Matching/Naive Pattern Search
+related:
+  - Algorithms/String_Algorithms/Advanced_String/Z-Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Aho-Corasick
+  - Algorithms/String_Algorithms/Pattern_Matching/Boyer-Moore Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Rabin-Karp Algorithm
+  - Data Structures/Linear/String/Pattern Matching
+---
+
+## How KMP works
+
+When the naive search fails after matching `j` characters, it throws that knowledge away and restarts one position to the right. But those `j` matched characters are known: they equal `pattern[0..j-1]`. If a prefix of the pattern is also a suffix of the matched part (a **border**), that prefix is already matched at the next useful alignment, and nothing needs to be compared again.
+
+The **LPS table** (longest proper prefix which is also a suffix) holds exactly that: `lps[i]` is the length of the longest proper prefix of `pattern[0..i]` that is also a suffix of it.
+
+<Steps>
+  <Step title="Build the LPS table">
+    Scan the pattern with `i` and a running border length `len`. If `pattern[i] == pattern[len]`, the border grows: `len += 1; lps[i] = len`. Otherwise fall back to the next shorter border, `len = lps[len-1]`, without moving `i`; at `len == 0` set `lps[i] = 0` and move on.
+  </Step>
+  <Step title="Scan the text with i and j">
+    `i` indexes the text and `j` the pattern. While `text[i] == pattern[j]`, advance both.
+  </Step>
+  <Step title="On a mismatch, fall back in the pattern only">
+    If `j > 0`, set `j = lps[j-1]` and compare `text[i]` again. If `j == 0`, advance `i`. The text index never decreases.
+  </Step>
+  <Step title="On a full match, report and keep going">
+    When `j == m`, report `i - j` and set `j = lps[j-1]`, so the next match may overlap the last one.
+  </Step>
+</Steps>
+
+<Callout title="Why falling back is safe">
+After matching `j` characters, every border of `pattern[0..j-1]` is a candidate for what is still matched. The longest border is `lps[j-1]`; the next is `lps[lps[j-1]-1]`, and so on. Taking them from longest to shortest never skips an alignment that could match.
+</Callout>
+
+## See it in action
+
+Type a text and a pattern. The LPS table is built first, then the pattern slides along the text. On a mismatch the pattern shifts to the border while the text pointer stays put. Try `AAAAAA | AAA` for overlapping matches and the textbook example for the fall-back chain.
+
+<ArticleViz ids={['kmp']} />
+
+## Worked example
+
+Pattern `ABABCABC`. Its LPS table is `[0, 0, 1, 2, 0, 1, 2, 0]`:
+
+<ArrayDiagram
+  legend={{ l: 'a position where the border is longer than 0' }}
+  rows={[
+    { label: 'pattern', values: ['A', 'B', 'A', 'B', 'C', 'A', 'B', 'C'], tones: '........' },
+    { label: 'lps', values: [0, 0, 1, 2, 0, 1, 2, 0], tones: '..ll.ll.', marks: { 4: 'C != A', 7: 'C != A' }, note: '`lps[3] = 2` (the border `AB`). At `i = 4`, `C` differs from `pattern[2] = A`, so `len` falls back `2 -> lps[1] = 0` and `lps[4] = 0`. The same happens at `i = 7`.' },
+  ]}
+/>
+
+Now search the text `ABABDABACDABABCABC`:
+
+<ArrayDiagram
+  legend={{ l: 'characters matched in this attempt', c: 'the mismatching text character', f: 'the match' }}
+  rows={[
+    { label: 'attempt 1', values: ['A', 'B', 'A', 'B', 'D', 'A', 'B', 'A', 'C', 'D', 'A', 'B', 'A', 'B', 'C', 'A', 'B', 'C'], tones: 'llllc.............', marks: { 4: 'i' }, note: '`ABAB` matches (`j = 4`), then `D` vs `pattern[4] = C`. `j = lps[3] = 2`: `D` vs `A` mismatches, `j = lps[1] = 0`, `D` vs `A` again: move on to `i = 5`.' },
+    { label: 'attempt 2', values: ['A', 'B', 'A', 'B', 'D', 'A', 'B', 'A', 'C', 'D', 'A', 'B', 'A', 'B', 'C', 'A', 'B', 'C'], tones: '.....lllc.........', marks: { 8: 'i' }, note: '`ABA` matches at 5 to 7, then `C` vs `pattern[3] = B`. `j = lps[2] = 1`: `C` vs `B`, `j = lps[0] = 0`: `C` vs `A`, so `i` moves past `C` and `D`.' },
+    { label: 'attempt 3', values: ['A', 'B', 'A', 'B', 'D', 'A', 'B', 'A', 'C', 'D', 'A', 'B', 'A', 'B', 'C', 'A', 'B', 'C'], tones: '..........ffffffff', marks: { 10: 'match' }, note: 'Eight matches in a row: `j` reaches `m = 8` and index 10 is reported.' },
+  ]}
+/>
+
+The text characters `D` (index 4) and `C` (index 8) are each compared three times, so "each text character is examined once" is not literally true. What is true is that `i` never moves left, and the total number of comparisons is at most `2n`.
+
+## Pseudocode
+
+```text
+build_lps(pattern):
+    lps = [0] * m; length = 0; i = 1
+    while i < m:
+        if pattern[i] == pattern[length]:
+            length += 1; lps[i] = length; i += 1
+        elif length != 0:
+            length = lps[length - 1]          # fall back, keep i
+        else:
+            lps[i] = 0; i += 1
+    return lps
+
+kmp_search(text, pattern):
+    if pattern is empty or text is empty or m > n: return []
+    lps = build_lps(pattern)
+    i = 0; j = 0
+    while i < n:
+        if text[i] == pattern[j]: i += 1; j += 1
+        if j == m:
+            report i - j
+            j = lps[j - 1]
+        elif i < n and text[i] != pattern[j]:
+            if j != 0: j = lps[j - 1]
+            else:      i += 1
+```
+
+## Implementation
+
+All three languages are the same algorithm. Python exposes `build_lps`, `kmp_search`, `kmp_search_count` and `kmp_search_first`; C++ has `buildLPS`, `kmpSearch`, `kmpSearchCount` and `kmpSearchFirst`; Go has `BuildLPS`, `KMPSearch`, `KMPSearchCount` and `KMPSearchFirst`. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`** here, unlike the overview functions in the Pattern Matching topic, where an empty pattern matches at every position. The `First` helpers compute all matches before returning the first. Python indexes code points; C++ and Go index bytes.
+
+<TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/KMP Algorithm" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'LPS table', time: 'O(m)', space: 'O(m)', when: 'The border length grows by at most 1 per step and every fall back shortens it, so it falls back at most m times in total.' },
+    { case: 'Search', time: 'O(n)', when: 'i only increases; j grows at most n times and every fall back lowers it, so there are at most n falls and at most 2n loop steps.' },
+    { case: 'Total', time: 'O(n + m)', space: 'O(m)', when: 'The same in the best, average and worst case: no input makes it slower.' },
+  ]}
+/>
+
+<Equation label="Search loop" expr="steps = (advances of i) + (fall backs of j) <= n + n" result="O(n)" />
+
+## Choosing a pattern-matching algorithm
+
+<DataTable
+  columns={['Algorithm', { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['KMP', 'O(n + m)', 'O(n + m)', 'O(m)', 'guaranteed; streams the text'],
+    ['Naive', 'O(n)', 'O(n*m)', 'O(1)', 'no setup; fine for tiny inputs'],
+    ['Z-algorithm', 'O(n + m)', 'O(n + m)', 'O(n + m)', 'same bound; needs the combined string'],
+    ['Boyer-Moore (bad character)', 'O(n/m)', 'O(n*m)', 'O(sigma)', 'skips text; weak on small alphabets'],
+    ['Rabin-Karp', 'O(n + m)', 'O(n*m)', 'O(1)', 'hash windows; good for many patterns of one length'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time in every case, so no adversarial input exists.',
+    'The text is read left to right once, so it works on streams.',
+    'Small table: m integers.',
+    'The same LPS idea underlies Aho-Corasick and string periodicity.',
+  ]}
+  cons={[
+    'Always reads every text character; Boyer-Moore can skip most of them.',
+    'The LPS construction is subtle and easy to get wrong.',
+    'Searches one pattern at a time (use Aho-Corasick for a set).',
+    'Rarely faster than the library search on everyday inputs.',
+  ]}
+/>
+
+## Applications
+
+- **Single-pattern search** in editors, log scanners and streams.
+- **Smallest period of a string.** If `p = m - lps[m-1]` divides `m`, the string is a repetition of its first `p` characters (this solves LeetCode 459).
+- **Longest happy prefix** (LeetCode 1392): the longest border is `lps[m-1]`.
+- **Building block** for Aho-Corasick, which generalises the table to a trie of patterns.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Moving `i` back.** On a mismatch only `j` falls back. Resetting `i` makes the algorithm quadratic again.
+- **Falling back with `lps[j]` instead of `lps[j-1]`.** After `j` matched characters the relevant border is the one of `pattern[0..j-1]`.
+- **Advancing `i` when `j > 0`.** A mismatch with `j > 0` must retry the same `text[i]` against the shorter border.
+- **Stopping at the first match.** After a full match set `j = lps[j-1]`, which finds overlapping matches.
+- **Wrong empty-pattern handling.** Here an empty pattern returns `[]`; check the convention before mixing implementations.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What is the LPS array?">
+    `lps[i]` is the length of the longest proper prefix of `pattern[0..i]` that is also a suffix of it. For `ABABCABC` it is `[0, 0, 1, 2, 0, 1, 2, 0]`. A proper prefix is shorter than the whole string.
+  </FaqItem>
+  <FaqItem question="Why is the search O(n) when there is a nested fall back?">
+    `j` increases by one for every text character that matches and never goes below 0, while each fall back strictly decreases it. So the total number of fall backs cannot exceed the total number of increases, which is at most n.
+  </FaqItem>
+  <FaqItem question="Is KMP better than Boyer-Moore?">
+    It is more predictable: linear time on every input. Boyer-Moore with only the bad-character rule can reach O(n*m), but it often skips most of the text and wins on long patterns and large alphabets.
+  </FaqItem>
+  <FaqItem question="How is KMP related to the Z-algorithm?">
+    Both reuse information about prefixes to avoid re-comparing. The Z-array of the pattern and the LPS table carry the same information in different forms, and either gives a linear-time search.
+  </FaqItem>
+</Faq>

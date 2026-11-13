@@ -1,52 +1,37 @@
-# Heap Sort — C++ Implementation
-
-**Heap Sort** builds a max-heap from the input, then repeatedly extracts the maximum and moves it to the end. Guaranteed O(n log n), in-place, but **not stable**.
-
-For the conceptual overview and comparison with Merge / Quick Sort, see the parent README: [../README.md](../README.md)
-
----
+# Heap Sort -- C++ Implementation
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `heap_sort.cpp` | `heapSort(std::vector<int>&)` — build + sift-down |
-| `heap_sort_test.cpp` | Assertion tests for various array shapes |
+- `heap_sort.cpp`: the `heapify` and `heapSort` templates, instantiated for `int` and `double`.
+- `heap_sort_test.cpp`: assert-based tests (basic sort, empty and single-element input). It `#include`s `heap_sort.cpp` directly.
 
----
+## API
 
-## Complexity
+- `template <typename T> void heapSort(std::vector<T>& arr)`: sorts in place; returns immediately for fewer than two elements. `T` needs `operator>`.
+- `template <typename T> void heapify(std::vector<T>& arr, size_t n, size_t i)`: sifts index `i` down inside the first `n` elements.
 
-| Case | Time | Space |
-|------|------|-------|
-| Best | O(n log n) | O(1) |
-| Average | O(n log n) | O(1) |
-| Worst | **O(n log n)** | O(1) — in place |
+```cpp
+#include "heap_sort.cpp"
 
-The build-heap step is O(n) (surprising but true via aggregate analysis), and n extractions at O(log n) each give O(n log n) total.
-
----
+std::vector<int> arr = {64, 34, 25, 12, 22, 11, 90};
+heapSort(arr);
+```
 
 ## C++-Specific Notes
 
-- **`std::make_heap` + `std::pop_heap`** in `<algorithm>` do the work for you. A two-line Heap Sort using them is idiomatic and optimal.
-- **`std::priority_queue<T>` is a max-heap wrapper**: for a priority queue you'd use it directly, but for sorting we want the underlying array so use the free `make_heap` / `pop_heap` functions.
-- **Not stable**: unlike Merge Sort, equal elements can swap relative order. If stability matters, use `std::stable_sort`.
-- **Sift-down beats sift-up** for the build-heap phase: O(n) total instead of O(n log n). Most textbook implementations get this right; verify yours.
-
----
+- Indices are `size_t`. The early return for `n < 2` prevents `n - 1` from wrapping around on an empty vector.
+- `heapify` is recursive, so the stack use is O(log n).
+- Not stable: equal elements can change their order. For production code use `std::sort`, or `std::make_heap` and `std::sort_heap`.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall heap_sort_test.cpp -o heap_sort_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD heap_sort_test.cpp -o heap_sort_test
 ./heap_sort_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Build-heap is O(n), not O(n log n).** The aggregate analysis — summing the work at each level weighted by how many nodes live there — gives O(n). Counter-intuitive but foundational.
-2. **In-place is the killer feature.** Heap Sort uses O(1) extra space, unlike Merge Sort's O(n). For memory-constrained systems, that's decisive.
-3. **Worst-case O(n log n) without randomization** makes Heap Sort the fallback in IntroSort: if Quick Sort's recursion gets too deep, switch to Heap Sort to guarantee the bound.
+- Guard the empty input before using `n - 1` with unsigned types.
+- The heap lives in the array; no extra buffer.
+- O(n log n) in every case.

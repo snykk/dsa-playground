@@ -12,7 +12,7 @@ using namespace std;
 void testConstantSpace() {
     assert(constantSpaceExample(10) == 55);
     assert(constantSpaceExample(100) == 5050);
-    cout << "✓ Constant space tests passed\n";
+    cout << "OK Constant space tests passed\n";
 }
 
 void testLinearSpace() {
@@ -20,7 +20,7 @@ void testLinearSpace() {
     assert(result.size() == 5);
     assert(result[0] == 1);
     assert(result[4] == 5);
-    cout << "✓ Linear space tests passed\n";
+    cout << "OK Linear space tests passed\n";
 }
 
 void testQuadraticSpace() {
@@ -29,7 +29,7 @@ void testQuadraticSpace() {
     assert(matrix[0].size() == 3);
     assert(matrix[0][0] == 0);
     assert(matrix[2][2] == 8);
-    cout << "✓ Quadratic space tests passed\n";
+    cout << "OK Quadratic space tests passed\n";
 }
 
 void testInPlaceReverse() {
@@ -42,7 +42,7 @@ void testInPlaceReverse() {
     inPlaceReverse(arr2);
     vector<int> expected2 = {1};
     assert(arr2 == expected2);
-    cout << "✓ In-place reverse tests passed\n";
+    cout << "OK In-place reverse tests passed\n";
 }
 
 int main() {
@@ -53,6 +53,6 @@ int main() {
     testQuadraticSpace();
     testInPlaceReverse();
     
-    cout << "\nAll tests passed! ✓\n";
+    cout << "\nAll tests passed! OK\n";
     return 0;
 }

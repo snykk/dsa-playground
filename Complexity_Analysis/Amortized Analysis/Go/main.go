@@ -7,6 +7,7 @@ type DynamicArray struct {
 	capacity int
 	size     int
 	data     []int
+	copies   int // total element copies made by all resizes
 }
 
 // NewDynamicArray creates a new dynamic array
@@ -21,12 +22,13 @@ func NewDynamicArray(initialCapacity int) *DynamicArray {
 // Resize doubles the capacity
 func (da *DynamicArray) resize() {
 	oldCapacity := da.capacity
-	da.capacity *= 2
+	da.capacity = max(1, da.capacity*2)
 	newData := make([]int, da.capacity)
 
 	for i := 0; i < oldCapacity; i++ {
 		newData[i] = da.data[i]
 	}
+	da.copies += oldCapacity
 
 	da.data = newData
 }
@@ -52,6 +54,7 @@ func (da *DynamicArray) Get(index int) int {
 type BinaryCounter struct {
 	bits  []int
 	nBits int
+	flips int // total bit flips made by all increments
 }
 
 // NewBinaryCounter creates a new binary counter
@@ -67,10 +70,12 @@ func (bc *BinaryCounter) Increment() {
 	i := 0
 	for i < bc.nBits && bc.bits[i] == 1 {
 		bc.bits[i] = 0
+		bc.flips++
 		i++
 	}
 	if i < bc.nBits {
 		bc.bits[i] = 1
+		bc.flips++
 	}
 }
 

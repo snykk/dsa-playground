@@ -1,82 +1,42 @@
-# Ford-Fulkerson Algorithm (C++)
+# Ford-Fulkerson Method -- C++ Implementation
 
-**Ford-Fulkerson Algorithm** finds the maximum flow in a flow network using DFS to find augmenting paths.
+Maximum flow with DFS augmenting paths. For the idea, the trace and the complexity, see the topic README: [../README.md](../README.md).
 
----
+## Files
 
-## Overview
+| File | Purpose |
+|------|---------|
+| `ford_fulkerson.cpp` | `fordFulkerson`, the iterative `dfsFindPath`, and a demo `main` (compiled out when `IS_TEST_BUILD` is defined) |
+| `ford_fulkerson_test.cpp` | 8 assert-based tests; it `#include`s `ford_fulkerson.cpp` |
 
-Ford-Fulkerson algorithm is a greedy method for computing maximum flow. It repeatedly finds augmenting paths and pushes flow along them.
+## API
 
----
+- `long long fordFulkerson(const std::unordered_map<int, std::unordered_map<int, int>>& graph, int source, int sink)`: maximum flow value. `graph[u][v]` is the capacity of `u -> v`. Returns 0 when `source == sink` or the sink is unreachable.
+- `std::vector<int> dfsFindPath(const ResidualGraph& residual, int source, int sink)`: one augmenting path, or an empty vector.
 
-## Complexity Analysis
+There is no per-edge flow, no list of paths and no min-cut function in C++ (Python has them).
 
-| Operation | Time | Space |
-|-----------|------|-------|
-| **Maximum Flow** | O(E × max_flow) | O(V + E) |
+## C++-Specific Notes
 
----
+- **Overflow.** Capacities are `int`; the residual graph (`ResidualGraph`) and the total are `long long`. A regression test adds two `INT_MAX` paths.
+- **Vertex ids.** Visited state is a hash map, so any `int` works, including ids of 1000 or more and negative ids (both have regression tests).
+- **Iterative DFS.** A stack of `(vertex, iterator)` pairs avoids deep recursion; a 200000-vertex chain is tested.
+- **Test build.** The test `#include`s the `.cpp`, so build only the test file with `-DIS_TEST_BUILD`.
 
-## Usage
-
-```cpp
-#include "ford_fulkerson.cpp"
-
-std::unordered_map<int, std::unordered_map<int, int>> graph = {
-    {0, {{1, 16}, {2, 13}}},
-    {1, {{2, 10}, {3, 12}}},
-    {2, {{1, 4}, {4, 14}}},
-    {3, {{2, 9}, {5, 20}}},
-    {4, {{3, 7}, {5, 4}}}
-};
-
-int maxFlow = fordFulkerson(graph, 0, 5);
-```
-
----
-
-## Usage
-
-```cpp
-#include <unordered_map>
-#include <iostream>
-#include "ford_fulkerson.cpp"
-
-int main() {
-    std::unordered_map<int, std::unordered_map<int, int>> graph = {
-        {0, {{1, 16}, {2, 13}}},
-        {1, {{2, 10}, {3, 12}}},
-        {2, {{1, 4}, {4, 14}}},
-        {3, {{2, 9}, {5, 20}}},
-        {4, {{3, 7}, {5, 4}}}
-    };
-    
-    int maxFlow = fordFulkerson(graph, 0, 5);
-    std::cout << "Maximum flow: " << maxFlow << "\n";  // 23
-    
-    return 0;
-}
-```
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Compile and run tests
-g++ -std=c++11 ford_fulkerson_test.cpp -o test && ./test
+# tests
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD ford_fulkerson_test.cpp -o ford_fulkerson_test
+./ford_fulkerson_test
 
-# Or compile with main example (uncomment main in ford_fulkerson.cpp)
-g++ -std=c++11 ford_fulkerson.cpp -o example && ./example
+# demo (prints "Maximum flow: 23")
+g++ -std=c++17 -O2 -Wall ford_fulkerson.cpp -o ford_fulkerson_demo
+./ford_fulkerson_demo
 ```
 
-## References
+## Key Takeaways
 
-- Ford, L. R., & Fulkerson, D. R. (1956). "Maximal flow through a network"
-- "Introduction to Algorithms" by CLRS (Chapter 26)
-
----
-
-_Last Updated: December 2025_
-
+1. Never size a visited array by a guess; key it by vertex.
+2. Use `long long` for flow totals.
+3. Build the test file alone, with the flag.

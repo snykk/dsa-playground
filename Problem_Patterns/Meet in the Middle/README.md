@@ -1,145 +1,100 @@
-# Meet in the Middle Pattern
+# Meet in the Middle
 
-A **Meet in the Middle** is a technique that splits a problem into two halves, solves each half independently, and then combines the results. This approach is particularly powerful for problems with exponential complexity, reducing it from O(2^n) to O(2^(n/2)).
+Meet in the middle splits a search over 2^n possibilities into two halves of 2^(n/2), enumerates each half separately and combines them with sorting or hashing. It handles subset-style problems with n around 40, where brute force (2^n) is too slow and a DP over large values is impossible. Typical cost: O(2^(n/2) * n).
 
----
+## Intuition
 
-## Overview
+Every subset of the whole array is exactly one pair: a subset of the left half and a subset of the right half, and its sum is the sum of the two parts. So enumerate the left sums (2^(n/2) values) and the right sums (2^(n/2) values), and for each left sum look up the right sum that completes the goal. You never visit all 2^n pairs; each left sum needs one lookup.
 
-The meet in the middle pattern is used when:
-- The problem has exponential complexity (e.g., O(2^n))
-- The problem can be split into two independent halves
-- We can efficiently combine results from both halves
+Signals: n between about 30 and 45, large values (so no DP over the sum), and independent take-or-skip choices whose halves interact through one combinable quantity such as a sum.
 
-The technique works by:
-1. Splitting the input into two halves
-2. Generating all possible solutions for each half
-3. Combining results from both halves efficiently
+## Visual
 
-This reduces time complexity from O(2^n) to O(2^(n/2) × f(n)) where f(n) is the time to combine results.
+```text
+nums   = [ 5  3 | 2  7  10 ]          target = 14
+           left     right
+left sums  : 0 5 3 8
+right sums : 0 2 7 9 10 12 17 19      (sorted)
 
----
-
-## Key Characteristics
-
-1. **Exponential Reduction**: Reduces O(2^n) to O(2^(n/2))
-2. **Split and Combine**: Divides problem into two independent parts
-3. **Space Trade-off**: Uses more space to store intermediate results
-4. **Efficient Combination**: Uses hash maps or binary search for fast combination
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity | Space Complexity |
-|-----------|-------------|----------------|------------------|
-| `subset_sum_meet_in_middle(arr, target)` | Check if subset sum equals target | O(2^(n/2)) | O(2^(n/2)) |
-| `get_subset_sums(arr)` | Generate all subset sums | O(2^n) | O(2^n) |
-| `closest_subset_sum(nums, target)` | Find closest subset sum to target | O(2^(n/2) × log(2^(n/2))) | O(2^(n/2)) |
-
-Where n is the input size.
-
----
-
-## Implementation Approaches
-
-### 1. Standard Meet in Middle
-- **Pros**: Simple, straightforward split
-- **Cons**: Requires problem to be splittable
-- **Use Case**: Subset sum, partition problems
-
-### 2. Meet in Middle with Binary Search
-- **Pros**: Efficient combination using binary search
-- **Cons**: Requires sorted results
-- **Use Case**: When need to find optimal value
-
-### 3. Meet in Middle with Hash Map
-- **Pros**: O(1) lookup for combination
-- **Cons**: More memory usage
-- **Use Case**: When need fast lookups
-
----
-
-## Applications
-
-1. **Subset Sum**: Check if subset sums to target
-2. **Partition Problems**: Split array into equal sum parts
-3. **Closest Subset**: Find subset closest to target
-4. **Exponential Problems**: Any problem with O(2^n) complexity
-5. **Bitmask DP**: Alternative approach for some bitmask problems
-
----
-
-## Example Use Cases
-
-### Subset Sum
-```python
-arr = [1, 2, 3, 4, 5, 6]
-target = 10
-result = subset_sum_meet_in_middle(arr, target)  # Returns True
+for each left sum a, best right sum <= 14 - a:
+  a=0 -> 12   total 12
+  a=5 ->  9   total 14   <- best
+  a=3 -> 10   total 13
+  a=8 ->  2   total 10
 ```
 
-### Closest Subset Sum
-```python
-nums = [1, 2, 3, 4, 5]
-target = 8
-result = closest_subset_sum(nums, target)  # Returns 8
-```
+## How It Works
 
----
+1. Split the array in the middle: the left half is `nums[:n // 2]`, the right half the rest.
+2. Enumerate every subset sum of each half (the empty subset gives 0).
+3. Make one side searchable: sort it (closest sum) or put it in a hash set (exact sum).
+4. For each sum `a` of the other side, look up the partner:
+   - closest sum (Python): binary search the largest right sum `<= target - a`;
+   - exact sum (C++, Go): check whether `target - a` is in the set.
+5. Keep the best total.
 
-## Implementations
+## Step-by-Step Trace
 
-This folder contains implementations in three languages:
+`closest_subset_sum([5, 3, 2, 7, 10], 14)`:
 
-- **Python** (`Python/`) - Set and list-based implementation
-- **C++** (`C++/`) - Unordered_set and vector-based implementation
-- **Go** (`Go/`) - Map-based implementation
+| Left sum a | Room 14 - a | Best right sum | Total |
+|-----------|-------------|----------------|-------|
+| 0 | 14 | 12 | 12 |
+| 5 | 9 | 9 | 14 |
+| 3 | 11 | 10 | 13 |
+| 8 | 6 | 2 | 10 |
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+The answer is 14 (`5 + 2 + 7`). For the exact-sum version on `[1, 2, 3, 4, 5, 6]` with target 10, the left half `[1, 2, 3]` has sums 0..6 and the right half `[4, 5, 6]` has sums `{0, 4, 5, 6, 9, 10, 11, 15}`; the left sum 0 with the right sum 10 reaches the target.
 
----
+## Complexity
 
-## Complexity Summary
+| Version | Time | Space |
+|---------|------|-------|
+| Closest sum (sort and binary search) | O(2^(n/2) * n) | O(2^(n/2)) |
+| Exact sum (hash sets) | O(2^(n/2)) average | O(2^(n/2)) |
 
-| Problem Type | Time Complexity | Space Complexity |
-|--------------|----------------|------------------|
-| **Standard** | O(2^(n/2)) | O(2^(n/2)) |
-| **With Binary Search** | O(2^(n/2) × log(2^(n/2))) | O(2^(n/2)) |
-| **With Hash Map** | O(2^(n/2)) | O(2^(n/2)) |
-
----
+Each half has 2^(n/2) sums. Sorting one half costs O(2^(n/2) * n) and each of the 2^(n/2) binary searches costs O(n). For n = 40 that is about 2 million sums per half instead of 10^12 subsets. Memory limits the method to about n = 45.
 
 ## When to Use
 
-- **Exponential Problems**: Problems with O(2^n) complexity
-- **Splittable Problems**: Problems that can be divided into independent halves
-- **Subset Problems**: Subset sum, partition, closest subset
-- **Large Input**: When n is too large for brute force but manageable for 2^(n/2)
+- A subset-sum-like question with n of 30 to 45 and large values, such as exact sum, largest sum not above a limit, counting subsets, or 4-sum.
+- Not when n is at most about 20 (plain enumeration), when the sum is small (a knapsack DP is faster), or when the halves do not interact through one combinable quantity.
 
----
+## Meet in the Middle vs. Alternatives
 
-## Related Patterns
+| Approach | Time | Use when |
+|----------|------|----------|
+| Brute force over subsets | O(2^n * n) | n up to about 20 |
+| Meet in the middle | O(2^(n/2) * n) | n about 30 to 45, large values |
+| DP over the sum (knapsack) | O(n * S) | the sum S is small |
+| Bitmask DP | O(2^n * n) | the order or identity of the chosen set matters |
 
-- **Backtracking**: Alternative for smaller problems
-- **Dynamic Programming**: Alternative for some subset problems
-- **Bitmask DP**: Sometimes more efficient for smaller n
+## Common Pitfalls
 
----
+- An uneven split: one half is then close to 2^n.
+- Forgetting the empty subset (sum 0) on either side.
+- Negative values with pruning: the closest-sum code skips left sums above the target, valid only for non-negative numbers. `closest_subset_sum` raises `ValueError` for a negative number and for a negative target.
+- Overflow: the C++ version uses `int` sums.
+- The Python version and the C++ and Go versions solve different problems (closest sum versus exact sum).
 
-## Further Reading
+## Implementations
 
-- "Competitive Programming" by Halim & Halim
-- "Algorithm Design Manual" by Steven Skiena
-- LeetCode problems: Partition Equal Subset Sum
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python](Python/) | `meet_in_middle.py` | `closest_subset_sum`: largest sum not above the target; 7 tests |
+| C++ | [C++](C++/) | `meet_in_middle.cpp` | `subsetSumMeetInMiddle`: exact sum, hash sets; 2 test functions |
+| Go | [Go](Go/) | `main.go` | `subsetSumMeetInMiddle`: exact sum, hash sets; 2 tests |
 
----
+## Practice Problems
 
-**Note**: Meet in the middle is most effective when the problem can be naturally split into two independent halves. Always verify that the split maintains the problem structure and that results can be efficiently combined.
+- [Closest Subsequence Sum (LeetCode 1755)](https://leetcode.com/problems/closest-subsequence-sum/)
+- [Partition Array Into Two Arrays to Minimize Sum Difference (LeetCode 2035)](https://leetcode.com/problems/partition-array-into-two-arrays-to-minimize-sum-difference/)
+- [4Sum II (LeetCode 454)](https://leetcode.com/problems/4sum-ii/)
+- [Meet in the Middle (CSES)](https://cses.fi/problemset/task/1628)
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Bitmask DP](../../Algorithms/Dynamic_Programming/Advanced%20DP/Bitmask%20DP/)
+- [Two Pointers](../Two%20Pointers/)
+- [Bit Manipulation](../Bit%20Manipulation/)
+- [Coordinate Compression](../Coordinate%20Compression/)

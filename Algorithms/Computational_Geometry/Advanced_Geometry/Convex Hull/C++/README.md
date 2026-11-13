@@ -1,97 +1,31 @@
-# Convex Hull - C++
+# Convex Hull -- C++ Implementation
 
-This folder contains a C++ implementation of **Graham's Scan** and **Jarvis March** algorithms for computing convex hull.
+## Files
 
----
+- `convex_hull.cpp`: `Point`, `crossProduct`, `distanceSquared`, `grahamScan`, `jarvisMarch`; `main` is compiled out with `-DIS_TEST_BUILD`.
+- `convex_hull_test.cpp`: assert-based tests (square, simple cases, duplicates and fewer than three points, input not modified or returned, all collinear, collinear boundary points, counterclockwise order and start point, tiny scale, the nearly collinear wedge, and 400 random integer sets checked against a brute-force reference).
 
-## Concept
+## API
 
-The convex hull of a set of points is the smallest convex polygon that contains all the points. This module provides two efficient algorithms for computing convex hulls.
+- `grahamScan(std::vector<Point>)` and `jarvisMarch(std::vector<Point>)`: take the points by value and return the hull vertices in counterclockwise order (Graham from the bottom-most point, Jarvis from the leftmost). Collinear boundary points are excluded, duplicates removed.
+- `crossProduct(o, a, b)`: positive for a left turn, negative for a right turn, zero if collinear.
+- `distanceSquared(p, q)`.
 
-**Key Features:**
-- Graham's Scan: O(n log n) time complexity
-- Jarvis March: O(nh) time complexity where h is number of hull points
-- Efficient STL-based implementation
-- Both algorithms return points in counterclockwise order
+## C++-Specific Notes
 
----
+- Coordinates are `double`; integer coordinates are exact while cross products stay below 2^53 (differences below about 6.7e7).
+- `crossProduct` computes the two products in separate statements so that a compiler cannot fuse them into an FMA.
+- `Point::operator==` uses a tolerance of 1e-9, but the algorithms compare exactly.
+- The code is plain C++11; the commands below use C++17 like the rest of the repository.
 
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `grahamScan(points)` | Compute convex hull using Graham's Scan | O(n log n) |
-| `jarvisMarch(points)` | Compute convex hull using Jarvis March | O(nh) |
-
----
-
-## Complexity
-
-| Algorithm | Time Complexity | Space Complexity | Best For |
-|-----------|----------------|------------------|----------|
-| Graham's Scan | O(n log n) | O(n) | General case, many points |
-| Jarvis March | O(nh) | O(n) | Few hull points (h << n) |
-
----
-
-## Usage
-
-```cpp
-#include "convex_hull.cpp"
-#include <vector>
-
-std::vector<Point> points = {
-    {0, 0}, {1, 1}, {2, 0}, {1, 0.5}
-};
-
-// Graham's Scan (recommended for general case)
-auto hull = grahamScan(points);  // O(n log n)
-
-// Jarvis March (efficient when few hull points)
-auto hull2 = jarvisMarch(points);  // O(nh)
-```
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++11 convex_hull.cpp -o convex_hull
-./convex_hull
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD convex_hull_test.cpp -o convex_hull_test && ./convex_hull_test
 ```
 
----
+## Key Takeaways
 
-## Run Test
-
-```bash
-g++ -std=c++11 convex_hull_test.cpp -o test && ./test
-```
-
----
-
-## Important Notes
-
-1. **Minimum Points**: Need at least 3 points for a valid convex hull
-2. **Output Order**: Points are returned in counterclockwise order
-3. **STL Sorting**: Uses `std::sort` with custom comparator for polar angle sorting
-4. **Vector Operations**: Uses `std::vector` for dynamic arrays
-
----
-
-## When to Use
-
-- **Graham's Scan**: Use when you have many points or need guaranteed O(n log n) performance
-- **Jarvis March**: Use when the number of hull points is small (h << n)
-
----
-
-## Related Files
-
-- Main README: `../README.md`
-- Python Implementation: `../../Python/`
-- Go Implementation: `../../Go/`
-
----
-
-_Last Updated: December 2025_
+- The sign of the cross product decides every step.
+- Exact comparisons avoid hangs and non-convex output; integer input is exact.
+- Graham is O(n log n); Jarvis is O(nh).

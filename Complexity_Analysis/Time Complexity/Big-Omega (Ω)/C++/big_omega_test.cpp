@@ -20,7 +20,7 @@ void testLinearSearchBestCase() {
     
     // Not found
     assert(linearSearchBestCase(arr, 10) == -1);
-    cout << "✓ Linear search best case tests passed\n";
+    cout << "OK Linear search best case tests passed\n";
 }
 
 void testBubbleSortBestCase() {
@@ -35,7 +35,7 @@ void testBubbleSortBestCase() {
     vector<int> result2 = bubbleSortBestCase(arr2);
     vector<int> expected2 = {1, 2, 3, 4, 5};
     assert(result2 == expected2);
-    cout << "✓ Bubble sort best case tests passed\n";
+    cout << "OK Bubble sort best case tests passed\n";
 }
 
 void testMatrixTraversalLowerBound() {
@@ -44,7 +44,7 @@ void testMatrixTraversalLowerBound() {
     
     vector<vector<int>> matrix2 = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
     assert(matrixTraversalLowerBound(matrix2) == 45);
-    cout << "✓ Matrix traversal lower bound tests passed\n";
+    cout << "OK Matrix traversal lower bound tests passed\n";
 }
 
 int main() {
@@ -54,6 +54,6 @@ int main() {
     testBubbleSortBestCase();
     testMatrixTraversalLowerBound();
     
-    cout << "\nAll tests passed! ✓\n";
+    cout << "\nAll tests passed! OK\n";
     return 0;
 }

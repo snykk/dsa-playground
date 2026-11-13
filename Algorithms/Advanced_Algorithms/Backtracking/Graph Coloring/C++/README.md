@@ -1,69 +1,38 @@
-# Graph Coloring - C++
+# Graph Coloring -- C++ Implementation
 
-This folder contains a C++ implementation of **Graph Coloring** using backtracking.
+## Files
 
----
+- `graph_coloring.cpp`: the solver (`isSafe`, `graphColoringUtil`, `graphColoring`, `chromaticNumber`; `main` is compiled out with `-DIS_TEST_BUILD`).
+- `graph_coloring_test.cpp`: tests (valid coloring, too few colors, chromatic number, `is_safe`, empty graph, edgeless graph, even and odd cycles, complete graph; the returned colorings are checked for validity).
 
-## Concept
+## API
 
-Colors a graph with minimum number of colors such that no two adjacent vertices have the same color. Uses backtracking to find a valid coloring.
-
-**Key Features:**
-- Backtracking algorithm
-- Finds minimum chromatic number
-- Validates coloring constraints
-
----
-
-## Functions
-
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `isSafe(graph, v, color, c)` | Check if color c is safe for vertex v | O(V) |
-| `graphColoring(graph, m)` | Color graph with m colors | O(m × k^n) |
-| `chromaticNumber(graph)` | Find minimum colors needed | O(V × m × k^n) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Graph Coloring | O(m × k^n) | O(n) |
-| Chromatic Number | O(V × m × k^n) | O(n) |
-| Safety Check | O(V) | O(1) |
-
----
-
-## Usage
+- `isSafe(graph, v, color, c)`: true if color `c` can be given to vertex `v` (no neighbor has it).
+- `graphColoring(graph, m)`: tries to color the graph with colors `1..m`; returns `std::optional<std::vector<int>>`, empty if impossible
+- `chromaticNumber(graph)`: smallest m for which a coloring exists (0 for an empty graph).
 
 ```cpp
 #include "graph_coloring.cpp"
 
-vector<vector<int>> graph = {
-    {0, 1, 1, 1},
-    {1, 0, 1, 0},
-    {1, 1, 0, 1},
-    {1, 0, 1, 0}
-};
-
-auto color = graphColoring(graph, 3);
-if (color.has_value()) {
-    // Use coloring
-}
-
-int chromNum = chromaticNumber(graph);
+vector<vector<int>> graph = {{0, 1, 1, 1}, {1, 0, 1, 0}, {1, 1, 0, 1}, {1, 0, 1, 0}};
+auto color = graphColoring(graph, 3);   // {1, 2, 3, 2}
+int k = chromaticNumber(graph);         // 3
 ```
 
----
+## C++-Specific Notes
 
-## Running Tests
+- Needs C++17 for `std::optional`.
+- The test file includes the `.cpp` directly, so compile one file and define `IS_TEST_BUILD` to drop the demo `main`.
+- The graph is `vector<vector<int>>`, passed by const reference.
+
+## How to Run
 
 ```bash
-g++ -o test graph_coloring_test.cpp && ./test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD graph_coloring_test.cpp -o graph_coloring_test && ./graph_coloring_test
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- Choose a color, check the neighbors, recurse, and undo on failure.
+- The worst case is O(V * m^V); use it for small graphs only.
+- The chromatic number comes from trying m = 1, 2, 3, ... until one succeeds.

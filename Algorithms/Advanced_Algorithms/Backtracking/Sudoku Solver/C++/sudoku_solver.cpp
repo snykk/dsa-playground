@@ -44,29 +44,69 @@ optional<pair<int, int>> findEmpty(const vector<vector<int>>& board) {
     return nullopt;
 }
 
-bool solveSudoku(vector<vector<int>>& board) {
+// True if board is 9x9, every value is 0..9 and no digit repeats in a row, column or box.
+bool isValidPuzzle(const vector<vector<int>>& board) {
+    if (board.size() != 9) {
+        return false;
+    }
+    for (const auto& row : board) {
+        if (row.size() != 9) {
+            return false;
+        }
+    }
+
+    bool rows[9][10] = {}, cols[9][10] = {}, boxes[9][10] = {};
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            int v = board[i][j];
+            if (v < 0 || v > 9) {
+                return false;
+            }
+            if (v == 0) {
+                continue;
+            }
+            int b = (i / 3) * 3 + j / 3;
+            if (rows[i][v] || cols[j][v] || boxes[b][v]) {
+                return false;
+            }
+            rows[i][v] = cols[j][v] = boxes[b][v] = true;
+        }
+    }
+    return true;
+}
+
+// Backtracking search: fill the first empty cell with each valid digit.
+static bool searchSudoku(vector<vector<int>>& board) {
     auto empty = findEmpty(board);
     if (!empty.has_value()) {
         return true;  // Puzzle solved
     }
-    
+
     int row = empty->first;
     int col = empty->second;
-    
+
     for (int num = 1; num <= 9; num++) {
         if (isValid(board, row, col, num)) {
             board[row][col] = num;
-            
-            if (solveSudoku(board)) {
+
+            if (searchSudoku(board)) {
                 return true;
             }
-            
+
             // Backtrack
             board[row][col] = 0;
         }
     }
-    
+
     return false;
+}
+
+// Returns false (board unchanged) if the givens conflict, are out of range, or have no solution.
+bool solveSudoku(vector<vector<int>>& board) {
+    if (!isValidPuzzle(board)) {
+        return false;
+    }
+    return searchSudoku(board);
 }
 
 void printBoard(const vector<vector<int>>& board) {

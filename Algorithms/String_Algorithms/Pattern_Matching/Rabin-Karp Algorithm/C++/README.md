@@ -1,94 +1,34 @@
-# Rabin-Karp Algorithm (C++)
+# Rabin-Karp Algorithm -- C++ Implementation
 
-**Rabin-Karp Algorithm** uses hashing to find patterns in text efficiently.
+Rabin-Karp search with a rolling hash and verified hits.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `rabin_karp.cpp` | `BASE`, `MOD`, `byteValue`, `rabinKarpSearch` (a demo `main` is left commented out) |
+| `rabin_karp_test.cpp` | `assert`-based tests: matches, no match, empty inputs, a pattern longer than the text, bytes above 0x7F (regression), overlaps and a spurious hit |
 
-The Rabin-Karp algorithm uses a rolling hash function to compute hash values for all substrings of the text. It compares hash values instead of characters directly, making it efficient on average.
+## API
 
-**Key Characteristics:**
-- Hash-based pattern matching
-- Average case: O(n + m) time complexity
-- Worst case: O(n × m) time complexity
-- Space: O(1)
+- `std::vector<int> rabinKarpSearch(const std::string& text, const std::string& pattern)`: all start indices, in increasing order; empty for an empty pattern, an empty text, or a pattern longer than the text. O(n + m) expected, O(n*m) worst case.
+- `int byteValue(char c)`: the byte as an unsigned value `0..255`.
 
----
+## C++-Specific Notes
 
-## Complexity Analysis
+- `char` is signed on common platforms. Hashing it directly makes the initial hashes negative for bytes of 0x80 or more while the rolled hash is normalised into `[0, MOD)`, so equal windows would get different hashes and matches would be lost. `byteValue` converts to `unsigned char` first.
+- `BASE = 256` and `MOD = 101` are compile-time constants. The products fit in `int` for these values; a larger modulus needs 64-bit arithmetic.
+- Indices are byte offsets.
 
-| Aspect | Complexity |
-|--------|------------|
-| **Average Time** | O(n + m) |
-| **Worst Time** | O(n × m) |
-| **Space** | O(1) |
-
-Where:
-- n = length of text
-- m = length of pattern
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`rabinKarpSearch(text, pattern)`**
-   - Find all occurrences of pattern in text using Rabin-Karp algorithm
-   - Returns vector of starting indices
-   - Time: O(n + m) average, O(n × m) worst
-   - Space: O(1)
-
----
-
-## Usage
-
-```cpp
-#include <string>
-#include <vector>
-#include <iostream>
-#include "rabin_karp.cpp"
-
-int main() {
-    std::string text = "ABABDABACDABABCABC";
-    std::string pattern = "ABABCABC";
-    
-    std::vector<int> occurrences = rabinKarpSearch(text, pattern);
-    // occurrences = [10]
-    
-    return 0;
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Compile
-g++ -o rabin_karp_test rabin_karp_test.cpp
-
-# Run
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD rabin_karp_test.cpp -o rabin_karp_test
 ./rabin_karp_test
 ```
 
-Or compile and run in one command:
+## Key Takeaways
 
-```bash
-g++ rabin_karp_test.cpp -o rabin_karp_test && ./rabin_karp_test
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 32)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. Hash unsigned bytes.
+2. Normalise a negative rolled hash.
+3. A hash hit is only a candidate.

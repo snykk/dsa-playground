@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // SieveOfEratosthenes finds all prime numbers up to n
 // Time Complexity: O(n log log n)
@@ -41,10 +39,14 @@ func SieveOfEratosthenes(n int) []int {
 	return primes
 }
 
-// SieveBoolean returns boolean array indicating primes up to n
+// SieveBoolean returns boolean array indicating primes up to n (length n+1;
+// empty for n < 0)
 // Time Complexity: O(n log log n)
 // Space Complexity: O(n)
 func SieveBoolean(n int) []bool {
+	if n < 0 {
+		return []bool{}
+	}
 	if n < 2 {
 		return make([]bool, n+1)
 	}
@@ -67,10 +69,12 @@ func SieveBoolean(n int) []bool {
 	return isPrime
 }
 
-// IsPrimeSieve checks if n is prime using precomputed sieve
+// IsPrimeSieve checks if n is prime using precomputed sieve. A negative n is
+// not prime, and an n beyond the end of the sieve is reported as false (it was
+// never sieved).
 // Time Complexity: O(1)
 func IsPrimeSieve(n int, sieve []bool) bool {
-	if n < len(sieve) {
+	if n >= 0 && n < len(sieve) {
 		return sieve[n]
 	}
 	return false

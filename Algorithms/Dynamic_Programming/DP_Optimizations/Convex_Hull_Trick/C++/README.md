@@ -1,41 +1,35 @@
-# Convex Hull Trick — C++ Implementation
+# Convex Hull Trick -- C++ Implementation
 
-Monotonic CHT and Li Chao Tree for min queries, with integer-only arithmetic (via `__int128` for cross-multiplication).
-
-For the conceptual overview, see the parent README: [../README.md](../README.md)
-
----
+Header-only `MonotonicCHT` and `LiChaoTree` for minimum queries, with 64-bit integer coefficients.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `cht.h` | Header-only `MonotonicCHT` and `LiChaoTree` classes |
-| `cht_test.cpp` | Assertion-based tests including random stress against brute-force |
+| File | Description |
+|------|-------------|
+| `cht.h` | `MonotonicCHT` and `LiChaoTree` |
+| `cht_test.cpp` | Assertion-based tests (5): classic examples, equal slopes, random stress against a brute-force minimum |
 
----
+## API
+
+- `MonotonicCHT`: `addLine(long long m, long long b)` (slopes non-increasing; equal slopes keep the lower intercept) and `long long query(long long x)` (x non-decreasing). Querying an empty structure is undefined behaviour.
+- `LiChaoTree(long long lo, long long hi)`: `addLine(m, b)` in any order and `long long query(x)`. An empty tree returns `LLONG_MAX`; `x` outside `[lo, hi]` is not checked.
 
 ## C++-Specific Notes
 
-- **`__int128` for cross-multiplication**: when slope and intercept are both `int64`, their product can overflow. `__int128` is a GCC/Clang extension that's exactly what we need for overflow-free comparison.
-- **`std::deque<Line>`** for the monotonic CHT: `pop_front` is O(1) unlike `std::vector::erase(begin())`.
-- **`new` / `delete` in Li Chao**: we own the tree nodes with raw pointers here for clarity. In production, use `std::unique_ptr` with a custom destructor. We delete-copy/assign to prevent shallow-copy bugs.
-- **`Line{true, m, b}`** explicit aggregate initialization avoids narrowing warnings when the first field is a `bool`.
-- **Recursive Li Chao**: depth is O(log V). For `V = 10¹⁸`, that's ~60 — no stack concerns.
-
----
+- The redundancy test widens the operands to `__int128` before subtracting and multiplying, so it cannot overflow for 64-bit inputs. `__int128` is a GCC and Clang extension. The line value `m * x + b` is still computed in 64 bits and must fit.
+- `std::deque<Line>` gives O(1) `pop_front` for the monotonic CHT.
+- The Li Chao tree owns its nodes through raw pointers, frees them in the destructor, and has its copy constructor and copy assignment deleted so a copy cannot double-free.
+- The recursion depth of the Li Chao tree is about log2 of the range size.
 
 ## How to Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall cht_test.cpp -o cht_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD cht_test.cpp -o cht_test
 ./cht_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **`__int128` saves you from overflow.** When comparing line intersections via cross-products, the intermediate value can easily blow `int64`. `__int128` is GCC/Clang-only but widely available.
-2. **Rule of 5 via `= delete`.** The Li Chao Tree owns heap-allocated nodes; shallow copies would double-free. Deleting the copy/assign operators is the safest minimum.
-3. **CHT is a DP-optimization pattern, not a data structure per se.** The structure is a means to an end — the algorithm shines when you see it applied to a DP problem that previously was O(n²). Try one on an Atcoder DP contest problem to feel the difference.
+- Widen before subtracting when comparing line intersections.
+- A class that owns raw pointers needs a destructor and no copying.
+- Both CHT variants are minimum-only; for the maximum, flip the comparisons.

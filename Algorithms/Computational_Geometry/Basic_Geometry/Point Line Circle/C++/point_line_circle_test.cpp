@@ -5,7 +5,7 @@
 #endif
 #include "point_line_circle.cpp"
 
-// EPS is already defined in point_line_circle.cpp
+static const double EPS = 1e-9;
 
 void testPoint() {
     Point p(1, 2);
@@ -77,11 +77,111 @@ void testGeometricFunctions() {
     assert(!pointInTriangle(p_out, a_tri, b_tri, c_tri));
 }
 
+void testOrientationDoesNotDependOnScale() {
+    double scales[] = {1e-10, 1e-5, 1.0, 1e5};
+    for (double k : scales) {
+        Point p(0, 0), q(4 * k, 4 * k);
+        assert(orientation(p, q, Point(1 * k, 2 * k)) == 2);
+        assert(orientation(p, q, Point(2 * k, 1 * k)) == 1);
+        assert(orientation(p, q, Point(2 * k, 2 * k)) == 0);
+    }
+}
+
+void testDotProduct() {
+    assert(dotProduct(Point(0, 0), Point(3, 4), Point(2, 1)) == 10);
+    assert(dotProduct(Point(1, 1), Point(2, 1), Point(1, 2)) == 0);
+}
+
+void testAngleBetweenPoints() {
+    Point o(0, 0);
+    assert(std::abs(angleBetweenPoints(o, Point(1, 0), Point(0, 1)) - M_PI / 2) < 1e-12);
+    assert(std::abs(angleBetweenPoints(o, Point(1, 0), Point(1, 1)) - M_PI / 4) < 1e-12);
+    assert(std::abs(angleBetweenPoints(o, Point(1, 0), Point(-1, 0)) - M_PI) < 1e-12);
+    assert(angleBetweenPoints(o, Point(1, 0), Point(2, 0)) == 0.0);
+    assert(angleBetweenPoints(o, o, Point(1, 1)) == 0.0);  // undefined, reported as 0
+}
+
+void testAngleIsAccurateForTinyAnglesAndTinyVectors() {
+    Point o(0, 0);
+    // acos of a clamped cosine returns 0.0 here
+    assert(std::abs(angleBetweenPoints(o, Point(1, 0), Point(1, 1e-8)) - 1e-8) < 1e-20);
+    assert(std::abs(angleBetweenPoints(o, Point(1e-10, 0), Point(0, 1e-10)) - M_PI / 2) < 1e-12);
+}
+
+void testPointInTriangleBoundaryAndOrientation() {
+    Point a(0, 0), b(4, 0), c(2, 4);
+    assert(pointInTriangle(Point(2, 0), a, b, c));  // on an edge
+    assert(pointInTriangle(a, a, b, c));            // a vertex
+    assert(pointInTriangle(Point(2, 1), a, c, b));  // clockwise triangle
+    assert(!pointInTriangle(Point(2, -1), a, b, c));
+}
+
+void testPointInDegenerateTriangleIsFalse() {
+    Point origin(0, 0);
+    assert(!pointInTriangle(Point(100, 100), origin, origin, origin));
+    assert(!pointInTriangle(Point(10, 10), Point(0, 0), Point(1, 1), Point(2, 2)));
+    assert(!pointInTriangle(Point(1, 1), Point(0, 0), Point(1, 1), Point(2, 2)));
+}
+
+void testCircleTestsDoNotDependOnScale() {
+    Circle small(Point(0, 0), 1e-5);
+    assert(!small.containsPoint(Point(3e-5, 0)));
+    assert(small.containsPoint(Point(5e-6, 0)));
+    assert(!small.pointOnCircle(Point(5e-6, 0)));
+    Circle zero(Point(0, 0), 0);
+    assert(!zero.pointOnCircle(Point(3e-5, 0)));
+    assert(zero.pointOnCircle(Point(0, 0)));
+    assert(Circle(Point(0, 0), 5).pointOnCircle(Point(3, 4)));
+    assert(Circle(Point(0, 0), 5).containsPoint(Point(3, 4)));
+}
+
+void testNegativeRadiusIsRejected() {
+    bool thrown = false;
+    try {
+        Circle bad(Point(0, 0), -5);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+}
+
+void testSlopeAndDirectionDoNotDependOnScale() {
+    Line tiny(Point(0, 0), Point(1e-10, 1e-10));
+    assert(std::abs(tiny.slope() - 1.0) < 1e-12);
+    assert(!tiny.isVertical());
+    assert(!tiny.isHorizontal());
+}
+
+void testZeroLengthLineHasNoDirection() {
+    Line dot(Point(1, 1), Point(1, 1));
+    assert(std::isnan(dot.slope()));
+    assert(!dot.isVertical());
+    assert(!dot.isHorizontal());
+    assert(dot.lengthSquared() == 0);
+    assert(Line(Point(0, 0), Point(3, 4)).lengthSquared() == 25);
+}
+
+void testPointEqualityIsExact() {
+    assert(!(Point(0, 0) == Point(5e-10, 0)));
+    assert(Point(1.5, 2.5) == Point(1.5, 2.5));
+}
+
 int main() {
     testPoint();
     testLine();
     testCircle();
     testGeometricFunctions();
+    testOrientationDoesNotDependOnScale();
+    testDotProduct();
+    testAngleBetweenPoints();
+    testAngleIsAccurateForTinyAnglesAndTinyVectors();
+    testPointInTriangleBoundaryAndOrientation();
+    testPointInDegenerateTriangleIsFalse();
+    testCircleTestsDoNotDependOnScale();
+    testNegativeRadiusIsRejected();
+    testSlopeAndDirectionDoNotDependOnScale();
+    testZeroLengthLineHasNoDirection();
+    testPointEqualityIsExact();
     std::cout << "All tests passed!" << std::endl;
     return 0;
 }

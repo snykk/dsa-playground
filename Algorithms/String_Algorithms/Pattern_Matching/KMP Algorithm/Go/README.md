@@ -1,97 +1,35 @@
-# KMP Algorithm (Go)
+# KMP Algorithm -- Go Implementation
 
-**KMP (Knuth-Morris-Pratt) Algorithm** is an efficient string matching algorithm that uses preprocessing to avoid rechecking characters that have already been matched.
+Knuth-Morris-Pratt search with an LPS table.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | package `main`: `BuildLPS`, `KMPSearch`, `KMPSearchCount`, `KMPSearchFirst`, and a demo `main` |
+| `main_test.go` | `TestKMPSearch` (table-driven: matches, overlaps, empty inputs, a pattern longer than the text) and `TestBuildLPS` |
+| `go.mod` | module `kmp` |
 
-The KMP algorithm improves upon naive pattern search by using information from previous matches to skip unnecessary comparisons. It preprocesses the pattern to build a Longest Proper Prefix which is also Suffix (LPS) array.
+## API
 
-**Key Characteristics:**
-- Efficient: O(n + m) time complexity
-- Uses preprocessing: Builds LPS array in O(m) time
-- No backtracking: Text pointer never moves backward
-- Optimal for repeated patterns
+- `BuildLPS(pattern string) []int`: the LPS table. O(m).
+- `KMPSearch(text, pattern string) []int`: all start indices, in increasing order; an empty slice for an empty pattern, an empty text, or a pattern longer than the text. O(n + m).
+- `KMPSearchCount(text, pattern string) int`: the number of occurrences.
+- `KMPSearchFirst(text, pattern string) int`: the first index or `-1`.
 
----
+## Go-Specific Notes
 
-## Complexity Analysis
+- Strings are indexed by byte, so indices are byte offsets.
+- When a valid search finds nothing, the result is a nil slice; the early exits return `[]int{}`.
+- `strings.Index` is the standard-library way to find a substring.
 
-| Aspect | Complexity |
-|--------|------------|
-| **Time** | O(n + m) |
-| **Space** | O(m) for LPS array |
-| **Preprocessing** | O(m) |
-| **Search** | O(n) |
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`BuildLPS(pattern)`**
-   - Build Longest Proper Prefix which is also Suffix array
-   - Returns LPS slice
-   - Time: O(m), Space: O(m)
-
-2. **`KMPSearch(text, pattern)`**
-   - Find all occurrences of pattern in text
-   - Returns slice of starting indices
-   - Time: O(n + m), Space: O(m)
-
-3. **`KMPSearchCount(text, pattern)`**
-   - Count occurrences of pattern in text
-   - Returns number of occurrences
-   - Time: O(n + m), Space: O(m)
-
-4. **`KMPSearchFirst(text, pattern)`**
-   - Find first occurrence of pattern in text
-   - Returns index of first occurrence, or -1 if not found
-   - Time: O(n + m), Space: O(m)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    text := "ABABDABACDABABCABC"
-    pattern := "ABABCABC"
-    
-    lps := BuildLPS(pattern)
-    occurrences := KMPSearch(text, pattern)
-    fmt.Println(occurrences)  // [10]
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## References
-
-- Knuth, D. E., Morris, J. H., & Pratt, V. R. (1977). "Fast pattern matching in strings"
-- "Introduction to Algorithms" by CLRS (Chapter 32)
-
----
-
-_Last Updated: December 2025_
-
+1. Only the pattern pointer falls back on a mismatch.
+2. `lps[j-1]` is the border to keep.

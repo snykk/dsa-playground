@@ -1,63 +1,36 @@
-# Heavy-Light Decomposition - Go
+# Heavy-Light Decomposition -- Go Implementation
 
-This folder contains a Go implementation of **Heavy-Light Decomposition (HLD)** for efficient tree path queries.
+## Files
 
----
+| File | Contents |
+|------|----------|
+| `main.go` | the `HLD` type and a demo `main()` |
+| `main_test.go` | tests (LCA, rebuild) |
+| `go.mod` | module `heavy_light_decomposition` |
 
-## Concept
+## API
 
-Heavy-Light Decomposition decomposes a tree into chains (heavy paths) to enable efficient path queries. Each path query can be answered in O(log² N) time.
+| Function | Description |
+|----------|-------------|
+| `NewHLD(n int, adj [][]int) *HLD` | stores the adjacency list of a tree on `0..n-1` |
+| `Build(root int)` | resets state and builds the decomposition |
+| `LCA(u, v int) int` | lowest common ancestor, O(log n) |
 
-**Key Features:**
-- Tree decomposition into chains
-- Efficient LCA computation
-- Path query optimization
-- O(log² N) per query
+There is no path-query or segment-tree API in Go; only `LCA`.
 
----
+## Go-Specific Notes
 
-## Functions
+- `dfsSize` and `decompose` are recursive; Go grows its stack on demand, so deep trees are fine.
+- The adjacency list is stored, not copied.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `HLD.Build(root)` | Build HLD structure | O(N) |
-| `HLD.LCA(u, v)` | Find lowest common ancestor | O(log N) |
-| `HLD.QueryPath(u, v)` | Get path segments | O(log N) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Build HLD | O(N) | O(N) |
-| LCA Query | O(log N) | O(1) |
-| Path Query | O(log² N) | O(log N) |
-
----
-
-## Usage
-
-```go
-n := 7
-adj := make([][]int, n)
-// ... build adjacency list
-
-hld := NewHLD(n, adj)
-hld.Build(0)
-
-lca := hld.LCA(3, 6)
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-go test
+go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-_Last Updated: December 2025_
-
+- The Go version implements the decomposition and LCA only.
+- `Build` resets `heavy`, `parent`, `depth`, `size` and the position counter, so it can be repeated.

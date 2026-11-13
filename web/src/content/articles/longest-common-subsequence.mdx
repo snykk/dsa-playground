@@ -1,0 +1,211 @@
+---
+topic: Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence
+title: Longest Common Subsequence
+lead: The Longest Common Subsequence (LCS) of two strings is the longest sequence of characters that appears in both in the same order, not necessarily next to each other. A table over prefixes finds its length in O(m n) time, and a walk back through the table recovers the sequence.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(m n)
+    hint: m and n are the string lengths
+  - label: Space
+    value: O(m n)
+    hint: O(min(m, n)) for the length only
+  - label: Not the same as
+    value: longest common substring
+    hint: a subsequence may skip characters
+    tone: warn
+  - label: Approach
+    value: 2D DP over prefixes
+properties:
+  - { label: Optimal substructure, value: true }
+  - { label: Overlapping subproblems, value: true }
+  - { label: Unique answer, value: false }
+  - { label: Unicode-aware in C++ and Go, value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+related:
+  - Algorithms/Dynamic_Programming/2D DP/Edit Distance
+  - Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence
+  - Algorithms/Dynamic_Programming/2D DP/0-1 Knapsack
+---
+
+## How LCS works
+
+A **subsequence** keeps the order of the characters but may skip some: `ace` is a subsequence of `abcde`, but a **substring** must be contiguous. A string of length `m` has 2<sup>m</sup> subsequences, so comparing them all is hopeless. Instead, let `dp[i][j]` be the LCS length of the first `i` characters of `s1` and the first `j` characters of `s2`.
+
+<Steps>
+  <Step title="Start with empty prefixes">
+    `dp[0][j] = 0` and `dp[i][0] = 0`: an empty string shares nothing with anything.
+  </Step>
+  <Step title="If the last characters match, extend">
+    When `s1[i-1] == s2[j-1]`, that character can end a common subsequence of the two prefixes: `dp[i][j] = dp[i-1][j-1] + 1`.
+  </Step>
+  <Step title="Otherwise skip one character">
+    The last characters cannot both be used, so drop one of them and keep the better result: `dp[i][j] = max(dp[i-1][j], dp[i][j-1])`.
+  </Step>
+  <Step title="Read the corner">
+    The LCS length is `dp[m][n]`. To get one LCS, walk back from the corner.
+  </Step>
+</Steps>
+
+<Callout title="Why a match can be taken greedily">
+If the last characters of both prefixes are equal, some longest common subsequence ends with that character. Take it and look at the remaining prefixes. Using the match is never worse than skipping both characters, so the recurrence never has to branch on a match.
+</Callout>
+
+## See it in action
+
+Press play to fill the grid. Each cell highlights the neighbors it depends on, and at the end the traceback path is colored. A diagonal step on that path is a character that belongs to the LCS. Type two strings separated by a bar.
+
+<ArticleViz ids={['lcs']} />
+
+## Worked example
+
+Find an LCS of `ABCBDAB` and `BDCAB`. The numbers below come from running `lcs_length` and `lcs_sequence` on this pair.
+
+<GridDiagram
+  corner="s1 \ s2"
+  colLabels={['-', 'B', 'D', 'C', 'A', 'B']}
+  rowLabels={['-', 'A', 'B', 'C', 'B', 'D', 'A', 'B']}
+  rows={[
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1],
+    [0, 1, 1, 1, 1, 2],
+    [0, 1, 1, 2, 2, 2],
+    [0, 1, 1, 2, 2, 3],
+    [0, 1, 2, 2, 2, 3],
+    [0, 1, 2, 2, 3, 3],
+    [0, 1, 2, 2, 3, 4],
+  ]}
+  tones={['......', '......', '......', 'l.....', '.f....', '..fl..', '....f.', '.....f']}
+  legend={{ f: 'a match: this character is in the LCS', l: 'a skip step on the traceback' }}
+/>
+
+The length is `dp[7][5] = 4`. The traceback starts at the corner and repeats:
+
+- if the characters match, record the character and move diagonally;
+- else if the cell above is strictly larger than the cell on the left, move up;
+- else move left (this is the tie rule of `lcs_sequence`).
+
+It meets matches at `B` (row 7), `A` (row 6), `D` (row 5) and `B` (row 4), and returns `BDAB` after reversing. `BCAB` is another LCS of the same length, so the answer is not unique: a different tie rule would return a different one.
+
+## Pseudocode
+
+```text
+lcsLength(s1, s2):
+    dp = (m + 1) x (n + 1) table of zeros
+    for i = 1 to m:
+        for j = 1 to n:
+            if s1[i-1] == s2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+    return dp[m][n]
+
+lcsSequence(s1, s2):                  # Python only
+    fill dp as above
+    i = m; j = n; result = []
+    while i > 0 and j > 0:
+        if s1[i-1] == s2[j-1]:
+            append s1[i-1]; i = i - 1; j = j - 1
+        elif dp[i-1][j] > dp[i][j-1]:
+            i = i - 1
+        else:
+            j = j - 1
+    return reverse(result)
+
+lcsOptimized(s1, s2):                 # Python only: two rows
+    make s2 the shorter string
+    keep prev and curr rows of n + 1 zeros, fill them row by row, swap them
+    return prev[n]
+```
+
+## Implementation
+
+Python has three functions: `lcs_length`, `lcs_sequence` (with traceback) and `lcs_optimized` (two rows, length only). C++ and Go have only the length (`lcsLength`, `LCSLength`). Python compares Unicode code points; C++ and Go compare bytes, so an accented letter that takes two bytes in UTF-8 is two characters there.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/2D DP/Longest Common Subsequence" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(m n)', when: 'Each of the (m + 1)(n + 1) cells is computed once from two or three neighbors. The traceback adds O(m + n).' },
+    { case: 'Space (table)', time: 'O(m n)', space: 'O(m n)', when: 'Needed to recover the sequence in this code.' },
+    { case: 'Space (two rows)', time: 'O(m n)', space: 'O(min(m, n))', when: 'Row i depends only on row i-1; lcs_optimized keeps two rows of the shorter length. It gives the length only.' },
+  ]}
+/>
+
+Without the table, the recursion on a mismatch branches twice:
+
+<Equation label="Plain recursion, worst case" expr="T(m, n) = T(m-1, n) + T(m, n-1) + O(1)" result="O(2^(m+n))" />
+
+The same prefix pairs repeat, but there are only (m + 1)(n + 1) distinct ones, which is where the table bound comes from. Hirschberg's algorithm recovers the sequence in O(min(m, n)) space at about twice the time, but it is not in this repository.
+
+## LCS and its relatives
+
+<DataTable
+  columns={['Problem', 'Characters may be skipped?', 'Recurrence on a mismatch', { label: 'Time', kind: 'mono' }]}
+  highlight={0}
+  rows={[
+    ['Longest Common Subsequence', 'yes', 'max(up, left)', 'O(m n)'],
+    ['Longest Common Substring', 'no (contiguous)', 'reset the cell to 0', 'O(m n)'],
+    ['Edit Distance', 'yes, at a cost of 1 per edit', '1 + min(up, left, diagonal)', 'O(m n)'],
+    ['Shortest Common Supersequence', 'builds a string that contains both', 'length m + n - LCS', 'O(m n)'],
+    ['Longest Increasing Subsequence', 'one sequence, ordered by value', 'O(n log n) with tails', 'O(n log n)'],
+  ]}
+/>
+
+LCS is the edit distance with only inserts and deletes: that distance equals `m + n - 2 * LCS`.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Exact answer with a short, easy-to-verify recurrence.',
+    'The table gives both the length and, by traceback, an actual subsequence.',
+    'The same shape solves many string problems: edit distance, supersequences, diffs.',
+    'Memory drops to O(min(m, n)) when only the length is needed.',
+  ]}
+  cons={[
+    'Quadratic time and memory: too slow for strings of millions of characters.',
+    'The answer is not unique, and the code returns only one LCS.',
+    'Works on exactly two sequences; more sequences make it exponential in their number.',
+    'Byte versus character semantics differ between the languages here.',
+  ]}
+/>
+
+## Applications
+
+- **File comparison.** Diff tools show the lines that are not in the common subsequence of two files.
+- **Sequence similarity.** In bioinformatics, the LCS of two DNA strings is a simple similarity score.
+- **Version control and merging.** Finding what two revisions share is an LCS-style problem.
+- **Related problems.** Uncrossed Lines is the LCS in disguise, and the shortest common supersequence is built from the LCS.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Confusing subsequence and substring.** For a substring, a mismatch sets the cell to 0 and the answer is the largest cell.
+- **Off-by-one on indices.** The table is one larger than the strings: compare `s1[i-1]` with `s2[j-1]` for `dp[i][j]`.
+- **Using the two-row version for the sequence.** It forgets the earlier rows, so there is nothing to trace back.
+- **Expecting a unique answer.** `BCAB` and `BDAB` are both correct for the worked example.
+- **Bytes versus characters.** In C++ and Go a multi-byte character is compared byte by byte.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What is the difference between a subsequence and a substring?">
+    A substring is a contiguous block (`ell` in `hello`). A subsequence only keeps the order (`hlo` in `hello`). Every substring is a subsequence, so the LCS is at least as long as the longest common substring.
+  </FaqItem>
+  <FaqItem question="How do I get the sequence, not just the length?">
+    Keep the whole table and walk back from `dp[m][n]`: on a match, take the character and go diagonally; otherwise move toward the larger neighbor. `lcs_sequence` in Python does exactly this.
+  </FaqItem>
+  <FaqItem question="Why does the LCS code return different strings for different tie rules?">
+    When the cell above and the cell on the left are equal, both directions lead to a common subsequence of the same length. Which one you follow only changes which LCS you get.
+  </FaqItem>
+  <FaqItem question="Can I do better than O(m n)?">
+    For general strings, no strongly subquadratic algorithm is known. Bit-parallel versions pack the table into machine words and run about a word-size factor faster, and special cases (few matches, small alphabet) have faster algorithms.
+  </FaqItem>
+</Faq>

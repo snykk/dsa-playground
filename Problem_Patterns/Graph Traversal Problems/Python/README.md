@@ -1,35 +1,37 @@
-# Graph Traversal in Python
+# Graph Traversal Problems -- Python Implementation
 
-Implementation of graph traversal algorithms in Python3.
+BFS, DFS, flood fill and Kahn's topological sort. See the [topic README](../README.md) for the ideas.
 
-## Features
+## Files
 
-1.  **BFS**: Shortest path in unweighted graph.
-2.  **DFS**: Recursive traversal.
-3.  **Flood Fill**: Number of Islands problem.
-4.  **Topological Sort**: Kahn's algorithm for dependency resolution.
+| File | Contents |
+|------|----------|
+| `graph_traversal.py` | The four algorithms and a demo `main` |
+| `graph_traversal_test.py` | Unit tests, including sink nodes and deep inputs |
 
-## Usage
+## API
 
-```python
-from graph_traversal import bfs_shortest_path, num_islands
+- `bfs_shortest_path(graph, start, target)`: edges on a shortest path, 0 if equal, -1 if `start` is missing or the target is unreachable. The target need not be a key of `graph`.
+- `get_dfs_traversal(graph, start)`: preorder list using an explicit stack; neighbours in list order. Empty list if `start` is missing.
+- `dfs_recursive(graph, node, visited, result)`: the recursive helper; limited by Python's recursion depth.
+- `num_islands(grid)`: connected `'1'` regions (4-neighbour); modifies `grid`.
+- `topological_sort(n, edges)`: Kahn's order for nodes `0..n-1` and edges `[u, v]`; empty list on a cycle or `n <= 0`.
 
-# BFS
-graph = {0: [1, 2], 1: [3], 2: [3], 3: []}
-dist = bfs_shortest_path(graph, 0, 3) # Output: 2
+## Python-Specific Notes
 
-# Number of Islands
-grid = [
-    ["1","1","0"],
-    ["0","0","1"]
-]
-count = num_islands(grid) # Output: 2
-```
+- The graph is a `dict` from node to neighbour list.
+- DFS and flood fill avoid recursion, so 1,500-node paths and 60 by 60 grids work.
+- `num_islands` writes `'0'` into the grid; call it on a copy such as `[row[:] for row in grid]`.
 
-## Testing
-
-Run the written unit tests:
+## How to Run
 
 ```bash
-python graph_traversal_test.py
+python3 -m unittest graph_traversal_test
+python3 graph_traversal.py
 ```
+
+## Key Takeaways
+
+- Use a deque for BFS and a list as a stack for DFS.
+- Mark nodes visited when they enter the frontier.
+- An empty topological order means a cycle.

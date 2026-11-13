@@ -2,7 +2,7 @@
 Strassen's Matrix Multiplication Implementation
 
 Strassen's algorithm is a divide and conquer algorithm for matrix multiplication
-that reduces the time complexity from O(n³) to O(n^log₂ 7) ≈ O(n^2.81).
+that reduces the time complexity from O(n^3) to O(n^log2(7)) ~ O(n^2.81).
 """
 
 
@@ -15,10 +15,10 @@ def matrix_multiply_naive(A, B):
         B: Second matrix (n x n)
         
     Returns:
-        Product matrix C = A × B
+        Product matrix C = A x B
         
-    Time Complexity: O(n³)
-    Space Complexity: O(n²)
+    Time Complexity: O(n^3)
+    Space Complexity: O(n^2)
     """
     n = len(A)
     C = [[0 for _ in range(n)] for _ in range(n)]
@@ -76,14 +76,14 @@ def strassen_multiply(A, B):
     Multiply two matrices using Strassen's algorithm
     
     Args:
-        A: First matrix (n x n, n must be power of 2)
-        B: Second matrix (n x n, n must be power of 2)
+        A: First matrix (n x n)
+        B: Second matrix (n x n)
         
     Returns:
-        Product matrix C = A × B
+        Product matrix C = A x B
         
-    Time Complexity: O(n^log₂ 7) ≈ O(n^2.81)
-    Space Complexity: O(n²)
+    Time Complexity: O(n^log2(7)) ~ O(n^2.81)
+    Space Complexity: O(n^2)
     """
     n = len(A)
     
@@ -95,30 +95,36 @@ def strassen_multiply(A, B):
     if n <= 64:  # Threshold can be tuned
         return matrix_multiply_naive(A, B)
     
+    # An odd size cannot be split into equal quadrants: pad by one zero row and
+    # column, multiply, and cut the padding off again.
+    if n % 2 == 1:
+        C = strassen_multiply(pad_matrix(A, n + 1), pad_matrix(B, n + 1))
+        return [row[:n] for row in C[:n]]
+    
     # Split matrices into quadrants
     A11, A12, A21, A22 = split_matrix(A)
     B11, B12, B21, B22 = split_matrix(B)
     
     # Calculate 7 products (Strassen's key insight)
-    # P1 = A11 × (B12 - B22)
+    # P1 = A11 x (B12 - B22)
     P1 = strassen_multiply(A11, matrix_subtract(B12, B22))
     
-    # P2 = (A11 + A12) × B22
+    # P2 = (A11 + A12) x B22
     P2 = strassen_multiply(matrix_add(A11, A12), B22)
     
-    # P3 = (A21 + A22) × B11
+    # P3 = (A21 + A22) x B11
     P3 = strassen_multiply(matrix_add(A21, A22), B11)
     
-    # P4 = A22 × (B21 - B11)
+    # P4 = A22 x (B21 - B11)
     P4 = strassen_multiply(A22, matrix_subtract(B21, B11))
     
-    # P5 = (A11 + A22) × (B11 + B22)
+    # P5 = (A11 + A22) x (B11 + B22)
     P5 = strassen_multiply(matrix_add(A11, A22), matrix_add(B11, B22))
     
-    # P6 = (A12 - A22) × (B21 + B22)
+    # P6 = (A12 - A22) x (B21 + B22)
     P6 = strassen_multiply(matrix_subtract(A12, A22), matrix_add(B21, B22))
     
-    # P7 = (A11 - A21) × (B11 + B12)
+    # P7 = (A11 - A21) x (B11 + B12)
     P7 = strassen_multiply(matrix_subtract(A11, A21), matrix_add(B11, B12))
     
     # Calculate result quadrants
@@ -171,7 +177,7 @@ def strassen_multiply_general(A, B):
         B: Second matrix (n x p)
         
     Returns:
-        Product matrix C = A × B (m x p)
+        Product matrix C = A x B (m x p)
     """
     m, n1 = len(A), len(A[0])
     n2, p = len(B), len(B[0])

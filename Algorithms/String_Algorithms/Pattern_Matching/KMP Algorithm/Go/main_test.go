@@ -11,6 +11,12 @@ func TestKMPSearch(t *testing.T) {
 		{"ABABDABACDABABCABC", "ABABCABC", []int{10}},
 		{"AABAACAADAABAABA", "AABA", []int{0, 9, 12}},
 		{"ABCDEFG", "XYZ", []int{}},
+		{"aaaa", "aa", []int{0, 1, 2}},
+		{"ABABABA", "ABABA", []int{0, 2}},
+		{"ABC", "", []int{}},
+		{"", "A", []int{}},
+		{"AB", "ABC", []int{}},
+		{"xxabc", "abc", []int{2}},
 	}
 
 	for _, tt := range tests {
@@ -50,4 +56,3 @@ func equal(a, b []int) bool {
 	}
 	return true
 }
-

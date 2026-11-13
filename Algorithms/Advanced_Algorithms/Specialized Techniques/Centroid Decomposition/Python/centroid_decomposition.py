@@ -17,20 +17,32 @@ class CentroidDecomposition:
         self.parent = [-1] * n
     
     def dfs_size(self, u: int, p: int) -> int:
-        """Calculate subtree sizes."""
-        self.size[u] = 1
-        for v in self.adj[u]:
-            if v != p and not self.removed[v]:
-                self.size[u] += self.dfs_size(v, u)
+        """Calculate subtree sizes (iterative, so deep trees are safe)."""
+        order = [u]
+        par = {u: p}
+        i = 0
+        while i < len(order):
+            x = order[i]
+            i += 1
+            self.size[x] = 1
+            for v in self.adj[x]:
+                if v != par[x] and not self.removed[v]:
+                    par[v] = x
+                    order.append(v)
+        for x in reversed(order[1:]):
+            self.size[par[x]] += self.size[x]
         return self.size[u]
-    
+
     def find_centroid(self, u: int, p: int, total: int) -> int:
-        """Find centroid of subtree."""
-        for v in self.adj[u]:
-            if v != p and not self.removed[v] and self.size[v] > total // 2:
-                return self.find_centroid(v, u, total)
-        return u
-    
+        """Find centroid of subtree (walk towards the heavy child)."""
+        while True:
+            for v in self.adj[u]:
+                if v != p and not self.removed[v] and self.size[v] > total // 2:
+                    p, u = u, v
+                    break
+            else:
+                return u
+
     def decompose(self, u: int, p: int):
         """Decompose tree starting from centroid."""
         total = self.dfs_size(u, -1)
@@ -44,7 +56,9 @@ class CentroidDecomposition:
                 self.decompose(v, centroid)
     
     def build(self, root: int = 0):
-        """Build centroid decomposition."""
+        """Build centroid decomposition (safe to call more than once)."""
+        self.removed = [False] * self.n
+        self.parent = [-1] * self.n
         self.decompose(root, -1)
     
     def get_centroid_tree(self) -> List[List[int]]:

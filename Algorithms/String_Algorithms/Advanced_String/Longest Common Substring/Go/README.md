@@ -1,83 +1,33 @@
-# Longest Common Substring (Go)
+# Longest Common Substring -- Go Implementation
 
-**Longest Common Substring** finds the longest substring that appears in both strings using dynamic programming.
+Dynamic-programming search for the longest run of characters shared by two strings.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | package `main`: `LongestCommonSubstring` and a demo `main` |
+| `main_test.go` | a table-driven test with exact expected results: the basic case, no common substring, identical strings, one shared character, empty inputs, tie-breaking, overlap, subsequence versus substring |
+| `go.mod` | module `longest_common_substring` |
 
-The longest common substring problem finds the longest contiguous substring that appears in both input strings. This implementation uses dynamic programming with a 2D table to track matching substrings.
+## API
 
-**Key Characteristics:**
-- Finds longest common substring between two strings
-- Time: O(m × n) time complexity
-- Space: O(m × n)
-- Uses dynamic programming
+- `LongestCommonSubstring(s1, s2 string) string`: the longest common substring, or `""` if there is none. Among equally long answers, the one that ends first in `s1` wins.
 
----
+## Go-Specific Notes
 
-## Complexity Analysis
+- Strings are indexed by byte, so a multi-byte UTF-8 character can be split by the answer; convert to `[]rune` for character-level results.
+- The table is a slice of slices built row by row: O(m*n) time and space.
+- Slicing the result (`s1[endI-maxLen : endI]`) shares memory with `s1`.
+- Only the substring is returned, not its position.
 
-| Aspect | Complexity |
-|--------|------------|
-| **Time** | O(m × n) |
-| **Space** | O(m × n) |
-
-Where:
-- m = length of first string
-- n = length of second string
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`LongestCommonSubstring(s1, s2)`**
-   - Find longest common substring between two strings
-   - Returns the longest common substring as a string
-   - Time: O(m × n), Space: O(m × n)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    s1 := "ABABC"
-    s2 := "BABCA"
-    
-    result := LongestCommonSubstring(s1, s2)
-    fmt.Println("Longest Common Substring:", result)  // "BABC" or "ABCA"
-}
-```
-
----
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test -v ./...
 ```
 
----
+## Key Takeaways
 
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. Reset to 0 on a mismatch; the answer is the largest cell.
+2. Two rolling rows would reduce the memory to O(min(m, n)).

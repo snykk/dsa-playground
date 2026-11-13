@@ -13,7 +13,7 @@ class MoSAlgorithm:
     def __init__(self, arr: List[int]):
         self.arr = arr
         self.n = len(arr)
-        self.block_size = int(sqrt(self.n))
+        self.block_size = max(1, int(sqrt(self.n)))
     
     def get_block(self, index: int) -> int:
         """Get block number for given index."""
