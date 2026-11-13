@@ -8,14 +8,14 @@ export const entries: VizInfo[] = [
     title: 'Binary Search Tree',
     group: 'Trees',
     blurb: 'Insert, search and delete by walking left or right; deletion uses the in-order successor.',
-    topics: ['Data_Structures/Non_Linear/Trees/Binary_Search_Tree'],
+    topics: ['Data_Structures/Non_Linear/Trees/Binary_Search_Tree', 'Data_Structures/Non_Linear/Trees'],
   },
   {
     id: 'avl',
     title: 'AVL Tree',
     group: 'Trees',
     blurb: 'Watch balance factors and the four rotation cases keep the height logarithmic.',
-    topics: ['Data_Structures/Non_Linear/Trees/AVL_Tree'],
+    topics: ['Data_Structures/Non_Linear/Trees/AVL_Tree', 'Data_Structures/Non_Linear/Trees'],
   },
 ];
 

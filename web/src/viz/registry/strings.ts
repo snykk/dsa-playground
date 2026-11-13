@@ -8,7 +8,7 @@ export const entries: VizInfo[] = [
     title: 'Knuth-Morris-Pratt',
     group: 'Strings',
     blurb: 'Build the failure (LPS) table, then reuse it so the text pointer never moves backwards.',
-    topics: ['Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm'],
+    topics: ['Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm', 'Algorithms/String_Algorithms/Pattern_Matching'],
   },
   {
     id: 'naive-search',
@@ -36,7 +36,7 @@ export const entries: VizInfo[] = [
     title: 'Z-Algorithm',
     group: 'Strings',
     blurb: 'Build the Z-array of pattern$text, reusing the Z-box so every character is compared O(1) times.',
-    topics: ['Algorithms/String_Algorithms/Advanced_String/Z_Algorithm'],
+    topics: ['Algorithms/String_Algorithms/Advanced_String/Z_Algorithm', 'Algorithms/String_Algorithms/Advanced_String'],
   },
 ];
 
