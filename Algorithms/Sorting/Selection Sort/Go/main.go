@@ -13,7 +13,9 @@ func SelectionSort(arr []int) {
 			}
 		}
 		
-		arr[i], arr[minIdx] = arr[minIdx], arr[i]
+		if minIdx != i { // skip self-swaps: at most n - 1 swaps in total
+			arr[i], arr[minIdx] = arr[minIdx], arr[i]
+		}
 	}
 }
 

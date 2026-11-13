@@ -1,0 +1,205 @@
+---
+topic: Algorithms/Sorting/Radix Sort
+title: Radix Sort
+lead: Radix Sort sorts integers one digit at a time, from the least significant digit to the most significant, using a stable counting sort for each digit. It never compares two numbers, and it runs in O(d (n + b)) time for numbers with d digits in base b.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(d (n + b))
+    hint: d digits, base b (10 here)
+  - label: Extra space
+    value: O(n + b)
+  - label: Needs
+    value: A stable digit sort
+    hint: an unstable one gives wrong results
+    tone: warn
+  - label: Approach
+    value: LSD, one counting sort per digit
+properties:
+  - { label: In-place, value: false }
+  - { label: Stable, value: true }
+  - { label: Comparison sort, value: false }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+  - Algorithms/Sorting/Counting Sort
+related:
+  - Algorithms/Sorting/Counting Sort
+  - Algorithms/Sorting/Bucket Sort
+  - Algorithms/Sorting/Quick Sort
+  - Algorithms/Sorting/Merge Sort
+---
+
+## How Radix Sort works
+
+Sorting by the whole number is hard; sorting by one digit is easy, because there are only ten possible digits. LSD (least significant digit) Radix Sort sorts by the last digit first, then by the next digit, and so on up to the most significant one. After the pass for digit `d`, the array is sorted by the last `d` digits, and each pass leaves the earlier order intact for numbers whose current digit is equal.
+
+<Steps>
+  <Step title="Make every key non-negative">
+    If the smallest value is negative, each pass uses the key `value - min` instead of the value. Shifting by a constant keeps the order and makes every key `>= 0`. With no negatives the key is the value itself.
+  </Step>
+  <Step title="Find the number of digits">
+    Compute the largest key. Its number of decimal digits is the number of passes.
+  </Step>
+  <Step title="Sort by one digit, stably">
+    For `exp = 1, 10, 100, ...` run a counting sort on the digit `(key / exp) % 10`. The counting sort must be stable.
+  </Step>
+</Steps>
+
+<Callout title="Why stability is the whole trick">
+When the pass for the tens digit runs, two numbers with the same tens digit must stay in the order the units pass gave them, because that order is the correct order of their last digit. A stable sort guarantees this. With an unstable digit sort the earlier work is scrambled and the final order is wrong.
+</Callout>
+
+## See it in action
+
+Press play, or step through one phase at a time. Blue marks a value being read, orange a value being written, grey the values already handled, and aqua the values in their final position. The Equal digits (stability) example shows numbers sharing a digit keeping their relative order.
+
+<ArticleViz ids={['radix-sort']} />
+
+## Worked example
+
+Sorting `[170, 45, 75, 90, 802, 24, 2, 66]` needs three passes, because the largest value has three digits. Each row is the array after one stable pass.
+
+<ArrayDiagram
+  legend={{ l: 'equal in the digit just sorted: kept in their earlier order', f: 'sorted' }}
+  rows={[
+    { label: 'input', values: [170, 45, 75, 90, 802, 24, 2, 66], tones: '........' },
+    { label: 'by units', values: [170, 90, 802, 2, 24, 45, 75, 66], tones: '........', note: 'Units digits in order: 0, 0, 2, 2, 4, 5, 5, 6. Ties keep the input order (170 before 90, 802 before 2, 45 before 75).' },
+    { label: 'by tens', values: [802, 2, 24, 45, 66, 170, 75, 90], tones: '.....ll.', note: 'Tens digits: 0, 0, 2, 4, 6, 7, 7, 9. 170 and 75 both have tens digit 7 and keep the order of the previous pass.' },
+    { label: 'by hundreds', values: [2, 24, 45, 66, 75, 90, 170, 802], tones: 'ffffffff', note: 'Hundreds digits: 0 for the first six, 1 for 170, 8 for 802. Sorted.' },
+  ]}
+/>
+
+Look at 170 and 75 in the middle row. After the units pass 170 stands before 75. The tens pass keeps that order for their shared tens digit 7, so 170 precedes 75 and the hundreds pass finishes the job.
+
+## Pseudocode
+
+```text
+radixSort(arr):
+    if arr is empty: return
+    offset = min(min(arr), 0)               # shift so that every key >= 0
+    maxKey = max(arr) - offset
+    exp = 1
+    while maxKey / exp > 0:                 # one pass per decimal digit
+        countingSortByDigit(arr, exp, offset)
+        exp = exp * 10
+
+countingSortByDigit(arr, exp, offset):
+    digit(v) = ((v - offset) / exp) % 10
+    count[0..9] = 0
+    for v in arr: count[digit(v)] += 1
+    for i = 1 to 9: count[i] += count[i - 1]
+    for i = length(arr) - 1 down to 0:      # back to front keeps it stable
+        count[digit(arr[i])] -= 1
+        output[count[digit(arr[i])]] = arr[i]
+    copy output back into arr
+```
+
+## Implementation
+
+All three versions are LSD base 10, sort in place, and support negative values through the `value - min` shift. They differ in how they stay safe near the limits of the integer type:
+
+- Python integers do not overflow, so it needs no special care.
+- C++ keeps the key and the exponent in `long long`, so values up to `INT_MAX` (where `exp * 10` would overflow a 32-bit `int`) and a spread from `INT_MIN` to `INT_MAX` work.
+- Go uses `uint64` for the key and the exponent, and stops the loop before `exp * 10` could overflow.
+
+Python and C++ expose the per-digit counting sort (`counting_sort_by_digit`, `countingSortByDigit`); in Go it is unexported.
+
+<TopicCode topic="Algorithms/Sorting/Radix Sort" />
+
+## Complexity analysis
+
+There are `d` passes, one per digit of the largest key. Each pass is a counting sort over `n` elements with `b = 10` possible digits, so it costs <BigO of="n + b" />.
+
+<Equation label="Total time" expr="T(n) = d * O(n + b)" result="O(d (n + b))" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(d (n + b))', space: 'O(n + b)', when: 'The cost depends on the number of digits, not on the order of the input. If every value is 0 there are no passes at all.' },
+    { case: 'Average case', time: 'O(d (n + b))', space: 'O(n + b)', when: 'The same loops run on any input with the same n and d.' },
+    { case: 'Worst case', time: 'O(d (n + b))', space: 'O(n + b)', when: 'A spread of values with many digits: d grows as log10 of the largest key.' },
+  ]}
+/>
+
+The space is the output array of `n` elements plus the 10 counters. For keys below `n^c` for a constant `c`, `d` is about `c log<sub>b</sub> n`, so a larger base cuts the number of passes at the cost of a bigger count array. With a fixed `d` it is linear in `n`.
+
+<Callout title="d is not a constant for free">
+Radix Sort is linear only when the number of digits is small. For `n` distinct integers the keys need at least `log<sub>10</sub>(n)` digits, so the time is `n log n` in disguise. It still beats comparison sorts when the digit count is small and the constants are low, such as 32-bit keys sorted in base 256.
+</Callout>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Notes']}
+  rows={[
+    ['LSD, base 10 (this repository)', 'least significant digit first, stable counting sort per digit', 'works on any non-negative key after the shift'],
+    ['Other bases', 'base 16 or 256: fewer passes, bigger count array', 'not implemented here; the base is fixed at 10'],
+    ['MSD radix sort', 'most significant digit first, recursing into groups', 'good for strings and variable-length keys; not implemented here'],
+    ['Shift by minimum (this repository)', 'use `value - min` as the key when there are negatives', 'preserves order; adds no passes beyond the extra digits of `max - min`'],
+  ]}
+/>
+
+## Radix Sort vs other sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Works on']}
+  highlight={0}
+  rows={[
+    ['Radix Sort', 'O(d (n + b))', 'O(n + b)', 'Yes', 'integers with a limited number of digits'],
+    ['Counting Sort', 'O(n + k)', 'O(n + k)', 'Yes', 'integers in a small range'],
+    ['Bucket Sort', 'O(n + k) average', 'O(n + k)', 'Depends', 'numbers spread evenly over a range'],
+    ['Quick Sort', 'O(n log n) average', 'O(log n)', 'No', 'anything comparable'],
+    ['Merge Sort', 'O(n log n)', 'O(n)', 'Yes', 'anything comparable'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear in n for a fixed number of digits: it beats O(n log n) comparison sorts on large integer arrays.',
+    'Stable.',
+    'Handles a huge value range with small counting arrays: only 10 counters, not one per value.',
+    'Running time does not depend on the order of the input.',
+  ]}
+  cons={[
+    'Only for integers (or keys that map to them) in this version.',
+    'Needs O(n) extra memory for the output of each pass.',
+    'Slower than expected on short arrays: d full passes have overhead.',
+    'Time grows with the number of digits, so values of very different sizes cost more.',
+  ]}
+/>
+
+## Applications
+
+- **Large arrays of integers.** Sorting many 32-bit or 64-bit keys, usually with a larger base such as 256 to cut the passes.
+- **Fixed-length keys.** Phone numbers, ZIP codes, dates written as numbers, IDs.
+- **Multi-key sorting.** Sorting records by several keys stably, least significant key first, is the same idea.
+- **As a building block.** Suffix-array construction algorithms use radix sort on pairs of ranks.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **An unstable digit sort.** Any inner sort that can reorder equal digits breaks the result. Place elements back to front with prefix sums.
+- **Most significant digit first with the same loop.** LSD only works from the least significant digit; MSD needs recursion into groups.
+- **Negative numbers.** A negative value gives a negative digit (or, in Python, the wrong digit, because `%` returns a non-negative result). Shift by the minimum first, as the repository code does.
+- **Overflow of the exponent.** `exp * 10` overflows a 32-bit `int` when the maximum is 10^9 or more; use 64-bit values.
+- **Stopping one pass too early.** The loop must run while `maxKey / exp > 0`, so the highest digit is included.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does LSD Radix Sort start from the least significant digit?">
+    Because the last pass decides the most important digit, and each earlier pass only has to break ties. Sorting the least significant digit first, with a stable sort, means that the final pass leaves equal high digits ordered by the lower digits.
+  </FaqItem>
+  <FaqItem question="Does it work with negative numbers?">
+    Yes here: the code subtracts the minimum from every value (when it is negative) to get non-negative keys with the same order, and sorts those keys. The values themselves are not changed.
+  </FaqItem>
+  <FaqItem question="Is Radix Sort faster than Quick Sort?">
+    It can be for large arrays of fixed-width integers, because its work grows like `d * n` instead of `n log n`. For small arrays or keys with many digits, a comparison sort is usually as fast or faster.
+  </FaqItem>
+  <FaqItem question="Why does it need Counting Sort?">
+    Each pass sorts keys that have only 10 possible values, which is exactly what Counting Sort does in linear time, and it is stable. Radix Sort is Counting Sort applied once per digit.
+  </FaqItem>
+</Faq>

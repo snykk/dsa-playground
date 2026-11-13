@@ -49,6 +49,17 @@ class TestCountSetBits(unittest.TestCase):
         self.assertEqual(count_set_bits(2**20), 1)
 
 
+class TestNegativeInputs(unittest.TestCase):
+    def test_negative_counts_as_64_bit_twos_complement(self):
+        # Regression: these used to loop forever (Python ints have infinite
+        # sign bits). Now they match the C++ and Go versions.
+        self.assertEqual(count_set_bits(-1), 64)
+        self.assertEqual(count_set_bits(-8), 61)
+        self.assertEqual(count_set_bits(-(1 << 63)), 1)
+        self.assertEqual(count_differing_bits(-1, 0), 64)
+        self.assertEqual(count_differing_bits(-1, -1), 0)
+
+
 class TestGetBit(unittest.TestCase):
     def test_basic(self):
         # 13 = 1101

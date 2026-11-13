@@ -66,10 +66,10 @@ class TestAhoCorasick(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_duplicate_patterns(self):
-        # Same pattern inserted twice should still return exactly one entry per occurrence.
+        # A pattern inserted twice is stored twice, so each occurrence is reported once per copy.
         ac = AhoCorasick(["abc", "abc"])
         matches = ac.search("abc")
-        self.assertEqual(len(matches), 2)  # both copies stored → both reported
+        self.assertEqual(len(matches), 2)  # both copies stored, so both are reported
 
     def test_single_character_patterns(self):
         ac = AhoCorasick(["a", "b"])
@@ -83,9 +83,9 @@ class TestAhoCorasick(unittest.TestCase):
                          {(9, "abcdefgh")})
 
     def test_unicode(self):
-        ac = AhoCorasick(["αβ", "βγ"])
-        result = matches_set(ac.search("αβγ"))
-        self.assertEqual(result, {(1, "αβ"), (2, "βγ")})
+        ac = AhoCorasick(["\N{GREEK SMALL LETTER ALPHA}\N{GREEK SMALL LETTER BETA}", "\N{GREEK SMALL LETTER BETA}\N{GREEK SMALL LETTER GAMMA}"])
+        result = matches_set(ac.search("\N{GREEK SMALL LETTER ALPHA}\N{GREEK SMALL LETTER BETA}\N{GREEK SMALL LETTER GAMMA}"))
+        self.assertEqual(result, {(1, "\N{GREEK SMALL LETTER ALPHA}\N{GREEK SMALL LETTER BETA}"), (2, "\N{GREEK SMALL LETTER BETA}\N{GREEK SMALL LETTER GAMMA}")})
 
 
 if __name__ == "__main__":

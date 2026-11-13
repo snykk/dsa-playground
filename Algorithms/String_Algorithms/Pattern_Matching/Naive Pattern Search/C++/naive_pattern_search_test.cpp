@@ -90,6 +90,13 @@ void testFirstOccurrenceNotFound() {
     assert(first == -1);
 }
 
+void testOverlapsAndWorstCase() {
+    assert((naivePatternSearch("aaaa", "aa") == std::vector<int>{0, 1, 2}));
+    assert((naivePatternSearch("ABABABA", "ABABA") == std::vector<int>{0, 2}));
+    assert((naivePatternSearch(std::string(19, 'A') + "B", "AAAAB") == std::vector<int>{15}));
+    assert((naivePatternSearch("xxabc", "abc") == std::vector<int>{2}));
+}
+
 int main() {
     testBasicSearch();
     testMultipleOccurrences();
@@ -102,6 +109,7 @@ int main() {
     testCount();
     testFirstOccurrence();
     testFirstOccurrenceNotFound();
+    testOverlapsAndWorstCase();
     
     std::cout << "All tests passed!" << std::endl;
     return 0;

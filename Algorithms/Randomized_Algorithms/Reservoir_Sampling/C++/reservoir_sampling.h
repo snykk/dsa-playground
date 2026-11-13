@@ -6,6 +6,7 @@
 #ifndef RESERVOIR_SAMPLING_H
 #define RESERVOIR_SAMPLING_H
 
+#include <cstdint>
 #include <random>
 #include <stdexcept>
 #include <vector>
@@ -27,20 +28,21 @@ class ReservoirSampler {
             reservoir_.push_back(item);
             return;
         }
-        std::uniform_int_distribution<int> dist(0, seen_ - 1);
-        int j = dist(rng_);
-        if (j < k_) {
+        // 64-bit counter and distribution: a stream can be longer than 2^31 - 1.
+        std::uniform_int_distribution<std::uint64_t> dist(0, seen_ - 1);
+        std::uint64_t j = dist(rng_);
+        if (j < static_cast<std::uint64_t>(k_)) {
             reservoir_[j] = item;
         }
     }
 
     std::vector<T> sample() const { return reservoir_; }
     int size() const { return static_cast<int>(reservoir_.size()); }
-    int seen() const { return seen_; }
+    std::uint64_t seen() const { return seen_; }
 
  private:
     int k_;
-    int seen_;
+    std::uint64_t seen_;
     std::mt19937 rng_;
     std::vector<T> reservoir_;
 };

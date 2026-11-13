@@ -16,7 +16,7 @@ def selection_sort(arr):
     Returns:
         The sorted array (same reference as input)
         
-    Time Complexity: O(n²)
+    Time Complexity: O(n^2)
     Space Complexity: O(1)
     """
     n = len(arr)
@@ -30,7 +30,9 @@ def selection_sort(arr):
                 min_idx = j
         
         # Swap the found minimum element with the first element
-        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+        # (skipped when it is already there: at most n - 1 swaps in total)
+        if min_idx != i:
+            arr[i], arr[min_idx] = arr[min_idx], arr[i]
     
     return arr
 

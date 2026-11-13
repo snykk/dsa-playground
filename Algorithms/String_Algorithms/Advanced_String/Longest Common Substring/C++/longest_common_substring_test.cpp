@@ -11,7 +11,7 @@ void testBasic() {
     std::string s1 = "ABABC";
     std::string s2 = "BABCA";
     std::string result = longestCommonSubstring(s1, s2);
-    assert(result == "BABC" || result == "ABCA");
+    assert(result == "BABC");
     assert(result.length() == 4);
 }
 
@@ -50,6 +50,13 @@ void testBothEmpty() {
     assert(result.empty());
 }
 
+void testTieGoesToTheEarlierSubstring() {
+    // "abc" and "xyz" both have length 3; "abc" ends first in s1.
+    assert(longestCommonSubstring("abcxyz", "xyzabc") == "abc");
+    // Overlapping candidates must not be mistaken for a longer run.
+    assert(longestCommonSubstring("aaaa", "aa") == "aa");
+}
+
 int main() {
     testBasic();
     testNoCommonSubstring();
@@ -57,6 +64,7 @@ int main() {
     testSingleCharCommon();
     testEmptyString();
     testBothEmpty();
+    testTieGoesToTheEarlierSubstring();
     
     std::cout << "All tests passed!" << std::endl;
     return 0;

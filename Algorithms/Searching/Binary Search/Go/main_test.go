@@ -115,4 +115,3 @@ func TestBinarySearchLastOccurrence(t *testing.T) {
 		t.Errorf("Expected 3, got %d", result)
 	}
 }
-

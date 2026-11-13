@@ -1,116 +1,43 @@
-# DFS (Depth-First Search) - Go
+# DFS -- Go Implementation
 
-**DFS (Depth-First Search)** is a graph traversal algorithm that explores as far as possible along each branch before backtracking.
+Depth-First Search over `map[int][]int`, with slices as stacks.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | the four DFS functions (`package main`, no `main` function) |
+| `main_test.go` | 15 tests (`go test`) |
+| `go.mod` | module definition |
 
-DFS implementation in Go using:
-- Slices for stack operations
-- `map[int][]int` for adjacency list representation
-- `map[int]bool` for visited tracking
+## API
 
----
+| Function | Returns |
+|----------|---------|
+| `DFSAdjacencyList(graph, start)` | `[]int` in DFS order (stack, marks on pop); empty if `start` is not a key |
+| `DFSRecursive(graph, start)` | the textbook recursive order, using real recursion |
+| `DFSWithPath(graph, start, target)` | the first path found in DFS order; empty if none; `[]int{start}` when `start == target` |
+| `DFSDetectCycle(graph, directed)` | `true` if the graph has a cycle |
 
-## Complexity Analysis
+Time is O(V + E). Space is O(V + E) for the stack versions and O(V) for the recursive ones. Components and topological sort exist only in Python.
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(V + E) | O(V) |
+## Go-Specific Notes
 
----
+- `DFSRecursive` and `DFSDetectCycle` recurse. This is safe because Go grows goroutine stacks on demand.
+- `DFSDetectCycle` passes a `hasParent` flag, so a vertex numbered -1 works.
+- A missing map key reads as an empty slice, so neighbor-only vertices need no special case.
+- `DFSWithPath` records one parent per vertex and reverses the path once with `slices.Reverse`.
+- The package has no `func main`, so `go run .` does not work; use the tests.
 
-## Implementation Details
-
-### Functions
-
-1. **`DFSAdjacencyList(graph, start)`**
-   - Iterative DFS traversal
-   - Returns `[]int` of vertices in DFS order
-   - Time: O(V + E), Space: O(V)
-
-2. **`DFSRecursive(graph, start)`**
-   - Recursive DFS traversal
-   - More intuitive but uses recursion stack
-   - Time: O(V + E), Space: O(V)
-
-3. **`DFSWithPath(graph, start, target)`**
-   - Finds path from start to target
-   - Returns `[]int` representing path
-   - Time: O(V + E), Space: O(V)
-
-4. **`DFSDetectCycle(graph, directed)`**
-   - Detects cycle in graph
-   - Works for both directed and undirected graphs
-   - Time: O(V + E), Space: O(V)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    graph := map[int][]int{
-        1: {2, 4},
-        2: {3},
-        3: {},
-        4: {},
-    }
-    
-    // Basic DFS
-    result := DFSAdjacencyList(graph, 1)
-    fmt.Println(result)  // [1, 2, 3, 4]
-    
-    // Recursive DFS
-    result = DFSRecursive(graph, 1)
-    fmt.Println(result)  // [1, 2, 3, 4]
-    
-    // Find path
-    path := DFSWithPath(graph, 1, 3)
-    fmt.Println(path)  // [1, 2, 3]
-    
-    // Detect cycle
-    hasCycle := DFSDetectCycle(graph, false)
-    fmt.Println(hasCycle)  // false
-}
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-go test
+cd Algorithms/Graph_Algorithms/Traversal/DFS/Go
+go test ./...
 ```
 
-Or with verbose output:
+## Key Takeaways
 
-```bash
-go test -v
-```
-
----
-
-## Important Notes
-
-1. **Slice-based stack**: Uses slices for stack operations (LIFO)
-2. **Map for graph**: Uses `map[int][]int` for adjacency list
-3. **Visited tracking**: Uses `map[int]bool` for efficient lookup
-
----
-
-## Testing
-
-```bash
-go test -v
-```
-
----
-
-_Last Updated: December 2025_
-
+- Recursion is fine in Go, but the stack version gives the same order.
+- Missing map keys read as empty, which makes neighbor-only vertices safe.
+- DFS returns a path, not the shortest path.

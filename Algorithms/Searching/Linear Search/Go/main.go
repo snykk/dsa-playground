@@ -24,12 +24,12 @@ func LinearSearchRecursive(arr []int, target int, index int) int {
 	if index >= len(arr) {
 		return -1
 	}
-	
+
 	// Base case: found target
 	if arr[index] == target {
 		return index
 	}
-	
+
 	// Recursive case: check next element
 	return LinearSearchRecursive(arr, target, index+1)
 }
@@ -58,4 +58,3 @@ func LinearSearchGeneric[T comparable](arr []T, target T) int {
 	}
 	return -1
 }
-

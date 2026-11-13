@@ -7,27 +7,22 @@ func TestLongestCommonSubstring(t *testing.T) {
 		s1       string
 		s2       string
 		expected string
-		minLen   int
 	}{
-		{"ABABC", "BABCA", "BABC", 4},
-		{"ABC", "XYZ", "", 0},
-		{"ABCD", "ABCD", "ABCD", 4},
-		{"ABCD", "EFGC", "C", 1},
-		{"", "ABC", "", 0},
-		{"", "", "", 0},
+		{"ABABC", "BABCA", "BABC"},
+		{"ABC", "XYZ", ""},
+		{"ABCD", "ABCD", "ABCD"},
+		{"ABCD", "EFGC", "C"},
+		{"", "ABC", ""},
+		{"", "", ""},
+		{"abcxyz", "xyzabc", "abc"}, // tie: the one that ends first in s1 wins
+		{"aaaa", "aa", "aa"},
+		{"abcde", "ace", "a"}, // "ace" is a subsequence, not a substring
 	}
 
 	for _, tt := range tests {
 		result := LongestCommonSubstring(tt.s1, tt.s2)
-		if tt.minLen > 0 {
-			if len(result) < tt.minLen {
-				t.Errorf("LongestCommonSubstring(%q, %q) = %q (len=%d), expected length >= %d", tt.s1, tt.s2, result, len(result), tt.minLen)
-			}
-		} else {
-			if result != tt.expected {
-				t.Errorf("LongestCommonSubstring(%q, %q) = %q, expected %q", tt.s1, tt.s2, result, tt.expected)
-			}
+		if result != tt.expected {
+			t.Errorf("LongestCommonSubstring(%q, %q) = %q, expected %q", tt.s1, tt.s2, result, tt.expected)
 		}
 	}
 }
-

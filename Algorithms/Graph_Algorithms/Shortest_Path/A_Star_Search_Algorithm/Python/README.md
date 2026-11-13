@@ -1,159 +1,50 @@
-# A* Search Algorithm - Python
+# A* Search Algorithm -- Python Implementation
 
-**A* Search Algorithm** is an informed search algorithm that finds the shortest path from a start node to a goal node using a heuristic function to guide the search.
+A* over an adjacency list `Dict[int, List[Tuple[int, int]]]` of `(neighbor, weight)` pairs, using `heapq`.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `astar.py` | `astar`, `manhattan_distance`, `euclidean_distance` |
+| `astar_test.py` | 15 unit tests (`unittest`) |
 
-A* is a best-first search algorithm that:
-- Uses heuristic function to guide search
-- Guarantees optimal solution if heuristic is admissible
-- More efficient than Dijkstra's for pathfinding
-- Commonly used in games and robotics
+## API
 
-**Key Insight**: Uses f(n) = g(n) + h(n) where g(n) is actual cost and h(n) is heuristic estimate.
+| Function | Returns |
+|----------|---------|
+| `astar(graph, start, goal, heuristic)` | `(cost, path)` or `None` if the goal is unreachable; `(0, [start])` when `start == goal` |
+| `manhattan_distance(pos1, pos2)` | `int`, for grid coordinates |
+| `euclidean_distance(pos1, pos2)` | `float`, for coordinates |
 
----
-
-## Algorithm
-
-1. **Initialize**: Add start to priority queue with f_score = g_score + h_score
-2. **Process**: While queue is not empty:
-   - Extract node with minimum f_score
-   - If goal reached, return path
-   - For each neighbor:
-     - Calculate tentative g_score
-     - If better path found, update and add to queue
-3. **Repeat**: Until goal found or queue empty
-
----
-
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Worst Case** | O(b^d) | O(b^d) |
-
-**Note**: 
-- b = branching factor
-- d = depth of solution
-- Depends on quality of heuristic
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`astar(graph, start, goal, heuristic)`**
-   - Finds shortest path from start to goal
-   - Returns (distance, path) or None
-   - Time: O(b^d), Space: O(b^d)
-
-2. **`manhattan_distance(pos1, pos2)`**
-   - Manhattan distance heuristic for grid problems
-   - Returns integer distance
-
-3. **`euclidean_distance(pos1, pos2)`**
-   - Euclidean distance heuristic
-   - Returns float distance
-
----
-
-## Usage
+`heuristic` is a function of one vertex. The distance helpers take two coordinate pairs, so wrap them:
 
 ```python
 from astar import astar, manhattan_distance
 
-graph = {
-    0: [(1, 4), (2, 2)],
-    1: [(3, 5)],
-    2: [(3, 1)],
-    3: []
-}
-
-# Simple heuristic
-def heuristic(node):
-    return 0 if node == 3 else 1
-
-result = astar(graph, 0, 3, heuristic)
-if result:
-    distance, path = result
-    print(f"Distance: {distance}, Path: {path}")  # Distance: 3, Path: [0, 2, 3]
+pos = {0: (0, 0), 1: (1, 0), 2: (0, 1), 3: (1, 1)}
+graph = {0: [(1, 1), (2, 1)], 1: [(3, 1)], 2: [(3, 1)], 3: []}
+goal = 3
+cost, path = astar(graph, 0, goal, lambda v: manhattan_distance(pos[v], pos[goal]))
+print(cost, path)  # 2 [0, 1, 3]
 ```
 
----
+## Python-Specific Notes
 
-## Important Notes
+- The heap holds tuples `(f, g, vertex, path)`, so ties in f are broken by smaller g, then by vertex.
+- No closed set: a vertex is re-pushed whenever a cheaper g is found, and stale entries are skipped with `g_score > g_scores[current]`. The result is optimal for any admissible heuristic on non-negative weights.
+- Every heap entry holds a copy of its path (O(path length) per push). A `came_from` map would avoid that.
+- Time is O(b^d) in general and O((V + E) log V) for a consistent heuristic.
 
-1. **Admissible heuristic**: Heuristic must never overestimate actual cost
-2. **Consistent heuristic**: For optimal performance, heuristic should be consistent
-3. **Optimal**: Guarantees optimal solution if heuristic is admissible
-4. **Efficient**: More efficient than Dijkstra's for pathfinding
-
----
-
-## Advantages
-
-1. ✅ **Optimal**: Guarantees optimal solution with admissible heuristic
-2. ✅ **Efficient**: More efficient than Dijkstra's for pathfinding
-3. ✅ **Informed**: Uses heuristic to guide search
-4. ✅ **Versatile**: Works with various heuristic functions
-
----
-
-## Disadvantages
-
-1. ❌ **Heuristic dependent**: Performance depends on heuristic quality
-2. ❌ **Memory**: May use significant memory for large graphs
-3. ❌ **Complexity**: More complex than Dijkstra's
-
----
-
-## When to Use
-
-- ✅ Pathfinding in games
-- ✅ Robotics navigation
-- ✅ When good heuristic is available
-- ✅ Need optimal solution
-- ❌ No good heuristic available
-- ❌ Very large graphs (may be slow)
-
----
-
-## Testing
+## How to Run
 
 ```bash
-python astar_test.py
+cd Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm/Python
+python3 -m unittest astar_test
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **Dijkstra's**: Uninformed search (h(n) = 0)
-- **Greedy Best-First**: Uses only heuristic (g(n) = 0)
-- **BFS**: Uninformed search for unweighted graphs
-
----
-
-## Applications
-
-1. **Game AI**: Pathfinding in games
-2. **Robotics**: Navigation and path planning
-3. **GPS**: Route finding
-4. **Puzzle Solving**: Solving puzzles with heuristics
-
----
-
-## References
-
-- "Artificial Intelligence: A Modern Approach" by Russell & Norvig
-- "Introduction to Algorithms" by CLRS
-
----
-
-_Last Updated: December 2025_
-
-
+- Admissible means never overestimating; that is what guarantees the optimum.
+- The code re-opens vertices, so an inconsistent but admissible heuristic is still optimal.
+- With `lambda v: 0` the function is Dijkstra's algorithm.

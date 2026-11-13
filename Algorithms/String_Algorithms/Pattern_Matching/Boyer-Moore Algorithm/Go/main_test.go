@@ -14,6 +14,10 @@ func TestBoyerMooreSearch(t *testing.T) {
 		{"ABC", "ABCDEF", []int{}},
 		{"", "ABC", []int{}},
 		{"ABC", "", []int{}},
+		{"HERE IS A SIMPLE EXAMPLE", "EXAMPLE", []int{17}},
+		{"aaaa", "aa", []int{0, 1, 2}},
+		{"AAAAAA", "AAA", []int{0, 1, 2, 3}},
+		{"xxabc", "abc", []int{2}},
 	}
 
 	for _, tt := range tests {
@@ -49,4 +53,3 @@ func equal(a, b []int) bool {
 	}
 	return true
 }
-

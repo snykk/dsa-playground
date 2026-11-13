@@ -1,0 +1,213 @@
+---
+topic: Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)
+title: Maximum Subarray (Kadane's Algorithm)
+lead: The maximum subarray problem asks for the contiguous run of an array with the largest sum. Kadane's algorithm solves it in one left-to-right pass, O(n) time and O(1) space, by tracking the best sum of a run that ends at the current element.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n)
+    hint: one pass
+  - label: Space
+    value: O(1)
+    hint: two numbers; kadane_dp keeps an O(n) table
+  - label: All negative
+    value: largest element
+    hint: the subarray must be non-empty
+    tone: warn
+  - label: Approach
+    value: Linear DP
+properties:
+  - { label: In-place, value: true }
+  - { label: Online (one pass), value: true }
+  - { label: Handles all-negative input, value: true }
+  - { label: Empty input returns 0, value: true }
+prerequisites:
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+related:
+  - Algorithms/Dynamic_Programming/Linear DP/Longest Increasing Subsequence
+  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
+  - Algorithms/Divide_and_Conquer
+---
+
+## How Kadane's algorithm works
+
+A subarray is a contiguous block. There are about n<sup>2</sup>/2 of them, but every one of them ends at some index. Let `cur[i]` be the best sum of a subarray **ending at** index `i`. Then the answer is the largest `cur[i]`.
+
+<Steps>
+  <Step title="Start with the first element">
+    `cur = best = arr[0]`. Starting from the first element, not from 0, makes all-negative arrays work.
+  </Step>
+  <Step title="Extend or restart">
+    For each next element: `cur[i] = max(arr[i], cur[i-1] + arr[i])`. A run that ends at `i` either extends the best run ending at `i-1`, or starts fresh at `i`. Extending helps exactly when `cur[i-1]` is positive.
+  </Step>
+  <Step title="Remember the best">
+    After every element, `best = max(best, cur)`. For the window, `kadane_with_indices` records where the current run started and copies it when `best` improves.
+  </Step>
+  <Step title="Return the best sum">
+    One pass, two numbers: no table is needed because `cur[i]` depends only on `cur[i-1]`.
+  </Step>
+</Steps>
+
+<Callout title="Why dropping a negative prefix is safe">
+If the best run ending at `i-1` has a negative sum, any run that extends it is beaten by the same run without that prefix. So a negative running sum is never worth keeping, and the algorithm can safely restart at the next element.
+</Callout>
+
+## See it in action
+
+Press play to watch the running sum and the best window. The current run is highlighted, the best window found so far is marked, and elements left behind are faded. Type your own array, or try the all-negative example.
+
+<ArticleViz ids={['kadane']} />
+
+## Worked example
+
+Array `[-2, 1, -3, 4, -1, 2, 1, -5, 4]`. The result of `kadane_with_indices` is `(6, 3, 6)`: the sum 6, from index 3 to index 6, which is `[4, -1, 2, 1]`.
+
+<ArrayDiagram
+  legend={{ l: 'the current run (cur)', f: 'the best window so far' }}
+  rows={[
+    { label: 'start', values: [-2, 1, -3, 4, -1, 2, 1, -5, 4], tones: 'l........', note: '`cur = best = -2`.' },
+    { label: 'i = 1', values: [-2, 1, -3, 4, -1, 2, 1, -5, 4], tones: '.f.......', note: '`cur = -2` is negative, so restart: `cur = 1`, `best = 1`.' },
+    { label: 'i = 2', values: [-2, 1, -3, 4, -1, 2, 1, -5, 4], tones: '.fl......', note: '`cur = 1 + (-3) = -2`. `best` stays 1.' },
+    { label: 'i = 3', values: [-2, 1, -3, 4, -1, 2, 1, -5, 4], tones: '...f.....', note: '`cur = -2` is negative, so restart: `cur = 4`, `best = 4`.' },
+    { label: 'i = 6', values: [-2, 1, -3, 4, -1, 2, 1, -5, 4], tones: '...ffff..', note: '`cur` went 4, 3, 5, 6, and `best = 6` with window 3..6.' },
+    { label: 'i = 8', values: [-2, 1, -3, 4, -1, 2, 1, -5, 4], tones: '...ffffll', note: '`cur = 6 - 5 = 1`, then `1 + 4 = 5`: the run goes on but never beats 6.' },
+  ]}
+/>
+
+<DataTable
+  columns={['i', 'arr[i]', 'cur', 'best', 'window start']}
+  rows={[
+    ['0', '-2', '-2', '-2', '0'],
+    ['1', '1', '1', '1', '1'],
+    ['2', '-3', '-2', '1', '1'],
+    ['3', '4', '4', '4', '3'],
+    ['4', '-1', '3', '4', '3'],
+    ['5', '2', '5', '5', '3'],
+    ['6', '1', '6', '6', '3'],
+    ['7', '-5', '1', '6', '3'],
+    ['8', '4', '5', '6', '3'],
+  ]}
+/>
+
+The window moves only when `best` strictly improves, so on ties the earliest window is reported. For `[2, -2, 2]` the result is `(2, 0, 0)`.
+
+## Pseudocode
+
+```text
+kadane(arr):
+    if arr is empty: return 0
+    best = cur = arr[0]
+    for i = 1 to n - 1:
+        cur = max(arr[i], cur + arr[i])
+        best = max(best, cur)
+    return best
+
+kadaneWithIndices(arr):                 # Python
+    best = cur = arr[0]; start = end = temp = 0
+    for i = 1 to n - 1:
+        if cur < 0: cur = arr[i]; temp = i
+        else:       cur = cur + arr[i]
+        if cur > best: best = cur; start = temp; end = i
+    return (best, start, end)
+```
+
+The two forms are equivalent: `max(arr[i], cur + arr[i])` restarts exactly when `cur < 0` (when `cur` is 0, both options are equal).
+
+## Implementation
+
+Python has three functions: `kadane_algorithm` (the sum), `kadane_with_indices` (sum and window) and `kadane_dp` (the same with an explicit O(n) table). C++ and Go implement only the sum. Every version treats an empty array as sum 0 (an empty-sum convention) while a non-empty array always yields a non-empty subarray, so an all-negative array returns its largest element. The C++ version sums in `int`, so a large input can overflow; Python integers are unbounded and Go's `int` is 64-bit.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(n)', when: 'Each element is visited once with a constant amount of work, in every case: the input does not change the number of steps.' },
+    { case: 'Space', time: 'O(1)', space: 'O(1)', when: 'Two numbers (plus three indices for the window). kadane_dp uses O(n) for its table.' },
+  ]}
+/>
+
+For comparison, a brute force over all start and end indices is <BigO of="n^2" /> with running sums, and a divide-and-conquer split in the middle gives:
+
+<Equation label="Divide and conquer" expr="T(n) = 2 T(n/2) + O(n)" result="O(n log n)" />
+
+Kadane is both simpler and faster.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Change']}
+  rows={[
+    ['Maximum sum with indices', 'record where the current run starts (kadane_with_indices)'],
+    ['Allow an empty subarray', 'start from `cur = best = 0` and use `max(0, cur + x)`; the answer is never negative'],
+    ['Maximum product subarray', 'track both the largest and the smallest product ending here, since a negative flips them'],
+    ['Circular array', 'the best of the plain answer and the total sum minus the minimum subarray (unless every element is negative)'],
+    ['Two-dimensional (maximum sum rectangle)', 'fix two rows, collapse columns, run Kadane: O(rows^2 * cols)'],
+  ]}
+/>
+
+## Kadane vs other approaches
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Note']}
+  highlight={0}
+  rows={[
+    ['Kadane', 'O(n)', 'O(1)', 'one pass; works on a stream'],
+    ['Prefix sums', 'O(n)', 'O(1)', 'best of P[j] minus the smallest earlier P[i]; the same idea'],
+    ['Divide and conquer', 'O(n log n)', 'O(log n)', 'combine the left, right and crossing answers'],
+    ['Brute force', 'O(n^2)', 'O(1)', 'try every start and end'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time and constant memory.',
+    'One pass, so it works on streaming input.',
+    'Short and easy to get right once the all-negative case is understood.',
+    'Extends to windows, products, circular arrays and 2D problems.',
+  ]}
+  cons={[
+    'Only the single best subarray: it does not list ties or the k best.',
+    'The sum can overflow fixed-width integers (the C++ version uses int).',
+    'The empty-array result of 0 is a convention, not a subarray sum.',
+    'Needs care to return the correct indices when ties matter.',
+  ]}
+/>
+
+## Applications
+
+- **Finding the best stretch.** The most profitable contiguous period of daily gains and losses.
+- **Signal and sequence analysis.** A maximum-scoring segment of a sequence of scores, such as in bioinformatics.
+- **A building block.** The maximum-sum rectangle in a matrix, circular maximum subarray and many interview problems use it directly.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Starting `best` at 0.** That fails for all-negative arrays, where the answer is the largest element, not 0. The code starts from `arr[0]`.
+- **Resetting to 0 instead of to `arr[i]`.** Setting `cur = 0` on a negative sum quietly allows an empty subarray.
+- **Mixing up the empty subarray rule.** Decide whether an empty subarray is allowed; this changes the answer for negative arrays.
+- **Overflow.** Sums of many large numbers overflow 32-bit integers.
+- **Wrong indices.** The window start must be copied when `best` improves, not when `cur` restarts.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What does Kadane's algorithm return for an all-negative array?">
+    The largest (least negative) element, since the subarray must contain at least one element. `[-3, -1, -2]` gives `-1`, with the window `(1, 1)`.
+  </FaqItem>
+  <FaqItem question="Why does the code return 0 for an empty array?">
+    There is no subarray, so the repository picks 0 as a convention. `kadane_with_indices` returns `(0, -1, -1)`, with -1 meaning no window.
+  </FaqItem>
+  <FaqItem question="Is Kadane's algorithm dynamic programming?">
+    Yes. `cur[i] = max(arr[i], cur[i-1] + arr[i])` is a one-dimensional recurrence. Only the previous value is needed, so the table collapses to one variable, which is what `kadane_dp` shows explicitly.
+  </FaqItem>
+  <FaqItem question="How do I get the subarray itself?">
+    Use `kadane_with_indices` in Python: it returns the sum, the start index and the end index. Slice with `arr[start:end + 1]`. The C++ and Go versions return only the sum.
+  </FaqItem>
+</Faq>

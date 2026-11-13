@@ -88,6 +88,14 @@ void testEmptyText() {
     assert(result.empty());
 }
 
+void testOverlapsAndEdges() {
+    assert((kmpSearch("aaaa", "aa") == std::vector<int>{0, 1, 2}));
+    assert((kmpSearch("ABABABA", "ABABA") == std::vector<int>{0, 2}));
+    assert(kmpSearch("AB", "ABC").empty());
+    assert((kmpSearch("xxabc", "abc") == std::vector<int>{2}));
+    assert((buildLPS("ABABAC") == std::vector<int>{0, 0, 1, 2, 3, 0}));
+}
+
 int main() {
     testBasicSearch();
     testMultipleOccurrences();
@@ -99,6 +107,7 @@ int main() {
     testFirstOccurrenceNotFound();
     testEmptyPattern();
     testEmptyText();
+    testOverlapsAndEdges();
     
     std::cout << "All tests passed!" << std::endl;
     return 0;

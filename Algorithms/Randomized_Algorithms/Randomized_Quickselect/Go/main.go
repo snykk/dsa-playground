@@ -1,5 +1,6 @@
 // Package main implements Randomized Quickselect: O(n) expected-time
-// selection of the k-th smallest element using Lomuto partition.
+// selection of the k-th smallest element using a three-way (Dutch flag)
+// partition, so duplicates cannot cause quadratic time.
 package main
 
 import (
@@ -23,31 +24,39 @@ func Quickselect(arr []int, k int, rng *rand.Rand) int {
 
 	lo, hi := 0, len(arr)-1
 	for lo < hi {
-		pivotIdx := partition(arr, lo, hi, lo+rng.Intn(hi-lo+1))
+		lt, gt := partition3(arr, lo, hi, lo+rng.Intn(hi-lo+1))
 		switch {
-		case k == pivotIdx:
-			return arr[k]
-		case k < pivotIdx:
-			hi = pivotIdx - 1
+		case k < lt:
+			hi = lt - 1
+		case k > gt:
+			lo = gt + 1
 		default:
-			lo = pivotIdx + 1
+			return arr[k] // k falls inside the band of keys equal to the pivot
 		}
 	}
 	return arr[lo]
 }
 
-func partition(arr []int, lo, hi, pivotIdx int) int {
-	arr[pivotIdx], arr[hi] = arr[hi], arr[pivotIdx]
-	pivot := arr[hi]
-	store := lo
-	for i := lo; i < hi; i++ {
-		if arr[i] < pivot {
-			arr[i], arr[store] = arr[store], arr[i]
-			store++
+// partition3 reorders arr[lo..hi] into  < pivot | == pivot | > pivot  around
+// arr[pivotIdx] and returns (lt, gt): arr[lt..gt] holds exactly the keys equal
+// to the pivot.
+func partition3(arr []int, lo, hi, pivotIdx int) (int, int) {
+	pivot := arr[pivotIdx]
+	lt, i, gt := lo, lo, hi
+	for i <= gt {
+		switch {
+		case arr[i] < pivot:
+			arr[lt], arr[i] = arr[i], arr[lt]
+			lt++
+			i++
+		case arr[i] > pivot:
+			arr[i], arr[gt] = arr[gt], arr[i]
+			gt--
+		default:
+			i++
 		}
 	}
-	arr[store], arr[hi] = arr[hi], arr[store]
-	return store
+	return lt, gt
 }
 
 // TopKSmallest returns (unordered) the k smallest elements of arr.

@@ -1,6 +1,6 @@
 /**
  * 0/1 Knapsack (C++)
- * Time Complexity: O(n × W)
+ * Time Complexity: O(n x W)
  */
 
 #include <vector>

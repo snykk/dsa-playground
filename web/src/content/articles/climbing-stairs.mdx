@@ -1,0 +1,214 @@
+---
+topic: Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs
+title: Climbing Stairs
+lead: Count the distinct ways to climb n stairs when each move is 1 or 2 steps. The last move was either a 1-step or a 2-step, so ways(n) = ways(n-1) + ways(n-2), the Fibonacci recurrence. The same idea counts paths for any set of allowed step sizes in O(n k) time.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Recurrence
+    value: ways(n) = ways(n-1) + ways(n-2)
+    hint: steps 1 and 2
+  - label: Time
+    value: O(n)
+    hint: O(n k) with k allowed step sizes
+  - label: Space
+    value: O(1)
+    hint: two variables for steps 1 and 2; O(n) for the general table
+  - label: Count grows
+    value: exponentially
+    hint: ways(n) = F(n + 1); ways(92) overflows 64 bits
+    tone: warn
+properties:
+  - { label: Overlapping subproblems, value: true }
+  - { label: Same as Fibonacci for steps 1 and 2, value: true }
+  - { label: Counts ordered sequences of steps, value: true }
+  - { label: Overflow-safe in C++ and Go, value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+related:
+  - Algorithms/Dynamic_Programming/Basic DP/Fibonacci Numbers
+  - Algorithms/Dynamic_Programming/Linear DP/Coin Change
+  - Algorithms/Dynamic_Programming/Linear DP/Maximum Subarray (Kadane's Algorithm)
+---
+
+## How Climbing Stairs works
+
+A staircase has `n` steps and you may climb 1 or 2 at a time. Two climbs are different if their sequences of moves differ, so 1 + 2 and 2 + 1 are two ways to climb three stairs. Let `ways(i)` be the number of ways to reach stair `i`.
+
+<Steps>
+  <Step title="Think about the last move">
+    You arrived at stair `i` with a 1-step from `i-1` or a 2-step from `i-2`. Those cases are disjoint and cover everything.
+  </Step>
+  <Step title="Add the cases">
+    `ways(i) = ways(i-1) + ways(i-2)`. With allowed steps `s1, s2, ...` the sum runs over all of them: `ways(i) = sum of ways(i - s)` for every allowed `s <= i`.
+  </Step>
+  <Step title="Set the base case">
+    `ways(0) = 1`: there is exactly one way to stand on the ground, which is to make no move. This is the value every function in this repository returns for `n = 0`.
+  </Step>
+  <Step title="Fill upward">
+    Compute `ways(1), ways(2), ...` up to `n`. For steps 1 and 2 only the last two values are needed.
+  </Step>
+</Steps>
+
+<Callout title="ways(0) = 1 is not a special case">
+It is what makes the recurrence work: `ways(2) = ways(1) + ways(0) = 1 + 1 = 2` (1+1 and 2). Defining `ways(0) = 0` would give `ways(2) = 1`, which is wrong.
+</Callout>
+
+## See it in action
+
+Enter `n` and the allowed step sizes, for example `7 | 1, 2`. Press play to fill the ways array stair by stair. The stair being counted is highlighted, together with the stairs a last hop can start from.
+
+<ArticleViz ids={['climbing-stairs']} />
+
+## Worked example
+
+For `n = 4` and steps 1 and 2, the five ways are:
+
+<DataTable
+  columns={['Way', 'Moves', 'Last move']}
+  rows={[
+    ['1', '1 + 1 + 1 + 1', '1 (from stair 3)'],
+    ['2', '1 + 1 + 2', '2 (from stair 2)'],
+    ['3', '1 + 2 + 1', '1 (from stair 3)'],
+    ['4', '2 + 1 + 1', '1 (from stair 3)'],
+    ['5', '2 + 2', '2 (from stair 2)'],
+  ]}
+/>
+
+Three end with a 1-step: they are the three ways to reach stair 3. Two end with a 2-step: the two ways to reach stair 2. So `ways(4) = 3 + 2 = 5`. The table for `n = 6`, taken from `climbing_stairs_optimized` for each `n`:
+
+<ArrayDiagram
+  legend={{ l: 'the two earlier entries', p: 'the entry being computed', f: 'already computed' }}
+  rows={[
+    { label: 'base', values: [1, 1, '', '', '', '', ''], tones: 'ff.....', marks: { 0: 'ways(0)', 1: 'ways(1)' }, note: 'One way to stay, one way to take a single step.' },
+    { label: 'i = 2', values: [1, 1, 2, '', '', '', ''], tones: 'llp....', marks: { 2: 'i' }, note: '1 + 1 = 2' },
+    { label: 'i = 3', values: [1, 1, 2, 3, '', '', ''], tones: 'fllp...', marks: { 3: 'i' }, note: '1 + 2 = 3' },
+    { label: 'i = 5', values: [1, 1, 2, 3, 5, 8, ''], tones: 'fffllp.', marks: { 5: 'i' }, note: '3 + 5 = 8' },
+    { label: 'i = 6', values: [1, 1, 2, 3, 5, 8, 13], tones: 'ffffllp', marks: { 6: 'i' }, note: '5 + 8 = 13: thirteen ways to climb 6 stairs.' },
+  ]}
+/>
+
+With steps 1, 2 and 3 the recurrence adds three terms and the sequence is `ways(0..6) = 1, 1, 2, 4, 7, 13, 24`. `climbing_stairs_variable_steps(5, [1, 2, 3])` is 13.
+
+## Pseudocode
+
+```text
+climbingStairs(n):                      # steps 1 and 2, O(1) space
+    if n < 0: error
+    if n == 0: return 1
+    if n <= 2: return n
+    prev2 = 1; prev1 = 2                # ways(1), ways(2)
+    for i = 3 to n:
+        current = prev1 + prev2
+        prev2 = prev1; prev1 = current
+    return prev1
+
+waysWithSteps(n, steps):                # Python: climbing_stairs_variable_steps
+    dp[0] = 1
+    for i = 1 to n:
+        for s in steps:
+            if i >= s: dp[i] = dp[i] + dp[i - s]
+    return dp[n]
+```
+
+## Implementation
+
+Python has five functions: naive recursion, memoization, tabulation, the two-variable loop and the version with arbitrary step sizes. C++ and Go have only the two-variable loop for steps 1 and 2. A negative `n` is an error in all three languages (Python `ValueError`, C++ `std::invalid_argument`, Go panic), and `ways(0)` is 1 everywhere.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Basic DP/Climbing Stairs" />
+
+## Complexity analysis
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Note']}
+  rows={[
+    ['Naive recursion', 'O(2^n)', 'O(n)', 'recomputes subproblems'],
+    ['Memoization', 'O(n)', 'O(n)', 'recursion depth n'],
+    ['Tabulation', 'O(n)', 'O(n)', 'one table of n + 1 entries'],
+    ['Two variables (steps 1, 2)', 'O(n)', 'O(1)', 'C++ and Go versions'],
+    ['Table with k step sizes', 'O(n k)', 'O(n)', 'climbing_stairs_variable_steps'],
+  ]}
+/>
+
+<Equation label="Naive recursion" expr="T(n) = T(n-1) + T(n-2) + O(1)" result="Theta(1.618^n)" />
+
+The answer itself is a Fibonacci number: `ways(n) = F(n + 1)`. That is why the count grows exponentially, and why the 64-bit C++ and Go versions are exact only up to `ways(91)`: `ways(90) = 4660046610375530309` is tested, but `ways(92) = F(93)` exceeds the signed 64-bit range. Python integers have no limit.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Change', 'Result for n = 5']}
+  rows={[
+    ['Steps 1, 2', 'the classic problem', '8'],
+    ['Steps 1, 2, 3', 'add the third term', '13'],
+    ['Steps 2 only', 'only even n can be reached', '0 (n = 5 is odd)'],
+    ['Minimum cost to reach the top', 'a minimum over the last move instead of a sum', 'a different problem (LeetCode 746)'],
+    ['Count unordered sets of steps', 'loop over steps first, then stairs', 'a combinations count, like Coin Change ways'],
+  ]}
+/>
+
+The repository counts **ordered** sequences: the outer loop is over stairs. If you swapped the loops (steps outside, stairs inside) you would count each multiset of steps once, as in the coin-change count of combinations.
+
+## Climbing stairs vs alternatives
+
+<DataTable
+  columns={['Problem', 'Question', 'Recurrence']}
+  highlight={0}
+  rows={[
+    ['Climbing Stairs', 'how many ways to reach n', 'ways(i) = sum of ways(i - s)'],
+    ['Fibonacci', 'the value of F(n)', 'F(i) = F(i-1) + F(i-2)'],
+    ['Coin Change (ways)', 'how many coin combinations make n', 'same table, steps outer, stairs inner'],
+    ['Coin Change (minimum)', 'fewest coins to make n', 'min(dp[i - c]) + 1'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'A tiny problem that shows the whole DP method: state, recurrence, base case.',
+    'O(1) memory for steps 1 and 2.',
+    'Extends to any step set with one inner loop.',
+    'Easy to verify against Fibonacci numbers.',
+  ]}
+  cons={[
+    'The count overflows 64-bit integers quickly.',
+    'The table version needs O(n) memory.',
+    'It counts ordered paths; the unordered count is a different loop order.',
+    'The step set must contain positive sizes: a step of 0 or less is meaningless and gives wrong counts.',
+  ]}
+/>
+
+## Applications
+
+- **Counting paths.** Any problem that asks for the number of ways to reach a position using a fixed set of moves.
+- **Tilings.** Tiling a 2 x n strip with dominoes follows the same recurrence.
+- **Interview classic.** It is usually the first DP exercise, before House Robber and Coin Change.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Wrong base case.** `ways(0)` is 1, not 0. With 0, `ways(2)` comes out as 1.
+- **Off-by-one against Fibonacci.** `ways(n) = F(n + 1)`, not `F(n)`.
+- **Overflow.** In C++ and Go the 64-bit result is exact only up to n = 91.
+- **Swapped loops.** Stairs outside and steps inside counts sequences; steps outside counts combinations.
+- **Zero or negative steps.** The code assumes positive step sizes.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is it the Fibonacci sequence?">
+    Reaching stair `n` takes a 1-step from `n-1` or a 2-step from `n-2`, so `ways(n) = ways(n-1) + ways(n-2)`. With `ways(1) = 1` and `ways(2) = 2` this is the Fibonacci sequence shifted by one.
+  </FaqItem>
+  <FaqItem question="Does the order of the steps matter?">
+    Yes in this problem: 1+2 and 2+1 are different ways, so `ways(3) = 3`. Counting only which steps are used, not the order, is a different DP.
+  </FaqItem>
+  <FaqItem question="What does ways(0) = 1 mean?">
+    There is one way to climb zero stairs: do nothing. The recurrence relies on it.
+  </FaqItem>
+  <FaqItem question="How do I handle large n?">
+    In Python nothing is needed. In C++ and Go, take the result modulo a number at every addition if the problem asks for it, or use a big-integer type. The repository versions do not.
+  </FaqItem>
+</Faq>

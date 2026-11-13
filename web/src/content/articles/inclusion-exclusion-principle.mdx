@@ -1,0 +1,190 @@
+---
+topic: Problem_Patterns/Inclusion-Exclusion Principle
+title: Inclusion-Exclusion Principle
+lead: To count the elements that satisfy at least one of several conditions, add the sizes of the individual sets, subtract the pairwise overlaps, add back the triple overlaps, and so on. It fixes the double counting that a plain sum makes, and it turns "at least one" counting into a loop over 2^k subsets.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Terms
+    value: 2^k - 1
+    hint: one per non-empty subset of the k conditions
+    tone: warn
+  - label: Sign of a term
+    value: (-1)^(m+1)
+    hint: m = number of sets in the subset
+  - label: Divisor counting
+    value: O(2^k * k)
+    hint: gcd work is a log factor
+  - label: Extra space
+    value: O(1)
+    hint: besides the sets themselves
+properties:
+  - { label: Exact count, value: true }
+  - { label: Needs sorted input, value: false }
+  - { label: Practical for large k, value: false }
+prerequisites:
+  - Problem_Patterns/Bit Manipulation
+related:
+  - Utilities/Optimization_Techniques/Bitmasking
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean Algorithm
+  - Problem_Patterns/Prefix Sum Difference Array
+---
+
+## When to use it
+
+Signals in a problem statement:
+
+- "count numbers up to n divisible by **at least one** of these";
+- "count the elements in the union of several sets" where intersections are easy to count;
+- "count the objects that avoid **all** of several bad properties" (count everything, subtract the union of the bad ones);
+- the number of conditions is small (about 20 or fewer), because the work is 2<sup>k</sup>.
+
+If the conditions are independent and you only need the complement, multiplying probabilities or counts is faster; inclusion-exclusion is for overlapping conditions.
+
+## How it works
+
+For sets <em>A<sub>1</sub></em>, ..., <em>A<sub>k</sub></em>, the size of the union is the sum over every non-empty subset of the sets of the size of their intersection, with a sign that depends on the subset size.
+
+<Equation label="Union" expr="|A1 u A2 u ... u Ak| = sum over non-empty S of (-1)^(|S|+1) * |intersection of the sets in S|" result="odd-sized subsets add, even-sized subsets subtract" />
+
+<Steps>
+  <Step title="Enumerate subsets with a bitmask">
+    Loop `mask` from 1 to 2<sup>k</sup> - 1. Bit j of `mask` says whether condition j is in the subset.
+  </Step>
+  <Step title="Count the intersection of the subset">
+    For divisibility, "divisible by all of d<sub>1</sub>, d<sub>2</sub>, ..." means divisible by their `lcm`, so the intersection has `n / lcm` elements. For explicit sets, intersect them.
+  </Step>
+  <Step title="Add or subtract by parity">
+    An odd number of sets adds the term, an even number subtracts it.
+  </Step>
+</Steps>
+
+<Callout title="Why the signs work">
+Take an element that lies in exactly m of the sets. It appears in C(m, 1) single terms, C(m, 2) pair terms, and so on. Its total contribution is C(m,1) - C(m,2) + C(m,3) - ... which equals 1 for every m &ge; 1. So each element of the union is counted exactly once and elements outside the union never appear.
+</Callout>
+
+## Template
+
+```text
+count_divisible(n, divisors):              # numbers in 1..n divisible by some divisor
+    result = 0
+    for mask in 1 .. 2^k - 1:
+        lcm = 1; count = 0
+        for j in 0 .. k - 1:
+            if mask has bit j:
+                count += 1
+                lcm = lcm / gcd(lcm, divisors[j]) * divisors[j]
+                if lcm > n: skip this mask      # n / lcm = 0, and lcm could overflow
+        result += n / lcm if count is odd else -(n / lcm)
+    return result
+
+count_union_sets(sets):                    # size of the union
+    result = 0
+    for mask in 1 .. 2^m - 1:
+        inter = intersection of sets[j] for every bit j in mask   # from the FIRST set in the mask
+        result += |inter| if popcount(mask) is odd else -|inter|
+    return result
+```
+
+## Worked example: divisible by 2, 3 or 5
+
+How many numbers in 1..100 are divisible by 2, 3 or 5? `count_divisible(100, [2, 3, 5])` returns 74.
+
+<DataTable
+  columns={['Subset', 'lcm', 'n / lcm', 'Sign', 'Running total']}
+  rows={[
+    ['{2}', '2', '50', '+', '50'],
+    ['{3}', '3', '33', '+', '83'],
+    ['{2, 3}', '6', '16', '-', '67'],
+    ['{5}', '5', '20', '+', '87'],
+    ['{2, 5}', '10', '10', '-', '77'],
+    ['{3, 5}', '15', '6', '-', '71'],
+    ['{2, 3, 5}', '30', '3', '+', '74'],
+  ]}
+/>
+
+The subsets appear in mask order 1 to 7. A smaller case makes the overlap visible: numbers in 1..30 divisible by 4 or 6 give 7 + 5 - 2 = 10, because the multiples of lcm(4, 6) = 12 are counted twice by the plain sum.
+
+<GridDiagram
+  rows={[[4, 6, 8], [12, 16, 18, 20], [24, 28, 30]]}
+  tones={['lrl', 'plrl', 'plr']}
+  legend={{ l: 'multiple of 4 only', r: 'multiple of 6 only', p: 'multiple of both (12, 24): counted twice by 7 + 5, so subtracted once' }}
+  caption="The ten numbers in 1..30 that are divisible by 4 or 6, in order. Five are multiples of 4 only, three of 6 only, two of both."
+/>
+
+For explicit sets the same recipe applies. With A = {1,2,3}, B = {2,3,4}, C = {3,4,5}: the singles give 3 + 3 + 3 = 9, the pairs give |A&cap;B| + |A&cap;C| + |B&cap;C| = 2 + 1 + 2 = 5, the triple gives |A&cap;B&cap;C| = 1. The union has 9 - 5 + 1 = 5 elements, and `count_union_sets` returns 5.
+
+## Implementation
+
+`count_divisible(n, divisors)` and `count_union_sets(sets)` exist in all three languages, plus a `gcd` helper. Behaviour worth knowing:
+
+- Divisors must be at least 1. In C++ and Go the lcm is built step by step and a subset is skipped as soon as its lcm exceeds `n` (its term would be 0 anyway). That also prevents integer overflow with many divisors.
+- Each subset's intersection starts from the first set that is in the subset. (An earlier version started from `sets[0]` every time and returned 3 instead of 5 for the example above.)
+- Both functions loop over `1 << k` masks, so they are meant for small k (the C++ and Go versions use 32-bit shifts on `int`, so k must stay below 31).
+
+<TopicCode topic="Problem_Patterns/Inclusion-Exclusion Principle" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'count_divisible', time: 'O(2^k * k log n)', when: '2^k masks; each builds an lcm with up to k gcd calls of O(log n).' },
+    { case: 'count_union_sets', time: 'O(2^m * m * s)', when: 'm sets of up to s elements: each mask intersects up to m sets.' },
+    { case: 'Space', time: 'O(s)', when: 'One running intersection; O(1) for divisor counting.' },
+  ]}
+/>
+
+The 2<sup>k</sup> factor is the whole cost: k = 20 means about a million subsets, k = 40 is out of reach. Pruning masks whose lcm exceeds n makes divisor counting much faster in practice.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Ugly Number III (LeetCode 1201)', 'count numbers up to x divisible by a, b or c; binary search on x'],
+    ['Count numbers up to n coprime to m', 'n minus the multiples of m prime factors, by inclusion-exclusion'],
+    ['Derangements', 'all permutations minus those fixing at least one position'],
+    ['Euler totient (via prime factors)', 'n times the product of (1 - 1/p), which is inclusion-exclusion over the primes'],
+    ['Integer solutions with upper bounds (stars and bars)', 'subtract the solutions that break each bound'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Use', 'Note']}
+  rows={[
+    ['Union count (this repo)', 'at least one condition', 'sign (-1)^(m+1)'],
+    ['Complement count', 'none of the conditions', 'total minus union: sign (-1)^m, starting with the whole set'],
+    ['Exactly r conditions', 'elements in exactly r sets', 'binomial coefficients in the sums; not implemented here'],
+    ['Mobius function', 'many divisors, number theory', 'sums over squarefree divisors; not implemented here'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Starting every intersection from the first set of the list** instead of the first set in the subset. Every term then includes that set and the answer is wrong.
+- **Using the product instead of the lcm.** Divisors that share a factor (4 and 6) overlap in multiples of 12, not 24.
+- **Overflow.** The lcm of a dozen numbers passes 32 bits quickly. Use a wider type and skip subsets whose lcm is above `n`.
+- **Wrong sign.** For the union, odd subsets add. For the complement (none of the properties), the sign is the opposite and you start from the total.
+- **Using it with large k.** 2<sup>k</sup> terms: reformulate, or use a different technique, when k grows beyond about 20-25.
+- **Weak tests.** Check against a brute-force count. A test that only asserts the result is positive will not catch wrong signs.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why do the signs alternate?">
+    Each element in exactly m sets is counted C(m,1) - C(m,2) + ... + (-1)^(m+1) C(m,m) times, and that alternating sum is exactly 1 for any m &ge; 1. The alternation cancels the overcounting layer by layer.
+  </FaqItem>
+  <FaqItem question="How do I count numbers divisible by none of the divisors?">
+    Subtract the union from n: `n - count_divisible(n, divisors)`.
+  </FaqItem>
+  <FaqItem question="Can I speed it up?">
+    Prune subsets whose lcm exceeds n (they contribute 0), sort divisors so pruning starts early, or use DFS over the divisors with a running lcm instead of recomputing it for each mask.
+  </FaqItem>
+  <FaqItem question="What if the divisors are not coprime?">
+    The method still works because it uses the lcm of each subset. Only the coprime case lets the lcm equal the product.
+  </FaqItem>
+</Faq>

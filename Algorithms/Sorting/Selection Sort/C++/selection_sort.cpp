@@ -16,7 +16,9 @@ void selectionSort(std::vector<T>& arr) {
             }
         }
         
-        std::swap(arr[i], arr[min_idx]);
+        if (min_idx != i) {  // skip self-swaps: at most n - 1 swaps in total
+            std::swap(arr[i], arr[min_idx]);
+        }
     }
 }
 

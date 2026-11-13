@@ -15,6 +15,9 @@ func TestNaivePatternSearch(t *testing.T) {
 		{"", "ABC", []int{}},
 		{"ABC", "ABC", []int{0}},
 		{"AAAAA", "A", []int{0, 1, 2, 3, 4}},
+		{"ABC", "", []int{}},
+		{"aaaa", "aa", []int{0, 1, 2}},
+		{"xxabc", "abc", []int{2}},
 	}
 
 	for _, tt := range tests {
@@ -74,4 +77,3 @@ func equal(a, b []int) bool {
 	}
 	return true
 }
-

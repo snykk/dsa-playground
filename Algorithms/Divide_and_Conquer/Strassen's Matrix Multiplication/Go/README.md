@@ -1,90 +1,40 @@
-# Strassen's Matrix Multiplication (Go)
+# Strassen's Matrix Multiplication -- Go Implementation
 
-**Strassen's Matrix Multiplication** reduces matrix multiplication from O(n³) to O(n^log₂ 7) ≈ O(n^2.81).
+Strassen's algorithm for square `[][]int` matrices, with a naive cutoff at n <= 64. See the [topic README](../README.md) for the idea and the trace.
 
----
+## Files
 
-## Overview
+- `main.go` - the algorithm and its helpers (`package main`, no `main` function).
+- `main_test.go` - tests, including sizes above the cutoff.
+- `go.mod` - the module `strassenmatrix`.
 
-Strassen's algorithm uses divide and conquer to multiply matrices faster than the naive approach by using only 7 recursive multiplications instead of 8.
+## API
 
----
-
-## Complexity Analysis
-
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(n^log₂ 7) ≈ O(n^2.81) | O(n²) |
-
----
-
-## Usage
+- `StrassenMultiply(A, B [][]int) [][]int` - multiply two n x n matrices. Pads an odd size by one zero row and column.
+- `naiveMultiply`, `matrixAdd`, `matrixSubtract`, `splitMatrix`, `combineMatrices`, `padMatrix` - unexported helpers.
 
 ```go
-package main
-
-import "fmt"
-
-func main() {
-    A := [][]int{{1, 2}, {3, 4}}
-    B := [][]int{{5, 6}, {7, 8}}
-    C := StrassenMultiply(A, B)
-    // C = {{19, 22}, {43, 50}}
-    fmt.Println(C)
-}
+C := StrassenMultiply([][]int{{1, 2}, {3, 4}}, [][]int{{5, 6}, {7, 8}}) // [[19 22] [43 50]]
 ```
 
----
+## Go-Specific Notes
 
-## Implementation Details
+- Entries are `int` (64-bit on common platforms); overflow wraps silently instead of panicking.
+- Only square matrices are supported; there is no rectangular wrapper like Python's `strassen_multiply_general`.
+- The folder is `package main` without a `main` function, so `go test` works but `go run .` and `go build` do not.
+- Every call allocates new slices for sums and products; there is no reuse of buffers.
 
-### Functions
+## How to Run
 
-- **`StrassenMultiply(A, B)`**: Main Strassen's algorithm
-- **`matrixAdd(A, B)`**: Matrix addition
-- **`matrixSubtract(A, B)`**: Matrix subtraction
-- **`splitMatrix(matrix)`**: Split into 4 quadrants
-- **`combineMatrices(...)`**: Combine 4 quadrants
-- **`naiveMultiply(A, B)`**: Naive O(n³) for small matrices
-
----
-
-## Testing
-
-Run the test suite:
+From this folder:
 
 ```bash
-go test
+go test ./...
+go test -v ./...
 ```
 
-Run with verbose output:
+## Key Takeaways
 
-```bash
-go test -v
-```
-
----
-
-## When to Use
-
-- ✅ Very large matrices (> 1000x1000)
-- ✅ When asymptotic performance matters
-- ❌ Small matrices (use naive O(n³))
-
----
-
-## Related Algorithms
-
-- **Naive Matrix Multiplication**: O(n³) standard approach
-- **Coppersmith-Winograd**: O(n^2.376) theoretical improvement
-
----
-
-## References
-
-- Strassen, Volker (1969). "Gaussian elimination is not optimal"
-- "Introduction to Algorithms" by CLRS (Chapter 4)
-
----
-
-_Last Updated: December 2025_
+- Seven recursive products per split give O(n^2.81).
+- Odd sizes are padded by one zero row and column, so any square size works.
+- The test compares against `naiveMultiply` at sizes 65, 128 and 130.

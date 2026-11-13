@@ -1,201 +1,49 @@
-# Huffman Coding (Python)
+# Huffman Coding -- Python Implementation
 
-**Huffman Coding** is a lossless data compression algorithm that assigns variable-length codes to characters based on their frequencies, creating an optimal prefix-free code.
+The complete implementation: frequency count, heap-based tree construction, code table, encoding, decoding and a compression-ratio helper.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `huffman_coding.py` | `HuffmanNode` and the functions below |
+| `huffman_coding_test.py` | 10 `unittest` tests (round trips, a known code table, single symbol, empty text, prefix-free and optimal length on several texts, compression ratio) |
 
-Huffman coding creates an optimal prefix-free (no code is prefix of another) encoding where:
-- **Frequent characters** get shorter codes
-- **Rare characters** get longer codes
-- **Total encoded length** is minimized
+## API
 
-This is achieved through a greedy algorithm that builds a binary tree by repeatedly merging the two least frequent nodes.
-
-**Example**:
-- Text: "hello"
-- Frequencies: h=1, e=1, l=2, o=1
-- Codes: l=0, h=10, e=110, o=111
-- Encoded: "010110110111"
-
----
-
-## Algorithm
-
-1. **Count frequencies**: Count occurrence of each character
-2. **Build min-heap**: Create priority queue with character nodes
-3. **Build tree** (greedy):
-   - Extract two nodes with lowest frequency
-   - Merge into new node with combined frequency
-   - Insert merged node back into heap
-   - Repeat until one node remains (root)
-4. **Build codes**: Traverse tree to assign codes (left=0, right=1)
-5. **Encode**: Replace each character with its code
-6. **Decode**: Traverse tree using encoded bits
-
----
-
-## Complexity Analysis
-
-| Operation | Time | Space |
-|-----------|------|-------|
-| **Building Tree** | O(n log n) | O(n) |
-| **Encoding** | O(n) | O(n) |
-| **Decoding** | O(n) | O(1) |
-
-Where n is the length of input text.
-
-**Note**: Building tree is O(n log n) due to heap operations. Encoding/decoding is O(n) where n is text length.
-
----
-
-## Implementation Details
-
-### Classes
-
-1. **`HuffmanNode`**
-   - Represents node in Huffman tree
-   - Stores character, frequency, left/right children
-   - Implements `__lt__` for heap comparison
-
-### Functions
-
-1. **`build_huffman_tree(text)`**
-   - Builds Huffman tree from text
-   - Returns root node
-   - Time: O(n log n), Space: O(n)
-
-2. **`build_codes(root, code="", codes=None)`**
-   - Builds encoding table from tree
-   - Returns dictionary mapping characters to codes
-   - Time: O(n), Space: O(n)
-
-3. **`huffman_encode(text)`**
-   - Encodes text using Huffman coding
-   - Returns (encoded_string, codes_dict, tree_root)
-   - Time: O(n log n), Space: O(n)
-
-4. **`huffman_decode(encoded, tree)`**
-   - Decodes Huffman-encoded string
-   - Returns decoded string
-   - Time: O(n), Space: O(1)
-
-5. **`calculate_compression_ratio(original, encoded, codes)`**
-   - Calculates compression ratio and savings
-   - Returns (ratio, savings_percentage)
-
----
-
-## Greedy Choice
-
-**Always merge two nodes with lowest frequency** - this greedy choice leads to optimal prefix code.
-
-**Why it works**:
-- Characters with higher frequency should have shorter codes
-- By merging least frequent nodes first, we ensure they end up deeper in tree (longer codes)
-- Frequent characters naturally end up higher (shorter codes)
-
----
-
-## Usage
+| Name | Description |
+|------|-------------|
+| `HuffmanNode(char, freq, left, right)` | tree node; ordered by `freq` only (`__lt__`) |
+| `build_huffman_tree(text)` | root node, or `None` for empty text |
+| `build_codes(root)` | dict from symbol to code string; a single-symbol tree gets `"0"` |
+| `huffman_encode(text)` | `(encoded, codes, tree)`; `("", {}, None)` for empty text |
+| `huffman_decode(encoded, tree)` | the original text; `""` for no tree or no bits |
+| `calculate_compression_ratio(original, encoded, codes)` | `(ratio, savings_percent)` against 8 bits per character; `codes` is unused |
 
 ```python
-from huffman_coding import (
-    huffman_encode,
-    huffman_decode,
-    calculate_compression_ratio
-)
+from huffman_coding import huffman_encode, huffman_decode
 
-# Encode text
-text = "hello world"
-encoded, codes, tree = huffman_encode(text)
-print(f"Encoded: {encoded}")
-print(f"Codes: {codes}")
-
-# Decode
-decoded = huffman_decode(encoded, tree)
-print(f"Decoded: {decoded}")  # "hello world"
-
-# Calculate compression
-ratio, savings = calculate_compression_ratio(text, encoded, codes)
-print(f"Compression ratio: {ratio:.2%}")
-print(f"Space savings: {savings:.2%}")
+encoded, codes, tree = huffman_encode("abracadabra")
+# encoded is 23 characters of "0" and "1"; codes == {'a': '0', 'c': '100', 'd': '101', 'r': '110', 'b': '111'}
+huffman_decode(encoded, tree)  # 'abracadabra'
 ```
 
----
+## Python-Specific Notes
 
-## Important Notes
+- Uses `heapq` with `HuffmanNode.__lt__` on frequency only. With tied frequencies the exact code table depends on the heap order (any such table is optimal).
+- The encoded text is a `str` of `"0"` and `"1"`, one character per bit; it is not packed into bytes.
+- Symbols are Python characters (code points), so non-ASCII text works; the ratio helper still assumes 8 bits per character.
+- `build_codes` is recursive; its depth equals the longest code, which stays small for realistic frequency distributions.
 
-1. **Prefix-free**: No code is prefix of another (enables unique decoding)
-2. **Optimal**: Huffman coding gives optimal prefix-free code
-3. **Tree structure**: Binary tree where left=0, right=1
-4. **Single character**: Special handling when text has only one unique character
-5. **Tree needed for decoding**: Must store/transmit tree or frequency table
-
----
-
-## Advantages
-
-1. ✅ **Optimal**: Produces optimal prefix-free code
-2. ✅ **Lossless**: Perfect reconstruction of original text
-3. ✅ **Adaptive**: Can adapt to any character distribution
-4. ✅ **Efficient**: O(n log n) construction, O(n) encoding/decoding
-
----
-
-## Disadvantages
-
-1. ❌ **Two-pass**: Need to count frequencies first
-2. ❌ **Tree overhead**: Must store tree or frequency table
-3. ❌ **Not always better**: For uniform distributions, fixed-length may be better
-4. ❌ **Sequential decoding**: Cannot decode from middle
-
----
-
-## When to Use
-
-- ✅ Text with skewed character distribution
-- ✅ When compression ratio matters
-- ✅ Lossless compression required
-- ❌ Uniform character distribution (little benefit)
-- ❌ Very short texts (overhead not worth it)
-
----
-
-## Applications
-
-1. **File Compression**: ZIP, GZIP use Huffman coding
-2. **Image Compression**: JPEG uses Huffman coding
-3. **Network Protocols**: HTTP/2 header compression
-4. **Database Systems**: Column compression
-
----
-
-## Testing
+## How to Run
 
 ```bash
-python huffman_coding_test.py
+cd "Algorithms/Greedy/Huffman Coding/Python"
+python3 -m unittest huffman_coding_test
 ```
 
----
+## Key Takeaways
 
-## Related Algorithms
-
-- **LZW Compression**: Dictionary-based, better for repetitive patterns
-- **Arithmetic Coding**: Better compression ratio, more complex
-- **Run-Length Encoding**: Simple compression for runs
-- **Burrows-Wheeler Transform**: Used with Huffman in bzip2
-
----
-
-## References
-
-- Huffman, D. A. (1952). "A Method for the Construction of Minimum-Redundancy Codes"
-- "Introduction to Algorithms" by CLRS (Chapter 16)
-- "Data Compression: The Complete Reference" by David Salomon
-
----
-
-_Last Updated: December 2025_
-
+- Merge the two lightest nodes k - 1 times with a min-heap.
+- Decoding needs the tree, not just the code table.
+- The output is a string of bit characters, not real packed bits.

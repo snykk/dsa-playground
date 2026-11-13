@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <string>
 
 template<typename T>
 void bubbleSort(std::vector<T>& arr) {
@@ -31,7 +32,7 @@ void bubbleSort(std::vector<T>& arr) {
     }
 }
 
-// Specialization for common types
+// Explicit instantiations for common types
 template void bubbleSort<int>(std::vector<int>&);
 template void bubbleSort<double>(std::vector<double>&);
 template void bubbleSort<std::string>(std::vector<std::string>&);

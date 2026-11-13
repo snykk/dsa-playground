@@ -18,7 +18,7 @@ def activity_selection(activities):
         List of selected activity indices (0-indexed)
         
     Time Complexity: O(n log n)
-    Space Complexity: O(1) excluding output
+    Space Complexity: O(n) for the sorted copy of the activities
     """
     if not activities:
         return []

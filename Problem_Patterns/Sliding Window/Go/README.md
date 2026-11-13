@@ -1,86 +1,37 @@
-# Sliding Window - Go
+# Sliding Window -- Go Implementation
 
-This folder contains a Go implementation of the **Sliding Window** technique for solving subarray and substring problems.
+Fixed and variable windows over arrays and strings. See the [topic README](../README.md) for the idea.
 
----
+## Files
 
-## Concept
+| File | Contents |
+|------|----------|
+| `main.go` | The four functions and a demo `main` |
+| `main_test.go` | Table-driven tests, including `k <= 0` and negative sums |
+| `go.mod` | Module definition |
 
-The sliding window technique maintains a window (subarray or substring) that slides through the array/string. It can be:
-- **Fixed Size**: Window size is constant
-- **Variable Size**: Window size changes based on conditions
+## API
 
-**Key Features:**
-- Efficient O(n) time complexity
-- O(1) or O(k) space complexity
-- Avoids redundant calculations
-- Useful for substring/subarray problems
+- `maxSumSubarray(arr []int, k int) int`: 0 if `k <= 0` or `k > len(arr)`.
+- `longestSubstringKDistinct(s string, k int) int`
+- `minWindowSubstring(s, t string) string`
+- `longestSubstringNoRepeat(s string) int`
 
----
+## Go-Specific Notes
 
-## Functions
+- Strings are indexed by byte (`map[byte]int`), so multi-byte UTF-8 characters count as several.
+- The functions are unexported; call them from within the package.
+- `int` is 64-bit on common platforms, so sums rarely overflow.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `maxSumSubarray(arr, k)` | Maximum sum of subarray of size k | O(n) |
-| `longestSubstringKDistinct(s, k)` | Longest substring with k distinct chars | O(n) |
-| `minWindowSubstring(s, t)` | Minimum window containing all chars of t | O(\|s\| + \|t\|) |
-| `longestSubstringNoRepeat(s)` | Longest substring without repeating chars | O(n) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Fixed Window | O(n) | O(1) |
-| Variable Window | O(n) | O(k) or O(min(n, m)) |
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    // Fixed window: Maximum sum
-    arr := []int{1, 4, 2, 10, 23, 3, 1, 0, 20}
-    result := maxSumSubarray(arr, 4)  // Returns 39
-
-    // Variable window: Longest substring
-    s := "abcabcbb"
-    result := longestSubstringNoRepeat(s)  // Returns 3
-}
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-go test
+go test ./...
+go run main.go
 ```
 
----
+## Key Takeaways
 
-## Examples
-
-1. **Fixed Window**: Maximum sum of subarray of size k
-   - Array: [1, 4, 2, 10, 23, 3, 1, 0, 20], k = 4
-   - Result: 39 (subarray [2, 10, 23, 3])
-
-2. **Variable Window**: Longest substring with k distinct characters
-   - String: "eceba", k = 2
-   - Result: 3 ("ece")
-
-3. **Minimum Window**: Smallest substring containing all characters
-   - Source: "ADOBECODEBANC", Target: "ABC"
-   - Result: "BANC"
-
----
-
-_Last Updated: December 2025_
-
+- Both pointers only move forward, so the pass is O(n).
+- Delete zero counts so the map size means "distinct characters".
+- For the shortest window, record the answer inside the shrink loop.

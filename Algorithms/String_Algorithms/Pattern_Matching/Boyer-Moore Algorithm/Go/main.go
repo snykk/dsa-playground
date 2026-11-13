@@ -14,13 +14,13 @@ func BoyerMooreSearch(text, pattern string) []int {
 	if len(pattern) == 0 || len(text) == 0 || len(pattern) > len(text) {
 		return []int{}
 	}
-	
+
 	n := len(text)
 	m := len(pattern)
 	var result []int
 	badChar := buildBadCharTable(pattern)
 	s := 0
-	
+
 	for s <= n-m {
 		j := m - 1
 		for j >= 0 && pattern[j] == text[s+j] {
@@ -59,4 +59,3 @@ func main() {
 	fmt.Println("Boyer-Moore Algorithm Example:")
 	fmt.Printf("Occurrences: %v\n", BoyerMooreSearch(text, pattern))
 }
-

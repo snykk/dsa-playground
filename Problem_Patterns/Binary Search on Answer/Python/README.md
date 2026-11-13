@@ -1,73 +1,37 @@
-# Binary Search on Answer - Python
+# Binary Search on Answer -- Python Implementation
 
-This folder contains a Python implementation of **Binary Search on Answer** technique for optimization problems.
+Binary search over the answer range with a greedy feasibility check. See the [topic README](../README.md) for the idea.
 
----
+## Files
 
-## Concept
+| File | Contents |
+|------|----------|
+| `binary_search_on_answer.py` | The search and three problems |
+| `binary_search_on_answer_test.py` | Unit tests, including infeasible inputs and a brute-force comparison |
 
-Binary Search on Answer searches for the optimal answer in the answer space rather than the input array. It's used when:
-- We need to find optimal value satisfying conditions
-- Answer space is monotonic (if answer X works, all answers > X work)
-- Checking if an answer is valid is easier than finding the answer directly
+## API
 
-**Key Features:**
-- Efficient for optimization problems
-- O(log(max_answer) * T(check)) time complexity
-- Works when answer space is monotonic
+- `binary_search_answer(left, right, check)`: smallest value in `[left, right]` with `check` True, or `-1`.
+- `find_min_capacity(weights, days)`: least ship capacity to ship in order within `days`; `-1` if `days < 1`.
+- `split_array_largest_sum(nums, m)`: least possible largest sum when splitting into at most `m` parts; `-1` if `m < 1`.
+- `find_kth_smallest_distance(nums, k)`: k-th smallest pair distance, or `-1` when fewer than `k` pairs exist.
 
----
+## Python-Specific Notes
 
-## Functions
+- Integers never overflow, so bounds can be the plain sum.
+- `find_kth_smallest_distance` sorts the caller's list in place and runs its own loop with a two-pointer count; the other functions call `binary_search_answer`.
+- Empty input raises (`ValueError` from `max`, `IndexError` in the k-th distance function).
+- Compatible with Python 3.9 and newer.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `binary_search_answer(left, right, check)` | Generic binary search on answer | O(log(max) * T(check)) |
-| `find_min_capacity(weights, days)` | Minimum ship capacity | O(n log(sum)) |
-| `split_array_largest_sum(nums, m)` | Minimum largest sum | O(n log(sum)) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Binary Search on Answer | O(log(max_answer) * T(check)) | O(1) |
-| Find Min Capacity | O(n log(sum(weights))) | O(1) |
-| Split Array | O(n log(sum(nums))) | O(1) |
-
----
-
-## Usage
-
-```python
-from binary_search_on_answer import find_min_capacity
-
-weights = [1, 2, 3, 4, 5]
-result = find_min_capacity(weights, 2)  # Returns minimum capacity
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-python binary_search_on_answer_test.py
+python3 -m unittest binary_search_on_answer_test
+python3 binary_search_on_answer.py
 ```
 
----
+## Key Takeaways
 
-## Examples
-
-1. **Minimum Ship Capacity**: Find minimum capacity to ship packages
-   - Weights: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], days = 5
-   - Result: 15
-
-2. **Split Array**: Minimum largest sum when splitting into m subarrays
-   - Array: [7, 2, 5, 10, 8], m = 2
-   - Result: 18
-
----
-
-_Last Updated: December 2025_
-
+- Prove the check is monotone before writing the loop.
+- Initialise `result` to `-1` so "nothing feasible" is distinguishable from an answer.
+- The check is the problem; the search is boilerplate.

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"sort"
 	"testing"
 )
@@ -71,3 +72,29 @@ func TestEmptyString(t *testing.T) {
 	}
 }
 
+func TestBananaOrderAndExactResults(t *testing.T) {
+	text := "banana"
+	sa := BuildSuffixArray(text)
+	if want := []int{5, 3, 1, 0, 4, 2}; !reflect.DeepEqual(sa, want) {
+		t.Errorf("BuildSuffixArray(%q) = %v, want %v", text, sa, want)
+	}
+	tests := []struct {
+		pattern string
+		want    []int
+	}{
+		{"ana", []int{1, 3}},
+		{"a", []int{1, 3, 5}},
+		{"bananas", nil},
+		{"", []int{0, 1, 2, 3, 4, 5}}, // the empty pattern is a prefix of every suffix
+	}
+	for _, tt := range tests {
+		got := SearchPattern(sa, text, tt.pattern)
+		if len(got) != len(tt.want) || (len(got) > 0 && !reflect.DeepEqual(got, tt.want)) {
+			t.Errorf("SearchPattern(%q, %q) = %v, want %v", text, tt.pattern, got, tt.want)
+		}
+	}
+	aaaa := BuildSuffixArray("aaaa")
+	if got := SearchPattern(aaaa, "aaaa", "aa"); !reflect.DeepEqual(got, []int{0, 1, 2}) {
+		t.Errorf("overlapping matches = %v, want [0 1 2]", got)
+	}
+}

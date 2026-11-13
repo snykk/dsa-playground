@@ -1,91 +1,37 @@
-# Ternary Search (C++)
+# Ternary Search -- C++ Implementation
 
-**Ternary Search** is a divide-and-conquer algorithm that finds the position of a target value in a sorted array by dividing the search space into three parts.
+Template ternary search over a sorted `std::vector`. For the idea and the traces see the [topic README](../README.md).
 
----
+## Files
 
-## Overview
+- `ternary_search.cpp` - the templates and their explicit instantiations.
+- `ternary_search_test.cpp` - 6 assert-based tests (it includes the .cpp file).
 
-Ternary Search divides the search space into three equal parts and compares the target with values at two partition points. While it has the same asymptotic complexity as Binary Search, it typically performs more comparisons per iteration.
+## API
 
----
+- `int ternarySearch(const std::vector<T>& arr, const T& target)` - index or -1. Instantiated for `int` and `double`.
+- `int ternarySearchRecursive(arr, target, left, right)` - the recursive form; the caller passes the bounds. `int` and `double`.
 
-## Algorithm
+There is no unimodal-function search in C++ (Python has one), although the file includes `<functional>`.
 
-1. Divide search space into three parts
-2. Compare target with values at two partition points
-3. If match found, return index
-4. Eliminate two-thirds of search space
-5. Repeat until found or exhausted
+## C++-Specific Notes
 
----
+- The probes are `left + (right - left) / 3` and `right - (right - left) / 3`, which cannot overflow `int`.
+- Indexes are `int`, so vectors beyond `INT_MAX` elements are not supported.
+- For lookups, `std::lower_bound` (binary search) is the better choice.
+- Do not compile `ternary_search.cpp` and the test together: the test already includes it.
 
-## Complexity Analysis
+## How to Run
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **Best Case** | O(1) | O(1) |
-| **Average Case** | O(log₃ n) | O(1) |
-| **Worst Case** | O(log₃ n) | O(1) |
-
-**Note**: O(log₃ n) ≈ O(0.63 log n), but performs more comparisons than Binary Search.
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`ternarySearch(arr, target)`**
-   - Iterative implementation
-   - O(1) space complexity
-   - Template-based for generic types
-
-2. **`ternarySearchRecursive(arr, target, left, right)`**
-   - Recursive implementation
-   - O(log₃ n) space complexity
-
----
-
-## Usage
-
-```cpp
-#include <vector>
-#include "ternary_search.cpp"
-
-std::vector<int> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-int index = ternarySearch(arr, 5);
-// index = 4
-```
-
----
-
-## Compilation
+From this folder:
 
 ```bash
-g++ -std=c++11 ternary_search.cpp ternary_search_test.cpp -o test
-./test
+g++ -std=c++17 -O2 -Wall ternary_search_test.cpp -o ternary_search_test
+./ternary_search_test
 ```
 
----
+## Key Takeaways
 
-## When to Use
-
-- ✅ Finding maximum/minimum of unimodal functions
-- ✅ Optimization problems
-- ❌ General array searching (use Binary Search instead)
-
----
-
-## Related Algorithms
-
-- **Binary Search**: O(log₂ n) for sorted arrays
-- **Linear Search**: O(n) for unsorted arrays
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
+- Two probes per round, a third discarded: more probes in total than binary search.
+- Use `std::lower_bound` for lookups in real code.
+- Ternary search is for unimodal functions, which this folder does not implement in C++.

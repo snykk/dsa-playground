@@ -23,6 +23,12 @@ void testCountSetBits() {
     assert(countSetBits(13) == 3);
     assert(countSetBits(255) == 8);
     assert(countSetBits(1024) == 1);
+    // Regression: negatives were signed overflow (UB) in n - 1. They now count
+    // as 64-bit two's complement values, like the Python and Go versions.
+    assert(countSetBits(-1) == 64);
+    assert(countSetBits(-8) == 61);
+    assert(countSetBits(INT64_MIN) == 1);
+    assert(countDifferingBits(-1, 0) == 64);
     cout << "testCountSetBits passed" << endl;
 }
 

@@ -58,12 +58,27 @@ void testEmptyString() {
     assert(sa.empty());
 }
 
+void testBananaOrderAndExactResults() {
+    std::string text = "banana";
+    std::vector<int> sa = buildSuffixArray(text);
+    assert((sa == std::vector<int>{5, 3, 1, 0, 4, 2}));
+    assert((searchPattern(sa, text, "ana") == std::vector<int>{1, 3}));
+    assert((searchPattern(sa, text, "a") == std::vector<int>{1, 3, 5}));
+    assert(searchPattern(sa, text, "bananas").empty());
+    // The empty pattern is a prefix of every suffix: indices 0..n-1.
+    assert((searchPattern(sa, text, "") == std::vector<int>{0, 1, 2, 3, 4, 5}));
+    std::vector<int> aaaa = buildSuffixArray("aaaa");
+    assert((searchPattern(aaaa, "aaaa", "aa") == std::vector<int>{0, 1, 2}));
+    assert(searchPattern(std::vector<int>{}, "", "a").empty());
+}
+
 int main() {
     testBuildSuffixArray();
     testSearchPattern();
     testSearchPatternNotFound();
     testSearchPatternSingleChar();
     testEmptyString();
+    testBananaOrderAndExactResults();
     
     std::cout << "All tests passed!" << std::endl;
     return 0;

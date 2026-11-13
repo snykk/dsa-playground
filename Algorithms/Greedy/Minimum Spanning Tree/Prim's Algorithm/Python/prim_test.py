@@ -65,6 +65,31 @@ class TestPrim(unittest.TestCase):
         self.assertEqual(weight, -6)
         self.assertEqual(weight, prim_mst_edge_list(edges, 4, 0)[1])
 
+    def test_neighbor_only_vertex(self):
+        """Regression: len(graph) was used as the vertex count, so a vertex that
+        appears only in a neighbor list ended the loop before it was added."""
+        self.assertEqual(prim_mst_adjacency_list({0: [(1, 4)]}, 0), ([(0, 1, 4)], 4))
+        graph = {0: [(1, 1), (2, 2)], 1: [(0, 1)]}
+        mst, weight = prim_mst_adjacency_list(graph, 0)
+        self.assertEqual((len(mst), weight), (2, 3))
+
+    def test_single_vertex_and_empty(self):
+        self.assertEqual(prim_mst_adjacency_list({0: []}, 0), ([], 0))
+        self.assertEqual(prim_mst_adjacency_list({}, 0), ([], 0))
+
+    def test_disconnected_returns_start_component_only(self):
+        """Prim grows one tree, so it covers only the component of start."""
+        mst, weight = prim_mst_edge_list([(0, 1, 1), (2, 3, 1)], 4, 0)
+        self.assertEqual((mst, weight), ([(0, 1, 1)], 1))
+
+    def test_negative_weights_match_across_representations(self):
+        edges = [(0, 1, -2), (0, 2, 7), (1, 2, 3), (1, 3, -5), (2, 3, 1)]
+        graph = {i: [] for i in range(4)}
+        for u, v, w in edges:
+            graph[u].append((v, w))
+            graph[v].append((u, w))
+        self.assertEqual(prim_mst_adjacency_list(graph, 0)[1], -6)
+
 
 if __name__ == '__main__':
     unittest.main()

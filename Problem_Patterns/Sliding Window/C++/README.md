@@ -1,83 +1,35 @@
-# Sliding Window - C++
+# Sliding Window -- C++ Implementation
 
-This folder contains a C++ implementation of the **Sliding Window** technique for solving subarray and substring problems.
+Fixed and variable windows over arrays and strings. See the [topic README](../README.md) for the idea.
 
----
+## Files
 
-## Concept
+| File | Contents |
+|------|----------|
+| `sliding_window.cpp` | The four functions and a demo `main` |
+| `sliding_window_test.cpp` | Assert-based tests (includes the `.cpp`) |
 
-The sliding window technique maintains a window (subarray or substring) that slides through the array/string. It can be:
-- **Fixed Size**: Window size is constant
-- **Variable Size**: Window size changes based on conditions
+## API
 
-**Key Features:**
-- Efficient O(n) time complexity
-- O(1) or O(k) space complexity
-- Avoids redundant calculations
-- Useful for substring/subarray problems
+- `int maxSumSubarray(const vector<int>& arr, int k)`: 0 if `k <= 0` or `k > size`.
+- `int longestSubstringKDistinct(const string& s, int k)`
+- `string minWindowSubstring(const string& s, const string& t)`
+- `int longestSubstringNoRepeat(const string& s)`
 
----
+## C++-Specific Notes
 
-## Functions
+- Strings are bytes (`char`), so multi-byte UTF-8 characters count as several.
+- Sums are `int`; use `long long` for large values.
+- The demo `main` is compiled out when `IS_TEST_BUILD` is defined.
 
-| Function | Description | Time Complexity |
-|----------|-------------|----------------|
-| `maxSumSubarray(arr, k)` | Maximum sum of subarray of size k | O(n) |
-| `longestSubstringKDistinct(s, k)` | Longest substring with k distinct chars | O(n) |
-| `minWindowSubstring(s, t)` | Minimum window containing all chars of t | O(\|s\| + \|t\|) |
-| `longestSubstringNoRepeat(s)` | Longest substring without repeating chars | O(n) |
-
----
-
-## Complexity
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| Fixed Window | O(n) | O(1) |
-| Variable Window | O(n) | O(k) or O(min(n, m)) |
-
----
-
-## Usage
-
-```cpp
-#include "sliding_window.cpp"
-
-// Fixed window: Maximum sum
-vector<int> arr = {1, 4, 2, 10, 23, 3, 1, 0, 20};
-int result = maxSumSubarray(arr, 4);  // Returns 39
-
-// Variable window: Longest substring
-string s = "abcabcbb";
-int result = longestSubstringNoRepeat(s);  // Returns 3
-```
-
----
-
-## Compilation
+## How to Run
 
 ```bash
-g++ -std=c++17 sliding_window.cpp sliding_window_test.cpp -o sliding_window_test
-./sliding_window_test
+g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD sliding_window_test.cpp -o sw_test && ./sw_test
 ```
 
----
+## Key Takeaways
 
-## Examples
-
-1. **Fixed Window**: Maximum sum of subarray of size k
-   - Array: [1, 4, 2, 10, 23, 3, 1, 0, 20], k = 4
-   - Result: 39 (subarray [2, 10, 23, 3])
-
-2. **Variable Window**: Longest substring with k distinct characters
-   - String: "eceba", k = 2
-   - Result: 3 ("ece")
-
-3. **Minimum Window**: Smallest substring containing all characters
-   - Source: "ADOBECODEBANC", Target: "ABC"
-   - Result: "BANC"
-
----
-
-_Last Updated: December 2025_
-
+- Both pointers only move forward, so the pass is O(n).
+- Delete zero counts so the map size means "distinct characters".
+- For the shortest window, record the answer inside the shrink loop.

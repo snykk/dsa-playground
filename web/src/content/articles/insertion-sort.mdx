@@ -1,0 +1,195 @@
+---
+topic: Algorithms/Sorting/Insertion Sort
+title: Insertion Sort
+lead: Insertion Sort grows a sorted prefix one element at a time, sliding each new element left into its place, like sorting playing cards in your hand. It is quadratic in general but linear on nearly sorted input, which makes it the best simple sort for small arrays.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Best time
+    value: O(n)
+    hint: already sorted input
+  - label: Average time
+    value: O(n^2)
+  - label: Worst time
+    value: O(n^2)
+    hint: reverse-sorted input
+    tone: warn
+  - label: Extra space
+    value: O(1)
+properties:
+  - { label: In-place, value: true }
+  - { label: Stable, value: true }
+  - { label: Adaptive, value: true }
+  - { label: Online, value: true }
+  - { label: Comparison sort, value: true }
+prerequisites:
+  - Complexity_Analysis/Time Complexity/Big-O Notation
+related:
+  - Algorithms/Sorting/Bubble Sort
+  - Algorithms/Sorting/Selection Sort
+  - Algorithms/Sorting/Merge Sort
+  - Algorithms/Sorting/Quick Sort
+---
+
+## How Insertion Sort works
+
+Hold a hand of cards in order. When you pick up a new card you slide it left past every larger card until it fits. Insertion Sort does exactly this to the array: the prefix `arr[0..i-1]` is always sorted, and step `i` inserts `arr[i]` into it.
+
+<Steps>
+  <Step title="Start with a prefix of one">
+    A single element is already sorted, so the loop starts at index 1.
+  </Step>
+  <Step title="Take the next element as the key">
+    Save `key = arr[i]`. The slot `arr[i]` is now free.
+  </Step>
+  <Step title="Shift larger elements right">
+    While the element before the gap is greater than `key`, move it one place to the right. Equal elements are not moved, which keeps the sort stable.
+  </Step>
+  <Step title="Drop the key into the gap">
+    Write `key` into the gap. The prefix `arr[0..i]` is sorted.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+Before step `i` the prefix `arr[0..i-1]` contains the original first `i` elements in sorted order. The step inserts one more element, so the prefix grows by one and stays sorted. When `i` reaches `n` the whole array is sorted. Unlike Selection Sort, the prefix is not yet in final position: later elements may still be inserted before it.
+</Callout>
+
+## See it in action
+
+Press play, or step through one comparison at a time. Blue bars are being compared, orange bars are moving, and aqua bars are in their final position. Try the Nearly sorted and Reversed examples to see how few or how many shifts are needed.
+
+<ArticleViz ids={['insertion-sort']} />
+
+## Worked example
+
+Sorting `[7, 3, 5, 1, 6, 2]` takes five insertions. Each row shows the array after one insertion; the blue cells are the sorted prefix, and the orange cell is the key that was just inserted.
+
+<ArrayDiagram
+  legend={{ l: 'sorted prefix', p: 'the key just inserted' }}
+  rows={[
+    { label: 'start', values: [7, 3, 5, 1, 6, 2], tones: 'l.....', note: 'The prefix `[7]` is sorted.' },
+    { label: 'insert 3', values: [3, 7, 5, 1, 6, 2], tones: 'pl....', note: '1 shift: 7 moves right.' },
+    { label: 'insert 5', values: [3, 5, 7, 1, 6, 2], tones: 'lpl...', note: '1 shift.' },
+    { label: 'insert 1', values: [1, 3, 5, 7, 6, 2], tones: 'plll..', note: '3 shifts: 1 is smaller than everything.' },
+    { label: 'insert 6', values: [1, 3, 5, 6, 7, 2], tones: 'lllpl.', note: '1 shift.' },
+    { label: 'insert 2', values: [1, 2, 3, 5, 6, 7], tones: 'lpllll', note: '4 shifts. The array is sorted.' },
+  ]}
+/>
+
+In total there are 10 shifts and 13 comparisons. The input has exactly 10 **inversions** (pairs in the wrong order), and each shift removes exactly one. So the number of shifts always equals the number of inversions, and the running time is <BigO of="n + d" /> where `d` is that number.
+
+## Pseudocode
+
+```text
+insertionSort(arr):
+    for i = 1 to length(arr) - 1:
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]          # shift right
+            j = j - 1
+        arr[j + 1] = key
+    return arr
+```
+
+The comparison `arr[j] > key` is strict, so an equal element stops the shifting and the key lands after it: equal keys keep their order.
+
+## Implementation
+
+Python has `insertion_sort` (in place, returns the same list) and `insertion_sort_recursive`, which sorts the first `n - 1` elements recursively and then inserts the last one. C++ is a template over the element type of a `std::vector`, instantiated for `int` and `double`; its inner loop tests `arr[j - 1] > key` with an unsigned index. Go has `InsertionSort([]int)`.
+
+<TopicCode topic="Algorithms/Sorting/Insertion Sort" />
+
+## Complexity analysis
+
+The inner loop runs once per element that is larger than the key and sits to its left, so the total work is the number of inversions plus the `n - 1` outer steps.
+
+<Equation label="Time" expr="T(n) = (n - 1) + I(arr)" result="O(n + I) where I is the number of inversions, 0 to n(n - 1)/2" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n)', space: 'O(1)', when: 'Already sorted: zero inversions, so each key needs one comparison and no shift.' },
+    { case: 'Average case', time: 'O(n^2)', space: 'O(1)', when: 'A random permutation has about n(n - 1)/4 inversions, so about that many shifts.' },
+    { case: 'Worst case', time: 'O(n^2)', space: 'O(1)', when: 'Reverse-sorted: n(n - 1)/2 inversions, every key slides all the way to the front.' },
+  ]}
+/>
+
+<Callout title="The recursive version needs O(n) stack">
+`insertion_sort_recursive` makes one nested call per element, so its depth is `n`. Python's default recursion limit (about 1,000 frames) makes it raise `RecursionError` for lists of a few thousand elements. Use the iterative version for real work.
+</Callout>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Notes']}
+  rows={[
+    ['Linear insertion (this repository)', 'scan left, shifting as you go', 'O(n + I) time; fast on nearly sorted data'],
+    ['Binary insertion', 'binary-search the position, then shift', 'O(n log n) comparisons but still O(n^2) shifts; not implemented here'],
+    ['Recursive (Python only)', 'sort `n - 1` elements, then insert the last', 'same work, O(n) stack'],
+    ['Shell sort', 'insertion sort over gapped subsequences', 'better than O(n^2) in practice; not implemented here'],
+  ]}
+/>
+
+## Insertion Sort vs other simple sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Writes', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Insertion Sort', 'O(n)', 'O(n^2)', 'O(n + I) shifts', 'Yes', 'adaptive and online; the practical choice among the simple sorts'],
+    ['Bubble Sort', 'O(n)', 'O(n^2)', 'O(I) swaps', 'Yes', 'the same moves, but re-scans on every pass'],
+    ['Selection Sort', 'O(n^2)', 'O(n^2)', 'O(n) swaps', 'No', 'fewest writes; never adapts'],
+    ['Merge Sort', 'O(n log n)', 'O(n log n)', 'O(n log n)', 'Yes', 'for large inputs'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time on sorted or nearly sorted input: cost grows with the number of inversions.',
+    'Stable and in place, with O(1) extra space.',
+    'Online: it can sort a stream, keeping the prefix sorted as elements arrive.',
+    'Tiny constant factors and no recursion: fastest of the simple sorts on small arrays.',
+  ]}
+  cons={[
+    'O(n^2) comparisons and shifts on random or reversed input.',
+    'Shifting moves one element per step, so one far-away element costs many moves.',
+    'Not suited to large arrays.',
+    'The Python recursive variant overflows the stack on a few thousand elements.',
+  ]}
+/>
+
+## Applications
+
+- **Small subarrays inside faster sorts.** Hybrid sorts hand tiny ranges to Insertion Sort because its low overhead beats recursion there.
+- **Nearly sorted data.** Appending a few new records to a sorted list and re-sorting costs about `n` plus the number of misplaced pairs.
+- **Streaming input.** Keeping a sorted list as items arrive is Insertion Sort, one step at a time.
+- **Bucket Sort.** The Python Bucket Sort in this repository sorts each bucket with a small insertion sort of its own.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Losing the key.** Overwriting `arr[i]` while shifting without saving it in `key` first destroys the element.
+- **Off-by-one on the gap.** After the loop ends with `j` one position left of the gap, the key goes to `arr[j + 1]`.
+- **Unsigned index underflow in C++.** `j = i - 1` with `size_t` and a `j >= 0` test never fails. The repository version keeps `j` as the gap position and tests `j > 0`.
+- **Using `>=`.** It shifts equal elements past the key and makes the sort unstable.
+- **Starting at index 0.** The loop starts at 1: a one-element prefix is already sorted.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is Insertion Sort fast on nearly sorted data?">
+    The inner loop only runs for elements that are out of order with the key. With few inversions, almost every key is already in place after one comparison, so the total is close to `n`.
+  </FaqItem>
+  <FaqItem question="Is Insertion Sort better than Bubble Sort?">
+    Yes, in practice. Both do one move per inversion and are stable, but Insertion Sort makes fewer comparisons and does not re-scan the array on every pass.
+  </FaqItem>
+  <FaqItem question="Does binary search make it O(n log n)?">
+    No. Binary search cuts the comparisons to O(n log n), but you still have to shift elements to open the gap, and that is O(n^2) in the worst case.
+  </FaqItem>
+  <FaqItem question="What does online mean here?">
+    The algorithm can process elements as they arrive: after each insertion the prefix is a sorted copy of everything seen so far. It does not need the whole input in advance.
+  </FaqItem>
+</Faq>

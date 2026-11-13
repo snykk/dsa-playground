@@ -78,6 +78,18 @@ class TestNaivePatternSearch(unittest.TestCase):
         first = naive_pattern_search_first(text, pattern)
         self.assertEqual(first, -1)
 
+    def test_overlapping_matches(self):
+        self.assertEqual(naive_pattern_search("aaaa", "aa"), [0, 1, 2])
+        self.assertEqual(naive_pattern_search("ABABABA", "ABABA"), [0, 2])
+
+    def test_worst_case_input(self):
+        # "AAAA...AB" against "AAAAB": every alignment compares the whole pattern.
+        text = "A" * 19 + "B"
+        self.assertEqual(naive_pattern_search(text, "AAAAB"), [15])
+
+    def test_match_at_end(self):
+        self.assertEqual(naive_pattern_search("xxabc", "abc"), [2])
+
 
 if __name__ == '__main__':
     unittest.main()

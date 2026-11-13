@@ -17,12 +17,13 @@ def max_sum_subarray(arr: List[int], k: int) -> int:
         k: Size of subarray
         
     Returns:
-        Maximum sum of subarray of size k
+        Maximum sum of subarray of size k, or 0 when k <= 0 or k > len(arr)
+        (same as the C++ and Go versions)
         
     Time Complexity: O(n)
     Space Complexity: O(1)
     """
-    if len(arr) < k:
+    if k <= 0 or len(arr) < k:
         return 0
     
     # Calculate sum of first window

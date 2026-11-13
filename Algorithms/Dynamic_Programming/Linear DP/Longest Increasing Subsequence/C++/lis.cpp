@@ -1,6 +1,6 @@
 /**
  * Longest Increasing Subsequence (C++)
- * Time Complexity: O(n²)
+ * Time Complexity: O(n^2)
  */
 
 #include <vector>

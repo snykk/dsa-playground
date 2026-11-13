@@ -35,8 +35,9 @@ class TestKruskal(unittest.TestCase):
             (2, 3, 3)
         ]
         mst, weight = kruskal_mst(edges, 4)
-        # Should have fewer than V-1 edges
-        self.assertLess(len(mst), 3)
+        # A spanning forest: both components are spanned, so V - 2 edges
+        self.assertEqual(mst, [(2, 3, 3), (0, 1, 5)])
+        self.assertEqual(weight, 8)
     
     def test_complete_graph(self):
         """Test with complete graph"""
@@ -52,6 +53,16 @@ class TestKruskal(unittest.TestCase):
         # Actually: edges sorted by weight: 2,2,3,4,4,4
         # Select: (1,2,2), (1,3,2), then (2,3,3) creates cycle, so (0,1,4) = 8
         self.assertEqual(weight, 8)
+
+    def test_negative_weights(self):
+        edges = [(0, 1, -2), (0, 2, 7), (1, 2, 3), (1, 3, -5), (2, 3, 1)]
+        mst, weight = kruskal_mst(edges, 4)
+        self.assertEqual(weight, -6)
+        self.assertEqual(len(mst), 3)
+
+    def test_with_details_reports_connectivity(self):
+        self.assertTrue(kruskal_mst_with_details([(0, 1, 1), (1, 2, 1)], 3)['is_connected'])
+        self.assertFalse(kruskal_mst_with_details([(0, 1, 1)], 3)['is_connected'])
 
 
 if __name__ == '__main__':

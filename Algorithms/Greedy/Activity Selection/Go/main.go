@@ -41,4 +41,3 @@ func ActivitySelection(activities []Activity) []int {
 
 	return selected
 }
-

@@ -1,168 +1,108 @@
-# Union-Find Applications Pattern
+# Union-Find Applications
 
-A **Union-Find** (also known as Disjoint Set Union or DSU) is a data structure that efficiently manages a collection of disjoint sets. It supports two main operations: finding which set an element belongs to, and merging two sets together.
+Union-Find (disjoint set union) tracks which items belong to the same group while groups merge. Its `union` call reports whether the two items were already connected, which is all that is needed to count components, detect a cycle while adding edges, or build a minimum spanning tree with Kruskal's algorithm. Operations cost O(alpha(n)) amortized.
 
----
+This topic is about using the structure. The structure itself is described in [Disjoint Set Union](../../Data%20Structures/Advanced_Structures/Disjoint%20Set%20Union/) and [Union-Find DSU](../../Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU/).
 
-## Overview
+## Intuition
 
-Union-Find is fundamental for problems involving:
-- Connectivity in graphs
-- Cycle detection
-- Component counting
-- Dynamic connectivity
-- Network problems
+Each group is a tree in a `parent` array whose root represents the group. `find` climbs to the root (and flattens the path); `union` joins two roots, hanging the shorter tree under the taller one (union by rank).
 
-The data structure uses two optimizations:
-1. **Path Compression**: Flattens the tree during find operations
-2. **Union by Rank**: Always attaches smaller tree to larger tree root
+Invariant: two items are connected if and only if `find` gives the same root. Each successful `union` lowers the group count by one, so after all edges `n - (successful unions)` is the number of components.
 
-These optimizations make operations nearly constant time: O(α(n)) where α is the inverse Ackermann function, which grows extremely slowly.
+Signals: "are A and B connected" as connections are added, "does this edge create a cycle", "cheapest network connecting everything", "merge accounts that share an email". It cannot split groups or delete an edge.
 
----
+## Visual
 
-## Key Characteristics
+```text
+UnionFind(6), parent array after each step (a root points to itself)
 
-1. **Efficient Operations**: O(α(n)) per operation (amortized)
-2. **Path Compression**: Flattens tree structure for faster future finds
-3. **Union by Rank**: Keeps trees balanced
-4. **Dynamic**: Supports dynamic set operations
-
----
-
-## Operations
-
-| Operation | Description | Time Complexity |
-|-----------|-------------|----------------|
-| `find(x)` | Find root of element x | O(α(n)) |
-| `union(x, y)` | Merge sets containing x and y | O(α(n)) |
-| `connected(x, y)` | Check if x and y are in same set | O(α(n)) |
-| `detect_cycle(edges, n)` | Detect cycle in undirected graph | O(E × α(n)) |
-| `count_components(edges, n)` | Count connected components | O(E × α(n)) |
-
-Where α(n) is the inverse Ackermann function (effectively constant).
-
----
-
-## Implementation Approaches
-
-### 1. Basic Union-Find
-- **Pros**: Simple implementation
-- **Cons**: No optimizations, slower
-- **Use Case**: Learning purposes
-
-### 2. Path Compression Only
-- **Pros**: Faster finds
-- **Cons**: Trees may become unbalanced
-- **Use Case**: When finds are more frequent
-
-### 3. Union by Rank Only
-- **Pros**: Balanced trees
-- **Cons**: No path compression benefit
-- **Use Case**: When unions are more frequent
-
-### 4. Both Optimizations (Recommended)
-- **Pros**: Optimal performance, nearly constant time
-- **Cons**: Slightly more complex
-- **Use Case**: Production code, competitive programming
-
----
-
-## Applications
-
-1. **Cycle Detection**: Detect cycles in undirected graphs
-2. **Connected Components**: Count or find connected components
-3. **Kruskal's Algorithm**: Minimum spanning tree construction
-4. **Network Connectivity**: Check if nodes are connected
-5. **Dynamic Connectivity**: Handle dynamic graph operations
-6. **Image Processing**: Connected component labeling
-
----
-
-## Example Use Cases
-
-### Basic Union-Find
-```python
-uf = UnionFind(5)
-uf.union(0, 1)
-uf.union(2, 3)
-print(uf.connected(0, 1))  # True
-print(uf.connected(0, 2))  # False
+start        [0, 1, 2, 3, 4, 5]   6 groups
+union(0, 1)  [0, 0, 2, 3, 4, 5]   5
+union(2, 3)  [0, 0, 2, 2, 4, 5]   4
+union(0, 2)  [0, 0, 0, 2, 4, 5]   3
+union(4, 5)  [0, 0, 0, 2, 4, 4]   2   groups {0,1,2,3} and {4,5}
+find(3)      [0, 0, 0, 0, 4, 4]       path compression: 3 now points at 0
 ```
 
-### Cycle Detection
-```python
-edges = [(0, 1), (1, 2), (2, 0)]
-has_cycle = detect_cycle(edges, 3)  # Returns True
+## How It Works
+
+1. `find(x)`: follow parents to the root and point every node on the path at it.
+2. `union(x, y)`: find both roots; if equal, return `False`. Otherwise attach the root of lower rank under the other (on a tie, the second under the first and the rank of the first grows) and decrement the count; return `True`.
+3. Applications are loops over `union`:
+
+```text
+count_components(n, edges): union every edge, return get_count()
+has_cycle(n, edges):        some union returns False  ->  cycle
+kruskal(n, edges):          sort by weight, keep an edge when union returns True
 ```
 
-### Component Counting
-```python
-edges = [(0, 1), (2, 3), (4, 5)]
-components = count_components(edges, 6)  # Returns 3
-```
+In this repository the DSU and `count_components` (Python only) are implemented; cycle detection and Kruskal are the loops above written on `union`'s return value.
 
----
+## Step-by-Step Trace
 
-## Implementations
+Cycle detection on the edges `0-1, 1-2, 2-3, 3-1, 3-4`:
 
-This folder contains implementations in three languages:
+| Edge | union result | Meaning |
+|------|--------------|---------|
+| 0-1 | True | merged |
+| 1-2 | True | merged |
+| 2-3 | True | merged |
+| 3-1 | False | already connected: this edge closes a cycle |
+| 3-4 | True | merged |
 
-- **Python** (`Python/`) - List-based implementation
-- **C++** (`C++/`) - Vector-based implementation
-- **Go** (`Go/`) - Slice-based implementation
+Kruskal on `0-1 (1), 2-3 (2), 0-2 (3), 1-3 (4), 1-2 (5), 3-4 (7)` (sorted): 0-1, 2-3, 0-2 are accepted, 1-3 and 1-2 are rejected, 3-4 is accepted. Total weight 1 + 2 + 3 + 7 = 13 with 4 edges, and the group count ends at 1.
 
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
+## Complexity
 
----
+| Operation | Time | Space |
+|-----------|------|-------|
+| `find`, `union`, `connected` | O(alpha(n)) amortized | O(n) for the arrays |
+| Components or cycle check over E edges | O(n + E alpha(n)) | O(n) |
+| Kruskal | O(E log E) for the sort | O(n) |
 
-## Complexity Summary
-
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| **Construction** | O(n) | O(n) |
-| **Find** | O(α(n)) | O(1) |
-| **Union** | O(α(n)) | O(1) |
-| **Connected** | O(α(n)) | O(1) |
-| **Cycle Detection** | O(E × α(n)) | O(n) |
-| **Component Count** | O(E × α(n)) | O(n) |
-
-Where α(n) is inverse Ackermann function (effectively constant for practical n).
-
----
+alpha is the inverse Ackermann function, at most 4 for any n that fits in memory.
 
 ## When to Use
 
-- **Connectivity Problems**: Check if nodes are connected
-- **Cycle Detection**: Detect cycles in undirected graphs
-- **Component Counting**: Count connected components
-- **Dynamic Graphs**: Handle dynamic connectivity
-- **MST Algorithms**: Kruskal's algorithm for MST
+Use it when edges arrive over time, when you need the cycle test or Kruskal, or when items must be grouped by a shared property. Do not use it for directed graphs, when edges are deleted (unless processed offline in reverse), or when you need the actual path between two nodes (use BFS or DFS).
 
----
+## Union-Find vs. Alternatives
 
-## Related Patterns
+| Approach | Best for | Time |
+|----------|----------|------|
+| Union-Find | incremental connectivity, cycle test, Kruskal | O(alpha(n)) per edge |
+| BFS / DFS | static graph, paths, directed cycles | O(V + E) per full run |
+| Rebuild components each time | tiny inputs | O(V + E) per query |
 
-- **Graph Traversal**: DFS/BFS for connectivity
-- **Minimum Spanning Tree**: Kruskal's algorithm uses Union-Find
-- **Connected Components**: Alternative to DFS for component finding
+## Common Pitfalls
 
----
+- Comparing `parent[x]` and `parent[y]` instead of `find(x)` and `find(y)`.
+- Ignoring the boolean from `union`, which is the cycle signal.
+- Using it on directed graphs.
+- Elements must be `0..n - 1`; map other ids first.
+- `count_components(n, edges)` takes `n` first, and exists only in Python.
+- Bad indices: Python raises `ValueError`, C++ throws `std::out_of_range`, Go panics (no bounds check, and a negative size panics in the constructor).
 
-## Further Reading
+## Implementations
 
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Competitive Programming" by Halim & Halim
-- LeetCode problems: Number of Islands, Redundant Connection
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `union_find.py` | `UnionFind` plus `count_components`; raises `ValueError` |
+| C++ | [C++/](C++/) | `union_find.cpp` | `UnionFind` with `unite`; throws on bad input |
+| Go | [Go/](Go/) | `main.go` | `UnionFind` with `Union`; no bounds checks |
 
----
+## Practice Problems
 
-**Note**: Union-Find with path compression and union by rank provides near-constant time operations. Always use both optimizations for optimal performance in competitive programming and production code.
+- [LeetCode 547. Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
+- [LeetCode 684. Redundant Connection](https://leetcode.com/problems/redundant-connection/)
+- [LeetCode 721. Accounts Merge](https://leetcode.com/problems/accounts-merge/)
+- [LeetCode 1584. Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
+- [LeetCode 200. Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
----
+## Related
 
-_Last Updated: December 2025_
+- [Disjoint Set Union](../../Data%20Structures/Advanced_Structures/Disjoint%20Set%20Union/)
+- [Union-Find DSU](../../Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU/)
+- [Kruskal's Algorithm](../../Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskal's_Algorithm/)
+- [Graph Traversal Problems](../Graph%20Traversal%20Problems/)

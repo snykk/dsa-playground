@@ -1,0 +1,218 @@
+---
+topic: Algorithms/String_Algorithms/Advanced_String/Suffix Array
+title: Suffix Array Construction and Search
+lead: A suffix array sorts all suffixes of a string and keeps their start indices. This is the algorithm view, covering how to build it (the sort used here, and prefix doubling), how binary search answers pattern queries, and what the LCP array adds.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Build (this repo)
+    value: O(n^2 log n)
+    hint: sorts copied suffix strings
+    tone: warn
+  - label: Build (prefix doubling)
+    value: O(n log^2 n)
+    hint: or O(n log n) with radix sort; not implemented here
+  - label: Search
+    value: O(m log n)
+    hint: Go; Python and C++ copy a suffix per probe
+  - label: Space
+    value: O(n) ideal
+    hint: O(n^2) in Python and C++ here
+properties:
+  - { label: Static (rebuild on change), value: true }
+  - { label: Finds all occurrences, value: true }
+  - { label: Includes an LCP array, value: false }
+prerequisites:
+  - Data Structures/Linear/String/Pattern Matching
+related:
+  - Data Structures/Non_Linear/Trees/Suffix Array
+  - Data Structures/Non_Linear/Trees/Suffix Tree
+  - Algorithms/String_Algorithms/Advanced_String/Longest Common Substring
+  - Algorithms/String_Algorithms/Advanced_String/Z-Algorithm
+---
+
+## How the algorithms work
+
+The suffix array `SA` of a string `s` lists the start indices of its suffixes in lexicographic order. Three algorithms turn it into a tool: a **construction**, a **search** and an **LCP computation**. The data structure itself, with its operations and API, is covered in the Trees topic linked under related; this article is about the algorithms behind it.
+
+<Steps>
+  <Step title="Construct: sort the suffixes">
+    The code in this repository slices every suffix, sorts the `(suffix, index)` pairs, and keeps the indices. It is correct and short, but a comparison may inspect up to `n` characters.
+  </Step>
+  <Step title="Search: two binary searches">
+    Suffixes that start with the pattern are contiguous. One binary search finds the first such rank, a second finds the last. The indices between them are the occurrences, returned in increasing order.
+  </Step>
+  <Step title="Extend: the LCP array">
+    The longest common prefix of each pair of neighbouring suffixes turns repeat questions (longest repeated substring, distinct substrings) into scans. It is not implemented in this folder.
+  </Step>
+</Steps>
+
+<Callout title="The key property">
+In sorted order, all suffixes with a given prefix `P` form one contiguous block. Anything that sorts between two strings starting with `P` also starts with `P`. Pattern search is therefore a range lookup, not a scan of the text.
+</Callout>
+
+## Building faster: prefix doubling
+
+Sorting whole suffixes is wasteful, because two suffixes that agree on their first `k` characters are compared again from scratch. **Prefix doubling** sorts by the first 1 character, then the first 2, then 4, 8, and so on. After the round for length `k`, each suffix has a rank among all suffixes by its first `k` characters. For length `2k` the key is the pair `(rank[i], rank[i + k])`, with `-1` when `i + k` runs past the end. After `log2(n)` rounds every rank is unique. This is not in the repository's code; here it is traced for `banana`:
+
+<GridDiagram
+  corner="i"
+  colLabels={['suffix', 'char', 'rank (k=1)', 'rank (k=2)', 'rank (k=4)']}
+  rowLabels={[0, 1, 2, 3, 4, 5]}
+  rows={[
+    ['banana', 'b', 1, 2, 3],
+    ['anana', 'a', 0, 1, 2],
+    ['nana', 'n', 2, 3, 5],
+    ['ana', 'a', 0, 1, 1],
+    ['na', 'n', 2, 3, 4],
+    ['a', 'a', 0, 0, 0],
+  ]}
+  tones={['....f', '....f', '....f', '....f', '....f', '....f']}
+  legend={{ f: 'the ranks after the last round: all different, so they give the order' }}
+/>
+
+The final ranks `[3, 2, 5, 1, 4, 0]` mean that suffix 5 is smallest, then 3, 1, 0, 4, 2: `SA = [5, 3, 1, 0, 4, 2]`, the same order the repository's sort produces. With a comparison sort in each round the cost is O(n log<sup>2</sup> n); radix sorting the pairs gives O(n log n). SA-IS and DC3 reach O(n) but are much longer to write.
+
+## Searching, step by step
+
+Searching `ana` in `banana` with `SA = [5, 3, 1, 0, 4, 2]` (suffixes in rank order: `a`, `ana`, `anana`, `banana`, `na`, `nana`):
+
+<DataTable
+  columns={['Phase', 'Range', 'mid', 'Suffix at mid', 'Decision']}
+  rows={[
+    ['first', '0..5', '2', '`anana`', 'starts with `ana`: first = 2, go left'],
+    ['first', '0..1', '0', '`a`', 'smaller than `ana`: go right'],
+    ['first', '1..1', '1', '`ana`', 'starts with `ana`: first = 1, go left'],
+    ['last', '1..5', '3', '`banana`', 'no match: go left'],
+    ['last', '1..2', '1', '`ana`', 'match: last = 1, go right'],
+    ['last', '2..2', '2', '`anana`', 'match: last = 2, go right'],
+  ]}
+/>
+
+Ranks 1 and 2 hold `SA = 3` and `SA = 1`, so the answer is `[1, 3]` after sorting. A missing pattern returns `[]` after the first search. An empty pattern is a prefix of every suffix, so on a non-empty text it returns every index `0..n-1` (not `n`); on an empty text it returns `[]`.
+
+## Pseudocode
+
+```text
+build_suffix_array(s):
+    pairs = [(s[i..], i) for i = 0 .. n-1]
+    sort pairs by the suffix string
+    return [i for (_, i) in pairs]
+
+search_pattern(SA, text, pattern):
+    left = 0; right = n - 1; first = -1
+    while left <= right:
+        mid = (left + right) / 2
+        suffix = text[SA[mid] ..]
+        if suffix starts with pattern: first = mid; right = mid - 1
+        elif suffix < pattern:         left = mid + 1
+        else:                          right = mid - 1
+    if first == -1: return []
+    left = first; right = n - 1; last = first
+    while left <= right:
+        mid = (left + right) / 2
+        suffix = text[SA[mid] ..]
+        if suffix starts with pattern: last = mid; left = mid + 1
+        else:                          right = mid - 1
+    return sorted(SA[first .. last])
+```
+
+## Implementation
+
+Each language has two functions: build and search (`build_suffix_array` / `search_pattern` in Python, `buildSuffixArray` / `searchPattern` in C++, `BuildSuffixArray` / `SearchPattern` in Go). Python and C++ copy the probed suffix at each step (`text[idx:]`, `text.substr(idx)`), which costs O(n) per probe. Go slices the string without copying and uses `strings.HasPrefix`, so its search is O(m log n). Indices are code points in Python and bytes in C++ and Go.
+
+<TopicCode topic="Algorithms/String_Algorithms/Advanced_String/Suffix Array" />
+
+## Complexity analysis
+
+<DataTable
+  columns={['Step', { label: 'This repository', kind: 'mono' }, { label: 'Textbook', kind: 'mono' }]}
+  rows={[
+    ['Build time', 'O(n^2 log n) worst case', 'O(n log n) doubling with radix sort; O(n) SA-IS'],
+    ['Build memory', 'O(n^2) in Python and C++; O(n) in Go', 'O(n)'],
+    ['Search', 'O(m log n) in Go; O(n log n) in Python and C++', 'O(m log n)'],
+    ['LCP array', 'not implemented', 'O(n) with Kasai'],
+  ]}
+/>
+
+The worst case for the sort is a string like `aaaa...a`: every suffix is a prefix of the next longer one, so every comparison runs to the end of the shorter suffix.
+
+<Equation label="Search" expr="2 binary searches x log2(n) probes x O(m) per comparison" result="O(m log n)" />
+
+## What the LCP array adds
+
+Define `LCP[k]` as the common prefix length of the suffixes at ranks `k-1` and `k`. For `banana` it is `[-, 1, 3, 0, 0, 2]`. None of the three languages computes it. With it, these applications are linear scans, and Kasai's algorithm builds it in O(n):
+
+<DataTable
+  columns={['Question', 'Answer from SA and LCP', 'For banana']}
+  rows={[
+    ['Longest repeated substring', 'the maximum LCP value, at the suffix it ends at', '`ana` (3)'],
+    ['Number of distinct substrings', '`n(n+1)/2` minus the sum of the LCP values', '21 - 6 = 15'],
+    ['Longest common substring of two strings', 'join them with a separator; the maximum LCP between neighbours from different strings', 'see the topic'],
+    ['LCP of any two suffixes', 'the minimum LCP between their ranks', 'range minimum'],
+  ]}
+/>
+
+## Suffix array vs alternatives
+
+<DataTable
+  columns={['Structure', 'Build', 'Search', 'Memory', 'Notes']}
+  highlight={0}
+  rows={[
+    ['Suffix array', 'O(n log n) or better', 'O(m log n)', 'n integers', 'simple, cache-friendly'],
+    ['Suffix tree', 'O(n)', 'O(m)', 'many nodes', 'fastest queries, complex to build'],
+    ['KMP / Z per query', 'none', 'O(n + m) each', 'O(m)', 'best for one pattern'],
+    ['Suffix automaton', 'O(n)', 'O(m)', 'O(n) states', 'compact, harder to explain'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Index the text once, then every pattern costs O(m log n), whatever the pattern.',
+    'Memory is n integers (plus the text) in a good implementation.',
+    'With an LCP array it answers repeat and distinct-substring questions.',
+    'Binary search is simple and cache-friendly.',
+  ]}
+  cons={[
+    'The build here is quadratic in time, and in memory for Python and C++.',
+    'The structure is static: changing the text means rebuilding.',
+    'A search costs a `log n` factor over a suffix tree.',
+    'The best constructions (SA-IS, DC3) are long and subtle.',
+  ]}
+/>
+
+## Applications
+
+- **Pattern search in a fixed text**, for many different patterns.
+- **Longest repeated substring** and **distinct substring counts**, with the LCP array.
+- **Longest common substring** of several strings, over a concatenation.
+- **Burrows-Wheeler transform**, taken from the sorted suffixes (the basis of some compressors and genome indexes).
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Testing equality instead of a prefix.** The binary search compares "suffix starts with the pattern", not "suffix equals the pattern".
+- **Claiming O(n log n) for a build that sorts copied strings.** Count the comparison cost and the copies.
+- **Forgetting to sort the result.** The block is in suffix order, not text order.
+- **Appending a separator that occurs in the text** when combining several strings. Use a character that does not appear.
+- **Expecting `n` for the empty pattern.** The result stops at `n-1`: there is no empty suffix in the array.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why do the matches form one block?">
+    Sorting puts strings with a common prefix next to each other. Nothing can sort between two strings that start with `P` unless it also starts with `P`, so the matches are a range of ranks.
+  </FaqItem>
+  <FaqItem question="Why does prefix doubling work?">
+    A suffix's first 2k characters are its first k characters followed by the first k characters of the suffix k positions later. The rank pair `(rank[i], rank[i+k])` therefore orders suffixes by 2k characters using only ranks that were already computed.
+  </FaqItem>
+  <FaqItem question="Why is the repository build not O(n log n)?">
+    It sorts n strings with a comparison sort, and each comparison can read up to n characters. The result is O(n<sup>2</sup> log n) time, and the copies take O(n<sup>2</sup>) memory in Python and C++.
+  </FaqItem>
+  <FaqItem question="What is the difference between this topic and the Suffix Array in the Trees section?">
+    This one explains the construction and search algorithms and their applications. The Trees topic presents the same structure as a data structure: its operations, API and how it compares with a suffix tree.
+  </FaqItem>
+</Faq>

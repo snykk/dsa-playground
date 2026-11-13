@@ -37,7 +37,7 @@ def lis_dp(arr):
     Returns:
         Length of LIS
         
-    Time Complexity: O(n²)
+    Time Complexity: O(n^2)
     Space Complexity: O(n)
     """
     if not arr:
@@ -94,7 +94,7 @@ def lis_with_sequence(arr):
     Returns:
         Tuple of (length, sequence)
         
-    Time Complexity: O(n²)
+    Time Complexity: O(n^2)
     Space Complexity: O(n)
     """
     if not arr:
