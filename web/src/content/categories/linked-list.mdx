@@ -1,0 +1,138 @@
+---
+category: Data_Structures/Linear/Linked_List
+title: Linked List
+lead: "A linked list stores items in nodes joined by links, so inserting needs no shifting but reaching the i-th item means following i links. The four kinds here differ in the links: one way, both ways, a ring, or extra skip lanes on a sorted list."
+updated: 2026-11-13
+facts:
+  - label: Insert at head
+    value: O(1)
+    hint: singly and doubly linked
+  - label: Insert at tail
+    value: O(n)
+    hint: only a head pointer is kept, so the code walks the list
+    tone: warn
+  - label: Access by index
+    value: O(n)
+    hint: follow the links from the head
+    tone: warn
+  - label: Skip list search
+    value: O(log n)
+    hint: expected, with random tower heights
+contents:
+  - folder: Singly
+    note: The base case. Each node has one next link, so you can only walk forward. Insert at the head is O(1).
+  - folder: Doubly
+    note: Each node also links back, so the list can be walked both ways and a known node can be unlinked in O(1).
+  - folder: Circular
+    note: The last node points back to the first, forming a ring with no null end. Suits round-robin work.
+  - folder: Skip_List
+    note: A sorted list with random express lanes. Search, insert and delete take expected O(log n) without rebalancing.
+prerequisites:
+  - Data_Structures/Linear/Array
+related:
+  - Data_Structures/Linear/Stack/Linked_List_Stack
+  - Data_Structures/Linear/Queue/Deque
+  - Data_Structures/Advanced_Structures/LRU_Cache
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+---
+
+## The problem
+
+An array keeps items next to each other, so reading index `i` is fast and inserting in the middle is slow. A linked list makes the opposite trade. Each item sits in its own node together with a reference to another node, so inserting or removing a node changes a few links and moves nothing. The price is that there is no index arithmetic: to reach the i-th item you start at the head and follow i links.
+
+The versions in this repository keep only a head pointer, with no tail pointer and no stored length. That is why inserting at the tail walks the whole list.
+
+What separates the four kinds is the shape of the links:
+
+- **Singly:** one link per node, forward only.
+- **Doubly:** a forward and a backward link per node.
+- **Circular:** a singly linked list whose last node points to the head.
+- **Skip list:** a sorted list with extra forward links on some nodes, so a search can skip ahead.
+
+## At a glance
+
+<DataTable
+  columns={['Kind', 'Links per node', 'Key property', { label: 'Insert at head', kind: 'mono' }, { label: 'Insert at tail', kind: 'mono' }, { label: 'Delete by value', kind: 'mono' }]}
+  rows={[
+    ['Singly', 'one (`next`)', 'simplest; walks forward only', 'O(1)', 'O(n)', 'O(n)'],
+    ['Doubly', 'two (`next`, `prev`)', 'walks both ways; unlinking a known node is O(1)', 'O(1)', 'O(n)', 'O(n)'],
+    ['Circular', 'one (`next`)', 'no null end: the last node points to the head', 'O(n)', 'O(n)', 'O(n)'],
+    ['Skip list', 'one per level, random heights', 'sorted keys, no duplicates, no rebalancing', 'not applicable', 'not applicable', 'O(log n) expected'],
+  ]}
+/>
+
+The circular list is O(n) at the head because it must update the tail's link, and the code finds the tail by walking from the head. The skip list inserts a key at its sorted position, so it has no head or tail insert.
+
+## One sequence, three lists
+
+Insert `1`, `2` and `3` at the head, insert `4` at the tail, then delete the value `3`. These results come from running the Python versions.
+
+<DataTable
+  columns={['Step', 'Singly', 'Doubly', 'Circular']}
+  rows={[
+    ['after the three head inserts', '`3 -> 2 -> 1`', '`3 -> 2 -> 1`', '`3 -> 2 -> 1`, then back to `3`'],
+    ['after `insert_at_tail(4)`', '`3 -> 2 -> 1 -> 4`', '`3 -> 2 -> 1 -> 4`', '`3 -> 2 -> 1 -> 4`, then back to `3`'],
+    ['after deleting `3` (the head)', '`[2, 1, 4]`', '`2 -> 1 -> 4 -> None`, and backward `4 -> 1 -> 2 -> None`', '`[2, 1, 4]`, with the last node now pointing to `2`'],
+  ]}
+/>
+
+The doubly list is the only one that can print its items backward. Deleting the head of the circular list is O(n) here, because the tail's link has to change as well.
+
+## Complexity
+
+<DataTable
+  columns={['Kind', { label: 'Search', kind: 'mono' }, { label: 'Insert', kind: 'mono' }, { label: 'Delete', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['Singly', 'O(n)', 'O(1) at the head, O(n) at the tail', 'O(n)', 'O(n)'],
+    ['Doubly', 'O(n)', 'O(1) at the head, O(n) at the tail', 'O(n), O(1) once the node is in hand', 'O(n), two links per node'],
+    ['Circular', 'O(n)', 'O(n)', 'O(n)', 'O(n)'],
+    ['Skip list', 'O(log n) expected, O(n) worst', 'O(log n) expected', 'O(log n) expected', 'about 2n pointers for p = 0.5'],
+  ]}
+/>
+
+## Choosing a linked list
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Items are added and removed at the front', 'Singly', 'O(1) at the head with one link per node'],
+    ['You need to walk backward, or you hold a node and must unlink it', 'Doubly', 'the `prev` link removes the search for the predecessor'],
+    ['Work cycles through items forever, such as round-robin', 'Circular', 'after the last item the walk continues at the head'],
+    ['A sorted collection with fast search and simple code', 'Skip list', 'expected O(log n) without rotations'],
+    ['Index access or a lot of scanning', 'an array', 'one contiguous block is faster and needs no links'],
+  ]}
+/>
+
+## Applications
+
+- **Stacks and queues.** A head pointer is a stack, and a list with two ends is a queue.
+- **Least-recently-used caches.** A doubly linked list moves an entry to the front in O(1).
+- **Round-robin scheduling.** A circular list cycles through tasks.
+- **Ordered sets in databases.** Skip lists give sorted access without a balanced tree.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Losing the rest of the list.** Set the new node's `next` before you change the old links, or the tail of the list is unreachable.
+- **Forgetting the head when deleting it.** Deleting the first node must move `head`. In the circular list the tail's link changes too.
+- **Looping forever on a circular list.** There is no null end, so stop when you are back at the head.
+- **Assuming insert at the tail is O(1).** These lists keep no tail pointer, so it walks all n nodes.
+- **Expecting a guaranteed bound from the skip list.** O(log n) is expected, not worst case. The skip list also does not store duplicate keys.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with the singly linked list: the others change its links. Then the doubly and circular lists, in either order. Read the skip list last, because it adds randomness and levels on top of a sorted singly linked list.
+  </FaqItem>
+  <FaqItem question="Why is insertion at the tail O(n) here?">
+    The code keeps only a head pointer, so it walks to the last node first. A version that stores a tail pointer would make a singly or doubly linked tail insert O(1).
+  </FaqItem>
+  <FaqItem question="Are linked lists faster than arrays?">
+    For inserting at a known place, yes, since nothing shifts. For reading and scanning, usually not: nodes are scattered in memory and every step follows a pointer, while an array is contiguous and cache-friendly.
+  </FaqItem>
+  <FaqItem question="What does the skip list add?">
+    Plain linked lists search in O(n). The skip list adds sparser lists above the bottom one, so a search skips many nodes at once and takes expected O(log n) time, like a balanced tree but with coin flips instead of rotations.
+  </FaqItem>
+</Faq>

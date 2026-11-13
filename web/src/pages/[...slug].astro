@@ -2,13 +2,15 @@
 import { getCollection, render } from 'astro:content';
 import { MDX_COMPONENTS } from '../components/mdx';
 import ArticlePage from '../components/templates/ArticlePage.astro';
+import CategoryPage from '../components/templates/CategoryPage.astro';
 import DocPage from '../components/templates/DocPage.astro';
 import { renderMarkdown } from '../lib/markdown';
 import { getContent } from '../lib/repo';
 
 /**
  * One page per repository folder with a README, plus the root documents. A topic with a
- * hand-written article (src/content/articles) renders that; any other page renders its README.
+ * hand-written article (src/content/articles) renders that, a category with a hand-written
+ * overview (src/content/categories) renders that; any other page renders its README.
  */
 export async function getStaticPaths() {
   const content = getContent();
@@ -18,6 +20,14 @@ export async function getStaticPaths() {
     if (!content.byRel.has(topic)) throw new Error(`Article ${article.id}: unknown topic folder "${topic}"`);
     if (seen.has(topic)) throw new Error(`Two articles claim the topic "${topic}"`);
     seen.add(topic);
+  }
+  for (const overview of await getCollection('categories')) {
+    const { category } = overview.data;
+    if (content.byRel.get(category)?.kind !== 'category') {
+      throw new Error(`Category overview ${overview.id}: "${category}" is not a category folder`);
+    }
+    if (seen.has(category)) throw new Error(`Two overviews claim the category "${category}"`);
+    seen.add(category);
   }
   return [
     ...content.nodes.map((n) => ({ params: { slug: n.slug }, props: { kind: 'node' as const, rel: n.rel } })),
@@ -36,12 +46,13 @@ const node = kind === 'node' ? content.byRel.get(rel) : undefined;
 const doc = kind === 'doc' ? content.standalone.find((d) => d.rel === rel) : undefined;
 if (!node && !doc) throw new Error(`Unknown page ${kind}:${rel}`);
 
-const article = node ? (await getCollection('articles')).find((a) => a.data.topic === node.rel) : undefined;
-const view = article ? await render(article) : undefined;
+const article = node?.kind === 'topic' ? (await getCollection('articles')).find((a) => a.data.topic === node.rel) : undefined;
+const overview = node?.kind === 'category' ? (await getCollection('categories')).find((c) => c.data.category === node.rel) : undefined;
+const view = article ? await render(article) : overview ? await render(overview) : undefined;
 const Content = view?.Content;
 
 const source = node?.readme ?? (doc ? { rel: doc.rel, source: doc.source } : undefined);
-const rendered = !article && source ? await renderMarkdown(source.source, source.rel) : { html: '', headings: [] };
+const rendered = !view && source ? await renderMarkdown(source.source, source.rel) : { html: '', headings: [] };
 ---
 
 {
@@ -49,6 +60,10 @@ const rendered = !article && source ? await renderMarkdown(source.source, source
     <ArticlePage node={node} article={article.data} headings={view.headings}>
       <Content components={MDX_COMPONENTS} />
     </ArticlePage>
+  ) : node && overview && view && Content ? (
+    <CategoryPage node={node} category={overview.data} headings={view.headings} hasViz={/<ArticleViz\b/.test(overview.body ?? '')}>
+      <Content components={MDX_COMPONENTS} />
+    </CategoryPage>
   ) : (
     <DocPage node={node} doc={doc} rendered={rendered} />
   )

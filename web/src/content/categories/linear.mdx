@@ -1,0 +1,111 @@
+---
+category: Data_Structures/Linear
+title: Linear Data Structures
+lead: "Linear structures keep items in a sequence. The array stores them side by side, the linked list chains them with links, and the stack, queue and string are built on those two ideas, each with its own rule for adding, removing or reading items."
+updated: 2026-11-13
+facts:
+  - label: Array access
+    value: O(1)
+    hint: by index, in one contiguous block
+  - label: Array middle insert
+    value: O(n)
+    hint: later elements shift
+    tone: warn
+  - label: Linked list head insert
+    value: O(1)
+    hint: nothing shifts, but access by index is O(n)
+  - label: Stack push, pop
+    value: O(1)
+    hint: in every version
+contents:
+  - folder: Array
+    note: The base layout. Items sit in one block of memory, so index access is O(1) and a middle insert is O(n).
+  - folder: Linked_List
+    note: Items in nodes joined by links. Singly, doubly, circular and skip list kinds, with O(1) head insert and O(n) access.
+  - folder: Stack
+    note: Last in, first out. Static array, dynamic array and linked-list versions, all with O(1) push and pop.
+  - folder: Queue
+    note: First in, first out, plus the deque and the priority queue. Differs in who leaves next and what the front costs.
+  - folder: String
+    note: Characters in sequence, with traps for bytes and immutability. Basics, everyday manipulation and the rope.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Data_Structures/Hashing
+  - Data_Structures/Non_Linear
+  - Data_Structures/Advanced_Structures
+  - Problem_Patterns/Two_Pointers
+---
+
+## The problem
+
+In a linear structure every item has a place in a line: a first item, a next item and a last item. What differs is how the line is stored and which positions you may touch.
+
+- **How it is stored.** Contiguous in one block (array), or scattered in nodes joined by links (linked list).
+- **Which positions you may touch.** Any index (array), the top only (stack), the two ends with a rule (queue, deque), or every character in order (string).
+
+Storage decides the cost of each operation. A contiguous block gives O(1) access and an O(n) middle insert, and linked nodes give the reverse. Stack, queue and string are the same two layouts with a restricted or specialised interface.
+
+## At a glance
+
+<DataTable
+  columns={['Area', 'Stored as', 'Interface', { label: 'Access', kind: 'mono' }, { label: 'Insert or remove', kind: 'mono' }]}
+  rows={[
+    ['Array', 'one contiguous block', 'read or write any index', 'O(1)', 'O(n) in the middle; O(1) amortized at the end of a dynamic array'],
+    ['Linked list', 'nodes joined by links', 'walk from the head', 'O(n)', 'O(1) at the head; O(n) at the tail here, since only a head pointer is kept'],
+    ['Stack', 'array or linked list', 'push, pop and peek at the top', 'top only, O(1)', 'O(1)'],
+    ['Queue', 'array, ring or heap', 'enqueue at the back, dequeue at the front', 'front only, O(1)', 'O(1) with a ring, O(n) with a plain array in Python and C++, O(log n) with a heap'],
+    ['String', 'contiguous characters, or a tree for the rope', 'read, concatenate, slice, edit', 'O(1) flat, O(log n) rope', 'O(n) flat, O(log n) rope'],
+  ]}
+/>
+
+Memory differs as well. The array has no per-item overhead and is cache-friendly. A linked list adds at least one pointer and one allocation to every item. A ring queue and a static stack fix their size when they are created.
+
+## A path through the section
+
+1. **Array.** Start here. Index access, resizing and the cost of shifting explain most of what follows.
+2. **Linked list.** The opposite trade: cheap inserts, slow access. Read the singly list first.
+3. **Stack.** One end, last in first out. It shows how the same behaviour can sit on an array or on nodes.
+4. **Queue.** Two ends and a rule. The simple queue exposes the shifting cost and the circular queue, deque and priority queue each answer it.
+5. **String.** An array of characters with traps of its own, and the rope for long text.
+
+## Choosing a structure
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Read by index, or scan the whole sequence', 'Array', 'O(1) access and the best use of the cache'],
+    ['Many inserts and removes at the front', 'Linked list', 'O(1) at the head and no shifting'],
+    ['Undo, backtracking, depth-first search', 'Stack', 'the last item pushed is the first one you need'],
+    ['Breadth-first search, buffers, scheduling', 'Queue', 'items are served in the order they arrived'],
+    ['Items served by urgency', 'Priority queue', 'the lowest priority value leaves first'],
+    ['Text, and edits to very long text', 'String or rope', 'flat strings read fast, and ropes edit cheaply'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Inserting in the middle of an array in a loop.** Each insert is O(n), so n inserts are O(n^2).
+- **Counting a linked list as fast for access.** Reaching index `i` follows `i` links.
+- **Expecting O(1) dequeue from every queue.** The plain array queue shifts its items in Python and C++.
+- **Treating strings as mutable.** In Python and Go every edit builds a new string.
+- **Popping or peeking when empty.** The stack and queue raise an error, so check `is_empty()` first.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Are stacks and queues separate structures from arrays and lists?">
+    They are interfaces. A stack or queue says which operations are allowed and in what order items leave, and an array, a ring or a linked list supplies the storage. This repository shows the same stack on an array and on nodes for that reason.
+  </FaqItem>
+  <FaqItem question="Array or linked list?">
+    Choose the array unless you mostly insert or remove at a known place, such as the head. Contiguous memory makes scans fast, and in practice that often outweighs the cost of an occasional shift.
+  </FaqItem>
+  <FaqItem question="Where does hashing fit?">
+    A hash table is an array of buckets that are themselves lists. It adds a hash function to turn a key into an index, which gives O(1) average lookup by key. It has its own section.
+  </FaqItem>
+  <FaqItem question="Why is the string in this section?">
+    A string is an array of characters, so it inherits the array's costs, plus rules about immutability and about what counts as a character. The rope is its answer to editing long text.
+  </FaqItem>
+</Faq>

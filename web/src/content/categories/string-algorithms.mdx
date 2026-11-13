@@ -1,0 +1,104 @@
+---
+category: Algorithms/String_Algorithms
+title: String Algorithms
+lead: String algorithms search and analyse sequences of characters. Pattern Matching finds one pattern in a text; Advanced String adds many patterns at once, an index of every suffix, and questions about palindromes and shared substrings.
+updated: 2026-11-13
+facts:
+  - label: One pattern
+    value: O(n + m)
+    hint: KMP and the Z-algorithm, on every input
+  - label: Many patterns
+    value: O(n + m + z)
+    hint: Aho-Corasick, with z matches
+  - label: Longest palindrome
+    value: O(n)
+    hint: Manacher's algorithm
+contents:
+  - folder: Pattern_Matching
+    note: Find every occurrence of one pattern in a text. Four searches that differ in what they do after a mismatch.
+  - folder: Advanced_String
+    note: Many patterns at once, suffix arrays, the Z-array, palindromes and common substrings.
+prerequisites:
+  - Data_Structures/Linear/String/String_Basics
+related:
+  - Data_Structures/Non_Linear/Trees/Trie
+  - Data_Structures/Non_Linear/Trees/Suffix_Tree
+  - Algorithms/Dynamic_Programming
+---
+
+## What this area covers
+
+A string problem is a question about a sequence of characters. This folder splits those questions into two groups.
+
+- **Pattern Matching** answers one question: where does a pattern `P` of length `m` occur in a text `T` of length `n`? The four searches return the same answer and differ in how much work they reuse after a mismatch.
+- **Advanced String** asks harder questions. Where do many patterns occur? What are all the suffixes of a string, in order? What is the longest palindrome, or the longest block two strings share?
+
+The first group is the foundation. KMP's failure idea reappears in the Z-array and in the failure links of Aho-Corasick, and the suffix array is what you build when you ask the same question many times against one text.
+
+## At a glance
+
+<DataTable
+  columns={['Sub-area', 'Topics', 'Question it answers', { label: 'Typical cost', kind: 'mono' }]}
+  rows={[
+    ['Pattern Matching', 'Naive, Rabin-Karp, KMP, Boyer-Moore', 'where does one pattern occur in one text?', 'O(n + m) to O(n*m)'],
+    ['Advanced String', 'Z-algorithm, Aho-Corasick, Suffix Array, Manacher, Longest Common Substring', 'many patterns, an index of all suffixes, palindromes, shared substrings', 'O(n) to O(m*n)'],
+  ]}
+/>
+
+Costs depend on the topic. Both overviews give a full table for their own topics.
+
+## A path through them
+
+<Steps>
+  <Step title="Start with the naive search">
+    It is the baseline that every other algorithm improves on, and it needs only the string basics.
+  </Step>
+  <Step title="Read KMP, then the other searches">
+    KMP's table of borders is the idea most later algorithms borrow. Rabin-Karp and Boyer-Moore are independent of each other.
+  </Step>
+  <Step title="Move to the Z-algorithm">
+    It gives the same linear bound as KMP from a different array, and it is a good second look at prefix matching.
+  </Step>
+  <Step title="Choose by problem">
+    Aho-Corasick for a dictionary of patterns, the suffix array for many queries against one text, Manacher for palindromes, and the dynamic-programming table for the longest common substring.
+  </Step>
+</Steps>
+
+## Choosing a sub-area
+
+<DataTable
+  columns={['Situation', 'Go to', 'Why']}
+  rows={[
+    ['One pattern, one text', 'Pattern Matching', 'KMP gives a guaranteed O(n + m); Boyer-Moore is usually fastest on prose'],
+    ['A dictionary of patterns', 'Advanced String: Aho-Corasick', 'one pass over the text finds every pattern'],
+    ['Many queries against a fixed text', 'Advanced String: Suffix Array', 'build once, then each query is a binary search'],
+    ['Palindromes', 'Advanced String: Manacher', 'O(n) for the longest palindromic substring'],
+    ['What two strings share', 'Advanced String: Longest Common Substring', 'a table of matching-run lengths'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Reaching for an advanced structure too early.** For one search on a short text, the library `find` function or the naive search is enough.
+- **Mixing up substring and subsequence.** A substring is contiguous. The longest common substring and the longest common subsequence are different problems with different tables.
+- **Forgetting that offsets depend on the language.** Python indexes code points, while C++ and Go index bytes, so offsets differ on non-ASCII text.
+- **Testing `Z == m` in a Z-search.** If the separator also occurs in the input, a Z-value can exceed `m`. The test must be `Z >= m`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which algorithm should I use for one pattern?">
+    For guaranteed linear time, KMP or the Z-algorithm. For long patterns over large alphabets, Boyer-Moore usually reads the least text. In everyday code, use the standard library.
+  </FaqItem>
+  <FaqItem question="What if I have many patterns?">
+    Use Aho-Corasick for patterns of different lengths. For patterns of one length, Rabin-Karp can hash them all and look each window up in a set.
+  </FaqItem>
+  <FaqItem question="What does a suffix array give me that a search does not?">
+    A reusable index. Building it costs more than one search, but every later query for the same text takes O(m log n) by binary search.
+  </FaqItem>
+  <FaqItem question="Do I need to read Pattern Matching before Advanced String?">
+    Yes, at least KMP. The Z-array, the failure links of Aho-Corasick and the suffix array all assume you know what a prefix match and a border are.
+  </FaqItem>
+</Faq>

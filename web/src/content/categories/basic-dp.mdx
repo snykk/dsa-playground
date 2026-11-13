@@ -1,0 +1,132 @@
+---
+category: Algorithms/Dynamic_Programming/Basic_DP
+title: Basic Dynamic Programming
+lead: Fibonacci Numbers and Climbing Stairs use the same recurrence, each value is the sum of the two before it. Fibonacci shows why a table beats recursion, and Climbing Stairs shows the same table counting paths, which extends to any set of step sizes.
+updated: 2026-11-13
+facts:
+  - label: Naive recursion
+    value: O(2^n)
+    hint: both topics, without a table
+    tone: warn
+  - label: Table or memo
+    value: O(n)
+    hint: each state is computed once
+  - label: Two variables
+    value: O(1) space
+    hint: only the last two values are kept
+  - label: Matrix power
+    value: O(log n)
+    hint: Fibonacci only, in arithmetic operations
+contents:
+  - folder: Fibonacci_Numbers
+    note: The standard first example. Five ways to compute F(n), from O(2^n) recursion to O(log n) matrix powers.
+  - folder: Climbing_Stairs
+    note: Count the ways to climb n stairs. Steps 1 and 2 give Fibonacci again, and any step set gives a table in O(n*k).
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Dynamic_Programming/Linear_DP
+  - Algorithms/Dynamic_Programming/2D_DP
+  - Problem_Patterns/DP_Problem_Patterns
+---
+
+## The problem
+
+Both topics define a value for each `n` in terms of smaller values, and the same smaller values are needed many times. A plain recursion repeats them. A table, or two running variables, computes each one once.
+
+- **Fibonacci:** `F(n) = F(n-1) + F(n-2)`, with `F(0) = 0` and `F(1) = 1`.
+- **Climbing Stairs:** `ways(n) = ways(n-1) + ways(n-2)`, with `ways(0) = 1` and `ways(1) = 1`, when a move is 1 or 2 stairs.
+
+The base cases differ, so the values are shifted by one: `ways(n) = F(n + 1)`. With a set of allowed steps, `climbing_stairs_variable_steps` sums over every step size that fits, so the recurrence has k terms.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'State', 'Transition', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['Fibonacci', '`F(k)`', '`F(k-1) + F(k-2)`', 'O(n)', 'O(1) with two variables, O(n) with a table'],
+    ['Climbing Stairs', '`ways(k)`', 'sum of `ways(k - s)` over every allowed step `s`', 'O(n) for steps 1 and 2, O(n*k) for k step sizes', 'O(1) for steps 1 and 2, O(n) for the general table'],
+  ]}
+/>
+
+## See them side by side
+
+Each tab fills the table one entry at a time. Try `10` in the Fibonacci tab, then `10 | 1, 2` in the Climbing Stairs tab, and compare the two rows. Add a third step with `10 | 1, 2, 3` to see the count grow faster.
+
+<ArticleViz ids={['fibonacci', 'climbing-stairs']} />
+
+## The same table, shifted by one
+
+Both tables below come from `fibonacci_tabulation` and `climbing_stairs_tabulation`, called for `n` from 0 to 10.
+
+<DataTable
+  columns={['n', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']}
+  rows={[
+    ['F(n)', '0', '1', '1', '2', '3', '5', '8', '13', '21', '34', '55'],
+    ['ways(n), steps 1 and 2', '1', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89'],
+  ]}
+  rowHeaders
+/>
+
+The second row is the first one moved one place to the left, so `ways(10) = 89 = F(11)`. With steps 1, 2 and 3, `climbing_stairs_variable_steps(10, [1, 2, 3])` returns 274 instead of 89, because every extra step size adds a term to the sum.
+
+## Complexity
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['Naive recursion', 'O(2^n)', 'O(n)', 'recomputes the same values; both topics have it'],
+    ['Memoization', 'O(n)', 'O(n)', 'each value computed once, recursion depth n'],
+    ['Tabulation', 'O(n)', 'O(n)', 'a loop over the table'],
+    ['Two variables', 'O(n)', 'O(1)', 'only the last two values are needed'],
+    ['Matrix power', 'O(log n)', 'O(log n)', 'Fibonacci only; the space is the recursion stack of the power function'],
+  ]}
+/>
+
+Matrix power counts arithmetic operations. The numbers themselves grow with `n`, so in Python the true cost is higher for large `n`.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['You want to see why DP exists', 'Fibonacci with a call counter', 'the naive version makes 177 calls for `F(10)`'],
+    ['One value for a large n', 'two variables', 'O(n) time and O(1) space'],
+    ['Only a very large n matters', 'matrix power', 'O(log n) operations instead of n'],
+    ['Counting ordered ways with a fixed set of steps', 'Climbing Stairs with a step list', 'one table entry per stair, k terms per entry'],
+    ['A single-index table with a choice per entry', 'Linear DP', 'Coin Change and LIS build on this table'],
+  ]}
+/>
+
+## Applications
+
+- **Teaching the method.** Every DP topic reuses the idea of a state, a transition and a base case.
+- **Counting paths.** Climbing Stairs counts ordered sequences of moves, for example walks along a line with allowed jumps.
+- **Fast linear recurrences.** Matrix power generalizes to any recurrence with a fixed number of earlier terms.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Leaving out the table.** Without it both problems take O(2^n) time.
+- **Mixing up the base cases.** `F(0) = 0` but `ways(0) = 1`, one way to climb no stairs. That is why the tables are shifted.
+- **Overflow in C++ and Go.** Both return 64-bit integers, so `F(n)` is exact only up to `F(92)` and `ways(92)` overflows. Python integers do not overflow.
+- **Treating the count as a set of routes.** Climbing Stairs counts ordered sequences, so `1 + 2` and `2 + 1` are two different ways.
+- **Passing a negative `n`.** The Climbing Stairs functions raise `ValueError` for it.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which topic should I read first?">
+    Fibonacci. It introduces the table and the cost of recomputation. Climbing Stairs then shows the same recurrence applied to counting.
+  </FaqItem>
+  <FaqItem question="Why does Climbing Stairs equal Fibonacci?">
+    The last move was a 1-step or a 2-step, so `ways(n)` adds the ways to reach `n-1` and `n-2`. That is the Fibonacci recurrence with different starting values.
+  </FaqItem>
+  <FaqItem question="Is a table needed, or are two variables enough?">
+    Two variables are enough when each value depends only on the last two. A table is needed when a value reads further back, as in Climbing Stairs with a list of step sizes, or when you want to keep every entry.
+  </FaqItem>
+  <FaqItem question="Where does this lead?">
+    To Linear DP, where an entry chooses among several earlier entries. Coin Change has the same shape as Climbing Stairs, with a minimum or a count taken over the coins.
+  </FaqItem>
+</Faq>

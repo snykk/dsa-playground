@@ -1,0 +1,150 @@
+---
+category: Algorithms/Searching
+title: Searching Algorithms
+lead: Searching finds a target in a collection. Linear Search needs no order and checks every element. The other three need sorted data and discard large parts of it. Binary Search halves the range, Ternary Search thirds it, and Interpolation Search guesses the position from the values.
+updated: 2026-11-13
+facts:
+  - label: Linear Search
+    value: O(n)
+    hint: any data, any order
+    tone: warn
+  - label: Binary Search
+    value: O(log n)
+    hint: sorted data, every distribution
+  - label: Interpolation, average
+    value: O(log log n)
+    hint: sorted and evenly spread keys
+  - label: Interpolation, worst
+    value: O(n)
+    hint: skewed keys such as powers of two
+    tone: warn
+contents:
+  - folder: Linear_Search
+    note: The baseline. Check the elements one by one; it works on unsorted data, linked lists and streams.
+  - folder: Binary_Search
+    note: Compare with the middle and discard the half that cannot hold the target. O(log n) on sorted arrays.
+  - folder: Ternary_Search
+    note: Two probes cut the range into thirds. More probes than Binary Search; its real use is the peak of a unimodal function.
+  - folder: Interpolation_Search
+    note: Estimate the position from the values at both ends. About log log n probes on even keys, linear on skewed ones.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Sorting
+  - Algorithms/Divide_and_Conquer
+  - Problem_Patterns/Binary_Search_on_Answer
+  - Data_Structures/Hashing
+---
+
+## The problem
+
+Given a collection and a target value, return the index of the target, or `-1` when it is absent. All four algorithms in this section keep that contract in Python. What separates them is what they assume about the data:
+
+- **Linear Search** assumes nothing. It reads elements until it finds the target, so it works on any order and on structures without random access.
+- **Binary, Ternary and Interpolation Search** assume the array is sorted and that any index can be read in O(1). With that, one probe can rule out many elements at once.
+
+If the data is not sorted, the sorted searches return a meaningless answer and raise no error. Sorting first costs O(n log n), so it pays off only when you search many times.
+
+## At a glance
+
+<DataTable
+  columns={['Algorithm', 'Idea', 'Needs', { label: 'Worst case', kind: 'mono' }]}
+  rows={[
+    ['Linear', 'check every element in turn', 'nothing', 'O(n)'],
+    ['Binary', 'compare with the middle, keep the half that can hold the target', 'sorted array', 'O(log n)'],
+    ['Ternary', 'compare with the two third-points, keep one third', 'sorted array', 'O(log n)'],
+    ['Interpolation', 'probe where the target would sit if keys were evenly spread', 'sorted numeric array', 'O(n)'],
+  ]}
+/>
+
+Ternary Search makes `2 log3(n)` probes against Binary Search's `log2(n)`, which is about 1.26 times as many, so for plain lookup it loses. Interpolation Search is the only one whose speed depends on the values, not only on `n`.
+
+## See them side by side
+
+Each tab steps through one search. Run the same sorted array through Binary, Ternary and Interpolation Search and count the probes. In Binary Search, the **31 values** example shows the window halving. In Interpolation Search, compare **Evenly spread** with **Doubling (slow)**: the first needs very few probes and the second is the skewed case. In Linear Search, **Missing (worst case)** reads every element.
+
+<ArticleViz ids={['linear-search', 'binary-search', 'ternary-search', 'interpolation-search']} />
+
+## One target, four searches
+
+The repository's Python searches were run on two sorted arrays and the table counts how many different elements each one reads. Reads are a fair measure here because interpolation probes more than one element per round.
+
+- **Even keys:** the 100 numbers `10, 20, ..., 1000`.
+- **Doubling keys:** the 30 numbers `2^0, 2^1, ..., 2^29`.
+
+<DataTable
+  columns={['Array and target', 'Index', { label: 'Linear', kind: 'mono' }, { label: 'Binary', kind: 'mono' }, { label: 'Ternary', kind: 'mono' }, { label: 'Interpolation', kind: 'mono' }]}
+  rows={[
+    ['even keys, 730', '72', '73', '6', '8', '3'],
+    ['even keys, 990', '98', '99', '6', '9', '3'],
+    ['even keys, 5 (absent)', '-1', '100', '6', '8', '1'],
+    ['doubling keys, 2^28', '28', '29', '4', '5', '10'],
+  ]}
+/>
+
+On even keys Interpolation Search lands almost on the target at once. An absent target below the first key costs it one read, because its loop only runs while the target lies between the first and last element. On the doubling keys the estimate is poor: it reads 10 elements for `2^28`, while Binary Search needs 4. Linear Search reads one element per index plus one, whatever the data.
+
+## Complexity
+
+<DataTable
+  columns={['Algorithm', { label: 'Best', kind: 'mono' }, { label: 'Average', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Needs sorted data']}
+  rows={[
+    ['Linear', 'O(1)', 'O(n)', 'O(n)', 'O(1)', 'No'],
+    ['Binary', 'O(1)', 'O(log n)', 'O(log n)', 'O(1)', 'Yes'],
+    ['Ternary', 'O(1)', 'O(log n)', 'O(log n)', 'O(1)', 'Yes'],
+    ['Interpolation', 'O(1)', 'O(log log n)', 'O(n)', 'O(1)', 'Yes'],
+  ]}
+/>
+
+Extra space is for the iterative versions. The recursive versions use stack: O(n) for Linear Search, O(log n) for Binary Search, about log3(n) frames for Ternary Search, and O(n) in the worst case for Interpolation Search. Linear Search averages `(n + 1) / 2` comparisons when the target is present and every position is equally likely, and `n` when it is absent. Binary Search makes at most `floor(log2 n) + 1` probes.
+
+## Choosing an algorithm
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Unsorted data, a tiny array, or one query', 'Linear Search', 'no preconditions, and sorting first would cost more than one scan'],
+    ['A linked list or a stream', 'Linear Search', 'the other three need to read any index in O(1)'],
+    ['Many lookups in a sorted array', 'Binary Search', 'O(log n) on every distribution, with a short loop'],
+    ['Large sorted array of roughly evenly spread numbers', 'Interpolation Search', 'about log log n probes; its worst case is O(n)'],
+    ['The peak of a unimodal function', 'Ternary Search', 'two evaluations per round tell which side of the peak you are on'],
+    ['The first or last of several equal values', 'Binary Search variants', 'the first-occurrence and last-occurrence versions keep searching after a match'],
+    ['Exact lookups with no ordering needs', 'a hash table', 'O(1) average, at the cost of memory and a build step'],
+  ]}
+/>
+
+## Applications
+
+- **Dictionary-style lookups** in sorted arrays and sorted files, with Binary Search.
+- **Sequential ids and timestamps at a steady rate**, with Interpolation Search.
+- **Small or unsorted collections**, such as a short list of options, with Linear Search.
+- **Optimizing a unimodal function**, such as a cost that falls and then rises, with Ternary Search.
+- **Binary search on the answer.** Binary Search also works on a yes-or-no test that flips once, which turns many optimization problems into a search.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Searching unsorted data with a sorted search.** The result is wrong and nothing warns you.
+- **Computing the middle as `(lo + hi) / 2`.** In C++ and Go it can overflow on huge arrays. The repository writes `lo + (hi - lo) / 2`.
+- **Expecting a particular match among duplicates.** The plain Binary, Ternary and Interpolation searches return some matching index. Use the first-occurrence or last-occurrence variant of Binary Search when the position matters.
+- **Dividing by zero in Interpolation Search.** When `a[lo] == a[hi]` the estimate has a zero denominator, so the code checks for a flat window first.
+- **Trusting Interpolation Search on skewed keys.** On exponential keys such as powers of two it removes about one element per probe and becomes linear.
+- **Using Ternary Search for plain lookup.** It makes more probes than Binary Search. Its peak finder also needs a strictly unimodal function: on a plateau it can return the wrong peak.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with Linear Search, the baseline, then Binary Search, which most other sorted-data ideas build on. Ternary and Interpolation Search both list Binary Search as a prerequisite, so after it either order works.
+  </FaqItem>
+  <FaqItem question="Why is Ternary Search not faster than Binary Search?">
+    It needs two comparisons per round to cut the range to a third. That is `2 log3(n)` probes, about 1.26 times `log2(n)`, so it is in the same O(log n) class but with a larger constant. It earns its place on unimodal functions, where one evaluation cannot tell you which side of the peak you are on.
+  </FaqItem>
+  <FaqItem question="When does Interpolation Search beat Binary Search?">
+    On large sorted arrays whose values are close to evenly spread. Each probe then shrinks a range of size m to about the square root of m, so it needs about log log n probes. On skewed data it can fall to O(n), so Binary Search is the safe default.
+  </FaqItem>
+  <FaqItem question="Is a hash table better than any of these?">
+    For exact lookups it usually is: O(1) on average and no sorting needed. It cannot answer ordered questions such as the closest value or the first value at or above a target, which Binary Search can, and it uses more memory.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,146 @@
+---
+category: Algorithms/Advanced_Algorithms/Backtracking
+title: Backtracking Algorithms
+lead: Backtracking builds a solution one choice at a time and undoes a choice as soon as it cannot lead anywhere. The four searches here share that loop of choose, check, recurse, undo. They differ in what a choice is, what the check tests and how much the check can prune.
+updated: 2026-11-13
+facts:
+  - label: Search space
+    value: O(n!)
+    hint: N-Queens, one queen per row
+    tone: warn
+  - label: Colorings tried
+    value: O(m^V)
+    hint: Graph Coloring, m colors on V vertices
+  - label: Sudoku
+    value: O(9^k)
+    hint: k empty cells; far fewer in practice
+  - label: Maze
+    value: O(n^2)
+    hint: Rat in a Maze, every cell entered once
+contents:
+  - folder: Rat_in_a_Maze
+    note: The smallest search. A path through open cells, four moves, and a visited mark that keeps it polynomial.
+  - folder: N_Queens_Problem
+    note: One queen per row, so a choice is a column. The check looks at the column and both diagonals above.
+  - folder: Graph_Coloring
+    note: A choice is a color for the next vertex. The check looks at its neighbors. Also finds the chromatic number.
+  - folder: Sudoku_Solver
+    note: A choice is a digit for the first empty cell. The check covers the row, column and 3 x 3 box, and the givens are validated first.
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Advanced_Algorithms
+  - Algorithms/Advanced_Algorithms/Specialized_Techniques
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+---
+
+## The problem
+
+Some problems have no formula, only a space of candidates: placements of queens, colorings of a graph, fillings of a grid, routes through a maze. Backtracking walks that space with a recursive search. It extends a partial solution by one choice and checks the new partial solution against the constraints. If it breaks one, the search undoes the choice and tries the next. A branch that fails early removes everything below it, which is called **pruning**.
+
+All four topics follow one template:
+
+- **State**: the partial solution, such as a board, a color array or a solution matrix.
+- **Choice**: what the next step picks, such as a column, a color, a digit or a direction.
+- **Constraint check**: a test that a choice does not break the rules, such as `is_safe` or `is_valid`.
+- **Undo**: the state is restored before the next choice is tried.
+
+The topics differ in how the search stops. N-Queens (with `find_all = False`), Graph Coloring, Sudoku and the maze stop at the first solution. N-Queens with `find_all = True` visits every branch and collects all boards.
+
+## At a glance
+
+<DataTable
+  columns={['Problem', 'State', 'Choice at each step', 'Constraint check', { label: 'Worst case', kind: 'mono' }]}
+  rows={[
+    ['Rat in a Maze', 'n x n solution matrix and a visited matrix', 'a direction: right, down, left, up', 'inside the grid, open cell, not entered before', 'O(n^2)'],
+    ['N-Queens', 'n x n board', 'a column for the current row', 'no queen above in the column or on either diagonal', 'O(n!)'],
+    ['Graph Coloring', 'color array, 0 means uncolored', 'a color from 1 to m for the next vertex', 'no neighbor already has that color', 'O(V * m^V)'],
+    ['Sudoku', '9 x 9 board, 0 means empty', 'a digit from 1 to 9 for the first empty cell', 'no repeat in the row, column or 3 x 3 box', 'O(9^k)'],
+  ]}
+/>
+
+The maze is the odd one out. It never revisits a cell, so a dead end is explored once, and the search stays polynomial. The other three can reach the same partial state along different routes, so their running time is exponential in the worst case.
+
+## One instance of each, with the checks counted
+
+Each row below runs the repository's Python code on one small instance and counts the calls to its constraint check (`is_safe` or `is_valid`). The count is a rough measure of how much work the search did.
+
+<DataTable
+  columns={['Instance', 'Result', { label: 'Constraint checks', kind: 'mono' }]}
+  rows={[
+    ['maze with 4 x 4 cells, from `(0, 0)` to `(3, 3)`', 'a path of 7 cells', '10'],
+    ['4-Queens, first solution', 'columns `[1, 3, 0, 2]`', '26'],
+    ['4-Queens, all solutions', '2 solutions', '60'],
+    ['8-Queens, all solutions', '92 solutions', '15,720'],
+    ['graph with 4 vertices and 5 edges, `m = 3`', 'colors `[1, 2, 3, 2]`', '8'],
+    ['the same graph, `m = 2`', 'no coloring', '10'],
+    ['the same graph, `chromatic_number`', '3', '20'],
+    ['the 51-blank puzzle in the Python example', 'solved', '37,652'],
+  ]}
+/>
+
+The maze is `[[1,0,0,0],[1,1,0,1],[0,1,0,0],[1,1,1,1]]`, and the graph has the edges `0-1, 0-2, 0-3, 1-2, 2-3`. Two things stand out. Proving that no 2-coloring exists costs more checks than finding a 3-coloring, because a failed search has to exhaust its tree. And 8-Queens would need 8! = 40,320 column orderings if the checks did not prune.
+
+## Complexity
+
+<DataTable
+  columns={['Problem', { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Why']}
+  rows={[
+    ['Rat in a Maze', 'O(n)', 'O(n^2)', 'O(n^2)', 'each cell is entered once; the matrices and the recursion take n^2'],
+    ['N-Queens', 'less than n!', 'O(n * n!)', 'O(n^2)', 'about n! partial placements, each with an O(n) check; the board is n^2'],
+    ['Graph Coloring', 'O(V^2)', 'O(V * m^V)', 'O(V)', 'm^V leaves, each node scans a row of V cells'],
+    ['Sudoku', 'O(k)', 'O(9^k)', 'O(k)', 'nine digits per empty cell at most; the bound is loose'],
+  ]}
+/>
+
+Space is for one search, not for a stored list of solutions. N-Queens with `find_all = True` also keeps every board it finds. All the bounds are for the plain code in this repository, which scans the board or the matrix for each check. Better data structures speed up the check but do not change the exponential shape.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['First time with backtracking', 'Rat in a Maze', 'the state is a grid you can draw, and the visited mark shows why memory of failures matters'],
+    ['Place items so that none conflicts along lines', 'N-Queens', 'one item per row turns a search over squares into a search over columns'],
+    ['Assign one of m labels so that neighbors differ', 'Graph Coloring', 'works for any graph and also gives the chromatic number'],
+    ['A grid with many rules and fixed givens', 'Sudoku Solver', 'it shows validation of the input and a check over three groups at once'],
+    ['A shortest route in a maze', 'BFS', 'backtracking returns the first path it finds, not the shortest'],
+    ['The same subproblems appear again and again', 'Dynamic programming', 'it stores answers that backtracking recomputes'],
+  ]}
+/>
+
+## Applications
+
+- **Puzzles and games.** Sudoku, crosswords, n-queens and similar placement problems.
+- **Scheduling and timetabling.** Graph coloring models exams or classes that may not share a time slot.
+- **Register allocation.** Variables that are live together get different registers, which is a coloring problem.
+- **Path finding in small grids.** Any search that needs one valid route, not the best one.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forgetting to undo.** Each topic resets the state after a failed branch (`board[row][col] = 0`, `color[v] = 0`, `solution[x][y] = 0`). Without it, a stale choice blocks later branches.
+- **Saving the live state.** N-Queens must copy the board into the result. A reference to `board` ends up empty after the search backtracks.
+- **Un-marking visited cells in the maze.** If the visited mark is reset on the way back, the search becomes exponential on open mazes.
+- **Expecting the best solution.** The maze returns the first path in the order right, down, left, up. `graph_coloring` returns some coloring with colors in `1..m`. Use `chromatic_number` for the minimum.
+- **Trusting the input.** The Sudoku solver validates the givens first. A graph coloring matrix must be symmetric, because the code reads `graph[v][i]` only.
+- **Using 0 as a real value.** In Graph Coloring and Sudoku, 0 means uncolored or empty, so valid colors and digits start at 1.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with Rat in a Maze: it has one choice per step and the simplest check. Then N-Queens, which adds a real constraint and the idea of one item per row. Graph Coloring generalises the constraint to any graph, and Sudoku is the largest search with an input check. Each needs only a depth-first search as background.
+  </FaqItem>
+  <FaqItem question="Is backtracking the same as depth-first search?">
+    It is a depth-first search over the tree of partial solutions, with a check that cuts branches. The maze is also a plain graph search. Its visited mark is the same one DFS uses.
+  </FaqItem>
+  <FaqItem question="How do I make a backtracking search faster?">
+    Prune earlier and make the check cheaper. N-Queens can keep the used columns and diagonals in sets so the check is O(1). Graph Coloring benefits from coloring high-degree vertices first. Sudoku solvers pick the empty cell with the fewest legal digits. This repository uses the plain order everywhere.
+  </FaqItem>
+  <FaqItem question="Why is the maze polynomial and the others are not?">
+    A cell that failed once fails again, so the visited mark is never cleared and every cell is entered at most once. In the other three problems the same partial board or coloring can be reached by different sets of earlier choices, and the search has no memory of failures.
+  </FaqItem>
+</Faq>

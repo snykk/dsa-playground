@@ -1,0 +1,145 @@
+---
+category: Algorithms/Greedy
+title: Greedy Algorithms
+lead: A greedy algorithm builds an answer one step at a time and always takes the choice that looks best right now, without looking back. The four topics here show where that works, and each one pairs a rule with the reason it is correct. They also show where it breaks, because the same rule fails on the 0/1 knapsack and on weighted activities.
+updated: 2026-11-13
+facts:
+  - label: Sort, then scan
+    value: O(n log n)
+    hint: Activity Selection and Fractional Knapsack
+  - label: Huffman build
+    value: O(k log k)
+    hint: k distinct symbols, with a min-heap
+  - label: Deadline jobs
+    value: O(n log n + n * min(D, n))
+    hint: D is the largest deadline
+  - label: Weighted version
+    value: Greedy fails
+    hint: weighted activities and 0/1 knapsack need dynamic programming
+    tone: warn
+contents:
+  - folder: Activity_Selection
+    note: Sort by finish time and take every activity that fits. The model example of a greedy proof.
+  - folder: Fractional_Knapsack
+    note: Take items by value per unit of weight and cut the last one. Optimal because items can be split.
+  - folder: Huffman_Coding
+    note: Merge the two lightest nodes again and again. Frequent symbols get short codes in the best prefix-free code.
+  - folder: Job_Scheduling
+    note: Highest profit first, into the latest free slot before its deadline. Two more rules cover lateness and weighted completion time.
+prerequisites:
+  - Algorithms/Sorting/Merge_Sort
+related:
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree
+  - Algorithms/Sorting
+---
+
+## The problem
+
+Many problems ask for the best of an enormous number of candidates: the largest set of compatible activities, the most valuable load, the shortest code. A greedy algorithm does not search them. It fixes one rule for the next choice, makes that choice, and never reconsiders it.
+
+That is fast and short, but a rule that sounds right is not always right. A greedy algorithm is correct only for problems with two properties:
+
+- **The greedy-choice property.** Some optimal answer contains the greedy first choice.
+- **Optimal substructure.** After that choice, what remains is a smaller problem of the same kind.
+
+Each topic in this section states its rule and why those two properties hold. The proofs have the same shape: take any optimal answer and swap in the greedy choice without making it worse. The weighted activities and the 0/1 knapsack show the other side. When the properties fail, the rule gives a wrong answer without any warning.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Greedy rule', 'Why it is optimal', 'Fails when']}
+  rows={[
+    ['Activity Selection', 'earliest finish time first', 'finishing early leaves the most room for the rest', 'activities carry weights'],
+    ['Fractional Knapsack', 'highest value per unit of weight first', 'a unit of capacity always goes to the best ratio left', 'items cannot be cut (0/1 knapsack)'],
+    ['Huffman Coding', 'merge the two least frequent nodes', 'in some optimal tree the two rarest symbols are siblings at the deepest level', 'one code per symbol is required (it is optimal in that setting)'],
+    ['Job Scheduling', 'highest profit first, latest free slot', 'a more profitable job is placed first, and a later job never displaces it', 'jobs are not unit-time: the deadline rule assumes unit-time jobs'],
+  ]}
+/>
+
+Job Scheduling holds three rules: the profit rule above for unit-time jobs with deadlines, earliest deadline first to minimize the maximum lateness, and weight to processing-time ratio to minimize the weighted completion time. C++ and Go do not cover all three. Huffman Coding is implemented in Python only; its C++ and Go files are placeholders.
+
+## See them side by side
+
+Each tab runs one greedy algorithm step by step. Two examples show the limits of the rule. In Activity Selection, **Earliest-start trap** shows why the rule is finish time and not start time. In Fractional Knapsack, **Greedy fails for 0/1** shows the same ratio rule on items that cannot be cut.
+
+<ArticleViz ids={['activity-selection', 'fractional-knapsack']} />
+
+Huffman Coding and Job Scheduling have no visualization. The Minimum Spanning Tree category holds two more greedy algorithms, Kruskal's and Prim's, with their own visualizations.
+
+## One rule, right and wrong
+
+The numbers below come from running the repository's Python code.
+
+**Right.** Fractional Knapsack with capacity 50 and items given as (value, weight) `(60, 10)`, `(100, 20)`, `(120, 30)` takes the first two whole and two thirds of the third. The value is 240.
+
+**Wrong.** The same rule on the 0/1 knapsack, where an item is taken whole or not at all, takes the first two items and stops, because the third no longer fits. That is a value of 160. The dynamic program in `0_1_Knapsack` finds 220, by taking the second and third items. The greedy answer falls 60 short, because only the cut item made the rule optimal before.
+
+**Wrong again.** Activity Selection picks the most activities, so it ignores weights. Take the activities (start, finish, weight) `(0, 3, 5)`, `(2, 5, 6)`, `(4, 7, 5)`, `(1, 8, 11)`. The greedy rule takes the first and the third, a total weight of 10. The weighted variant, which is a dynamic program, finds 11 by taking the long fourth activity alone.
+
+**Right again.** Huffman Coding on `abracadabra` gives `a` the code `0`, and `c`, `d`, `r`, `b` the codes `100`, `101`, `110`, `111`. The whole text takes 23 bits instead of 88 at 8 bits per character, which is 26% of the size. And Job Scheduling on the jobs (id, deadline, profit) `a 2 100`, `b 1 19`, `c 2 27`, `d 1 25`, `e 3 15` schedules `a`, `c` and `e` for a profit of 142.
+
+## Complexity
+
+<DataTable
+  columns={['Topic', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'What dominates']}
+  rows={[
+    ['Activity Selection', 'O(n log n)', 'O(n)', 'the sort by finish time; the scan is O(n)'],
+    ['Fractional Knapsack', 'O(n log n)', 'O(n)', 'the sort by ratio; the fill is O(n)'],
+    ['Huffman Coding', 'O(k log k)', 'O(k)', 'k heap merges; counting the text is O(N)'],
+    ['Job Scheduling (deadlines)', 'O(n log n + n * min(D, n))', 'O(n + D)', 'the sort by profit, then a slot search per job'],
+  ]}
+/>
+
+None of these has a best, average or worst input in the usual sense: the work depends on the size of the input, not on its order. Fractional Knapsack's O(n) extra space is for the sorted copy in Python. C++ and Go sort the input in place. Each greedy rule needs a sort or a heap, which is where the log factor comes from.
+
+## Choosing a method
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Maximum number of non-overlapping intervals', 'Activity Selection', 'earliest finish first is provably optimal for the count'],
+    ['Intervals with weights', 'dynamic programming', 'the greedy rule can lose, as the weighted example above shows'],
+    ['Fill a bag with items that can be cut', 'Fractional Knapsack', 'the best ratio first is optimal'],
+    ['Fill a bag with items that cannot be cut', 'the 0/1 knapsack dynamic program', 'a ratio rule can leave capacity unused'],
+    ['Shortest prefix-free code for known symbol frequencies', 'Huffman Coding', 'no other prefix-free code with one code per symbol is shorter'],
+    ['Unit-time jobs with deadlines and profits', 'Job Scheduling', 'highest profit first, into the latest free slot'],
+    ['Connect all vertices with the cheapest edges', 'Kruskal or Prim', 'both are greedy and optimal on a weighted graph'],
+  ]}
+/>
+
+## Applications
+
+- **Scheduling.** Choosing meetings or tasks, and ordering jobs by deadline or by weight.
+- **Compression.** Huffman codes sit inside file formats and compressors such as DEFLATE.
+- **Resource allocation.** Filling a limited budget or capacity with divisible goods.
+- **Networks.** Minimum spanning trees with Kruskal's and Prim's algorithms.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Trusting a rule because it sounds right.** Without a proof that the greedy choice is safe, test the rule against a brute force or a dynamic program on small inputs.
+- **Sorting by the wrong key.** Activity Selection needs finish time. Earliest start or shortest duration gives wrong answers on easy inputs, such as the earliest-start trap.
+- **Using the fractional rule on the 0/1 knapsack.** It is only optimal because the last item can be cut.
+- **Ignoring weights in Activity Selection.** The greedy rule maximizes the count of activities, not their total weight.
+- **Skipping the sort.** Activity Selection and Fractional Knapsack scan in sorted order, and the scan is only correct on that order.
+- **Assuming the Huffman code is unique.** Ties between equal frequencies can be broken either way. The code lengths and the total size stay optimal, but the exact bit strings can differ.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with Activity Selection: it has the clearest greedy proof. Then Fractional Knapsack, which shows how the same idea fails when items cannot be cut. Huffman Coding and Job Scheduling come after them, since each needs one more tool, a min-heap for Huffman Coding and a slot table for Job Scheduling.
+  </FaqItem>
+  <FaqItem question="How do I know a greedy rule is correct?">
+    Prove two things. First, that some optimal answer contains the greedy choice, usually by an exchange argument: take an optimal answer and swap the greedy choice in without making it worse. Second, that what remains after the choice is a smaller problem of the same kind. If you cannot prove it, treat the rule as a heuristic.
+  </FaqItem>
+  <FaqItem question="How is greedy different from dynamic programming?">
+    A greedy algorithm commits to one choice per step and never looks back. Dynamic programming tries every choice, keeps the answers to the subproblems and picks the best afterwards. Dynamic programming handles more problems, such as the 0/1 knapsack and weighted activities, but it usually costs more time and memory.
+  </FaqItem>
+  <FaqItem question="Are Kruskal's and Prim's algorithms greedy?">
+    Yes. Both grow a minimum spanning tree by repeatedly taking the cheapest safe edge. They live in the Minimum Spanning Tree category, not here.
+  </FaqItem>
+</Faq>

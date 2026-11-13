@@ -1,0 +1,114 @@
+---
+category: Algorithms/Dynamic_Programming/DP_Optimizations
+title: DP Optimizations
+lead: A DP optimization keeps the recurrence and speeds up the transition by using structure in its cost. The one topic here, the Convex Hull Trick with its Li Chao tree variant, answers a minimum over lines in amortized O(1) or in O(log V) per query.
+updated: 2026-11-13
+facts:
+  - label: Monotonic CHT
+    value: O(1) amortized
+    hint: sorted slopes and non-decreasing queries
+  - label: Li Chao tree
+    value: O(log V)
+    hint: any order, over a fixed range of x
+  - label: DP speedup
+    value: O(n^2) to O(n)
+    hint: or O(n log V) with a Li Chao tree
+  - label: Overflow
+    value: m*x + b
+    hint: the values must fit the integer type
+    tone: warn
+contents:
+  - folder: Convex_Hull_Trick
+    note: Turn dp[i] = min over j of m_j*x_i + b_j from O(n) per step into amortized O(1), or O(log V) in any order.
+prerequisites:
+  - Algorithms/Dynamic_Programming/Linear_DP
+  - Algorithms/Dynamic_Programming/2D_DP
+related:
+  - Algorithms/Dynamic_Programming/Advanced_DP
+  - Problem_Patterns/Monotonic_Queue
+  - Problem_Patterns/DP_Problem_Patterns
+---
+
+## The problem
+
+Some DP recurrences have the form `dp[i] = min over j < i of (m_j * x_i + b_j)`. Evaluating every `j` costs O(n) per state and O(n^2) in total. Each earlier state is a line `y = m*x + b`, and the minimum over lines at one `x` is the lower envelope of those lines. The Convex Hull Trick keeps only the lines that appear on that envelope.
+
+Both structures in the Python code solve one problem: given a set of lines, return the minimum `y` at a query `x`.
+
+- `MonotonicCHT` needs slopes inserted in non-increasing order and queries with non-decreasing `x`. It keeps a deque of lines and drops a line that can never be best.
+- `LiChaoTree` has no such requirement, but it covers a fixed range of `x` that is given at construction.
+
+## At a glance
+
+<DataTable
+  columns={['Structure', 'Requires', { label: 'Insert', kind: 'mono' }, { label: 'Query', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['`MonotonicCHT`', 'slopes in non-increasing order, queries in non-decreasing order', 'O(1) amortized', 'O(1) amortized', 'a line is pushed once and popped at most once'],
+    ['`LiChaoTree`', 'a fixed range of `x`', 'O(log V)', 'O(log V)', 'V is the size of that range; any order'],
+    ['Scan every line', 'nothing', 'O(1)', 'O(n)', 'the baseline that these replace'],
+  ]}
+/>
+
+## The same queries, three ways
+
+The lines `y = 4x`, `y = 2x + 6`, `y = x + 10` and `y = 17` were added in that order to a `MonotonicCHT` and to a `LiChaoTree(0, 12)`, then queried at increasing `x`. Both agree with a plain minimum over the four lines.
+
+<DataTable
+  columns={['x', '0', '2', '3', '4', '6', '8', '12']}
+  rows={[
+    ['`MonotonicCHT.query(x)`', '0', '8', '12', '14', '16', '17', '17'],
+    ['`LiChaoTree.query(x)`', '0', '8', '12', '14', '16', '17', '17'],
+    ['`min(m*x + b)` over the lines', '0', '8', '12', '14', '16', '17', '17'],
+  ]}
+  rowHeaders
+/>
+
+The answer is the smallest of four lines, and which line wins changes as `x` grows.
+
+## Complexity
+
+<DataTable
+  columns={['Structure', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['`MonotonicCHT`', 'O(n) for n operations in total', 'O(n)'],
+    ['`LiChaoTree`', 'O(log V) per insert and per query', 'O(n) nodes'],
+  ]}
+/>
+
+Used in a DP, the monotonic version turns O(n^2) into O(n) when the slopes and queries are already sorted, and the Li Chao tree gives O(n log V) otherwise.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Slopes and query points both arrive sorted', 'Monotonic CHT', 'amortized O(1), simplest code'],
+    ['Lines or queries in any order, over a bounded range of x', 'Li Chao tree', 'no sorting assumption, O(log V)'],
+    ['Few lines', 'a plain scan', 'the setup is not worth it'],
+    ['The transition is not a minimum of lines', 'another technique', 'CHT only applies to a cost that is linear in `x`'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Breaking the order.** `MonotonicCHT` assumes non-increasing slopes and non-decreasing queries. Other orders give wrong answers.
+- **Querying outside the range.** `LiChaoTree.query` raises `ValueError` when `x` is outside the range given to the constructor.
+- **Overflow.** The products `m*x + b` must fit in the integer type. C++ and Go use wide arithmetic in the comparison of lines, but not in the values themselves.
+- **Querying an empty structure.** Python raises `ValueError`, C++ has undefined behavior and Go panics.
+- **Using the minimum structure for a maximum.** Both structures answer minimum queries.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="When should I reach for a DP optimization?">
+    When the recurrence is correct but a profile shows the transition dominating, and the cost has the structure the technique needs. Here that structure is a minimum over lines.
+  </FaqItem>
+  <FaqItem question="Why do slopes have to be sorted for the monotonic version?">
+    Lines then enter the deque in the order they can become best, so a line that is never best can be removed from the back, and one that has stopped being best can be removed from the front.
+  </FaqItem>
+  <FaqItem question="Is the Li Chao tree always better?">
+    It is more general, but it costs O(log V) instead of amortized O(1) and needs a bounded range of `x`. When both inputs are sorted, the monotonic version is faster.
+  </FaqItem>
+</Faq>

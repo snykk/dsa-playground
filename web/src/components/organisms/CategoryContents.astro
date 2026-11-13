@@ -1,0 +1,175 @@
+---
+import { getCollection } from 'astro:content';
+import type { ContentsEntry } from '../../lib/category';
+import { formatInline } from '../../lib/inline';
+import { joinBase, topicsUnder, type DocNode } from '../../lib/repo';
+import { hasViz } from '../../viz/catalog';
+import LevelMeter from '../atoms/LevelMeter.astro';
+
+/**
+ * "In this section" on a category overview: the folder's topics and sub-categories in reading
+ * order, numbered and joined by a line, each with a one-line note (or its own lead), its level
+ * and whether it has a visualization.
+ */
+interface Props {
+  node: DocNode;
+  contents: ContentsEntry[];
+}
+
+const { node, contents } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const articles = new Map((await getCollection('articles')).map((a) => [a.data.topic, a.data]));
+const overviews = new Map((await getCollection('categories')).map((c) => [c.data.category, c.data]));
+const DOT = String.fromCodePoint(0x25cf);
+
+const rows = contents.map((entry) => {
+  const child = node.children.find((c) => c.name === entry.folder);
+  if (!child) throw new Error(`${node.rel}: "${entry.folder}" in contents is not one of its folders`);
+  const article = articles.get(child.rel);
+  const overview = overviews.get(child.rel);
+  const topics = topicsUnder(child);
+  return {
+    href: joinBase(base, child.slug),
+    title: article?.title ?? overview?.title ?? child.title,
+    note: entry.note ?? article?.lead ?? overview?.lead ?? child.description,
+    level: article?.level,
+    topics: child.kind === 'category' ? topics.length : undefined,
+    visualized: topics.filter((t) => hasViz(t.rel)).length,
+  };
+});
+---
+
+<section class="contents" aria-labelledby="in-this-section">
+  <h2 id="in-this-section">In this section</h2>
+  <ol>
+    {
+      rows.map((r, i) => (
+        <li>
+          <span class="step" aria-hidden="true">
+            {i + 1}
+          </span>
+          <a class="entry" href={r.href}>
+            <span class="title">{r.title}</span>
+            <span class="note" set:html={formatInline(r.note)} />
+            <span class="facts">
+              {r.level && <LevelMeter level={r.level} />}
+              {r.topics ? <span>{r.topics === 1 ? '1 topic' : `${r.topics} topics`}</span> : null}
+              {r.visualized > 0 && (
+                <span class="visualized">
+                  <span class="dot" aria-hidden="true">
+                    {DOT}
+                  </span>
+                  {r.topics === undefined ? 'Visualized' : `${r.visualized} visualized`}
+                </span>
+              )}
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .contents {
+    margin: 40px 0 0;
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+  h2 {
+    font-size: 26px;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  ol {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+  }
+  li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 14px;
+    padding-bottom: 12px;
+  }
+  li:last-child {
+    padding-bottom: 0;
+  }
+  /* The line that joins one step to the next, with a small gap at both circles. */
+  li:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 49px;
+    bottom: -7px;
+    width: 2px;
+    border-radius: 1px;
+    background: var(--border-strong);
+  }
+  .step {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    margin-top: 13px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+  .entry {
+    display: block;
+    padding: 12px 16px 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+  .entry:hover {
+    border-color: var(--accent);
+  }
+  .title {
+    display: block;
+    font-size: 16.5px;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+  .note {
+    display: block;
+    margin-top: 4px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-2);
+  }
+  .note :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .facts:empty {
+    display: none;
+  }
+  .visualized {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .dot {
+    font-size: 9px;
+    color: var(--viz-done);
+  }
+</style>

@@ -1,0 +1,131 @@
+---
+category: Data_Structures/Linear/String
+title: String Data Structures
+lead: "A string is a sequence of characters, so it behaves like an array with a few traps. The three topics move from the basic operations to everyday manipulation to the rope, a tree of fragments that trades fast indexing for cheap edits of long text."
+updated: 2026-11-13
+facts:
+  - label: Access, length
+    value: O(1)
+    hint: a flat string, with the length stored
+  - label: Concatenate
+    value: O(n + m)
+    hint: builds a new string
+    tone: warn
+  - label: Manipulation passes
+    value: O(n)
+    hint: reverse, palindrome, count, replace, split, join
+  - label: Rope edits
+    value: O(log n)
+    hint: concat, split, insert and delete; indexing is O(log n) too
+contents:
+  - folder: String_Basics
+    note: "Access, length, traversal, concatenation and substring, and the traps behind them: immutability, bytes versus characters."
+  - folder: String_Manipulation
+    note: Reverse, palindrome check, counting, replacing, case, split and join. Each is one O(n) pass, often with two pointers.
+  - folder: Rope
+    note: A balanced tree of short fragments. Edits rebuild one path, so they cost O(log n) instead of copying the whole text.
+prerequisites:
+  - Data_Structures/Linear/Array
+related:
+  - Algorithms/String_Algorithms/Pattern_Matching
+  - Algorithms/String_Algorithms/Advanced_String
+  - Problem_Patterns/Two_Pointers
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+---
+
+## The problem
+
+A string is stored like an array of characters, so reading character `i` and asking for the length are O(1). Three things make strings different from a plain array of numbers:
+
+- **Immutability.** Python and Go strings cannot be changed in place, so every edit builds a new string. C++ `std::string` is mutable.
+- **What a character is.** Python counts code points. C++ and Go count bytes, so `len` and indexing differ on non-ASCII text.
+- **The cost of long text.** Editing the middle of a very long string copies everything after the edit.
+
+The first two topics deal with the first two points on flat strings. The rope answers the third.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Idea', 'Key property', { label: 'Typical cost', kind: 'mono' }]}
+  rows={[
+    ['String basics', 'a flat sequence of characters', 'index and length in O(1); concatenation builds a new string', 'O(1) read, O(n + m) concat'],
+    ['String manipulation', 'one pass over the characters, often from both ends', 'reverse and palindrome use two pointers', 'O(n) per operation'],
+    ['Rope', 'a balanced binary tree whose leaves hold short fragments', 'every node caches its length; sources stay unchanged', 'O(log n) edit and index'],
+  ]}
+/>
+
+A substring is O(k) for `k` characters in Python and C++, which copy it, and O(1) in Go, which slices. The palindrome check uses O(1) extra space in C++, while Python and Go build a reversed copy.
+
+## One edit, two ways
+
+Take `Hello, World`, insert ` there` at position 5, then delete the first 7 characters. These results come from running the Python code.
+
+<DataTable
+  columns={['Step', 'Flat string', 'Rope']}
+  rows={[
+    ['start', '`Hello, World`, length 12', '`Rope("Hello, World")`, length 12, height 1'],
+    ['`insert(5, " there")`', '`Hello there, World`, length 18, a new copy of the text', 'the same text, built by splitting at 5 and joining three ropes; only the path to the cut is rebuilt'],
+    ['`delete(0, 7)`', '`here, World`, another copy', 'the same text, from one split and one join'],
+  ]}
+/>
+
+For 12 characters the difference does not matter. It does for a text of millions of characters, where each flat edit copies everything and each rope edit touches only a path of about log n nodes. The price is that `index(i)` follows that path too, so it is O(log n) where a flat string is O(1).
+
+## Complexity
+
+<DataTable
+  columns={['Topic', { label: 'Read a character', kind: 'mono' }, { label: 'Edit or build', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['String basics', 'O(1)', 'concatenate O(n + m), substring O(k)', 'O(n)'],
+    ['String manipulation', 'O(1)', 'every operation O(n)', 'O(n); palindrome O(1) in C++'],
+    ['Rope', 'O(log n)', 'concat, split, insert, delete O(log n), plus the size of inserted text', 'O(n)'],
+  ]}
+/>
+
+Reading the whole rope back into a string is O(n).
+
+## Choosing a representation
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Reading, comparing and small edits', 'Flat string', 'O(1) access and the best cache behaviour'],
+    ['Reversing, counting, replacing, splitting', 'String manipulation', 'one clear O(n) pass for each'],
+    ['Many edits in the middle of a long text, such as an editor buffer', 'Rope', 'edits rebuild a path instead of copying the text'],
+    ['Building a string from many pieces in a loop', 'a builder or a list of parts joined once', 'in Python and Go, repeated concatenation copies the growing result each time'],
+  ]}
+/>
+
+## Applications
+
+- **Text editors.** A rope is the classic buffer for large files with many edits.
+- **Parsing and validation.** Splitting, counting and checking palindromes are everyday tasks.
+- **Pattern matching and bioinformatics.** Searching text is the next step, in the Pattern Matching algorithms.
+- **Interview problems.** The two-pointer idea behind reverse and palindrome carries over to many of them.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Mixing bytes and characters.** Python indexes code points. C++ and Go index bytes, so a cut can land inside a character.
+- **Concatenating in a loop in Python or Go.** Each step builds a new string, so n steps cost O(n^2) in total. Collect the parts and join once.
+- **Assuming the palindrome check ignores case and punctuation.** `is_palindrome("A man, a plan, a canal: Panama")` is `False`, because it compares the string with its reverse exactly.
+- **Treating a rope as a faster string.** Indexing is O(log n) and reading it back is O(n). It wins only when edits dominate.
+- **Expecting a substring to be free.** It copies in Python and C++, and only Go slices in O(1).
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    String basics first, since it explains immutability and the byte versus character question. Then string manipulation, which uses those operations in passes. The rope comes last, because it needs a balanced binary tree as background.
+  </FaqItem>
+  <FaqItem question="Why are strings immutable in Python and Go?">
+    A string that cannot change can be shared safely and used as a dictionary key. The cost is that every edit makes a new string.
+  </FaqItem>
+  <FaqItem question="When is a rope worth it?">
+    When the text is long and you edit it often in the middle. For short strings, or when you mostly read, a flat string is simpler and faster.
+  </FaqItem>
+  <FaqItem question="Where do I go to search inside a string?">
+    To the Pattern Matching algorithms, which find every place a pattern occurs. This section only covers how a string is stored and edited.
+  </FaqItem>
+</Faq>
