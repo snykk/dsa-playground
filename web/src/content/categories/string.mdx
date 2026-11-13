@@ -56,6 +56,12 @@ The first two topics deal with the first two points on flat strings. The rope an
 
 A substring is O(k) for `k` characters in Python and C++, which copy it, and O(1) in Go, which slices. The palindrome check uses O(1) extra space in C++, while Python and Go build a reversed copy.
 
+## See them side by side
+
+Each tab runs the repository's Python code on a string and a list of operations, so you can compare a flat string, which copies characters into a new string for every concatenation or edit, with the rope, which rebuilds a few nodes along one path and shares the rest.
+
+<ArticleViz ids={['string-basics', 'string-reverse', 'string-count-replace', 'string-split-join', 'rope']} />
+
 ## One edit, two ways
 
 Take `Hello, World`, insert ` there` at position 5, then delete the first 7 characters. These results come from running the Python code.

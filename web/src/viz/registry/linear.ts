@@ -92,6 +92,41 @@ export const entries: VizInfo[] = [
   },
 
   // Strings
+  {
+    id: 'string-basics',
+    title: 'String Basics',
+    group: 'Linear Structures',
+    blurb: 'Index, measure, traverse, slice and concatenate: s[i] raises out of range, a slice clamps its bounds, and s + t copies both strings.',
+    topics: ['Data_Structures/Linear/String/String_Basics', 'Data_Structures/Linear/String'],
+  },
+  {
+    id: 'string-reverse',
+    title: 'Reverse and Palindrome',
+    group: 'Linear Structures',
+    blurb: 's[::-1] builds a reversed copy from the last index; the palindrome check builds that whole copy, then compares from the left.',
+    topics: ['Data_Structures/Linear/String/String_Manipulation', 'Data_Structures/Linear/String'],
+  },
+  {
+    id: 'string-count-replace',
+    title: 'Vowels, Replace and Case',
+    group: 'Linear Structures',
+    blurb: 'One pass each: count the characters in "aeiouAEIOU", replace leftmost matches without overlaps, map every letter to the other case.',
+    topics: ['Data_Structures/Linear/String/String_Manipulation', 'Data_Structures/Linear/String'],
+  },
+  {
+    id: 'string-split-join',
+    title: 'Split and Join',
+    group: 'Linear Structures',
+    blurb: 'split(sep) cuts at every separator and keeps empty fields; join adds up the sizes, allocates once and copies the pieces in.',
+    topics: ['Data_Structures/Linear/String/String_Manipulation', 'Data_Structures/Linear/String'],
+  },
+  {
+    id: 'rope',
+    title: 'Rope',
+    group: 'Linear Structures',
+    blurb: 'A tree of short fragments: index follows the weights, split cuts one path, and an AVL-style join keeps the tree balanced with rotations.',
+    topics: ['Data_Structures/Linear/String/Rope', 'Data_Structures/Linear/String'],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -112,4 +147,9 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'priority-queue': () => import('../specs/priorityQueue').then((m) => m.priorityQueue),
 
   // Strings
+  'string-basics': () => import('../specs/stringBasics').then((m) => m.stringBasics),
+  'string-reverse': () => import('../specs/stringManipulation').then((m) => m.stringReverse),
+  'string-count-replace': () => import('../specs/stringManipulation').then((m) => m.stringCountReplace),
+  'string-split-join': () => import('../specs/stringManipulation').then((m) => m.stringSplitJoin),
+  rope: () => import('../specs/rope').then((m) => m.rope),
 };
