@@ -1,0 +1,136 @@
+---
+category: Algorithms/Dynamic_Programming/Advanced_DP
+title: Advanced Dynamic Programming
+lead: Advanced DP keeps the same state, transition and order, but the state follows a structure instead of an index. It is a tree node, a node of a DAG, a subset stored in an integer or a digit position, and the cost depends on how many such states exist.
+updated: 2026-11-13
+facts:
+  - label: DP on Trees
+    value: O(n)
+    hint: one post-order pass
+  - label: DP on Graphs
+    value: O(V + E)
+    hint: a DAG only
+  - label: Bitmask DP
+    value: O(n^2 * 2^n)
+    hint: Traveling Salesman, about 20 cities at most
+    tone: warn
+  - label: Digit DP
+    value: O(d*S*10)
+    hint: d digits, S running states
+  - label: Tree DP state
+    value: 1 or 2 values per node
+    hint: for example include and exclude
+  - label: Implementations
+    value: Python only
+    hint: C++ and Go are placeholders in all four topics
+    tone: warn
+contents:
+  - folder: DP_on_Trees
+    note: Solve every subtree from the leaves up. Independent set and maximum path sum in one O(n) pass.
+  - folder: DP_on_Graphs
+    note: On a DAG each node depends on its successors only, so a memoized DFS gives longest paths in O(V + E) and detects cycles.
+  - folder: Bitmask_DP
+    note: Store a set of visited items as the bits of one integer. This turns the O(n!) tour search into 2^n * n states.
+  - folder: Digit_DP
+    note: Count numbers in a range by building them digit by digit, with a tight flag and a running value as the state.
+prerequisites:
+  - Algorithms/Dynamic_Programming/Basic_DP
+  - Algorithms/Dynamic_Programming/Linear_DP
+  - Algorithms/Dynamic_Programming/2D_DP
+related:
+  - Algorithms/Dynamic_Programming/DP_Optimizations
+  - Problem_Patterns/DP_Problem_Patterns
+  - Problem_Patterns/Bit_Manipulation
+  - Algorithms/Graph_Algorithms/Traversal
+---
+
+## The problem
+
+In earlier areas the state is one or two numbers. Here it is a shape: a node with all of its subtree, a node with all of its successors, a set of chosen items, or a prefix of a number. The recurrence is the same kind of statement, "the answer for this state is built from smaller states", and the order follows the structure.
+
+<DataTable
+  columns={['Topic', 'State', 'Smaller states', 'Order']}
+  rows={[
+    ['DP on Trees', 'a node, as a pair such as (include, exclude)', 'its children', 'children before parent'],
+    ['DP on Graphs', 'a node: nodes on the longest path that starts there', 'its successors', 'successors first, so the graph must be acyclic'],
+    ['Bitmask DP', '`dp[mask][last]`: cheapest way to visit the cities in `mask`, ending at `last`', 'the mask without `last`', 'increasing mask value'],
+    ['Digit DP', '`(pos, tight, current_sum)`', 'the next digit position', 'recursion with a memo'],
+  ]}
+/>
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Key property', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Limit']}
+  rows={[
+    ['DP on Trees', 'a rooted tree gives an order for free', 'O(n)', 'O(h) recursion stack, up to O(n)', 'Python recursion depth on a long path'],
+    ['DP on Graphs', 'a memoized DFS; raises `ValueError` on a reachable cycle', 'O(V + E)', 'O(V)', 'needs a DAG; the code has no edge weights'],
+    ['Bitmask DP', 'exact answer over every subset', 'O(n^2 * 2^n)', 'O(n * 2^n)', 'about 20 items'],
+    ['Digit DP', 'counts by digits, so a range needs a subtraction', 'O(d*S*10)', 'O(d*S)', 'needs a small running state'],
+  ]}
+/>
+
+Digit DP is cheap in the size of the bound: `count_numbers_with_digit_sum(10**18, 9)` returns 3124550 after a few thousand steps, where a loop over every number would never finish.
+
+## Small runs of the repository code
+
+<DataTable
+  columns={['Call', 'Input', 'Result']}
+  rows={[
+    ['`tree_dp_max_independent_set`', 'root 1 with children 2 and 3; node 2 has children 4 and 5', '12 (nodes 3, 4 and 5)'],
+    ['`tree_dp_max_path_sum`', 'the same tree', '11'],
+    ['`dag_longest_path`', '`a -> b, a -> c, b -> d, c -> d`, start `a`', '2 edges'],
+    ['`traveling_salesman_dp`', 'a 4-city matrix with first row `0, 10, 15, 20`', '80'],
+    ['`count_numbers_with_digit_sum`', 'numbers 0 to 100 with digit sum 10', '9'],
+  ]}
+/>
+
+`dag_longest_path` on a graph with the cycle `a -> b -> a` raises `ValueError`.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Best choice per node of a rooted tree', 'DP on Trees', 'each subtree is solved once from its children'],
+    ['Longest path or path count in a DAG', 'DP on Graphs', 'a memoized DFS visits each node and edge once'],
+    ['A graph may have cycles, or edges have weights', 'a shortest-path algorithm', 'the DAG code assumes no cycles and counts edges'],
+    ['Visit or cover a small set in the best order', 'Bitmask DP', 'the set of visited items is the state, up to about 20 items'],
+    ['Count numbers up to 10^18 by a digit property', 'Digit DP', 'the state does not depend on the size of the number'],
+    ['Count numbers in a range `[L, R]`', 'Digit DP, `count(R) - count(L - 1)`', 'the function returns 0 for a negative bound'],
+  ]}
+/>
+
+## Applications
+
+- **Hierarchies.** Choosing non-adjacent nodes, for example employees for a task with no manager and report together.
+- **Dependency graphs.** Longest chain of build steps in a DAG.
+- **Routing and scheduling.** Exact Traveling Salesman tours for a few dozen stops at most.
+- **Number problems.** Counting integers with a digit sum or another digit rule.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Recursing twice per child in tree DP.** Calling the recursion again for each child makes the algorithm exponential. Compute each child once and reuse the result.
+- **Running graph DP on a cycle.** There is no order in which the successors are solved first. The code detects this and raises `ValueError`.
+- **Using bitmask DP past about 20 items.** The table has `n * 2^n` cells, and in Python the cell objects make the practical limit lower.
+- **Forgetting the tight flag in digit DP.** Without it a number above the bound is counted, because the digits are no longer limited by the bound's digits.
+- **Expecting C++ and Go versions.** The four topics here are implemented in Python only; the other folders are stubs.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which one should I read first?">
+    DP on Trees. Its state is the easiest to picture, and DP on Graphs generalizes it from trees to DAGs. Bitmask DP and Digit DP use a different kind of state and can be read in either order.
+  </FaqItem>
+  <FaqItem question="How is DP on Graphs different from DP on Trees?">
+    A tree has one parent per node and no cycles, so a post-order pass is enough. A DAG can reach one node by several paths, so a memo is needed to avoid repeated work, and cycles must be ruled out.
+  </FaqItem>
+  <FaqItem question="Why does bitmask DP stop at about 20 items?">
+    The table has `n * 2^n` cells. At n = 20 that is about 21 million, and each doubling of the table costs one more item.
+  </FaqItem>
+  <FaqItem question="When is digit DP needed?">
+    When the bound is too large to loop over and the property depends only on digits, such as the digit sum. The memo size depends on the number of digits, not on the value of the bound.
+  </FaqItem>
+</Faq>

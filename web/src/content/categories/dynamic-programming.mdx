@@ -1,0 +1,119 @@
+---
+category: Algorithms/Dynamic_Programming
+title: Dynamic Programming Algorithms
+lead: Dynamic programming solves a problem by writing its answer in terms of smaller subproblems and computing each one once. The five areas here differ in the shape of the state, from one number to a table, a subset of items, a tree node or a set of lines.
+updated: 2026-11-13
+facts:
+  - label: Naive recursion
+    value: O(2^n)
+    hint: Fibonacci without a table
+    tone: warn
+  - label: One-dimensional state
+    value: O(n)
+    hint: Fibonacci, Kadane, Climbing Stairs
+  - label: Two-dimensional state
+    value: O(m*n)
+    hint: LCS and Edit Distance
+  - label: Interval state
+    value: O(n^3)
+    hint: Matrix Chain Multiplication
+  - label: Subset state
+    value: O(n^2 * 2^n)
+    hint: Bitmask DP for the Traveling Salesman Problem
+    tone: warn
+  - label: Tree or DAG state
+    value: O(n) and O(V + E)
+    hint: DP on Trees and DP on Graphs
+contents:
+  - folder: Basic_DP
+    note: Start here. Fibonacci and Climbing Stairs show the whole idea on a table of one number per step.
+  - folder: Linear_DP
+    note: One-dimensional tables over an index or an amount, where the answer comes from earlier entries of the same row.
+  - folder: 2D_DP
+    note: Two-index states, such as two strings, items and capacity, or an interval of a chain. The table is the answer.
+  - folder: Advanced_DP
+    note: States that are a subset, a digit position, a tree node or a graph node, so the table follows the structure.
+  - folder: DP_Optimizations
+    note: Keep the recurrence and speed up the transition, here with the Convex Hull Trick.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Problem_Patterns/DP_Problem_Patterns
+  - Algorithms/Greedy
+  - Algorithms/Divide_and_Conquer
+---
+
+## What this area covers
+
+A DP solution has four parts: a state that names a subproblem, a transition that builds its answer from smaller states, an order that computes the smaller ones first, and base cases. The method pays off when two conditions hold:
+
+- **Overlapping subproblems.** The same state is needed again and again. Without a table, `fibonacci_naive(30)` makes 2,692,537 calls for 31 distinct values.
+- **Optimal substructure.** The best answer for a state is built from best answers for smaller states.
+
+Memoization (top-down, with a dictionary) and tabulation (bottom-up, with an array) are two ways to store the answers. Both give the same result. Most topics here ship a table version, and some also a memoized or a space-saving one.
+
+The five areas below are sorted by how the state looks, not by difficulty alone.
+
+## At a glance
+
+<DataTable
+  columns={['Area', 'State', 'Topics', { label: 'Typical time', kind: 'mono' }]}
+  rows={[
+    ['Basic DP', 'one number per step', 'Fibonacci, Climbing Stairs', 'O(n)'],
+    ['Linear DP', 'an index into one sequence, or an amount', 'Coin Change, LIS, Kadane', 'O(n), O(n*A), O(n^2)'],
+    ['2D DP', 'two indices: prefixes, items and capacity, or an interval', 'LCS, Edit Distance, 0/1 Knapsack, Matrix Chain', 'O(m*n), O(n*W), O(n^3)'],
+    ['Advanced DP', 'a subset, a digit position, a tree node or a graph node', 'Bitmask, Digit, Tree and Graph DP', 'O(n^2 * 2^n), O(d*S*10), O(n), O(V + E)'],
+    ['DP optimizations', 'the same state as before, a faster transition', 'Convex Hull Trick', 'O(n) or O(n log V)'],
+  ]}
+/>
+
+## A path through the area
+
+1. **Basic DP.** Read Fibonacci first: it shows why the table exists, because naive recursion repeats work exponentially often. Climbing Stairs applies the same recurrence to counting.
+2. **Linear DP.** The state is still one index, but the transition now chooses among several earlier states. Coin Change is the first problem where greedy fails.
+3. **2D DP.** Two indices describe a state. LCS and Edit Distance share one table shape, 0/1 Knapsack uses it for items and capacity, and Matrix Chain fills intervals by length.
+4. **Advanced DP.** The state is no longer a pair of numbers. It is a subset stored in an integer, a digit position, a tree node or a node of a DAG.
+5. **DP optimizations.** Once a recurrence is right but too slow, exploit its structure. The Convex Hull Trick turns a minimum over all earlier lines into an amortized O(1) step.
+
+## Choosing an area
+
+<DataTable
+  columns={['The problem looks like', 'Look in', 'Why']}
+  rows={[
+    ['a number defined by the previous few numbers', 'Basic DP', 'a loop with two variables is enough'],
+    ['a best value over one sequence or over amounts', 'Linear DP', 'one array, indexed by position or amount'],
+    ['two strings, or items against a budget', '2D DP', 'the state needs one index for each side'],
+    ['a best order over every sub-chain', '2D DP (Matrix Chain)', 'interval DP over chain length'],
+    ['choose from a few dozen items with a visiting history', 'Advanced DP (Bitmask)', 'the visited set is the state, which works up to about 20 items'],
+    ['count numbers in a range by their digits', 'Advanced DP (Digit)', 'the state is the digit position, a tight flag and a small running value'],
+    ['a rooted tree, or a graph without cycles', 'Advanced DP (Tree and Graph)', 'children or successors are solved before their parent'],
+    ['a correct DP that is too slow', 'DP optimizations', 'a transition of the form m*x + b can be answered without scanning'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using greedy because it looks natural.** For coins `1, 3, 4` and amount 6, largest-first uses three coins, while `coin_change_min_coins` returns 2.
+- **Reading a pseudo-polynomial bound as polynomial.** Knapsack and Coin Change run in O(n*W) and O(n*A), which depend on the value of the capacity or amount, not on the number of digits it has.
+- **Filling the table in the wrong order.** Each state must see its inputs already computed. A one-row knapsack loops capacity downward so each item is taken once, and a one-row Coin Change loops upward so a coin can repeat.
+- **Hitting limits of the host language.** C++ and Go Fibonacci are exact only up to `F(92)`, and the tree and graph DP recurse once per level, so a path of about 1,000 nodes reaches Python's recursion limit.
+- **Applying DP to a cyclic graph.** DP on Graphs needs a DAG, and the code raises `ValueError` when a cycle is reachable.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What is the difference between memoization and tabulation?">
+    Memoization starts from the answer you want and stores each subproblem the first time the recursion reaches it. Tabulation fills a table from the base cases upward. Memoization computes only the states that are reached, and tabulation avoids deep recursion and often allows a smaller table.
+  </FaqItem>
+  <FaqItem question="How do I tell DP from greedy?">
+    Greedy commits to one choice per step and never revisits it. DP keeps the answer for every state and combines them. If a local choice can be proved safe, greedy is simpler and faster. Coin Change with `1, 3, 4` is a case where the local choice is wrong.
+  </FaqItem>
+  <FaqItem question="Where should I start?">
+    With Basic DP, then Linear DP and 2D DP in that order. Advanced DP and DP optimizations assume you can already write a state and a transition without help.
+  </FaqItem>
+  <FaqItem question="Can a table always be made smaller?">
+    Often, when a row depends only on the previous row. 0/1 Knapsack drops from O(n*W) to O(W) space and LCS to O(min(m, n)), but then the table is gone and the chosen items or the sequence cannot be recovered by tracing back.
+  </FaqItem>
+</Faq>
