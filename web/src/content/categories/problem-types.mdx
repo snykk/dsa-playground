@@ -1,0 +1,116 @@
+---
+category: Utilities/Problem_Types
+title: Problem Types
+lead: "Three kinds of contest problem that are defined by their format rather than by a data structure: build an object that meets constraints, decide who wins a game, and talk to a judge program within a query budget. Each needs its own way of thinking and its own proof."
+updated: 2026-11-13
+facts:
+  - label: Constructive
+    value: O(n) to O(n log n)
+    hint: one pass or one heap, plus a proof
+  - label: Nim winner
+    value: XOR of piles
+    hint: first player wins iff it is non-zero
+  - label: Interactive budget
+    value: O(log n) queries
+    hint: binary search is the default tool
+  - label: Interactive rule
+    value: Flush every query
+    hint: the judge sees nothing until you do
+    tone: warn
+contents:
+  - folder: Constructive_Algorithms
+    note: Build a permutation, array, string or graph that meets every constraint by design, or say that none exists.
+  - folder: Interactive_Problems
+    note: Query a judge program while it runs and find the hidden value within a budget. Flushing and strict formats matter most.
+  - folder: Game_Theory
+    note: Nim reduces to one XOR, and Sprague-Grundy turns any impartial game into Nim with Grundy numbers. The Advanced topic.
+prerequisites:
+  - Algorithms/Greedy
+  - Algorithms/Searching/Binary_Search
+related:
+  - Utilities/Optimization_Techniques
+  - Problem_Patterns/Bit_Manipulation
+  - Problem_Patterns/Binary_Search_on_Answer
+  - Algorithms/Dynamic_Programming
+---
+
+## The problem
+
+Most problems ask you to compute a value from the input. These three do not, and a data structure or a search is the wrong first thought.
+
+- **Constructive problems** ask for an object: a permutation, an array, a string or a graph that satisfies a list of constraints. You also have to say when no such object exists. You find a rule that satisfies the constraints by design and prove it.
+- **Interactive problems** hide the input. Your program sends queries to a judge, reads the answers and must find the hidden value within a query budget. The format is part of the problem.
+- **Game problems** ask who wins when both players play perfectly. For impartial games the answer comes from a formula, not from searching the game tree.
+
+## At a glance
+
+<DataTable
+  columns={['Type', 'What you produce', 'Core skill', { label: 'Typical cost', kind: 'mono' }]}
+  rows={[
+    ['Constructive', 'an object that meets the constraints, or "impossible"', 'find a pattern on small cases, then prove it', 'O(n) to O(n log n)'],
+    ['Interactive', 'the hidden value, within a query budget', 'plan the queries first; flush and parse strictly', 'O(log n) queries'],
+    ['Game theory', 'the winner, and sometimes a winning move', 'Nim, mex and XOR of Grundy numbers', 'O(k) for Nim with k piles'],
+  ]}
+/>
+
+## Complexity
+
+<DataTable
+  columns={['Type', 'Operation', { label: 'Time', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['Constructive', 'permutation, array, string, tree', 'O(n)', 'one pass'],
+    ['Constructive', 'graph from a degree sequence (Havel-Hakimi)', 'O(E log n)', 'each edge is a heap pop and push'],
+    ['Interactive', 'binary search for a hidden number', 'O(log n) queries', 'the budget is the cost that counts'],
+    ['Game theory', 'Nim winner and winning move', 'O(k)', 'k piles, one XOR pass'],
+    ['Game theory', 'Grundy of a sum of games', 'O(number of games)', 'XOR the tabulated numbers'],
+  ]}
+  caption="Figures from the topic articles. For interactive problems the number of queries matters more than the running time."
+/>
+
+## Choosing an approach
+
+<DataTable
+  columns={['The statement says', 'Think', 'Why']}
+  rows={[
+    ['print any array, string or permutation with property X', 'Constructive', 'find a rule, and check feasibility before building'],
+    ['print the object, or -1 if none exists', 'Constructive', 'the impossible case needs a proof as well'],
+    ['read answers to your queries from the judge', 'Interactive', 'plan the queries and flush every one'],
+    ['at most about 30 queries for n up to 10^9', 'Interactive with binary search', 'log2(10^9) is about 30'],
+    ['two players, the same moves, the player who cannot move loses', 'Game theory', 'compute Grundy numbers instead of searching the tree'],
+    ['several independent piles or games', 'Game theory', 'the game sum is the XOR of the Grundy numbers'],
+  ]}
+/>
+
+## Applications
+
+- **Contest problems** with a special judge, which accepts any valid answer.
+- **Testing and verification,** where a builder pairs with a cheap checker for randomised tests.
+- **Search under a budget,** which any system with an expensive oracle shares.
+- **Game solvers,** for Nim-like puzzles and combinatorial games.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Building without checking feasibility.** A constructive problem usually has impossible inputs, and the answer for them is part of the output.
+- **Forgetting to flush.** In an interactive problem the judge sees nothing until you flush, so the program waits and the judge times out.
+- **Exceeding the query budget.** A correct but wasteful strategy fails. Count the queries before you code.
+- **Assuming misere play is the same as normal play.** The Nim rule changes when every pile has at most 1 object.
+- **Applying Sprague-Grundy to a partisan game.** It needs both players to have the same moves.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Constructive algorithms first: they need only the greedy topics and the habit of testing small cases. Interactive problems next, since they are binary search with a strict protocol. Game theory last: it is the Advanced topic and it uses XOR from the Bit Manipulation pattern together with dynamic programming.
+  </FaqItem>
+  <FaqItem question="How is a constructive problem different from a search?">
+    A search tries candidates until one works. A constructive solution produces a valid object directly, and a proof says why it always satisfies the constraints. Small cases help you see the rule.
+  </FaqItem>
+  <FaqItem question="How do I test an interactive solution without a judge?">
+    Write a small fake judge that answers from a hidden value, run your solution against it in a test, and count the queries. The topic article does this in its tests.
+  </FaqItem>
+  <FaqItem question="What is a Grundy number?">
+    It is the mex of the Grundy numbers of the positions you can move to, where mex is the smallest non-negative integer not in that set. A position with Grundy number 0 loses for the player to move, and independent games combine by XOR of their Grundy numbers.
+  </FaqItem>
+</Faq>

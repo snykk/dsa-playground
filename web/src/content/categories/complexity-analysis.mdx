@@ -1,0 +1,118 @@
+---
+category: Complexity_Analysis
+title: Complexity Analysis
+lead: Complexity analysis measures what an algorithm costs as its input grows. Time complexity counts steps, space complexity counts memory, and amortized analysis bounds the cost of a whole sequence of operations when one operation alone can be expensive.
+updated: 2026-11-13
+facts:
+  - label: Time
+    value: Steps vs n
+    hint: O, Omega and Theta bound a function
+  - label: Space
+    value: Auxiliary memory
+    hint: the input itself is usually not counted
+  - label: Amortized
+    value: O(1) per append
+    hint: dynamic array, although one append can cost O(n)
+  - label: Not the same as
+    value: Average case
+    hint: amortized is a worst-case guarantee, with no randomness
+    tone: warn
+contents:
+  - folder: Time_Complexity
+    note: How running time scales with n. Big-O, Big-Omega and Big-Theta are bounds, and best, average and worst are cases.
+  - folder: Space_Complexity
+    note: How much extra memory an algorithm needs, including the recursion stack. It decides whether a program fits at all.
+  - folder: Amortized_Analysis
+    note: The cost per operation over a whole sequence. It explains why a dynamic array append is O(1) although one append can cost O(n).
+prerequisites: []
+related:
+  - Algorithms/Sorting
+  - Algorithms/Searching
+  - Data_Structures/Linear/Array
+  - Problem_Patterns
+---
+
+## The problem
+
+Two programs can give the same answer and differ by a factor of a million in running time or memory at large input sizes. Complexity analysis gives a way to say how, without timing a particular machine.
+
+Three questions cover it:
+
+- **How long?** Time complexity describes how the number of steps grows with the input size `n`. It has its own sub-category because it has three notations, and a separate idea of cases.
+- **How much memory?** Space complexity describes the extra memory, usually without the input. Recursion counts, because every active call holds a stack frame.
+- **How much per operation, over time?** Amortized analysis bounds the total cost of any sequence of operations and divides by the number of operations.
+
+All three use the same notation and the same habit: pick the function you are measuring, then bound it.
+
+## At a glance
+
+<DataTable
+  columns={['Area', 'Question', 'What is measured', 'Example from the repository']}
+  rows={[
+    ['Time complexity', 'how fast does the cost grow?', 'steps, as a function of n, for one case', 'binary search: best case Theta(1), worst case Theta(log n)'],
+    ['Space complexity', 'how much extra memory?', 'auxiliary memory, including the call stack', 'Heap Sort uses O(1) extra space; Merge Sort uses O(n)'],
+    ['Amortized analysis', 'what does one operation cost on average over a sequence?', 'total cost of a sequence divided by its length', 'dynamic array append: O(n) at worst, O(1) amortized'],
+  ]}
+/>
+
+## Complexity
+
+The area has no running time of its own. These are the growth rates that the three topics use, as the Big-O topic classes them:
+
+<DataTable
+  columns={['Class', { label: 'Growth', kind: 'mono' }, 'Practical limit']}
+  rows={[
+    ['Fast', 'O(1), O(log n), O(n)', 'scales to millions or billions of items'],
+    ['Acceptable', 'O(n log n)', 'sorting-class cost, about 2 x 10^7 steps for n = 10^6'],
+    ['Slow', 'O(n^2), O(n^3)', 'fine for thousands of items, hopeless for millions'],
+    ['Infeasible', 'O(2^n), O(n!)', 'only tiny n, about 20 to 25 for 2^n and 10 to 12 for n!'],
+  ]}
+  caption="A rough feasibility guide from the Big-O topic, not a case analysis."
+/>
+
+## Choosing an analysis
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['comparing the speed of two algorithms', 'time complexity', 'growth rate decides at large n'],
+    ['stating a guarantee or a lower bound', 'Big-O or Big-Omega', 'one bounds from above, the other from below'],
+    ['stating the exact order of one case', 'Big-Theta', 'it needs matching bounds'],
+    ['a program runs out of memory, or recursion is deep', 'space complexity', 'frames and buffers add up'],
+    ['an operation is usually cheap and occasionally expensive', 'amortized analysis', 'it bounds the total over every sequence'],
+  ]}
+/>
+
+## Applications
+
+- **Choosing an algorithm** before writing code, from the input size and the time limit.
+- **Reviewing code,** by reading loops and recursion for their order of growth.
+- **Capacity planning,** from the memory an algorithm needs at the expected input size.
+- **Designing data structures,** such as a dynamic array whose resizing rule keeps appends O(1) amortized.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Equating O with the worst case.** O, Omega and Theta are bounds. Best, average and worst are cases, and any case can take any bound.
+- **Counting only the input for space.** The usual convention counts auxiliary memory, and recursion adds one frame per active call. Naive Fibonacci makes O(2^n) calls but uses O(n) space.
+- **Mistaking amortized for average case.** Amortized O(1) is a guarantee over every sequence, with no probability. Average-case analysis averages over a distribution of inputs.
+- **Ignoring the growth rule.** A dynamic array that adds a constant amount on each resize loses the O(1) amortized append. Multiplying the capacity keeps it.
+- **Forgetting that constants are hidden.** `3n` and `300n` are both O(n), so growth rate alone does not tell you which is faster at small sizes.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Time complexity first, and Big-O before Big-Omega and Big-Theta, because the rest of the repository quotes Big-O everywhere. Then space complexity, which uses the same notation on memory. Amortized analysis comes last because it builds on both and needs a data structure to look at, the dynamic array.
+  </FaqItem>
+  <FaqItem question="Is space complexity counted with or without the input?">
+    Usually without. The common measure is auxiliary space, the extra memory the algorithm allocates, including the call stack. When someone says Heap Sort uses O(1) space, they mean auxiliary space, because it sorts in place. Total space is the input plus the auxiliary part, and it is only counted when the problem says so.
+  </FaqItem>
+  <FaqItem question="Why can an O(n) append still be called O(1)?">
+    Amortized analysis bounds the total. A dynamic array that doubles when full copies fewer than 2n elements over n appends, so the cost per append averaged over the sequence is O(1), even though a single append can cost O(n).
+  </FaqItem>
+  <FaqItem question="Does a better time complexity mean better code?">
+    Not at every size. Big-O drops constants and lower-order terms, so a simple O(n^2) routine can beat a complicated O(n log n) one on small inputs. Use the growth rate to predict scale, and measure when the sizes are small.
+  </FaqItem>
+</Faq>

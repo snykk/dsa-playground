@@ -1,0 +1,136 @@
+---
+category: Complexity_Analysis/Time_Complexity
+title: Time Complexity
+lead: "Big-O, Big-Omega and Big-Theta are three bounds on a function: an upper bound, a lower bound and a tight bound. Best, average and worst case are three different functions of the input size, and any of the three notations can bound any of the three cases."
+updated: 2026-11-13
+facts:
+  - label: Big-O
+    value: Upper bound
+    hint: f(n) <= c * g(n) from some n0 on
+  - label: Big-Omega
+    value: Lower bound
+    hint: c * g(n) <= f(n) from some n0 on
+  - label: Big-Theta
+    value: Tight bound
+    hint: both O(g) and Omega(g)
+  - label: Not the same as
+    value: Best, average, worst
+    hint: those are cases, not bounds
+    tone: warn
+contents:
+  - folder: Big_O_Notation
+    note: The upper bound and the ladder of growth rates from O(1) to O(2^n). Start here.
+  - folder: Big_Omega
+    note: The lower bound, behind results such as no comparison sort beats n log n.
+  - folder: Big_Theta
+    note: The tight bound. It meets O and Omega, and it attaches to one case function at a time.
+prerequisites: []
+related:
+  - Complexity_Analysis/Space_Complexity
+  - Complexity_Analysis/Amortized_Analysis
+  - Algorithms/Sorting
+  - Algorithms/Searching
+---
+
+## The problem
+
+A running time depends on the input size `n`, and on which input of that size you pick. Two separate choices follow from that, and the three topics here keep them apart.
+
+- **Which function?** An algorithm has a best-case time `B(n)`, an average-case time `A(n)` and a worst-case time `W(n)`. These are three functions of `n`.
+- **Which bound?** For any function `f`, `O(g)` says `f` grows no faster than `g`, `Omega(g)` says no slower, and `Theta(g)` says at the same rate.
+
+So "O is the worst case" and "Omega is the best case" are both wrong. You can say "the worst case is `O(n^2)`", "the worst case is `Omega(n)`" or "the worst case is `Theta(n^2)`". Each is a statement about one function with one bound.
+
+## At a glance
+
+<DataTable
+  columns={['Notation', 'Says', 'Definition', 'Typical use']}
+  rows={[
+    ['`O(g)`', 'at most this fast-growing', '`f(n) <= c * g(n)` for all `n >= n0`', 'a guarantee: a promise the running time stays under'],
+    ['`Omega(g)`', 'at least this fast-growing', '`c * g(n) <= f(n)` for all `n >= n0`', 'a lower bound, for a case or for a whole problem'],
+    ['`Theta(g)`', 'exactly this fast-growing', '`c1 * g(n) <= f(n) <= c2 * g(n)` for all `n >= n0`', 'stating the order of one case precisely'],
+  ]}
+  caption="Theta holds exactly when O and Omega both hold. O and Omega are loose by default: n is O(n^2), and n^2 is Omega(n)."
+/>
+
+## One algorithm, three cases, three bounds
+
+Binary search returns as soon as it finds the target, and linear search stops at the first match. The repository's `binary_search_example` and `linear_search_best_case` were run on a list of `n = 1,023` elements that counts every comparison.
+
+<DataTable
+  columns={['Algorithm', 'Target', { label: 'Comparisons', kind: 'mono' }, 'Case it shows']}
+  rows={[
+    ['Binary search', 'at the first middle probe', '1', 'best case, Theta(1)'],
+    ['Binary search', 'absent', '20', 'worst case, Theta(log n)'],
+    ['Linear search', 'first element', '1', 'best case, Theta(1)'],
+    ['Linear search', 'last element', '1,023', 'worst case, Theta(n)'],
+    ['Linear search', 'absent', '1,023', 'worst case, Theta(n)'],
+  ]}
+  caption="Counts from running the Python functions on a list whose elements count each comparison."
+/>
+
+Binary search has `Theta(1)` in the best case and `Theta(log n)` in the worst case, so no single Theta covers the algorithm. `Omega(1)` is true for every input of both algorithms, and `O(n)` is true for every input of linear search. Both are true and weak. A Theta tells you the most, and it needs a case attached.
+
+The same split appears in sorting. Bubble sort with the early-exit flag is `Theta(n)` on sorted input and `Theta(n^2)` on reversed input. With 64 elements, the repository's `bubble_sort_best_case` makes 63 comparisons on a sorted list and 2,016 on a reversed one.
+
+## Complexity
+
+<DataTable
+  columns={['Algorithm', 'Best case', 'Average case', 'Worst case', 'One Theta for all inputs?']}
+  rows={[
+    ['Binary search', 'Theta(1)', 'Theta(log n)', 'Theta(log n)', 'No'],
+    ['Linear search', 'Theta(1)', 'Theta(n)', 'Theta(n)', 'No'],
+    ['Bubble sort (early exit)', 'Theta(n)', 'not given', 'Theta(n^2)', 'No'],
+    ['Quick Sort (fixed pivot)', 'Theta(n log n)', 'Theta(n log n)', 'Theta(n^2)', 'No'],
+    ['Merge Sort', 'Theta(n log n)', 'Theta(n log n)', 'Theta(n log n)', 'Yes: Theta(n log n)'],
+    ['Naive matrix multiplication', 'Theta(n^3)', 'Theta(n^3)', 'Theta(n^3)', 'Yes: Theta(n^3)'],
+  ]}
+  caption="Every cell is a tight bound on one case function. Rows are taken from the topic articles."
+/>
+
+## Choosing a notation
+
+<DataTable
+  columns={['You want to say', 'Use', 'Why']}
+  rows={[
+    ['the running time never exceeds this order', 'O', 'an upper bound is the usual promise'],
+    ['it cannot be faster than this, or no algorithm can solve the problem faster', 'Omega', 'a lower bound for one case, or for the problem as a whole'],
+    ['this is exactly the order of that case', 'Theta', 'it needs matching upper and lower bounds'],
+    ['an upper bound, when the lower bound is unknown', 'O', 'say so, and do not call it Theta'],
+    ['cost per operation over a whole sequence', 'amortized analysis', 'see Amortized_Analysis; it bounds the total, not one case'],
+  ]}
+/>
+
+## Applications
+
+- **Predicting scale.** Compare two algorithms by growth rate before running either.
+- **Interview answers.** State the case and the bound, such as "worst case O(n log n)".
+- **Lower bounds.** Omega shows that comparison sorting cannot beat `n log n`.
+- **Reading code.** Nested loops multiply, sequential steps add, halving gives a logarithm.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Calling O the worst case, or Omega the best case.** They are bounds on a function. Any case can be bounded by any of the three.
+- **Believing Theta needs best = worst.** Theta bounds one function tightly. Quick Sort's average case is `Theta(n log n)` and its worst case is `Theta(n^2)`, and both statements are correct.
+- **Saying an algorithm is Theta(log n) when it returns early.** Binary search is `Theta(log n)` only for its worst and average cases.
+- **Treating library sorts as Merge Sort.** In the C++ and Go examples, the `mergeSortExample` functions call `std::sort` and `sort.Ints`. They are `O(n log n)` in the worst case, but not `Theta(n log n)` on every input.
+- **Dropping the variable.** Graph search is `O(V + E)`, not `O(n)`, and a loop with `O(m)` work inside a loop of `n` is `O(n * m)`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read the three topics?">
+    Big-O first, because the other two are defined by flipping or combining it. Then Big-Omega, then Big-Theta, which requires both. Big-Theta is also the topic that corrects the most common misconception, so read it before using Theta in an answer.
+  </FaqItem>
+  <FaqItem question="Is O(n) the same as the worst case?">
+    No. `O(n)` is a bound, and the worst case is a function. The statement "the worst case is `O(n)`" combines them. You can equally write "the best case is `O(n)`", which is a true statement about a different function.
+  </FaqItem>
+  <FaqItem question="How do O, Omega and Theta relate?">
+    `f = Theta(g)` exactly when `f = O(g)` and `f = Omega(g)`. Big-O is the ceiling, Big-Omega the floor, and Theta says they meet.
+  </FaqItem>
+  <FaqItem question="Why do constants not matter?">
+    The definitions allow any positive constant `c`, so `3n` and `300n` are both `Theta(n)`. The notation describes growth for large `n`, and it says nothing about which algorithm is faster at small sizes.
+  </FaqItem>
+</Faq>
