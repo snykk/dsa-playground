@@ -31,9 +31,9 @@ Every change reaches `master` through a release branch and a pull request that t
    cd web && npm test && npm run check && npm run build    # the build output must have no [broken-link]
    ```
 
-5. Push the merged branches and the release branch, then open a pull request from `release/vX.Y.Z` to `master`. CI runs on the release branch and on the pull request.
+5. Push the merged branches and the release branch. Then open a pull request from `release/vX.Y.Z` to `master`, titled `Merge branch 'release/vX.Y.Z'`. CI runs on the release branch and on the pull request.
 
-6. The maintainer reviews the pull request and merges it on GitHub with **Create a merge commit**. Squash or rebase would flatten the branches the release is made of.
+6. The maintainer reviews the pull request and merges it on GitHub with **Create a merge commit**. GitHub titles that commit after the pull request and its number, `Merge branch 'release/vX.Y.Z' (#N)`, and leaves its body empty. Squash or rebase would flatten the branches the release is made of.
 
 7. Once CI is green on the merge commit on `master`, tag that commit and push the tag. The tag message states the release's scope in a few lines, with no history:
 
@@ -64,5 +64,5 @@ A published tag is never moved or deleted, because others may already have fetch
 
 ## Repository settings
 
-- Pull requests: allow merge commits only.
+- Pull requests: allow merge commits only. The default merge commit title is the pull request title (GitHub appends ` (#N)`), with an empty message.
 - `master`: protect it once the repository is public, requiring a pull request and green CI. On a private repository, branch protection needs GitHub Pro.
