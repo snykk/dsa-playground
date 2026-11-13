@@ -1,134 +1,56 @@
 # Heaps
 
-This folder contains implementations of various **Heap Data Structures** - specialized tree-based data structures that satisfy the heap property.
+A heap gives fast access to the smallest or largest element and nothing more. The min and max heap are the same array-backed binary heap with opposite orders; the Fibonacci heap trades that array for a lazy forest so that insert costs O(1).
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-Heaps are complete binary trees that maintain a specific ordering property. They are commonly used to implement priority queues and are essential for many algorithms.
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Min Heap](Min_Heap/) | The reference binary heap. A complete tree in an array with the smallest element at the root. | Intermediate |
+| 2 | [Max Heap](Max_Heap/) | The mirror image. The largest element sits at the root, which is what in-place heap sort needs. | Intermediate |
+| 3 | [Fibonacci Heap](Fibonacci_Heap/) | A lazy forest. Insert is a splice, and extract-min does the work by linking trees of equal degree. | Advanced |
 
----
+The children of index `i` in the binary heaps sit at `2i + 1` and `2i + 2`, so no pointers are needed. The Fibonacci heap stores heap-ordered trees as linked nodes and postpones all tidying to extract-min. In this repository it is the lazy core only: `insert`, `extract_min`, `peek`, `size`, `is_empty` and `clear`. It has no `decrease_key`, `delete`, `merge` or build-from-array.
 
-## Heap Types
+## How They Compare
 
-### 1. Binary Heaps
-- **Min Heap**: Parent ≤ Children, minimum at root
-- **Max Heap**: Parent ≥ Children, maximum at root
+| Operation | Min / max heap | Fibonacci heap |
+|-----------|----------------|----------------|
+| peek | O(1) | O(1) |
+| insert | O(log n) | O(1) worst case |
+| extract min / max | O(log n) | O(log n) amortized |
+| build from an array | O(n) | not provided |
+| decrease-key | not provided | not provided |
+| search for a value | O(n) | O(n) |
+| extra space | the array, O(n) | O(n), four pointers per node |
 
-### 2. Advanced Heaps
-- **Fibonacci Heap**: Advanced heap with amortized O(1) insert
+Amortized means the bound holds over a whole sequence of operations. One Fibonacci `extract_min` right after n inserts can take O(n), because that is when the postponed linking happens.
 
----
+## Choosing One
 
-## Heap Characteristics
+| Situation | Use | Why |
+|-----------|-----|-----|
+| A priority queue where the smallest comes first | Min Heap | O(1) peek, O(log n) insert and extract, no pointers |
+| The largest comes first, or in-place heap sort | Max Heap | the root is the maximum, so a sorted tail grows at the end of the array |
+| Many inserts and few extractions | Fibonacci Heap | insert is O(1), and the cost is paid only when you extract |
+| Dijkstra or Prim with decrease-key | a heap with decrease-key | the Fibonacci heap here has none, so it cannot give the textbook bound |
+| Everyday code | the standard library heap | `heapq`, `std::priority_queue` and `container/heap` are tested and fast in practice |
 
-| Heap Type | Insert | Extract | Peek | Build |
-| --------- | ------ | ------- | ---- | ----- |
-| Min Heap | O(log n) | O(log n) | O(1) | O(n) |
-| Max Heap | O(log n) | O(log n) | O(1) | O(n) |
-| Fibonacci Heap | O(1) amortized | O(log n) amortized | O(1) | O(n) |
+## Common Pitfalls
 
----
+- Reading a heap's array in order does not give sorted output; only repeated extraction does.
+- A heap does not order siblings, so searching for a value is O(n), not O(log n).
+- Building by n inserts costs O(n log n). Bottom-up heapify from an array is O(n).
+- The Fibonacci O(log n) extract is amortized; a single call can cost O(n).
+- The Fibonacci heap here has no decrease-key, and the `marked` flag on each node is stored but never used.
 
-## Heap Property
+## Related
 
-### Min Heap
-- Parent node ≤ All children
-- Minimum element always at root
-- Used for priority queues (lower value = higher priority)
-
-### Max Heap
-- Parent node ≥ All children
-- Maximum element always at root
-- Used for priority queues (higher value = higher priority)
-
----
-
-## Heap Structure Example
-
-```
-Min Heap:
-        1
-       / \
-      3   2
-     / \ / \
-    7  5 4  6
-
-Max Heap:
-        7
-       / \
-      5   6
-     / \ / \
-    3  4 2  1
-```
-
-**Array Representation:**
-- Parent of index i: `(i-1)/2`
-- Left child of index i: `2*i+1`
-- Right child of index i: `2*i+2`
-
----
-
-## Common Operations
-
-- **Insert**: Add element while maintaining heap property
-- **Extract Min/Max**: Remove and return root element
-- **Peek**: Get root element without removing
-- **Heapify**: Build heap from array in O(n) time
-- **Size/IsEmpty**: Query heap state
-
----
-
-## Implementations
-
-Each heap is implemented in three languages:
-- **Python** (`Python/`)
-- **C++** (`C++/`)
-- **Go** (`Go/`)
-
-All implementations include:
-- Source code
-- Test files
-- README documentation
-
----
-
-## Learning Path
-
-1. **Min Heap**: Start with basic min heap
-2. **Max Heap**: Understand max heap (similar to min heap)
-3. **Heap Operations**: Master insert, extract, heapify
-4. **Fibonacci Heap**: Explore advanced heap structure
-
----
-
-## Applications
-
-- **Priority Queues**: Task scheduling, event simulation
-- **Heap Sort**: O(n log n) sorting algorithm
-- **Graph Algorithms**: Dijkstra's algorithm, Prim's MST
-- **K Smallest/Largest**: Find k smallest/largest elements
-- **Median Finding**: Using two heaps (min + max)
-
----
-
-## Heap vs Other Structures
-
-| Feature | Heap | BST | Array |
-| ------- | ---- | --- | ----- |
-| Min/Max Access | O(1) | O(log n) | O(n) |
-| Insert | O(log n) | O(log n) | O(n) |
-| Search | O(n) | O(log n) | O(n) |
-| Use Case | Priority Queue | Sorted Data | General |
-
----
-
-## Key Concepts
-
-- **Complete Binary Tree**: All levels filled except possibly last
-- **Heap Property**: Parent-child ordering constraint
-- **Array Representation**: Efficient storage using array indexing
-- **Heapify**: Process to maintain heap property
-- **Amortized Analysis**: Average case analysis (Fibonacci Heap)
-
+- [Binary Tree](../Trees/Binary_Tree/): read first.
+- [Big O Notation](../../../Complexity_Analysis/Time_Complexity/Big_O_Notation/): read first.
+- [Priority Queue](../../Linear/Queue/Priority_Queue/): the interface that a heap implements.
+- [Heap Sort](../../../Algorithms/Sorting/Heap_Sort/): repeated extraction from a max heap.
+- [Dijkstra's Algorithm](../../../Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm/): takes the closest unvisited vertex from a heap.
+- [Prim's Algorithm](../../../Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm/): takes the cheapest crossing edge from a heap.

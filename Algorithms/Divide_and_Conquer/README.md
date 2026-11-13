@@ -1,163 +1,51 @@
 # Divide and Conquer Algorithms
 
-This folder contains implementations of **Divide and Conquer Algorithms** - algorithms that solve problems by breaking them into smaller subproblems, solving them recursively, and combining the results.
+Divide and conquer splits a problem into smaller copies of itself, solves them recursively and combines the answers. This folder holds one topic, Strassen's matrix multiplication, and links to the divide-and-conquer algorithms that live in other categories.
 
----
+## Topics
 
-## Overview
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Strassen's Matrix Multiplication](Strassens_Matrix_Multiplication/) | Seven half-size products instead of eight lower n^3 to about n^2.81. The example that wins by saving one recursive call. | Advanced |
 
-Divide and Conquer is a fundamental algorithmic paradigm that works by:
-1. **Divide**: Break the problem into smaller subproblems
-2. **Conquer**: Solve the subproblems recursively
-3. **Combine**: Merge the solutions to form the final answer
+The other divide-and-conquer algorithms sit in the category of their problem. They are linked under How They Compare and under Related.
 
----
+## How They Compare
 
-## Algorithms
+| Algorithm | Divide | Combine | Recurrence | Time |
+|-----------|--------|---------|------------|------|
+| [Merge Sort](../Sorting/Merge_Sort/) | two halves of the array | merge the sorted halves in O(n) | `T(n) = 2T(n/2) + O(n)` | O(n log n) |
+| [Quick Sort](../Sorting/Quick_Sort/) | partition around a pivot | nothing: the parts are already in place | two parts of sizes that depend on the pivot, O(n) to partition | O(n log n) average, O(n^2) worst |
+| [Binary Search](../Searching/Binary_Search/) | compare with the middle, keep one half | nothing | `T(n) = T(n/2) + O(1)` | O(log n) |
+| [Strassen](Strassens_Matrix_Multiplication/) | four blocks of each matrix, seven products | add and subtract the products | `T(n) = 7T(n/2) + O(n^2)` | O(n^2.81) |
+| [Closest Pair of Points](../Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points/) | split the points at a vertical line | check a narrow strip around the line | solves both halves, then a linear strip check | O(n log n) |
+| [Fast Fourier Transform](../Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/) | split into even and odd positions | combine the two half transforms | two half-size transforms plus a linear combine | O(n log n) |
 
-### 1. Merge Sort
-- **Time Complexity**: O(n log n)
-- **Space Complexity**: O(n)
-- **Location**: [Algorithms/Sorting/Merge_Sort](../Sorting/Merge_Sort/)
-- **Description**: Divides array into halves, sorts recursively, then merges
+A recurrence `T(n) = a T(n/b) + f(n)` has `a` subproblems of size `n/b` plus `f(n)` work to divide and combine. Strassen's seven products instead of eight change the exponent from 3 to `log2 7`, about 2.81. The recursion also costs memory: Merge Sort adds O(n) for its temporary halves and Strassen adds O(n^2) for its block sums.
 
-### 2. Quick Sort
-- **Time Complexity**: O(n log n) average, O(n²) worst
-- **Space Complexity**: O(log n)
-- **Location**: [Algorithms/Sorting/Quick_Sort](../Sorting/Quick_Sort/)
-- **Description**: Partitions array around pivot, sorts recursively
+## Choosing One
 
-### 3. Binary Search
-- **Time Complexity**: O(log n)
-- **Space Complexity**: O(1) iterative, O(log n) recursive
-- **Location**: [Algorithms/Searching/Binary_Search](../Searching/Binary_Search/)
-- **Description**: Divides search space in half repeatedly
+| Situation | Use | Why |
+|-----------|-----|-----|
+| The problem contains smaller copies of itself and the answers combine cheaply | divide and conquer | the recursion is short and the cost follows from the recurrence |
+| The subproblems overlap, as in Fibonacci numbers | [dynamic programming](../Dynamic_Programming/) | plain recursion would solve the same subproblem many times |
+| A local rule is provably safe | [a greedy algorithm](../Greedy/) | no recursion over the parts is needed |
+| Small inputs inside a large recursion | a direct method below a cutoff | Strassen uses the naive loop for `n <= 64` |
+| Multiplying matrices in practice | the schoolbook method or a tuned library | Strassen is not numerically stable and pays off only for large matrices |
 
-### 4. Strassen's Matrix Multiplication
-- **Time Complexity**: O(n^log₂ 7) ≈ O(n^2.81)
-- **Space Complexity**: O(n²)
-- **Description**: Faster matrix multiplication using divide and conquer
+## Common Pitfalls
 
-### 5. Closest Pair of Points
-- **Time Complexity**: O(n log² n) or O(n log n) with optimization
-- **Space Complexity**: O(n log n)
-- **Description**: Finds the closest pair of points in 2D plane
+- A missing or wrong base case: without a direct answer for the smallest parts, the recursion never ends.
+- Uneven splits: Quick Sort with a bad pivot makes one part empty at every step and becomes O(n^2).
+- A combine step that is too slow: copying whole arrays at every level can turn O(n log n) into something worse.
+- Using it when subproblems overlap: divide and conquer recomputes them, so use dynamic programming.
+- Ignoring the cutoff: recursing all the way down costs more than a direct method on small inputs, which is why Strassen's code here switches to the naive loop at `n <= 64`.
 
----
+## Related
 
-## Comparison
-
-| Algorithm | Time Complexity | Space Complexity | Application |
-|-----------|----------------|------------------|-------------|
-| **Merge Sort** | O(n log n) | O(n) | Sorting |
-| **Quick Sort** | O(n log n) avg | O(log n) | Sorting |
-| **Binary Search** | O(log n) | O(1) | Searching |
-| **Strassen's** | O(n^2.81) | O(n²) | Matrix multiplication |
-| **Closest Pair** | O(n log² n) | O(n log n) | Computational geometry |
-
----
-
-## Divide and Conquer Pattern
-
-### General Structure
-
-```python
-def divide_and_conquer(problem):
-    # Base case
-    if problem is small enough:
-        return solve_directly(problem)
-    
-    # Divide
-    subproblems = divide(problem)
-    
-    # Conquer
-    solutions = [divide_and_conquer(sub) for sub in subproblems]
-    
-    # Combine
-    return combine(solutions)
-```
-
-### When to Use
-
-- ✅ Problem can be divided into similar subproblems
-- ✅ Subproblems are independent
-- ✅ Combining solutions is efficient
-- ✅ Recursive structure is natural
-
----
-
-## Master Theorem
-
-For recurrence relations of the form:
-```
-T(n) = aT(n/b) + f(n)
-```
-
-Where:
-- `a` = number of subproblems
-- `b` = size reduction factor
-- `f(n)` = cost of dividing and combining
-
-### Cases
-
-1. **f(n) = O(n^c)** where c < log_b(a): T(n) = Θ(n^log_b(a))
-2. **f(n) = Θ(n^log_b(a))**: T(n) = Θ(n^log_b(a) log n)
-3. **f(n) = Ω(n^c)** where c > log_b(a): T(n) = Θ(f(n))
-
----
-
-## Examples
-
-### Merge Sort
-- a = 2, b = 2, f(n) = O(n)
-- T(n) = 2T(n/2) + O(n)
-- Case 2: T(n) = O(n log n)
-
-### Binary Search
-- a = 1, b = 2, f(n) = O(1)
-- T(n) = T(n/2) + O(1)
-- Case 2: T(n) = O(log n)
-
-### Strassen's
-- a = 7, b = 2, f(n) = O(n²)
-- T(n) = 7T(n/2) + O(n²)
-- Case 1: T(n) = O(n^log₂ 7) ≈ O(n^2.81)
-
----
-
-## Implementations
-
-Each algorithm is implemented in three languages:
-- **Python** (`[algorithm]/Python/`)
-- **C++** (`[algorithm]/C++/`)
-- **Go** (`[algorithm]/Go/`)
-
-All implementations include:
-- Complete source code
-- Comprehensive test suites
-- Detailed README documentation
-- Usage examples
-
----
-
-## Learning Path
-
-1. **Start with Merge Sort**: Understand basic divide and conquer
-2. **Learn Quick Sort**: See different partitioning strategy
-3. **Study Binary Search**: Simple divide and conquer search
-4. **Explore Strassen's**: Advanced matrix operations
-5. **Master Closest Pair**: Complex geometric algorithm
-
----
-
-## Related Topics
-
-- **Recursion**: Foundation of divide and conquer
-- **Dynamic Programming**: Similar but with overlapping subproblems
-- **Greedy Algorithms**: Alternative problem-solving paradigm
-- **Backtracking**: Another recursive approach
-
----
-
-_Last Updated: December 2025_
-
+- [Big-O Notation](../../Complexity_Analysis/Time_Complexity/Big_O_Notation/): read first.
+- [Merge Sort](../Sorting/Merge_Sort/): splits cheaply and does its work when combining.
+- [Quick Sort](../Sorting/Quick_Sort/): does its work when dividing and combines for free.
+- [Binary Search](../Searching/Binary_Search/): discards all but one part, so it has nothing to combine.
+- [Closest Pair of Points](../Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points/): divide and conquer in the plane.
+- [Fast Fourier Transform](../Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/): splits into even and odd positions.

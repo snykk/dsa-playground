@@ -1,95 +1,52 @@
 # Non-Linear Data Structures
 
-This folder contains implementations of **Non-Linear Data Structures** - data structures where elements are not arranged in a sequential manner.
+In a non-linear structure an element can have several successors, and sometimes several predecessors. Trees add a hierarchy, heaps add a priority order on top of a tree, and graphs allow any connection at all.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-Non-linear data structures organize data in a hierarchical or network-like manner, allowing for more complex relationships between elements. Unlike linear structures, elements can have multiple predecessors and successors.
+| # | Section | What it adds | Level |
+|---|---------|--------------|--------|
+| 1 | [Trees](Trees/) | A hierarchy with one root. Search trees, range-query structures, multiway trees for disks and string trees. | 17 topics |
+| 2 | [Heaps](Heaps/) | A tree with a priority order between parent and child. The smallest or largest element is at the root. | 3 topics |
+| 3 | [Graph](Graph/) | Vertices joined by arbitrary edges. How to store them and what direction and weight change. | 5 topics |
 
----
+A linear structure puts its elements in one sequence, so most questions end in a scan. These structures drop the sequence, which lets a single step discard a large part of the data. Each topic is implemented in Python, C++ and Go.
 
-## Data Structures
+## How They Compare
 
-### 1. Trees
-- **Binary Tree**: Basic tree structure
-- **Binary Search Tree (BST)**: Sorted binary tree
-- **AVL Tree**: Self-balancing BST
-- **Red-Black Tree**: Self-balancing BST with color properties
-- **Segment Tree**: Range query data structure
-- **Fenwick Tree**: Binary Indexed Tree for range sums
-- **Trie**: Prefix tree for string operations
-- **Suffix Tree / Suffix Array**: String pattern matching
-- **B-Tree / B+ Tree**: Multi-way trees for databases
-- **Sparse Table**: Static RMQ data structure
+| Sub-area | Shape | What it is for | Typical cost |
+|----------|-------|----------------|--------------|
+| Trees | hierarchy, one parent per node | ordered search, range queries, prefix and substring lookup | O(log n) when balanced |
+| Heaps | complete binary tree in an array | the minimum or the maximum, priority queues, heap sort | peek O(1), insert and extract O(log n) |
+| Graph | vertices and edges, cycles allowed | networks and relations; the base of the graph algorithms | depends on the layout: O(V + E) space for a list |
 
-### 2. Heaps
-- **Min Heap**: Minimum element at root
-- **Max Heap**: Maximum element at root
-- **Fibonacci Heap**: Advanced heap with amortized O(1) insert
+## Where to Start
 
-### 3. Graph
-- Coming soon...
+1. Start with [Trees](Trees/), and read the Binary Tree and the Binary Search Tree first. Every other tree, and every heap, builds on the binary tree.
+2. Then [Heaps](Heaps/). The min heap is short and shows how a tree can live in an array. It leads into priority queues and heap sort.
+3. Then [Graph](Graph/). The adjacency list is the most common layout. The rest of the folder compares it with the matrix and the edge list.
+4. Return to Trees for the specialist topics, such as the range-query structures, the B-tree and the tries, when a problem calls for them.
 
----
+| Situation | Look at | Why |
+|-----------|---------|-----|
+| Keys that must stay sorted under inserts and deletes | Trees | a balanced search tree keeps every operation O(log n) |
+| Sums or minimums over a range of an array | Trees | Fenwick, segment tree and sparse table answer them |
+| Words, prefixes or substrings | Trees | the trie and the suffix tree; the suffix array is under [Advanced String Algorithms](../../Algorithms/String_Algorithms/Advanced_String/Suffix_Array/) |
+| Always take the best element next | Heaps | O(1) peek and O(log n) extract |
+| Relations that are not a hierarchy, such as roads or links | Graph | a tree cannot hold cycles or several parents |
 
-## Characteristics
+## Common Pitfalls
 
-- **Hierarchical Structure**: Elements organized in levels
-- **Complex Relationships**: Multiple connections between elements
-- **Efficient Operations**: Optimized for specific operations
-- **Advanced Algorithms**: Foundation for complex algorithms
+- A heap is not a search structure. Siblings are not ordered, so finding a value is O(n) and reading the array does not give sorted output.
+- A tree is a connected graph with no cycles, so a tree traversal needs no visited set. A general graph does.
+- A plain binary search tree on sorted input becomes a chain, and every operation is O(n).
+- This section covers how a graph is stored. BFS, DFS, shortest paths and spanning trees live under Graph Algorithms.
 
----
+## Related
 
-## Common Operations
-
-| Operation | Tree | Heap | Graph |
-| --------- | ---- | ---- | ----- |
-| Search    | O(log n) | O(n) | O(V+E) |
-| Insert    | O(log n) | O(log n) | O(1) |
-| Delete    | O(log n) | O(log n) | O(V+E) |
-| Traversal | O(n) | O(n) | O(V+E) |
-
----
-
-## Implementations
-
-Each data structure is implemented in three languages:
-- **Python** (`Python/`)
-- **C++** (`C++/`)
-- **Go** (`Go/`)
-
-All implementations include:
-- Source code
-- Test files
-- README documentation
-
----
-
-## Learning Path
-
-1. **Start with Trees**: Understand hierarchical structures
-2. **Learn Binary Trees**: Foundation for all tree structures
-3. **Master Self-Balancing Trees**: AVL, Red-Black trees
-4. **Explore Specialized Trees**: Segment Tree, Trie, B-Tree
-5. **Study Heaps**: Priority queues and heap operations
-6. **Advance to Graphs**: Network structures and algorithms
-
----
-
-## Applications
-
-- **Trees**: File systems, databases, expression parsing, decision trees
-- **Heaps**: Priority queues, heap sort, graph algorithms
-- **Graphs**: Social networks, routing, dependency resolution
-
----
-
-## Subfolders
-
-- **Trees/**: All tree data structure implementations
-- **Heaps/**: All heap data structure implementations
-- **Graph/**: All Graph data structure implementations
-
+- [Linear Data Structures](../Linear/): read first.
+- [Big O Notation](../../Complexity_Analysis/Time_Complexity/Big_O_Notation/): read first.
+- [Graph Algorithms](../../Algorithms/Graph_Algorithms/): BFS, DFS, shortest paths and spanning trees run on the graph layouts stored here.
+- [Heap Sort](../../Algorithms/Sorting/Heap_Sort/): the sorting algorithm built on the heaps.

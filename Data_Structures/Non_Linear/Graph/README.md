@@ -1,241 +1,62 @@
 # Graphs
 
-This folder contains implementations of various **Graph Data Structures** and representations - non-linear data structures consisting of vertices (nodes) connected by edges.
-
----
-
-## Overview
-
-Graphs are fundamental non-linear data structures that represent relationships between objects. A graph consists of a set of vertices (nodes) and a set of edges (connections) between pairs of vertices.
-
----
-
-## Graph Types
-
-### 1. Graph Representations
-
-- **Edge List**: Simple list of all edges
-- **Adjacency Matrix**: 2D array representation (V × V)
-- **Adjacency List**: Dictionary/map of lists representation
-
-### 2. Graph Classifications
-
-- **Directed Graph**: Edges have direction (A → B)
-- **Undirected Graph**: Edges are bidirectional (A ↔ B)
-- **Weighted Graph**: Edges have associated weights (costs, distances)
-- **Unweighted Graph**: All edges have equal weight (default: 1)
-
----
-
-## Graph Characteristics
-
-| Representation | Space | Edge Lookup | Get Neighbors | Add Edge | Best For |
-| -------------- | ----- | ---------- | ------------- |--------- | -------- |
-| Edge List | O(E) | O(E) | O(E) | O(1) | Sparse graphs, edge iteration |
-| Adjacency Matrix | O(V²) | O(1) | O(V) | O(1) | Dense graphs, fast lookups |
-| Adjacency List | O(V + E) | O(V) | O(1) | O(1) | Sparse graphs, most common |
-
----
-
-## Graph Properties
-
-### Directed vs Undirected
-
-**Directed Graph:**
-- Edges have direction (A → B)
-- Edge from A to B does not imply edge from B to A
-- Example: Web links, dependencies, one-way streets
-
-**Undirected Graph:**
-- Edges are bidirectional (A ↔ B)
-- Edge between A and B works both ways
-- Example: Social networks, friendships, two-way roads
-
-### Weighted vs Unweighted
-
-**Weighted Graph:**
-- Edges have weights (costs, distances, values)
-- Useful for finding shortest paths, minimum spanning trees
-- Example: Road networks with distances, network latency
-
-**Unweighted Graph:**
-- All edges have equal weight (typically 1)
-- Simpler representation
-- Example: Social networks, organizational charts
-
----
-
-## Common Operations
-
-| Operation | Edge List | Adjacency Matrix | Adjacency List |
-| --------- | --------- | ---------------- | -------------- |
-| Add Vertex | O(1) | O(V²) | O(1) |
-| Add Edge | O(1) | O(1) | O(1) |
-| Remove Edge | O(E) | O(1) | O(V) |
-| Check Edge | O(E) | O(1) | O(V) |
-| Get Neighbors | O(E) | O(V) | O(1) |
-| BFS/DFS | O(V + E) | O(V²) | O(V + E) |
-| Space | O(E) | O(V²) | O(V + E) |
-
----
-
-## Graph Traversal Algorithms
-
-### Breadth-First Search (BFS)
-- Uses queue
-- Explores level by level
-- Finds shortest path (unweighted graphs)
-- Time: O(V + E)
-
-### Depth-First Search (DFS)
-- Uses stack (iterative) or recursion
-- Explores as deep as possible
-- Useful for cycle detection, topological sort
-- Time: O(V + E)
-
----
-
-## Implementations
-
-### 1. Edge List
-- **Location**: `Edge List/`
-- **Description**: Simple list of edges representation
-- **Best For**: Sparse graphs, edge iteration, Kruskal's algorithm
-- **Space**: O(E)
-
-### 2. Directed & Undirected Graph
-- **Location**: `Directed & Undirected/`
-- **Description**: Basic graph with direction support
-- **Best For**: Understanding graph direction concepts
-- **Space**: O(V + E)
-
-### 3. Weighted & Unweighted Graph
-- **Location**: `Weighted & Unweighted/`
-- **Description**: Graph with edge weight support
-- **Best For**: Shortest path algorithms, MST algorithms
-- **Space**: O(V + E)
-
-### 4. Adjacency Matrix
-- **Location**: `Adjacency Matrix/`
-- **Description**: 2D array representation
-- **Best For**: Dense graphs, fast edge lookups
-- **Space**: O(V²)
-
-### 5. Adjacency List
-- **Location**: `Adjacency List/`
-- **Description**: Dictionary/map of lists representation
-- **Best For**: Sparse graphs, most real-world applications
-- **Space**: O(V + E)
-
----
-
-## When to Use Each Representation
-
-### Use Edge List when:
-- Graph is **sparse** (few edges, E << V²)
-- Need to **iterate all edges** frequently
-- Working with **edge-based algorithms** (Kruskal's MST)
-- **Memory is limited**
-
-### Use Adjacency Matrix when:
-- Graph is **dense** (many edges, E ≈ V²)
-- Need **fast edge lookups** (O(1))
-- **Fixed number of vertices** known in advance
-- Performing **matrix operations**
-
-### Use Adjacency List when:
-- Graph is **sparse** (few edges, E << V²)
-- Need **frequent neighbor queries**
-- **Dynamic graph** (adding/removing vertices)
-- Most **real-world graphs** (social networks, web graphs)
-
----
-
-## Applications
-
-- **Social Networks**: Friend connections, follower relationships
-- **Web Crawling**: Page links, hyperlink structure
-- **Network Routing**: Internet routing, shortest path finding
-- **Dependency Resolution**: Package dependencies, build systems
-- **Recommendation Systems**: User-item relationships
-- **Game Development**: Pathfinding, game maps
-- **Compiler Design**: Control flow graphs, dependency graphs
-- **Database Systems**: Entity relationships, query optimization
-
----
-
-## Learning Path
-
-1. **Start with Basic Concepts**
-   - Understand vertices and edges
-   - Learn directed vs undirected
-   - Learn weighted vs unweighted
-
-2. **Learn Representations**
-   - Edge List (simplest)
-   - Adjacency List (most common)
-   - Adjacency Matrix (for dense graphs)
-
-3. **Master Traversal**
-   - BFS (Breadth-First Search)
-   - DFS (Depth-First Search)
-
-4. **Advanced Algorithms**
-   - Shortest path (Dijkstra's, Bellman-Ford)
-   - Minimum spanning tree (Kruskal's, Prim's)
-   - Topological sort
-   - Strongly connected components
-
----
-
-## Complexity Summary
-
-| Operation | Time Complexity | Space Complexity |
-| --------- | --------------- | ---------------- |
-| Add Vertex | O(1) | O(1) |
-| Add Edge | O(1) | O(1) |
-| Remove Edge | O(V) to O(E) | O(1) |
-| Check Edge | O(1) to O(E) | O(1) |
-| Get Neighbors | O(1) to O(V) | O(degree) |
-| BFS/DFS | O(V + E) | O(V) |
-| Shortest Path | O(V log V + E) | O(V) |
-| MST | O(E log E) | O(V) |
-
----
-
-## Related Data Structures
-
-- **Trees**: Special case of graphs (connected, acyclic)
-- **Heaps**: Used in graph algorithms (priority queues)
-- **Hash Tables**: Used for efficient vertex lookups
-
----
-
-## Subfolders
-
-- **Edge List/**: Simple edge list representation
-- **Directed & Undirected/**: Graph direction support
-- **Weighted & Unweighted/**: Edge weight support
-- **Adjacency Matrix/**: 2D array representation
-- **Adjacency List/**: Dictionary/map representation
-
-Each subfolder contains:
-- Python implementation (`Python/`)
-- C++ implementation (`C++/`)
-- Go implementation (`Go/`)
-- Comprehensive README.md files
-- Test files for each language
-
----
-
-## Next Steps
-
-After mastering graph data structures, explore:
-- **Graph Algorithms**: BFS, DFS, shortest paths, MST
-- **Advanced Graph**: Topological sort, SCC, network flow
-- **Graph Problems**: Pathfinding, connectivity, cycles
-
----
-
-**Happy Learning! 🚀**
-
+A graph is stored in one of three ways, an adjacency list, an adjacency matrix or an edge list, and the choice sets memory and the cost of every query. Directed and weighted are properties of the edges, and they work the same way in all three.
+
+## Topics
+
+Read them in this order.
+
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Adjacency List](Adjacency_List/) | A list of neighbors per vertex. O(V + E) space, and the default way to hold a sparse graph. | Beginner |
+| 2 | [Adjacency Matrix](Adjacency_Matrix/) | A V-by-V table. O(1) edge lookup, paid for with O(V^2) space and an O(V) row scan for neighbors. | Beginner |
+| 3 | [Edge List](Edge_List/) | A flat list of edges. The smallest form and the natural input for Kruskal, but every query scans O(E). | Beginner |
+| 4 | [Directed and Undirected Graphs](Directed_and_Undirected/) | What an edge direction changes for reachability, degree and connectivity, and how an undirected edge is stored. | Beginner |
+| 5 | [Weighted and Unweighted Graphs](Weighted_and_Unweighted/) | Numbers on edges, and why they decide whether BFS, Dijkstra or Bellman-Ford finds the shortest path. | Beginner |
+
+The last two topics are not layouts. They describe the edges, and in this repository both sit on top of an adjacency list. An undirected edge is stored once per direction in all three layouts; the edge list counts it once in `get_edge_count()`.
+
+## How They Compare
+
+`V` is the number of vertices and `E` the number of edges.
+
+| Operation | Adjacency list | Adjacency matrix | Edge list |
+|-----------|----------------|------------------|-----------|
+| space | O(V + E) | O(V^2) | O(E) |
+| has edge (u, v) | O(deg(u)) | O(1) | O(E) |
+| neighbors of u | O(deg(u)) | O(V) | O(E) |
+| add edge, as coded here | O(deg(u) + deg(v)) | O(1) | O(E) |
+| remove edge | O(deg(u) + deg(v)) | O(1) | O(E) |
+| BFS or DFS | O(V + E) | O(V^2) | O(V*E) |
+| iterate all edges | O(V + E) | O(V^2) | O(E) |
+
+Adding an edge to a list or an edge list is not an O(1) append here: both first replace an existing edge between the same pair, so a repeated call updates the weight instead of creating a parallel edge. The edge list's BFS is O(V*E) because each visited vertex scans the whole list; convert it to an adjacency list first to get O(V + E).
+
+## Choosing One
+
+| Situation | Use | Why |
+|-----------|-----|-----|
+| A sparse graph and a traversal such as BFS, DFS or Dijkstra | Adjacency List | memory grows with the edges, and neighbors cost only their own degree |
+| A dense graph, or many edge-existence queries | Adjacency Matrix | O(1) lookup, and the table is mostly filled anyway |
+| An algorithm that sorts or scans every edge once | Edge List | Kruskal and Bellman-Ford want exactly the flat list |
+| All-pairs shortest paths on a small graph | Adjacency Matrix | Floyd-Warshall updates the V-by-V table in place |
+| One-way relationships such as dependencies | a directed graph | u to v says nothing about v to u |
+| Costs, distances or times on the edges | a weighted graph | then BFS is the wrong tool, since it minimizes edges, not cost |
+
+## Common Pitfalls
+
+- A matrix always takes O(V^2) memory, even with no edges, so it is a poor fit for a large sparse graph.
+- Running BFS or DFS directly on an edge list is O(V*E), because each vertex scans the whole list.
+- `add_edge` scans for an existing edge first, so building a large graph edge by edge is slower than it looks.
+- Removing one direction of an undirected edge leaves the other entry, and `has_edge` still answers true.
+- `is_connected` is defined for undirected graphs only and raises an error on a directed one.
+- BFS finds the path with the fewest edges, not the cheapest one on weighted edges.
+
+## Related
+
+- [Big O Notation](../../../Complexity_Analysis/Time_Complexity/Big_O_Notation/): read first.
+- [Graph Algorithms](../../../Algorithms/Graph_Algorithms/): what runs on top of these layouts.
+- [BFS](../../../Algorithms/Graph_Algorithms/Traversal/BFS/): level-by-level traversal; O(V + E) on an adjacency list.
+- [DFS](../../../Algorithms/Graph_Algorithms/Traversal/DFS/): depth-first traversal on the same layouts.
+- [Dijkstra's Algorithm](../../../Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm/): shortest paths on weighted graphs.
+- [Kruskal's Algorithm](../../../Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/): sorts an edge list by weight.

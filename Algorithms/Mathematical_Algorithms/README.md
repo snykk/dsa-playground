@@ -1,105 +1,51 @@
 # Mathematical Algorithms
 
-A comprehensive collection of **Mathematical Algorithms** implementations, including number theory and advanced mathematical algorithms.
+Mathematical algorithms compute with exact integers and structured numbers. Number Theory covers divisors, remainders, powers and primes. Advanced Math covers matrix powers and the Fast Fourier Transform, which cut a slow computation to a logarithmic one.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-This folder contains implementations of fundamental mathematical algorithms in Python, C++, and Go. Each algorithm includes:
-- Complete implementation
-- Comprehensive test suites
-- Detailed documentation
-- Complexity analysis
+| # | Section | What it adds | Level |
+|---|---------|--------------|-------|
+| 1 | [Number Theory Algorithms](Number_Theory/) | Euclid, modular arithmetic and exponentiation, the Chinese Remainder Theorem, the sieve and Miller-Rabin. | 6 topics |
+| 2 | [Advanced Mathematical Algorithms](Advanced_Math/) | Matrix exponentiation for recurrences and the Fast Fourier Transform for polynomial products. | 2 topics |
 
----
+The two meet in modular exponentiation. Square and multiply for numbers is the template for matrix exponentiation, which squares matrices in the same way.
 
-## Categories
+## How They Compare
 
-### 🔹 Number Theory
+| Sub-area | Topics | Question it answers | Typical cost |
+|----------|--------|---------------------|--------------|
+| Number Theory | Euclid, Modular Arithmetic, Modular Exponentiation, CRT, Sieve, Miller-Rabin | divisors, remainders, big powers, primes | O(log n) to O(n log log n) |
+| Advanced Math | Matrix Exponentiation, Fast Fourier Transform | the k-th term of a recurrence, products of long polynomials | O(n^3 log k), O(n log n) |
 
-- **[Euclidean Algorithm (GCD, LCM)](Number_Theory/Euclidean_Algorithm/)**
-  - Finds Greatest Common Divisor and Least Common Multiple
-  - Time: O(log min(a, b)), Space: O(1)
-  - Fundamental algorithm for number theory
+## Where to Start
 
-- **[Modular Arithmetic](Number_Theory/Modular_Arithmetic/)**
-  - Operations under modular arithmetic
-  - Time: O(1) for basic operations
-  - Essential for cryptography and number theory
+1. Euclidean algorithm and modular arithmetic. They give gcd, the wrap-around of remainders and the modular inverse.
+2. Modular exponentiation. Square and multiply is the idea you meet again in matrix exponentiation.
+3. The Chinese Remainder Theorem, the sieve and Miller-Rabin. CRT builds on the extended Euclid, and Miller-Rabin on modular exponentiation. The sieve needs only the basics.
+4. Matrix exponentiation, then the Fast Fourier Transform. Both are divide and conquer on a larger object.
 
-- **[Modular Exponentiation](Number_Theory/Modular_Exponentiation/)**
-  - Efficient exponentiation under modulo
-  - Time: O(log exponent), Space: O(1)
-  - Uses binary exponentiation
+| Situation | Go to | Why |
+|-----------|-------|-----|
+| gcd, lcm or a modular inverse | [Euclidean Algorithm](Number_Theory/Euclidean_Algorithm/) | a few remainder steps |
+| A huge power modulo m | [Modular Exponentiation](Number_Theory/Modular_Exponentiation/) | O(log e) multiplications |
+| Is a large number prime? | [Miller-Rabin Primality Test](Number_Theory/Miller_Rabin_Primality_Test/) | exact for n < 2^64 with 12 fixed bases |
+| All primes up to n | [Sieve of Eratosthenes](Number_Theory/Sieve_of_Eratosthenes/) | O(n log log n), O(1) lookups afterwards |
+| The k-th term of a linear recurrence | [Matrix Exponentiation](Advanced_Math/Matrix_Exponentiation/) | O(log k) small matrix products |
+| Multiplying long polynomials | [Fast Fourier Transform](Advanced_Math/Fast_Fourier_Transform/) | O(n log n) instead of O(n^2), with rounding error |
 
-- **[Sieve of Eratosthenes](Number_Theory/Sieve_of_Eratosthenes/)**
-  - Finds all primes up to n
-  - Time: O(n log log n), Space: O(n)
-  - Efficient prime number generation
+## Common Pitfalls
 
-- **[Miller-Rabin Primality Test](Number_Theory/Miller_Rabin_Primality_Test/)**
-  - Probabilistic primality test
-  - Time: O(k log³ n) where k is iterations
-  - Fast and practical for large numbers
+- Modular products need 128-bit intermediates once the modulus is above about 3.04e9. Matrix entries and Fibonacci numbers overflow 64 bits without a modulus.
+- The FFT rounds from doubles, so it is exact only while coefficients stay below about 2^53.
+- Dividing modulo `m` needs an inverse, which exists only when `gcd(a, m) = 1`.
+- A sieve for a single big number wastes O(n) memory. Use Miller-Rabin.
 
-- **[Chinese Remainder Theorem](Number_Theory/Chinese_Remainder_Theorem/)**
-  - Solves system of modular congruences
-  - Time: O(n log max(moduli)), Space: O(n)
-  - Useful in cryptography and number theory
+## Related
 
----
-
-### 🔹 Advanced Math
-
-- **[Fast Fourier Transform (FFT)](Advanced_Math/Fast_Fourier_Transform/)**
-  - Efficient polynomial multiplication
-  - Time: O(n log n), Space: O(n)
-  - Fundamental in signal processing
-
-- **[Matrix Exponentiation](Advanced_Math/Matrix_Exponentiation/)**
-  - Fast computation of matrix powers
-  - Time: O(n³ log k) for n×n matrix to k-th power
-  - Useful for linear recurrences
-
----
-
-## Comparison
-
-| Algorithm | Time Complexity | Space Complexity | Best For |
-|-----------|----------------|-------------------|----------|
-| **Euclidean Algorithm** | O(log min(a,b)) | O(1) | GCD, LCM computation |
-| **Modular Arithmetic** | O(1) | O(1) | Basic modular operations |
-| **Modular Exponentiation** | O(log exp) | O(1) | Large power computations |
-| **Sieve of Eratosthenes** | O(n log log n) | O(n) | Prime generation |
-| **Miller-Rabin** | O(k log³ n) | O(1) | Primality testing |
-| **Chinese Remainder Theorem** | O(n log max(m)) | O(n) | Modular systems |
-| **FFT** | O(n log n) | O(n) | Polynomial multiplication |
-| **Matrix Exponentiation** | O(n³ log k) | O(n²) | Linear recurrences |
-
----
-
-## When to Use
-
-- **Euclidean Algorithm**: When computing GCD/LCM
-- **Modular Arithmetic**: Cryptography, hashing
-- **Modular Exponentiation**: RSA, discrete logarithms
-- **Sieve of Eratosthenes**: Generating prime lists
-- **Miller-Rabin**: Testing large numbers for primality
-- **Chinese Remainder Theorem**: Solving modular systems
-- **FFT**: Signal processing, polynomial operations
-- **Matrix Exponentiation**: Fibonacci, linear recurrences
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Number Theory" by Rosen
-- "Concrete Mathematics" by Graham, Knuth, Patashnik
-
----
-
-_Last Updated: December 2025_
-
+- [Big O Notation](../../Complexity_Analysis/Time_Complexity/Big_O_Notation/): read first.
+- [Coding Theory](../Coding_Theory/): builds a finite field on modular ideas.
+- [Dynamic Programming](../Dynamic_Programming/): uses matrix powers to speed up linear recurrences.
+- [Divide and Conquer](../Divide_and_Conquer/): the halving idea behind both sub-areas.

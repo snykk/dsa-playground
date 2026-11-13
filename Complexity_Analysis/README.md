@@ -1,206 +1,57 @@
 # Complexity Analysis
 
-A comprehensive guide to **Complexity Analysis** including time complexity, space complexity, and amortized analysis.
-
----
-
-## Overview
-
-This folder contains implementations and explanations of complexity analysis concepts in Python, C++, and Go. Each topic includes:
-- Complete implementations with examples
-- Comprehensive test suites
-- Detailed documentation
-- Complexity analysis
-
----
+Complexity analysis measures what an algorithm costs as its input grows. Time complexity counts steps, space complexity counts memory, and amortized analysis bounds the cost of a whole sequence of operations when one operation alone can be expensive.
 
 ## Topics
 
-### 🔹 Time Complexity
+Read them in this order.
 
-Time complexity describes how the runtime of an algorithm grows with input size.
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Time Complexity](Time_Complexity/) | How running time scales with n. Big-O, Big-Omega and Big-Theta are bounds, and best, average and worst are cases. | 3 topics |
+| 2 | [Space Complexity](Space_Complexity/) | How much extra memory an algorithm needs, including the recursion stack. It decides whether a program fits at all. | Beginner |
+| 3 | [Amortized Analysis](Amortized_Analysis/) | The cost per operation over a whole sequence. It explains why a dynamic array append is O(1) although one append can cost O(n). | Intermediate |
 
-#### **[Big-O Notation (O)](Time_Complexity/Big_O_Notation/)**
-- Upper bound of algorithm's time complexity
-- Represents worst-case scenario
-- Examples: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ), O(n!)
+All three use the same notation and the same habit: pick the function you are measuring, then bound it.
 
-#### **[Big-Theta Notation (Θ)](Time_Complexity/Big_Theta/)**
-- Tight bound on algorithm's time complexity
-- Represents both upper and lower bounds
-- Used when best case = average case = worst case
-- Examples: Θ(n), Θ(log n), Θ(n log n)
+## How They Compare
 
-#### **[Big-Omega Notation (Ω)](Time_Complexity/Big_Omega/)**
-- Lower bound of algorithm's time complexity
-- Represents best-case scenario
-- Examples: Ω(1), Ω(n), Ω(n log n)
+| Area | Question | What is measured | Example from the repository |
+|------|----------|------------------|-----------------------------|
+| Time complexity | how fast does the cost grow? | steps, as a function of n, for one case | binary search: best case Theta(1), worst case Theta(log n) |
+| Space complexity | how much extra memory? | auxiliary memory, including the call stack | Heap Sort uses O(1) extra space; Merge Sort uses O(n) |
+| Amortized analysis | what does one operation cost over a sequence? | total cost of a sequence divided by its length | dynamic array append: O(n) at worst, O(1) amortized |
 
----
+The growth rates the three topics use, as the Big-O topic classes them:
 
-### 🔹 Space Complexity
+| Class | Growth | Practical limit |
+|-------|--------|-----------------|
+| Fast | O(1), O(log n), O(n) | scales to millions or billions of items |
+| Acceptable | O(n log n) | sorting-class cost, about 2 x 10^7 steps for n = 10^6 |
+| Slow | O(n^2), O(n^3) | fine for thousands of items, hopeless for millions |
+| Infeasible | O(2^n), O(n!) | only tiny n, about 20 to 25 for 2^n and 10 to 12 for n! |
 
-**[Space Complexity](Space_Complexity/)**
-- Measures memory usage relative to input size
-- Includes auxiliary space and input space
-- Common complexities: O(1), O(log n), O(n), O(n²)
-- Trade-offs between space and time
+## Choosing One
 
----
+| Situation | Use | Why |
+|-----------|-----|-----|
+| comparing the speed of two algorithms | time complexity | growth rate decides at large n |
+| stating a guarantee or a lower bound | Big-O or Big-Omega | one bounds from above, the other from below |
+| stating the exact order of one case | Big-Theta | it needs matching bounds |
+| a program runs out of memory, or recursion is deep | space complexity | frames and buffers add up |
+| an operation is usually cheap and occasionally expensive | amortized analysis | it bounds the total over every sequence |
 
-### 🔹 Amortized Analysis
+## Common Pitfalls
 
-**[Amortized Analysis](Amortized_Analysis/)**
-- Average performance over a sequence of operations
-- Methods: Aggregate, Accounting, Potential
-- Common examples: Dynamic arrays, binary counters
-- Shows that expensive operations are "paid for" by cheap ones
+- Equating O with the worst case. O, Omega and Theta are bounds; best, average and worst are cases, and any case can take any bound.
+- Counting only the input for space. The usual convention counts auxiliary memory, and recursion adds one frame per active call. Naive Fibonacci makes O(2^n) calls but uses O(n) space.
+- Mistaking amortized for average case. Amortized O(1) is a guarantee over every sequence, with no probability.
+- Ignoring the growth rule. A dynamic array that adds a constant amount on each resize loses the O(1) amortized append; multiplying the capacity keeps it.
+- Forgetting that constants are hidden. `3n` and `300n` are both O(n), so growth rate alone does not say which is faster at small sizes.
 
----
+## Related
 
-## Complexity Comparison
-
-### Time Complexity Hierarchy
-```
-O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(n³) < O(2ⁿ) < O(n!)
-```
-
-### Space Complexity Hierarchy
-```
-O(1) < O(log n) < O(n) < O(n log n) < O(n²)
-```
-
----
-
-## Notation Comparison
-
-| Notation | Bound | Description | Use Case |
-|----------|-------|-------------|----------|
-| **O** | Upper | Worst case | General analysis |
-| **Ω** | Lower | Best case | Lower bound guarantee |
-| **Θ** | Tight | Best = Worst | Exact growth rate |
-
----
-
-## Common Algorithms Complexity
-
-| Algorithm | Time (Best) | Time (Average) | Time (Worst) | Space |
-|-----------|-------------|-----------------|--------------|-------|
-| Binary Search | O(1) | O(log n) | O(log n) | O(1) |
-| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) |
-| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) |
-| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) |
-| Linear Search | O(1) | O(n) | O(n) | O(1) |
-
----
-
-## Key Concepts
-
-### 1. Asymptotic Analysis
-- Focuses on behavior as n approaches infinity
-- Constants and lower-order terms are ignored
-- Example: O(5n² + 3n + 2) = O(n²)
-
-### 2. Best, Average, Worst Case
-- **Best case**: Minimum time/space required
-- **Average case**: Expected time/space for random input
-- **Worst case**: Maximum time/space required
-
-### 3. Space-Time Trade-offs
-- Can often reduce time complexity by using more space
-- Can often reduce space complexity by using more time
-- Example: Hash table (O(n) space) vs linear search (O(1) space)
-
-### 4. Amortized vs Worst-Case
-- **Worst-case**: Each operation individually
-- **Amortized**: Average over sequence of operations
-- Example: Dynamic array append is O(n) worst-case but O(1) amortized
-
----
-
-## Usage Examples
-
-### Python
-```python
-from big_o_notation import linear_time_example
-from space_complexity import constant_space_example
-from amortized_analysis import DynamicArray
-
-# Time complexity
-result = linear_time_example([1, 2, 3, 4, 5])
-
-# Space complexity
-result = constant_space_example(100)
-
-# Amortized analysis
-arr = DynamicArray()
-arr.append(1)  # Amortized O(1)
-```
-
-### C++
-```cpp
-#include "big_o_notation.cpp"
-#include "space_complexity.cpp"
-#include "amortized_analysis.cpp"
-
-// Compile and run examples
-```
-
-### Go
-```go
-import "big-o-notation"
-import "space-complexity"
-import "amortized-analysis"
-
-// Run examples
-```
-
----
-
-## Testing
-
-All implementations include comprehensive test suites:
-
-```bash
-# Python
-python big_o_notation_test.py
-python space_complexity_test.py
-python amortized_analysis_test.py
-
-# C++
-g++ -std=c++11 -o test big_o_notation_test.cpp
-./test
-
-# Go
-go test
-```
-
----
-
-## Learning Path
-
-1. **Start with Big-O Notation**: Understand upper bounds
-2. **Learn Big-Theta and Big-Omega**: Understand tight and lower bounds
-3. **Study Space Complexity**: Understand memory usage
-4. **Master Amortized Analysis**: Understand average-case performance
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Competitive Programming" by Steven Halim
-
----
-
-## Related Topics
-
-- [Algorithms](../Algorithms/) - Algorithm implementations with complexity analysis
-- [Data Structures](../Data_Structures/) - Data structure implementations with complexity analysis
-- [Problem Patterns](../Problem_Patterns/) - Common problem-solving patterns
-
----
-
-**Happy Learning! 🚀**
-
+- [Sorting Algorithms](../Algorithms/Sorting/): the cases and bounds applied to nine sorts.
+- [Searching Algorithms](../Algorithms/Searching/): linear and binary search, the first examples of best and worst case.
+- [Array](../Data_Structures/Linear/Array/): the dynamic array behind amortized O(1) append.
+- [Problem Solving Patterns](../Problem_Patterns/): the O(n) scans that these costs justify.

@@ -1,95 +1,75 @@
 # Sorting Algorithms
 
-A comprehensive collection of sorting algorithm implementations in Python, C++, and Go.
+Sorting puts a list in order. The nine algorithms here all return the same result and differ in speed, memory and stability. The simple ones take O(n^2) time, the divide-and-conquer and heap sorts take O(n log n), and the three that never compare two keys go below that bound on suitable data.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-This folder contains implementations of various sorting algorithms, each with:
-- Complete source code
-- Comprehensive test suites
-- Detailed documentation
-- Complexity analysis
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Bubble Sort](Bubble_Sort/) | Swap neighbours that are out of order, so the largest value sinks to the end on every pass. Simple, and stable. | Beginner |
+| 2 | [Insertion Sort](Insertion_Sort/) | Grow a sorted prefix by sliding each new value left into place. Linear on nearly sorted input. | Beginner |
+| 3 | [Selection Sort](Selection_Sort/) | Swap the minimum of the unsorted part to the front. Always n(n - 1)/2 comparisons, but at most n - 1 swaps. | Beginner |
+| 4 | [Merge Sort](Merge_Sort/) | Split in half, sort both halves, merge them. O(n log n) on every input and stable, at the cost of O(n) memory. | Intermediate |
+| 5 | [Quick Sort](Quick_Sort/) | Partition around a pivot, then sort both sides. In place and fast in practice; quadratic on bad pivots. | Intermediate |
+| 6 | [Heap Sort](Heap_Sort/) | Build a max-heap in the array, then move the maximum to the end again and again. Guaranteed O(n log n), not stable. | Intermediate |
+| 7 | [Counting Sort](Counting_Sort/) | Count each value, turn the counts into positions, place every element. O(n + k), stable, no comparisons. | Intermediate |
+| 8 | [Radix Sort](Radix_Sort/) | One stable counting sort per digit, least significant first. O(d (n + b)) for d digits in base b. | Intermediate |
+| 9 | [Bucket Sort](Bucket_Sort/) | Spread values over buckets, sort each small bucket, read them out. Linear on evenly spread input. | Intermediate |
 
----
+Each topic is implemented in Python, C++ and Go. Three properties tell the algorithms apart besides speed: stable (equal keys keep their order), in place (no second array of size n) and adaptive (faster on nearly sorted input).
 
-## Algorithms
+## How They Compare
 
-### Comparison-Based Algorithms
+| Algorithm | Best | Average | Worst | Extra space | Stable | In place |
+|-----------|------|---------|-------|-------------|--------|----------|
+| Bubble | O(n) | O(n^2) | O(n^2) | O(1) | Yes | Yes |
+| Insertion | O(n) | O(n^2) | O(n^2) | O(1) | Yes | Yes |
+| Selection | O(n^2) | O(n^2) | O(n^2) | O(1) | No | Yes |
+| Merge | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes | No |
+| Quick | O(n log n) | O(n log n) | O(n^2) | O(log n) | No | Yes |
+| Heap | O(n log n) | O(n log n) | O(n log n) | O(log n) | No | Yes |
+| Counting | O(n + k) | O(n + k) | O(n + k) | O(n + k) | Yes | No |
+| Radix | O(d (n + b)) | O(d (n + b)) | O(d (n + b)) | O(n + b) | Yes | No |
+| Bucket | O(n + k) | O(n + k) | O(n^2) | O(n + k) | Inner sort decides | No |
 
-1. **Bubble Sort** - O(n²) simple algorithm
-2. **Insertion Sort** - O(n²) efficient for small arrays
-3. **Selection Sort** - O(n²) simple selection-based
-4. **Merge Sort** - O(n log n) divide and conquer
-5. **Quick Sort** - O(n log n) average, O(n²) worst case
-6. **Heap Sort** - O(n log n) heap-based
+- `k` is the size of the value range for Counting Sort (`max - min + 1`) and the number of buckets for Bucket Sort. `d` is the number of digits and `b` the base (10 here) for Radix Sort.
+- Bubble and Insertion Sort reach O(n) only on sorted input. Heap Sort's best case is O(n) when all elements are equal.
+- Quick Sort's O(log n) space holds in Python, which recurses into the smaller side. The C++ and Go versions make two recursive calls, so their stack reaches O(n) on sorted input.
+- Heap Sort's O(log n) is the stack of the recursive `heapify`; a loop would reduce it to O(1).
+- Bucket Sort's O(n^2) assumes Python's insertion-sorted buckets, which are stable. The C++ and Go versions use unstable library sorts.
+- Counting, Radix and Bucket Sort are not comparison sorts, so the `n log n` bound does not apply to them.
 
-### Non-Comparison-Based Algorithms
+## Choosing One
 
-7. **Counting Sort** - O(n + k) for small range integers
-8. **Radix Sort** - O(d × (n + k)) digit-based sorting
-9. **Bucket Sort** - O(n + k) average for uniformly distributed data
+| Situation | Use | Why |
+|-----------|-----|-----|
+| A small array, or one that is nearly sorted | Insertion Sort | no setup, O(n) on nearly sorted input, stable and in place |
+| A hard O(n log n) bound, and records must keep their order | Merge Sort | stable and never worse than O(n log n), but it needs O(n) extra memory |
+| General in-memory data and speed in practice | Quick Sort | in place and cache-friendly; accept the rare quadratic case, or choose the pivot with care |
+| A hard O(n log n) bound and almost no extra memory | Heap Sort | in place with no pivot to choose, but not stable and usually slower than Quick Sort |
+| Writing is expensive | Selection Sort | at most n - 1 swaps, far fewer than Bubble or Insertion Sort |
+| Integers in a small range | Counting Sort | O(n + k) and stable; memory grows with the range, not with n |
+| Integers with many values but few digits | Radix Sort | a few linear passes; it needs a stable digit sort |
+| Floating-point values spread evenly over a known range | Bucket Sort | linear on average; a crowded bucket makes it quadratic |
+| Only the k-th smallest value, not the full order | [Randomized Quickselect](../Randomized_Algorithms/Randomized_Quickselect/) | O(n) expected, without sorting the rest |
+| Everyday code | the standard library | `sorted`, `std::sort` and `sort.Slice` are tuned and tested |
 
----
+Bubble Sort has no row of its own. It is a teaching tool: Insertion Sort does the same job with fewer comparisons.
 
-## Complexity Comparison
+## Common Pitfalls
 
-| Algorithm | Best | Average | Worst | Space | Stable |
-|-----------|------|---------|-------|-------|--------|
-| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | Yes |
-| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes |
-| Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | No |
-| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes |
-| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No |
-| Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | No |
-| Counting Sort | O(n + k) | O(n + k) | O(n + k) | O(n + k) | Yes |
-| Radix Sort | O(d × n) | O(d × n) | O(d × n) | O(n + k) | Yes |
-| Bucket Sort | O(n + k) | O(n + k) | O(n²) | O(n) | Yes, if each bucket is sorted stably |
+- Quick Sort with the last element as pivot is O(n^2) on sorted, reversed and all-equal input. Pick the pivot at random or take the median of three.
+- Quick Sort, Heap Sort and Selection Sort are not stable. Use Merge Sort or a stable library sort when equal keys must keep their order.
+- Merge Sort is not in place: its temporary halves cost O(n) extra memory.
+- Counting Sort on a huge range is unusable, because time and memory grow with `k = max - min + 1`.
+- Radix Sort needs a stable digit sort. An unstable one scrambles the work of the earlier digits.
 
----
+## Related
 
-## When to Use Which?
-
-- **Small arrays (< 50)**: Insertion Sort
-- **General purpose**: Quick Sort or Merge Sort
-- **Worst-case guarantee**: Heap Sort or Merge Sort
-- **Stability required**: Merge Sort, Insertion Sort
-- **Small range integers**: Counting Sort
-- **Fixed-digit integers**: Radix Sort
-- **Uniformly distributed**: Bucket Sort
-
----
-
-## Implementations
-
-Each algorithm is implemented in:
-- **Python** - Readable and educational
-- **C++** - High performance
-- **Go** - Modern and efficient
-
----
-
-## Testing
-
-All implementations include comprehensive test suites. Run tests with:
-
-```bash
-# Python
-python algorithm_name_test.py
-
-# C++
-g++ -std=c++17 algorithm_name_test.cpp -o test   # the test file includes the implementation
-./test
-
-# Go
-go test
-```
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-
+- [Big-O Notation](../../Complexity_Analysis/Time_Complexity/Big_O_Notation/): read first.
+- [Searching Algorithms](../Searching/): Binary Search needs sorted data, which these produce.
+- [Divide and Conquer Algorithms](../Divide_and_Conquer/): Merge Sort and Quick Sort are divide-and-conquer sorts.
+- [Randomized Quickselect](../Randomized_Algorithms/Randomized_Quickselect/): Quick Sort's partition with a random pivot, used to select one rank.
+- [Max Heap](../../Data_Structures/Non_Linear/Heaps/Max_Heap/): the structure Heap Sort builds in the array.
