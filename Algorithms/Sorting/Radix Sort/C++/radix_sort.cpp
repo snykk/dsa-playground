@@ -1,17 +1,25 @@
 /**
  * Radix Sort Implementation (C++)
+ *
+ * LSD radix sort, base 10. Negative values are supported: when the minimum is
+ * negative, the digits are taken from the shifted key value - minimum, which is
+ * never negative and has the same order as the values. Keys and exponents are
+ * 64-bit, so the whole int range works (a 32-bit exp would overflow once the
+ * maximum reaches 1e9).
  */
 
 #include <vector>
 #include <algorithm>
 
-void countingSortByDigit(std::vector<int>& arr, int exp) {
+// Stable counting sort of arr by the digit (key / exp) % 10, key = value - offset >= 0.
+void countingSortByDigit(std::vector<int>& arr, long long exp, long long offset = 0) {
     int n = arr.size();
     std::vector<int> output(n);
     std::vector<int> count(10, 0);
+    auto digit = [exp, offset](int value) { return static_cast<int>(((value - offset) / exp) % 10); };
     
     for (int i = 0; i < n; ++i) {
-        count[(arr[i] / exp) % 10]++;
+        count[digit(arr[i])]++;
     }
     
     for (int i = 1; i < 10; ++i) {
@@ -19,8 +27,8 @@ void countingSortByDigit(std::vector<int>& arr, int exp) {
     }
     
     for (int i = n - 1; i >= 0; --i) {
-        output[count[(arr[i] / exp) % 10] - 1] = arr[i];
-        count[(arr[i] / exp) % 10]--;
+        output[count[digit(arr[i])] - 1] = arr[i];
+        count[digit(arr[i])]--;
     }
     
     for (int i = 0; i < n; ++i) {
@@ -33,10 +41,12 @@ void radixSort(std::vector<int>& arr) {
         return;
     }
     
-    int maxNum = *std::max_element(arr.begin(), arr.end());
+    // Shift negative input so that every key (value - offset) is >= 0
+    long long offset = std::min(0, *std::min_element(arr.begin(), arr.end()));
+    long long maxKey = *std::max_element(arr.begin(), arr.end()) - offset;
     
-    for (int exp = 1; maxNum / exp > 0; exp *= 10) {
-        countingSortByDigit(arr, exp);
+    for (long long exp = 1; maxKey / exp > 0; exp *= 10) {
+        countingSortByDigit(arr, exp, offset);
     }
 }
 

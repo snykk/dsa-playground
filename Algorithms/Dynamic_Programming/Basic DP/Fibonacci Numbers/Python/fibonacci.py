@@ -15,10 +15,15 @@ def fibonacci_naive(n):
         
     Returns:
         nth Fibonacci number
+
+    Raises:
+        ValueError: if n is negative
         
     Time Complexity: O(2^n)
     Space Complexity: O(n)
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
     if n <= 1:
         return n
     return fibonacci_naive(n - 1) + fibonacci_naive(n - 2)
@@ -35,9 +40,14 @@ def fibonacci_memoization(n, memo=None):
     Returns:
         nth Fibonacci number
         
+    Raises:
+        ValueError: if n is negative
+
     Time Complexity: O(n)
     Space Complexity: O(n)
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
     if memo is None:
         memo = {}
     
@@ -61,9 +71,14 @@ def fibonacci_tabulation(n):
     Returns:
         nth Fibonacci number
         
+    Raises:
+        ValueError: if n is negative
+
     Time Complexity: O(n)
     Space Complexity: O(n)
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
     if n <= 1:
         return n
     
@@ -87,9 +102,14 @@ def fibonacci_optimized(n):
     Returns:
         nth Fibonacci number
         
+    Raises:
+        ValueError: if n is negative
+
     Time Complexity: O(n)
     Space Complexity: O(1)
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
     if n <= 1:
         return n
     
@@ -114,9 +134,14 @@ def fibonacci_matrix(n):
     Returns:
         nth Fibonacci number
         
+    Raises:
+        ValueError: if n is negative
+
     Time Complexity: O(log n)
-    Space Complexity: O(1)
+    Space Complexity: O(log n) for the recursion stack of matrix_power
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
     if n <= 1:
         return n
     

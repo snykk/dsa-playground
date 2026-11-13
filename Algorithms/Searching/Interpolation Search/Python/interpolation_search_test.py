@@ -89,6 +89,23 @@ class TestInterpolationSearch(unittest.TestCase):
         result = interpolation_search(arr, 20)
         self.assertEqual(result, 4)
 
+    def test_all_equal_values(self):
+        """Regression: equal window ends used to raise ZeroDivisionError"""
+        for search in (interpolation_search, interpolation_search_recursive):
+            with self.subTest(search=search.__name__):
+                self.assertEqual(search([5, 5, 5], 5), 0)
+                self.assertEqual(search([5, 5, 5], 4), -1)
+                self.assertEqual(search([5, 5, 5], 6), -1)
+
+    def test_duplicates(self):
+        """Duplicates: any index holding the target is a correct answer"""
+        arr = [1, 2, 2, 2, 2, 3, 7, 7, 9]
+        for search in (interpolation_search, interpolation_search_recursive):
+            for target in set(arr):
+                with self.subTest(search=search.__name__, target=target):
+                    self.assertEqual(arr[search(arr, target)], target)
+            self.assertEqual(search(arr, 5), -1)
+
 
 if __name__ == '__main__':
     unittest.main()

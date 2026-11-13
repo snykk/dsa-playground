@@ -21,11 +21,8 @@ func JobSchedulingDeadline(jobs [][]int) (int, []int) {
 		}
 	}
 
-	// Time slots: -1 means empty
-	timeSlots := make([]int, maxDeadline+1)
-	for i := range timeSlots {
-		timeSlots[i] = -1
-	}
+	// occupied[slot] marks a used time slot (a job id such as -1 cannot double as "empty")
+	occupied := make([]bool, maxDeadline+1)
 
 	var scheduled []int
 	totalProfit := 0
@@ -37,8 +34,8 @@ func JobSchedulingDeadline(jobs [][]int) (int, []int) {
 
 		// Find latest available slot before deadline
 		for slot := deadline; slot > 0; slot-- {
-			if timeSlots[slot] == -1 {
-				timeSlots[slot] = jobID
+			if !occupied[slot] {
+				occupied[slot] = true
 				scheduled = append(scheduled, jobID)
 				totalProfit += profit
 				break

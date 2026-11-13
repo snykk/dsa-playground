@@ -8,7 +8,7 @@
 
 Floyd-Warshall implementation in Go using:
 - 2D slice for distance matrix
-- `math.MaxInt32` for infinity
+- `math.MaxInt` for infinity
 
 ---
 
@@ -26,7 +26,7 @@ Floyd-Warshall implementation in Go using:
 
 1. **`FloydWarshall(graph, numVertices)`**
    - Finds shortest distances between all pairs
-   - Returns 2D slice
+   - Returns 2D slice, or nil if a negative cycle exists
    - Time: O(V³), Space: O(V²)
 
 ---

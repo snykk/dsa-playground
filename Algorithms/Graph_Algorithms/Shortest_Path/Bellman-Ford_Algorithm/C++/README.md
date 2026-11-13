@@ -28,6 +28,7 @@ Bellman-Ford implementation in C++ using:
 1. **`bellmanFord(edges, numVertices, start)`**
    - Finds shortest distances from start to all vertices
    - Returns `unordered_map<int, int>` or empty map if negative cycle exists
+   - Throws `std::out_of_range` if an edge endpoint is outside `0..numVertices-1`
    - Time: O(V * E), Space: O(V)
 
 ---
@@ -61,7 +62,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++17 bellman_ford.cpp bellman_ford_test.cpp -o bellman_ford_test
+g++ -std=c++17 bellman_ford_test.cpp -o bellman_ford_test
 ./bellman_ford_test
 ```
 

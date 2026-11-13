@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
-#include <functional>
 
 using namespace std;
 
@@ -59,34 +58,44 @@ vector<int> dfsWithPath(const unordered_map<int, vector<int>>& graph,
         return {start};
     }
     
-    if (graph.find(start) == graph.end() || graph.find(target) == graph.end()) {
+    // The target does not have to be a key: a vertex without outgoing edges
+    // may appear only in neighbor lists.
+    if (graph.find(start) == graph.end()) {
         return {};
     }
     
-    stack<pair<int, vector<int>>> st;
-    unordered_set<int> visited;
+    // Stack entries are (vertex, vertex that pushed it). parent[v] is recorded
+    // when v is popped and visited (the map doubles as the visited set), so
+    // the path is rebuilt once from the target instead of being copied into
+    // every stack entry.
+    stack<pair<int, int>> st;
+    unordered_map<int, int> parent;
     
-    st.push({start, {start}});
+    st.push({start, start});
     
     while (!st.empty()) {
-        auto [vertex, path] = st.top();
+        auto [vertex, via] = st.top();
         st.pop();
         
         if (vertex == target) {
+            vector<int> path = {vertex};
+            for (int node = via; node != start; node = parent[node]) {
+                path.push_back(node);
+            }
+            path.push_back(start);
+            reverse(path.begin(), path.end());
             return path;
         }
         
-        if (visited.find(vertex) == visited.end()) {
-            visited.insert(vertex);
+        if (parent.find(vertex) == parent.end()) {
+            parent[vertex] = via;
             
             if (graph.find(vertex) != graph.end()) {
                 vector<int> neighbors = graph.at(vertex);
                 reverse(neighbors.begin(), neighbors.end());
                 for (int neighbor : neighbors) {
-                    if (visited.find(neighbor) == visited.end()) {
-                        vector<int> newPath = path;
-                        newPath.push_back(neighbor);
-                        st.push({neighbor, newPath});
+                    if (parent.find(neighbor) == parent.end()) {
+                        st.push({neighbor, vertex});
                     }
                 }
             }
@@ -99,41 +108,66 @@ vector<int> dfsWithPath(const unordered_map<int, vector<int>>& graph,
 bool dfsDetectCycle(const unordered_map<int, vector<int>>& graph, bool directed) {
     /**
      * Detect cycle in graph using DFS
+     *
+     * The recursion is simulated with an explicit stack of frames, so a long
+     * path cannot overflow the call stack. A frame records whether it has a
+     * parent in a separate flag (no sentinel vertex value), so every int,
+     * including -1, is a valid vertex.
      */
+    struct Frame {
+        int vertex;
+        int parent;      // meaningful only when hasParent (undirected graphs)
+        bool hasParent;
+        size_t next;     // index of the next neighbor to examine
+    };
+    static const vector<int> noNeighbors;
+    auto neighborsOf = [&graph](int vertex) -> const vector<int>& {
+        auto it = graph.find(vertex);
+        return it == graph.end() ? noNeighbors : it->second;
+    };
+
     unordered_set<int> visited;
     unordered_set<int> recStack;
+    vector<Frame> st;
     
-    function<bool(int, int)> hasCycle = [&](int vertex, int parent) -> bool {
-        visited.insert(vertex);
-        if (directed) {
-            recStack.insert(vertex);
+    for (const auto& [root, _] : graph) {
+        if (visited.find(root) != visited.end()) {
+            continue;
         }
         
-        if (graph.find(vertex) != graph.end()) {
-            for (int neighbor : graph.at(vertex)) {
-                if (visited.find(neighbor) == visited.end()) {
-                    if (hasCycle(neighbor, directed ? -1 : vertex)) {
-                        return true;
-                    }
-                } else if (directed) {
-                    if (recStack.find(neighbor) != recStack.end()) {
-                        return true;
-                    }
-                } else if (neighbor != parent) {
+        visited.insert(root);
+        if (directed) {
+            recStack.insert(root);
+        }
+        st.push_back({root, 0, false, 0});
+
+        while (!st.empty()) {
+            Frame& frame = st.back();
+            const vector<int>& neighbors = neighborsOf(frame.vertex);
+
+            if (frame.next == neighbors.size()) {
+                // Every neighbor handled: "return" from this vertex
+                if (directed) {
+                    recStack.erase(frame.vertex);
+                }
+                st.pop_back();
+                continue;
+            }
+
+            int vertex = frame.vertex;
+            int neighbor = neighbors[frame.next++];
+            if (visited.find(neighbor) == visited.end()) {
+                // "Recursive call" on neighbor; it remembers vertex as its parent
+                visited.insert(neighbor);
+                if (directed) {
+                    recStack.insert(neighbor);
+                }
+                st.push_back({neighbor, vertex, !directed, 0});
+            } else if (directed) {
+                if (recStack.find(neighbor) != recStack.end()) {
                     return true;
                 }
-            }
-        }
-        
-        if (directed) {
-            recStack.erase(vertex);
-        }
-        return false;
-    };
-    
-    for (const auto& [vertex, _] : graph) {
-        if (visited.find(vertex) == visited.end()) {
-            if (hasCycle(vertex, -1)) {
+            } else if (!frame.hasParent || neighbor != frame.parent) {
                 return true;
             }
         }

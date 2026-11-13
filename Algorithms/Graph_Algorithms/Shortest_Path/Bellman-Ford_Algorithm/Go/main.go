@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 // Edge represents a weighted edge in the graph
 type Edge struct {
@@ -9,8 +12,15 @@ type Edge struct {
 
 // BellmanFord finds shortest distances from start to all vertices
 // Returns nil if negative cycle exists
+// Panics if an edge endpoint is outside 0..numVertices-1
 // Time Complexity: O(V * E), Space Complexity: O(V)
 func BellmanFord(edges []Edge, numVertices, start int) map[int]int {
+	for _, edge := range edges {
+		if edge.U < 0 || edge.U >= numVertices || edge.V < 0 || edge.V >= numVertices {
+			panic(fmt.Sprintf("BellmanFord: edge (%d, %d) has an endpoint outside 0..%d", edge.U, edge.V, numVertices-1))
+		}
+	}
+
 	distances := make(map[int]int)
 
 	if numVertices == 0 {

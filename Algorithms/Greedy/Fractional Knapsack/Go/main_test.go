@@ -16,3 +16,13 @@ func TestFractionalKnapsack(t *testing.T) {
 	}
 }
 
+// Regression: a zero-weight item made the total NaN (0 * (0/0)).
+// It uses no capacity, so it is always taken whole.
+func TestFractionalKnapsackZeroWeight(t *testing.T) {
+	if got := FractionalKnapsack([]Item{{10, 0}, {60, 10}}, 5); got != 40 {
+		t.Errorf("Expected 40, got %f", got)
+	}
+	if got := FractionalKnapsack([]Item{{0, 0}, {60, 10}}, 5); got != 30 {
+		t.Errorf("Expected 30, got %f", got)
+	}
+}

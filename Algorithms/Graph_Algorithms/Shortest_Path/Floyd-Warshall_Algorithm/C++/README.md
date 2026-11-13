@@ -8,7 +8,7 @@
 
 Floyd-Warshall implementation in C++ using:
 - 2D vector for distance matrix
-- `INT_MAX` for infinity
+- `long long` distances with `LLONG_MAX` for infinity
 
 ---
 
@@ -26,7 +26,7 @@ Floyd-Warshall implementation in C++ using:
 
 1. **`floydWarshall(graph, numVertices)`**
    - Finds shortest distances between all pairs
-   - Returns 2D vector
+   - Returns 2D vector, or an empty vector if a negative cycle exists
    - Time: O(V³), Space: O(V²)
 
 ---
@@ -48,7 +48,7 @@ int main() {
         {}
     };
     
-    vector<vector<int>> dist = floydWarshall(graph, 4);
+    vector<vector<long long>> dist = floydWarshall(graph, 4);
     // dist[0][3] = 3 (shortest distance from 0 to 3)
     
     return 0;
@@ -60,7 +60,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++17 floyd_warshall.cpp floyd_warshall_test.cpp -o floyd_warshall_test
+g++ -std=c++17 floyd_warshall_test.cpp -o floyd_warshall_test
 ./floyd_warshall_test
 ```
 

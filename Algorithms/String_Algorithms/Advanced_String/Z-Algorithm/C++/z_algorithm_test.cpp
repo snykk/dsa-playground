@@ -99,6 +99,17 @@ void testWholeTextMatches() {
     assert(result[0] == 0);
 }
 
+void testSeparatorCharacterInInput() {
+    // Regression: with '$' in the input, z[i] can run past the separator
+    // (z[i] > m); the old z[i] == m test dropped these matches.
+    std::vector<int> a = zAlgorithmSearch("a$a", "a");
+    assert(a.size() == 2 && a[0] == 0 && a[1] == 2);
+    std::vector<int> b = zAlgorithmSearch("$$", "$");
+    assert(b.size() == 2 && b[0] == 0 && b[1] == 1);
+    std::vector<int> c = zAlgorithmSearch("ab$ab", "ab");
+    assert(c.size() == 2 && c[0] == 0 && c[1] == 3);
+}
+
 int main() {
     testBasicSearch();
     testMultipleOccurrences();
@@ -114,7 +125,8 @@ int main() {
     testPatternAtEnd();
     testSingleCharacterPattern();
     testWholeTextMatches();
+    testSeparatorCharacterInInput();
 
-    std::cout << "All 14 tests passed!" << std::endl;
+    std::cout << "All 15 tests passed!" << std::endl;
     return 0;
 }

@@ -4,6 +4,7 @@ import (
 	"math"
 	"reflect"
 	"testing"
+	"time"
 )
 
 // TestDijkstra tests basic Dijkstra's algorithm.
@@ -187,3 +188,78 @@ func TestDijkstraEmptyGraph(t *testing.T) {
 }
 
 
+// TestDijkstraNeighborOnlyVertex: a vertex that appears only as a neighbor
+// (not a map key) still gets its distance and can be a path target.
+func TestDijkstraNeighborOnlyVertex(t *testing.T) {
+	graph := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{
+		0: {{Neighbor: 1, Weight: 5}},
+	}
+
+	distances := Dijkstra(graph, 0)
+	if !reflect.DeepEqual(distances, map[int]int{0: 0, 1: 5}) {
+		t.Errorf("Expected map[0:0 1:5], got %v", distances)
+	}
+
+	distance, path := DijkstraWithPath(graph, 0, 1)
+	if distance != 5 || !reflect.DeepEqual(path, []int{0, 1}) {
+		t.Errorf("Expected (5, [0 1]), got (%d, %v)", distance, path)
+	}
+
+	// Unreachable neighbor-only vertices are reported as MaxInt, like key vertices.
+	split := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{0: {}, 2: {{Neighbor: 3, Weight: 1}}}
+	splitDistances := Dijkstra(split, 0)
+	if len(splitDistances) != 3 || splitDistances[3] != math.MaxInt {
+		t.Errorf("Expected 3 vertices with dist[3] = MaxInt, got %v", splitDistances)
+	}
+}
+
+// TestDijkstraWithPathStartNotInGraph: start == target outside the graph must
+// return (0, [start]) instead of following default predecessors forever.
+func TestDijkstraWithPathStartNotInGraph(t *testing.T) {
+	type result struct {
+		distance int
+		path     []int
+	}
+	run := func(graph map[int][]struct {
+		Neighbor int
+		Weight   int
+	}, start, target int) result {
+		done := make(chan result, 1)
+		go func() {
+			d, p := DijkstraWithPath(graph, start, target)
+			done <- result{d, p}
+		}()
+		select {
+		case r := <-done:
+			return r
+		case <-time.After(2 * time.Second):
+			t.Fatalf("DijkstraWithPath(%v, %d, %d) did not return", graph, start, target)
+			return result{}
+		}
+	}
+
+	empty := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{}
+	if r := run(empty, 5, 5); r.distance != 0 || !reflect.DeepEqual(r.path, []int{5}) {
+		t.Errorf("Expected (0, [5]) on an empty graph, got (%d, %v)", r.distance, r.path)
+	}
+
+	single := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{0: {}}
+	if r := run(single, 5, 5); r.distance != 0 || !reflect.DeepEqual(r.path, []int{5}) {
+		t.Errorf("Expected (0, [5]), got (%d, %v)", r.distance, r.path)
+	}
+	if r := run(single, 5, 0); r.distance != -1 || len(r.path) != 0 {
+		t.Errorf("Expected (-1, []), got (%d, %v)", r.distance, r.path)
+	}
+}

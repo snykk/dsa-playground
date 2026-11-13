@@ -63,23 +63,33 @@ def bfs_with_path(graph: Dict[int, List[int]], start: int, target: int) -> Optio
     if start == target:
         return [start]
     
-    if start not in graph or target not in graph:
+    # The target does not have to be a key: a vertex without outgoing edges
+    # may appear only in neighbor lists.
+    if start not in graph:
         return None
     
-    visited = set()
-    queue = deque([(start, [start])])
-    visited.add(start)
+    # parent[v] is the vertex that discovered v (the dict doubles as the
+    # visited set). One entry per vertex instead of a copy of the whole path
+    # per queue entry keeps this O(V + E); the path is rebuilt once at the end.
+    parent = {start: None}
+    queue = deque([start])
     
     while queue:
-        vertex, path = queue.popleft()
+        vertex = queue.popleft()
         
         for neighbor in graph.get(vertex, []):
             if neighbor == target:
-                return path + [neighbor]
+                path = [neighbor, vertex]
+                node = vertex
+                while node != start:
+                    node = parent[node]
+                    path.append(node)
+                path.reverse()
+                return path
             
-            if neighbor not in visited:
-                visited.add(neighbor)
-                queue.append((neighbor, path + [neighbor]))
+            if neighbor not in parent:
+                parent[neighbor] = vertex
+                queue.append(neighbor)
     
     return None
 
@@ -128,11 +138,17 @@ def bfs_connected_components(graph: Dict[int, List[int]]) -> List[List[int]]:
     """
     Find all connected components using BFS
     
+    Meant for undirected graphs given as a symmetric adjacency list (every
+    edge u-v listed under both u and v). One visited set is shared by all the
+    searches, so every vertex belongs to exactly one component. On a directed
+    graph the result is "the vertices first reached from each unvisited key",
+    not strongly connected components.
+
     Args:
-        graph: Dictionary mapping vertex to list of neighbors
+        graph: Dictionary mapping vertex to list of neighbors (undirected)
         
     Returns:
-        List of connected components, each as a list of vertices
+        List of connected components, each as a list of vertices in BFS order
         
     Time Complexity: O(V + E)
     Space Complexity: O(V)
@@ -141,10 +157,23 @@ def bfs_connected_components(graph: Dict[int, List[int]]) -> List[List[int]]:
     components = []
     
     for vertex in graph:
-        if vertex not in visited:
-            component = bfs_adjacency_list(graph, vertex)
-            components.append(component)
-            visited.update(component)
+        if vertex in visited:
+            continue
+
+        visited.add(vertex)
+        component = []
+        queue = deque([vertex])
+
+        while queue:
+            current = queue.popleft()
+            component.append(current)
+
+            for neighbor in graph.get(current, []):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+
+        components.append(component)
     
     return components
 

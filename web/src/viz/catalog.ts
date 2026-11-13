@@ -11,7 +11,11 @@ import * as dynamicProgramming from './registry/dynamicProgramming';
 import * as graphStructure from './registry/graphStructure';
 import * as graphTraversal from './registry/graphTraversal';
 import * as greedy from './registry/greedy';
+import * as hashing from './registry/hashing';
+import * as linear from './registry/linear';
+import * as multiwayTrees from './registry/multiwayTrees';
 import * as patterns from './registry/patterns';
+import * as rangeQueries from './registry/rangeQueries';
 import * as searching from './registry/searching';
 import * as shortestPaths from './registry/shortestPaths';
 import * as sorting from './registry/sorting';
@@ -21,11 +25,18 @@ import * as trees from './registry/trees';
 export type VizGroup =
   | 'Sorting'
   | 'Searching'
-  | 'Graphs'
+  | 'Linear Structures'
+  | 'Hashing'
   | 'Trees'
+  | 'Heaps'
+  | 'Range Queries'
+  | 'Graphs'
   | 'Strings'
   | 'Dynamic Programming'
   | 'Greedy'
+  | 'Backtracking'
+  | 'Geometry'
+  | 'Math'
   | 'Problem Patterns'
   | 'Coding Theory';
 
@@ -41,11 +52,18 @@ export interface VizInfo {
 export const VIZ_GROUP_ORDER: VizGroup[] = [
   'Sorting',
   'Searching',
-  'Graphs',
+  'Linear Structures',
+  'Hashing',
   'Trees',
+  'Heaps',
+  'Range Queries',
+  'Graphs',
   'Strings',
   'Dynamic Programming',
   'Greedy',
+  'Backtracking',
+  'Geometry',
+  'Math',
   'Problem Patterns',
   'Coding Theory',
 ];
@@ -53,10 +71,14 @@ export const VIZ_GROUP_ORDER: VizGroup[] = [
 export const REGISTRIES = [
   sorting,
   searching,
+  linear,
+  hashing,
   graphTraversal,
   shortestPaths,
   graphStructure,
   trees,
+  rangeQueries,
+  multiwayTrees,
   strings,
   dynamicProgramming,
   greedy,

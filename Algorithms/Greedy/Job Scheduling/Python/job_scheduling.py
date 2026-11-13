@@ -16,7 +16,7 @@ def job_scheduling_deadline(jobs):
     Returns:
         Tuple of (max_profit, scheduled_jobs)
         
-    Time Complexity: O(n²) or O(n log n) with optimization
+    Time Complexity: O(n log n + n * min(D, n)), D = largest deadline
     Space Complexity: O(n)
     """
     if not jobs:
@@ -28,15 +28,15 @@ def job_scheduling_deadline(jobs):
     # Find maximum deadline
     max_deadline = max(job[1] for job in sorted_jobs)
     
-    # Time slots: -1 means empty
-    time_slots = [-1] * (max_deadline + 1)
+    # Time slots: None means empty (a job id such as -1 must not look like a free slot)
+    time_slots = [None] * (max_deadline + 1)
     scheduled = []
     total_profit = 0
     
     for job_id, deadline, profit in sorted_jobs:
         # Find latest available slot before deadline
         for slot in range(deadline, 0, -1):
-            if time_slots[slot] == -1:
+            if time_slots[slot] is None:
                 time_slots[slot] = job_id
                 scheduled.append(job_id)
                 total_profit += profit

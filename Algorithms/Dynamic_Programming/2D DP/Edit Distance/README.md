@@ -66,7 +66,7 @@ Convert `"cat" → "bat"`:
 3. Row 2 (A="ca"):
    - `dp[2][1]`: `'a' vs 'b'` differ → `min(1, 2, 1) + 1 = 2`.
    - `dp[2][2]`: `'a' vs 'a'` **match** → `dp[1][1] = 1` (free).
-   - `dp[2][3]`: `'a' vs 't'` differ → `min(2, 1, 2) + 1 = 2`.
+   - `dp[2][3]`: `'a' vs 't'` differ → `min(3, 1, 2) + 1 = 2`.
 4. Row 3 (A="cat"):
    - `dp[3][3]`: `'t' vs 't'` **match** → `dp[2][2] = 1`. ✓ Answer: 1 edit.
 
@@ -95,7 +95,7 @@ Time is fundamentally O(n·m) because each cell depends on three neighbors and e
 - Plagiarism detection
 
 ❌ **Don't use when:**
-- You need semantic similarity ("cat" vs "feline" — these are 5 edits apart but conceptually close). Use word embeddings instead.
+- You need semantic similarity ("cat" vs "feline" — these are 6 edits apart but conceptually close). Use word embeddings instead.
 - You care about phonetic similarity ("Knight" vs "Night"). Use Soundex or Metaphone.
 - You only care whether they're equal. Just use `==`.
 
@@ -128,9 +128,9 @@ Time is fundamentally O(n·m) because each cell depends on three neighbors and e
 
 | Language | Folder | Notes |
 |----------|--------|-------|
-| Python | [Python/](Python/) | Both recursive-with-memo and bottom-up, plus space-optimized variant |
-| C++ | [C++/](C++/) | Bottom-up with 2D table and space-optimized 1D |
-| Go | [Go/](Go/) | Bottom-up table with traceback to recover the edit sequence |
+| Python | [Python/](Python/) | `edit_distance`: bottom-up 2D table, returns the distance only |
+| C++ | [C++/](C++/) | `editDistance`: bottom-up 2D table, returns the distance only (compares bytes, not Unicode characters) |
+| Go | [Go/](Go/) | `EditDistance`: bottom-up 2D table, returns the distance only (compares bytes, not runes) |
 
 ---
 

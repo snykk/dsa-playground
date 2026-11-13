@@ -24,7 +24,7 @@ For the conceptual overview, stable vs unstable variants, and role as the Radix 
 | Stable? | Yes (when using prefix-sum variant) |
 | Comparison-based? | **No** |
 
-`k` = maximum value in input (plus one). Only useful when `k` is O(n) or smaller.
+`k` = `maxVal - min + 1`, the size of the value range. Only useful when `k` is O(n) or smaller.
 
 ---
 
@@ -33,7 +33,7 @@ For the conceptual overview, stable vs unstable variants, and role as the Radix 
 - **`std::max_element` for range detection**: `*std::max_element(arr.begin(), arr.end())` gives the upper bound. Cheap O(n).
 - **`std::vector<int>` for the count array**: zero-initialized, fast indexed access. For very large `k` with sparse values, a `std::unordered_map<int, int>` is more memory-efficient.
 - **Prefix-sum variant for stability**: transform the count array into a running total, then walk the input backwards to place each element at `count[value] - 1`. Preserves relative order of equal elements — required for use as a Radix Sort building block.
-- **Negative values**: shift by `-minVal` before counting, shift back when decoding.
+- **Negative values**: the code counts value `x` at index `x - minVal` (64-bit index math), so negatives need no special case. A `maxVal` smaller than the largest value throws `std::invalid_argument`.
 
 ---
 

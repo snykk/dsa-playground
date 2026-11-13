@@ -33,11 +33,11 @@ Graph:
 
 DFS from 0 (arbitrary root):
     disc[0]=1  low[0]=1
-    disc[1]=2  low[1]=1   (can reach 0 via back edge ... but only tree edge here)
+    disc[1]=2  low[1]=2   (a tree has no back edges, so low[v] = disc[v])
     disc[2]=3  low[2]=3
-    disc[3]=4  low[3]=3
+    disc[3]=4  low[3]=4
     disc[4]=5  low[4]=5
-    disc[5]=6  low[5]=5
+    disc[5]=6  low[5]=6
 
 Edges considered:
     (0,1) - tree. low[1]=2 > disc[0]=1 → this is a BRIDGE ✓
@@ -128,7 +128,7 @@ Exactly what you'd expect: the triangle has no bridges (any edge can be bypassed
 
 | Phase | Time | Space |
 |-------|------|-------|
-| DFS | O(V + E) | O(V) for recursion + arrays |
+| DFS | O(V + E) | O(V) for the DFS stack + arrays |
 | **Total** | **O(V + E)** | **O(V)** |
 
 Single DFS visits each edge twice (once from each endpoint) and each vertex once. `low` and `disc` updates are O(1) each.
@@ -169,7 +169,7 @@ Every bridge endpoint is (usually) an articulation point — but not always, and
 1. **Multi-edge handling.** If the graph has parallel edges (two edges between u and v), the parent-tracking `v != parent` check fails. Track edges by edge-index instead of parent-vertex.
 2. **Strict `>` vs `≥` confusion.** Bridge uses `>`; articulation uses `≥`. Swapping them gives silently wrong answers that look plausible on small examples.
 3. **Root is special for articulation.** A non-root vertex is an articulation iff it has a child `v` with `low[v] ≥ disc[u]`. The root is an articulation iff it has ≥ 2 DFS children — a different rule.
-4. **Recursion depth on long paths.** DFS on a linear chain of 100,000 vertices will blow Python's recursion limit. Use an iterative DFS or raise `sys.setrecursionlimit`.
+4. **Recursion depth on long paths.** A recursive DFS on a linear chain of 100,000 vertices blows Python's recursion limit, and raising `sys.setrecursionlimit` only trades the `RecursionError` for a C-stack overflow that crashes the interpreter (a recursive C++ DFS crashes the same way). Use an iterative DFS with an explicit stack, as the Python and C++ versions here do.
 5. **Back edges to parent** should not update `low`. That's why we check `v != parent`. Forgetting this gives `low` values that are too small, causing missed bridges.
 
 ---
@@ -178,9 +178,9 @@ Every bridge endpoint is (usually) an articulation point — but not always, and
 
 | Language | Folder | Notes |
 |----------|--------|-------|
-| Python | [Python/](Python/) | Recursive DFS; `sys.setrecursionlimit` bump for safety |
-| C++ | [C++/](C++/) | Recursive DFS with `std::vector` adjacency lists |
-| Go | [Go/](Go/) | Iterative DFS to avoid stack overflow on large graphs |
+| Python | [Python/](Python/) | Iterative DFS with an explicit stack (no recursion limit) |
+| C++ | [C++/](C++/) | Iterative DFS with an explicit stack and `std::vector` adjacency lists |
+| Go | [Go/](Go/) | Recursive closure DFS; goroutine stacks grow on demand |
 
 ---
 

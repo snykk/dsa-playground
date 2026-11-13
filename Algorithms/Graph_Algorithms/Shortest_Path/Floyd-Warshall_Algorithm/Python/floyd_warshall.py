@@ -9,7 +9,7 @@ from typing import List, Dict, Tuple, Optional
 import sys
 
 
-def floyd_warshall(graph: Dict[int, List[Tuple[int, int]]], num_vertices: int) -> List[List[int]]:
+def floyd_warshall(graph: Dict[int, List[Tuple[int, int]]], num_vertices: int) -> Optional[List[List[int]]]:
     """
     Floyd-Warshall algorithm to find shortest distances between all pairs
     
@@ -19,9 +19,10 @@ def floyd_warshall(graph: Dict[int, List[Tuple[int, int]]], num_vertices: int) -
         
     Returns:
         2D list where dist[i][j] is shortest distance from i to j
+        (sys.maxsize if j is unreachable from i), or None if a negative cycle exists
         
-    Time Complexity: O(V³)
-    Space Complexity: O(V²)
+    Time Complexity: O(V^3)
+    Space Complexity: O(V^2)
     """
     # Initialize distance matrix
     dist = [[sys.maxsize] * num_vertices for _ in range(num_vertices)]
@@ -30,10 +31,11 @@ def floyd_warshall(graph: Dict[int, List[Tuple[int, int]]], num_vertices: int) -
     for i in range(num_vertices):
         dist[i][i] = 0
     
-    # Initialize with direct edges
+    # Initialize with direct edges; keep the cheapest of parallel edges, and a
+    # positive self-loop never raises dist[u][u] above 0
     for u in graph:
         for v, weight in graph[u]:
-            dist[u][v] = weight
+            dist[u][v] = min(dist[u][v], weight)
     
     # Floyd-Warshall algorithm
     for k in range(num_vertices):
@@ -51,12 +53,13 @@ def floyd_warshall(graph: Dict[int, List[Tuple[int, int]]], num_vertices: int) -
 
 
 def floyd_warshall_path(graph: Dict[int, List[Tuple[int, int]]], 
-                        num_vertices: int) -> Tuple[List[List[int]], List[List[int]]]:
+                        num_vertices: int) -> Optional[Tuple[List[List[int]], List[List[int]]]]:
     """
     Floyd-Warshall with path reconstruction
     
     Returns:
-        Tuple of (distance matrix, next matrix for path reconstruction)
+        Tuple of (distance matrix, next matrix for path reconstruction),
+        or None if a negative cycle exists
     """
     dist = [[sys.maxsize] * num_vertices for _ in range(num_vertices)]
     next_vertex = [[-1] * num_vertices for _ in range(num_vertices)]
@@ -67,8 +70,9 @@ def floyd_warshall_path(graph: Dict[int, List[Tuple[int, int]]],
     
     for u in graph:
         for v, weight in graph[u]:
-            dist[u][v] = weight
-            next_vertex[u][v] = v
+            if weight < dist[u][v]:  # cheapest parallel edge; positive self-loops keep 0
+                dist[u][v] = weight
+                next_vertex[u][v] = v
     
     for k in range(num_vertices):
         for i in range(num_vertices):
@@ -78,19 +82,31 @@ def floyd_warshall_path(graph: Dict[int, List[Tuple[int, int]]],
                         dist[i][j] = dist[i][k] + dist[k][j]
                         next_vertex[i][j] = next_vertex[i][k]
     
+    # Check for negative cycles (the next pointers would cycle forever)
+    for i in range(num_vertices):
+        if dist[i][i] < 0:
+            return None  # Negative cycle detected
+    
     return dist, next_vertex
 
 
 def reconstruct_path(next_vertex: List[List[int]], start: int, end: int) -> Optional[List[int]]:
     """
     Reconstruct path from next_vertex matrix
+    
+    Returns None if there is no path, or if the next pointers do not reach end
+    within V - 1 steps (they cycle, which only a negative cycle can cause).
     """
     if next_vertex[start][end] == -1:
         return None
     
     path = [start]
     while start != end:
+        if len(path) >= len(next_vertex):
+            return None  # a simple path has at most V vertices
         start = next_vertex[start][end]
+        if start == -1:
+            return None
         path.append(start)
     
     return path

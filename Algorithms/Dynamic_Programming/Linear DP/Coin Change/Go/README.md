@@ -35,6 +35,7 @@ go test ./...
 - `dp[i]` stores the minimum coins needed to make amount `i`.
 - Initializes `dp` values to `amount + 1` as a sentinel for unreachable amounts.
 - Returns -1 when the target amount cannot be formed with the given coins.
+- Panics for a negative amount.
 
 ---
 

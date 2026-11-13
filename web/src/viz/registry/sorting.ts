@@ -45,6 +45,27 @@ export const entries: VizInfo[] = [
     blurb: 'Build a max-heap in place, then repeatedly move the root to the end and sift down.',
     topics: ['Algorithms/Sorting/Heap Sort', 'Algorithms/Sorting'],
   },
+  {
+    id: 'counting-sort',
+    title: 'Counting Sort',
+    group: 'Sorting',
+    blurb: 'Count every value, turn the counts into positions, then place values back to front: no comparisons.',
+    topics: ['Algorithms/Sorting/Counting Sort', 'Algorithms/Sorting'],
+  },
+  {
+    id: 'radix-sort',
+    title: 'Radix Sort (LSD)',
+    group: 'Sorting',
+    blurb: 'Sort by one decimal digit at a time, least significant first, dropping values into ten buckets each pass.',
+    topics: ['Algorithms/Sorting/Radix Sort', 'Algorithms/Sorting'],
+  },
+  {
+    id: 'bucket-sort',
+    title: 'Bucket Sort',
+    group: 'Sorting',
+    blurb: 'Scatter values in [0, 1] into equal-width buckets, insertion-sort each bucket, then concatenate.',
+    topics: ['Algorithms/Sorting/Bucket Sort', 'Algorithms/Sorting'],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -54,4 +75,7 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'merge-sort': () => import('../specs/sorting').then((m) => m.mergeSort),
   'quick-sort': () => import('../specs/sorting').then((m) => m.quickSort),
   'heap-sort': () => import('../specs/sorting').then((m) => m.heapSort),
+  'counting-sort': () => import('../specs/sortingLinear').then((m) => m.countingSort),
+  'radix-sort': () => import('../specs/sortingLinear').then((m) => m.radixSort),
+  'bucket-sort': () => import('../specs/sortingLinear').then((m) => m.bucketSort),
 };

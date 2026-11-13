@@ -1,0 +1,27 @@
+/* Union-find forest: parent-pointer arrows, a note line and the arrays underneath. */
+.forest-view {
+  display: block;
+}
+.forest-view .f-edge {
+  stroke: var(--axis);
+  stroke-width: 2;
+  transition: stroke 0.25s ease, stroke-width 0.25s ease;
+}
+.forest-view .f-edge.role-compare,
+.forest-view .f-edge.role-active,
+.forest-view .f-edge.role-done {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.forest-view .f-edge.role-compare {
+  stroke-dasharray: 9 6;
+  animation: viz-march 0.8s linear infinite;
+}
+.forest-view .f-note {
+  fill: var(--text-2);
+  font-size: 11px;
+}
+.forest-arrays {
+  margin-top: 0.5rem;
+  overflow-x: auto;
+}
