@@ -64,7 +64,7 @@ Smith's rule on `(id, processing_time, weight)` = `(J1, 3, 1)`, `(J2, 1, 2)`, `(
 
 | Variant | Time | Space | Why |
 |---------|------|-------|-----|
-| Deadline, profit | O(n log n + n * min(D, n)) | O(D) | sort, then each job scans at most min(D, n) slots; worst case O(n^2) |
+| Deadline, profit | O(n log n + n * min(D, n)) | O(n + D) | sort, then each job scans at most min(D, n) slots; worst case O(n^2) |
 | Earliest deadline first | O(n log n) | O(n) | one sort |
 | Weighted completion time | O(n log n) | O(n) | one sort |
 

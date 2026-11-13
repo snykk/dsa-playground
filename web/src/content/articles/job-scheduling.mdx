@@ -9,8 +9,8 @@ facts:
     value: O(n log n + n * min(D, n))
     hint: D is the largest deadline
   - label: Extra space
-    value: O(D)
-    hint: one slot per time unit up to the largest deadline
+    value: O(n + D)
+    hint: the sorted jobs, plus one slot per time unit up to the largest deadline
     tone: warn
   - label: Approach
     value: Greedy
@@ -137,7 +137,7 @@ The function returns `(['J2', 'J3', 'J1'], 17)`. Smith's order puts short, heavy
   rows={[
     { case: 'Sort', time: 'O(n log n)', space: 'O(n)', when: 'Sorting by profit (deadline version), deadline (EDF) or ratio (weighted completion).' },
     { case: 'Slot search', time: 'O(n * min(D, n))', space: 'O(D)', when: 'Each job scans down from its deadline; it can scan up to D slots, but at most n slots are ever taken. D is the largest deadline.' },
-    { case: 'Deadline version, total', time: 'O(n log n + n * min(D, n))', space: 'O(D)', when: 'Worst case O(n^2) when deadlines are about n and the early slots fill up.' },
+    { case: 'Deadline version, total', time: 'O(n log n + n * min(D, n))', space: 'O(n + D)', when: 'Worst case O(n^2) when deadlines are about n and the early slots fill up.' },
   ]}
 />
 
@@ -168,7 +168,7 @@ The slot array has one entry per time unit up to the largest deadline, so memory
     'Related rules (EDF, Smith) are one-line sorts.',
   ]}
   cons={[
-    'The deadline version needs O(D) memory and can be O(n^2); the union-find speed-up is not implemented.',
+    'The deadline version needs O(n + D) memory and can be O(n^2); the union-find speed-up is not implemented.',
     'Only unit-time jobs; with different job lengths the problem is harder.',
     'C++ and Go implement only the deadline version, and they sort the caller\'s input in place.',
     'Profits are assumed non-negative: a job with a negative profit is still scheduled if a slot is free.',
