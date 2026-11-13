@@ -31,6 +31,16 @@
   stroke: var(--viz-neutral);
   stroke-dasharray: 4 3;
 }
+/* A sentinel can take part in a step (the search starts at the header): its outline takes the role. */
+.chain-view .c-box.sentinel:not(.role-idle):not(.role-muted) rect {
+  stroke: var(--role);
+  stroke-width: 2.5;
+  fill: color-mix(in srgb, var(--role) 14%, transparent);
+}
+.chain-view .c-box.sentinel:not(.role-idle):not(.role-muted) .c-label {
+  fill: var(--role);
+  font-weight: 700;
+}
 .chain-view .c-box.ghost {
   opacity: 0.35;
 }
@@ -82,9 +92,13 @@
 .chain-view .c-link.role-compare,
 .chain-view .c-link.role-active,
 .chain-view .c-link.role-done,
+.chain-view .c-link.role-good,
+.chain-view .c-link.role-bad,
 .chain-view .c-link.role-compare line,
 .chain-view .c-link.role-active line,
-.chain-view .c-link.role-done line {
+.chain-view .c-link.role-done line,
+.chain-view .c-link.role-good line,
+.chain-view .c-link.role-bad line {
   stroke: var(--role);
   stroke-width: 3;
 }
@@ -147,4 +161,8 @@
   text-align: center;
   font-size: 0.8rem;
   color: var(--text-2);
+}
+.chain-note .c-null-ref:not(.role-idle):not(.role-muted) .c-null-name {
+  color: var(--role);
+  font-weight: 700;
 }

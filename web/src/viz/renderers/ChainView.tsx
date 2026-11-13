@@ -30,7 +30,7 @@ export interface ChainNodeView {
 
 export interface ChainLinkView {
   from: ChainId;
-  /** The node pointed to, or null for a null pointer, drawn as a short arrow to "null". */
+  /** The node pointed to, or null for a null pointer, drawn as a short arrow to "None". */
   to: ChainId | null;
   /**
    * "next" (default) leaves the right edge and "prev" the left edge. When a frame has both
@@ -43,7 +43,7 @@ export interface ChainLinkView {
 export interface ChainPointerView {
   /** Variable name: head, tail, top, front, rear, curr, prev, new... */
   name: string;
-  /** The node it points to, or null (then it is listed as "name = null" under the picture). */
+  /** The node it points to, or null (then it is listed as "name = None" under the picture, in its role's colour). */
   target: ChainId | null;
   role?: Role;
   /** Where the label sits; default "above". */
@@ -98,7 +98,9 @@ const LANE_W = 74;
 const LABEL_LINE = 13;
 const POINTER_ARROW = 14;
 const ARC = 30;
-const ARROW_ROLES: Role[] = ['idle', 'compare', 'active', 'done', 'muted'];
+const ARROW_ROLES: Role[] = ['idle', 'compare', 'active', 'done', 'good', 'bad', 'muted'];
+/** How far two links between the same pair of nodes (next one way, prev back) sit apart. */
+const LANE_OFFSET = 4;
 
 type Route = 'straight' | 'back' | 'arc-above' | 'arc-below' | 'loop' | 'cross';
 
@@ -293,7 +295,7 @@ export function ChainView({ state }: { state: ChainState }) {
         <g key={`l${i}`} className={cls}>
           <line x1={sx} y1={pa.y + off} x2={ex} y2={pa.y + off} markerEnd={marker(l.role)} />
           <text className="c-null" x={prev ? ex - 4 : ex + 4} y={pa.y + off} style={{ textAnchor: prev ? 'end' : 'start' }}>
-            null
+            None
           </text>
         </g>,
       ];
@@ -329,15 +331,22 @@ export function ChainView({ state }: { state: ChainState }) {
         break;
       }
       default: {
+        // Between rows (a node lifted off its row, a tower, a bucket): a straight line. When the
+        // frame has prev links, each link keeps to its own side, so next and prev between the
+        // same two nodes do not draw as one line.
         const s = boxEdge(pa, pb, w, h);
         const e = shorten(s, boxEdge(pb, pa, w, h), 3);
-        d = `M ${s.x} ${s.y} L ${e.x} ${e.y}`;
+        const len = Math.hypot(e.x - s.x, e.y - s.y) || 1;
+        const k = hasPrev ? LANE_OFFSET : 0;
+        const nx = (-(e.y - s.y) / len) * -k;
+        const ny = ((e.x - s.x) / len) * -k;
+        d = `M ${s.x + nx} ${s.y + ny} L ${e.x + nx} ${e.y + ny}`;
       }
     }
     return [<path key={`l${i}`} className={cls} d={d} markerEnd={marker(l.role)} />];
   });
 
-  const nullPointers = pointers.filter((p) => p.target === null).map((p) => `${p.name} = null`);
+  const nullPointers = pointers.filter((p) => p.target === null);
 
   return (
     <div className="chain-view-wrap">
@@ -414,7 +423,15 @@ export function ChainView({ state }: { state: ChainState }) {
         })}
       </svg>
       {(note || nullPointers.length > 0) && (
-        <p className="chain-note">{[note, ...nullPointers].filter(Boolean).join(` ${SYM.middot} `)}</p>
+        <p className="chain-note">
+          {note}
+          {nullPointers.map((p, i) => (
+            <span key={p.name} className={`c-null-ref role-${p.role ?? 'idle'}`}>
+              {note || i > 0 ? ` ${SYM.middot} ` : ''}
+              <span className="c-null-name">{p.name} = None</span>
+            </span>
+          ))}
+        </p>
       )}
       <Strips strips={strips} />
     </div>
