@@ -2,8 +2,6 @@
 
 Thank you for your interest in contributing to the **Data Structures & Algorithms (DSA) Playground** repository. This document explains how to propose a change and what a good change looks like.
 
----
-
 ## How to Contribute
 
 Contributions of all kinds are welcome:
@@ -14,8 +12,6 @@ Contributions of all kinds are welcome:
 - **Add implementations**: a missing topic, or a missing language for an existing one.
 - **Add test cases**: edge cases and error cases that are not covered yet.
 - **Fix issues**: bugs and code quality.
-
----
 
 ## Contribution Process
 
@@ -77,8 +73,6 @@ git push origin <your-branch>
 
 Open a pull request against `master`. Describe what changed and why, list the checks you ran, and link any related issue. The maintainer merges accepted pull requests into the next release branch, and releases follow [RELEASING.md](RELEASING.md).
 
----
-
 ## Project Structure
 
 ### Directory Structure
@@ -130,8 +124,6 @@ Each topic has exactly one folder. When a topic belongs to two areas (for exampl
 2. **Test file** next to it (`*_test.py`, `*_test.cpp`, `main_test.go`)
 3. **Language README** in each language folder
 4. **Topic README** in the topic folder
-
----
 
 ## Coding Standards
 
@@ -211,8 +203,6 @@ func (bst *BinarySearchTree) Insert(value int) {
 }
 ```
 
----
-
 ## Documentation Standards
 
 ### README.md Structure
@@ -276,8 +266,6 @@ Check a folder with `python3 scripts/check_readme_style.py "<topic or category f
 - Keep comments up-to-date with code
 - Remove commented-out code before submitting
 
----
-
 ## Testing Requirements
 
 ### Test Coverage
@@ -325,8 +313,6 @@ func TestInsertEmptyTree(t *testing.T) {
 }
 ```
 
----
-
 ## Implementation Checklist
 
 Before opening a pull request, check that:
@@ -338,8 +324,6 @@ Before opening a pull request, check that:
 - [ ] comments explain why, with no commented-out code
 - [ ] commit titles read `type: <what is true afterwards>`
 - [ ] the branch is up to date with `master`
-
----
 
 ## Code Review Process
 
@@ -354,8 +338,6 @@ Before opening a pull request, check that:
 - Test coverage, including edge cases
 - Documentation that matches the code
 - Performance where it matters
-
----
 
 ## Adding a New Data Structure or Algorithm
 
@@ -378,8 +360,6 @@ Before opening a pull request, check that:
 5. **Link it**: add it to the category README's `## Topics` table, and to the study guide if it belongs in a phase.
 
 6. **Check and submit**: run `make test` and `python3 scripts/check_readme_style.py "<your topic folder>"`, then open the pull request.
-
----
 
 ## Reporting Bugs
 
@@ -415,8 +395,6 @@ What actually happened.
 Any other relevant information.
 ````
 
----
-
 ## Suggesting Features
 
 ### Feature Request Template
@@ -438,13 +416,9 @@ Any alternative solutions you've considered.
 Any other relevant information.
 ```
 
----
-
 ## Documentation Contributions
 
 Documentation fixes are welcome: typos, unclear explanations, wrong facts, more examples, better diagrams. Follow the README templates above.
-
----
 
 ## Learning Resources
 
@@ -454,8 +428,6 @@ If you're new to contributing:
 - [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)
 - [Code Review Guidelines](https://google.github.io/eng-practices/review/)
 
----
-
 ## Questions?
 
 If you have questions:
@@ -464,18 +436,12 @@ If you have questions:
 - Check existing issues
 - Read [README.md](README.md) for project information
 
----
-
 ## Recognition
 
 Contributions are credited in the git history and named in the release notes of the release that ships them.
 
----
-
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
-
----
 
 **Thank you for contributing to DSA Playground.**
