@@ -53,7 +53,7 @@ const rows = contents.map((entry) => {
             <span class="note" set:html={formatInline(r.note)} />
             <span class="facts">
               {r.level && <LevelMeter level={r.level} />}
-              {r.topics !== undefined && <span>{r.topics} topics</span>}
+              {r.topics ? <span>{r.topics === 1 ? '1 topic' : `${r.topics} topics`}</span> : null}
               {r.visualized > 0 && (
                 <span class="visualized">
                   <span class="dot" aria-hidden="true">
