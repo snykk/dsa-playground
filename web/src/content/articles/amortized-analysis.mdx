@@ -1,0 +1,194 @@
+---
+topic: Complexity_Analysis/Amortized_Analysis
+title: Amortized Analysis
+lead: Amortized analysis bounds the total cost of any sequence of operations and divides by the number of operations. It explains why a dynamic array can have an occasional O(n) append and still guarantee O(1) per append on average over the sequence, with no probability involved.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Dynamic array append
+    value: O(1) amortized
+    hint: a single append can cost O(n)
+  - label: Binary counter increment
+    value: O(1) amortized
+    hint: a single increment can flip every bit
+  - label: Guarantee
+    value: Worst case over a sequence
+    hint: not an average over random input
+    tone: warn
+  - label: Methods
+    value: Aggregate, accounting, potential
+---
+
+## Definition
+
+Amortized analysis answers one question: if I run **any** sequence of `n` operations on a data structure, what is the **total** worst-case cost? Dividing that total by `n` gives the amortized cost per operation.
+
+<Equation label="Amortized cost" expr="amortized = (worst-case total cost of n operations) / n" />
+
+Two points make it different from the "average case" you may know from other analyses:
+
+- **No probability.** The bound holds for every sequence, including one chosen by an adversary. Average-case analysis, by contrast, averages over random inputs.
+- **No guarantee for a single operation.** An amortized O(1) append still has an O(n) worst case when it happens to trigger a resize. Only the sum over the sequence is bounded.
+
+Amortized cost is a statement about **cost per operation over a sequence**, so it is written with the usual notation: "append is O(1) amortized". That is an upper bound on the amortized cost, just like any other Big-O bound.
+
+## Intuition: expensive operations are rare
+
+A dynamic array doubles its capacity when it is full. Copying costs as many steps as there are elements, but after a copy the array has room for as many appends as it just copied. Each expensive step buys a long run of cheap ones.
+
+Here is the repository's `DynamicArray` with initial capacity 2, appending 0 to 7. The cost of an append is 1 for its own write, plus the number of elements copied if it triggers a resize.
+
+<DataTable
+  columns={['Append', 'Capacity after', { label: 'Elements copied', kind: 'mono' }, { label: 'Actual cost', kind: 'mono' }]}
+  rows={[
+    ['0', '2', '0', '1'],
+    ['1', '2', '0', '1'],
+    ['2', '4', '2', '3'],
+    ['3', '4', '0', '1'],
+    ['4', '8', '4', '5'],
+    ['5', '8', '0', '1'],
+    ['6', '8', '0', '1'],
+    ['7', '8', '0', '1'],
+  ]}
+  caption='8 appends cost 14 steps in total: 8 writes and 6 copies, so 1.75 per append.'
+/>
+
+<ArrayDiagram
+  legend={{ l: 'element already stored', c: 'element written by this append', m: 'free slot' }}
+  rows={[
+    { label: 'append 1 (index 1)', values: [0, 1], tones: 'lc', note: 'Capacity 2, the array is now full. Cost 1.' },
+    { label: 'append 2 (index 2)', values: [0, 1, 2, ''], tones: 'llcm', note: 'Full, so allocate capacity 4 and copy 2 elements, then write. Cost 3.' },
+    { label: 'append 3 (index 3)', values: [0, 1, 2, 3], tones: 'lllc', note: 'Cost 1. Capacity 4 is full again.' },
+    { label: 'append 4 (index 4)', values: [0, 1, 2, 3, 4, '', '', ''], tones: 'llllcmmm', note: 'Allocate capacity 8, copy 4 elements, write. Cost 5. Then three cheap appends follow.' },
+  ]}
+/>
+
+If the array grows from capacity 1 to 1,024, the resizes copy 1 + 2 + 4 + &hellip; + 512 = 1,023 elements in total, fewer than the 1,024 appends that caused them.
+
+## The three methods
+
+All three methods prove the same kind of statement. They differ in how they organise the accounting.
+
+### Aggregate method
+
+Bound the total cost `T(n)` of `n` operations directly, then divide by `n`.
+
+For the dynamic array, resizes happen at sizes 1, 2, 4, 8, &hellip; and copy that many elements, so the copies sum to less than 2n. Adding the n writes gives `T(n) < 3n`, so each append costs less than 3 on average.
+
+<Equation label="Resize copies" expr="1 + 2 + 4 + ... + 2^k < 2 * 2^k <= 2n" result="T(n) < 3n, so O(1) amortized" />
+
+### Accounting method
+
+Charge every operation a fixed **amortized cost**, possibly more than it really uses. The surplus is stored as credit on the data structure and pays for later expensive operations. The credit must never go negative.
+
+For appends, charge 3: one pays for the write, one pays for copying the new element at the next resize, and one pays for copying an old element that has already used its own credit. The repository's accounting demo shows the bank balance staying non-negative:
+
+<DataTable
+  columns={['Append', { label: 'Actual', kind: 'mono' }, { label: 'Charged', kind: 'mono' }, { label: 'Bank after', kind: 'mono' }]}
+  rows={[
+    ['0', '1', '3', '2'],
+    ['1', '1', '3', '4'],
+    ['2 (resize)', '3', '3', '4'],
+    ['3', '1', '3', '6'],
+    ['4 (resize)', '5', '3', '4'],
+    ['5', '1', '3', '6'],
+    ['6', '1', '3', '8'],
+    ['7', '1', '3', '10'],
+  ]}
+/>
+
+### Potential method
+
+Define a **potential** `Phi` of the data structure's state, a number that measures stored work. The amortized cost of an operation is its actual cost plus the change in potential.
+
+<Equation label="Amortized cost" expr="amortized_i = actual_i + Phi(after_i) - Phi(before_i)" />
+
+Summing over the sequence, the potential terms telescope, so the total amortized cost equals the total actual cost plus `Phi(final) - Phi(initial)`. If the potential never ends below where it started, the total amortized cost is an upper bound on the total actual cost. The repository uses `Phi = 2 * size - capacity` for the dynamic array: each cheap append raises it by 2, and a resize drops it by about `capacity`, cancelling the copying cost. In the demo, every append has amortized cost exactly 3.
+
+## Worked example: the binary counter
+
+An n-bit counter increments by flipping the trailing 1s to 0 and then one 0 to 1. One increment can flip all n bits (`0111` to `1000`), but most flip one or two. Here are the first eight increments of the repository's 4-bit `BinaryCounter`, as computed by it:
+
+<DataTable
+  columns={['Increment', 'Counter after', { label: 'Bits flipped', kind: 'mono' }, { label: 'Total so far', kind: 'mono' }]}
+  rows={[
+    ['1', '0001', '1', '1'],
+    ['2', '0010', '2', '3'],
+    ['3', '0011', '1', '4'],
+    ['4', '0100', '3', '7'],
+    ['5', '0101', '1', '8'],
+    ['6', '0110', '2', '10'],
+    ['7', '0111', '1', '11'],
+    ['8', '1000', '4', '15'],
+  ]}
+/>
+
+Aggregate argument: bit 0 flips on every increment, bit 1 on every second one, bit 2 on every fourth, and so on. Over `n` increments the total is at most n + n/2 + n/4 + &hellip; < 2n flips, so an increment is <BigO of="1" /> amortized. Accounting argument: charge 2 per increment, one for the 0-to-1 flip and one stored on that bit to pay for its later 1-to-0 flip.
+
+## Using it in practice
+
+Amortized bounds appear in many standard structures.
+
+<DataTable
+  columns={['Structure', 'Operation', { label: 'Worst single operation', kind: 'mono' }, { label: 'Amortized', kind: 'mono' }]}
+  rows={[
+    ['Dynamic array (doubling)', 'append', 'O(n)', 'O(1)'],
+    ['Binary counter', 'increment', 'O(log n)', 'O(1)'],
+    ['Stack with multipop', 'push, pop, multipop', 'O(n)', 'O(1)'],
+    ['Splay tree', 'search, insert, delete', 'O(n)', 'O(log n)'],
+    ['Hash table with resizing', 'insert', 'O(n)', 'O(1) (expected, over random hashing)'],
+  ]}
+/>
+
+Use an amortized bound when only the **total** running time matters, for example a loop that performs `n` appends. Do not rely on it when each individual operation has a deadline, such as in a real-time system or an interactive request that must not pause: a single resize really does take O(n).
+
+The growth factor matters. Doubling gives O(1) amortized appends. Growing by a fixed amount, such as +10 slots each time, makes the copy cost add up to O(n<sup>2</sup>) over `n` appends, which is O(n) amortized per append.
+
+## Implementation
+
+The Python version contains `DynamicArray` and `BinaryCounter` plus one demo per method (aggregate, accounting and potential). C++ and Go contain the two data structures and a short demo. All three count total copies (`copies`) and total bit flips (`flips`), and the tests assert the aggregate bounds (copies at most 2n, flips at most 2n). An initial capacity of 0 is handled by growing to at least 1.
+
+<TopicCode topic="Complexity_Analysis/Amortized_Analysis" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Single worst case', kind: 'mono' }, { label: 'Amortized', kind: 'mono' }, 'Why']}
+  rows={[
+    ['`DynamicArray.append`', 'O(n)', 'O(1)', 'copies total less than 2n over n appends'],
+    ['`DynamicArray.get`', 'O(1)', 'O(1)', 'direct index'],
+    ['`BinaryCounter.increment`', 'O(n_bits)', 'O(1)', 'total flips at most 2n over n increments'],
+  ]}
+/>
+
+Space for the dynamic array is <BigO of="n" />: after doubling, capacity is at most twice the size.
+
+## Common misconceptions
+
+<Callout tone="warning" title="Amortized is not average-case">
+Amortized O(1) is a worst-case guarantee over every sequence of operations, with no randomness involved. Average-case analysis averages over a distribution of inputs. Hash table inserts are the exception that proves the rule: their O(1) is **expected** (over random hashing) and also amortized (because of resizing), and those are two separate ideas.
+</Callout>
+
+<Callout tone="warning" title="Other traps">
+- **It does not bound each operation.** Amortized O(1) permits an occasional O(n) operation.
+- **Only the total of the sequence is bounded,** so the analysis must hold for every sequence, not just the friendly ones.
+- **A bad growth rule breaks it.** Adding a constant amount instead of multiplying the capacity loses the O(1).
+- **Libraries differ in the growth factor.** Doubling is typical, but some implementations use roughly 1.5. Any constant factor above 1 keeps O(1) amortized.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is amortized cost the same as average-case cost?">
+    No. Average-case cost averages over random inputs and can fail on an unlucky input. Amortized cost is a guaranteed bound on the total of any sequence. The two can be combined (expected amortized), but they are different notions.
+  </FaqItem>
+  <FaqItem question="Can I use an amortized structure in a real-time system?">
+    Usually not directly. The total is bounded, but a single operation can still take O(n). Real-time code either preallocates capacity or uses a structure with a worst-case guarantee per operation.
+  </FaqItem>
+  <FaqItem question="Which method should I use?">
+    The aggregate method is simplest when the total is easy to sum. The accounting method suits structures where an operation leaves credit behind. The potential method is the most general and is the standard tool for structures such as splay trees.
+  </FaqItem>
+  <FaqItem question="Why does doubling work but adding a constant does not?">
+    With doubling, every resize buys as many cheap appends as elements it copied, so the copy cost per append stays constant. With a fixed increment `k`, the resizes copy 1k, 2k, 3k, &hellip;, which sums to O(n<sup>2</sup>/k) over n appends.
+  </FaqItem>
+</Faq>

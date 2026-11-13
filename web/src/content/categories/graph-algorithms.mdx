@@ -1,0 +1,147 @@
+---
+category: Algorithms/Graph_Algorithms
+title: Graph Algorithms
+lead: Graph algorithms answer questions about vertices and edges, such as what is reachable, what is cheapest, what connects everything for the least cost, and what structure hides in the graph. The four areas here build on each other, from plain traversal up to components, orders and flows.
+updated: 2026-11-13
+facts:
+  - label: Areas
+    value: '4'
+    hint: traversal, shortest paths, spanning trees, advanced
+  - label: Traversal
+    value: O(V + E)
+    hint: BFS and DFS touch every vertex and edge once
+  - label: Shortest path
+    value: O((V + E) log V)
+    hint: Dijkstra, for non-negative weights
+  - label: Spanning tree
+    value: O(E log E)
+    hint: Kruskal, dominated by the sort
+contents:
+  - folder: Traversal
+    note: Visit every reachable vertex. BFS goes ring by ring, DFS goes deep first; almost everything else is built on one of them.
+  - folder: Shortest_Path
+    note: Cheapest routes in weighted graphs. Dijkstra, Bellman-Ford for negative edges, Floyd-Warshall for all pairs, A* for one goal.
+  - folder: Minimum_Spanning_Tree
+    note: Connect all vertices with the least total weight. Kruskal sorts edges, Prim grows one tree.
+  - folder: Advanced_Graph
+    note: Structure inside a graph. Topological order, strongly connected components, bridges, 2-SAT and maximum flow.
+prerequisites:
+  - Data_Structures/Non_Linear/Graph
+related:
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
+  - Data_Structures/Non_Linear/Heaps
+  - Algorithms/Greedy
+  - Problem_Patterns/Graph_Traversal_Problems
+---
+
+## The problem
+
+A graph is a set of vertices joined by edges. The edges can be directed or undirected and weighted or not, and the Graph data structures section shows how to store them. This section asks questions about a stored graph, and each of the four areas asks a different kind of question:
+
+- **Traversal:** which vertices can I reach from here, and in what order?
+- **Shortest path:** what is the cheapest way from one vertex to another, or to all others?
+- **Minimum spanning tree:** which edges connect every vertex for the smallest total weight?
+- **Advanced graph:** does the graph have a valid order, hidden cycles of mutual reachability, single points of failure, or a limit on how much can flow through it?
+
+Traversal comes first because the other three lean on it. BFS is the idea behind unweighted shortest paths, DFS behind topological order, components and bridges, and Dijkstra's priority queue is BFS with a cost.
+
+## At a glance
+
+<DataTable
+  columns={['Area', 'Question', 'Main tools', { label: 'Typical time', kind: 'mono' }, 'Weights']}
+  rows={[
+    ['Traversal', 'what is reachable, and in what order', 'BFS with a queue, DFS with a stack or recursion', 'O(V + E)', 'ignored'],
+    ['Shortest path', 'cheapest route from a source, or between all pairs', 'Dijkstra, Bellman-Ford, Floyd-Warshall, A*', 'O((V + E) log V) to O(V^3)', 'the point of the area'],
+    ['Minimum spanning tree', 'cheapest set of edges that connects everything', 'Kruskal with union-find, Prim with a heap', 'O(E log E) or O(E log V)', 'the point of the area'],
+    ['Advanced graph', 'order, components, bridges, satisfiability, flow', 'Kahn, Kosaraju, Tarjan, 2-SAT, Ford-Fulkerson, Edmonds-Karp', 'O(V + E) to O(V E^2)', 'only for flow capacities'],
+  ]}
+/>
+
+## A path through the area
+
+<Steps>
+  <Step title="Learn to store a graph">
+    Read the Graph data structures first: adjacency list, adjacency matrix and edge list. Every algorithm here takes one of them as input.
+  </Step>
+  <Step title="Traversal">
+    BFS and DFS. They are short, and the rest of the section reuses both.
+  </Step>
+  <Step title="Shortest path">
+    Start with Dijkstra's algorithm. Bellman-Ford, Floyd-Warshall and A* each change one of its assumptions: negative edges, all pairs, a single goal with a hint.
+  </Step>
+  <Step title="Minimum spanning tree">
+    Kruskal and Prim solve the same problem from two directions. Kruskal also needs the union-find structure.
+  </Step>
+  <Step title="Advanced graph">
+    Take topological sort first, then strongly connected components, bridges and 2-SAT, which reuse DFS. Network flow is the most self-contained part and can be read last.
+  </Step>
+</Steps>
+
+## Complexity
+
+<DataTable
+  columns={['Area', 'Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }]}
+  rows={[
+    ['Traversal', 'BFS, DFS', 'O(V + E)', 'O(V)'],
+    ['Shortest path', 'Dijkstra', 'O((V + E) log V)', 'O(V + E)'],
+    ['Shortest path', 'Bellman-Ford', 'O(V * E)', 'O(V)'],
+    ['Shortest path', 'Floyd-Warshall', 'O(V^3)', 'O(V^2)'],
+    ['Minimum spanning tree', 'Kruskal', 'O(E log E)', 'O(V)'],
+    ['Minimum spanning tree', 'Prim with a heap', 'O(E log V)', 'O(V + E)'],
+    ['Advanced graph', 'Topological sort, SCC, bridges', 'O(V + E)', 'O(V) to O(V + E)'],
+    ['Advanced graph', 'Edmonds-Karp', 'O(V E^2)', 'O(V + E)'],
+  ]}
+/>
+
+DFS needs O(V) with real recursion and up to O(E) for the stack of its marking-on-pop version. Details and the other variants are in each topic article.
+
+## Choosing an area
+
+<DataTable
+  columns={['Situation', 'Go to', 'Why']}
+  rows={[
+    ['Is B reachable from A, or how many components are there', 'Traversal', 'one BFS or DFS answers it in O(V + E)'],
+    ['Fewest hops in an unweighted graph', 'Traversal (BFS)', 'the first visit to a vertex is along a shortest path'],
+    ['Cheapest route with positive costs', 'Shortest_Path (Dijkstra)', 'it settles the closest vertex first'],
+    ['Cheapest route with negative edges, or a negative cycle check', 'Shortest_Path (Bellman-Ford)', 'it relaxes every edge V - 1 times and then checks once more'],
+    ['Connect all sites with the least cable', 'Minimum_Spanning_Tree', 'every vertex is joined and no cycle is paid for'],
+    ['Order tasks that depend on each other', 'Advanced_Graph (Topological_Sort)', 'every edge points forward in the result'],
+    ['Find mutually reachable groups, or single points of failure', 'Advanced_Graph', 'strongly connected components and bridges, each in one DFS'],
+    ['Largest amount that can pass from a source to a sink', 'Advanced_Graph (Network_Flow)', 'augmenting paths in a residual graph reach the maximum'],
+  ]}
+/>
+
+## Applications
+
+- **Maps and routing.** Shortest paths over road networks, with A* when there is a goal and a distance estimate.
+- **Networks.** Spanning trees for cabling and for loop-free switching, bridges for single points of failure, flow for capacity planning.
+- **Build systems and schedulers.** Topological order of tasks and detection of dependency cycles.
+- **Social and web graphs.** Components, reachability and strongly connected groups of pages or people.
+- **Constraint solving.** 2-SAT turns a set of pairwise constraints into a graph question.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using BFS on a weighted graph.** BFS counts edges, not cost. It returns the fewest-hop path, which can be far more expensive than the cheapest one.
+- **Feeding negative edges to Dijkstra.** It does not fail; it silently returns wrong distances. Use Bellman-Ford.
+- **Treating a spanning tree as a shortest-path tree.** A minimum spanning tree minimises total weight, not the distance from any one vertex.
+- **Forgetting that graphs can be disconnected.** One traversal from one start only covers one component, and Kruskal then returns a forest.
+- **Running directed algorithms on undirected input, or the reverse.** Topological sort needs a DAG, SCC algorithms need directed edges, and bridges are defined for undirected graphs.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Where do I start if I know nothing about graphs?">
+    Read the Graph data structures, then BFS and DFS in Traversal. After those, any area can come next, but Shortest_Path is the usual choice because Dijkstra's algorithm is also the base of A* and a model for Prim.
+  </FaqItem>
+  <FaqItem question="Which one should I use for the cheapest path?">
+    Dijkstra when all weights are non-negative and you need one source. Bellman-Ford when some are negative. Floyd-Warshall when you need every pair on a small graph. A* when there is a single goal and a heuristic that never overestimates.
+  </FaqItem>
+  <FaqItem question="How are Kruskal and Prim related to Dijkstra?">
+    Prim and Dijkstra share a shape: both repeatedly take the cheapest candidate from a priority queue. The key differs. Dijkstra ranks a vertex by its total distance from the source, Prim by the weight of one edge into the tree, so they solve different problems.
+  </FaqItem>
+  <FaqItem question="Which algorithms use DFS underneath?">
+    Topological sort in its DFS form, Kosaraju and Tarjan for strongly connected components, bridges and articulation points, and 2-SAT, which runs Tarjan on an implication graph. Ford-Fulkerson finds its augmenting paths with DFS in this repository, while Edmonds-Karp uses BFS.
+  </FaqItem>
+</Faq>

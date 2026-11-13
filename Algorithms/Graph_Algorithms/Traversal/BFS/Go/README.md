@@ -1,116 +1,45 @@
-# BFS (Breadth-First Search) - Go
+# BFS -- Go Implementation
 
-**BFS (Breadth-First Search)** is a graph traversal algorithm that explores all vertices at the current depth level before moving to vertices at the next depth level.
+Breadth-First Search over `map[int][]int`, with a slice as the queue and a map as the visited set.
 
----
+## Files
 
-## Overview
+| File | Contents |
+|------|----------|
+| `main.go` | the four BFS functions (`package main`, no `main` function) |
+| `main_test.go` | 12 tests (`go test`) |
+| `go.mod` | module definition |
 
-BFS implementation in Go using:
-- Slices for queue operations
-- `map[int][]int` for adjacency list representation
-- `map[int]bool` for visited tracking
+## API
 
----
+| Function | Returns |
+|----------|---------|
+| `BFSAdjacencyList(graph, start)` | `[]int` in BFS order; empty if `start` is not a key |
+| `BFSWithPath(graph, start, target)` | a shortest path as `[]int`; empty if none; `[]int{start}` when `start == target` |
+| `BFSLevelOrder(graph, start)` | `[][]int`, one slice per level |
+| `BFSShortestDistance(graph, start)` | `map[int]int` of hops to every reachable vertex |
 
-## Complexity Analysis
+All run in O(V + E) time and O(V) space.
 
-| Complexity | Time | Space |
-|------------|------|-------|
-| **All Cases** | O(V + E) | O(V) |
+## Go-Specific Notes
 
----
+- The queue is a slice: `queue = queue[1:]` dequeues in O(1), but the dequeued prefix stays in the backing array until `append` reallocates it. That is fine for these sizes.
+- Reading a missing key from a map returns a nil slice, so a vertex that appears only in neighbor lists needs no special case.
+- `BFSWithPath` keeps a `parent` map and reverses the path once with `slices.Reverse` (Go 1.21 or newer).
+- The package has no `func main`, so `go run .` does not work; use the tests.
+- Connected components exist only in the Python version.
 
-## Implementation Details
-
-### Functions
-
-1. **`BFSAdjacencyList(graph, start)`**
-   - Basic BFS traversal
-   - Returns `[]int` of vertices in BFS order
-   - Time: O(V + E), Space: O(V)
-
-2. **`BFSWithPath(graph, start, target)`**
-   - Finds shortest path from start to target
-   - Returns `[]int` representing path
-   - Time: O(V + E), Space: O(V)
-
-3. **`BFSLevelOrder(graph, start)`**
-   - Returns vertices grouped by level
-   - Returns `[][]int` where each inner slice is a level
-   - Time: O(V + E), Space: O(V)
-
-4. **`BFSShortestDistance(graph, start)`**
-   - Finds shortest distance to all vertices
-   - Returns `map[int]int` mapping vertex to distance
-   - Time: O(V + E), Space: O(V)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    graph := map[int][]int{
-        1: {2, 4},
-        2: {3},
-        3: {},
-        4: {},
-    }
-    
-    // Basic BFS
-    result := BFSAdjacencyList(graph, 1)
-    fmt.Println(result)  // [1, 2, 4, 3]
-    
-    // Find shortest path
-    path := BFSWithPath(graph, 1, 3)
-    fmt.Println(path)  // [1, 2, 3]
-    
-    // Level order
-    levels := BFSLevelOrder(graph, 1)
-    fmt.Println(levels)  // [[1], [2, 4], [3]]
-    
-    // Shortest distances
-    distances := BFSShortestDistance(graph, 1)
-    fmt.Println(distances)  // map[1:0 2:1 4:1 3:2]
-}
-```
-
----
-
-## Running Tests
+## How to Run
 
 ```bash
-go test
+cd Algorithms/Graph_Algorithms/Traversal/BFS/Go
+go test ./...
 ```
 
-Or with verbose output:
+Add `-v` to see each test.
 
-```bash
-go test -v
-```
+## Key Takeaways
 
----
-
-## Important Notes
-
-1. **Slice-based queue**: Uses slices for queue operations (FIFO)
-2. **Map for graph**: Uses `map[int][]int` for adjacency list
-3. **Visited tracking**: Uses `map[int]bool` for efficient lookup
-
----
-
-## Testing
-
-```bash
-go test -v
-```
-
----
-
-_Last Updated: December 2025_
-
+- A slice is enough for a BFS queue at this scale.
+- Missing map keys read as empty, which makes neighbor-only vertices safe.
+- BFS gives fewest edges, not least weight.

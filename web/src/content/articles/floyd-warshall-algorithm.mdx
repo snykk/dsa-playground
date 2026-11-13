@@ -1,0 +1,238 @@
+---
+topic: Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm
+title: Floyd-Warshall Algorithm
+lead: Floyd-Warshall computes the shortest distance between every pair of vertices with three nested loops and a distance matrix. It allows negative edge weights, detects negative cycles, and takes O(V^3) time and O(V^2) space.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V^3)
+    hint: three nested loops over the vertices
+    tone: warn
+  - label: Space
+    value: O(V^2)
+    hint: the distance matrix
+  - label: Result
+    value: All pairs
+    hint: dist[i][j] for every i and j
+  - label: Approach
+    value: Dynamic programming
+properties:
+  - { label: All pairs, value: true }
+  - { label: Negative weights, value: true }
+  - { label: Detects negative cycles, value: true }
+  - { label: In-place, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+related:
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
+---
+
+## How Floyd-Warshall works
+
+Instead of growing a tree from a source, Floyd-Warshall asks one question about every pair (i, j): **is it shorter to go through vertex k?** It lets the vertices 0, 1, 2, ... become allowed intermediate stops one at a time.
+
+<Steps>
+  <Step title="Start with the direct edges">
+    `dist[i][i] = 0`, `dist[i][j]` is the cheapest edge from i to j (the cheapest, if there are parallel edges), and infinity where there is no edge.
+  </Step>
+  <Step title="Allow vertex k as a stop">
+    For k = 0, 1, ..., V - 1, and for every pair (i, j): if `dist[i][k] + dist[k][j] < dist[i][j]`, replace `dist[i][j]`.
+  </Step>
+  <Step title="Check the diagonal">
+    If any `dist[i][i]` is negative, vertex i lies on a negative cycle and shortest distances do not exist.
+  </Step>
+  <Step title="Read the answer">
+    Otherwise `dist[i][j]` is the shortest distance from i to j, or infinity if j is unreachable from i.
+  </Step>
+</Steps>
+
+<Callout title="The state: paths that stop only at vertices 0..k">
+After the round for k, `dist[i][j]` is the length of the shortest path from i to j whose intermediate vertices all lie in `0..k`. The new path through k has two halves, i to k and k to j, and neither half needs k as a stop, so both come from the previous round. The outer loop must therefore be **k**, not i or j.
+</Callout>
+
+## See it in action
+
+The visualization shows the distance matrix next to the graph. Step through the rounds and watch the cells that improve when the current vertex k is allowed as a stop. Type your own edges with arrows (`A->B 3, B->C -2`) and finish with `; start A`.
+
+<ArticleViz ids={['floyd-warshall']} />
+
+## Worked example
+
+A directed graph with one negative edge. Vertices A to D are 0 to 3.
+
+<GraphDiagram
+  edges="A->B 3, A->D 7, B->A 8, B->C -2, C->A 5, C->D 1, D->A 2"
+  positions={{ A: [10, 50], B: [40, 8], C: [72, 50], D: [40, 92] }}
+  tones={{ A: 'l', B: 'l', C: 'l', D: 'l' }}
+  legend={{ l: 'vertex' }}
+  caption="The negative edge B to C (-2) makes the path A, B, C (cost 1) cheaper than any direct route."
+/>
+
+The matrix at the start and after each round. Rows are the source i, columns the target j; `inf` means no path yet. The highlighted cells improved in that round:
+
+<GridDiagram
+  corner="start"
+  rowLabels={['A', 'B', 'C', 'D']}
+  colLabels={['A', 'B', 'C', 'D']}
+  rows={[[0, 3, 'inf', 7], [8, 0, -2, 'inf'], [5, 'inf', 0, 1], [2, 'inf', 'inf', 0]]}
+/>
+
+<GridDiagram
+  corner="k = A"
+  rowLabels={['A', 'B', 'C', 'D']}
+  colLabels={['A', 'B', 'C', 'D']}
+  rows={[[0, 3, 'inf', 7], [8, 0, -2, 15], [5, 8, 0, 1], [2, 5, 'inf', 0]]}
+  tones={['....', '...l', '.l..', '.l..']}
+  legend={{ l: 'improved by going through the current k' }}
+/>
+
+<GridDiagram
+  corner="k = B"
+  rowLabels={['A', 'B', 'C', 'D']}
+  colLabels={['A', 'B', 'C', 'D']}
+  rows={[[0, 3, 1, 7], [8, 0, -2, 15], [5, 8, 0, 1], [2, 5, 3, 0]]}
+  tones={['..l.', '....', '....', '..l.']}
+  legend={{ l: 'improved by going through the current k' }}
+/>
+
+<GridDiagram
+  corner="k = C"
+  rowLabels={['A', 'B', 'C', 'D']}
+  colLabels={['A', 'B', 'C', 'D']}
+  rows={[[0, 3, 1, 2], [3, 0, -2, -1], [5, 8, 0, 1], [2, 5, 3, 0]]}
+  tones={['...l', 'l..l', '....', '....']}
+  legend={{ l: 'improved by going through the current k' }}
+/>
+
+<GridDiagram
+  corner="k = D"
+  rowLabels={['A', 'B', 'C', 'D']}
+  colLabels={['A', 'B', 'C', 'D']}
+  rows={[[0, 3, 1, 2], [1, 0, -2, -1], [3, 6, 0, 1], [2, 5, 3, 0]]}
+  tones={['....', 'l...', 'll..', '....']}
+  legend={{ l: 'improved by going through the current k (this is the final matrix)' }}
+/>
+
+The final matrix equals the output of `floyd_warshall(g, 4)`. For example B to D costs -1 through C (-2 + 1), and D to C costs 3 through A and B (2 + 3 - 2). No diagonal entry is negative, so there is no negative cycle.
+
+## Pseudocode
+
+```text
+floydWarshall(graph, n):
+    dist[i][j] = infinity;  dist[i][i] = 0
+    for each edge (u, v, w):
+        dist[u][v] = min(dist[u][v], w)        # parallel edges, self-loops
+    for k in 0 .. n-1:
+        for i in 0 .. n-1:
+            for j in 0 .. n-1:
+                if dist[i][k] and dist[k][j] are finite:
+                    dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+    if any dist[i][i] < 0: return negative cycle
+    return dist
+```
+
+For paths, Python's `floyd_warshall_path` keeps a `next` matrix: `next[i][j]` is the first vertex after i on a shortest path to j. It is set to `next[i][k]` whenever the route through k wins, and `reconstruct_path(next, i, j)` follows it. On the example, the path from B to D is B, C, D and from D to C is D, A, B, C.
+
+## Implementation
+
+Input is an adjacency list (`graph[u]` is a list of `(v, weight)` pairs) and the number of vertices. The edge initialization takes the minimum, so parallel edges keep the cheapest and a positive self-loop never raises the diagonal above 0.
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['Unreachable', '`sys.maxsize`', '`LLONG_MAX`', '`math.MaxInt`'],
+    ['Negative cycle', '`None`', 'empty matrix', '`nil`'],
+    ['Cycle check', 'once, after all rounds', 'after every round', 'after every round'],
+    ['Path reconstruction', '`floyd_warshall_path` and `reconstruct_path`', 'none', 'none'],
+    ['Bad edge endpoint', '`IndexError`', 'throws `out_of_range`', 'index panic'],
+  ]}
+/>
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm" />
+
+C++ and Go check the diagonal after every round, so distances in a negative cycle cannot keep shrinking toward an overflow. Python integers do not overflow, so one check at the end is enough there. The C++ version accepts fewer adjacency rows than `numVertices`; the missing rows have no edges. In Python, `floyd_warshall_path` also returns `None` on a negative cycle, and `reconstruct_path` gives up after V vertices instead of looping.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'All cases', time: 'O(V^3)', space: 'O(V^2)', when: 'V rounds of V * V cell updates, whatever the number of edges. The matrix is updated in place.' },
+  ]}
+/>
+
+<Equation label="Recurrence" expr="d[k][i][j] = min(d[k-1][i][j], d[k-1][i][k] + d[k-1][k][j])" result="O(V^3)" />
+
+The in-place update is safe because during round k the entries `dist[i][k]` and `dist[k][j]` do not change: `dist[k][k]` is 0 unless there is a negative cycle, which is detected anyway.
+
+## Negative cycles
+
+If a vertex i lies on a cycle of negative total weight, some round produces `dist[i][i] < 0`. The result is then not a set of shortest distances, because every pair whose path can reach the cycle has no shortest path. The implementations return the negative-cycle signal for the whole matrix; they do not mark individual pairs.
+
+## Floyd-Warshall vs alternatives
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, 'Negative edges', 'Best for']}
+  highlight={0}
+  rows={[
+    ['Floyd-Warshall', 'O(V^3)', 'Yes', 'dense graphs, small V, all pairs, simple code'],
+    ['Dijkstra from every vertex', 'O(V (V + E) log V)', 'No', 'sparse graphs with non-negative weights'],
+    ['Bellman-Ford from every vertex', 'O(V^2 E)', 'Yes', 'rarely better'],
+    ['Johnson algorithm', 'O(V (V + E) log V)', 'Yes', 'sparse graphs with negative edges'],
+    ['BFS from every vertex', 'O(V (V + E))', 'n/a', 'unweighted graphs'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Very short code: three loops and one comparison.',
+    'Gives all pairs at once, and handles negative edges.',
+    'Detects negative cycles from the diagonal.',
+    'Variants exist for path reconstruction and transitive closure.',
+  ]}
+  cons={[
+    'O(V^3) time regardless of the number of edges: too slow beyond a few hundred to a few thousand vertices.',
+    'O(V^2) memory for the matrix.',
+    'For sparse graphs with non-negative weights, V runs of Dijkstra are faster.',
+    'The negative-cycle result is one yes/no signal, not a per-pair answer.',
+  ]}
+/>
+
+## Applications
+
+- **All-pairs shortest paths** on small or dense graphs, such as distance tables between cities or stations.
+- **Transitive closure.** Replace min and + by or and and to learn which vertices can reach which (Warshall's algorithm).
+- **Negative cycle detection** from the diagonal.
+- **Graph diameter or centrality** on small graphs, from the distance matrix.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **The wrong loop order.** `k` must be the outermost loop. With i or j outside, paths through later intermediates are missed.
+- **Overwriting instead of taking the minimum.** With parallel edges the last one would win, and a self-loop would overwrite the diagonal 0. Always use min.
+- **Adding to infinity.** Skip the update when `dist[i][k]` or `dist[k][j]` is the infinity sentinel, or the sum overflows.
+- **Ignoring the diagonal.** A negative `dist[i][i]` means the other entries cannot be trusted.
+- **Following next pointers after a negative cycle.** They can loop forever. `floyd_warshall_path` returns `None` in that case, and `reconstruct_path` stops after V vertices.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the k loop have to be the outermost one?">
+    Round k assumes that all shorter paths using only vertices below k are already complete. With k outermost, each round finishes the whole matrix for one more allowed stop. With k inside, a cell can be finished before its two halves are.
+  </FaqItem>
+  <FaqItem question="Can Floyd-Warshall handle negative weights?">
+    Yes, as long as there is no negative cycle. If there is one, the diagonal shows it and no finite answer exists for the affected pairs.
+  </FaqItem>
+  <FaqItem question="When is it better to run Dijkstra V times?">
+    On sparse graphs with non-negative weights: V runs cost O(V (V + E) log V), which is far below V<sup>3</sup> when E is much smaller than V<sup>2</sup>.
+  </FaqItem>
+  <FaqItem question="How do I get the actual path, not just the distance?">
+    Keep a next matrix as `floyd_warshall_path` does, and follow it with `reconstruct_path`. It returns `None` if there is no path. C++ and Go in this repository return distances only.
+  </FaqItem>
+</Faq>

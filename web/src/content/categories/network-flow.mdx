@@ -1,0 +1,146 @@
+---
+category: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow
+title: Network Flow
+lead: Network flow asks how much can be sent from a source to a sink through edges with capacities. Ford-Fulkerson and Edmonds-Karp both push flow along augmenting paths in a residual graph and stop at the same maximum. The only difference is how the path is chosen, any path or the shortest, and it decides the running time.
+updated: 2026-11-13
+facts:
+  - label: Ford-Fulkerson
+    value: O(E f)
+    hint: f is the maximum flow, integer capacities
+    tone: warn
+  - label: Edmonds-Karp
+    value: O(V E^2)
+    hint: whatever the capacities are
+  - label: Same answer
+    value: Maximum flow
+    hint: equal to the capacity of a minimum cut
+  - label: Path search
+    value: DFS or BFS
+    hint: DFS in Ford-Fulkerson, BFS in Edmonds-Karp
+contents:
+  - folder: Ford_Fulkerson
+    note: The method. Find any path with spare capacity, push flow along it, repeat. Backward edges let it undo earlier choices.
+  - folder: Edmonds_Karp
+    note: The same method with BFS, so each path is a shortest one. That one change gives a polynomial bound.
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph
+  - Algorithms/Graph_Algorithms/Shortest_Path
+---
+
+## The problem
+
+A flow network is a directed graph in which every edge has a capacity, plus a source `s` and a sink `t`. A flow assigns an amount to each edge so that no edge exceeds its capacity and every other vertex passes on exactly what it receives. The task is to find the largest total amount that leaves the source.
+
+Both algorithms keep a **residual graph**. An edge `u -> v` with capacity `c` and flow `f` leaves `c - f` of spare room forward, and a backward edge `v -> u` of size `f` that lets later steps cancel earlier flow. They repeat three steps:
+
+1. Find a path from `s` to `t` in the residual graph with spare capacity on every edge.
+2. Push the smallest spare capacity on that path, the bottleneck, along it.
+3. Stop when no such path exists. The flow is then maximum.
+
+The max-flow min-cut theorem proves that the result is optimal: the maximum flow equals the capacity of the cheapest cut that separates `s` from `t`.
+
+## At a glance
+
+<DataTable
+  columns={['Property', 'Ford-Fulkerson', 'Edmonds-Karp']}
+  rows={[
+    ['Augmenting path', 'any path, found by DFS here', 'a shortest path by edge count, found by BFS'],
+    ['Time', 'O(E f)', 'O(V E^2)'],
+    ['Depends on capacity values', 'yes', 'no'],
+    ['Terminates on irrational capacities', 'not guaranteed', 'yes'],
+    ['Extra space', 'O(V + E)', 'O(V + E)'],
+    ['Extra in Python', '`min_cut` and the list of augmenting paths', 'the flow value only'],
+  ]}
+/>
+
+## One network, two runs
+
+Take the network with source 0 and sink 5 and edges `0->1 16`, `0->2 13`, `1->2 10`, `1->3 12`, `2->1 4`, `2->4 14`, `3->2 9`, `3->5 20`, `4->3 7` and `4->5 4`. Both algorithms return 23. The augmenting paths below were recorded from the repository's Python code.
+
+<DataTable
+  columns={['Round', 'Edmonds-Karp path', 'Bottleneck', 'Total']}
+  rows={[
+    ['1', '0 -> 1 -> 3 -> 5', '12', '12'],
+    ['2', '0 -> 2 -> 4 -> 5', '4', '16'],
+    ['3', '0 -> 2 -> 4 -> 3 -> 5', '7', '23'],
+  ]}
+/>
+
+<DataTable
+  columns={['Round', 'Ford-Fulkerson path', 'Bottleneck', 'Total']}
+  rows={[
+    ['1', '0 -> 1 -> 2 -> 4 -> 3 -> 5', '7', '7'],
+    ['2', '0 -> 1 -> 2 -> 4 -> 5', '3', '10'],
+    ['3', '0 -> 1 -> 3 -> 2 -> 4 -> 5', '1', '11'],
+    ['4', '0 -> 1 -> 3 -> 5', '5', '16'],
+    ['5', '0 -> 2 -> 1 -> 3 -> 5', '6', '22'],
+    ['6', '0 -> 2 -> 3 -> 5', '1', '23'],
+  ]}
+/>
+
+Edmonds-Karp needs 3 rounds and Ford-Fulkerson needs 6, but both stop at 23. The DFS wanders along long paths with small bottlenecks, while BFS takes the shortest route first. Round 3 of Ford-Fulkerson takes five edges, `0 -> 1 -> 3 -> 2 -> 4 -> 5`, although `0 -> 1 -> 3 -> 5` has only three and still had spare capacity.
+
+The minimum cut agrees. `min_cut` in the Ford-Fulkerson code returns 23 with the source side `0, 1, 2, 4` and the sink side `3, 5`. The three edges that cross it, `1->3` (12), `4->3` (7) and `4->5` (4), add up to 23.
+
+## Complexity
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['Ford-Fulkerson', 'O(E f)', 'O(V + E)', 'at most f rounds with integer capacities, since each round adds at least 1, and each round costs O(E)'],
+    ['Edmonds-Karp', 'O(V E^2)', 'O(V + E)', 'O(V E) augmentations, one BFS of O(E) each'],
+  ]}
+/>
+
+On a diamond network with capacities of 1000 and a cross edge of 1, an unlucky Ford-Fulkerson can take 2000 rounds where Edmonds-Karp needs 2. The repository's DFS happens to take 4 rounds on that network, but nothing in the method rules out the bad order.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Learning how the residual graph works', 'Ford-Fulkerson', 'the method is the simplest form of the idea'],
+    ['Any real use, or capacities that may be large', 'Edmonds-Karp', 'the bound does not depend on the capacities'],
+    ['You need the minimum cut as well', 'Ford-Fulkerson in this repository', 'its Python code has `min_cut` and returns the augmenting paths'],
+    ['Small integer capacities and a small maximum flow', 'either', 'both finish in few rounds'],
+  ]}
+/>
+
+For large networks, faster algorithms such as Dinic's exist. They are not in this repository.
+
+## Applications
+
+- **Capacity planning.** The most data, traffic or goods that a network can carry.
+- **Bipartite matching.** Assign jobs to workers by giving every edge capacity 1.
+- **Minimum cuts.** The cheapest set of edges to remove to separate two parts of a network.
+- **Project selection and scheduling.** Many assignment problems reduce to a flow.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Skipping the backward edges.** Without them the algorithm can get stuck below the maximum, because it cannot undo a bad early choice.
+- **Using Ford-Fulkerson with huge capacities.** The running time depends on the flow value, so it can be very slow.
+- **Using non-integer capacities with Ford-Fulkerson.** With irrational capacities a careless path choice may never terminate.
+- **Expecting per-edge flows.** Edmonds-Karp here returns only the total flow value, not the flow on each edge.
+- **Adding flow in both directions of an undirected edge.** Model an undirected edge as two directed edges, each with the capacity.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which one should I read first?">
+    Ford-Fulkerson. It defines the residual graph and the augmenting step. Edmonds-Karp then changes only the path search.
+  </FaqItem>
+  <FaqItem question="Why does using BFS make it polynomial?">
+    With shortest augmenting paths, the distance from the source to any vertex in the residual graph never decreases, and every augmentation saturates at least one edge on a shortest path. That limits the number of rounds to O(V E), and each costs one BFS.
+  </FaqItem>
+  <FaqItem question="What is a minimum cut?">
+    A split of the vertices into a source side and a sink side with the smallest total capacity of edges leaving the source side. The max-flow min-cut theorem says its capacity equals the maximum flow.
+  </FaqItem>
+  <FaqItem question="Do the two always find the same flow on each edge?">
+    No. They always find the same total, but the flow on each edge can differ, because the choice of augmenting paths differs. Edmonds-Karp in this repository returns the total only.
+  </FaqItem>
+</Faq>

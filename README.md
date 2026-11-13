@@ -8,6 +8,8 @@
 
 > **New to DSA?** Follow the structured curriculum in **[STUDY_GUIDE.md](STUDY_GUIDE.md)** — it sequences every topic in this repo into a week-by-week learning path, from foundations through competitive-programming techniques.
 
+> **Prefer to watch it run?** The [DSA Playground site](https://snykk.github.io/dsa-playground/) renders every topic with its README, the Python / C++ / Go sources side by side, and step-by-step visualizations (sorting, BFS / DFS / Dijkstra, BST and AVL rotations, KMP, DP tables, Reed-Solomon). To run it locally: `make web-dev` (details in [web/README.md](web/README.md)).
+
 ---
 
 ## 🎯 Purpose
@@ -25,7 +27,7 @@ This repository serves as:
 
 ```
 dsa-playground/
-├── 📁 Data Structures/
+├── 📁 Data_Structures/
 │   ├── 📁 Linear/
 │   │   ├── Array/
 │   │   ├── String/
@@ -140,8 +142,7 @@ dsa-playground/
 
 #### 🔹 Hashing
 
-- [x] **Hash Table**
-- [x] **Hash Map**
+- [x] **Hash Table** (also the Hash Map)
 - [x] **Hash Set**
 - [x] **Collision Handling** (Chaining, Open Addressing)
 - [x] **Bloom Filter**
@@ -294,6 +295,11 @@ dsa-playground/
 
 - [x] **Reservoir Sampling** — uniform sampling from a stream of unknown length
 - [x] **Randomized Quickselect** — O(n) expected k-th smallest
+
+#### 🔹 Coding Theory (Error Correction)
+
+- [x] **Galois Field GF(2^8)** — finite field arithmetic for AES/Reed-Solomon
+- [x] **Reed-Solomon** — encode + Berlekamp-Massey decode + Forney + Chien, with combined error + erasure decoding and configurable fcr (e.g., RS(255, 223) Voyager code)
 
 ---
 
@@ -515,7 +521,7 @@ _All currently scoped topics are implemented across Python, C++, and Go. Remaini
   - Optimization Techniques: 4/4 (100%)
   - Problem Types: 3/3 (100%)
 
-> **Note on directory layout:** The `Data Structures/Linear/Array/Go/` folder uses sub-modules (`static_array/`, `dynamic_array/`, `multi_dimensional_array/`) — each with its own `go.mod`. They are fully implemented, just nested one level deeper than the Python/C++ counterparts.
+> **Note on directory layout:** The `Data_Structures/Linear/Array/Go/` folder uses sub-modules (`static_array/`, `dynamic_array/`, `multi_dimensional_array/`) — each with its own `go.mod`. They are fully implemented, just nested one level deeper than the Python/C++ counterparts.
 
 ---
 

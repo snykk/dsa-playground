@@ -1,0 +1,11 @@
+/* Swatch atom: the color square used in legends. */
+.viz-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--role);
+}
+.viz-swatch.role-idle {
+  background: transparent;
+  border: 2px solid var(--viz-neutral);
+}

@@ -1,0 +1,149 @@
+---
+category: Algorithms/Graph_Algorithms/Minimum_Spanning_Tree
+title: Minimum Spanning Tree
+lead: A minimum spanning tree joins every vertex of a weighted undirected graph with V - 1 edges of the smallest possible total weight. Kruskal and Prim both build one greedily and reach the same total weight; they differ in whether they grow a forest of fragments or a single tree.
+updated: 2026-11-13
+facts:
+  - label: Kruskal
+    value: O(E log E)
+    hint: the sort; union-find adds O(E alpha(V))
+  - label: Prim, heap
+    value: O(E log V)
+    hint: lazy version
+  - label: Prim, matrix
+    value: O(V^2)
+    hint: suits dense graphs
+  - label: Disconnected graph
+    value: No single tree
+    hint: Kruskal returns a forest, Prim covers only the start component
+    tone: warn
+contents:
+  - folder: Kruskals_Algorithm
+    note: Sort the edges, then keep each one that joins two different fragments. Union-find answers that in almost constant time.
+  - folder: Prims_Algorithm
+    note: Grow one tree from a start vertex, always adding the cheapest edge that leaves it. A heap picks the edge.
+prerequisites:
+  - Data_Structures/Non_Linear/Graph
+  - Algorithms/Greedy
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
+  - Data_Structures/Non_Linear/Heaps
+related:
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Traversal
+---
+
+## The problem
+
+A spanning tree of a connected graph is a set of edges that connects all V vertices without a cycle, so it has exactly V - 1 edges. A minimum spanning tree (MST) is one whose edge weights add up to the least possible total.
+
+Both algorithms rely on the same fact, the **cut property**: for any split of the vertices into two groups, the lightest edge between the groups can be part of some MST. So choosing the lightest safe edge, again and again, is never a mistake. The two algorithms differ in how they find that edge.
+
+- **Kruskal** looks at all edges from lightest to heaviest and keeps one unless it would close a cycle.
+- **Prim** starts from one vertex and repeatedly adds the lightest edge that leaves the growing tree.
+
+## At a glance
+
+<DataTable
+  columns={['Property', 'Kruskal', 'Prim']}
+  rows={[
+    ['Grows', 'a forest of fragments that merge', 'one tree'],
+    ['Picks', 'the globally lightest edge that is safe', 'the lightest edge that leaves the tree'],
+    ['Needs', 'sorted edges and union-find', 'a priority queue, or an array for the matrix version'],
+    ['Natural input', 'edge list', 'adjacency list or adjacency matrix'],
+    ['Time', 'O(E log E)', 'O(E log V) with a heap, O(V^2) with a matrix'],
+    ['Disconnected graph', 'spanning forest, fewer than V - 1 edges', 'only the start vertex component'],
+    ['Negative weights', 'allowed', 'allowed'],
+  ]}
+/>
+
+## See them side by side
+
+Each tab builds the tree step by step. Load **Repo test graph** in both tabs, then **Disconnected**, where Kruskal ends with a forest and Prim stops after the component of the start vertex. **Negative weights** shows that neither algorithm cares about the sign.
+
+<ArticleViz ids={['kruskal', 'prim']} />
+
+## One graph, two trees
+
+Take five vertices and the undirected edges `0-1 4`, `0-2 3`, `1-2 1`, `1-3 2`, `2-3 4`, `3-4 2` and `2-4 7`. These results come from the repository's Python code, with Prim starting at vertex 0.
+
+<GraphDiagram
+  edges="0-1 4, 0-2 3, 1-2 1, 1-3 2, 2-3 4, 3-4 2, 2-4 7"
+  positions={{ 0: [4, 50], 1: [38, 12], 2: [38, 88], 3: [70, 50], 4: [96, 50] }}
+  tones={{ 0: 'f', 1: 'f', 2: 'f', 3: 'f', 4: 'f' }}
+  edgeTones={{ '1-2': 'f', '1-3': 'f', '3-4': 'f', '0-2': 'f' }}
+  legend={{ f: 'in the minimum spanning tree, total weight 8' }}
+  caption="Four edges connect five vertices. The edges 0-1, 2-3 and 2-4 are left out."
+  label="Undirected weighted graph with its minimum spanning tree"
+/>
+
+<DataTable
+  columns={['Algorithm', 'Edges, in the order they are added', 'Total']}
+  rows={[
+    ['Kruskal', '`1-2 (1)`, `1-3 (2)`, `3-4 (2)`, `0-2 (3)`', '8'],
+    ['Prim from 0', '`0-2 (3)`, `2-1 (1)`, `1-3 (2)`, `3-4 (2)`', '8'],
+  ]}
+/>
+
+The two trees contain the same four edges. Kruskal adds them by weight, so it starts in the middle of the graph with the weight-1 edge. Prim starts at vertex 0, so its first edge is the lightest one at 0, which is `0-2`. Kruskal also stops as soon as it has V - 1 = 4 edges, so it never examines the three heaviest edges.
+
+When several edges share a weight, different valid choices can give different trees. The total weight is the same in every case.
+
+## Complexity
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['Kruskal', 'O(E log E)', 'O(V)', 'the sort dominates; union-find adds O(E alpha(V)); the sorted edge list is extra'],
+    ['Prim, binary heap', 'O(E log V)', 'O(V + E)', 'lazy version: the heap holds up to E entries'],
+    ['Prim, adjacency matrix', 'O(V^2)', 'O(V)', 'a scan of an array finds the minimum key each round'],
+  ]}
+/>
+
+Since E is at most V^2, log E is at most 2 log V, so O(E log E) and O(E log V) are the same class.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Edges arrive as a list, or the graph is sparse', 'Kruskal', 'sort once and merge fragments'],
+    ['The graph is dense or stored as a matrix', 'Prim with the matrix', 'O(V^2) beats O(E log V) when E is close to V^2'],
+    ['You need a forest for a disconnected graph', 'Kruskal', 'it returns one tree per component without any extra work'],
+    ['You want a tree grown from a given vertex', 'Prim', 'it starts at the vertex you name'],
+    ['You want shortest paths from a vertex', 'Dijkstra', 'an MST does not minimise distances from any single vertex'],
+  ]}
+/>
+
+## Applications
+
+- **Network design.** Cable, pipes or roads that connect every site for the least total length.
+- **Clustering.** Cutting the heaviest edges of an MST splits the points into groups.
+- **Approximation.** The MST is a building block for approximating the travelling salesman problem.
+- **Image segmentation and circuit layout.** Both need a cheap connected structure.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Confusing an MST with a shortest-path tree.** The MST minimises total weight. The path between two vertices inside it can be longer than their shortest path in the graph.
+- **Adding an edge without a cycle check in Kruskal.** The union-find test is what keeps the result a tree.
+- **Assuming the input is connected.** A disconnected graph has no spanning tree. Kruskal returns fewer than V - 1 edges without an error, and Prim silently leaves out vertices it cannot reach.
+- **Using the directed-graph version of the idea.** These algorithms are for undirected graphs. A minimum spanning arborescence of a directed graph needs a different algorithm.
+- **Expecting a unique tree.** Equal edge weights allow several minimum spanning trees.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which one should I learn first?">
+    Kruskal. The idea is simple, sort and skip cycles, and it introduces union-find. Prim is easier to picture as growth from one vertex, and its heap version is close to Dijkstra's algorithm.
+  </FaqItem>
+  <FaqItem question="Do they always give the same tree?">
+    They always give the same total weight. When the edge weights are all different the MST is unique, so they give the same tree. With ties, they can pick different edges of equal weight.
+  </FaqItem>
+  <FaqItem question="How is Prim different from Dijkstra?">
+    Both pull the cheapest candidate from a priority queue. Dijkstra ranks a vertex by its total distance from the source. Prim ranks it by the weight of the single edge that connects it to the tree.
+  </FaqItem>
+  <FaqItem question="Can an MST have negative edges?">
+    Yes. Both algorithms only compare weights, so negative weights are fine. This is unlike Dijkstra, which fails on them.
+  </FaqItem>
+</Faq>

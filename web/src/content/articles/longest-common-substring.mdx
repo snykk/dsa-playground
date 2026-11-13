@@ -1,0 +1,178 @@
+---
+topic: Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring
+title: Longest Common Substring
+lead: The longest common substring of two strings is the longest block of consecutive characters that appears in both. A dynamic-programming table of matching-run lengths solves it in O(m*n) time; a suffix array can do it in near-linear time.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(m*n)
+    hint: one table cell per pair of positions
+  - label: Space (this repo)
+    value: O(m*n)
+    hint: the full table; two rows would be enough
+    tone: warn
+  - label: Approach
+    value: Dynamic programming
+  - label: Returns
+    value: One longest substring
+    hint: the one that ends first in s1
+properties:
+  - { label: Contiguous (a substring, not a subsequence), value: true }
+  - { label: Handles empty input, value: true }
+  - { label: Finds all longest substrings, value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming
+related:
+  - Algorithms/String_Algorithms/Advanced_String/Suffix_Array
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Longest_Palindromic_Substring_Manachers
+---
+
+## How it works
+
+A common substring of `s1` and `s2` is a run of characters that occurs, unbroken, in both. Every such run ends at some pair of positions `(i, j)` with `s1[i-1] == s2[j-1]`. Let `dp[i][j]` be the length of the longest common run that ends exactly at `s1[i-1]` and `s2[j-1]`.
+
+<Steps>
+  <Step title="Create a table of zeros">
+    `dp` has `m + 1` rows and `n + 1` columns, where `m` and `n` are the string lengths. Row 0 and column 0 stay 0: an empty prefix has no common run.
+  </Step>
+  <Step title="Fill it row by row">
+    If `s1[i-1] == s2[j-1]`, the run extends the one that ended at the previous pair of positions: `dp[i][j] = dp[i-1][j-1] + 1`. Otherwise `dp[i][j] = 0`, because a mismatch breaks any run.
+  </Step>
+  <Step title="Track the maximum">
+    Whenever a cell is strictly larger than the best so far, remember its length and its row `i` (and column `j` in Python).
+  </Step>
+  <Step title="Cut out the answer">
+    The answer is `s1[i - best .. i - 1]`. If no character matched, the best length is 0 and the answer is the empty string.
+  </Step>
+</Steps>
+
+<Callout title="Why the reset to zero matters">
+This is the one difference from the longest common subsequence. A subsequence may skip characters, so on a mismatch it carries the best value forward with `max`. A substring may not skip, so on a mismatch the run is over and the cell is 0. The answer is the largest cell anywhere in the table, not the bottom-right one.
+</Callout>
+
+## Worked example
+
+For `s1 = ABABC` and `s2 = BABCA`, this is the table the code fills in. Cells that are 0 are mismatches.
+
+<GridDiagram
+  corner="s1 / s2"
+  colLabels={['', 'B', 'A', 'B', 'C', 'A']}
+  rowLabels={['', 'A', 'B', 'A', 'B', 'C']}
+  rows={[
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0, 1],
+    [0, 1, 0, 2, 0, 0],
+    [0, 0, 2, 0, 0, 1],
+    [0, 1, 0, 3, 0, 0],
+    [0, 0, 0, 0, 4, 0],
+  ]}
+  tones={['......', '......', '.l....', '..l...', '...l..', '....f.']}
+  legend={{ f: 'the largest cell: the longest common substring ends here', l: 'a cell on the diagonal run that leads to it' }}
+/>
+
+The run `1, 2, 3, 4` on the diagonal ends at `(5, 4)`, so the best length is 4 and the answer is `s1[5-4 .. 4] = BABC`. The code returns `("BABC", 4, 1, 0)`: the substring, its length, and its start in `s1` (1) and in `s2` (0).
+
+## Pseudocode
+
+```text
+longestCommonSubstring(s1, s2):
+    m = len(s1); n = len(s2)
+    dp = (m + 1) x (n + 1) table of zeros
+    best = 0; endI = 0; endJ = 0
+    for i = 1 to m:
+        for j = 1 to n:
+            if s1[i-1] == s2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+                if dp[i][j] > best:
+                    best = dp[i][j]; endI = i; endJ = j
+            else:
+                dp[i][j] = 0
+    if best == 0: return ""
+    return s1[endI - best .. endI - 1]
+```
+
+## Implementation
+
+Python returns a tuple `(substring, length, start_in_s1, start_in_s2)`. C++ and Go return only the substring. All three break ties the same way: only a strictly longer run replaces the best, so among equally long answers the one that ends first in `s1` wins (for `abcxyz` and `xyzabc` the answer is `abc`, not `xyz`). Python and C++/Go differ on indices: Python counts code points, C++ and Go count bytes.
+
+<TopicCode topic="Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(m*n)', when: 'Every cell is computed once, in constant time, in every case.' },
+    { case: 'Space (this repo)', time: 'O(m*n)', space: 'O(m*n)', when: 'The code keeps the whole table.' },
+    { case: 'Space (improved)', time: 'O(m*n)', space: 'O(min(m, n))', when: 'Row i needs only row i-1, so two rows suffice. This is not implemented here; the best length and where it ended must then be tracked while filling.' },
+  ]}
+/>
+
+<Equation label="Recurrence" expr="dp[i][j] = dp[i-1][j-1] + 1 if s1[i-1] = s2[j-1], else 0" result="answer = max over all i, j" />
+
+## Choosing an approach
+
+<DataTable
+  columns={['Approach', 'Time', 'Space', 'Idea']}
+  highlight={0}
+  rows={[
+    ['DP table (this repo)', 'O(m*n)', 'O(m*n)', 'longest matching run ending at each pair of positions'],
+    ['DP with two rows', 'O(m*n)', 'O(min(m, n))', 'same recurrence, rolling rows'],
+    ['Suffix array of s1 + separator + s2', 'O(n log n) with a fast build', 'O(m + n)', 'the largest LCP between neighbouring suffixes from different strings'],
+    ['Binary search on length + hashing', 'O((m + n) log min(m, n)) expected', 'O(m + n)', 'a common substring of length L implies one of every shorter length'],
+    ['Suffix automaton', 'O(m + n)', 'O(m + n)', 'build it for s1, walk s2 through it'],
+  ]}
+/>
+
+The suffix-array route concatenates the strings with a separator that occurs in neither, sorts the suffixes, and looks for the largest common prefix between adjacent suffixes that start in different strings. The repository's suffix array does not include an LCP array, so that variant is described but not implemented here.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Short, easy to verify, and correct for any alphabet.',
+    'Worst case equals best case: no input makes it slower.',
+    'The same table also yields where the substring starts in each string (Python).',
+  ]}
+  cons={[
+    'Quadratic time: too slow for strings of millions of characters.',
+    'The full table needs O(m*n) memory here.',
+    'It returns only one answer when several substrings tie.',
+    'It handles two strings; k strings need a suffix structure.',
+  ]}
+/>
+
+## Applications
+
+- **DNA and protein analysis.** Finding the longest exactly shared stretch of two sequences.
+- **Plagiarism and duplicate detection.** Locating the longest verbatim overlap of two documents.
+- **Diffing exact blocks.** Anchoring a comparison on the longest shared block (a diff proper uses the longest common subsequence).
+- **Interview problems.** The same recurrence solves the longest repeated subarray problem on integer arrays.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Carrying the maximum on a mismatch.** `dp[i][j] = max(...)` is the subsequence recurrence. For a substring, reset to 0.
+- **Returning `dp[m][n]`.** The longest run can end anywhere; keep the maximum over all cells.
+- **Slicing with the wrong index.** `i` is one past the last matched character, so the substring is `s1[i - best : i]`.
+- **Confusing the returned indices.** The Python tuple holds start indices, not end indices.
+- **Subsequence versus substring.** `ace` is a common subsequence of `abcde` and `ace`, but the longest common substring is a single character.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What is the difference between a substring and a subsequence?">
+    A substring is contiguous; a subsequence may skip characters. For `abcde` and `ace`, the longest common subsequence is `ace` (length 3), while the longest common substring has length 1.
+  </FaqItem>
+  <FaqItem question="Can I reduce the memory?">
+    Yes. Row `i` depends only on row `i-1`, so two rows (O(min(m, n)) cells) are enough if you also remember the best length and where it ended. The code here keeps the whole table for clarity.
+  </FaqItem>
+  <FaqItem question="Which substring is returned when several tie?">
+    The one that ends first in `s1`: a cell replaces the best only when it is strictly larger. Among ties ending at the same row, the one with the smallest column wins in Python.
+  </FaqItem>
+  <FaqItem question="Is there a faster algorithm?">
+    Yes. A suffix array or suffix automaton solves it in near-linear time. For two strings of a few thousand characters the quadratic table is fine.
+  </FaqItem>
+</Faq>

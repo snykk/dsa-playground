@@ -1,0 +1,209 @@
+---
+topic: Data_Structures/Advanced_Structures/LFU_Cache
+title: LFU Cache
+lead: An LFU (least frequently used) cache has a fixed capacity and, when full, evicts the entry that was accessed the fewest times, breaking ties by evicting the least recently used of them. With a hash map plus one list per frequency, both get and put take O(1) time.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: get
+    value: O(1)
+  - label: put
+    value: O(1)
+  - label: Space
+    value: O(capacity)
+  - label: Eviction rule
+    value: Lowest count
+    hint: ties go to the least recently used
+    tone: warn
+properties:
+  - { label: Fixed capacity, value: true }
+  - { label: Tie-break by recency, value: true }
+  - { label: Adapts to shifting popularity, value: false }
+  - { label: Thread-safe, value: false }
+prerequisites:
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Linear/Linked_List/Doubly
+related:
+  - Data_Structures/Advanced_Structures/LRU_Cache
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Linear/Queue/Priority_Queue
+---
+
+## What an LFU cache is
+
+A cache keeps a limited number of key-value pairs so that repeated reads are fast. When it is full and a new key arrives, something must go. LFU removes the key with the **smallest access count**. If several keys share that count, it removes the one used **longest ago**.
+
+A heap ordered by count would cost O(log n). To reach O(1) the code keeps three things:
+
+- a hash map `key -> (value, count)` for lookup;
+- a map `count -> ordered bucket of keys`, where the bucket keeps its keys in recency order;
+- an integer `min_freq`, the smallest count that currently has a non-empty bucket.
+
+<ListDiagram
+  kind="doubly"
+  values={['A', 'B', 'C']}
+  tones="fll"
+  pointers={{ 0: 'LRU (evicted first)', 2: 'MRU' }}
+  legend={{ f: 'the next eviction victim', l: 'other keys with the same count' }}
+  caption="The bucket for count 1 when `min_freq = 1`. New or promoted keys join at the MRU end; the victim is taken from the LRU end."
+/>
+
+<DataTable
+  columns={['Count bucket', 'Keys, LRU first', 'Comment']}
+  rows={[
+    ['`1`', 'A, B, C', 'this is `min_freq`: evict from here, A first'],
+    ['`2`', 'D, E', 'touched twice'],
+    ['`3`', 'F', 'touched three times'],
+  ]}
+/>
+
+<Callout title="The invariant">
+Every cached key is in exactly one bucket, the bucket number equals its access count, and `min_freq` is the smallest non-empty bucket. Putting a new key always creates a count-1 bucket entry, so `min_freq` becomes 1 at that moment. It only moves up when promoting the last key out of the `min_freq` bucket, and then to exactly count + 1, because that key just landed there.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`LFUCache(capacity)`', 'empty cache; a negative capacity raises in Python and C++ and is treated as 0 in Go', 'O(1)'],
+    ['`get(key)`', 'return the value and promote the key to count + 1; return -1 on a miss', 'O(1)'],
+    ['`put(key, value)`', 'update and promote an existing key; otherwise evict if full, then insert with count 1', 'O(1)'],
+  ]}
+/>
+
+Capacity 0 is valid: `get` always returns -1 and `put` does nothing. The names are `get`/`put` in Python and C++ and `Get`/`Put` in Go. Both operations take and return `int`, and -1 doubles as the miss marker, so a stored -1 cannot be told from a miss.
+
+### Promote: what get does
+
+On a hit, the key leaves bucket f, joins bucket f + 1 at the MRU end, and its count goes up. If bucket f is now empty it is deleted, and if `f == min_freq` then `min_freq` becomes f + 1.
+
+### Put with eviction
+
+For a new key in a full cache, take the LRU end of bucket `min_freq`, delete that key from the map (and the bucket, if it is now empty), then insert the new key at the MRU end of bucket 1 and set `min_freq = 1`.
+
+### Walk-through, capacity 2
+
+This is the LeetCode 460 style trace, run on the repository code. Buckets are listed LRU first.
+
+<DataTable
+  columns={['Call', 'Returns', { label: 'Buckets', kind: 'mono' }, { label: 'min_freq', kind: 'mono' }]}
+  rows={[
+    ['`put(1, 10)`', '-', '1: [1]', '1'],
+    ['`put(2, 20)`', '-', '1: [1, 2]', '1'],
+    ['`get(1)`', '10', '1: [2], 2: [1]', '1'],
+    ['`put(3, 30)`', '-', '1: [3], 2: [1]   (evicted 2)', '1'],
+    ['`get(2)`', '-1', '1: [3], 2: [1]', '1'],
+    ['`get(3)`', '30', '2: [1, 3]   (bucket 1 emptied)', '2'],
+    ['`put(4, 40)`', '-', '1: [4], 2: [3]   (evicted 1)', '1'],
+  ]}
+/>
+
+At the last step both keys have count 2, and key 1 was promoted into that bucket first, so it is the LRU and goes.
+
+<ListDiagram
+  kind="doubly"
+  values={[1, 3]}
+  tones="fl"
+  pointers={{ 0: 'LRU', 1: 'MRU' }}
+  legend={{ f: 'evicted by put(4, 40)', l: 'stays' }}
+  caption="Bucket for count 2 just before `put(4, 40)`. Both keys have the same count, so recency decides."
+/>
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['get', 'O(1)', 'one hash lookup, one unlink, one insert at a bucket end'],
+    ['put (existing key)', 'O(1)', 'same as get'],
+    ['put (new key, full)', 'O(1)', 'the victim is at the end of `buckets[min_freq]`; no scan, because `min_freq` is maintained'],
+    ['space', 'O(capacity)', 'one entry per key, plus at most one bucket per distinct count'],
+  ]}
+/>
+
+Space stays O(capacity) only if empty buckets are removed. The Python version once left emptied buckets behind after an eviction, so memory grew with the number of evictions. It now deletes them, like the C++ and Go versions.
+
+Counts are unbounded integers in Python and `int` in C++ and Go; overflow is only a concern after billions of accesses to one key.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Why']}
+  rows={[
+    ['Plain LFU (this code)', 'counts never decay', 'simple, but old hot keys stay forever'],
+    ['LFU with aging (LFU-DA)', 'counts are discounted over time', 'adapts when popularity shifts'],
+    ['TinyLFU / W-TinyLFU', 'approximate counts in a small sketch, with an admission filter', 'used by some production caches to save memory'],
+    ['O(log n) heap LFU', 'a priority queue keyed by (count, last use)', 'easier to write, slower per operation'],
+  ]}
+/>
+
+## LFU vs other eviction policies
+
+<DataTable
+  columns={['Policy', 'Evicts', 'Strength', 'Weakness']}
+  highlight={0}
+  rows={[
+    ['LFU', 'lowest access count, then least recent', 'keeps stable hot keys through scans', 'slow to forget; a key that was hot long ago stays'],
+    ['LRU', 'least recently used', 'adapts quickly, one list only', 'a single large scan flushes the cache'],
+    ['FIFO', 'oldest inserted', 'trivial', 'ignores reuse entirely'],
+    ['Random', 'a random entry', 'no bookkeeping', 'unpredictable hit rate'],
+  ]}
+/>
+
+Start with LRU. Move to LFU when popularity is stable and scans pollute an LRU cache.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Protects genuinely popular keys from one-off scans.',
+    'Every operation is O(1).',
+    'Deterministic: the tie-break by recency makes the victim unique.',
+  ]}
+  cons={[
+    'Counts never decrease, so yesterday popular keys can block today ones.',
+    'A new key starts at count 1 and is the first victim; it may be evicted before it has a chance to be reused.',
+    'More state than LRU: a map of buckets plus `min_freq`.',
+    'Not thread-safe; callers must lock.',
+  ]}
+/>
+
+## Applications
+
+- Content or page caches with a stable hot set.
+- Database and CDN caches where popularity changes slowly.
+- Interview design problems: LeetCode 460 (LFU Cache) and 146 (LRU Cache) for comparison.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Wrong `min_freq` update.** Reset to 1 on every new insert. On a promotion, bump it only when the bucket you left was `min_freq` and became empty.
+- **Losing the tie-break.** Buckets must keep recency order (an ordered list or `OrderedDict`). A plain set per bucket cannot tell which key is the LRU.
+- **Evicting on an update.** `put` on an existing key updates and promotes; it never evicts.
+- **Forgetting capacity 0.** Return -1 from `get` and ignore `put`, otherwise the eviction step runs on an empty cache.
+- **Copying the C++ cache.** The map stores iterators into the bucket lists, so a copy would point into the original. The copy constructor and copy assignment are deleted; moving is allowed.
+</Callout>
+
+## Implementation
+
+Python uses a dictionary of `OrderedDict` buckets (head is the LRU, tail is the MRU). C++ uses `std::list` buckets with the MRU at the front and an iterator stored per key. Go uses `container/list` with the MRU at the front. In all three the eviction order is the same.
+
+<TopicCode topic="Data_Structures/Advanced_Structures/LFU_Cache" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why do we need min_freq?">
+    To find the victim in O(1). Without it you would scan all buckets for the smallest non-empty count, or keep a heap, which costs O(log n).
+  </FaqItem>
+  <FaqItem question="Why a list per bucket instead of a set?">
+    The tie-break needs the order in which keys reached that count. A list or ordered dict gives that and still supports O(1) removal when you have a handle to the node.
+  </FaqItem>
+  <FaqItem question="What does get on a missing key do to the counts?">
+    Nothing. A miss returns -1 and changes no count or bucket.
+  </FaqItem>
+  <FaqItem question="How is LFU different from LRU on a scan?">
+    A scan touches many keys once. LRU would evict the hot keys to make room for them. LFU evicts the scan keys first, since they have count 1 and the hot keys have higher counts.
+  </FaqItem>
+</Faq>

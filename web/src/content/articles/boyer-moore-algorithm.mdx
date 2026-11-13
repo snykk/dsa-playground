@@ -1,0 +1,194 @@
+---
+topic: Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm
+title: Boyer-Moore Algorithm
+lead: Boyer-Moore compares the pattern from right to left and, on a mismatch, uses the mismatching text character to jump ahead, often by the whole pattern length. On long patterns and large alphabets it reads only a fraction of the text. This repository implements the bad-character rule.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Best case
+    value: O(n/m)
+    hint: most characters are never read
+  - label: Worst case
+    value: O(n*m)
+    hint: bad-character rule only, e.g. pattern baaa on aaaa...
+    tone: warn
+  - label: Preprocessing
+    value: O(m)
+    hint: last-occurrence table
+  - label: Space
+    value: O(sigma)
+    hint: one entry per distinct pattern character
+properties:
+  - { label: Compares right to left, value: true }
+  - { label: Good-suffix rule, value: false }
+  - { label: Finds overlapping matches, value: true }
+  - { label: Linear in the worst case, value: false }
+prerequisites:
+  - Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search
+related:
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Z_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching
+---
+
+## How Boyer-Moore works
+
+Imagine the pattern sliding along under the text. The naive algorithm compares left to right and slides one step after every mismatch. Boyer-Moore looks at the **last** character of the window first. If that character does not occur in the pattern at all, no alignment that covers it can match, so the pattern can jump past it. Even a character that does occur in the pattern gives a safe jump: line up its rightmost occurrence in the pattern with it.
+
+<Steps>
+  <Step title="Build the bad-character table">
+    For each character `c` of the pattern store the index of its **rightmost** occurrence: `last[c]`. A character not in the table counts as `-1`.
+  </Step>
+  <Step title="Compare right to left">
+    At alignment `s`, compare `pattern[m-1]` with `text[s+m-1]`, then `pattern[m-2]`, and so on, while the characters are equal.
+  </Step>
+  <Step title="On a mismatch at index j, shift by the bad character">
+    The text character `c = text[s+j]` is the bad character. Shift by `max(1, j - last[c])`. If `c` is not in the pattern the shift is `j + 1`; if its rightmost occurrence lies to the left of `j` it is `j - last[c]`; if it lies to the right the formula is not positive and the shift is 1.
+  </Step>
+  <Step title="On a full match, report and shift past it">
+    Record `s`. If there is a text character just after the window, shift by `m - last[text[s+m]]` so that character lines up with its rightmost occurrence in the pattern (a shift of `m + 1` when it is absent). At the end of the text, shift by 1.
+  </Step>
+</Steps>
+
+<Callout title="Why the jump is safe">
+No alignment between `s` and `s + shift` can match. Before the jump, the pattern would have to put the bad character `c` over a pattern position holding `c`. The rightmost such position is `last[c]`, so every closer alignment would leave a mismatch under `c`.
+</Callout>
+
+## See it in action
+
+Enter a text and a pattern. The pattern is compared from its right end, the bad character is highlighted, and the next alignment jumps by the shift the table gives. Try the textbook example, then the worst case (`AAAA...` against `BAAA`) to see the jumps shrink to 1.
+
+<ArticleViz ids={['boyer-moore']} />
+
+## Worked example
+
+Search `EXAMPLE` in `HERE IS A SIMPLE EXAMPLE`. The table is `E:6, X:1, A:2, M:3, P:4, L:5`. The text has 24 characters and the pattern 7, so 18 alignments are possible; Boyer-Moore tries 5 of them.
+
+<ArrayDiagram
+  legend={{ c: 'the pattern window', f: 'the match', m: 'characters never examined at this alignment' }}
+  rows={[
+    { label: 's = 0', values: ['H', 'E', 'R', 'E', ' ', 'I', 'S', ' ', 'A', ' ', 'S', 'I', 'M', 'P', 'L', 'E', ' ', 'E', 'X', 'A', 'M', 'P', 'L', 'E'], tones: 'ccccccc.................', marks: { 6: 'S' }, note: '`S` (text) vs `E` (pattern end) mismatches at `j = 6`. `S` is not in the pattern: shift `6 - (-1) = 7`.' },
+    { label: 's = 7', values: ['H', 'E', 'R', 'E', ' ', 'I', 'S', ' ', 'A', ' ', 'S', 'I', 'M', 'P', 'L', 'E', ' ', 'E', 'X', 'A', 'M', 'P', 'L', 'E'], tones: '.......ccccccc..........', marks: { 13: 'P' }, note: '`P` vs `E` at `j = 6`. `last[P] = 4`: shift `6 - 4 = 2`.' },
+    { label: 's = 9', values: ['H', 'E', 'R', 'E', ' ', 'I', 'S', ' ', 'A', ' ', 'S', 'I', 'M', 'P', 'L', 'E', ' ', 'E', 'X', 'A', 'M', 'P', 'L', 'E'], tones: '.........ccccccc........', marks: { 11: 'I' }, note: '`E`, `L`, `P`, `M` match, then `I` vs `A` at `j = 2`. `I` is absent: shift `2 + 1 = 3`.' },
+    { label: 's = 12', values: ['H', 'E', 'R', 'E', ' ', 'I', 'S', ' ', 'A', ' ', 'S', 'I', 'M', 'P', 'L', 'E', ' ', 'E', 'X', 'A', 'M', 'P', 'L', 'E'], tones: '............ccccccc.....', marks: { 18: 'X' }, note: '`X` vs `E` at `j = 6`. `last[X] = 1`: shift `6 - 1 = 5`.' },
+    { label: 's = 17', values: ['H', 'E', 'R', 'E', ' ', 'I', 'S', ' ', 'A', ' ', 'S', 'I', 'M', 'P', 'L', 'E', ' ', 'E', 'X', 'A', 'M', 'P', 'L', 'E'], tones: '.................fffffff', note: 'All seven characters match: report 17. There is no text after the window, so the search ends.' },
+  ]}
+/>
+
+Counting every character comparison, the search above makes 15, while the naive scan makes 27 on the same input, so the saving here is small: the real gain comes with longer patterns.
+
+## Pseudocode
+
+```text
+build_bad_char_table(pattern):
+    for i = 0 to m - 1:
+        last[pattern[i]] = i            # the rightmost occurrence wins
+
+boyer_moore_search(text, pattern):
+    if pattern is empty or text is empty or m > n: return []
+    last = build_bad_char_table(pattern)
+    s = 0
+    while s <= n - m:
+        j = m - 1
+        while j >= 0 and pattern[j] == text[s + j]: j -= 1
+        if j < 0:
+            report s
+            if s + m < n: s += m - last.get(text[s + m], -1)
+            else:         s += 1
+        else:
+            s += max(1, j - last.get(text[s + j], -1))
+```
+
+## Implementation
+
+All three languages follow the pseudocode. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`**, as in the other searches in this section. Python also has `boyer_moore_search_count` and `boyer_moore_search_first`. In C++ the absent-character lookup uses `find`, because `unordered_map::operator[]` would insert the character with value 0 and shrink the shift. Python indexes code points; C++ and Go index bytes.
+
+<TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n/m)', when: 'The last character of every window is absent from the pattern, so the pattern jumps by m + 1 and most of the text is never read.' },
+    { case: 'Average case', time: 'O(n)', when: 'On natural text over a large alphabet shifts are long; the cost grows as the alphabet shrinks or the pattern gets short.' },
+    { case: 'Worst case', time: 'O(n*m)', when: 'The pattern mismatches at the far left every time and the shift is 1. With only the bad-character rule: pattern `baaa` in `aaaa...a`.' },
+  ]}
+/>
+
+<Equation label="Preprocessing" expr="one pass over the pattern, one table entry per distinct character" result="O(m) time, O(sigma) space" />
+
+The full Boyer-Moore algorithm adds the **good-suffix rule**, which uses the part of the pattern that already matched to decide the shift, and with Galil's refinement it runs in O(n + m) in the worst case. That rule is not implemented here, so this code is the bad-character (Horspool-style) variant and keeps the O(n*m) worst case.
+
+## Choosing a variant
+
+<DataTable
+  columns={['Variant', 'Rule', 'Worst case', 'In this repo']}
+  rows={[
+    ['Bad character only', 'shift by the mismatching text character', 'O(n*m)', 'Yes'],
+    ['Horspool', 'always shift by the text character under the last pattern position', 'O(n*m)', 'No'],
+    ['Full Boyer-Moore', 'bad character and good suffix, take the larger shift', 'O(n*m); O(n + m) with Galil', 'No'],
+  ]}
+/>
+
+## Boyer-Moore vs alternatives
+
+<DataTable
+  columns={['Algorithm', { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Best for']}
+  highlight={0}
+  rows={[
+    ['Boyer-Moore (bad character)', 'O(n/m)', 'O(n*m)', 'O(sigma)', 'long patterns, large alphabets'],
+    ['Naive', 'O(n)', 'O(n*m)', 'O(1)', 'tiny inputs'],
+    ['KMP', 'O(n + m)', 'O(n + m)', 'O(m)', 'a guaranteed bound, streaming'],
+    ['Rabin-Karp', 'O(n + m)', 'O(n*m)', 'O(1)', 'many patterns of one length'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Sublinear on typical text: it can skip most characters.',
+    'Gets faster as the pattern gets longer.',
+    'The table is tiny and the code is short.',
+  ]}
+  cons={[
+    'The bad-character rule alone is O(n*m) in the worst case.',
+    'Weak on small alphabets (binary, DNA) where most characters occur in the pattern.',
+    'It reads the text backwards within each window, so it cannot stream the input.',
+    'The full algorithm with the good-suffix rule is long and subtle.',
+  ]}
+/>
+
+## Applications
+
+- **Text search in editors and tools**, where patterns are long and the alphabet is large.
+- **Searching natural-language text**, where many characters never occur in the pattern.
+- **A teaching case** for how preprocessing the pattern lets an algorithm skip text.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using the leftmost occurrence.** The table must store the **rightmost** index of each character; the leftmost can shift past a valid match.
+- **A negative or zero shift.** If the bad character sits to the right of `j` in the pattern, `j - last[c]` is not positive. Always take `max(1, ...)`.
+- **Inserting into the table on lookup.** A default of 0 (for example `operator[]` in C++) treats an absent character as present at index 0 and shrinks the shift. Use a lookup that returns `-1`.
+- **Expecting linear time.** Without the good-suffix rule the worst case is quadratic.
+- **Shifting by the pattern length after a match.** That skips overlapping matches (`aa` in `aaaa`); shift by `m - last[text[s+m]]`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why compare from right to left?">
+    A mismatch at the right end of the window rules out the largest number of alignments. Comparing the last character first lets the table's jump cover the whole pattern when that character is absent from it.
+  </FaqItem>
+  <FaqItem question="Is the code here the full Boyer-Moore algorithm?">
+    No. It implements the bad-character rule only, plus a next-character shift after a match. The good-suffix rule is missing, so the worst case is O(n*m) instead of O(n + m).
+  </FaqItem>
+  <FaqItem question="When is Boyer-Moore slower than KMP?">
+    On small alphabets and short patterns, and on adversarial input such as `baaa` in `aaaa...a`. KMP's O(n + m) holds for every input.
+  </FaqItem>
+  <FaqItem question="What does the empty pattern return?">
+    `[]` in all three languages, as in the naive, KMP and Rabin-Karp searches here. Library searches differ: `'abc'.find('')`, `std::string::find` and `strings.Index` report a match at index 0, so check the convention before swapping one in.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,27 @@
+/**
+ * Selection Sort Implementation (C++)
+ */
+
+#include <vector>
+#include <algorithm>
+
+template<typename T>
+void selectionSort(std::vector<T>& arr) {
+    for (size_t i = 0; i < arr.size(); ++i) {
+        size_t min_idx = i;
+        
+        for (size_t j = i + 1; j < arr.size(); ++j) {
+            if (arr[j] < arr[min_idx]) {
+                min_idx = j;
+            }
+        }
+        
+        if (min_idx != i) {  // skip self-swaps: at most n - 1 swaps in total
+            std::swap(arr[i], arr[min_idx]);
+        }
+    }
+}
+
+template void selectionSort<int>(std::vector<int>&);
+template void selectionSort<double>(std::vector<double>&);
+

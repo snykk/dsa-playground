@@ -1,85 +1,53 @@
 # Strongly Connected Components
 
-**Strongly Connected Components (SCCs)** are maximal sets of vertices in a directed graph where every vertex is reachable from every other vertex in the component.
+A strongly connected component is a maximal group of vertices in a directed graph that can all reach each other. Kosaraju and Tarjan both find every component in O(V + E) time with DFS. Kosaraju uses two passes and the reversed graph, Tarjan one pass and a stack.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-A strongly connected component is a maximal set of vertices in a directed graph such that for every pair of vertices u and v in the component, there is a path from u to v and from v to u.
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Kosaraju's Algorithm](Kosarajus_Algorithm/) | Two DFS passes. Finish order on the graph, then flood the reversed graph in reverse finish order. Easy to prove and to follow. | Advanced |
+| 2 | [Tarjan's SCC Algorithm](Tarjans_Algorithm/) | One DFS with discovery times, low-links and a stack. A vertex whose low-link equals its discovery time roots a component. | Advanced |
 
-**Key Insight**: In a strongly connected component, every vertex can reach every other vertex.
+Both return the same sets of vertices. Every vertex belongs to exactly one component, and shrinking each component to one vertex gives a DAG, the condensation.
 
----
+## How They Compare
 
-## Algorithms
+| Property | Kosaraju | Tarjan |
+|----------|----------|--------|
+| DFS passes | 2 | 1 |
+| Needs the reversed graph | yes | no |
+| Core idea | the vertex that finishes last in pass 1 lies in a source component | a vertex with low-link equal to its discovery time is a component root |
+| Output order | source component first (topological order) | sink component first (reverse topological order) |
+| Time | O(V + E) | O(V + E) |
+| Extra space | O(V + E), the transposed graph | O(V), indices, low-links and a stack |
+| Python version | iterative DFS | iterative DFS |
 
-### 1. Kosaraju's Algorithm
-- **Time Complexity**: O(V + E)
-- **Space Complexity**: O(V)
-- **Approach**: Two DFS passes (original graph, then reversed graph)
-- **Best For**: Intuitive understanding
+On the graph with edges `0->1`, `1->2`, `1->3`, `2->0`, `3->4`, `4->5`, `5->3`, Kosaraju returns `[0, 2, 1]` then `[3, 5, 4]`, and Tarjan returns `[5, 4, 3]` then `[2, 1, 0]`. The sets are the same; the order of the components and of the vertices inside them differs.
 
-### 2. Tarjan's Algorithm
-- **Time Complexity**: O(V + E)
-- **Space Complexity**: O(V)
-- **Approach**: Single DFS pass with low-link values
-- **Best For**: Efficiency (single pass)
+## Choosing One
 
----
+| Situation | Use | Why |
+|-----------|-----|-----|
+| Learning, or you want a result that is easy to explain | Kosaraju | two plain DFS passes and a clear correctness argument |
+| Memory is tight, or the graph cannot be reversed cheaply | Tarjan | one pass, and no second copy of the graph |
+| You will feed the components into 2-SAT | Tarjan | its output order gives the assignment directly |
+| You need the components in topological order | Kosaraju | it already lists the source component first |
+| Only a yes or no on whether the graph is one component | either | both provide an `is_strongly_connected` helper in Python |
 
-## Comparison
+## Common Pitfalls
 
-| Aspect | Kosaraju's | Tarjan's |
-|--------|------------|----------|
-| **Passes** | 2 DFS passes | 1 DFS pass |
-| **Graph Reversal** | Required | Not required |
-| **Complexity** | O(V + E) | O(V + E) |
-| **Intuition** | More intuitive | More complex |
-| **Memory** | O(V) | O(V) |
+- On an undirected graph every connected component is strongly connected, so a plain traversal does the job.
+- Kosaraju and Tarjan return opposite orders of components. Code that relies on one breaks when you swap in the other.
+- A recursive DFS overflows the call stack on a long cycle. The Python versions here use an explicit stack.
+- Kosaraju's second pass must run on the transposed graph, in reverse finish order.
+- In Tarjan, an edge to a finished vertex in another component must not update the low-link.
 
----
+## Related
 
-## Key Characteristics
-
-- ✅ **Directed graphs**: Only works on directed graphs
-- ✅ **Cycle detection**: Can detect cycles
-- ✅ **Condensation graph**: Can build DAG of SCCs
-- ✅ **Efficient**: O(V + E) time complexity
-
----
-
-## Applications
-
-1. **Compiler Design**: Finding loops and dependencies
-2. **Social Networks**: Finding communities
-3. **Web Analysis**: Finding related web pages
-4. **Circuit Design**: Finding feedback loops
-5. **Graph Decomposition**: Breaking graph into components
-
----
-
-## Implementations
-
-- **[Kosaraju's Algorithm](./Kosaraju's_Algorithm/)** - Two-pass algorithm
-- **[Tarjan's Algorithm](./Tarjan's_Algorithm/)** - Single-pass algorithm
-
-Each implementation includes:
-- Python, C++, and Go versions
-- Comprehensive test suites
-- Detailed documentation
-
----
-
-## Related Algorithms
-
-- **Topological Sort**: Works on DAG (condensation graph of SCCs)
-- **DFS**: Core traversal algorithm
-- **Graph Reversal**: Used in Kosaraju's algorithm
-- **[2-SAT Solver](../2-SAT/README.md)**: The flagship application of SCC — each 2-SAT clause becomes two implications, and satisfiability reduces to "does any variable share an SCC with its negation?" Linear-time SAT decision procedure built directly on top of this module.
-- **[Tarjan's Bridges & Articulation Points](../Tarjan_Bridges_Articulation/README.md)**: The _undirected_-graph cousin — same `disc[]` / `low[]` timestamp machinery, different edge rules. Both descend from Tarjan's original DFS framework.
-
----
-
-_Last Updated: December 2025_
-
+- [Depth-First Search (DFS)](../../Traversal/DFS/): read first.
+- [2-SAT](../2_SAT/): the main application. A formula is unsatisfiable exactly when a variable shares a component with its negation.
+- [Topological Sort](../Topological_Sort/): orders the condensation DAG.
+- [Bridges and Articulation Points](../Tarjan_Bridges_Articulation/): the same discovery-time and low-link idea on undirected graphs.

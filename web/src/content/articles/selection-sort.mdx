@@ -1,0 +1,190 @@
+---
+topic: Algorithms/Sorting/Selection_Sort
+title: Selection Sort
+lead: Selection Sort repeatedly finds the smallest element of the unsorted part and swaps it to the front. It always makes n(n - 1)/2 comparisons, but at most n - 1 swaps, which makes it the sort to remember when writing is expensive.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time (all cases)
+    value: O(n^2)
+    hint: n(n - 1)/2 comparisons whatever the input
+    tone: warn
+  - label: Swaps
+    value: At most n - 1
+    hint: far fewer than Bubble or Insertion Sort
+  - label: Extra space
+    value: O(1)
+  - label: Approach
+    value: Select the minimum, swap it into place
+properties:
+  - { label: In-place, value: true }
+  - { label: Stable, value: false }
+  - { label: Adaptive, value: false }
+  - { label: Comparison sort, value: true }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Sorting/Bubble_Sort
+  - Algorithms/Sorting/Insertion_Sort
+  - Algorithms/Sorting/Heap_Sort
+  - Algorithms/Sorting/Merge_Sort
+---
+
+## How Selection Sort works
+
+The array is split into a sorted prefix on the left and an unsorted rest on the right. Each round **selects** the smallest element of the rest and puts it right after the prefix, so the prefix grows by one element that is already in its final position.
+
+<Steps>
+  <Step title="Scan the unsorted part">
+    Starting at index `i`, look at every element `arr[i..n-1]` and remember the index `min_idx` of the smallest one. Ties keep the first minimum, because the comparison is a strict `<`.
+  </Step>
+  <Step title="Swap it to the front">
+    If `min_idx` is not `i`, swap `arr[i]` and `arr[min_idx]`. When the minimum is already at `i`, nothing is written.
+  </Step>
+  <Step title="Grow the sorted prefix">
+    Move `i` one step to the right and repeat until only one element is left.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+Before round `i`, `arr[0..i-1]` holds the `i` smallest elements in sorted order, each in its final position. Everything in `arr[i..n-1]` is at least as large as everything in the prefix, so no later round ever touches the prefix again.
+</Callout>
+
+## See it in action
+
+Press play, or step through one comparison at a time. Blue bars are being compared, orange bars are the current minimum or are being swapped, and aqua bars have reached their final position. Count the swaps against the comparisons, and try the Nearly sorted example: the number of comparisons does not drop.
+
+<ArticleViz ids={['selection-sort']} />
+
+## Worked example
+
+Sorting `[29, 10, 14, 37, 13]` takes 10 comparisons (4 + 3 + 2 + 1) and 3 swaps. Two of the five rounds find the minimum already in place.
+
+<ArrayDiagram
+  legend={{ f: 'sorted prefix, final positions' }}
+  rows={[
+    { label: 'start', values: [29, 10, 14, 37, 13], tones: '.....' },
+    { label: 'round 0', values: [10, 29, 14, 37, 13], tones: 'f....', note: 'The minimum 10 is at index 1: swap it with 29.' },
+    { label: 'round 1', values: [10, 13, 14, 37, 29], tones: 'ff...', note: 'The minimum 13 is at index 4: swap it with 29.' },
+    { label: 'round 2', values: [10, 13, 14, 37, 29], tones: 'fff..', note: 'The minimum 14 is already at index 2: no swap.' },
+    { label: 'round 3', values: [10, 13, 14, 29, 37], tones: 'ffff.', note: 'The minimum 29 is at index 4: swap it with 37.' },
+    { label: 'round 4', values: [10, 13, 14, 29, 37], tones: 'fffff', note: 'Only one element is left, so it is in place.' },
+  ]}
+/>
+
+## Pseudocode
+
+```text
+selectionSort(arr):
+    n = length(arr)
+    for i = 0 to n - 1:
+        min_idx = i
+        for j = i + 1 to n - 1:
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        if min_idx != i:
+            swap(arr[i], arr[min_idx])
+    return arr
+```
+
+The last round (`i = n - 1`) scans nothing and cannot swap, so running it is harmless.
+
+## Implementation
+
+All three versions sort in place and follow the pseudocode, including the `min_idx != i` guard that skips useless self-swaps. Python's `selection_sort` returns the same list; C++ is a template over the element type of a `std::vector` (instantiated for `int` and `double`) and needs only `operator<`; Go sorts a `[]int`.
+
+<TopicCode topic="Algorithms/Sorting/Selection_Sort" />
+
+## Complexity analysis
+
+Round `i` always compares the minimum candidate with all `n - i - 1` elements after it, whatever their values:
+
+<Equation label="Comparisons" expr="(n - 1) + (n - 2) + ... + 1" result="n(n - 1)/2 = O(n^2)" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n^2)', space: 'O(1)', when: 'Already sorted: the scans still run in full, only the swaps disappear (0 swaps).' },
+    { case: 'Average case', time: 'O(n^2)', space: 'O(1)', when: 'n(n - 1)/2 comparisons and fewer than n swaps.' },
+    { case: 'Worst case', time: 'O(n^2)', space: 'O(1)', when: 'At most n - 1 swaps; the number of comparisons is the same as in every other case.' },
+  ]}
+/>
+
+<Callout title="Few writes, many reads">
+Bubble Sort and Insertion Sort do one move per inversion, up to `n(n - 1)/2` of them. Selection Sort never makes more than `n - 1` swaps. That is its one real advantage, and it matters only when moving an element is much more expensive than comparing two (for example, a very large record or a slow write medium).
+</Callout>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Notes']}
+  rows={[
+    ['Swap-based (this repository)', 'swap the minimum into position `i`', 'at most n - 1 swaps; not stable'],
+    ['Stable version', 'shift the elements between `i` and `min_idx` right, then insert the minimum', 'stable, but more writes; not implemented here'],
+    ['Bidirectional (double selection)', 'pick the minimum and maximum in one scan', 'halves the number of scans; not implemented here'],
+    ['Heap Sort', 'find the maximum with a heap instead of a scan', 'the same idea in O(n log n)'],
+  ]}
+/>
+
+## Selection Sort vs other simple sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Swaps (worst)', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Selection Sort', 'O(n^2)', 'O(n^2)', 'n - 1', 'No', 'fewest writes; never adapts'],
+    ['Bubble Sort', 'O(n)', 'O(n^2)', 'O(n^2)', 'Yes', 'adaptive, but many swaps'],
+    ['Insertion Sort', 'O(n)', 'O(n^2)', 'O(n^2) shifts', 'Yes', 'adaptive; the best of the simple sorts for most data'],
+    ['Heap Sort', 'O(n log n)', 'O(n log n)', 'O(n log n)', 'No', 'Selection Sort with a heap'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'At most n - 1 swaps: minimal data movement.',
+    'In place, with O(1) extra space.',
+    'Simple, with a running time that does not depend on the input.',
+    'Easy to prove correct with the sorted-prefix invariant.',
+  ]}
+  cons={[
+    'Always O(n^2) comparisons, even on sorted input: it is not adaptive.',
+    'Not stable: the long-distance swap can reorder equal keys.',
+    'Much slower than O(n log n) sorts on large arrays.',
+    'Slower than Insertion Sort on small or nearly sorted data.',
+  ]}
+/>
+
+## Applications
+
+- **Expensive writes.** When writing is far costlier than reading, for example flash memory with limited write cycles, the n - 1 swap bound helps.
+- **Teaching.** It shows the sorted-prefix invariant and how to count comparisons and swaps.
+- **Tiny arrays.** For a handful of elements the simplicity and low overhead are enough.
+- **Partial selection.** Stopping after `k` rounds gives the `k` smallest elements in order, in `O(k n)`.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Swapping the wrong index.** Swap `arr[i]` with `arr[min_idx]`, not with `arr[j]` at the end of the scan.
+- **Resetting `min_idx` wrongly.** It must start at `i` for every round, not at 0.
+- **Expecting stability.** Sorting `[2a, 2b, 1]` gives `[1, 2b, 2a]`: the first 2 is swapped to the far end and passes its twin. Sort `(key, index)` pairs if order of equal keys matters.
+- **Assuming it is faster on sorted input.** It is not: the scans always run in full.
+- **Using `<=` when searching for the minimum.** It picks the last of several equal minima and causes extra swaps.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is Selection Sort stable?">
+    No. The swap moves the minimum across the elements in between, so an equal element can end up behind its twin. For example `[2a, 2b, 1]` becomes `[1, 2b, 2a]`.
+  </FaqItem>
+  <FaqItem question="Why does it make at most n - 1 swaps?">
+    Each round fixes one element and swaps at most once, and the last element is in place once the other n - 1 are. A round where the minimum is already at the front swaps nothing, because the code skips the self-swap.
+  </FaqItem>
+  <FaqItem question="Why is it O(n^2) even for sorted input?">
+    The scan has no way to know that the front element is already the minimum until it has compared it with every other element of the unsorted part, so all n(n - 1)/2 comparisons happen.
+  </FaqItem>
+  <FaqItem question="Is Heap Sort a kind of Selection Sort?">
+    Yes. Both repeatedly pick the extreme element of the unsorted part and place it. Heap Sort keeps the unsorted part in a heap, so each pick costs O(log n) instead of O(n).
+  </FaqItem>
+</Faq>

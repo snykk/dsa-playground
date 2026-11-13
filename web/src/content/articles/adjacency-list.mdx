@@ -1,0 +1,219 @@
+---
+topic: Data_Structures/Non_Linear/Graph/Adjacency_List
+title: Adjacency List
+lead: An adjacency list stores, for every vertex, the list of vertices it is joined to. It uses O(V + E) space and lists a vertex's neighbors in O(deg) time, which is why it is the default way to hold a sparse graph in memory.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Space
+    value: O(V + E)
+    hint: only existing edges are stored
+  - label: Neighbors of u
+    value: O(deg(u))
+  - label: Has edge (u, v)
+    value: O(deg(u))
+    hint: scan u's list
+    tone: warn
+  - label: Full traversal
+    value: O(V + E)
+    hint: BFS or DFS
+properties:
+  - { label: Good for sparse graphs, value: true }
+  - { label: Directed or undirected, value: true }
+  - { label: Weights supported, value: true }
+  - { label: O(1) edge lookup, value: false }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Data_Structures/Non_Linear/Graph/Adjacency_Matrix
+  - Data_Structures/Non_Linear/Graph/Edge_List
+  - Data_Structures/Non_Linear/Graph/Directed_and_Undirected
+  - Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+---
+
+## What an adjacency list is
+
+A graph has vertices and edges. An adjacency list keeps one list per vertex, holding the vertices at the other end of its edges. The lists live in a map (the repository versions use a dictionary or hash map keyed by vertex id), so vertices can be added at any time.
+
+<GraphDiagram
+  edges="0-1 4, 0-2 1, 1-2 2, 2-3 5"
+  positions={{ 0: [8, 50], 1: [42, 8], 2: [50, 92], 3: [92, 50] }}
+  legend={{ p: 'vertex 2, the one with the longest list' }}
+  tones={{ 2: 'p' }}
+  caption="An undirected weighted graph with 4 vertices and 4 edges."
+/>
+
+Stored as an adjacency list, each undirected edge appears twice, once in each endpoint's list. Weighted graphs store `(neighbor, weight)` pairs:
+
+<DataTable
+  columns={['Vertex', { label: 'List of (neighbor, weight)', kind: 'mono' }]}
+  rows={[
+    ['0', '(1, 4), (2, 1)'],
+    ['1', '(0, 4), (2, 2)'],
+    ['2', '(0, 1), (1, 2), (3, 5)'],
+    ['3', '(2, 5)'],
+  ]}
+/>
+
+Eight list entries describe four edges. A directed edge `u -> v` would appear only in `u`'s list.
+
+<Callout title="Size follows the edges, not the vertex pairs">
+The lists hold exactly the edges that exist, so the total length is E for a directed graph and 2E for an undirected one. A sparse graph with a million vertices and a few million edges fits easily, where a V &times; V table would not.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`add_vertex(v)`', 'create an empty list for `v` if it is new', 'O(1)'],
+    ['`add_edge(u, v, w)`', 'create missing vertices, replace any existing `u -> v` edge, append the new one (and the reverse when undirected)', 'O(deg(u) + deg(v))'],
+    ['`remove_edge(u, v)`', 'filter `v` out of `u`\'s list (and `u` out of `v`\'s when undirected)', 'O(deg(u) + deg(v))'],
+    ['`has_edge(u, v)`', 'scan `u`\'s list for `v`', 'O(deg(u))'],
+    ['`get_neighbors(u)`', 'return the neighbors of `u` (a copy in Python)', 'O(deg(u))'],
+    ['`bfs(s)`', 'visit vertices in breadth-first order', 'O(V + E)'],
+  ]}
+/>
+
+Python also has `dfs`, `dfs_recursive`, `get_weight`, `get_degree`, `get_edges` and `is_connected`. C++ and Go stop at the six above, and their constructors are `AdjacencyList(directed, weighted)` and `NewAdjacencyList(directed, weighted)`. Python takes `AdjacencyList(num_vertices=0, directed=False, weighted=False)`.
+
+### Add an edge
+
+`add_edge` first removes an existing edge between the same two vertices, so adding the same edge twice updates the weight instead of creating a parallel edge. That scan is why the cost is O(deg), not the O(1) of a bare append. Adding `1-3` with weight 7 to the graph above:
+
+<DataTable
+  columns={['Step', 'Lists after the step']}
+  rows={[
+    ['start', '1: (0, 4), (2, 2) | 3: (2, 5)'],
+    ['scan and append at 1', '1: (0, 4), (2, 2), (3, 7)'],
+    ['undirected: scan and append at 3', '3: (2, 5), (1, 7)'],
+  ]}
+/>
+
+### Remove an edge
+
+Removing `1-2` filters `2` out of vertex 1's list and, because the graph is undirected, `1` out of vertex 2's list. Forgetting the second half leaves a one-way edge behind: `has_edge(2, 1)` would still be true and a BFS from 2 would still reach 1. In all three languages `remove_edge` removes both directions on an undirected graph; on a directed graph it removes only `u -> v`.
+
+<DataTable
+  columns={['Step', 'Lists after the step']}
+  rows={[
+    ['start', '1: (0, 4), (2, 2) | 2: (0, 1), (1, 2), (3, 5)'],
+    ['filter 2 out of list 1', '1: (0, 4)'],
+    ['filter 1 out of list 2', '2: (0, 1), (3, 5)'],
+  ]}
+/>
+
+### Traverse: BFS
+
+BFS keeps a queue and a visited set. Every vertex is dequeued once and its list is scanned once, so the total work is the sum of all list lengths plus V: O(V + E). Starting from 0 in the example, the order is `[0, 1, 2, 3]`: vertex 0 enqueues 1 and 2, vertex 1 finds only visited neighbors, and vertex 2 enqueues 3.
+
+<GraphDiagram
+  edges="0-1 4, 0-2 1, 1-2 2, 2-3 5"
+  positions={{ 0: [8, 50], 1: [42, 8], 2: [50, 92], 3: [92, 50] }}
+  tones={{ 0: 'p', 1: 'l', 2: 'l', 3: 'r' }}
+  badges={{ 0: '0', 1: '1', 2: '1', 3: '2' }}
+  legend={{ p: 'start', l: 'distance 1 (hops)', r: 'distance 2' }}
+  caption="The number above each vertex is its hop distance from 0 in the BFS."
+/>
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['space', 'O(V + E)', 'one list header per vertex plus one entry per edge end'],
+    ['add vertex', 'O(1)', 'a map insert'],
+    ['add / remove edge', 'O(deg(u) + deg(v))', 'the lists are scanned for an existing entry'],
+    ['has edge', 'O(deg(u))', 'linear scan of one list'],
+    ['neighbors of u', 'O(deg(u))', 'proportional to the answer size'],
+    ['BFS / DFS', 'O(V + E)', 'each list is read once'],
+  ]}
+/>
+
+The degree of a vertex is at most V - 1, so the worst case for the per-edge operations is O(V). Storing neighbors in a hash set instead of a list gives O(1) average edge lookup, but the repository versions use lists because their order is predictable.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Trade-off']}
+  rows={[
+    ['List of pairs (this repository)', '`(neighbor, weight)` entries', 'simple, deterministic order, O(deg) lookup'],
+    ['Array of lists', 'vertices are `0..V-1`, lists in an array', 'no hashing, best cache behaviour; vertices cannot be added freely'],
+    ['Set per vertex', 'a hash set of neighbors', 'O(1) average `has_edge`, no ordering'],
+    ['Forward-star (head/next arrays)', 'lists threaded through flat arrays', 'compact, common in competitive programming'],
+  ]}
+/>
+
+## Adjacency list vs other representations
+
+<DataTable
+  columns={['', 'Adjacency list', 'Adjacency matrix', 'Edge list']}
+  highlight={0}
+  rows={[
+    ['Space', 'O(V + E)', 'O(V^2)', 'O(E)'],
+    ['Has edge (u, v)', 'O(deg(u))', 'O(1)', 'O(E)'],
+    ['Neighbors of u', 'O(deg(u))', 'O(V)', 'O(E)'],
+    ['Best for', 'sparse graphs, traversal', 'dense graphs, fast lookup', 'sorting edges (Kruskal)'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Memory grows with the graph, O(V + E), not with V squared.',
+    'Neighbor iteration touches only real edges, so BFS and DFS run in O(V + E).',
+    'Vertices and edges are easy to add dynamically.',
+    'Works for directed, undirected and weighted graphs with the same layout.',
+  ]}
+  cons={[
+    'Edge lookup scans a list: O(deg), not O(1).',
+    'Undirected edges are stored twice, so updates must keep both copies in sync.',
+    'Pointer-heavy in many languages, so less cache-friendly than a matrix.',
+    'For very dense graphs it uses more memory than a matrix.',
+  ]}
+/>
+
+## Applications
+
+- **Traversal:** BFS and DFS, connected components, cycle detection.
+- **Shortest paths:** Dijkstra and Bellman-Ford iterate over the outgoing edges of a vertex.
+- **Spanning trees and flow:** Prim's algorithm and augmenting-path flow algorithms.
+- **Topological sorting** of dependency graphs.
+- **Real-world sparse graphs:** road networks, social networks and link graphs.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Removing only one direction** on an undirected graph. Always touch both lists.
+- **Assuming `add_edge` is O(1).** Here it first replaces an existing edge, so it scans.
+- **Self-loops.** On an undirected graph a loop `u-u` is stored once in this code, so a degree computed by counting list entries gives 1 where the usual convention counts 2.
+- **Mutating a returned list.** Python returns a copy, so editing `get_neighbors(u)` does not change the graph. Rely on `add_edge` and `remove_edge`.
+- **Forgetting the visited set** in BFS or DFS: on a graph with cycles the traversal never ends.
+- **Using it for heavy edge-existence queries** on a dense graph. Use a matrix or a set per vertex.
+</Callout>
+
+## Implementation
+
+All three versions use a map from vertex to a list of neighbors. Python stores plain ids for unweighted graphs and `(neighbor, weight)` tuples for weighted ones. C++ keeps two maps, one per kind, and Go always stores `Edge{To, Weight}` structs.
+
+<TopicCode topic="Data_Structures/Non_Linear/Graph/Adjacency_List" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is an adjacency list better than a matrix for sparse graphs?">
+    A matrix always spends V<sup>2</sup> cells, even when almost all of them are empty. A list spends one entry per edge end, so a graph with V = 10<sup>6</sup> and E = 3 &times; 10<sup>6</sup> needs millions of entries instead of 10<sup>12</sup> cells.
+  </FaqItem>
+  <FaqItem question="How do I find out whether an edge exists quickly?">
+    With a plain list you scan one vertex's neighbors, O(deg). If that is too slow, keep a hash set of neighbors per vertex (O(1) average) or switch to an adjacency matrix.
+  </FaqItem>
+  <FaqItem question="How are undirected edges stored?">
+    As two entries: `v` in `u`'s list and `u` in `v`'s list. `add_edge` and `remove_edge` update both for you.
+  </FaqItem>
+  <FaqItem question="What does the sum of all list lengths equal?">
+    For a directed graph it is E. For an undirected graph it is 2E, because each edge appears in two lists (the handshake lemma).
+  </FaqItem>
+</Faq>

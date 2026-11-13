@@ -1,0 +1,237 @@
+---
+topic: Data_Structures/Hashing/Hash_Table
+title: Hash Table
+lead: A hash table (also called a hash map) stores key-value pairs in an array of buckets and finds a key by hashing it to a bucket index. With separate chaining and a doubling resize, put, get and remove take O(1) on average. It also covers the map helpers (default values, insert if absent, update, copy).
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: put / get / remove
+    value: O(1) average
+    hint: amortized for put, because of resizing
+  - label: Worst case
+    value: O(n)
+    hint: every key in one bucket
+    tone: warn
+  - label: Resize at
+    value: load > 0.75
+    hint: capacity doubles
+  - label: Space
+    value: O(n)
+properties:
+  - { label: Ordered by key, value: false }
+  - { label: Keys unique, value: true }
+  - { label: Handles collisions, value: true }
+  - { label: Resizes automatically, value: true }
+prerequisites:
+  - Data_Structures/Linear/Array
+  - Data_Structures/Linear/Linked_List/Singly
+related:
+  - Data_Structures/Hashing/Collision_Handling
+  - Data_Structures/Hashing/Hash_Set
+  - Data_Structures/Hashing/Bloom_Filter
+---
+
+## What a hash table is
+
+A hash table is an array of **buckets**. To store a key, a hash function turns it into an integer and the table reduces it to a bucket index, `index = hash(key) mod capacity`. To find the key again, repeat the computation and look only in that bucket. No scanning of the whole table is needed.
+
+Different keys can land in the same bucket (a *collision*). This table uses **separate chaining**: each bucket holds a small list of the pairs that hashed to it. Open addressing is covered in the Collision Handling topic.
+
+<ListDiagram
+  kind="singly"
+  values={[5, 9, 13]}
+  tones="fll"
+  pointers={{ 0: 'bucket 1' }}
+  legend={{ f: 'first pair in the bucket', l: 'collided pairs chained after it' }}
+  caption="Capacity 4: keys 5, 9 and 13 all give `key mod 4 = 1`, so bucket 1 is a chain of three. Buckets 0, 2 and 3 are empty."
+/>
+
+<ArrayDiagram
+  rows={[
+    { label: 'buckets', values: ['[]', '5, 9, 13', '[]', '[]'], tones: '.f..', marks: { 0: '0', 1: '1', 2: '2', 3: '3' } },
+  ]}
+/>
+
+<Callout title="Two ideas make it fast">
+A good hash function spreads keys evenly, so chains stay short. And the table **resizes**: when the number of pairs divided by the number of buckets (the *load factor*) passes 0.75, the capacity doubles and every pair is placed again, which keeps the average chain length below 1.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`put(key, value)`', 'update the key if present, else append; resize if the load factor passes 0.75', 'O(1) average'],
+    ['`get(key)`', 'hash, then walk the bucket comparing keys', 'O(1) average'],
+    ['`remove(key)`', 'find the pair in its bucket and unlink it', 'O(1) average'],
+    ['`contains(key)`', 'a lookup that reports only presence', 'O(1) average'],
+    ['`size`, `is_empty`, `clear`', 'bookkeeping', 'O(1) (`clear`: O(capacity))'],
+    ['`keys`, `values`, `items` (Python), `Items` (Go)', 'walk all buckets', 'O(capacity + n)'],
+    ['get with default', 'value, or the default if absent', 'O(1) average'],
+    ['insert if absent', 'store only if the key is new; report whether it did', 'O(1) average'],
+    ['update from another map', 'put every pair of the other map', 'O(m) for m pairs'],
+    ['copy', 'an independent table with the same pairs', 'O(m)'],
+  ]}
+/>
+
+Names differ: C++ has `put`, `get` (returns a pointer or `nullptr`), `remove`, `contains`, `getSize`, `isEmpty`, `clear`. Go has `Put`, `Get` (value and found), `Remove`, `Contains`, `Size`, `IsEmpty`, `Clear`, with `interface{}` keys and values. Python adds `get(key, default)`, `in`, `len`, `table[key]` and `del table[key]`. Only Python offers `keys`, `values` and `items`; Go offers `Items`.
+
+### The map helpers
+
+<DataTable
+  columns={['Helper', 'Python', 'C++', 'Go']}
+  rows={[
+    ['get with default', '`get_or_default`', '`getOrDefault`', '`GetOrDefault`'],
+    ['insert if absent', '`put_if_absent`', '`putIfAbsent`', '`PutIfAbsent`'],
+    ['update from another map', '`update(dict or HashTable)`', '`update(std::map)`', '`Update(*HashTable)`'],
+    ['copy', '`copy()`', 'copy constructor', '`Copy()`'],
+    ['iteration', '`for k, v in table`', 'no', '`Items()`'],
+  ]}
+/>
+
+The classic use is counting: `get_or_default(word, 0)` replaces an if/else, and writing back `count + 1` updates the entry. For "to be or not to be" the table ends with `to` 2, `be` 2, `or` 1, `not` 1. Then `put_if_absent('to', 99)` returns False (the count stays 2) and `put_if_absent('that', 1)` returns True. "Absent" means the key is missing: a key stored with None is present, so `put_if_absent('k', None)` followed by `put_if_absent('k', 5)` leaves `k` as None.
+
+Iteration visits bucket by bucket, so its order is neither the insertion order nor sorted, and it can change after any resize. Python iteration yields `(key, value)` tuples, unlike `dict`, which yields keys. Python `update` takes a `dict` or a `HashTable`; a list of pairs is not supported.
+
+### Put and resize
+
+Insert keys 5, 9, 13, 2 into a table of capacity 4 (run on the repository code). The fourth key pushes the load to 4/4 = 1 > 0.75, so the table doubles to 8 buckets and every pair is rehashed with `mod 8`:
+
+<DataTable
+  columns={['Step', 'Capacity', { label: 'Buckets (keys)', kind: 'mono' }, 'Note']}
+  rows={[
+    ['put 5, 9, 13', '4', '1: [5, 9, 13]', 'one chain of three; load 3/4 = 0.75 is not above the threshold'],
+    ['put 2', '4, then 8', '1: [9], 2: [2], 5: [5, 13]', 'load 4/4 triggers the resize; 5 and 13 still collide (both are 5 mod 8), 9 moves to bucket 1'],
+    ['put 7', '8', '1: [9], 2: [2], 5: [5, 13], 7: [7]', 'load 5/8'],
+    ['put 12', '8', '1: [9], 2: [2], 4: [12], 5: [5, 13], 7: [7]', 'load 6/8 = 0.75, no resize'],
+  ]}
+/>
+
+### Get and remove
+
+`get(13)` hashes 13 to bucket 5, compares with 5 (no) and then 13 (yes), and returns it: two key comparisons. `remove(9)` finds 9 in bucket 1 and unlinks it. A miss ends when the bucket's list ends.
+
+<ArrayDiagram
+  legend={{ l: 'bucket examined', p: 'compared key', f: 'match' }}
+  rows={[
+    { label: 'get(13)', values: ['[]', '9', '2', '[]', '12', '5, 13', '[]', '7'], tones: '.....l..', marks: { 5: 'bucket 5' }, note: '13 mod 8 = 5. Compare 5 (no), then 13 (yes).' },
+  ]}
+/>
+
+## Why it is O(1) on average
+
+With a decent hash, each key is equally likely to land in any bucket. If `n` pairs sit in `c` buckets, an average chain has `n / c` pairs, the load factor. Resizing keeps it at most 0.75, so a lookup compares a constant number of keys on average.
+
+Resizing costs O(n), but it only happens when the size doubles: the cost of all resizes while inserting `n` keys is `n/2 + n/4 + ... < n`, so each insert pays O(1) amortized.
+
+<Equation label="Amortized insert cost" expr="n + n/2 + n/4 + ... = 2n" result="O(1) per put" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Average', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, 'Why']}
+  rows={[
+    ['get / contains', 'O(1)', 'O(n)', 'worst case: all keys in one bucket'],
+    ['put', 'O(1) amortized', 'O(n)', 'a put that triggers resize costs O(n)'],
+    ['remove', 'O(1)', 'O(n)', 'same walk as get'],
+    ['iterate', 'O(capacity + n)', 'O(capacity + n)', 'must visit every bucket'],
+  ]}
+/>
+
+Space is O(n + capacity): one entry per pair plus the bucket array.
+
+<Callout tone="warning" title="A bad hash function ruins O(1)">
+The string hash used here is `h = h * 31 + c`, reduced at each step modulo the capacity. Because 31 is congruent to -1 modulo 32, strings such as `abcd` and `cdab` collide at every capacity up to 64. Over all 4096 four-letter words on the letters a to h, capacity 32 uses only 29 of its 32 buckets and its longest chain is 344 (the ideal is 128). Capacity 128 has a longest chain of 88 against an ideal of 32. Integer keys hashed as `key mod capacity` are just as bad when keys share a factor with the capacity (for example all multiples of 16).
+</Callout>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Trade-off']}
+  rows={[
+    ['Separate chaining (this code)', 'a list per bucket', 'simple; extra pointers'],
+    ['Open addressing', 'probe for another slot', 'compact; needs tombstones and a low load'],
+    ['Chaining with trees', 'a balanced tree per long bucket', 'caps the worst case at O(log n)'],
+    ['Cuckoo hashing', 'two candidate slots per key', 'O(1) worst-case lookups'],
+    ['Randomised or keyed hash', 'secret seed in the hash', 'resists crafted collision attacks'],
+  ]}
+/>
+
+## Hash table vs other dictionaries
+
+<DataTable
+  columns={['Structure', { label: 'Lookup', kind: 'mono' }, { label: 'Insert', kind: 'mono' }, 'Ordered iteration', 'Notes']}
+  highlight={0}
+  rows={[
+    ['Hash table', 'O(1) avg', 'O(1) amortized', 'no', 'fastest typical lookup'],
+    ['Balanced BST', 'O(log n)', 'O(log n)', 'yes, sorted', 'range queries, predecessor'],
+    ['Sorted array', 'O(log n)', 'O(n)', 'yes', 'good for static data'],
+    ['Unsorted list', 'O(n)', 'O(1)', 'no', 'only for tiny inputs'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Constant average time for lookup, insert and delete.',
+    'Keys can be any type that can be hashed and compared.',
+    'Simple to implement with an array of lists.',
+    'Helpers like get-with-default and insert-if-absent remove common branches.',
+  ]}
+  cons={[
+    'No ordering: no sorted traversal, no range queries, no minimum.',
+    'Worst case O(n) with a bad hash function or adversarial keys.',
+    'An occasional insert pays O(n) for a resize.',
+    'More memory than a plain array.',
+  ]}
+/>
+
+## Applications
+
+- Dictionaries, maps and sets in nearly every language; counting frequencies; caches and memoisation.
+- Two-sum style lookups: store seen values, then ask for the complement in O(1).
+- Detecting duplicates and grouping items by a key.
+- Symbol tables in compilers and interpreters.
+- Grouping (anagram groups, records by a field) and indexing an id to its record.
+
+Use a hash table when you look things up by an arbitrary key. Use a hash set when you only ask whether a key is present, an array when keys are small dense integers, and a sorted map (a balanced tree) when you need sorted order or range queries. In real code use the built-in map of the language.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using `get(key) is not None` as a membership test.** A key stored with the value None looks absent. `contains` and `in` now check the keys themselves, so `put('k', None)` followed by `'k' in table` is True.
+- **Capacity 0.** `hash mod 0` divides by zero. Python raises `ValueError` and C++ throws `std::invalid_argument`; Go replaces a capacity of 0 or less with 16.
+- **Negative remainders.** In Go, `-1 % 8` is `-1`, a bad index. The code folds it into `[0, capacity)`. Go also hashes other key types (int64, float64, bool...) through their printed form; before that they panicked.
+- **Keeping a pointer across a resize in C++.** `get` returns `V*`. The resize splices the list nodes into the new buckets instead of copying, so the pointer stays valid, as with `std::unordered_map`. It dies when the key is removed or the table is destroyed.
+- **Relying on iteration order, or changing the table while iterating.** Putting or removing during a loop can resize and reshuffle buckets.
+- **Passing the wrong thing to Python `update`.** Only a `dict` or `HashTable` works.
+- **Mutable keys.** Changing a key after insertion changes its hash and loses the entry.
+- **A weak hash.** See the callout above: the same few collisions repeat at every size.
+</Callout>
+
+## Implementation
+
+All three tables use separate chaining and double their capacity when the load factor passes 0.75. They compare keys with the language equality (`==`). Python hashes strings with `h*31 + c`, C++ uses `std::hash` (with an explicit 31-based hash only for `<std::string, std::string>` tables), and Go hashes ints directly and everything else through a string form.
+
+<TopicCode topic="Data_Structures/Hashing/Hash_Table" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why double the capacity instead of adding a fixed amount?">
+    Doubling makes the total resize work geometric (n/2 + n/4 + ...) so each insert is O(1) amortized. Growing by a constant means resizing every few inserts and costs O(n) per insert on average.
+  </FaqItem>
+  <FaqItem question="What is the load factor?">
+    The number of stored pairs divided by the number of buckets. With chaining it is also the average chain length. This table resizes when it passes 0.75.
+  </FaqItem>
+  <FaqItem question="Is a hash table the same as a hash map?">
+    In practice yes: both mean a key-to-value table built on hashing. Some texts use "hash table" for the structure and "map" for the interface. This topic includes the usual map helpers on top of the table.
+  </FaqItem>
+  <FaqItem question="How do I count things with a table?">
+    Use get-with-default and write back the incremented count: `t.put(x, t.get_or_default(x, 0) + 1)`. In Go write `t.Put(x, t.GetOrDefault(x, 0).(int)+1)`.
+  </FaqItem>
+  <FaqItem question="Why are iteration orders different between runs or languages?">
+    Order follows bucket order, which depends on the hash function and the capacity. A resize reshuffles it. Never rely on it.
+  </FaqItem>
+</Faq>

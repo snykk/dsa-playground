@@ -50,7 +50,12 @@ class Factorials:
 # ==================== Prime Sieve ====================
 
 def sieve(n: int) -> Tuple[List[int], List[bool]]:
-    """Sieve of Eratosthenes. Returns (primes list, is_prime array)."""
+    """Sieve of Eratosthenes. Returns (primes list, is_prime array).
+
+    is_prime has n + 1 entries (index = number); for n < 2 there are no primes.
+    """
+    if n < 2:
+        return [], [False] * max(n + 1, 0)
     is_prime = [True] * (n + 1)
     is_prime[0] = is_prime[1] = False
     
@@ -132,7 +137,13 @@ class PrefixSum2D:
 # ==================== Sparse Table (Range Minimum Query) ====================
 
 class SparseTable:
-    """Sparse table for O(1) range minimum/maximum queries."""
+    """Sparse table for O(1) range queries.
+
+    func must be idempotent (func(x, x) == x), such as min, max or math.gcd:
+    the O(1) query combines two overlapping blocks, so a non-idempotent
+    function such as addition would count the overlap twice. Use a prefix sum
+    for sums.
+    """
     
     def __init__(self, arr: List[int], func=min):
         n = len(arr)

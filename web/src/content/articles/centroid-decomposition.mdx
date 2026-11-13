@@ -1,0 +1,230 @@
+---
+topic: Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposition
+title: Centroid Decomposition
+lead: Centroid decomposition repeatedly removes the node that splits a tree into pieces of at most half its size, and records which centroid was removed inside which. The result is a second tree of height O(log n) that lets divide-and-conquer on paths, distances and nearest-marked-node queries run in O(n log n) overall.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Build time
+    value: O(n log n)
+    hint: O(n) work per level, log n levels
+  - label: Centroid tree height
+    value: O(log n)
+    hint: at most floor(log2 n) + 1 levels
+  - label: Extra space
+    value: O(n)
+    hint: sizes, removed flags, parent array
+  - label: Approach
+    value: Divide and conquer
+    hint: on a tree, around its centroid
+properties:
+  - { label: Works on static trees, value: true }
+  - { label: Supports edge updates, value: false }
+  - { label: Needs a connected tree, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Algorithms/Divide_and_Conquer
+related:
+  - Algorithms/Advanced_Algorithms/Specialized_Techniques/Heavy_Light_Decomposition
+  - Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+---
+
+## When to use it
+
+Reach for centroid decomposition when a tree problem is about **all pairs of nodes** or about **paths**, and a plain DFS from every node would be <BigO of="n^2" />.
+
+- "Count (or find) the pairs of nodes at distance exactly `k`, or at most `k`."
+- "After each update that marks a node, report the distance to the nearest marked node."
+- "Sum something over every path in the tree."
+- The tree is static and `n` is around 10<sup>5</sup>.
+
+The idea is the one behind divide and conquer on arrays: pick a split point, handle everything that crosses it, recurse on both halves. On a tree the right split point is the centroid.
+
+## What a centroid is
+
+A **centroid** of a tree with `n` nodes is a node whose removal leaves every remaining component with at most `n/2` nodes. Every tree has one (sometimes two). Walk from any node towards the child whose subtree is larger than `n/2`; the walk must stop, and where it stops is a centroid.
+
+<TreeDiagram
+  label="A tree with 7 nodes whose centroid is node 1"
+  legend={{ p: 'the centroid (node 1)', l: 'components left after removing it (sizes 3, 1 and 2)' }}
+  root={{
+    label: 0,
+    tone: 'l',
+    children: [
+      { label: 1, tone: 'p', children: [
+        { label: 3, tone: 'l' },
+        { label: 4, tone: 'l', children: [ { label: 6, tone: 'l' } ] },
+      ] },
+      { label: 2, tone: 'l', children: [ { label: 5, tone: 'l' } ] },
+    ],
+  }}
+  caption="Drawn rooted at 0. Removing node 1 leaves {0, 2, 5}, {3} and {4, 6}: none has more than 3 = floor(7/2) nodes."
+/>
+
+## How it works
+
+<Steps>
+  <Step title="Measure the component">
+    Run a DFS from any node of the current component and compute every subtree size, skipping nodes that are already removed. The root's size is the component size `total`.
+  </Step>
+  <Step title="Find its centroid">
+    Start at the root and move to any child whose size is greater than `total // 2`. Stop when no child is that big. That node is the centroid.
+  </Step>
+  <Step title="Remove it and link it">
+    Mark the centroid as removed and set its entry in the `parent` array to the centroid that was found one level up (`-1` for the first one).
+  </Step>
+  <Step title="Recurse on the pieces">
+    Every neighbor of the centroid that is not removed starts a new component. Decompose each one, passing the current centroid as their parent.
+  </Step>
+</Steps>
+
+<Callout title="Why the height is logarithmic">
+Each component handed to the next level has at most half the nodes of the one before. A component of size 1 is the last one, so a node is separated at most floor(log<sub>2</sub> n) + 1 times. Removed centroids become the nodes of the **centroid tree**, and its height is therefore O(log n), however deep or skewed the original tree is.
+</Callout>
+
+## Worked example
+
+The 7-node tree above has edges 0-1, 0-2, 1-3, 1-4, 2-5 and 4-6. The Python implementation, called with `build(0)`, produces `parent = [2, -1, 1, 1, 1, 2, 4]`. This is how it gets there (neighbors are visited in adjacency-list order):
+
+<DataTable
+  columns={['Round', 'Component', 'DFS root', 'Centroid', 'Why']}
+  rows={[
+    ['1', '{0, 1, 2, 3, 4, 5, 6}', '0', '1', 'size[1] = 4 > 3, so move to 1; its children have sizes 1 and 2, both <= 3'],
+    ['2', '{0, 2, 5}', '0', '2', 'size[2] = 2 > 1, so move to 2; its child has size 1'],
+    ['2', '{3}', '3', '3', 'a single node'],
+    ['2', '{4, 6}', '4', '4', 'size[6] = 1 is not > 1'],
+    ['3', '{0}, {5}, {6}', 'itself', 'itself', 'single nodes, their parents are 2, 2 and 4']
+  ]}
+/>
+
+Reading the `parent` array gives the centroid tree. It has 3 levels for 7 nodes, and the node of the first round is its root:
+
+<TreeDiagram
+  label="The centroid tree of the 7-node example"
+  legend={{ p: 'root of the centroid tree (parent -1)', l: 'centroids found in round 2', f: 'centroids found in round 3' }}
+  root={{
+    label: 1,
+    tone: 'p',
+    children: [
+      { label: 2, tone: 'l', children: [ { label: 0, tone: 'f' }, { label: 5, tone: 'f' } ] },
+      { label: 3, tone: 'l' },
+      { label: 4, tone: 'l', children: [ { label: 6, tone: 'f' } ] },
+    ],
+  }}
+  caption="An edge here means 'was the centroid of the component that contained this node', not an edge of the original tree."
+/>
+
+On a path of 15 nodes the centroids are the middle ones, so the centroid tree is a perfectly balanced binary tree of height 4: `parent = [1, 3, 1, 7, 5, 3, 5, -1, 9, 11, 9, 7, 13, 11, 13]`, with root 7.
+
+## The key property
+
+For any two nodes `u` and `v`, the path between them passes through their **lowest common ancestor in the centroid tree**. That ancestor is the first centroid removed from a component that contained both of them, and removing it is what separated them. So every path is "handled" at exactly one centroid, and each node has only O(log n) centroid ancestors.
+
+## Pseudocode
+
+The repository builds the decomposition. Queries are the reason to build it, so here is the standard template they follow (this part is not in the code):
+
+```text
+decompose(u, p):                      # as in the code
+    total    = dfsSize(u, -1)
+    centroid = findCentroid(u, -1, total)
+    removed[centroid] = true
+    parent[centroid]  = p
+    for v in adj[centroid]:
+        if not removed[v]:
+            decompose(v, centroid)
+
+# typical use: nearest marked node
+mark(v):      for each centroid ancestor c of v:  best[c] = min(best[c], dist(v, c))
+query(v):     answer = min over centroid ancestors c of v of  dist(v, c) + best[c]
+```
+
+`dist(v, c)` is the tree distance, which you precompute during `decompose` (one BFS or DFS from each centroid) or get from an LCA structure. Both `mark` and `query` touch O(log n) ancestors.
+
+## Implementation
+
+All three languages follow the same recursive design: `dfs_size`, `find_centroid`, `decompose` and a public `build(root)`. `build` resets the `removed` and `parent` state first, so calling it twice gives the same result.
+
+- **Python** computes subtree sizes and walks to the centroid with loops instead of recursion, so a path of 5,000 nodes works. It also has `get_centroid_tree()`, which returns the centroid tree as an adjacency list.
+- **C++ and Go** return the parent array (`getParent()` / `GetParent()`). Their size DFS is still recursive, so a path of many hundreds of thousands of nodes can overflow the C++ call stack; Go grows its stack on demand.
+
+No language implements the distance or nearest-marked-node queries; they are shown above as the motivation.
+
+<TopicCode topic="Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposition" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'One level', time: 'O(n)', when: 'The components on one level are disjoint, so their DFS passes add up to at most n nodes.' },
+    { case: 'Whole build', time: 'O(n log n)', when: 'There are at most floor(log2 n) + 1 levels, each costing O(n).', space: 'O(n)' },
+    { case: 'Query via ancestors', time: 'O(log n)', when: 'Template above: a node has O(log n) centroid ancestors, so with O(1) distance lookups a mark or a query costs O(log n).' },
+  ]}
+/>
+
+<Equation label="Build recurrence" expr="T(n) = sum of T(n_i) + O(n), with every n_i <= n/2" result="O(n log n)" />
+
+The recursion depth of `decompose` is only O(log n), so the Python recursion limit is not an issue there. Space is the arrays `size`, `removed`, `parent` and the adjacency list.
+
+## Centroid vs heavy-light decomposition
+
+<DataTable
+  columns={['', 'Centroid decomposition', 'Heavy-light decomposition']}
+  highlight={0}
+  rows={[
+    ['Splits the tree by', 'removing balanced separator nodes', 'cutting each node from all but its heaviest child'],
+    ['Output', 'a new tree of height O(log n)', 'chains laid out as contiguous array ranges'],
+    ['Good at', 'all-pairs counting, nearest marked node, offline path problems', 'online path queries and updates with a segment tree'],
+    ['Path query cost', 'O(log n) ancestors, O(1) or O(log n) each', 'O(log n) chains, O(log n) each, so O(log^2 n)'],
+    ['Handles edge or node updates on values', 'yes, if the per-centroid summaries support it', 'yes, via the segment tree']
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Turns O(n^2) all-pairs tree problems into O(n log n).',
+    'The log n height holds for any tree shape, including a long path.',
+    'Simple to build: size DFS, walk to the centroid, recurse.',
+    'The answer for a path lives at one well-defined centroid.',
+  ]}
+  cons={[
+    'The tree is static: changing its edges means rebuilding.',
+    'The decomposition alone answers nothing; each problem needs its own per-centroid bookkeeping.',
+    'Per-centroid data (distances to every ancestor) costs O(n log n) memory.',
+    'Easy to double-count: pairs inside the same child component must be subtracted.',
+  ]}
+/>
+
+## Applications
+
+- **Counting paths** with a given length or a bounded sum: at each centroid, count pairs from different child components.
+- **Nearest marked node** under insertions: the template above.
+- **Tree distance queries** answered through the common centroid ancestor of two nodes.
+- **Offline path problems** where a node can be both endpoint and intermediate: the CSES problems "Fixed-Length Paths I" and "Fixed-Length Paths II" are standard practice.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forgetting the removed flag.** Without it the DFS walks back into earlier centroids and the components are not independent.
+- **Using stale sizes.** Recompute `size` for each new component. Sizes from the previous level are wrong once the centroid is gone.
+- **Taking the root of the DFS as the centroid.** The DFS root is arbitrary; only the walk towards oversized children finds the centroid.
+- **Counting pairs inside one child.** When combining at a centroid, pairs whose paths do not actually pass through it are counted wrongly unless you subtract or process children one by one.
+- **Deep recursion.** Use an iterative size DFS (as Python does) when the tree can be a long path and the language has a small stack.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is the centroid unique?">
+    No. A tree with an even number of nodes may have two centroids, adjacent to each other, each leaving components of at most `n/2`. Either one gives the same O(log n) guarantee.
+  </FaqItem>
+  <FaqItem question="What is the difference between the centroid tree and the original tree?">
+    They share the same nodes but not the same edges. The centroid tree's parent of a node is the centroid that was removed from the component containing it, and it is generally not adjacent in the original tree.
+  </FaqItem>
+  <FaqItem question="Does the implementation handle a forest?">
+    No. `build(root)` decomposes only the component containing `root`, and it resets all state first, so a second call would erase the first result. Merge the trees under a virtual root, or run one object per tree.
+  </FaqItem>
+</Faq>

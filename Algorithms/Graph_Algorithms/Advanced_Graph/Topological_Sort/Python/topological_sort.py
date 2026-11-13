@@ -72,30 +72,34 @@ def topological_sort_dfs(graph: Dict[int, List[int]]) -> Optional[List[int]]:
         return []
     
     visited = set()
-    rec_stack = set()
+    rec_stack = set()  # vertices on the current DFS path
     result = []
     
-    def dfs(vertex: int) -> bool:
-        """Returns True if cycle detected"""
-        visited.add(vertex)
-        rec_stack.add(vertex)
-        
-        for neighbor in graph.get(vertex, []):
-            if neighbor not in visited:
-                if dfs(neighbor):
-                    return True
-            elif neighbor in rec_stack:
-                # Back edge found - cycle detected
-                return True
-        
-        rec_stack.remove(vertex)
-        result.append(vertex)
-        return False
-    
-    for vertex in graph:
-        if vertex not in visited:
-            if dfs(vertex):
-                return None  # Cycle detected
+    # Iterative DFS: an explicit stack of (vertex, neighbor iterator) visits vertices
+    # in the same order as the recursive version, without Python's recursion limit
+    # (a recursive DFS fails on a chain of about 1000 vertices).
+    for start in graph:
+        if start in visited:
+            continue
+        visited.add(start)
+        rec_stack.add(start)
+        stack = [(start, iter(graph.get(start, [])))]
+        while stack:
+            vertex, neighbors = stack[-1]
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    rec_stack.add(neighbor)
+                    stack.append((neighbor, iter(graph.get(neighbor, []))))
+                    break
+                if neighbor in rec_stack:
+                    # Back edge found - cycle detected
+                    return None
+            else:
+                # Every neighbor is finished, so the vertex is finished too
+                stack.pop()
+                rec_stack.remove(vertex)
+                result.append(vertex)
     
     # Reverse result (DFS gives reverse topological order)
     return result[::-1]
@@ -128,13 +132,15 @@ def topological_sort_all_orders(graph: Dict[int, List[int]]) -> List[List[int]]:
     
     result = []
     
+    # in_degree holds every vertex, including those that only appear as neighbors
+    # (they are not keys of graph), so iterate over it rather than over graph.
     def backtrack(current_order: List[int], current_in_degree: Dict[int, int]):
-        if len(current_order) == len(graph):
+        if len(current_order) == len(in_degree):
             result.append(current_order[:])
             return
         
         # Find all vertices with in-degree 0 that haven't been added
-        candidates = [v for v in graph 
+        candidates = [v for v in in_degree
                      if v not in current_order and current_in_degree[v] == 0]
         
         for vertex in candidates:
@@ -173,16 +179,21 @@ def is_dag(graph: Dict[int, List[int]]) -> bool:
     return topological_sort_kahn(graph) is not None
 
 
-def longest_path_dag(graph: Dict[int, List[int]], weights: Dict[tuple, int]) -> Dict[int, int]:
+def longest_path_dag(graph: Dict[int, List[int]], weights: Dict[tuple, int],
+                     source: Optional[int] = None) -> Dict[int, int]:
     """
     Find longest path in DAG using topological sort
     
     Args:
         graph: Dictionary mapping vertex to list of neighbors
-        weights: Dictionary mapping (u, v) edge to weight
+        weights: Dictionary mapping (u, v) edge to weight (missing edges weigh 1)
+        source: Start vertex. If None, a path may start at any vertex with no
+            incoming edges, so every vertex gets the longest path ending there.
         
     Returns:
-        Dictionary mapping vertex to longest path distance from source
+        Dictionary mapping every vertex (including vertices that only appear as
+        neighbors) to its longest path distance from the source(s); -inf if the
+        vertex cannot be reached from source. Empty dict if the graph has a cycle.
         
     Time Complexity: O(V + E)
     Space Complexity: O(V)
@@ -191,9 +202,20 @@ def longest_path_dag(graph: Dict[int, List[int]], weights: Dict[tuple, int]) -> 
     if topo_order is None:
         return {}  # Not a DAG
     
-    # Initialize distances to negative infinity
+    # Initialize distances to negative infinity, one entry per vertex
+    # (topo_order also holds the vertices that only appear as neighbors)
     distances = {v: float('-inf') for v in graph}
-    distances[topo_order[0]] = 0  # Start from first vertex
+    for v in topo_order:
+        distances.setdefault(v, float('-inf'))
+    if source is None:
+        has_incoming = {v for neighbors in graph.values() for v in neighbors}
+        for v in topo_order:
+            if v not in has_incoming:
+                distances[v] = 0  # Every source vertex can start a path
+    elif source in distances:
+        distances[source] = 0
+    else:
+        raise ValueError(f"source {source} is not a vertex of the graph")
     
     # Process vertices in topological order
     for u in topo_order:

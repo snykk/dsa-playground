@@ -206,3 +206,36 @@ func TestAStarSingleVertex(t *testing.T) {
 }
 
 
+
+// TestAStarAdmissibleInconsistentHeuristic: an admissible but inconsistent
+// heuristic must still give the optimal path. S=0, A=1, B=2, C=3, G=4;
+// h(A) = 4 equals the true cost A -> C -> G but h(A) > w(A, C) + h(C).
+// C is first expanded via B with g = 3; the route via A (g = 2) must re-open it.
+func TestAStarAdmissibleInconsistentHeuristic(t *testing.T) {
+	graph := map[int][]struct {
+		Neighbor int
+		Weight   int
+	}{
+		0: {{Neighbor: 1, Weight: 1}, {Neighbor: 2, Weight: 1}},
+		1: {{Neighbor: 3, Weight: 1}},
+		2: {{Neighbor: 3, Weight: 2}},
+		3: {{Neighbor: 4, Weight: 3}},
+		4: {},
+	}
+
+	heuristic := func(node int) int {
+		if node == 1 {
+			return 4
+		}
+		return 0
+	}
+
+	distance, path := AStar(graph, 0, 4, heuristic)
+
+	if distance != 5 {
+		t.Errorf("Expected distance 5, got %d", distance)
+	}
+	if !reflect.DeepEqual(path, []int{0, 1, 3, 4}) {
+		t.Errorf("Expected path [0 1 3 4], got %v", path)
+	}
+}

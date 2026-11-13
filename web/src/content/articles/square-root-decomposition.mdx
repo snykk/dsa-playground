@@ -1,0 +1,221 @@
+---
+topic: Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition
+title: Square Root Decomposition
+lead: Square root decomposition splits an array into blocks of about sqrt(n) elements and keeps one precomputed summary per block. A range query then scans two partial blocks and combines whole-block summaries, so it costs O(sqrt n) while a point update stays O(1).
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Build
+    value: O(n)
+    hint: one pass to fill the block sums
+  - label: Range query
+    value: O(sqrt n)
+    hint: two partial blocks plus whole blocks
+    tone: warn
+  - label: Point update
+    value: O(1)
+    hint: adjust one array cell and one block sum
+  - label: Extra space
+    value: O(sqrt n)
+    hint: one sum per block (plus a copy of the array)
+properties:
+  - { label: Supports point updates, value: true }
+  - { label: Supports range updates, value: false }
+  - { label: Online (answers queries as they come), value: true }
+prerequisites:
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+related:
+  - Algorithms/Advanced_Algorithms/Specialized_Techniques/Mos_Algorithm
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
+---
+
+## When to use it
+
+Choose square root decomposition when you need range queries **and** updates on an array and want something simpler than a segment tree:
+
+- "Sum of `arr[l..r]`, with point updates in between."
+- A summary that is easy to keep per block but awkward to put in a tree: counts of values, sorted blocks, per-block lazy flags.
+- `n` is up to about 10<sup>5</sup>, where an O(sqrt n) query is still fast enough.
+
+If queries dominate and nothing changes, prefix sums answer in O(1). If both are heavy, a segment tree or Fenwick tree gives O(log n).
+
+## The idea
+
+Cut the array into blocks of size `B`. Store, for each block, the sum of its elements. A query `[l, r]` touches three kinds of cells:
+
+- the **left partial block**: individual elements from `l` to the end of its block;
+- the **middle blocks**: fully covered, so use their stored sums;
+- the **right partial block**: individual elements from the start of its block to `r`.
+
+If `l` and `r` are in the same block, just add the elements.
+
+<ArrayDiagram
+  legend={{ l: 'elements added one by one (partial blocks)', f: 'covered by a stored block sum' }}
+  rows={[
+    { label: 'array', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: '.lllffffll', marks: { 1: 'l', 9: 'r' }, note: 'Query [1, 9], block size 4. Left partial: 2 + 3 + 4 = 9. Middle block 1 (indices 4-7): stored sum 26. Right partial: 9 + 10 = 19. Total 54.' },
+    { label: 'block sums', values: [10, 26, 19], tones: '.f.', note: 'Blocks are indices 0-3, 4-7 and 8-9. The last block is partial and its sum is 19.' },
+  ]}
+/>
+
+<Callout title="The invariant">
+`blocks[b]` always equals the sum of `arr[b*B .. b*B + B - 1]`. A point update changes one array cell, so it adds `new - old` to exactly one block sum; nothing else depends on that cell.
+</Callout>
+
+## How it works
+
+<Steps>
+  <Step title="Choose the block size">
+    `B = ceil(sqrt(n))`, with a minimum of 1 so that an empty array does not divide by zero. Block `b` holds indices `b*B` to `b*B + B - 1`, and there are `ceil(n / B)` blocks.
+  </Step>
+  <Step title="Build the block sums">
+    One pass over the array: `blocks[i // B] += arr[i]`.
+  </Step>
+  <Step title="Answer a query [l, r]">
+    If `l // B == r // B`, add `arr[l..r]` directly. Otherwise add the left partial block, the stored sums of the blocks strictly between, and the right partial block.
+  </Step>
+  <Step title="Apply a point update">
+    `blocks[i // B] += value - arr[i]`, then `arr[i] = value`. That is O(1).
+  </Step>
+</Steps>
+
+## Worked example
+
+The Python demo uses `arr = [1, 2, ..., 10]`, so `B = ceil(sqrt(10)) = 4` and the block sums are `[10, 26, 19]`.
+
+<DataTable
+  columns={['Operation', 'Work', 'Result']}
+  rows={[
+    ['query(2, 7)', 'left block 0, right block 1, no middle blocks: add indices 2-3 (3 + 4) and indices 4-7 (5 + 6 + 7 + 8)', '33'],
+    ['update(5, 20)', 'block 1 sum changes by 20 - 6 = 14, so block sums become [10, 40, 19]', 'arr[5] = 20'],
+    ['query(2, 7)', 'same cells as before, with the new value 20 at index 5', '47']
+  ]}
+/>
+
+## Pseudocode
+
+```text
+build(arr):
+    B = max(1, ceil(sqrt(n)))
+    blocks = [0] * ceil(n / B)
+    for i in 0..n-1:  blocks[i // B] += arr[i]
+
+update(i, value):
+    blocks[i // B] += value - arr[i]
+    arr[i] = value
+
+query(l, r):                                  # inclusive
+    lb = l // B;  rb = r // B
+    if lb == rb:  return sum(arr[l..r])
+    total = sum(arr[l .. (lb + 1) * B - 1])   # left partial
+    total += sum(blocks[lb + 1 .. rb - 1])    # whole blocks
+    total += sum(arr[rb * B .. r])            # right partial
+    return total
+```
+
+## Implementation
+
+The three languages implement the same class with the same three operations: build, `update(index, value)` (sets a value) and `query(left, right)` (inclusive sum). There are no range updates and no other aggregate such as min or max.
+
+- **Python and Go** copy the input array, so `update` does not change the caller's list or slice.
+- **C++** copies it as well (the constructor takes `const vector<int>&`).
+- Queries and updates assume valid indices; an out-of-range index is not checked.
+- Sums use the language's integer: Python integers are unbounded, C++ `int` and Go `int` can overflow on huge totals.
+
+<TopicCode topic="Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition" />
+
+## Complexity analysis
+
+With block size `B`, a query handles up to `B - 1` elements on each side plus up to `n / B` block sums.
+
+<Equation label="Query cost" expr="T(B) = 2B + n / B" result="O(sqrt n) at B = sqrt n" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Build', time: 'O(n)', space: 'O(sqrt n)', when: 'One pass; the extra memory is one sum per block (plus the array copy).' },
+    { case: 'Range query', time: 'O(sqrt n)', when: 'At most two partial blocks of up to sqrt n elements, plus at most sqrt n whole blocks.' },
+    { case: 'Point update', time: 'O(1)', when: 'One array write and one block-sum adjustment.' },
+  ]}
+/>
+
+Making blocks smaller speeds up the partial scans but adds more blocks to sum; larger blocks do the opposite. `sqrt n` balances the two.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Per-block data', 'Cost']}
+  rows={[
+    ['Range sum with point update (this repository)', 'a sum', 'query O(sqrt n), update O(1)'],
+    ['Range add with a lazy flag per block', 'a sum and a pending add', 'update O(sqrt n), query O(sqrt n)'],
+    ['Count of values in a range', 'a frequency table or a sorted copy of the block', 'query O(sqrt n) or O(sqrt n log n) with binary search'],
+    ['Mo\'s algorithm', 'none: it orders the queries into blocks', 'offline queries, O((N + Q) sqrt N)']
+  ]}
+/>
+
+Only the first row exists in the repository.
+
+## vs alternatives
+
+<DataTable
+  columns={['Structure', 'Build', 'Query', 'Point update', 'Notes']}
+  highlight={0}
+  rows={[
+    ['Square root decomposition', 'O(n)', 'O(sqrt n)', 'O(1)', 'simple; flexible block summaries'],
+    ['Segment tree', 'O(n)', 'O(log n)', 'O(log n)', 'more code; faster queries'],
+    ['Fenwick tree', 'O(n)', 'O(log n)', 'O(log n)', 'tiny code; invertible operations only'],
+    ['Prefix sums', 'O(n)', 'O(1)', 'O(n)', 'static arrays']
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Very easy to write and to debug.',
+    'O(1) point updates, faster than a segment tree.',
+    'Handles summaries that are hard to merge in a tree, as long as they are easy per block.',
+    'Cache-friendly sequential scans.',
+  ]}
+  cons={[
+    'O(sqrt n) queries are slower than O(log n) structures.',
+    'The partial-block scans repeat for every query.',
+    'Range updates need a second, lazy layer; the repository has none.',
+    'Index errors at block borders are easy to introduce.',
+  ]}
+/>
+
+## Applications
+
+- Range sum with updates on mid-sized arrays.
+- Range queries where the block summary is a count, a frequency table or a sorted list.
+- Offline problems solved by Mo's algorithm, which applies the same block idea to queries.
+- A simple baseline to check a segment tree against.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Block size 0.** `ceil(sqrt(0))` is 0 and the index `i // 0` divides by zero. The code uses a minimum of 1.
+- **Reading the stored value on update.** The update must use `arr[i]` before overwriting it: `blocks[b] += value - arr[i]`.
+- **Treating the last block as full.** The last block may be partial; its sum is built from the elements that exist.
+- **Off-by-one at block borders.** The left partial runs to `(left_block + 1) * B - 1` inclusive; the right starts at `right_block * B`.
+- **Summing blocks when `l` and `r` share a block.** Handle that case first, or you count the wrong range.
+- **Overflow in fixed-width integers.** Block sums can be much larger than single elements.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is the block size sqrt n and not something else?">
+    The query cost is about `2B + n / B`. The first term grows with `B`, the second shrinks, and their sum is smallest when they are of the same order, at `B` close to sqrt n.
+  </FaqItem>
+  <FaqItem question="Does update mutate my input array?">
+    Not in any of the three languages: the constructor copies the array.
+  </FaqItem>
+  <FaqItem question="Is there a range update in the repository?">
+    No. Only point `update(index, value)` and range `query` are implemented. Range add needs a lazy flag per block.
+  </FaqItem>
+  <FaqItem question="What happens on an empty array?">
+    The block size is clamped to 1, there are no blocks, and construction succeeds. Any query on it would be out of range.
+  </FaqItem>
+</Faq>

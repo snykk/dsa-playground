@@ -1,0 +1,123 @@
+---
+category: Utilities/Optimization_Techniques
+title: Optimization Techniques
+lead: "Four ways to make a solution fit its time limit without changing the algorithm's idea: read input in bulk, precompute tables once, store a small set in one integer, and keep modular arithmetic exact. They attack different costs, so each applies to a different bottleneck."
+updated: 2026-11-13
+facts:
+  - label: Fast I/O
+    value: Batch the work
+    hint: fewer calls, bigger buffers
+  - label: Precomputed query
+    value: O(1)
+    hint: after a table build such as a sieve or prefix sum
+  - label: Bitmask subsets
+    value: 2^n
+    hint: practical up to n of about 20 to 25
+    tone: warn
+  - label: Modular power
+    value: O(log e)
+    hint: binary exponentiation
+contents:
+  - folder: Fast_IO
+    note: Read and write in big chunks. With about a million numbers, input handling can decide between passing and a time-limit error.
+  - folder: Precomputation
+    note: Pay once before the queries arrive. Factorial tables, sieves, prefix sums and sparse tables give O(1) or O(log n) per query.
+  - folder: Bitmasking
+    note: A small set as the bits of one integer. Set operations are single instructions and a DP state can index an array.
+  - folder: Modular_Arithmetic_Tricks
+    note: Safe reduction, fast power, inverses, factorial tables, Lucas and CRT, for answers modulo a prime such as 10^9 + 7.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Utilities/Templates
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+  - Problem_Patterns/Bit_Manipulation
+  - Algorithms/Mathematical_Algorithms/Number_Theory
+---
+
+## The problem
+
+In a contest the algorithm is often right and the program is still too slow, too big or wrong at the edges of the integer range. The four techniques here address those failures without a new idea:
+
+- **Input and output cost.** Millions of numbers read one call at a time. Fast I/O fixes it.
+- **Repeated work across queries.** The same table is rebuilt for every query. Precomputation moves that work before the first query.
+- **Subsets of a few items.** Sets stored as lists or booleans are slow to combine. Bitmasking makes a set one integer.
+- **Huge answers.** Counting problems ask for the answer modulo a prime. Modular tricks keep every step exact, fast and inside 64 bits.
+
+## At a glance
+
+<DataTable
+  columns={['Technique', 'Bottleneck it removes', 'Key tool', { label: 'Cost', kind: 'mono' }]}
+  rows={[
+    ['Fast I/O', 'many small reads and writes', '`sync_with_stdio(false)` in C++, `sys.stdin.readline` in Python, buffered readers', 'linear in the data, with a smaller constant'],
+    ['Precomputation', 'rebuilding tables per query', 'prefix sums, sieve, factorial tables, sparse table', 'O(n) to O(n log n) build, O(1) to O(log n) query'],
+    ['Bitmasking', 'slow set operations on a few items', 'AND, OR, XOR on one integer', 'O(1) per set operation, 2^n subsets'],
+    ['Modular arithmetic', 'overflow and huge counts', 'reduce after every operation, binary power, inverse', 'O(1) per operation, O(log e) for a power'],
+  ]}
+/>
+
+## Complexity
+
+<DataTable
+  columns={['Technique', { label: 'Setup', kind: 'mono' }, { label: 'Per operation', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['Fast I/O', 'one buffer or one setup line', 'O(1) per character', 'O(1), or the input size when read at once'],
+    ['Prefix sum', 'O(n)', 'O(1)', 'O(n)'],
+    ['Sieve', 'O(n log log n)', 'O(1)', 'O(n)'],
+    ['Sparse table', 'O(n log n)', 'O(1)', 'O(n log n)'],
+    ['Factorial tables', 'O(n)', 'O(1) for nCr', 'O(n)'],
+    ['All subsets as masks', 'none', 'O(2^n) in total', 'O(1)'],
+    ['Bitmask DP for TSP', 'none', 'O(n^2 2^n) in total', 'O(n 2^n)'],
+    ['Modular power', 'none', 'O(log e)', 'O(1)'],
+  ]}
+  caption="Figures from the topic articles. Fast I/O changes the constant factor only, and the repository gives no timing table for it."
+/>
+
+## Choosing a technique
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['up to a million numbers of input', 'Fast I/O', 'default readers can dominate the running time'],
+    ['many range sums or many prime tests', 'Precomputation', 'one table answers every query in O(1)'],
+    ['a minimum or maximum over ranges of a static array', 'Precomputation (sparse table)', 'O(1) per query, for min, max and gcd'],
+    ['subsets of 20 items or fewer', 'Bitmasking', 'a mask indexes a DP table'],
+    ['n is about 40', 'Meet in the middle', 'bitmasking over 2^40 subsets is out of reach'],
+    ['the answer is a count modulo 10^9 + 7', 'Modular arithmetic tricks', 'reduce after every operation and use inverse factorials'],
+    ['an interactive problem', 'flush after every query', 'buffering input and output breaks the conversation with the judge'],
+  ]}
+/>
+
+## Applications
+
+- **Contests,** where a tight limit often decides between passing and a time-limit error.
+- **Combinatorics and probability,** with `nCr` and fractions modulo a prime.
+- **Static range queries,** with prefix sums and sparse tables.
+- **Subset DP,** such as the travelling salesman problem over a few cities.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Optimizing I/O before the algorithm.** Fast I/O changes the constant factor only. An O(n^2) loop stays O(n^2).
+- **Using a sparse table for a sum.** It works for idempotent operations such as min, max and gcd. For sums, use prefix sums.
+- **Bitmasking beyond about 25 items.** There are 2^n masks, so the cost doubles with every item.
+- **Reducing too late.** In modular arithmetic, reduce after every operation. A plain product of two residues breaks 64 bits once the modulus exceeds about 3e9.
+- **Buffering an interactive problem.** The judge sees nothing until you flush, so read and write one query at a time.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with Fast I/O: it is the Beginner topic and the lowest-cost fix. Then Precomputation, Bitmasking and Modular Arithmetic Tricks, which are Intermediate. Bitmasking builds on the Bit Manipulation pattern, and the modular tricks build on the number-theory topics, so read those first if they are new.
+  </FaqItem>
+  <FaqItem question="Which technique helps most often?">
+    It depends on the problem. Fast I/O matters when the input is large, precomputation when queries repeat, and the modular tricks in almost every counting problem. They are tools you combine, for example factorial tables for `nCr` modulo a prime.
+  </FaqItem>
+  <FaqItem question="Do I need these outside contests?">
+    The ideas carry over. Batched I/O, lookup tables and compact set representations appear in ordinary software, and modular arithmetic appears in hashing and cryptography.
+  </FaqItem>
+  <FaqItem question="Where are the boilerplates that use them?">
+    In the Templates folder of Utilities, which holds C++, Go and Python starting files. Each of the three has buffered input and a modular power and inverse.
+  </FaqItem>
+</Faq>

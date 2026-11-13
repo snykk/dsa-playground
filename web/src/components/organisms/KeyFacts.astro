@@ -1,0 +1,70 @@
+---
+import type { Fact, Property } from '../../lib/article';
+import Icon from '../atoms/Icon.astro';
+import FactTile from '../molecules/FactTile.astro';
+
+/** The at-a-glance panel under an article title: fact tiles plus yes/no properties. */
+interface Props {
+  facts: Fact[];
+  properties?: Property[];
+}
+
+const { facts, properties = [] } = Astro.props;
+---
+
+<section class="key-facts" aria-label="Key facts">
+  <div class="facts">
+    {facts.map((f) => <FactTile {...f} />)}
+  </div>
+  {
+    properties.length > 0 && (
+      <ul class="properties">
+        {properties.map((p) => (
+          <li class:list={['property', p.value ? 'yes' : 'no']}>
+            <Icon name={p.value ? 'check' : 'cross'} size={15} />
+            {p.label}
+            <span class="visually-hidden">: {p.value ? 'yes' : 'no'}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>
+
+<style>
+  .key-facts {
+    margin: 0 0 8px;
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px;
+  }
+  .properties {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 0;
+    padding: 0;
+  }
+  .property {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px 4px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 14px;
+  }
+  .property.yes :global(svg) {
+    color: var(--viz-good);
+  }
+  .property.no {
+    color: var(--text-2);
+  }
+  .property.no :global(svg) {
+    color: var(--viz-bad);
+  }
+</style>

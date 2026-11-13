@@ -1,0 +1,228 @@
+---
+topic: Algorithms/String_Algorithms/Advanced_String/Aho_Corasick
+title: Aho-Corasick
+lead: Aho-Corasick finds every occurrence of every pattern from a whole dictionary in a single pass over the text. It builds a trie of the patterns, adds KMP-style failure links, and runs in O(n + m + z) time.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n + m + z)
+    hint: text n, total pattern length m, matches z
+  - label: Build
+    value: O(m)
+    hint: trie plus failure links, amortized
+  - label: Space
+    value: O(m)
+    hint: hash-map children, one node per trie position
+  - label: Approach
+    value: Trie + failure links
+properties:
+  - { label: Multi-pattern, value: true }
+  - { label: Online (reads the text once), value: true }
+  - { label: Reports overlapping matches, value: true }
+  - { label: Supports regular expressions, value: false }
+prerequisites:
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Data_Structures/Non_Linear/Trees/Trie
+related:
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Z_Algorithm
+  - Data_Structures/Non_Linear/Trees/Trie
+---
+
+## How Aho-Corasick works
+
+Searching `k` patterns with KMP one after another costs about `k` passes over the text. Aho-Corasick does one pass by merging the patterns into one machine. It is KMP's fall-back idea, applied to a trie.
+
+<Steps>
+  <Step title="Build a trie of the patterns">
+    Insert every pattern as a path from the root. The node at the end of a path stores the pattern (or its id). Empty patterns are skipped, and a pattern given twice is stored twice.
+  </Step>
+  <Step title="Add failure links with a BFS">
+    For each node `u`, `fail[u]` is the node for the longest proper suffix of `u`'s string that is also a prefix of some pattern. Nodes at depth 1 fail to the root. For a child `v` of `u` reached by character `c`, start at `fail[u]` and follow failure links until a node with a `c` edge appears; `fail[v]` is that child, or the root.
+  </Step>
+  <Step title="Add output links">
+    `output[v]` points to the nearest node along the failure chain that ends a pattern. Following output links lists every pattern that is a suffix of the current string, without visiting the nodes between.
+  </Step>
+  <Step title="Scan the text">
+    Keep a current node, starting at the root. For each character `c`, follow failure links while the node has no `c` edge (and is not the root), then step along `c` if possible. Report the patterns at the current node and along its output links, with the index `i` of `c` as the end index.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+After reading `T[0..i]`, the current node is the longest suffix of `T[0..i]` that is a prefix of some pattern. Every pattern that ends at `i` is a suffix of that string, so it is either the node itself or reachable by output links.
+</Callout>
+
+## The trie and its failure links
+
+For the patterns `he`, `she`, `his` and `hers`, the trie has 9 nodes besides the root. Aqua nodes end a pattern; the others are only prefixes.
+
+<TreeDiagram
+  label="Trie of he, she, his, hers"
+  legend={{ f: 'a node that ends a pattern' }}
+  root={{
+    label: 'root',
+    children: [
+      { label: 'h', edge: 'h', children: [
+        { label: 'he', edge: 'e', tone: 'f', children: [ { label: 'her', edge: 'r', children: [ { label: 'hers', edge: 's', tone: 'f' } ] } ] },
+        { label: 'hi', edge: 'i', children: [ { label: 'his', edge: 's', tone: 'f' } ] },
+      ] },
+      { label: 's', edge: 's', children: [ { label: 'sh', edge: 'h', children: [ { label: 'she', edge: 'e', tone: 'f' } ] } ] },
+    ],
+  }}
+/>
+
+The links the build computes (Python, children in insertion order):
+
+<DataTable
+  columns={['Node', 'fail', 'output', 'Patterns here']}
+  rows={[
+    ['`h`, `hi`, `her`', 'root', 'none', 'none'],
+    ['`s`', 'root', 'none', 'none'],
+    ['`sh`', '`h`', 'none', 'none'],
+    ['`she`', '`he`', '`he`', '`she`'],
+    ['`he`', 'root', 'none', '`he`'],
+    ['`his`', '`s`', 'none', '`his`'],
+    ['`hers`', '`s`', 'none', '`hers`'],
+  ]}
+/>
+
+`fail[she] = he` because `he` is the longest proper suffix of `she` that is also in the trie. That is also why a match of `she` reports `he` through the output link.
+
+## Worked example
+
+Patterns `he`, `she`, `his`, `hers` on the text `ushers`:
+
+<ArrayDiagram
+  legend={{ p: 'character being read', f: 'a match is reported here' }}
+  rows={[
+    { label: 'text', values: ['u', 's', 'h', 'e', 'r', 's'], tones: '......', note: 'Indices 0 to 5.' },
+    { label: 'i = 0, u', values: ['u', 's', 'h', 'e', 'r', 's'], tones: 'p.....', note: 'No `u` edge at the root: stay at the root.' },
+    { label: 'i = 1, s', values: ['u', 's', 'h', 'e', 'r', 's'], tones: '.p....', note: 'Move to node `s`.' },
+    { label: 'i = 2, h', values: ['u', 's', 'h', 'e', 'r', 's'], tones: '..p...', note: 'Move to node `sh`.' },
+    { label: 'i = 3, e', values: ['u', 's', 'h', 'e', 'r', 's'], tones: '...f..', note: 'Move to `she`: report `she`, then follow `output` to `he` and report it. Both end at index 3.' },
+    { label: 'i = 4, r', values: ['u', 's', 'h', 'e', 'r', 's'], tones: '....p.', note: '`she` has no `r` edge: fail to `he`, which does: move to `her`.' },
+    { label: 'i = 5, s', values: ['u', 's', 'h', 'e', 'r', 's'], tones: '.....f', note: 'Move to `hers`: report `hers` ending at index 5.' },
+  ]}
+/>
+
+The result is `[(3, 'she'), (3, 'he'), (5, 'hers')]`: end indices 3, 3 and 5, so the start indices are 1, 2 and 2.
+
+## Pseudocode
+
+```text
+build(patterns):
+    root = new node
+    for each non-empty pattern p (with id):
+        walk/create the path of p from the root
+        add p to the patterns list of the last node
+    queue = children of root, each with fail = root
+    while queue not empty:
+        u = queue.pop_front()
+        for (c, v) in children of u:
+            f = fail[u]
+            while f != root and f has no child c: f = fail[f]
+            if f has child c and that child is not v: fail[v] = child c of f
+            else:                                      fail[v] = root
+            output[v] = fail[v] if fail[v] has patterns else output[fail[v]]
+            queue.push_back(v)
+
+search(text):
+    node = root
+    for i = 0 to n - 1:
+        c = text[i]
+        while node != root and node has no child c: node = fail[node]
+        if node has child c: node = child c of node
+        report (i, p) for each p in patterns of node
+        out = output[node]
+        while out exists:
+            report (i, p) for each p in patterns of out
+            out = output[out]
+```
+
+## Implementation
+
+All three languages follow this structure with hash-map children and no precomputed goto table. Python reports `(end_index, pattern)` with code-point indices. C++ and Go report `(end_index, pattern_id)` with byte indices and give the pattern text back through `pattern(id)` / `Pattern(id)`.
+
+<TopicCode topic="Algorithms/String_Algorithms/Advanced_String/Aho_Corasick" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Build', time: 'O(m)', space: 'O(m)', when: 'The trie has at most m + 1 nodes. Failure walks are amortized per pattern, the same argument as the KMP table.' },
+    { case: 'Scan', time: 'O(n + z)', when: 'The current depth grows by at most 1 per character and each failure step lowers it, so there are at most n failure steps; each reported match costs one step.' },
+    { case: 'Total', time: 'O(n + m + z)', space: 'O(m)', when: 'z is the number of reported matches and can exceed n when patterns overlap.' },
+  ]}
+/>
+
+<Callout title="z can be large">
+With the patterns `a`, `aa`, `aaa`, ... and the text `aaaa...a`, every position reports many matches. The reporting cost is part of the bound, which is why it contains `z`.
+</Callout>
+
+Space is O(m) only because children are hash maps. A table of `sigma` entries per node, which gives O(1) transitions without the failure loop, costs O(m * sigma) memory.
+
+## Aho-Corasick vs alternatives
+
+<DataTable
+  columns={['Approach', 'Preprocessing', 'Matching', 'Best for']}
+  highlight={0}
+  rows={[
+    ['Aho-Corasick', 'O(m)', 'O(n + z)', 'many fixed patterns, one scan'],
+    ['KMP, once per pattern', 'O(m)', 'O(k * n)', 'one or two patterns'],
+    ['Rabin-Karp with a set of hashes', 'O(m)', 'O(n) expected for equal lengths', 'patterns of one length'],
+    ['A trie queried at every start', 'O(m)', 'O(n * longest pattern)', 'simple prefix dictionaries'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'One pass over the text, regardless of the number of patterns.',
+    'Reports overlapping matches and patterns that are suffixes of others.',
+    'Online: it needs only the current node, so it works on a stream.',
+    'The automaton is built once and reused for any number of texts.',
+  ]}
+  cons={[
+    'Fixed strings only: no wildcards or regular expressions.',
+    'The whole dictionary must fit in memory as a trie.',
+    'Adding a pattern means rebuilding the failure links.',
+    'The output size z can dominate when many patterns overlap.',
+  ]}
+/>
+
+## Applications
+
+- **Keyword and signature filters.** Spam words, profanity lists, and malware or intrusion signatures scanned in a single pass.
+- **Fixed-string search.** Searching for a large list of literal strings at once, as `grep -F` does.
+- **Bioinformatics.** Searching a sequence for a set of motifs.
+- **Streaming match.** Detecting any of a set of words as characters arrive, one at a time.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forgetting output links.** If pattern `he` is a suffix of `she`, finding `she` must also report `he`.
+- **Building failure links depth-first.** The BFS order guarantees that `fail[u]` is final before its children need it.
+- **Not stopping at the root.** The failure walk must stop at the root: it has no failure link, and a character with no edge there simply leaves you at the root.
+- **Empty patterns.** They are skipped, so they never report anything.
+- **Index conventions.** Python gives the pattern and a code-point index; C++ and Go give a pattern id and a byte index.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How is Aho-Corasick related to KMP?">
+    KMP's failure function is the failure link for a trie with a single path. Aho-Corasick generalises it to a trie of many patterns: `fail[u]` is the longest proper suffix of the node's string that is a prefix of some pattern.
+  </FaqItem>
+  <FaqItem question="Why do we need output links?">
+    A node's failure chain may contain several pattern ends. Without output links we would walk the whole chain at every character; with them we visit only nodes that actually end a pattern.
+  </FaqItem>
+  <FaqItem question="Why is the scan O(n + z) and not O(n * depth)?">
+    The depth of the current node increases by at most one per text character, and every failure step decreases it. So the total number of failure steps cannot exceed n.
+  </FaqItem>
+  <FaqItem question="Does it handle duplicate patterns?">
+    A duplicate is stored twice in the same node, so each occurrence is reported once per copy.
+  </FaqItem>
+</Faq>

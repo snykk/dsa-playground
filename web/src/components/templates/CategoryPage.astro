@@ -1,0 +1,62 @@
+---
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { getCollection } from 'astro:content';
+import { levelRange, type CategoryData } from '../../lib/category';
+import { githubUrl, topicsUnder, type DocNode } from '../../lib/repo';
+import '../../styles/article.css';
+import '../../styles/diagrams.css';
+import { hasViz as topicHasViz } from '../../viz/catalog';
+import ArticleHeader from '../organisms/ArticleHeader.astro';
+import CategoryContents from '../organisms/CategoryContents.astro';
+import KeyFacts from '../organisms/KeyFacts.astro';
+import RelatedTopics from '../organisms/RelatedTopics.astro';
+import BaseLayout from './BaseLayout.astro';
+
+/**
+ * Page for a category with a hand-written overview: header, key facts, its topics in reading
+ * order ("In this section"), the MDX body (the slot) and related pages. Categories without an
+ * overview use DocPage instead.
+ */
+interface Props {
+  node: DocNode;
+  category: CategoryData;
+  headings: MarkdownHeading[];
+  /** Whether the body embeds a visualization, so the header can link to it. */
+  hasViz: boolean;
+}
+
+const { node, category, headings, hasViz } = Astro.props;
+const topics = topicsUnder(node);
+const levels = new Map((await getCollection('articles')).map((a) => [a.data.topic, a.data.level]));
+const visualized = topics.filter((t) => topicHasViz(t.rel)).length;
+const stats = [
+  `${topics.length} ${topics.length === 1 ? 'topic' : 'topics'}`,
+  levelRange(topics.flatMap((t) => levels.get(t.rel) ?? [])),
+  visualized > 0 ? `${visualized} visualized` : undefined,
+].filter((s): s is string => s !== undefined);
+const toc: MarkdownHeading[] = [{ depth: 2, slug: 'in-this-section', text: 'In this section' }, ...headings];
+---
+
+<BaseLayout title={category.title} description={category.lead} currentSlug={node.slug} toc={toc}>
+  <article class="article">
+    <ArticleHeader
+      node={node}
+      title={category.title}
+      lead={category.lead}
+      stats={stats}
+      updated={category.updated}
+      prerequisites={category.prerequisites}
+      hasViz={hasViz}
+    />
+    {category.facts.length > 0 && <KeyFacts facts={category.facts} />}
+    <CategoryContents node={node} contents={category.contents} />
+    <div class="article-body">
+      <slot />
+    </div>
+    <RelatedTopics title="Related" topics={category.related} />
+    <p class="article-foot">
+      Spotted a mistake or something unclear?
+      <a href={githubUrl(node.rel, true)} target="_blank" rel="noopener noreferrer">See the source on GitHub</a>.
+    </p>
+  </article>
+</BaseLayout>

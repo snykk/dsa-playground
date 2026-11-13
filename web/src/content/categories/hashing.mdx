@@ -1,0 +1,136 @@
+---
+category: Data_Structures/Hashing
+title: Hashing
+lead: "Hashing turns a key into an array index, so lookups, inserts and deletes take O(1) on average. The four topics are the key-value map, the rules for two keys that land in one slot, the set that keeps only keys, and the Bloom filter that trades exactness for memory."
+updated: 2026-11-13
+facts:
+  - label: put, get, remove
+    value: O(1) average
+    hint: Hash_Table, with chaining and a doubling resize
+  - label: Worst case
+    value: O(n)
+    hint: every key in one bucket
+    tone: warn
+  - label: Resize at
+    value: load > 0.75
+    hint: Hash_Table and Hash_Set double their buckets
+  - label: Bloom filter
+    value: O(k)
+    hint: k hashes per operation; false positives, never false negatives
+contents:
+  - folder: Hash_Table
+    note: The key-value map. Separate chaining and a doubling resize, plus get_or_default, put_if_absent, update and copy.
+  - folder: Collision_Handling
+    note: What happens when two keys share a slot. Chaining, linear probing and quadratic probing, with tombstones for deletes.
+  - folder: Hash_Set
+    note: A hash table that keeps only keys. Each element is stored once and membership is O(1) on average.
+  - folder: Bloom_Filter
+    note: A bit array and k hashes. Tiny and fast, but it can say maybe for an item never added, and it cannot delete.
+prerequisites:
+  - Data_Structures/Linear/Array
+  - Data_Structures/Linear/Linked_List/Singly
+related:
+  - Data_Structures/Advanced_Structures/LRU_Cache
+  - Data_Structures/Advanced_Structures/LFU_Cache
+  - Data_Structures/Linear/String
+---
+
+## The problem
+
+A hash function maps a key to a number, and the number modulo the array size gives a slot. Looking up a key then costs one hash and one array access, however many keys are stored. The catch is that different keys can map to the same slot, which is called a collision, and every structure here needs a rule for it.
+
+The four topics split the work:
+
+- **Hash table:** the key-value map, using chaining and resizing.
+- **Collision handling:** the two families of rules, chaining and open addressing, compared on their own.
+- **Hash set:** the same table with only keys, for uniqueness and membership.
+- **Bloom filter:** a membership test that stores bits instead of items.
+
+## At a glance
+
+<DataTable
+  columns={['Structure', 'Stores', 'Answers', 'Collisions', { label: 'Core cost', kind: 'mono' }]}
+  rows={[
+    ['Hash table', 'key-value pairs', 'the value for a key', 'chaining; resizes when the load exceeds 0.75', 'O(1) average'],
+    ['Collision handling', 'key-value pairs, with a fixed capacity', 'the value for a key', 'chaining, linear probing or quadratic probing; no resizing', 'O(1 + load) chaining'],
+    ['Hash set', 'distinct keys', 'is the key present', 'chaining; resizes when the load exceeds 0.75', 'O(1) average'],
+    ['Bloom filter', 'bits only, no items', 'maybe present, or definitely absent', 'ignored: different items may set the same bits', 'O(k)'],
+  ]}
+/>
+
+The Hash_Table topic also has the map helpers: `get_or_default(key, default)` returns the default for an absent key, `put_if_absent(key, value)` returns `False` and keeps the old value when the key exists, and `update(other)` and `copy()` copy pairs between tables.
+
+## One set of keys, three collision rules
+
+Put the keys `1`, `17`, `33` and `2` into a table of 16 slots. For integers the hash is `key % 16`, so `1`, `17` and `33` all want slot 1, and `2` wants slot 2. These results come from running the `Collision_Handling` code in Python.
+
+<DataTable
+  columns={['Rule', 'Where the keys end up', 'After `remove(17)`']}
+  rows={[
+    ['Chaining', 'slot 1 holds the list `1, 17, 33`; slot 2 holds `2`', 'slot 1 holds `1, 33`; `get(33)` still finds it'],
+    ['Linear probing', 'slot 1: `1`, slot 2: `17`, slot 3: `33`, slot 4: `2`', 'slot 2 becomes a tombstone; `get(33)` still finds it'],
+    ['Quadratic probing', 'slot 1: `1`, slot 2: `17`, slot 3: `2`, slot 4: `33`', 'slot 2 becomes a tombstone; `get(33)` still finds it'],
+  ]}
+/>
+
+Linear probing tries the next slot each time, so `33` lands in slot 3 and then `2`, whose home slot 2 is taken, is pushed to slot 4. These keys form a cluster. Quadratic probing steps 1, 3, 6, ... slots away, so `2` finds slot 3 free and `33` goes to slot 4. After the removal, a lookup for `17` returns `None` and the size drops to 3 in all three, and the tombstone keeps the probe for `33` from stopping early.
+
+## Complexity
+
+<DataTable
+  columns={['Structure', { label: 'Average', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Note']}
+  rows={[
+    ['Hash table', 'O(1) put, get, remove', 'O(n)', 'O(n)', 'put is amortized, because of resizing'],
+    ['Chaining', 'O(1 + load)', 'O(n)', 'O(n)', 'load = n / buckets'],
+    ['Open addressing', 'O(1 / (1 - load))', 'O(n)', 'O(capacity)', 'expected probes for a miss with uniform probing; the code here is fixed-size and raises an error when the table is full'],
+    ['Hash set', 'O(1) add, contains, remove', 'O(n)', 'O(n)', 'same table, keys only'],
+    ['Bloom filter', 'O(k) add, contains', 'O(k)', 'about 9.6 bits per item at 1% false positives', 'for 1000 items at 1% the code uses 9586 bits and 7 hashes'],
+  ]}
+/>
+
+## Choosing a structure
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Look up a value by key', 'Hash table', 'O(1) average, and it resizes by itself'],
+    ['Remove duplicates, or ask "have I seen this?"', 'Hash set', 'no values to store, and membership is O(1) on average'],
+    ['See how collisions change behaviour', 'Collision handling', 'chaining and probing side by side, with deletes and a full table'],
+    ['Membership over a huge set, where memory matters and an occasional false yes is fine', 'Bloom filter', 'a few bits per item and no false negatives'],
+    ['Keys must come back in sorted order', 'a tree or a sorted list', 'a hash table does not keep keys in order'],
+  ]}
+/>
+
+## Applications
+
+- **Dictionaries and caches.** Key-value lookup, such as the map inside an LRU cache.
+- **Counting and deduplication.** Frequency tables and sets of seen items.
+- **Two-sum style problems.** Store what you have seen and test the complement in O(1).
+- **Pre-filters.** A Bloom filter checks first, and the slow lookup runs only on a maybe.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming O(1) in the worst case.** If every key hits one bucket, each operation is O(n).
+- **Deleting by emptying a slot in open addressing.** A tombstone is needed, or later probes stop too early and lose keys.
+- **Forgetting the table can fill.** The open-addressing tables in `Collision_Handling` have a fixed capacity and raise an exception when full.
+- **Expecting ordered keys.** Neither the table nor the set sorts or keeps insertion order.
+- **Treating a Bloom filter yes as certain.** It means maybe present. Only a no is exact, and an item cannot be deleted.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with the hash table. Collision handling then explains the rule it uses in more depth, the hash set is the same table with only keys, and the Bloom filter comes last because it gives up exactness.
+  </FaqItem>
+  <FaqItem question="What is the difference between a hash table and a hash set?">
+    A table stores a value for each key, and a set stores only the keys. Use a table when you need to attach data to a key and a set when you only ask whether a key is present.
+  </FaqItem>
+  <FaqItem question="Chaining or open addressing?">
+    Chaining is simpler, and its cost grows smoothly with the load. Open addressing keeps everything in one array but needs tombstones, and its cost rises sharply as the table fills. The Hash_Table topic uses chaining.
+  </FaqItem>
+  <FaqItem question="Why can a Bloom filter be wrong?">
+    Different items can set the same bits, so a never-added item may find all its k bits already set. An item that was added always finds its bits set, which is why there are no false negatives.
+  </FaqItem>
+</Faq>

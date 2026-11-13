@@ -1,0 +1,244 @@
+---
+topic: Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull
+title: Convex Hull
+lead: The convex hull of a set of points is the smallest convex polygon that contains all of them, like a rubber band stretched around nails. This repository computes it two ways, Graham's scan in O(n log n) and Jarvis march in O(nh), using exact cross-product comparisons.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Graham's scan
+    value: O(n log n)
+    hint: the sort dominates; the stack scan is linear
+  - label: Jarvis march
+    value: O(n h)
+    hint: h is the number of hull vertices; O(n^2) when every point is on the hull
+    tone: warn
+  - label: Extra space
+    value: O(n)
+    hint: a deduplicated copy of the points plus the hull
+  - label: Output
+    value: counterclockwise
+    hint: collinear boundary points are left out
+properties:
+  - { label: Exact on integer input, value: true }
+  - { label: Output sensitive (Jarvis), value: true }
+  - { label: Handles duplicates and collinear points, value: true }
+prerequisites:
+  - Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle
+  - Algorithms/Sorting/Quick_Sort
+related:
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Rotating_Calipers
+  - Algorithms/Computational_Geometry/Basic_Geometry/Line_Intersection
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points
+---
+
+## How convex hull works
+
+Everything rests on one test, the **cross product** `cross(o, a, b) = (a.x - o.x)(b.y - o.y) - (a.y - o.y)(b.x - o.x)`. Walking from `o` to `a` and then to `b`, the sign tells the kind of turn: positive for a left (counterclockwise) turn, negative for a right turn and zero if the three points are collinear. A counterclockwise walk around a convex polygon only ever turns left, so any vertex where the walk would turn right (or go straight) is not a hull vertex.
+
+### Graham's scan
+
+<Steps>
+  <Step title="Remove duplicates and pick a pivot">
+    Equal points are dropped (compared exactly). The pivot is the bottom-most point, leftmost on a tie. It is always a hull vertex, and every other point lies at or above its horizontal line.
+  </Step>
+  <Step title="Sort by angle around the pivot">
+    Point `a` comes before `b` if `cross(pivot, a, b) > 0`. Points on the same ray from the pivot are ordered nearest first.
+  </Step>
+  <Step title="Scan with a stack">
+    For each point `p`, pop the stack while the last two stack points and `p` do not make a strict left turn (`cross <= 0`), then push `p`. Each point is pushed once and popped at most once.
+  </Step>
+</Steps>
+
+### Jarvis march (gift wrapping)
+
+<Steps>
+  <Step title="Start at the leftmost point">
+    The leftmost point (lowest on a tie) is a hull vertex.
+  </Step>
+  <Step title="Pick the next vertex">
+    From the current vertex, scan all points and keep the one that is the most clockwise. On a tie (same ray) keep the farthest. Every other point is then on the left of, or on, the line to it.
+  </Step>
+  <Step title="Wrap until you return">
+    Repeat from the new vertex. The walk ends when the best next point is the starting point again.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+In Graham's scan the stack always holds a strictly convex chain from the pivot through the points seen so far. A new point can only cut off the tail of that chain, never the front. In Jarvis march every point added is a hull vertex, because all other points lie on its left.
+</Callout>
+
+## Worked example
+
+Seven points: `A (0,0)`, `B (3,0)`, `C (2,1)`, `D (1,1)`, `E (2,2)`, `F (3,3)` and `G (0,3)`. After sorting by angle around `A` the order is exactly `A, B, C, D, E, F, G`: `D`, `E` and `F` lie on the same ray (the diagonal), nearest first.
+
+<GraphDiagram
+  edges="A-B, A-C, A-D, A-E, A-F, A-G, B-F, F-G"
+  positions={{ A: [0, 100], B: [100, 100], C: [67, 67], D: [33, 67], E: [67, 33], F: [100, 0], G: [0, 0] }}
+  tones={{ A: 'p', B: 'f', F: 'f', G: 'f', C: 'm', D: 'm', E: 'm' }}
+  edgeTones={{ 'A-B': 'f', 'B-F': 'f', 'F-G': 'f', 'A-G': 'f' }}
+  width={360}
+  height={320}
+  legend={{ p: 'pivot, bottom-left point', f: 'hull vertex; its edges form the hull', m: 'interior point, removed by the scan' }}
+  caption="Grey lines show the sorted order around the pivot A; the aqua polygon A, B, F, G is the hull."
+/>
+
+The stack after each point (a point is popped when the turn it makes is a right turn):
+
+<DataTable
+  columns={['Point', 'Turn test', 'Stack afterwards']}
+  rows={[
+    ['A (0,0)', 'first point', 'A'],
+    ['B (3,0)', 'only one point on the stack', 'A B'],
+    ['C (2,1)', 'cross(A, B, C) = 3, left turn', 'A B C'],
+    ['D (1,1)', 'cross(B, C, D) = 1, left turn', 'A B C D'],
+    ['E (2,2)', 'cross(C, D, E) = -1: pop D; cross(B, C, E) = -1: pop C; cross(A, B, E) = 6: stop', 'A B E'],
+    ['F (3,3)', 'cross(B, E, F) = -3: pop E; cross(A, B, F) = 9: stop', 'A B F'],
+    ['G (0,3)', 'cross(B, F, G) = 9, left turn', 'A B F G'],
+  ]}
+  caption="Graham's scan on the example. The result is [(0,0), (3,0), (3,3), (0,3)]."
+/>
+
+Jarvis march gives the same polygon: from `A` the most clockwise point is `B`, from `B` it is `F`, from `F` it is `G`, and from `G` it is `A`, which ends the walk. The loop has four rounds, one per hull vertex, each scanning all seven points.
+
+## Pseudocode
+
+```text
+grahamScan(points):
+    pts = distinct points (exact comparison)
+    if size(pts) < 3: return pts sorted by (y, x)
+    bottom = point with smallest (y, x)
+    sort the other points: a before b if cross(bottom, a, b) > 0,
+                           on a tie, nearer to bottom first
+    hull = []
+    for p in [bottom] + sorted others:
+        while size(hull) > 1 and cross(hull[-2], hull[-1], p) <= 0:
+            pop hull
+        push p on hull
+    return hull
+
+jarvisMarch(points):
+    pts = distinct points (exact comparison)
+    if size(pts) < 3: return pts sorted by (x, y)
+    leftmost = point with smallest (x, y)
+    hull = [leftmost]
+    while size(hull) <= size(pts):
+        current = last of hull
+        next = none
+        for p in pts, p != current:
+            if next is none: next = p
+            else if cross(current, next, p) < 0
+                 or (cross == 0 and dist(current, p) > dist(current, next)):
+                next = p
+        if next == leftmost: break
+        append next to hull
+    return hull
+```
+
+## Implementation
+
+Both functions take a list of points and return a new list: the hull vertices in counterclockwise order. Graham's scan starts at the bottom-most point and Jarvis march at the leftmost point. Duplicates are removed, and with fewer than three distinct points the distinct points themselves are returned. All points collinear gives the two end points. The input is never modified, including in Go.
+
+All decisions use exact comparisons, with no tolerance. For integer coordinates this is exact in Python, and exact in C++ and Go as long as the cross products stay below 2<sup>53</sup>, which holds when coordinate differences are below about 6.7 &times; 10<sup>7</sup>. For non-integer coordinates the result can still differ in near-collinear cases, because of rounding.
+
+<TopicCode topic="Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: "Graham's scan", time: 'O(n log n)', space: 'O(n)', when: 'Sorting costs O(n log n). The scan is O(n): every point is pushed once and popped at most once.' },
+    { case: 'Jarvis march, small hull', time: 'O(n h)', space: 'O(n)', when: 'Each of the h hull vertices costs one pass over the n points.' },
+    { case: 'Jarvis march, worst case', time: 'O(n^2)', space: 'O(n)', when: 'All points are on the hull, so h = n.' },
+  ]}
+/>
+
+<Equation label="Gift wrapping" expr="T(n, h) = h * n" result="O(n h)" />
+
+In the comparison model, computing the hull needs <BigO of="n log n" /> time in general, so Graham's scan is optimal. Jarvis march wins when h is tiny, for example a constant, where it is linear. The extra space is the deduplicated copy of the input plus the output.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Algorithm', 'Time', 'In this repository', 'Idea']}
+  rows={[
+    ['Graham scan', 'O(n log n)', 'Yes', 'sort by angle around the lowest point, stack scan'],
+    ['Jarvis march', 'O(n h)', 'Yes', 'wrap around the set one vertex at a time'],
+    ['Andrew monotone chain', 'O(n log n)', 'No', 'sort by x, then build the lower and upper hulls; no angles needed'],
+    ['QuickHull', 'O(n log n) average, O(n^2) worst', 'No', 'divide and conquer on the farthest point from a line'],
+    ['Chan', 'O(n log h)', 'No', 'combines Graham and Jarvis for output-sensitive speed'],
+  ]}
+/>
+
+## Graham vs Jarvis
+
+<DataTable
+  columns={['', "Graham's scan", 'Jarvis march']}
+  highlight={0}
+  rows={[
+    ['Time', 'O(n log n)', 'O(n h)'],
+    ['Best for', 'general input, many hull points', 'very few hull vertices'],
+    ['Needs sorting', 'Yes', 'No'],
+    ['Starts at', 'bottom-most point', 'leftmost point'],
+    ['Weak spot', 'the angular sort must be consistent', 'quadratic when h is close to n'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Graham: optimal O(n log n), a short loop and a simple invariant.',
+    'Jarvis: no sorting, easy to write, and fast when the hull is small.',
+    'Exact integer arithmetic means no epsilon tuning, no hangs and no near-collinear mistakes on integer data.',
+  ]}
+  cons={[
+    'Jarvis degrades to O(n<sup>2</sup>) on points in convex position.',
+    'Both depend on exact orientation tests; floating-point input can still be misjudged near collinear configurations.',
+    'Both are 2D only and recompute from scratch; they do not support inserting points.',
+  ]}
+/>
+
+## Applications
+
+- **Collision detection.** A convex shape is cheaper to test than the raw point cloud.
+- **Diameter and width.** The farthest pair of points is always a pair of hull vertices; Rotating Calipers finds it from the hull.
+- **Shape analysis and graphics.** Bounding outlines, clipping and shape descriptors.
+- **Fencing and enclosure problems.** The shortest fence around a set of posts is its hull.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **A tolerance on the angle sort.** Treating angles that differ by less than 1e-9 as equal is not a consistent ordering. The scan can then keep interior points and return a hull that is not convex. Compare with the cross product instead.
+- **A tolerance in the gift-wrapping loop.** With an absolute 1e-9 on the cross product, tiny-scale input looks collinear everywhere, and the wrap never returns to the start. This is why the loop here uses exact comparisons and a size bound.
+- **Using `<` instead of `<=` when popping.** Popping only on right turns keeps collinear points on the boundary. This code pops on `cross <= 0`, so collinear boundary points are excluded.
+- **Forgetting duplicates.** Equal points make a zero-length edge and a zero cross product; they are removed first.
+- **Fewer than three points.** The hull is the distinct points themselves, not an error.
+- **Sorting the caller's list.** Work on a copy: reordering the argument is a side effect that callers do not expect.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the cross product decide hull membership?">
+    On a counterclockwise walk around a convex polygon every turn is a left turn. If the last two stack points and the next point make a right turn or are collinear, the middle point lies inside or on an edge of the polygon, so it cannot be a strict vertex and is popped.
+  </FaqItem>
+  <FaqItem question="Are collinear points on the hull boundary included?">
+    No. Only the corner vertices are returned. If all points are collinear, the result is the two end points.
+  </FaqItem>
+  <FaqItem question="Which one should I use?">
+    Use Graham's scan by default. Use Jarvis march when you know the hull is tiny compared with n. For production code, Andrew's monotone chain is the common choice, but it is not implemented in this repository.
+  </FaqItem>
+  <FaqItem question="Can I use decimals?">
+    Yes, but the orientation test is only as exact as the arithmetic. For decimal data that may be nearly collinear, scale to integers first, or accept that borderline points may be kept or dropped differently on different platforms.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Erect the Fence (LeetCode 587)', 'the hull including boundary points; this code excludes them, so add the points that lie on hull edges'],
+    ['Convex Hull (CSES)', 'output the hull vertices in order'],
+  ]}
+/>

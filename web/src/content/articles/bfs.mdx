@@ -1,0 +1,236 @@
+---
+topic: Algorithms/Graph_Algorithms/Traversal/BFS
+title: Breadth-First Search (BFS)
+lead: Breadth-First Search visits a graph in rings around the start vertex, nearest vertices first, using a queue. In an unweighted graph the first time it reaches a vertex is along a shortest path, so BFS gives shortest hop counts in O(V + E) time.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V + E)
+    hint: every vertex and edge is touched a constant number of times
+  - label: Extra space
+    value: O(V)
+    hint: visited set plus a queue that holds at most one ring or two
+  - label: Data structure
+    value: FIFO queue
+  - label: Weighted edges
+    value: Not supported
+    hint: use Dijkstra's algorithm instead
+    tone: warn
+properties:
+  - { label: Shortest path (unweighted), value: true }
+  - { label: Visits every reachable vertex, value: true }
+  - { label: Needs recursion, value: false }
+  - { label: Handles weights, value: false }
+prerequisites:
+  - Data_Structures/Linear/Queue
+  - Data_Structures/Non_Linear/Graph
+related:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm
+  - Problem_Patterns/Graph_Traversal_Problems
+---
+
+## How BFS works
+
+BFS explores a graph the way a ripple spreads on water. It first visits the start vertex, then everything one edge away, then everything two edges away, and so on. A FIFO queue produces exactly this order: vertices discovered earlier are expanded earlier.
+
+<Steps>
+  <Step title="Seed the queue">
+    Put the start vertex in the queue and mark it visited. The implementations return an empty result when the start is not a key of the graph.
+  </Step>
+  <Step title="Dequeue a vertex">
+    Take the vertex at the front of the queue and report it. This is the moment it is processed.
+  </Step>
+  <Step title="Discover its neighbors">
+    For every neighbor that is not yet visited, mark it visited **now** and append it to the queue. Neighbors already seen are skipped.
+  </Step>
+  <Step title="Repeat">
+    Go back to step 2 until the queue is empty. Every vertex reachable from the start has been visited exactly once.
+  </Step>
+</Steps>
+
+<Callout title="The invariant: the queue is sorted by distance">
+At every moment the queue holds vertices of distance d followed by vertices of distance d + 1, never anything else. A vertex of distance d + 1 can only be discovered while a distance-d vertex is dequeued, and all distance-d vertices leave the queue before any distance-(d + 1) vertex does. So the first time a vertex is discovered, it is discovered by a shortest path.
+</Callout>
+
+## See it in action
+
+Press play, or step through one dequeue at a time. Type your own edges, for example `A-B, A-C`, and finish with `; start A`. Watch the current vertex, the vertices waiting in the queue, and the tree edges that remember who discovered whom. Random builds a new graph.
+
+<ArticleViz ids={['bfs']} />
+
+## Worked example
+
+Take this undirected graph and start at A. The adjacency lists are in alphabetical order, so the neighbors of each vertex are scanned in that order.
+
+<GraphDiagram
+  edges="A-B, A-C, B-D, C-D, C-E, D-F, E-F, E-G"
+  positions={{ A: [4, 50], B: [30, 8], C: [30, 92], D: [58, 8], E: [58, 92], F: [92, 30], G: [92, 92] }}
+  tones={{ A: 'p', B: 'l', C: 'l', D: 'r', E: 'r', F: 'f', G: 'f' }}
+  badges={{ A: '0', B: '1', C: '1', D: '2', E: '2', F: '3', G: '3' }}
+  edgeTones={{ 'A-B': 'f', 'A-C': 'f', 'B-D': 'f', 'C-E': 'f', 'D-F': 'f', 'E-G': 'f' }}
+  legend={{ p: 'start (distance 0)', l: 'distance 1', r: 'distance 2', f: 'distance 3' }}
+  caption="The number above each vertex is its BFS distance. Highlighted edges are the BFS tree: each vertex is joined to the vertex that discovered it."
+/>
+
+The queue after each dequeue, front on the left:
+
+<ArrayDiagram
+  legend={{ l: 'current ring', r: 'next ring' }}
+  rows={[
+    { label: 'start', values: ['A'], tones: 'l', note: 'A is marked visited and queued.' },
+    { label: 'dequeue A', values: ['B', 'C'], tones: 'll', note: 'B and C are new: both queued. Order so far: A.' },
+    { label: 'dequeue B', values: ['C', 'D'], tones: 'lr', note: 'A is already visited. D is new. Order so far: A, B.' },
+    { label: 'dequeue C', values: ['D', 'E'], tones: 'rr', note: 'D was queued by B, so only E is new. Order so far: A, B, C.' },
+    { label: 'dequeue D', values: ['E', 'F'], tones: 'rr', note: 'F is new. Order so far: A, B, C, D.' },
+    { label: 'dequeue E', values: ['F', 'G'], tones: 'rr', note: 'G is new; F was already queued. Order so far: A, B, C, D, E.' },
+    { label: 'dequeue F, G', values: [], note: 'Nothing new is found. The queue is empty. Visit order: A, B, C, D, E, F, G.' },
+  ]}
+/>
+
+`bfs_level_order` returns the rings directly, `[[0], [1, 2], [3, 4], [5, 6]]` for this graph with A to G numbered 0 to 6. `bfs_with_path(g, 0, 6)` returns `[0, 2, 4, 6]`, that is A, C, E, G.
+
+## Pseudocode
+
+```text
+bfs(graph, start):
+    if start not in graph: return []
+    visited = {start}
+    queue = [start]
+    order = []
+    while queue is not empty:
+        v = queue.popFront()
+        order.append(v)
+        for each neighbor w of v:          # graph.get(v, []) for sink vertices
+            if w not in visited:
+                visited.add(w)             # mark on enqueue, not on dequeue
+                queue.pushBack(w)
+    return order
+
+bfsWithPath(graph, start, target):
+    if start == target: return [start]
+    if start not in graph: return none
+    parent = {start: none}
+    queue = [start]
+    while queue is not empty:
+        v = queue.popFront()
+        for each neighbor w of v:
+            if w == target:
+                return walk parents back from v to start, then append w
+            if w not in parent:
+                parent[w] = v
+                queue.pushBack(w)
+    return none
+```
+
+The path version stores one `parent` entry per vertex and rebuilds the path once at the end. Copying the whole path into every queue entry would cost O(V<sup>2</sup>) on a long path.
+
+## Implementation
+
+The Python, C++ and Go versions offer the same four functions: traversal order, shortest path, level order and shortest distance to every vertex. They all use an adjacency list (a dictionary or map from vertex to its neighbor list) and treat a vertex that appears only inside neighbor lists as a vertex without outgoing edges. Python also has `bfs_connected_components`. Each language comes with its tests.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Traversal/BFS" />
+
+Language notes:
+
+- Python uses `collections.deque`, so `popleft` is O(1). A plain list with `pop(0)` would make every dequeue O(V).
+- C++ uses `std::queue` with `unordered_map` and `unordered_set`.
+- Go uses a slice as the queue (`queue = queue[1:]`). That is fine here, but the slice keeps the dequeued prefix of its backing array alive until it is reallocated.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'All cases', time: 'O(V + E)', space: 'O(V)', when: 'Each vertex is queued and dequeued once, and each adjacency list is scanned once. An undirected edge is scanned twice, which is still O(E).' },
+  ]}
+/>
+
+The two terms are separate because a graph with many isolated vertices costs O(V) even though E is small, and a dense graph costs O(E), up to O(V<sup>2</sup>).
+
+<Equation label="Work" expr="sum over v of (1 + deg(v)) = V + E" result="O(V + E)" />
+
+<Callout title="Space is O(V), the answer is part of it">
+The visited set holds at most V vertices, and the queue never holds more than V vertices because a vertex is queued only once. On an adjacency matrix the same algorithm costs O(V<sup>2</sup>) time, because finding the neighbors of a vertex scans a whole row.
+</Callout>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Use it for']}
+  rows={[
+    ['Level-order BFS', 'process the queue one ring at a time (`bfs_level_order`)', 'distance layers, tree level order, "minimum number of steps"'],
+    ['Distance map', 'store `dist[w] = dist[v] + 1` on discovery (`bfs_shortest_distance`)', 'hop counts to every vertex'],
+    ['Multi-source BFS', 'start with several vertices in the queue at distance 0', 'nearest-gate or rotting-fruit style problems'],
+    ['0-1 BFS', 'a deque: push 0-weight edges to the front, 1-weight edges to the back', 'graphs whose weights are only 0 or 1'],
+    ['Bidirectional BFS', 'search from start and target and stop when the rings meet', 'one target in a huge graph with a large branching factor'],
+  ]}
+/>
+
+The repository implements the first two; the others reuse the same loop with a different starting queue or queue discipline.
+
+## BFS vs alternatives
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, 'Edge weights', 'Finds', 'Best for']}
+  highlight={0}
+  rows={[
+    ['BFS', 'O(V + E)', 'all equal (unweighted)', 'fewest edges', 'shortest hop count, level order'],
+    ['DFS', 'O(V + E)', 'ignored', 'any path', 'cycles, topological order, components, backtracking'],
+    ['Dijkstra', 'O((V + E) log V)', 'non-negative', 'least total weight', 'weighted shortest paths'],
+    ['Bellman-Ford', 'O(V * E)', 'negative allowed', 'least total weight', 'negative edges, negative-cycle detection'],
+    ['A*', 'depends on the heuristic', 'non-negative', 'least total weight', 'one target with a good heuristic'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Finds a path with the fewest edges, and the distance to every reachable vertex, in linear time.',
+    'Simple and iterative: no recursion limit, so deep graphs are safe.',
+    'Complete: it reaches every vertex of the start component.',
+    'The layered order matches many problems directly (levels, minimum moves, nearest source).',
+  ]}
+  cons={[
+    'Ignores edge weights: the fewest edges is not the cheapest path in a weighted graph.',
+    'The queue can hold a whole ring at once, which is large in a wide graph (a star graph queues V - 1 vertices).',
+    'Not suited to problems that need an explicit path structure, such as cycle detection by back edges or topological order.',
+  ]}
+/>
+
+## Applications
+
+- **Fewest steps.** Shortest route in a maze or grid, minimum moves in a puzzle, word-ladder style problems.
+- **Layers.** Level-order traversal of a tree, which is BFS on a tree.
+- **Reachability and components.** Which vertices can be reached from a start, and the connected components of an undirected graph.
+- **Multi-source distances.** Distance from each cell to the nearest source, by starting with all sources in the queue.
+- **Bipartite check.** Color the layers alternately; an edge inside one layer means the graph is not bipartite.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Marking on dequeue instead of on enqueue.** A vertex can then be queued many times before it is first dequeued. The result is still correct for plain traversal, but the queue can grow to O(E) and the work multiplies. Mark when you enqueue.
+- **Using BFS on weighted graphs.** BFS counts edges, not weights. For weights use Dijkstra, or 0-1 BFS when weights are only 0 or 1.
+- **A list as the queue.** `list.pop(0)` in Python and slicing in other languages can turn the dequeue into O(V). Use `deque`.
+- **Requiring the target to be a key.** A vertex that only appears in neighbor lists has no outgoing edges but is still reachable. Look neighbors up with a default empty list.
+- **Directed input to the components function.** `bfs_connected_components` is meant for symmetric (undirected) adjacency lists. On a directed graph it returns the vertices first reached from each unvisited key, not strongly connected components.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does BFS find the shortest path?">
+    It expands vertices in order of distance. Everything at distance d is dequeued before anything at distance d + 1, so a vertex is first discovered from a vertex that is as close to the start as possible. That discovery sets its distance, and nothing can improve it later.
+  </FaqItem>
+  <FaqItem question="Is BFS or DFS faster?">
+    Both are O(V + E). Choose by what you need: BFS for fewest edges and layers, DFS for structure such as cycles, finishing order and components.
+  </FaqItem>
+  <FaqItem question="Does BFS work on directed graphs?">
+    Yes. It follows edges in their direction and reaches exactly the vertices reachable from the start. Only the components function assumes an undirected graph.
+  </FaqItem>
+  <FaqItem question="How do I get the path and not only the distance?">
+    Record `parent[w] = v` when you discover `w`, then walk the parents back from the target and reverse the result. `bfs_with_path` does this and returns `None` (Python) or an empty list or vector (C++ and Go) when there is no path.
+  </FaqItem>
+</Faq>

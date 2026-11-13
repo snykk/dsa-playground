@@ -1,0 +1,136 @@
+---
+category: Data_Structures/Linear/Stack
+title: Stack Data Structure
+lead: A stack gives back the item pushed last. The three versions here share one API and the same O(1) operations and differ only in where the items live, so the choice is about capacity and memory, not about behaviour.
+updated: 2026-11-13
+facts:
+  - label: Push, pop, peek
+    value: O(1)
+    hint: in all three versions
+  - label: Order
+    value: LIFO
+    hint: the last item pushed leaves first
+  - label: Fixed capacity
+    value: Static only
+    hint: push raises an overflow error when full
+    tone: warn
+  - label: Memory per item
+    value: value + pointer
+    hint: linked-list version only
+contents:
+  - folder: Static_Array_Stack
+    note: A fixed-capacity array allocated once. Push on a full stack fails with an overflow error instead of growing.
+  - folder: Dynamic_Array_Stack
+    note: A growable array with no capacity limit. Push is O(1) amortized because the array grows by a constant factor.
+  - folder: Linked_List_Stack
+    note: One node per item and a pointer to the top. Push and pop are O(1) in the worst case and nothing is ever copied.
+prerequisites:
+  - Data_Structures/Linear/Array
+  - Data_Structures/Linear/Linked_List/Singly
+related:
+  - Data_Structures/Linear/Queue
+  - Problem_Patterns/Monotonic_Stack
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+---
+
+## The problem
+
+A stack allows two changes, push and pop, and both happen at the same end, called the top. The item you pushed last is the first one you get back (last in, first out).
+
+All three versions offer the same operations in Python, C++ and Go:
+
+- `push(x)` adds an item on top.
+- `pop()` removes and returns the top item.
+- `peek()` returns the top item without removing it.
+- `is_empty()` and `size()` report the state.
+- `pop` and `peek` on an empty stack fail with an error: `IndexError` in Python.
+
+The versions differ in one question: what happens when the stack runs out of room, and what does each item cost in memory?
+
+## At a glance
+
+<DataTable
+  columns={['Version', 'Storage', 'When full', 'Per-item memory', { label: 'Push', kind: 'mono' }]}
+  rows={[
+    ['Static array', 'one array of fixed capacity, allocated once (default 100)', '`push` raises `OverflowError` and the stack is unchanged', 'one slot', 'O(1) worst case'],
+    ['Dynamic array', 'a growable array (`list`, `vector`, slice)', 'never full: the array grows, and an occasional push copies it', 'one slot, plus spare capacity', 'O(1) amortized'],
+    ['Linked list', 'one node per item, linked from the top', 'never full: each push allocates one node', 'value + pointer', 'O(1) worst case'],
+  ]}
+/>
+
+Pop, peek, `is_empty` and `size` are O(1) in every version. The static stack's capacity must be at least 1; a smaller value raises `ValueError` in Python.
+
+## One sequence, three stacks
+
+Push `A`, `B` and `C`, then push `D`, pop twice and peek. The static stack here has capacity 3. These results come from running the Python versions.
+
+<DataTable
+  columns={['Step', 'Static (capacity 3)', 'Dynamic array', 'Linked list']}
+  rows={[
+    ['push A, B, C', 'top is `C`, size 3', 'top is `C`, size 3', 'top is `C`, size 3'],
+    ['push D', '`OverflowError: Stack overflow`, size stays 3', 'accepted, size 4', 'accepted, size 4'],
+    ['pop, pop', 'returns `C`, then `B`', 'returns `D`, then `C`', 'returns `D`, then `C`'],
+    ['peek, size', '`A`, 1', '`B`, 2', '`B`, 2'],
+  ]}
+/>
+
+Before the push of `D` the three stacks look identical. They separate only when the capacity bound is reached, which is the whole point of the static version: it turns "too many items" into an error you can handle.
+
+## Complexity
+
+<DataTable
+  columns={['Version', { label: 'Push', kind: 'mono' }, { label: 'Pop', kind: 'mono' }, { label: 'Peek', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['Static array', 'O(1)', 'O(1)', 'O(1)', 'O(capacity)'],
+    ['Dynamic array', 'O(1) amortized', 'O(1)', 'O(1)', 'O(n)'],
+    ['Linked list', 'O(1)', 'O(1)', 'O(1)', 'O(n)'],
+  ]}
+/>
+
+The static stack pays for its whole capacity up front, even when it is empty. The dynamic stack's O(1) push is amortized: one push in a while finds the array full and copies every item.
+
+## Choosing a stack
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['The maximum depth is known, or must be enforced', 'Static array', 'memory is fixed and overflow is an explicit error'],
+    ['General use, the size is not known in advance', 'Dynamic array', 'compact, cache-friendly and no limit other than memory'],
+    ['Every push must be O(1) in the worst case, not just on average', 'Linked list', 'no resize ever happens, so no single push is slow'],
+    ['Items are small and there are many of them', 'Dynamic array', 'the linked list adds a pointer and an allocation to every item'],
+  ]}
+/>
+
+## Applications
+
+- **Undo and redo.** Each action is pushed, and undo pops the latest.
+- **Expression evaluation and bracket matching.** Operators and open brackets wait on the stack.
+- **Depth-first search.** An explicit stack replaces the call stack.
+- **Monotonic stack problems.** Next greater element and similar questions.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Popping or peeking an empty stack.** Python raises `IndexError`. Check `is_empty()` first.
+- **Ignoring the overflow error.** A full static stack rejects the push and keeps the old state, so a swallowed error loses the item.
+- **Expecting the static stack to grow.** Its capacity is fixed when you create it.
+- **Reading the array beyond the top.** In the array versions the slots above the top may hold old values. Use `peek()` and `size()`.
+- **Assuming every push is cheap in the dynamic stack.** The average is O(1), but one push in a while copies the whole array.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which stack should I start with?">
+    Start with the static array stack: it shows the idea with the least machinery. Then read the dynamic array stack to see how the capacity limit is removed, and the linked list stack to see how pointers remove it without any copying.
+  </FaqItem>
+  <FaqItem question="Do the three versions behave differently?">
+    Not on valid use. The order of pops is the same, and so are the names of the operations. They differ only when the stack is full, which only the static stack can be, and in how much memory each item takes.
+  </FaqItem>
+  <FaqItem question="Why is push O(1) amortized in the dynamic stack?">
+    The array grows by a constant factor, so copies are rare. Spread over many pushes, the copying adds only a constant amount of work to each one.
+  </FaqItem>
+  <FaqItem question="Is a stack the same as the call stack?">
+    The call stack is one use of the idea: each function call pushes a frame and each return pops it. A stack in your own code gives you the same order without the depth limit of recursion.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,191 @@
+---
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson
+title: Ford-Fulkerson Method
+lead: Ford-Fulkerson finds the maximum flow in a network by repeatedly finding any path with spare capacity from source to sink and pushing flow along it. Backward edges in the residual graph let it undo earlier choices, and the max-flow min-cut theorem proves the result is optimal.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(E f)
+    hint: f is the value of the maximum flow, integer capacities
+    tone: warn
+  - label: Extra space
+    value: O(V + E)
+    hint: residual graph and DFS state
+  - label: Augmenting path
+    value: Any path
+    hint: found by DFS in this repository
+  - label: Termination
+    value: Integer capacities
+    hint: irrational capacities may never terminate
+properties:
+  - { label: Needs integer capacities to terminate, value: true }
+  - { label: Polynomial in the input size, value: false }
+  - { label: Gives a minimum cut, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+---
+
+## How Ford-Fulkerson works
+
+Ford-Fulkerson is a method, not one fixed algorithm: it says "keep augmenting" and leaves the choice of path open. This repository chooses the path with a depth-first search; Edmonds-Karp chooses it with BFS.
+
+The state is a **residual graph**. For each edge `u -> v` of capacity `c` carrying flow `f`, the residual graph holds a forward edge `u -> v` with `c - f` left and a backward edge `v -> u` with `f` left. Pushing flow along a backward edge means cancelling flow that was sent earlier.
+
+<Steps>
+  <Step title="Start with zero flow">
+    The residual graph is a copy of the input, plus a 0-capacity reverse edge for every edge.
+  </Step>
+  <Step title="Find an augmenting path">
+    Run DFS from the source over edges with positive residual capacity. Stop when the sink cannot be reached.
+  </Step>
+  <Step title="Push the bottleneck">
+    The bottleneck is the smallest residual capacity on the path. Subtract it from each forward edge and add it to each reverse edge. Add it to the total.
+  </Step>
+  <Step title="Repeat">
+    Each round raises the flow by at least 1 when capacities are integers, so the loop ends after at most `f` rounds.
+  </Step>
+</Steps>
+
+<Callout title="Why the answer is optimal: max-flow min-cut">
+When DFS fails, let `S` be the vertices it reached. Every original edge leaving `S` is full, and every original edge entering `S` carries zero flow, otherwise the DFS could have continued. So the net flow across the cut `(S, rest)` equals its capacity. Any flow is at most the capacity of any cut, hence this flow is a maximum flow and this cut is a minimum cut.
+</Callout>
+
+## Backward edges undo mistakes
+
+A diamond network: `0->1`, `0->2`, `1->3`, `2->3` all have capacity 1000, and the cross edge `1->2` has capacity 1. The Python code, with the edges in that order, takes the cross edge first:
+
+<DataTable
+  columns={['Round', 'Augmenting path', 'Bottleneck', 'Total flow']}
+  rows={[
+    ['1', '0 -> 1 -> 2 -> 3', '1', '1'],
+    ['2', '0 -> 1 -> 3', '999', '1000'],
+    ['3', '0 -> 2 -> 3', '999', '1999'],
+    ['4', '0 -> 2 -> 1 -> 3 (uses the backward edge 2 -> 1)', '1', '2000'],
+    ['5', 'none', '-', '2000'],
+  ]}
+/>
+
+<GraphDiagram
+  edges="0->1 1000, 0->2 1000, 1->3 1000, 2->3 1000, 1->2 1"
+  positions={{ 0: [4, 50], 1: [50, 10], 2: [50, 90], 3: [96, 50] }}
+  tones={{ 0: 'l', 3: 'f' }}
+  edgeTones={{ '1->2': 'p' }}
+  legend={{ l: 'source', f: 'sink', p: 'the cross edge with capacity 1' }}
+  caption="Round 4 sends one unit 0 -> 2 -> 1 -> 3. The step 2 -> 1 is the backward edge of the cross edge: it cancels the unit sent in round 1."
+  label="Diamond flow network with a cross edge"
+/>
+
+Edmonds-Karp finishes the same network in 2 rounds, because both shortest paths have two edges and the cross edge is never needed.
+
+## The exponential example
+
+With capacity `N` on four edges and 1 on the cross edge, an unlucky path choice can alternate between `0 -> 1 -> 2 -> 3` and `0 -> 2 -> 1 -> 3`, adding only 1 unit each time. That takes `2N` rounds for a maximum flow of `2N`: exponential in the number of digits of `N`. The DFS in the repository does not hit this pattern on the diamond above (it needs 4 rounds), but nothing in the method prevents a path order that does. That is the reason for Edmonds-Karp.
+
+If capacities are irrational, a careless path choice can even produce a sequence of flows that never terminates, and converges to a value below the true maximum. Integer capacities avoid this.
+
+## Pseudocode
+
+```text
+fordFulkerson(graph, s, t):
+    if s == t: return 0
+    residual = copy of graph
+    for each edge u -> v: residual[v][u] = residual[v][u] or 0   # reverse edges
+    maxFlow = 0
+    loop:
+        path = DFS(residual, s, t)         # any path of positive residual edges
+        if no path: return maxFlow
+        bottleneck = min residual[u][v] along path
+        for each edge (u, v) on path:
+            residual[u][v] -= bottleneck
+            residual[v][u] += bottleneck
+        maxFlow += bottleneck
+```
+
+## Implementation
+
+All three languages take a map `u -> {v: capacity}`. The DFS is iterative everywhere it matters: Python and C++ keep an explicit stack and a parent map, so a chain of 5000 (Python) or 200000 (C++) vertices works. Go uses a recursive helper, which is fine because goroutine stacks grow.
+
+Python offers three functions: `ford_fulkerson` (the value), `ford_fulkerson_with_path` (the value and the list of `(path, bottleneck)` pairs) and `min_cut` (the value and the two vertex sets). C++ and Go return the value only. In C++ the capacities are `int`, but the residual graph and the result are `long long`, and vertex ids can be any integer.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Rounds', time: 'at most f', when: 'With integer capacities each round pushes at least 1 unit, and f is the maximum flow value.' },
+    { case: 'One round', time: 'O(V + E)', space: 'O(V + E)', when: 'One DFS, which is O(E) when every vertex has an edge, plus the path update.' },
+    { case: 'Total', time: 'O(E f)', space: 'O(V + E)', when: 'Rounds times work per round. The bound depends on the capacity values, so it is pseudo-polynomial.' },
+  ]}
+/>
+
+<Equation label="Total work" expr="f rounds x O(E) per DFS" result="O(E f)" />
+
+The DFS stores one parent per vertex and rebuilds the path once, so a round costs O(V + E) and not O(V<sup>2</sup>), which copying the path at every step would cost.
+
+## Ford-Fulkerson vs Edmonds-Karp
+
+<DataTable
+  columns={['', 'Ford-Fulkerson (DFS)', 'Edmonds-Karp (BFS)']}
+  rows={[
+    ['Path choice', 'first path DFS finds', 'fewest edges'],
+    ['Time', 'O(E f), integer capacities', 'O(V E^2), any capacities'],
+    ['Worst case', 'exponential in the bits of the capacities', 'polynomial'],
+    ['Termination', 'integers only', 'always'],
+    ['Code', 'DFS, bottleneck, update', 'BFS, bottleneck, update'],
+    ['Good for', 'small capacities, simplicity', 'general use; also the safer default'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Simple: a graph search and a bottleneck update.',
+    'Fast when the maximum flow value is small.',
+    'The final residual graph gives a minimum cut for free.',
+  ]}
+  cons={[
+    'Running time depends on the capacity values, not only on the graph size.',
+    'May not terminate with irrational capacities.',
+    'Worse than Edmonds-Karp, Dinic or push-relabel when capacities are large.',
+  ]}
+/>
+
+## Applications
+
+- **Maximum flow and minimum cut.** For example network capacity, or the cheapest set of edges separating two vertices.
+- **Bipartite matching.** Source to the left side, right side to the sink, all capacities 1. The flow value is the matching size, and with unit capacities the number of rounds is at most the number of vertices.
+- **Edge-disjoint paths.** With capacity 1 on every edge the flow value counts them.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Missing backward edges.** Without them the algorithm is greedy and can stop below the maximum.
+- **Fixed-size visited array.** A `visited(1000)` array breaks as soon as a vertex id is 1000 or larger, or negative. Use a set or map keyed by vertex.
+- **Recursive DFS in Python.** A chain of about 1000 vertices raises `RecursionError`; keep the DFS iterative.
+- **Overflow in C++.** Use `long long` for the residual capacities and the total.
+- **Float capacities.** Rounding can leave tiny residual capacities and cause many extra rounds. Scale to integers when you can.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is Ford-Fulkerson polynomial?">
+    No. Its bound O(E f) depends on the maximum flow value, which can be exponential in the size of the input. Choosing shortest paths (Edmonds-Karp) or blocking flows (Dinic) gives polynomial bounds.
+  </FaqItem>
+  <FaqItem question="What are backward edges for?">
+    They represent flow that can be cancelled. Sending flow along `v -> u` reduces the flow on the original edge `u -> v`, which reroutes earlier flow without ever having to restart.
+  </FaqItem>
+  <FaqItem question="How do I read the minimum cut?">
+    After the last DFS, take the vertices reachable from the source in the residual graph. The Python `min_cut` returns this set and its complement. The original edges from the first set to the second form a minimum cut.
+  </FaqItem>
+  <FaqItem question="Why must capacities be integers?">
+    With integers every augmentation adds at least 1, which bounds the number of rounds. With irrational capacities a bad path order can produce an infinite sequence of ever smaller augmentations.
+  </FaqItem>
+</Faq>

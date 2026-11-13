@@ -1,10 +1,12 @@
 // Tarjan's algorithm for bridges & articulation points in an undirected graph.
-// Single O(V + E) DFS; uses edge-indexed parent tracking to handle parallel edges.
+// Single O(V + E) DFS (iterative, with an explicit stack); uses edge-indexed
+// parent tracking to handle parallel edges.
 
 #ifndef TARJAN_BRIDGES_H
 #define TARJAN_BRIDGES_H
 
 #include <algorithm>
+#include <cstddef>
 #include <set>
 #include <utility>
 #include <vector>
@@ -30,7 +32,7 @@ class TarjanBridges {
         std::set<std::pair<int, int>> bridge_set;
         std::set<int> ap_set;
         for (int i = 0; i < n_; ++i) {
-            if (disc_[i] == -1) dfs(i, -1, bridge_set, ap_set);
+            if (disc_[i] == -1) dfs(i, bridge_set, ap_set);
         }
         TarjanResult result;
         result.bridges.assign(bridge_set.begin(), bridge_set.end());
@@ -39,29 +41,50 @@ class TarjanBridges {
     }
 
  private:
-    void dfs(int u, int parent_edge,
+    // One frame per active call of the recursive formulation dfs(u, parent_edge).
+    struct Frame {
+        int u;
+        int parent_edge;
+        std::size_t next;  // next index into adj_[u]
+        int children;      // DFS-tree children found so far
+    };
+
+    // Iterative DFS from root with an explicit stack of frames, so a long path
+    // (10^5+ vertices) cannot overflow the call stack.
+    void dfs(int root,
              std::set<std::pair<int, int>>& bridges,
              std::set<int>& articulations) {
-        disc_[u] = low_[u] = timer_++;
-        int children = 0;
-        for (auto& [v, eid] : adj_[u]) {
-            if (eid == parent_edge) continue;
-            if (disc_[v] == -1) {                 // tree edge
-                ++children;
-                dfs(v, eid, bridges, articulations);
-                low_[u] = std::min(low_[u], low_[v]);
-                if (low_[v] > disc_[u]) {
-                    bridges.insert({std::min(u, v), std::max(u, v)});
+        disc_[root] = low_[root] = timer_++;
+        std::vector<Frame> stack{{root, -1, 0, 0}};
+        while (!stack.empty()) {
+            Frame& f = stack.back();
+            if (f.next < adj_[f.u].size()) {
+                auto [v, eid] = adj_[f.u][f.next++];
+                if (eid == f.parent_edge) continue;   // the edge we came in on
+                if (disc_[v] == -1) {                 // tree edge: descend into v
+                    ++f.children;
+                    disc_[v] = low_[v] = timer_++;
+                    stack.push_back({v, eid, 0, 0});  // f is invalid from here on
+                } else {                              // back edge
+                    low_[f.u] = std::min(low_[f.u], disc_[v]);
                 }
-                if (parent_edge != -1 && low_[v] >= disc_[u]) {
-                    articulations.insert(u);
-                }
-            } else {                              // back edge
-                low_[u] = std::min(low_[u], disc_[v]);
+                continue;
             }
-        }
-        if (parent_edge == -1 && children > 1) {
-            articulations.insert(u);
+            // f.u is finished: return to its parent, as after a recursive call
+            const Frame done = f;
+            stack.pop_back();
+            if (!stack.empty()) {
+                const Frame& p = stack.back();
+                low_[p.u] = std::min(low_[p.u], low_[done.u]);
+                if (low_[done.u] > disc_[p.u]) {
+                    bridges.insert({std::min(p.u, done.u), std::max(p.u, done.u)});
+                }
+                if (p.parent_edge != -1 && low_[done.u] >= disc_[p.u]) {
+                    articulations.insert(p.u);
+                }
+            } else if (done.children > 1) {           // root with >= 2 children
+                articulations.insert(done.u);
+            }
         }
     }
 

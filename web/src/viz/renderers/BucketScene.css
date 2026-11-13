@@ -1,0 +1,62 @@
+/* BucketScene organism: ArrayScene plus a row of bins (buckets) that fill up. */
+.bins {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 14px;
+  font-family: var(--font-mono);
+}
+/* Row captions, aligned with the label cell (18px) and the head cell (32px) of every bin. */
+.bins-axis {
+  flex: none;
+  width: 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.bins-axis-label {
+  height: 18px;
+  line-height: 18px;
+  padding-right: 8px;
+  font: 12px var(--font-sans);
+  color: var(--text-3);
+  text-align: right;
+}
+.bins-axis-head,
+.bins-axis-items {
+  height: 32px;
+  line-height: 32px;
+}
+.bins-axis-items {
+  margin-top: 4px; /* the bin's top padding */
+}
+.bin {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+/* The bucket itself: open at the top, so values visibly drop in.
+ * Width = cell + padding + border, also when empty, so nothing jumps sideways. */
+.bin-items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 40px;
+  min-height: 42px;
+  padding: 4px 3px;
+  border: 2px solid var(--axis);
+  border-top: none;
+  border-radius: 0 0 9px 9px;
+  transition: border-color 0.2s ease;
+}
+.bins.wide .bin-items {
+  min-width: 50px;
+}
+.bin.role-compare .bin-items,
+.bin.role-active .bin-items,
+.bin.role-done .bin-items {
+  border-color: var(--role);
+}

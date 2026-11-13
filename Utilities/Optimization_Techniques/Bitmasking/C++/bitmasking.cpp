@@ -2,7 +2,10 @@
  * Bitmasking Techniques for Competitive Programming (C++)
  */
 
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <bitset>
+#include <iostream>
+#include <vector>
 using namespace std;
 
 // Basic Bit Operations
@@ -34,11 +37,13 @@ int countBits(int mask) {
 
 // Count trailing zeros
 int trailingZeros(int mask) {
+    if (mask == 0) return 32;  // __builtin_ctz(0) is undefined
     return __builtin_ctz(mask);
 }
 
 // Count leading zeros
 int leadingZeros(int mask) {
+    if (mask == 0) return 32;  // __builtin_clz(0) is undefined
     return __builtin_clz(mask);
 }
 
@@ -65,6 +70,13 @@ void enumerateSubsets(int mask) {
 
 // Iterate through all subsets of size k
 void subsetsOfSizeK(int n, int k) {
+    // The only subset of size 0 is the empty set (Gosper's hack divides by the
+    // lowest set bit, which does not exist for mask == 0).
+    if (k == 0) {
+        cout << "Subset: " << bitset<8>(0) << endl;
+        return;
+    }
+
     // Generate first subset of size k
     int mask = (1 << k) - 1;
     
@@ -85,6 +97,7 @@ const int INF = 1e9;
 
 int tsp(vector<vector<int>>& dist) {
     int n = dist.size();
+    if (n <= 1) return 0;  // nothing to visit: the tour has length 0
     vector<vector<int>> dp(1 << n, vector<int>(n, INF));
     
     // Start from city 0
@@ -140,6 +153,7 @@ bool isPowerOf2(int n) {
 
 // Round up to next power of 2
 int nextPowerOf2(int n) {
+    if (n <= 0) return 1;
     n--;
     n |= n >> 1;
     n |= n >> 2;
@@ -167,6 +181,22 @@ int averageNoOverflow(int a, int b) {
     return (a & b) + ((a ^ b) >> 1);
 }
 
+// Sum Over Subsets DP: result[mask] = sum of a[sub] over all sub that are
+// subsets of mask. The length need not be a power of two (missing entries
+// count as absent).
+vector<long long> sosDp(const vector<long long>& a) {
+    int size = a.size();
+    int bits = 0;
+    while ((1 << bits) < size) bits++;
+    vector<long long> dp = a;
+    for (int i = 0; i < bits; i++) {
+        for (int mask = 0; mask < size; mask++) {
+            if (mask & (1 << i)) dp[mask] += dp[mask ^ (1 << i)];
+        }
+    }
+    return dp;
+}
+
 // Bitmask Set Operations
 
 class BitSet {
@@ -174,7 +204,7 @@ class BitSet {
     int n;
     
 public:
-    BitSet(int n) : n(n), bits((n + 63) / 64, 0) {}
+    BitSet(int n) : bits((n + 63) / 64, 0), n(n) {}
     
     void set(int i) {
         bits[i / 64] |= (1ULL << (i % 64));
@@ -198,7 +228,7 @@ public:
     
     BitSet operator&(const BitSet& other) const {
         BitSet result(n);
-        for (int i = 0; i < bits.size(); i++) {
+        for (size_t i = 0; i < bits.size(); i++) {
             result.bits[i] = bits[i] & other.bits[i];
         }
         return result;
@@ -206,13 +236,14 @@ public:
     
     BitSet operator|(const BitSet& other) const {
         BitSet result(n);
-        for (int i = 0; i < bits.size(); i++) {
+        for (size_t i = 0; i < bits.size(); i++) {
             result.bits[i] = bits[i] | other.bits[i];
         }
         return result;
     }
 };
 
+#ifndef IS_TEST_BUILD
 int main() {
     // Demo
     int mask = 0b10110;
@@ -227,4 +258,4 @@ int main() {
     
     return 0;
 }
-
+#endif  // IS_TEST_BUILD

@@ -1,0 +1,141 @@
+---
+category: Algorithms/Computational_Geometry/Advanced_Geometry
+title: Advanced Geometry
+lead: Three algorithms on point sets, built on the cross product. Convex Hull wraps a polygon around the points, Rotating Calipers measures that polygon in linear time, and Closest Pair finds the two nearest points by divide and conquer.
+updated: 2026-11-13
+facts:
+  - label: Convex hull, Graham
+    value: O(n log n)
+    hint: the sort dominates the scan
+  - label: Convex hull, Jarvis
+    value: O(n h)
+    hint: O(n^2) when every point is on the hull
+    tone: warn
+  - label: Rotating calipers
+    value: O(n)
+    hint: on a hull that is already known
+  - label: Closest pair
+    value: O(n log n)
+    hint: against O(n^2) for all pairs
+contents:
+  - folder: Convex_Hull
+    note: The smallest convex polygon around the points, by Graham's scan and Jarvis march. Collinear boundary points are left out.
+  - folder: Rotating_Calipers
+    note: Sweep two parallel lines once around a convex polygon for its diameter and width, in linear time.
+  - folder: Closest_Pair_of_Points
+    note: Split at a vertical line, solve both halves, then check a narrow strip. Duplicate points are legal input.
+prerequisites:
+  - Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle
+  - Algorithms/Divide_and_Conquer
+related:
+  - Algorithms/Computational_Geometry
+  - Algorithms/Computational_Geometry/Basic_Geometry
+  - Algorithms/Computational_Geometry/Basic_Geometry/Line_Intersection
+  - Algorithms/Sorting/Merge_Sort
+---
+
+## The problem
+
+Given n points in the plane, these algorithms answer global questions. What is the outer boundary? How wide is the set? Which two points are closest? A check of all pairs costs O(n^2). Each topic here finds the answer faster by using the geometry.
+
+The convex hull and rotating calipers belong together. The hull is the input that rotating calipers needs. Closest Pair is independent and uses divide and conquer, as in Merge Sort.
+
+What the code does with awkward input:
+
+- **Exact arithmetic.** The hull and the calipers compare cross products with exact zero. They use no tolerance, so integer input is handled exactly. The C++ and Go versions are exact while the cross products stay below 2^53.
+- **Collinear points.** Both hull functions pop on `cross <= 0`, so points lying on a hull edge are not in the output. If all points are collinear, the result is the two end points.
+- **Duplicates.** The hull removes equal points first. Closest Pair accepts duplicates and returns distance 0 for them.
+- **Few points.** Fewer than three distinct points are returned as they are by the hull. Closest Pair raises `ValueError` for fewer than two points.
+- **Orientation of the polygon.** The hull is counterclockwise. Graham's scan starts at the bottom-most point and Jarvis march at the leftmost point. Rotating calipers accepts either orientation.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Idea', 'Input', 'Output', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['Convex Hull, Graham', 'sort by angle around the lowest point, pop right turns and straight points', 'any points', 'hull vertices, counterclockwise', 'O(n log n)'],
+    ['Convex Hull, Jarvis', 'from each hull vertex pick the point with every other point on its left', 'any points', 'the same hull', 'O(n h)'],
+    ['Rotating Calipers', 'a second pointer follows the vertex farthest from the current edge', 'a convex polygon in order', 'diameter and width', 'O(n)'],
+    ['Closest Pair', 'solve both halves, then check a strip around the dividing line', 'any points', 'smallest distance and the pair', 'O(n log n)'],
+  ]}
+/>
+
+## One point set through all three
+
+The input has 10 points, with a duplicate and several collinear points: `(0,0)`, `(2,0)`, `(4,0)`, `(4,2)`, `(4,4)`, `(2,2)`, `(0,4)`, `(0,2)`, `(1,1)` and `(2,0)` again. All results come from running the Python code.
+
+<DataTable
+  columns={['Call', 'Result']}
+  rows={[
+    ['`graham_scan`', '`(0,0)`, `(4,0)`, `(4,4)`, `(0,4)`'],
+    ['`jarvis_march`', 'the same four corners'],
+    ['`rotating_calipers_diameter` on that hull', '5.657 (the square root of 32), between `(0,0)` and `(4,4)`'],
+    ['`rotating_calipers_width` on that hull', '4.0'],
+    ['`closest_pair` on the 10 points', '0.0, between the two copies of `(2,0)`'],
+  ]}
+/>
+
+The other six points are not reported. `(2,0)`, `(4,2)` and `(0,2)` lie on an edge, `(2,2)` and `(1,1)` are inside, and the second `(2,0)` is a duplicate, so both hull algorithms drop them. Calipers also copes with extra vertices: for the polygon `(0,0)`, `(2,0)`, `(4,0)`, `(4,4)`, `(0,4)`, where `(2,0)` lies on an edge, it removes that vertex first and returns the same width 4.0 and the same diameter.
+
+## Complexity
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Note']}
+  rows={[
+    ['Graham\'s scan', 'O(n log n)', 'O(n)', 'a deduplicated copy and the hull; optimal in the comparison model'],
+    ['Jarvis march, small hull', 'O(n h)', 'O(n)', 'one pass over the points per hull vertex'],
+    ['Jarvis march, worst case', 'O(n^2)', 'O(n)', 'every point is on the hull'],
+    ['Rotating calipers', 'O(n)', 'O(n)', 'a cleaned copy of the vertices; the hull itself costs O(n log n)'],
+    ['Closest pair', 'O(n log n)', 'O(n)', 'sorted by x and by y once; brute force below 4 points'],
+    ['Brute force closest pair', 'O(n^2)', 'O(1)', 'all n(n-1)/2 pairs'],
+  ]}
+/>
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['The outer boundary of many points', 'Graham\'s scan', 'O(n log n) on every input'],
+    ['Few hull vertices expected', 'Jarvis march', 'O(n h) is close to linear when h is small'],
+    ['The farthest pair of a point set', 'Convex Hull, then Rotating Calipers', 'the farthest pair is a pair of hull vertices, found in O(n) after the hull'],
+    ['The narrowest strip around a point set', 'Convex Hull, then Rotating Calipers', 'width is also found by the sweep'],
+    ['The two nearest points', 'Closest Pair of Points', 'O(n log n) instead of all pairs'],
+    ['A few points only', 'brute force', 'the setup of the faster methods is not worth it'],
+  ]}
+/>
+
+## Applications
+
+- **Collision detection.** A convex hull is a simple bound for a shape.
+- **Geographic information systems.** The outline of a region, the farthest two sites and the nearest pair of facilities.
+- **Computer graphics.** Bounding polygons and the width of a shape in a direction.
+- **Clustering and air traffic.** Closest pair finds the pair most at risk of collision.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **A tolerance on angles or cross products.** An angle sort with an epsilon is not a consistent ordering and can leave interior points on the hull. These codes compare exactly.
+- **Popping only on right turns.** Pop on `cross <= 0`. Popping on `< 0` keeps collinear points on the boundary.
+- **Feeding calipers a point set.** The input must be the vertices of a convex polygon in order. Compute the hull first.
+- **Moving the calipers pointer by distance.** It can stop at a local maximum. Drive it by triangle area.
+- **Splitting the y-sorted list by x value in Closest Pair.** Repeated x values go to the wrong half. Split by membership.
+- **Ignoring duplicates.** Equal points make a zero-length hull edge, and two copies of a point are a closest pair at distance 0.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Convex Hull first, then Rotating Calipers, which needs the hull. Closest Pair of Points is independent. Take it last, or after Merge Sort if divide and conquer is new to you.
+  </FaqItem>
+  <FaqItem question="Why are collinear boundary points left out of the hull?">
+    A point on an edge is not a corner. Both functions remove it so the result has only true vertices. If your problem needs points on the boundary, you need a variant that pops on `< 0` only.
+  </FaqItem>
+  <FaqItem question="Which hull algorithm should I use?">
+    Graham's scan, unless you expect a hull with only a handful of vertices. Jarvis march wins only when h is small. When every point is on the hull it takes O(n^2).
+  </FaqItem>
+  <FaqItem question="Does the order of the hull matter for calipers?">
+    No. The diameter and width code accepts a clockwise or counterclockwise polygon, and it removes repeated and collinear vertices before it starts.
+  </FaqItem>
+</Faq>

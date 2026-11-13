@@ -1,118 +1,62 @@
 # Greedy Algorithms
 
-This folder contains implementations of **Greedy Algorithms** - algorithms that make locally optimal choices at each step with the hope of finding a global optimum.
+A greedy algorithm builds an answer one step at a time and always takes the choice that looks best right now, without looking back. The four topics here show where that works, and each one pairs a rule with the reason it is correct. They also show where it breaks, because the same rule fails on the 0/1 knapsack and on weighted activities.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-Greedy algorithms build solutions step by step, always choosing the option that looks best at the moment. They don't reconsider previous choices, which makes them efficient but doesn't always guarantee optimal solutions.
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Activity Selection](Activity_Selection/) | Sort by finish time and take every activity that fits. The model example of a greedy proof. | Beginner |
+| 2 | [Fractional Knapsack](Fractional_Knapsack/) | Take items by value per unit of weight and cut the last one. Optimal because items can be split. | Beginner |
+| 3 | [Huffman Coding](Huffman_Coding/) | Merge the two lightest nodes again and again. Frequent symbols get short codes in the best prefix-free code. | Intermediate |
+| 4 | [Job Scheduling](Job_Scheduling/) | Highest profit first, into the latest free slot before its deadline. Two more rules cover lateness and weighted completion time. | Intermediate |
 
----
+The Minimum Spanning Tree algorithms, Kruskal's and Prim's, are also greedy. They live in [Minimum Spanning Tree](../Graph_Algorithms/Minimum_Spanning_Tree/), not here. Job Scheduling holds three rules, and C++ and Go do not cover all three. Huffman Coding is implemented in Python only; its C++ and Go files are placeholders.
 
-## Key Characteristics
+## How They Compare
 
-1. **Greedy Choice Property**: A global optimum can be reached by making locally optimal choices
-2. **Optimal Substructure**: Optimal solution contains optimal solutions to subproblems
-3. **No Backtracking**: Once a choice is made, it's never reconsidered
+| Topic | Greedy rule | Why it is optimal | Fails when |
+|-------|-------------|-------------------|------------|
+| Activity Selection | earliest finish time first | finishing early leaves the most room for the rest | activities carry weights |
+| Fractional Knapsack | highest value per unit of weight first | a unit of capacity always goes to the best ratio left | items cannot be cut (0/1 knapsack) |
+| Huffman Coding | merge the two least frequent nodes | in some optimal tree the two rarest symbols are siblings at the deepest level | one code per symbol is required (it is optimal in that setting) |
+| Job Scheduling | highest profit first, latest free slot | a more profitable job is placed first, and a later job never displaces it | jobs are not unit-time: the deadline rule assumes unit-time jobs |
 
----
+| Topic | Time | Extra space | What dominates |
+|-------|------|-------------|----------------|
+| Activity Selection | O(n log n) | O(n) | the sort by finish time; the scan is O(n) |
+| Fractional Knapsack | O(n log n) | O(n) | the sort by ratio; the fill is O(n) |
+| Huffman Coding | O(k log k) | O(k) | k heap merges; counting the text is O(N) |
+| Job Scheduling (deadlines) | O(n log n + n * min(D, n)) | O(n + D) | the sort by profit, then a slot search per job |
 
-## Algorithms
+`D` is the largest deadline and `k` the number of distinct symbols. Fractional Knapsack's O(n) extra space is the sorted copy in Python; C++ and Go sort the input in place.
 
-### 1. Activity Selection
-- **Time Complexity**: O(n log n)
-- **Space Complexity**: O(1)
-- **Description**: Select maximum number of non-overlapping activities
+## Choosing One
 
-### 2. Huffman Coding
-- **Time Complexity**: O(n log n)
-- **Space Complexity**: O(n)
-- **Description**: Optimal prefix-free encoding for data compression
+| Situation | Use | Why |
+|-----------|-----|-----|
+| Maximum number of non-overlapping intervals | Activity Selection | earliest finish first is provably optimal for the count |
+| Intervals with weights | [dynamic programming](../Dynamic_Programming/) | the greedy rule can lose |
+| Fill a bag with items that can be cut | Fractional Knapsack | the best ratio first is optimal |
+| Fill a bag with items that cannot be cut | [0/1 Knapsack](../Dynamic_Programming/2D_DP/0_1_Knapsack/) | a ratio rule can leave capacity unused |
+| Shortest prefix-free code for known symbol frequencies | Huffman Coding | no other prefix-free code with one code per symbol is shorter |
+| Unit-time jobs with deadlines and profits | Job Scheduling | highest profit first, into the latest free slot |
+| Connect all vertices with the cheapest edges | [Kruskal's or Prim's](../Graph_Algorithms/Minimum_Spanning_Tree/) | both are greedy and optimal on a weighted graph |
 
-### 3. Fractional Knapsack
-- **Time Complexity**: O(n log n)
-- **Space Complexity**: O(1)
-- **Description**: Maximize value with fractional items allowed
+## Common Pitfalls
 
-### 4. Job Scheduling
-- **Time Complexity**: O(n log n)
-- **Space Complexity**: O(n)
-- **Description**: Schedule jobs to maximize profit or minimize completion time
+- A rule that sounds right is not proof. Without a proof that the greedy choice is safe, test it against a brute force or a dynamic program on small inputs.
+- Activity Selection sorts by finish time. Earliest start or shortest duration gives wrong answers on easy inputs.
+- The fractional rule is optimal only because the last item can be cut. Applied to the 0/1 knapsack it can leave capacity unused.
+- The greedy rule in Activity Selection maximizes the count of activities, not their total weight.
+- The Huffman code is not unique: ties can be broken either way. Code lengths and total size stay optimal, but the exact bit strings can differ.
 
-### 5. Minimum Spanning Tree (MST)
-- **Kruskal's Algorithm**: O(E log E) or O(E log V)
-- **Prim's Algorithm**: O(E log V) with binary heap
-- **Description**: Find minimum weight spanning tree
+## Related
 
----
-
-## Comparison
-
-| Algorithm | Time Complexity | Space Complexity | Application |
-|-----------|----------------|------------------|-------------|
-| **Activity Selection** | O(n log n) | O(1) | Scheduling |
-| **Huffman Coding** | O(n log n) | O(n) | Compression |
-| **Fractional Knapsack** | O(n log n) | O(1) | Optimization |
-| **Job Scheduling** | O(n log n) | O(n) | Scheduling |
-| **Kruskal's MST** | O(E log E) | O(V) | Graph |
-| **Prim's MST** | O(E log V) | O(V) | Graph |
-
----
-
-## When to Use Greedy
-
-- ✅ Problem has greedy choice property
-- ✅ Optimal substructure exists
-- ✅ Need efficient solution
-- ❌ When global optimum is critical and greedy doesn't guarantee it
-- ❌ When choices affect future options significantly
-
----
-
-## Greedy vs Dynamic Programming
-
-| Aspect | Greedy | Dynamic Programming |
-|--------|--------|---------------------|
-| **Choices** | Make best choice now | Consider all choices |
-| **Subproblems** | One subproblem | Multiple overlapping subproblems |
-| **Optimality** | May not be optimal | Always optimal |
-| **Efficiency** | Usually faster | Usually slower |
-
----
-
-## Implementations
-
-Each algorithm is implemented in three languages:
-- **Python** (`[algorithm]/Python/`)
-- **C++** (`[algorithm]/C++/`)
-- **Go** (`[algorithm]/Go/`)
-
-All implementations include:
-- Complete source code
-- Comprehensive test suites
-- Detailed README documentation
-- Usage examples
-
----
-
-## Learning Path
-
-1. **Start with Activity Selection**: Simple greedy problem
-2. **Learn Fractional Knapsack**: Understand value/weight ratio
-3. **Study Huffman Coding**: Tree-based greedy algorithm
-4. **Explore MST Algorithms**: Graph-based greedy problems
-5. **Master Job Scheduling**: Complex greedy optimization
-
----
-
-## Related Topics
-
-- **Dynamic Programming**: Alternative approach when greedy fails
-- **Graph Algorithms**: Many greedy algorithms work on graphs
-- **Sorting**: Often needed as preprocessing for greedy algorithms
-
----
-
-_Last Updated: December 2025_
-
+- [Merge Sort](../Sorting/Merge_Sort/): read first.
+- [Dynamic Programming Algorithms](../Dynamic_Programming/): handles what greedy cannot, such as weighted activities.
+- [0/1 Knapsack](../Dynamic_Programming/2D_DP/0_1_Knapsack/): the knapsack where the greedy ratio rule fails.
+- [Minimum Spanning Tree](../Graph_Algorithms/Minimum_Spanning_Tree/): Kruskal's and Prim's algorithms, also greedy.
+- [Sorting Algorithms](../Sorting/): most greedy rules start with a sort.
