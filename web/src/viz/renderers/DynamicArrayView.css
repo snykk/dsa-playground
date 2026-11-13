@@ -1,0 +1,86 @@
+/* Dynamic array: blocks of slots, values that glide between them, and index markers. */
+.dyn-array-wrap {
+  overflow-x: auto;
+}
+.dyn-array {
+  position: relative;
+  margin: 0 auto;
+  font-family: var(--font-mono);
+}
+
+.dyn-block,
+.dyn-value,
+.dyn-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: transform 0.38s ease, opacity 0.3s ease;
+}
+
+.dyn-name {
+  position: absolute;
+  left: 0;
+  top: 16px;
+  width: 70px;
+  height: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  padding-right: 8px;
+  font: 12px/1.2 var(--font-sans);
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.dyn-name strong {
+  font-size: 13px;
+  color: var(--text);
+}
+.dyn-name small {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.dyn-block:not(.role-idle):not(.role-muted) .dyn-name strong {
+  color: var(--role);
+}
+
+.dyn-indices,
+.dyn-slots {
+  position: absolute;
+  display: flex;
+  gap: 4px;
+}
+.dyn-indices .cell {
+  height: 16px;
+}
+/* An empty slot: allocated capacity that holds no element. */
+.dyn-slots .cell {
+  border-style: dashed;
+  border-color: var(--viz-neutral);
+  background: transparent;
+}
+
+.dyn-value .cell {
+  font-weight: 600;
+}
+.dyn-value.ghost {
+  opacity: 0.35;
+}
+
+.dyn-marker span {
+  display: block;
+  text-align: center;
+  font: 700 12px var(--font-sans);
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.dyn-marker:not(.role-idle):not(.role-muted) span {
+  color: var(--role);
+}
+
+.dyn-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}

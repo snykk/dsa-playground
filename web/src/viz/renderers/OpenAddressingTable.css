@@ -1,0 +1,5 @@
+/* OpenAddressingTable organism: a row of slots with a sliding probe marker. */
+.oa-table {
+  overflow-x: auto;
+  padding: 10px 2px 4px;
+}

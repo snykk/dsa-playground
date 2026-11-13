@@ -49,6 +49,12 @@ An empty list is `head = None`. Because there is no index arithmetic, you reach 
 The head is the only handle on the chain. If you overwrite it before saving what it pointed to, every node behind it becomes unreachable. Every operation below is an exercise in updating `next` references in the right order.
 </Callout>
 
+## See it in action
+
+Each new node is lifted off the row, linked, then settles into place, and a deleted node is bypassed before it fades out; try **Walk to the tail** to see the walk that makes `insert_at_tail` O(n), or **Delete head, middle, tail** for every case of `delete`.
+
+<ArticleViz ids={['singly-linked-list']} />
+
 ## Operations
 
 <DataTable

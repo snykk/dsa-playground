@@ -8,7 +8,7 @@ export const entries: VizInfo[] = [
     title: 'Linear Search',
     group: 'Searching',
     blurb: 'Compare every value from the left until one matches: the only option when the data has no order.',
-    topics: ['Algorithms/Searching/Linear_Search'],
+    topics: ['Algorithms/Searching/Linear_Search', 'Algorithms/Searching'],
   },
   {
     id: 'binary-search',
@@ -22,14 +22,14 @@ export const entries: VizInfo[] = [
     title: 'Ternary Search',
     group: 'Searching',
     blurb: 'Two probes split the sorted range into thirds and keep one; it needs more probes than binary search.',
-    topics: ['Algorithms/Searching/Ternary_Search'],
+    topics: ['Algorithms/Searching/Ternary_Search', 'Algorithms/Searching'],
   },
   {
     id: 'interpolation-search',
     title: 'Interpolation Search',
     group: 'Searching',
     blurb: 'Guess the position from the value along the line between the range ends: one probe on evenly spread data.',
-    topics: ['Algorithms/Searching/Interpolation_Search'],
+    topics: ['Algorithms/Searching/Interpolation_Search', 'Algorithms/Searching'],
   },
 ];
 

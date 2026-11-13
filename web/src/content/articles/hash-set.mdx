@@ -3,7 +3,7 @@ topic: Data_Structures/Hashing/Hash_Set
 title: Hash Set
 lead: A hash set stores each distinct element once and tests membership in O(1) on average. It is a hash table that keeps only keys, which makes it the standard tool for removing duplicates and answering "have I seen this before?".
 level: Beginner
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: add / contains / remove
     value: O(1) average
@@ -46,6 +46,12 @@ This implementation uses separate chaining: each bucket is a small list. Here ar
 <Callout title="Membership is one bucket">
 `contains(x)` never looks outside bucket `hash(x) mod capacity`. As long as chains stay short (the table resizes when the load passes 0.75), that is a constant amount of work.
 </Callout>
+
+## See it in action
+
+Run **Add and resize**: 10, 14 and 18 share bucket 2, adding 3 pushes the load past 0.75, and the set doubles to 8 buckets and adds every element again; then `add(14)` returns False because 14 is already there.
+
+<ArticleViz ids={['hash-set']} />
 
 ## Operations
 

@@ -1,6 +1,11 @@
 #include "circular_queue.cpp"
 #include <cassert>
 #include <iostream>
+#include <type_traits>
+
+// Regression: the queue owns a raw array, so a copy would free it twice and must not compile.
+static_assert(!std::is_copy_constructible<CircularQueue>::value, "CircularQueue must not be copyable");
+static_assert(!std::is_copy_assignable<CircularQueue>::value, "CircularQueue must not be copy-assignable");
 
 int main() {
     CircularQueue q(3);

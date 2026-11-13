@@ -9,10 +9,13 @@ import Breadcrumbs from '../molecules/Breadcrumbs.astro';
 
 /**
  * Top of an article: breadcrumbs, title, lead, difficulty and dates, prerequisites and quick
- * actions. A topic shows its level; a category overview shows `stats` such as "4 topics".
+ * actions. A topic shows its level; a category overview shows `stats` such as "4 topics". A
+ * root document (the overview, the study guide) has no folder: it passes `source` instead.
  */
 interface Props {
-  node: DocNode;
+  node?: DocNode;
+  /** GitHub link for a page without a folder; a folder links to itself. */
+  source?: string;
   title: string;
   lead: string;
   level?: Level;
@@ -22,7 +25,7 @@ interface Props {
   hasViz: boolean;
 }
 
-const { node, title, lead, level, stats = [], updated, prerequisites, hasViz } = Astro.props;
+const { node, source, title, lead, level, stats = [], updated, prerequisites, hasViz } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const content = getContent();
 const before = prerequisites.map((rel) => {
@@ -30,12 +33,13 @@ const before = prerequisites.map((rel) => {
   if (!n) throw new Error(`Article "${title}": unknown prerequisite folder "${rel}"`);
   return n;
 });
-const languages = node.languages.map((l) => l.label).join(', ');
+const languages = (node?.languages ?? []).map((l) => l.label).join(', ');
+const github = node ? githubUrl(node.rel, true) : source;
 const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 ---
 
 <header class="article-header">
-  <Breadcrumbs node={node} />
+  <Breadcrumbs node={node} title={title} />
   <h1>{title}</h1>
   <p class="lead" set:html={formatInline(lead)} />
 
@@ -69,15 +73,19 @@ const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'shor
       )
     }
     {
-      node.languages.length > 0 && (
+      languages && (
         <Button href="#code" size="sm">
           <Icon name="code" size={15} /> Code
         </Button>
       )
     }
-    <Button href={githubUrl(node.rel, true)} size="sm" external>
-      <Icon name="github" size={15} /> GitHub
-    </Button>
+    {
+      github && (
+        <Button href={github} size="sm" external>
+          <Icon name="github" size={15} /> GitHub
+        </Button>
+      )
+    }
   </div>
 </header>
 

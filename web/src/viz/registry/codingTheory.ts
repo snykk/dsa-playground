@@ -8,7 +8,7 @@ export const entries: VizInfo[] = [
     title: 'Reed-Solomon Decoding',
     group: 'Coding Theory',
     blurb: 'Encode, corrupt, then watch syndromes, Berlekamp-Massey, Chien search and Forney repair the bytes.',
-    topics: ['Algorithms/Coding_Theory/Reed_Solomon'],
+    topics: ['Algorithms/Coding_Theory/Reed_Solomon', 'Algorithms/Coding_Theory'],
   },
 ];
 

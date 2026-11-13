@@ -3,7 +3,7 @@ topic: Data_Structures/Hashing/Hash_Table
 title: Hash Table
 lead: A hash table (also called a hash map) stores key-value pairs in an array of buckets and finds a key by hashing it to a bucket index. With separate chaining and a doubling resize, put, get and remove take O(1) on average. It also covers the map helpers (default values, insert if absent, update, copy).
 level: Beginner
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: put / get / remove
     value: O(1) average
@@ -55,6 +55,12 @@ Different keys can land in the same bucket (a *collision*). This table uses **se
 <Callout title="Two ideas make it fast">
 A good hash function spreads keys evenly, so chains stay short. And the table **resizes**: when the number of pairs divided by the number of buckets (the *load factor*) passes 0.75, the capacity doubles and every pair is placed again, which keeps the average chain length below 1.
 </Callout>
+
+## See it in action
+
+Run **Resize: chains move**: the fourth key pushes the load to 4/4, the table doubles to 8 buckets, and every pair moves to its new bucket one at a time; **Bad keys: one long chain** shows `get` comparing six keys in one bucket.
+
+<ArticleViz ids={['hash-table']} />
 
 ## Operations
 

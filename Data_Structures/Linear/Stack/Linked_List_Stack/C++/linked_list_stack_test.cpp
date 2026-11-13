@@ -3,7 +3,12 @@
 #include <iostream>
 #include <cstdlib>
 #include <new>
+#include <type_traits>
 using namespace std;
+
+// Regression: a copy would share the nodes and free them twice, so it must not compile.
+static_assert(!is_copy_constructible<LinkedListStack>::value, "LinkedListStack must not be copyable");
+static_assert(!is_copy_assignable<LinkedListStack>::value, "LinkedListStack must not be copy-assignable");
 
 // Count live heap allocations so the test can detect leaked nodes.
 static long live_allocations = 0;

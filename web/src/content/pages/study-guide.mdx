@@ -1,0 +1,168 @@
+---
+page: study-guide
+title: Study Guide
+lead: "A week-by-week path through every topic in the repository, from measuring the cost of code to competitive programming. Each phase has a goal, its topics in reading order and a milestone that tells you when to move on."
+updated: 2026-11-13
+facts:
+  - label: Phases
+    value: "5"
+    hint: from foundations to competitive programming
+  - label: Length
+    value: about 15 weeks
+    hint: then open-ended contest practice
+  - label: Each phase ends with
+    value: a milestone
+    hint: the check that you are ready for the next one
+---
+
+## How to use this guide
+
+- Follow the phases in order, and inside a phase the lists and the order of their topics. Skip what you already know.
+- Pick one language. Every topic has Python, C++ and Go code with tests; Python is gentle for a first pass and C++ is the usual choice for contests.
+- Read the topic article first. Then read the code, close it, and write your own version; run the tests to check it.
+- Solve a few practice problems per topic before you move on. Depth matters more than speed.
+- The level next to each topic (Beginner, Intermediate, Advanced) comes from its article, and a green dot marks a topic you can watch in a visualization.
+
+## The five phases
+
+<DataTable
+  columns={['Phase', 'Weeks', 'Focus']}
+  rows={[
+    ['1. Foundations', '1-3', 'complexity, arrays and strings, linked lists, stacks and queues, the first sorts and searches'],
+    ['2. Core Structures', '4-6', 'hashing, trees, heaps, graph representations and the first traversals'],
+    ['3. Problem Patterns', '7-10', 'scan patterns, monotonic structures, groups, greedy, backtracking and the first dynamic programming'],
+    ['4. Advanced Algorithms and Structures', '11-15', 'shortest paths and spanning trees, advanced graphs, string algorithms, range queries, specialist trees, advanced DP'],
+    ['5. Competitive Programming', '16 onward', 'decompositions, number theory, counting tricks, geometry, randomized algorithms, coding theory and contest utilities'],
+  ]}
+/>
+
+## Phase 1: Foundations
+
+**Weeks 1-3.** Measure the cost of code, then learn the sequences and the first sorts and searches.
+
+**Why this order:** Everything later is judged by its cost, and every other structure is built from arrays, nodes, stacks and queues.
+
+<TopicList title="Complexity analysis" note="Big-O, Big-Omega and Big-Theta are bounds on a function; best, average and worst are cases. Any case can take any bound." topics={['Complexity_Analysis/Time_Complexity/Big_O_Notation', 'Complexity_Analysis/Time_Complexity/Big_Omega', 'Complexity_Analysis/Time_Complexity/Big_Theta', 'Complexity_Analysis/Space_Complexity', 'Complexity_Analysis/Amortized_Analysis']} />
+
+<TopicList title="Arrays and strings" topics={['Data_Structures/Linear/Array', 'Data_Structures/Linear/String/String_Basics', 'Data_Structures/Linear/String/String_Manipulation']} />
+
+<TopicList title="Linked lists, stacks and queues" note="The priority queue waits for heaps in Phase 2." topics={['Data_Structures/Linear/Linked_List/Singly', 'Data_Structures/Linear/Linked_List/Doubly', 'Data_Structures/Linear/Linked_List/Circular', 'Data_Structures/Linear/Stack/Static_Array_Stack', 'Data_Structures/Linear/Stack/Dynamic_Array_Stack', 'Data_Structures/Linear/Stack/Linked_List_Stack', 'Data_Structures/Linear/Queue/Simple_Queue', 'Data_Structures/Linear/Queue/Circular_Queue', 'Data_Structures/Linear/Queue/Deque']} />
+
+<TopicList title="Basic sorting and searching" note="Binary search is the one to master." topics={['Algorithms/Sorting/Bubble_Sort', 'Algorithms/Sorting/Insertion_Sort', 'Algorithms/Sorting/Selection_Sort', 'Algorithms/Sorting/Merge_Sort', 'Algorithms/Sorting/Quick_Sort', 'Algorithms/Searching/Linear_Search', 'Algorithms/Searching/Binary_Search']} />
+
+<Callout tone="tip" title="Milestone">
+You can state the cost of a loop or a recursion, and solve LeetCode Easy problems reliably.
+</Callout>
+
+## Phase 2: Core Structures
+
+**Weeks 4-6.** Make hash tables, trees, heaps and graphs feel natural, and traverse a graph.
+
+**Why this order:** Hashing and trees come first, heaps reuse the tree idea, and the graph layouts must exist before BFS and DFS can run on them.
+
+<TopicList title="Hashing" topics={['Data_Structures/Hashing/Hash_Table', 'Data_Structures/Hashing/Collision_Handling', 'Data_Structures/Hashing/Hash_Set', 'Data_Structures/Hashing/Bloom_Filter']} />
+
+<TopicList title="Trees" note="Binary tree and BST first; the AVL tree shows how balancing keeps O(log n)." topics={['Data_Structures/Non_Linear/Trees/Binary_Tree', 'Data_Structures/Non_Linear/Trees/Binary_Search_Tree', 'Data_Structures/Non_Linear/Trees/AVL_Tree', 'Data_Structures/Non_Linear/Trees/Trie']} />
+
+<TopicList title="Heaps and the sorts that use them" topics={['Data_Structures/Non_Linear/Heaps/Min_Heap', 'Data_Structures/Non_Linear/Heaps/Max_Heap', 'Data_Structures/Linear/Queue/Priority_Queue', 'Algorithms/Sorting/Heap_Sort', 'Algorithms/Sorting/Counting_Sort', 'Algorithms/Sorting/Radix_Sort', 'Algorithms/Sorting/Bucket_Sort']} />
+
+<TopicList title="Graph representations" topics={['Data_Structures/Non_Linear/Graph/Adjacency_List', 'Data_Structures/Non_Linear/Graph/Adjacency_Matrix', 'Data_Structures/Non_Linear/Graph/Edge_List', 'Data_Structures/Non_Linear/Graph/Directed_and_Undirected', 'Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted']} />
+
+<TopicList title="Graph basics" topics={['Algorithms/Graph_Algorithms/Traversal/BFS', 'Algorithms/Graph_Algorithms/Traversal/DFS', 'Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort']} />
+
+<Callout tone="tip" title="Milestone">
+You can solve LeetCode Medium problems on trees and graphs.
+</Callout>
+
+## Phase 3: Problem Patterns
+
+**Weeks 7-10.** Recognize the shape of a problem and pick the technique, including greedy, backtracking and your first dynamic programming.
+
+**Why this order:** The scan patterns come first because they need only arrays; groups, greedy and backtracking follow; DP comes last because it builds on all of them.
+
+<TopicList title="Array and string patterns" note="These patterns appear in a large share of array and string problems." topics={['Problem_Patterns/Two_Pointers', 'Problem_Patterns/Sliding_Window', 'Problem_Patterns/Prefix_Sum_Difference_Array', 'Problem_Patterns/Binary_Search_on_Answer', 'Algorithms/Searching/Ternary_Search', 'Algorithms/Searching/Interpolation_Search']} />
+
+<TopicList title="Monotonic structures" topics={['Problem_Patterns/Monotonic_Stack', 'Problem_Patterns/Monotonic_Queue']} />
+
+<TopicList title="Groups and graph problems" topics={['Data_Structures/Advanced_Structures/Disjoint_Set_Union', 'Problem_Patterns/Union_Find_Applications', 'Problem_Patterns/Graph_Traversal_Problems']} />
+
+<TopicList title="Greedy" note="A greedy choice needs a proof; when it fails, DP is the usual fallback." topics={['Algorithms/Greedy/Activity_Selection', 'Algorithms/Greedy/Fractional_Knapsack', 'Algorithms/Greedy/Huffman_Coding', 'Algorithms/Greedy/Job_Scheduling']} />
+
+<TopicList title="Backtracking" topics={['Algorithms/Advanced_Algorithms/Backtracking/Rat_in_a_Maze', 'Algorithms/Advanced_Algorithms/Backtracking/N_Queens_Problem', 'Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring', 'Algorithms/Advanced_Algorithms/Backtracking/Sudoku_Solver']} />
+
+<TopicList title="Dynamic programming" note="Coin Change is the first problem where greedy fails; LCS opens 2D tables; the recipe topic ties them together." topics={['Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers', 'Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs', 'Algorithms/Dynamic_Programming/Linear_DP/Coin_Change', 'Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence', 'Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray_Kadanes_Algorithm', 'Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence', 'Algorithms/Dynamic_Programming/2D_DP/Edit_Distance', 'Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack', 'Problem_Patterns/DP_Problem_Patterns']} />
+
+<Callout tone="tip" title="Milestone">
+You can solve LeetCode Medium problems with patterns and DP consistently.
+</Callout>
+
+## Phase 4: Advanced Algorithms and Structures
+
+**Weeks 11-15.** Learn the topics that separate passing interviews from solving contest problems.
+
+**Why this order:** Graph algorithms reuse the Phase 2 structures, strings reuse the trie, range structures come before the specialist trees, and bitmask DP needs bit manipulation.
+
+<TopicList title="Shortest paths and spanning trees" note="Dijkstra first; the others each change one assumption." topics={['Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm', 'Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm', 'Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm', 'Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm', 'Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm', 'Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm']} />
+
+<TopicList title="Advanced graphs" note="SCC, bridges and 2-SAT reuse DFS; network flow is self-contained." topics={['Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosarajus_Algorithm', 'Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm', 'Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation', 'Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT', 'Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson', 'Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp']} />
+
+<TopicList title="String algorithms" note="KMP's border table is the idea most later algorithms borrow." topics={['Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search', 'Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm', 'Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm', 'Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm', 'Algorithms/String_Algorithms/Advanced_String/Z_Algorithm', 'Algorithms/String_Algorithms/Advanced_String/Aho_Corasick', 'Algorithms/String_Algorithms/Advanced_String/Suffix_Array', 'Algorithms/String_Algorithms/Advanced_String/Longest_Palindromic_Substring_Manachers', 'Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring']} />
+
+<TopicList title="Range-query structures" topics={['Data_Structures/Non_Linear/Trees/Fenwick_Tree', 'Data_Structures/Non_Linear/Trees/Segment_Tree', 'Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation', 'Data_Structures/Non_Linear/Trees/Sparse_Table', 'Problem_Patterns/Coordinate_Compression']} />
+
+<TopicList title="Balanced and specialist trees" topics={['Data_Structures/Non_Linear/Trees/Red_Black_Tree', 'Data_Structures/Non_Linear/Trees/Splay_Tree', 'Data_Structures/Non_Linear/Trees/Treap', 'Data_Structures/Non_Linear/Trees/Cartesian_Tree', 'Data_Structures/Non_Linear/Trees/Interval_Tree', 'Data_Structures/Non_Linear/Trees/K_D_Tree', 'Data_Structures/Non_Linear/Trees/B_Tree', 'Data_Structures/Non_Linear/Trees/B_Plus_Tree', 'Data_Structures/Non_Linear/Trees/Suffix_Tree']} />
+
+<TopicList title="Other advanced structures" note="The caches are common in system-design interviews." topics={['Data_Structures/Linear/Linked_List/Skip_List', 'Data_Structures/Linear/String/Rope', 'Data_Structures/Non_Linear/Heaps/Fibonacci_Heap', 'Data_Structures/Advanced_Structures/LRU_Cache', 'Data_Structures/Advanced_Structures/LFU_Cache']} />
+
+<TopicList title="Advanced dynamic programming" note="Bit manipulation first, because bitmask DP stores a subset in an integer." topics={['Problem_Patterns/Bit_Manipulation', 'Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication', 'Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees', 'Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs', 'Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP', 'Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP', 'Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick']} />
+
+<Callout tone="tip" title="Milestone">
+You can solve LeetCode Hard problems and are interview-ready for senior roles.
+</Callout>
+
+## Phase 5: Competitive Programming
+
+**Week 16 onward.** Pick up the techniques that win contests, plus the utilities around them.
+
+**Why this order:** Decompositions need segment trees and DFS, number theory comes before matrix exponentiation and FFT, and the utilities are used together with all of it.
+
+<TopicList title="Decomposition techniques" note="Array side first (square root, Mo), then the tree side (heavy-light, centroid)." topics={['Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition', 'Algorithms/Advanced_Algorithms/Specialized_Techniques/Mos_Algorithm', 'Algorithms/Advanced_Algorithms/Specialized_Techniques/Heavy_Light_Decomposition', 'Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposition']} />
+
+<TopicList title="Number theory and matrices" note="CRT builds on extended Euclid, Miller-Rabin on modular exponentiation, and matrix exponentiation reuses square and multiply." topics={['Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm', 'Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic', 'Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation', 'Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem', 'Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes', 'Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test', 'Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation', 'Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform', 'Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication']} />
+
+<TopicList title="Counting and search tricks" topics={['Problem_Patterns/Inclusion_Exclusion_Principle', 'Problem_Patterns/Meet_in_the_Middle']} />
+
+<TopicList title="Computational geometry" note="Convex hull first; rotating calipers takes a hull as input; closest pair is independent." topics={['Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle', 'Algorithms/Computational_Geometry/Basic_Geometry/Line_Intersection', 'Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull', 'Algorithms/Computational_Geometry/Advanced_Geometry/Rotating_Calipers', 'Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points']} />
+
+<TopicList title="Randomized algorithms and coding theory" topics={['Algorithms/Randomized_Algorithms/Randomized_Quickselect', 'Algorithms/Randomized_Algorithms/Reservoir_Sampling', 'Algorithms/Coding_Theory/Galois_Field', 'Algorithms/Coding_Theory/Reed_Solomon']} />
+
+<TopicList title="Utilities for contests" note="Start from the templates. These topics make a correct solution fast enough or cover problems defined by their format." topics={['Utilities/Optimization_Techniques/Fast_IO', 'Utilities/Optimization_Techniques/Precomputation', 'Utilities/Optimization_Techniques/Bitmasking', 'Utilities/Optimization_Techniques/Modular_Arithmetic_Tricks', 'Utilities/Problem_Types/Constructive_Algorithms', 'Utilities/Problem_Types/Interactive_Problems', 'Utilities/Problem_Types/Game_Theory']} />
+
+<Callout tone="tip" title="Milestone">
+You solve Codeforces Div 2 A-D reliably and can read an unfamiliar problem for its technique.
+</Callout>
+
+## Learning tips
+
+1. Implement before memorizing. Read an implementation, close it, and write your own from scratch.
+2. Test edge cases: empty input, one element, duplicates, sorted and reversed input.
+3. Learn when not to use a technique as well as when to use it. Each area overview has a section on choosing between its topics and a list of common mistakes.
+4. Time yourself. If a Medium problem takes more than 30 minutes, review the pattern before you read the answer.
+5. Revisit old topics. After dynamic programming, graph algorithms look different.
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Do I have to follow the phases in order?">
+    No, but later phases build on earlier ones: graph algorithms reuse the Phase 2 structures, and dynamic programming builds on the patterns of Phase 3. If you already know a phase, check its milestone; if it holds, move on.
+  </FaqItem>
+  <FaqItem question="How long does it take?">
+    About fifteen weeks to the end of Phase 4 at a steady pace. Phase 5 is open-ended: contest techniques improve with practice more than with reading.
+  </FaqItem>
+  <FaqItem question="Is every topic of the repository in the guide?">
+    Yes, each exactly once. A topic that serves two phases sits where it is first needed; the priority queue, for example, waits for heaps in Phase 2.
+  </FaqItem>
+  <FaqItem question="What do the milestones refer to?">
+    Problem difficulty on common practice sites: LeetCode Easy, Medium and Hard, and Codeforces Division 2. They are a rough guide to whether the phase has settled, not a requirement.
+  </FaqItem>
+</Faq>

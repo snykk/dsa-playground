@@ -1,0 +1,5 @@
+/* BloomBitArray organism: the filter's bits in rows of eight, each under its index. */
+.bloom-bits {
+  overflow-x: auto;
+  padding: 10px 2px 4px;
+}

@@ -3,7 +3,7 @@ topic: Data_Structures/Hashing/Bloom_Filter
 title: Bloom Filter
 lead: A Bloom filter is a bit array plus k hash functions that answers "is this item in the set?" using a fraction of the memory of a real set. It may say "maybe" for an item that was never added, but it never says "no" for one that was.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: add / contains
     value: O(k)
@@ -53,6 +53,12 @@ Here is a tiny filter, `m = 24` and `k = 3`, after adding `cat` and `dog` (the c
 <Callout title="One-sided error">
 "No" is always correct. "Yes" only means "maybe". The filter is useful when a "no" lets you skip expensive work (a disk read, a network call) and an occasional wasted lookup on a "maybe" is acceptable.
 </Callout>
+
+## See it in action
+
+Run **False positive**: `cat` and `dog` set five of the 24 bits, `owl` meets a 0 bit and is rejected at once, and `aoo` finds all three of its bits already set by the other two words.
+
+<ArticleViz ids={['bloom-filter']} />
 
 ## Operations
 

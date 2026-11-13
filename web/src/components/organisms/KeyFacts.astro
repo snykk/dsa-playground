@@ -37,7 +37,9 @@ const { facts, properties = [] } = Astro.props;
   }
   .facts {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    /* At most as wide as the article, so a phone gets one column and a long complexity such as
+       O(1 / (1 - load)), which never wraps, still fits its tile. */
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
     gap: 10px;
   }
   .properties {
