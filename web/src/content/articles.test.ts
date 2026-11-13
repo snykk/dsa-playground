@@ -5,7 +5,7 @@
  * visualizations, use only the registered components, follow the house rules (ASCII source,
  * no horizontal rules, no h1) and be named after its folder or document. A topic article also
  * needs an Implementation section with the code tabs; a category overview lists each of its
- * sub-folders exactly once.
+ * sub-folders exactly once; the study guide lists every topic exactly once.
  *
  * Run one page: npx vitest run src/content/articles.test.ts -t quick-sort
  */
@@ -18,7 +18,7 @@ import { parse as parseYaml } from 'yaml';
 import { MDX_COMPONENT_NAMES } from '../components/mdxNames';
 import { articleSchema } from '../lib/article';
 import { categorySchema } from '../lib/category';
-import { pageSchema } from '../lib/page';
+import { pageSchema, topicListFolders } from '../lib/page';
 import { getContent } from '../lib/repo';
 import { slugifySegment } from '../lib/slug';
 import { VIZ_CATALOG } from '../viz/catalog';
@@ -99,6 +99,7 @@ function expectKnownEmbeds(body: string) {
     }
   }
   for (const folder of topicCodeFolders(body)) expect(content.byRel.has(folder), folder).toBe(true);
+  for (const folder of topicListFolders(body)) expect(content.byRel.get(folder)?.kind, `topic list: ${folder}`).toBe('topic');
 }
 
 /** Checks the rules every page follows and returns its section (h2) titles. */
@@ -204,6 +205,21 @@ describe.each(pageFiles)('pages/%s', (file) => {
     const { source, body } = loadPage(file);
     expect(expectHouseRules(source, body).length, 'at least 4 sections').toBeGreaterThanOrEqual(4);
   });
+});
+
+it('the study guide places every topic exactly once', () => {
+  const listed = topicListFolders(loadPage('study-guide.mdx').body);
+  const twice = listed.filter((rel, i) => listed.indexOf(rel) !== i);
+  expect(twice, 'topics listed more than once').toEqual([]);
+  const topics = content.nodes.filter((n) => n.kind === 'topic').map((n) => n.rel);
+  expect(topics.filter((rel) => !listed.includes(rel)), 'topics missing from the study guide').toEqual([]);
+});
+
+it('the study guide page and STUDY_GUIDE.md list the topics in the same order', () => {
+  const markdown = content.standalone.find((d) => d.slug === 'study-guide')?.source ?? '';
+  const topics = new Set(content.nodes.filter((n) => n.kind === 'topic').map((n) => n.rel));
+  const inMarkdown = [...markdown.matchAll(/\]\(([^)#]+?)\/?\)/g)].map((m) => m[1]).filter((rel) => topics.has(rel));
+  expect(topicListFolders(loadPage('study-guide.mdx').body)).toEqual(inMarkdown);
 });
 
 const pages = (dir: string, list: string[], key: 'topic' | 'category') =>

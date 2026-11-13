@@ -21,6 +21,7 @@ import Steps from './molecules/Steps.astro';
 import TreeDiagram from './molecules/TreeDiagram.astro';
 import ArticleViz from './organisms/ArticleViz.astro';
 import TopicCode from './organisms/TopicCode.astro';
+import TopicList from './organisms/TopicList.astro';
 
 export const MDX_COMPONENTS = {
   ArrayDiagram,
@@ -39,5 +40,6 @@ export const MDX_COMPONENTS = {
   Step,
   Steps,
   TopicCode,
+  TopicList,
   TreeDiagram,
 } satisfies Record<MdxComponentName, unknown>;

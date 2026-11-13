@@ -23,3 +23,13 @@ export const pageSchema = z.object({
   related: z.array(z.string()).default([]),
 });
 export type PageData = z.infer<typeof pageSchema>;
+
+/** The topic folders a <TopicList topics={[...]} /> names, in order, for every list in a page body. */
+export function topicListFolders(body: string): string[] {
+  return [...body.matchAll(/<TopicList\b[\s\S]*?\btopics=\{\[([^\]]*)\]\}/g)].flatMap((m) =>
+    m[1]
+      .split(',')
+      .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+      .filter(Boolean),
+  );
+}

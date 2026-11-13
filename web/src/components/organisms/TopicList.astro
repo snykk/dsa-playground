@@ -1,0 +1,199 @@
+---
+import { getCollection } from 'astro:content';
+import { formatInline } from '../../lib/inline';
+import { getContent, joinBase } from '../../lib/repo';
+import { hasViz } from '../../viz/catalog';
+import LevelMeter from '../atoms/LevelMeter.astro';
+
+/**
+ * A titled list of topics in reading order, for a study path. MDX:
+ *   <TopicList title="Hashing" note="..." topics={['Data_Structures/Hashing/Hash_Table', ...]} />
+ * Each row links to the topic and shows its area, its level and whether it has a visualization.
+ * Every entry must be a topic folder; the build fails otherwise.
+ */
+interface Props {
+  topics: string[];
+  title?: string;
+  /** One or two sentences under the title; inline code and arrows are typeset. */
+  note?: string;
+}
+
+const { topics, title, note } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const content = getContent();
+const articles = new Map((await getCollection('articles')).map((a) => [a.data.topic, a.data]));
+const DOT = String.fromCodePoint(0x25cf);
+const MIDDOT = String.fromCodePoint(0xb7);
+
+const rows = topics.map((rel) => {
+  const node = content.byRel.get(rel);
+  if (!node || node.kind !== 'topic') throw new Error(`TopicList: "${rel}" is not a topic folder`);
+  const article = articles.get(rel);
+  const parent = node.parent && node.parent.kind !== 'root' ? node.parent : undefined;
+  return {
+    href: joinBase(base, node.slug),
+    title: article?.title ?? node.title,
+    // The folder's own name ("Linked List", "Sorting"), shorter and more uniform than its page title.
+    area: parent ? parent.name.replace(/_/g, ' ') : undefined,
+    level: article?.level,
+    visualized: hasViz(rel),
+  };
+});
+const visualized = rows.filter((r) => r.visualized).length;
+const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${visualized > 0 ? ` ${MIDDOT} ${visualized} visualized` : ''}`;
+---
+
+<section class="topic-list">
+  {
+    (title || note) && (
+      <header>
+        <div class="head">
+          {title && <h3>{title}</h3>}
+          <span class="count">{count}</span>
+        </div>
+        {note && <p class="note" set:html={formatInline(note)} />}
+      </header>
+    )
+  }
+  <ol>
+    {
+      rows.map((r, i) => (
+        <li>
+          <a href={r.href}>
+            <span class="num" aria-hidden="true">
+              {i + 1}
+            </span>
+            <span class="main">
+              <span class="title">{r.title}</span>
+              {r.area && <span class="area">{r.area}</span>}
+            </span>
+            <span class="meta">
+              {r.level && <LevelMeter level={r.level} />}
+              {r.visualized && (
+                <span class="visualized">
+                  <span class="dot" aria-hidden="true">
+                    {DOT}
+                  </span>
+                  Visualized
+                </span>
+              )}
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .topic-list {
+    margin: 20px 0 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  header {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 12px;
+  }
+  h3 {
+    margin: 0;
+    font-size: 16.5px;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+  .count {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .note {
+    margin: 6px 0 0;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-2);
+  }
+  .note :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li + li {
+    border-top: 1px solid var(--border);
+  }
+  a {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 9px 16px;
+    color: var(--text);
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+  a:hover {
+    background: var(--surface-2);
+  }
+  a:hover .title {
+    color: var(--link);
+  }
+  .num {
+    font-size: 12.5px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 10px;
+    min-width: 0;
+  }
+  .title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .area {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px 14px;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .visualized {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .dot {
+    font-size: 9px;
+    color: var(--viz-done);
+  }
+  @media (max-width: 560px) {
+    a {
+      grid-template-columns: 22px minmax(0, 1fr);
+    }
+    .meta {
+      grid-column: 2;
+      justify-content: flex-start;
+    }
+  }
+</style>
