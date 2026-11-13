@@ -1,0 +1,212 @@
+---
+topic: Algorithms/Searching/Interpolation_Search
+title: Interpolation Search
+lead: Interpolation Search looks for a value in a sorted array the way you look up a name in a phone book. It estimates the position from the values at the ends of the range instead of always probing the middle. On evenly spread keys it needs about log log n probes, but on skewed keys it can degrade to a linear scan.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Average time
+    value: O(log log n)
+    hint: for uniformly distributed keys
+  - label: Worst time
+    value: O(n)
+    hint: for skewed keys such as powers of two
+    tone: warn
+  - label: Extra space
+    value: O(1)
+    hint: iterative; the recursive form uses stack
+  - label: Probe
+    value: Estimated position
+    hint: linear interpolation between a[lo] and a[hi]
+properties:
+  - { label: Requires sorted data, value: true }
+  - { label: Needs numeric keys, value: true }
+  - { label: Random access needed, value: true }
+  - { label: Fast on any distribution, value: false }
+prerequisites:
+  - Algorithms/Searching/Binary_Search
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Searching/Binary_Search
+  - Algorithms/Searching/Linear_Search
+  - Algorithms/Searching/Ternary_Search
+---
+
+## How Interpolation Search works
+
+Binary Search always probes the middle. If the keys are spread evenly, the value you want tells you roughly where it is: 70 in `10, 20, ..., 100` should sit about 60 percent of the way along the array. Interpolation Search draws a straight line from `(lo, a[lo])` to `(hi, a[hi])` and probes where the line reaches the target.
+
+<Steps>
+  <Step title="Check the range">
+    While `lo <= hi` and `a[lo] <= target <= a[hi]`, the target may be present. If the target is outside `[a[lo], a[hi]]`, it cannot be in the array.
+  </Step>
+  <Step title="Handle a flat window">
+    If `lo == hi`, or all keys in the window are equal (`a[lo] == a[hi]`), there is nothing to interpolate: return `lo` if `a[lo]` is the target, otherwise -1. This also avoids a division by zero.
+  </Step>
+  <Step title="Estimate the position">
+    Compute `pos = lo + (target - a[lo]) * (hi - lo) / (a[hi] - a[lo])`, rounded down.
+  </Step>
+  <Step title="Compare and shrink">
+    If `a[pos] == target`, return `pos`. If `a[pos] > target`, set `hi = pos - 1`; otherwise set `lo = pos + 1`.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+If the target is in the array, it is inside `a[lo..hi]`, exactly as in Binary Search. Only the choice of the probe differs, so the answer is always correct; the distribution of the keys decides only how fast the search is.
+</Callout>
+
+## See it in action
+
+The plot shows each element as a point (index on one axis, value on the other), the straight line from `a[lo]` to `a[hi]`, and the probe where that line meets the target. Press Apply to run your own sorted values and target, or Random for a random input, and step through the probes. Try the evenly spread example first, then the doubling one.
+
+<ArticleViz ids={['interpolation-search']} />
+
+## Worked example: evenly spread keys
+
+Search for 70 in `[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]`. Here `lo = 0`, `hi = 9`, `a[lo] = 10` and `a[hi] = 100`:
+
+`pos = 0 + (70 - 10) * (9 - 0) / (100 - 10) = 60 * 9 / 90 = 6`
+
+<ArrayDiagram
+  legend={{ c: 'the probe (pos)', l: 'in the search range', m: 'no longer relevant', f: 'found' }}
+  rows={[
+    { label: 'probe 1', values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100], tones: 'llllllclll', marks: { 0: 'lo', 6: 'pos', 9: 'hi' }, note: 'The formula points straight at index 6.' },
+    { label: 'result', values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100], tones: 'mmmmmmfmmm', marks: { 6: 'found' }, note: '`a[6] = 70`: found after one probe. Binary Search would need 4.' },
+  ]}
+/>
+
+## Worked example: skewed keys
+
+Now search for 64 in the doubling array `[1, 2, 4, 8, 16, 32, 64, 128, 256, 512]`. The straight line from 1 to 512 is far below the real curve, so every estimate undershoots and the search crawls from the left one step at a time. These probes come from the repository's Python code.
+
+<DataTable
+  columns={['Probe', 'lo', 'hi', 'pos', 'a[pos]', 'Decision']}
+  rows={[
+    ['1', '0', '9', '1', '2', '2 < 64: `lo = 2`'],
+    ['2', '2', '9', '2', '4', '4 < 64: `lo = 3`'],
+    ['3', '3', '9', '3', '8', '8 < 64: `lo = 4`'],
+    ['4', '4', '9', '4', '16', '16 < 64: `lo = 5`'],
+    ['5', '5', '9', '5', '32', '32 < 64: `lo = 6`'],
+    ['6', '6', '9', '6', '64', 'found'],
+  ]}
+/>
+
+Six probes, against 4 for Binary Search on the same array. With 60 powers of two the gap widens: finding 2<sup>30</sup> takes 31 probes by interpolation and 5 by binary search.
+
+## Pseudocode
+
+```text
+interpolationSearch(arr, target):
+    lo = 0; hi = len(arr) - 1
+    while lo <= hi and arr[lo] <= target <= arr[hi]:
+        if lo == hi or arr[lo] == arr[hi]:       # flat window: avoid dividing by zero
+            return lo if arr[lo] == target else -1
+        pos = lo + (target - arr[lo]) * (hi - lo) / (arr[hi] - arr[lo])
+        if arr[pos] == target:  return pos
+        if arr[pos] > target:   hi = pos - 1
+        else:                   lo = pos + 1
+    return -1
+```
+
+## Implementation
+
+All three languages have an iterative and a recursive search with the same guards. They differ in how they compute the probe, which matters for large values:
+
+- **Python** uses exact integer arithmetic (floor division), so huge integers are handled exactly.
+- **C++** is a template (`int` and `double` instances) and takes the differences in `double`, because `INT_MAX - INT_MIN` overflows `int`.
+- **Go** works on `[]int` and takes the non-negative differences as `uint64` before converting to `float64`, so `math.MaxInt64 - math.MinInt64` is safe.
+
+The tests include a constant array, duplicates and extreme values, which were missing in earlier versions of this code.
+
+<TopicCode topic="Algorithms/Searching/Interpolation_Search" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(1)', when: 'The first estimate is exactly right.' },
+    { case: 'Average case', time: 'O(log log n)', when: 'Keys drawn uniformly at random: each probe shrinks a range of size m to about the square root of m.' },
+    { case: 'Worst case', time: 'O(n)', when: 'Strongly skewed keys, for example exponential growth: each probe removes only one element.' },
+    { case: 'Space', time: 'O(1)', when: 'Iterative. The recursive form needs O(n) stack in the worst case.' },
+  ]}
+/>
+
+Why log log n: with uniform keys, the estimate is off by about the square root of the range size, so the range goes `n`, `n^(1/2)`, `n^(1/4)`, and so on. That sequence reaches a constant after `log2(log2 n)` steps.
+
+<Equation label="Idealized recurrence" expr="T(n) = T(sqrt(n)) + O(1)" result="O(log log n)" />
+
+For comparison, a quick run on 100,000 random distinct integers below ten million averaged about 4 probes per successful search (maximum 10), while Binary Search needs about 16. The advantage appears only for large, evenly spread arrays.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Choice', 'Idea', 'Trade-off']}
+  rows={[
+    ['Plain interpolation (here)', 'probe at the interpolated position', 'fastest on uniform keys; linear on skewed keys'],
+    ['Interpolation then binary', 'alternate an interpolation probe with a binary probe', 'caps the worst case at about twice the binary cost; not implemented here'],
+    ['Flat-window guard', 'return at once when `a[lo] == a[hi]`', 'required: otherwise the formula divides by zero on duplicates'],
+    ['Wider arithmetic', 'compute differences in a wider type', 'required for keys that span the whole integer range'],
+  ]}
+/>
+
+## Interpolation Search vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Average', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, 'Needs']}
+  highlight={0}
+  rows={[
+    ['Interpolation Search', 'O(log log n)', 'O(n)', 'sorted, numeric, roughly uniform keys'],
+    ['Binary Search', 'O(log n)', 'O(log n)', 'sorted keys, any distribution'],
+    ['Linear Search', 'O(n)', 'O(n)', 'nothing: works on unsorted data'],
+    ['Hash table', 'O(1)', 'O(n)', 'no ordering needed'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Very few probes on large, evenly spread arrays, about log log n.',
+    'Adapts to the actual key values instead of ignoring them.',
+    'Constant extra space with the iterative form.',
+  ]}
+  cons={[
+    'O(n) on skewed data: the worst case is far worse than Binary Search.',
+    'Needs numeric keys, so it does not work on plain strings.',
+    'Needs care with duplicates and with overflow in the position formula.',
+    'Each probe is more expensive than a binary probe, which matters for small arrays.',
+  ]}
+/>
+
+## Applications
+
+- **Large sorted arrays of numbers** whose values are close to uniform, such as sequential ids with small gaps, timestamps at a steady rate, or phone-book style keys.
+- **Disk or database indexes** where a probe is expensive and few probes matter more than the arithmetic.
+- **A teaching contrast** with Binary Search: it shows how extra knowledge of the data changes the cost.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Dividing by zero.** When `a[lo] == a[hi]` and `lo < hi` (a run of duplicates), the denominator is zero. Always check for a flat window first.
+- **Overflow.** `target - a[lo]` and `a[hi] - a[lo]` can overflow fixed-width integers for values spread over the full range. Use a wider type.
+- **Skipping the range check.** Without `a[lo] <= target <= a[hi]` the estimate can point outside the window and read out of bounds.
+- **Assuming it is always faster.** On skewed data it loses to Binary Search by a wide margin.
+- **Unsorted input.** As with every search on sorted data, the answer is meaningless.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the range check come first?">
+    The estimate assumes the target lies between `a[lo]` and `a[hi]`. If it does not, the formula can return a position outside `[lo, hi]`, and the target is certainly not in the array.
+  </FaqItem>
+  <FaqItem question="Can I use it on strings?">
+    Not directly: the formula needs subtraction and division on keys. You could map strings to numbers first, but then the uniformity assumption rarely holds.
+  </FaqItem>
+  <FaqItem question="What happens with duplicate keys?">
+    A window whose ends are equal returns its left end if that is the target, otherwise -1, so no division happens. With duplicates the search returns some matching index, not necessarily the first.
+  </FaqItem>
+  <FaqItem question="Is it ever better than Binary Search in practice?">
+    Only for large arrays of numbers with a nearly uniform spread, or when each probe is costly. For general data Binary Search's guaranteed O(log n) is the safer choice.
+  </FaqItem>
+</Faq>

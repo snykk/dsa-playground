@@ -1,0 +1,131 @@
+---
+category: Algorithms/Computational_Geometry/Basic_Geometry
+title: Basic Geometry
+lead: The two building blocks of 2D geometry code. Point, Line and Circle gives distances, orientation, angles and containment tests. Line Intersection builds on its cross product to decide whether segments meet. Both are exact on integer input and use no epsilon.
+updated: 2026-11-13
+facts:
+  - label: Every operation
+    value: O(1)
+    hint: a fixed number of arithmetic steps
+  - label: Space
+    value: O(1)
+  - label: Tolerance
+    value: none
+    hint: signs and equalities are tested exactly
+    tone: warn
+  - label: Orientation codes
+    value: 0, 1, 2
+    hint: 0 collinear, 1 clockwise, 2 counterclockwise
+contents:
+  - folder: Point_Line_Circle
+    note: Distance, cross and dot products, orientation, angle, point in triangle and circle. The toolkit everything else uses.
+  - folder: Line_Intersection
+    note: The meeting point of two lines, and an exact test for segments that handles touching, T-shapes and collinear overlap.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Computational_Geometry
+  - Algorithms/Computational_Geometry/Advanced_Geometry
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull
+---
+
+## The problem
+
+Almost every geometry algorithm reduces to a few questions about points. How far apart are they? Does the path `a -> b -> c` turn left or right? Does a point lie inside a shape? Do two segments meet? This section answers them with the least machinery possible.
+
+Both topics rest on one function, the cross product `cross(o, a, b) = (a.x - o.x)(b.y - o.y) - (a.y - o.y)(b.x - o.x)`. Its sign says on which side of the line from `o` to `a` the point `b` lies: positive on the left, negative on the right, zero on the line.
+
+What the code actually does:
+
+- Every test compares a cross or dot product with zero. There is no epsilon, so a result does not depend on the scale of the coordinates.
+- With integer coordinates the tests are exact in Python. In C++ and Go they are exact while the products stay below 2^53.
+- Collinear and degenerate input is handled on purpose. A zero-area triangle contains no point, and a zero-length segment is treated as a point.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Idea', 'Key functions', { label: 'Cost', kind: 'mono' }]}
+  rows={[
+    ['Point, Line and Circle', 'signed area and dot product as the basic tests', '`cross_product`, `dot_product`, `orientation`, `angle_between_points`, `point_in_triangle`, `Circle.contains_point`', 'O(1)'],
+    ['Line Intersection', 'orientation signs decide first, then the point is computed', '`line_intersection`, `segments_intersect`, `segment_intersection`, `point_on_segment`', 'O(1) per pair'],
+  ]}
+/>
+
+## Segment cases through the repository's code
+
+This is where exact tests pay off. Each row runs the Python code on one pair of segments. `segments_intersect` is the yes or no test. `segment_intersection` gives a common point, and `line_intersection` treats the same pair as infinite lines.
+
+<DataTable
+  columns={['Case', 'Segments', 'Meet?', 'segment_intersection', 'line_intersection']}
+  rows={[
+    ['crossing', '`(0,0)-(4,4)` and `(0,4)-(4,0)`', 'yes', '`(2, 2)`', '`(2, 2)`'],
+    ['T-junction', '`(0,0)-(4,0)` and `(2,0)-(2,3)`', 'yes', '`(2, 0)`', '`(2, 0)`'],
+    ['shared endpoint', '`(0,0)-(2,2)` and `(2,2)-(5,0)`', 'yes', '`(2, 2)`', '`(2, 2)`'],
+    ['collinear overlap', '`(0,0)-(4,0)` and `(2,0)-(6,0)`', 'yes', '`(2, 0)`, the first shared point', 'None, the lines coincide'],
+    ['collinear, touching', '`(0,0)-(2,0)` and `(2,0)-(5,0)`', 'yes', '`(2, 0)`', 'None, the lines coincide'],
+    ['parallel', '`(0,0)-(4,0)` and `(0,1)-(4,1)`', 'no', 'None', 'None'],
+    ['lines meet outside', '`(0,0)-(1,1)` and `(3,0)-(3,5)`', 'no', 'None', '`(3, 3)`'],
+  ]}
+/>
+
+The last row shows why the two functions are separate. `line_intersection` always returns the meeting point of the infinite lines, even when it lies outside both segments. Orientation codes follow the same exact rule. `orientation((0,0), (2,2), (4,4))` is 0, `orientation((0,0), (4,0), (4,4))` is 2 (counterclockwise) and `orientation((0,0), (4,4), (4,0))` is 1 (clockwise).
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Note']}
+  rows={[
+    ['Any single primitive', 'O(1)', 'O(1)', 'a few multiplications; at most one square root or atan2'],
+    ['k points against a triangle or circle', 'O(k)', 'O(1)', 'each point is independent'],
+    ['One pair of lines or segments', 'O(1)', 'O(1)', 'four to eight multiplications and some comparisons'],
+    ['n segments, all pairs', 'O(n^2)', 'O(1)', 'a sweep line such as Bentley-Ottmann is not in this repository'],
+  ]}
+/>
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Left turn or right turn, collinear check, area of a triangle', 'Point, Line and Circle', '`orientation` and `cross_product` answer it with one expression'],
+    ['Is a point inside a triangle or a circle', 'Point, Line and Circle', '`point_in_triangle` and `Circle.contains_point` need no square root'],
+    ['The angle between two directions', 'Point, Line and Circle', '`atan2(|cross|, dot)` stays accurate near 0 and pi'],
+    ['Do two segments touch or cross', 'Line Intersection', 'orientation tests cover every degenerate case without dividing'],
+    ['Where do two lines meet', 'Line Intersection', '`line_intersection` returns the point, or None if they are parallel'],
+  ]}
+/>
+
+## Applications
+
+- **Graphics and games.** Hit tests, collision checks and clipping.
+- **Maps and GIS.** Point in polygon, route crossing and distance checks.
+- **Robotics and CAD.** Line of sight and the intersection of edges.
+- **Higher geometry algorithms.** The convex hull, rotating calipers and closest pair all call `cross_product`.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **An absolute epsilon on the cross product.** It is a length squared, so a fixed threshold treats tiny shapes as degenerate. These topics compare with exact zero instead.
+- **Using acos for the angle.** It loses precision near 0 and pi. The code uses `atan2(|cross|, dot)`.
+- **Dividing before deciding.** Computing the parameters `t` and `u` first loses touching and collinear cases. Test orientations, then compute the point.
+- **Skipping the box check for collinear points.** A zero orientation says only that a point is on the line, not that it is between the endpoints.
+- **Reading `line_intersection` as a segment test.** It works on infinite lines.
+- **Assuming that decimals are exact.** Exactness holds for integer input. Rounded decimals can still look nearly collinear.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Point, Line and Circle first. It introduces the cross product and orientation. Line Intersection then uses both, and is a good first use of them.
+  </FaqItem>
+  <FaqItem question="Why no epsilon?">
+    A tolerance depends on the scale of the input and makes tests inconsistent, for example it can call a pair of lines parallel at a small scale. Exact tests on integer input have none of these problems. For non-integer input convert to integers if you can, or choose a tolerance yourself.
+  </FaqItem>
+  <FaqItem question="What happens with a zero-length segment?">
+    It is a point. The orientation tests handle it, so `segments_intersect` is true when that point lies on the other segment. A parametric formula would divide by zero.
+  </FaqItem>
+  <FaqItem question="Where do these functions show up later?">
+    The convex hull uses the cross product to find turns. Rotating calipers uses it for areas, and the closest pair solution relies on distances. See Advanced Geometry.
+  </FaqItem>
+</Faq>

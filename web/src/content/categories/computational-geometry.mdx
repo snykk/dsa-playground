@@ -1,0 +1,82 @@
+---
+category: Algorithms/Computational_Geometry
+title: Computational Geometry
+lead: Algorithms on points, lines and polygons in the plane. Basic Geometry supplies the primitives, orientation tests and segment intersection. Advanced Geometry uses them to find a convex hull, the diameter and width of a polygon, and the closest pair of points.
+updated: 2026-11-13
+facts:
+  - label: Sub-areas
+    value: '2'
+    hint: Basic and Advanced Geometry
+  - label: Topics
+    value: '5'
+    hint: two basic, three advanced
+  - label: Primitives
+    value: O(1)
+    hint: distance, orientation, intersection test
+  - label: Whole point sets
+    value: O(n log n)
+    hint: convex hull and closest pair
+contents:
+  - folder: Basic_Geometry
+    note: The primitives. Distance, cross product, orientation, angles, containment and segment intersection, all exact.
+  - folder: Advanced_Geometry
+    note: Algorithms on point sets. Convex hull, rotating calipers for diameter and width, and the closest pair.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Divide_and_Conquer
+  - Algorithms/Sorting/Merge_Sort
+---
+
+## What this area covers
+
+Geometry code is short, but it fails on edge cases: collinear points, duplicates, zero-length segments. The two sub-areas are built to handle those cases.
+
+- **Basic Geometry** covers single objects and pairs. It holds the cross product, which says whether a path turns left, right or goes straight, and the tests built on it.
+- **Advanced Geometry** covers a whole set of points. It finds the outline, the extent and the closest pair, and it calls the same cross product in the inner loop.
+
+One rule runs through both. Comparisons are exact: the code tests signs and equalities directly and uses no epsilon. With integer coordinates this is exact in Python, and in C++ and Go while the products stay below 2^53.
+
+## At a glance
+
+<DataTable
+  columns={['Sub-area', 'Topics', 'Question it answers', { label: 'Typical cost', kind: 'mono' }]}
+  rows={[
+    ['Basic Geometry', 'Point, Line and Circle; Line Intersection', 'left or right, inside or outside, do two segments meet', 'O(1)'],
+    ['Advanced Geometry', 'Convex Hull; Rotating Calipers; Closest Pair of Points', 'outline, diameter and width, nearest two points', 'O(n log n), or O(n) on a given hull'],
+  ]}
+/>
+
+## A path through the area
+
+1. Read **Basic Geometry** first. Point, Line and Circle introduces `cross_product` and `orientation`, and Line Intersection applies them.
+2. In **Advanced Geometry**, start with Convex Hull. It uses the cross product on every step.
+3. Take Rotating Calipers next, because its input is a convex hull.
+4. Finish with Closest Pair of Points, which is independent of the other two and uses divide and conquer.
+
+## Choosing a sub-area
+
+<DataTable
+  columns={['If the problem says', 'Look at', 'Why']}
+  rows={[
+    ['which side of a line, or is this point inside', 'Basic Geometry', 'one cross product answers it'],
+    ['do these two segments cross or touch', 'Basic Geometry', 'exact orientation tests handle every degenerate case'],
+    ['the smallest polygon around the points', 'Advanced Geometry', 'the convex hull, by Graham\'s scan or Jarvis march'],
+    ['the farthest two points, or the narrowest strip', 'Advanced Geometry', 'convex hull, then rotating calipers'],
+    ['the two nearest points', 'Advanced Geometry', 'closest pair in O(n log n)'],
+  ]}
+/>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does exact arithmetic matter so much here?">
+    A geometry algorithm makes many yes or no decisions, and one wrong decision can break the result: a hull that is not convex, or a segment test that misses a touching endpoint. A tolerance such as 1e-9 depends on the scale of the input, so it can be wrong for very small or very large shapes. Comparing exactly avoids this on integer input.
+  </FaqItem>
+  <FaqItem question="Do I need Basic Geometry before Advanced Geometry?">
+    Yes, at least Point, Line and Circle. The hull, calipers and closest-pair code all use its distance and cross product.
+  </FaqItem>
+  <FaqItem question="What if I need many segment intersections at once?">
+    Checking all pairs of n segments takes O(n^2). A sweep-line method such as Bentley-Ottmann reports them faster, but it is not part of this repository.
+  </FaqItem>
+</Faq>

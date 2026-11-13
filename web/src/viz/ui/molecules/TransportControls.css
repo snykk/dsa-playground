@@ -1,0 +1,38 @@
+/* ---------- controls ---------- */
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.viz-buttons {
+  display: flex;
+  gap: 4px;
+}
+.viz-scrubber {
+  flex: 1;
+  min-width: 140px;
+  accent-color: var(--accent);
+}
+.viz-step {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--text-2);
+  min-width: 70px;
+}
+.viz-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.viz-speed select {
+  font: inherit;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+}

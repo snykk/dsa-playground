@@ -1,0 +1,256 @@
+---
+topic: Utilities/Problem_Types/Game_Theory
+title: Game Theory (Nim and Sprague-Grundy)
+lead: Impartial two-player games, where both players have the same moves and the player who cannot move loses, can be solved without searching the game tree. Nim reduces to a single XOR, and the Sprague-Grundy theorem turns every such game into a pile of Nim by giving each position a Grundy number.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Nim winner test
+    value: XOR of piles
+    hint: first player wins iff it is non-zero
+  - label: Grundy number
+    value: mex of options
+    hint: mex = smallest non-negative integer not present
+  - label: Sum of games
+    value: XOR of Grundy numbers
+    hint: independent games combine like Nim piles
+  - label: Misere trap
+    value: Not just Nim
+    hint: differs when every pile has at most 1 object
+    tone: warn
+properties:
+  - { label: Needs a game-tree search, value: false }
+  - { label: Both players have the same moves (impartial), value: true }
+  - { label: Handles games with cycles, value: false }
+prerequisites:
+  - Problem_Patterns/Bit_Manipulation
+  - Algorithms/Dynamic_Programming
+related:
+  - Utilities/Problem_Types/Constructive_Algorithms
+  - Utilities/Problem_Types/Interactive_Problems
+  - Problem_Patterns/Bit_Manipulation
+---
+
+## When to use it
+
+Think of Sprague-Grundy when a problem says:
+
+- Two players alternate moves, both with the **same** set of moves (impartial).
+- The player who cannot move loses (normal play), or loses by making the last move (misere).
+- Perfect play, and the answer is "who wins" or "find a winning move".
+- The game splits into **independent parts** (several piles, several tokens on separate boards).
+
+If the players have different moves (chess, Go) or the game can loop forever, the theory does not apply directly.
+
+## Winning and losing positions
+
+Every position is either a **P-position** (the Previous player wins, so the player to move loses) or an **N-position** (the Next player, the one to move, wins).
+
+- A position with no moves is a P-position.
+- A position with a move to a P-position is an N-position.
+- A position whose every move leads to an N-position is a P-position.
+
+That is a DP over the game graph. It is correct but slow when the state space is large. The theory below replaces the DP with arithmetic.
+
+## Nim
+
+Nim has several piles. A move takes any positive number of objects from one pile. The player who takes the last object wins.
+
+<Equation label="Bouton's theorem" expr="first player wins  <=>  p1 xor p2 xor ... xor pk != 0" result="XOR of the pile sizes" />
+
+<Callout title="Why it works">
+From a position with XOR 0, every move changes exactly one pile, so the XOR becomes non-zero. From a position with XOR `x != 0`, take the highest set bit of `x`; some pile has that bit set, and reducing it to `pile xor x` (a smaller number) makes the XOR 0. So P-positions are exactly the XOR-0 positions: the terminal position has XOR 0, and the two properties above are the P/N rules.
+</Callout>
+
+For piles `[3, 4, 5]` the XOR is `3 xor 4 xor 5 = 2`, so the first player wins. The winning move is `nim_winning_move` = take 2 from pile 0 (pile 3 becomes `3 xor 2 = 1`), leaving `[1, 4, 5]` with XOR 0.
+
+<DataTable
+  columns={['Pile', 'Binary', 'After the move', 'Binary']}
+  rows={[
+    ['3', '011', '1', '001'],
+    ['4', '100', '4', '100'],
+    ['5', '101', '5', '101'],
+    ['XOR', '010', 'XOR', '000']
+  ]}
+/>
+
+## Grundy numbers
+
+For a game position `s`, define its **Grundy number** as the smallest non-negative integer that is not the Grundy number of any position reachable in one move.
+
+<Equation label="Sprague-Grundy" expr="g(s) = mex { g(t) : t reachable from s }" result="g(terminal) = 0" />
+
+Two facts make it useful:
+
+- `g(s) = 0` exactly when `s` is a P-position.
+- A sum of independent games has Grundy number equal to the XOR of the parts' numbers. A Nim pile of size `n` has `g = n`, so every game is equivalent to a Nim pile of size `g`.
+
+<Steps>
+  <Step title="List the moves from each position">
+    For a subtraction game: from `n` you may remove any amount in the move set, as long as `n` is big enough.
+  </Step>
+  <Step title="Compute Grundy numbers bottom-up">
+    `g[0] = 0`. For each `n`, collect `g[n - m]` for every legal move `m` and take the mex.
+  </Step>
+  <Step title="Combine with XOR">
+    For several independent games, XOR the Grundy numbers of their current positions. Non-zero means the first player wins.
+  </Step>
+</Steps>
+
+## Worked example: a subtraction game
+
+Players remove 1, 3 or 4 stones. `subtraction_grundy(12, [1, 3, 4])` returns:
+
+<ArrayDiagram
+  legend={{ f: 'Grundy number 0 (losing for the player to move)', l: 'non-zero Grundy number (winning)' }}
+  rows={[
+    { label: 'n', values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], tones: 'flfllllflflll' },
+    { label: 'g(n)', values: [0, 1, 0, 1, 2, 3, 2, 0, 1, 0, 1, 2, 3], tones: 'flfllllflflll', note: 'The positions n = 0, 2, 7, 9 are the losing ones for the player to move.' },
+  ]}
+/>
+
+For `n = 6`: the moves reach `g(5) = 3`, `g(3) = 1` and `g(2) = 0`, so the set is `{3, 1, 0}` and the mex is 2.
+
+If the game has two independent piles of sizes 5 and 6, then `g(5) xor g(6) = 3 xor 2 = 1`, which is non-zero, so the first player wins. The tests check this claim against a brute-force search of the joint game for every pair of sizes up to 12.
+
+## Misere Nim
+
+In misere play the player who takes the last object **loses**. The answer is the same as in normal Nim **except when every pile has at most one object**.
+
+- If some pile has 2 or more objects: first player wins iff the XOR is non-zero.
+- If all piles have 0 or 1 objects: first player wins iff the number of **non-empty** piles is even.
+
+<DataTable
+  columns={['Piles', 'Normal Nim', 'Misere Nim']}
+  rows={[
+    ['[1]', 'first wins', 'first loses (must take the last object)'],
+    ['[1, 1]', 'first loses', 'first wins'],
+    ['[1, 1, 1]', 'first wins', 'first loses'],
+    ['[0, 1]', 'first wins', 'first loses (the empty pile does not count)'],
+    ['[1, 2]', 'first wins', 'first wins'],
+    ['[2, 2]', 'first loses', 'first loses']
+  ]}
+/>
+
+<Callout tone="warning" title="This was a bug in the repository">
+The earlier code counted **all** piles, including empty ones, in the all-ones case: `[0, 1]` returned "first wins" and `[0]` returned "first loses". The fix counts non-empty piles. All three languages are now checked against a brute-force game-tree search on every position with up to 4 piles of size at most 3.
+</Callout>
+
+## Other games in the repository
+
+<DataTable
+  columns={['Game', 'Rule', 'Result', 'Where']}
+  rows={[
+    ['Wythoff', 'two piles; take any amount from one, or the same amount from both', 'cold (losing) positions are (floor(k*phi), floor(k*phi^2)): (0,0), (1,2), (3,5), (4,7), (6,10), ...', 'Python, C++ (uses floating point)'],
+    ['Staircase Nim', 'move any number of stones from stairs[i] to stairs[i-1]; stairs[0] is the ground', 'only odd indices matter: XOR of stairs[1], stairs[3], ...', 'Python, C++'],
+    ['Stone game', 'take 1 to k stones, last to take wins', 'first wins iff n % (k + 1) != 0', 'Python, C++'],
+    ['Fibonacci Nim', 'first move takes 1 to n-1, then up to twice the previous move', 'first loses iff n is a Fibonacci number (2, 3, 5, 8, 13, ...)', 'Python'],
+    ['Green Hackenbush on a tree', 'cut an edge; whatever is cut off from the ground disappears', 'g(v) = XOR over children c of (g(c) + 1)', 'C++'],
+    ['Game on a directed graph', 'move a token along edges', 'win, lose or draw by backward analysis', 'Python']
+  ]}
+/>
+
+## Games on a graph, with draws
+
+On a directed acyclic graph, win and lose follow directly from the P/N rules. When the graph has **cycles**, some positions are draws: neither player can force a win. The Python `game_graph_outcomes(n, edges)` uses retrograde analysis:
+
+<Steps>
+  <Step title="Seed with terminal nodes">
+    Nodes with no moves are losses for the player to move.
+  </Step>
+  <Step title="Propagate backwards">
+    A predecessor of a loss is a win. A node whose moves all lead to wins is a loss (count down its remaining moves).
+  </Step>
+  <Step title="Whatever is left is a draw">
+    Nodes never settled can cycle forever under best play.
+  </Step>
+</Steps>
+
+<GraphDiagram
+  edges="0->1, 1->0, 1->2"
+  tones={{ 0: 'r', 1: 'p', 2: 'r' }}
+  positions={{ 0: [10, 50], 1: [50, 50], 2: [90, 50] }}
+  width={420}
+  height={160}
+  legend={{ p: 'win for the player to move', r: 'loss for the player to move' }}
+  caption="Node 2 has no move, so it is a loss. Node 1 can move there, so it wins. Node 0 can only move to 1, so it loses. Without the exit 1 -> 2, nodes 0 and 1 would be draws."
+/>
+
+`analyze_game_graph` returns a boolean per node (True only for "win"). The older Grundy-number version recursed forever on cycles and raised `RecursionError`; the retrograde version never does.
+
+## Implementation
+
+<DataTable
+  columns={['Language', 'What it provides']}
+  rows={[
+    ['Python', 'Nim, winning move, mex, subtraction Grundy, combined Grundy, misere Nim, staircase Nim, Wythoff, stone game, Fibonacci Nim, Zeckendorf, generic `can_win`, game-graph analysis'],
+    ['C++', 'Nim, winning move, mex, subtraction Grundy, combined Grundy, misere Nim, staircase Nim, Hackenbush on trees, `canWin`, stone game, Wythoff, Zeckendorf'],
+    ['Go', 'Nim, winning move, mex, subtraction Grundy, combined Grundy, misere Nim']
+  ]}
+/>
+
+All three have tests that check results against a brute-force game-tree search: Python `game_theory_test.py`, C++ `game_theory_test.cpp`, Go `main_test.go`. The generic `can_win` / `canWin` take a function from a state to its next states and use a fresh memo per call (the C++ one used to share one global memo across games).
+
+<TopicCode topic="Utilities/Problem_Types/Game_Theory" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', 'Time', 'Notes']}
+  rows={[
+    ['Nim winner, winning move', 'O(k)', 'k piles; one XOR pass'],
+    ['Subtraction Grundy table up to n', 'O(n * m)', 'm = number of allowed moves; each mex is small'],
+    ['Grundy of a sum of games', 'O(number of games)', 'XOR the tabulated numbers'],
+    ['Game graph (retrograde)', 'O(V + E)', 'each edge is looked at once'],
+    ['Generic can_win', 'O(states * moves)', 'memoised; deep states need deep recursion in Python'],
+    ['Wythoff test', 'O(1)', 'floating-point golden ratio; exact for the small sizes tested']
+  ]}
+/>
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['LeetCode 292, Nim Game', 'n % 4 != 0 (the stone game with k = 3)'],
+    ['LeetCode 877, Stone Game', 'with an even number of piles and an odd total, the first player always wins'],
+    ['LeetCode 486, Predict the Winner', 'minimax DP on intervals (not impartial)'],
+    ['CSES, Stick Game', 'Grundy or win/lose DP on a subtraction game with a given move set'],
+    ['CSES, Nim Game I', 'XOR of the piles']
+  ]}
+/>
+
+## Variants
+
+- **Partisan games:** each player has different moves; Sprague-Grundy does not apply.
+- **Misere play:** the rule changes, and only Nim-like games have a clean answer.
+- **Cyclic games:** need retrograde analysis and allow draws.
+- **Turning-coin games:** many reduce to Nim on the positions of the heads.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Applying normal Nim to misere.** The all-ones case flips the answer.
+- **Counting empty piles.** In misere Nim, empty piles must not be counted.
+- **Wrong staircase indices.** The ground stair is index 0 and is ignored; stones sit on indices 1, 3, 5, ...
+- **Treating a draw as a loss.** On graphs with cycles, "not winning" includes draws.
+- **Sharing a memo between games.** A memo keyed only by state is valid for one game, not for two games with different moves.
+- **Forgetting that Grundy numbers do not give the move.** To produce a winning move you need a position with Grundy number 0 among the options.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What if the XOR is zero, do I lose for sure?">
+    Yes, against perfect play: in a XOR-0 position every move gives the opponent a non-zero XOR, and the opponent can answer back to zero. If the opponent errs, you can still win.
+  </FaqItem>
+  <FaqItem question="Why does the Grundy number of a sum equal the XOR?">
+    Each component behaves like a Nim pile whose size is its Grundy number: the options of the component cover every smaller value, and a move to a larger value can be reversed. So the sum behaves like Nim with those piles.
+  </FaqItem>
+  <FaqItem question="How do I find a winning move from Grundy numbers?">
+    Compute the XOR of all component numbers. For some component, there is an option whose Grundy number equals `g xor total`; move there. In plain Nim this is the pile reduced to `pile xor total`.
+  </FaqItem>
+  <FaqItem question="Does Sprague-Grundy work in misere play?">
+    Not in general. Misere play of arbitrary sums does not reduce to Grundy numbers; only special games such as Nim have the simple rule shown above.
+  </FaqItem>
+</Faq>

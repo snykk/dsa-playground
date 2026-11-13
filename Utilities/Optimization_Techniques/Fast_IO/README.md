@@ -1,115 +1,103 @@
-# Fast I/O Techniques
+# Fast I/O
 
-Fast input/output techniques are crucial for competitive programming when dealing with large datasets. Standard I/O operations can be a bottleneck, making the difference between passing and timing out.
+Fast I/O means reading and writing in big chunks instead of one small call at a time. With hundreds of thousands of numbers of input, the default reading functions can dominate the running time, so buffered readers and one combined write often decide between passing and a time-limit error. It does not change the algorithm: parsing stays linear in the data size, only the constant factor drops.
 
-## Why Fast I/O Matters
+## Intuition
 
-- **Standard I/O is slow**: `scanf`/`printf` and `cin`/`cout` have overhead
-- **Large inputs**: Problems with 10^6+ elements need optimized I/O
-- **Time limits**: Often 1-2 seconds for millions of operations
+Each call to a standard reading or writing function has fixed overhead: locking, synchronisation between streams, flushes, system calls. If a program makes a million small calls, it pays that overhead a million times. Fast I/O pays it a few times by moving data in large blocks and doing the parsing in your own code.
 
-## Techniques
+Invariant for a custom character reader: the character is held in an `int`, so the end-of-input marker (-1) can never be mistaken for a data byte, and every reading loop tests for it.
 
-### C++ Fast I/O
+## Visual
 
-```cpp
-// Method 1: Standard fast I/O (recommended)
-ios_base::sync_with_stdio(false);
-cin.tie(nullptr);
-cout.tie(nullptr);
+```text
+input bytes:   '1' '2' ' ' '-' '3' '4' EOF
 
-// Method 2: getchar/putchar (faster)
-inline int readInt() {
-    int x = 0, f = 1;
-    char c = getchar();
-    while (c < '0' || c > '9') {
-        if (c == '-') f = -1;
-        c = getchar();
-    }
-    while (c >= '0' && c <= '9') {
-        x = x * 10 + c - '0';
-        c = getchar();
-    }
-    return x * f;
-}
-
-// Method 3: Buffered I/O (fastest)
-class FastInput { /* ... */ };
+readInt #1:    1 2 _                -> 12      (stops after the separator)
+readInt #2:          - 3 4 EOF      -> -34     (sign remembered, digits accumulated)
+readInt #3:                   EOF   -> 0       (the skip loop stops at EOF)
 ```
 
-### Python Fast I/O
+## How It Works
 
-```python
-import sys
-input = sys.stdin.readline  # 5-10x faster
+1. **Turn off needless synchronisation (C++).** `ios_base::sync_with_stdio(false)` lets `cin` and `cout` use their own buffers. `cin.tie(nullptr)` stops `cin` from flushing `cout` before every read. (`cout` is not tied to anything, so `cout.tie(nullptr)` does nothing; it is harmless.)
+2. **Read in big blocks.** C++ `FastInput` fills a 1 MiB buffer with `fread`; Python reads a line, or all of stdin at once (`sys.stdin.read().split()`); Go wraps stdin in `bufio`.
+3. **Parse yourself.** Skip non-digits (remember a `-`), then accumulate digits.
+4. **Write once.** Collect output in a buffer or list and write it in one call; use `'\n'` instead of `endl`, which flushes every time.
 
-# Fast integer input
-def fast_int():
-    return int(sys.stdin.readline())
+Behaviour at the end of the input (after the fixes in this folder):
 
-# Fast list of integers
-def fast_ints():
-    return list(map(int, sys.stdin.readline().split()))
+- C++ `readInt`, `readLong`, `FastInput::readInt`, `FastInput::readLong` return 0 and `FastInput::readString` returns `""`. They used to loop forever because `getchar()` was stored in a `char`.
+- C++ `writeInt(INT_MIN)` and `writeLong(LLONG_MIN)` are correct: the magnitude is computed in unsigned arithmetic.
+- Go `BufferedInput` splits on words, so a single very long line works (the old line scanner returned no tokens past 64 KiB per line). `Err()` reports read errors and bad tokens.
+- Python `fast_int()` raises `ValueError` at the end of the input.
 
-# Fast output
-sys.stdout.write(str(ans) + '\n')
+## Step-by-Step Trace
 
-# Batch output
-print('\n'.join(map(str, results)))
-```
+`readInt` on the bytes `12 -34` followed by the end of the stream:
 
-### Go Fast I/O
+| Call | Bytes consumed | Result |
+|------|----------------|--------|
+| 1 | `1`, `2`, then the space | 12 |
+| 2 | `-` (sign), `3`, `4`, then EOF | -34 |
+| 3 | EOF | 0 |
 
-```go
-import "bufio"
+## Complexity
 
-var reader = bufio.NewReader(os.Stdin)
-var writer = bufio.NewWriter(os.Stdout)
+All methods are O(size of the data). They differ in the number of expensive operations:
 
-func readInt() int {
-    var x int
-    fmt.Fscan(reader, &x)
-    return x
-}
+| Method | Calls into the system |
+|--------|------------------------|
+| `cin` / `cout`, default | many, with stream synchronisation |
+| `cin` / `cout` after `sync_with_stdio(false)` | fewer |
+| `getchar` / `putchar` readers | a library call per character |
+| `fread` into your own buffer | one per 1 MiB |
+| Python `sys.stdin.read()` | one (needs memory for the whole input) |
 
-// Always flush at end
-defer writer.Flush()
-```
+There is no timing table here: the speed-up depends on the machine, compiler and input, so measure with your own data.
 
-## Performance Comparison
+## When to Use
 
-| Method | Speed | Use Case |
-|--------|-------|----------|
-| cin/cout with sync_with_stdio(false) | Fast | General use |
-| getchar/putchar | Faster | Large inputs |
-| Buffered I/O | Fastest | Very large inputs |
+Use it when the input has hundreds of thousands of numbers or more, there is one output line per query, or a correct solution still hits the time limit. For small inputs the default functions are simpler and fine. Do not buffer fully in interactive problems: flush after every answer and read only what has been sent.
 
-### Benchmark (reading 10^6 integers)
+## Fast I/O vs. Alternatives
 
-| Language | Method | Time |
-|----------|--------|------|
-| C++ | cin (default) | ~500ms |
-| C++ | cin (fast) | ~100ms |
-| C++ | getchar | ~50ms |
-| C++ | Buffered | ~25ms |
-| Python | input() | ~2000ms |
-| Python | sys.stdin.readline | ~400ms |
-| Python | read all at once | ~200ms |
-| PyPy | sys.stdin.readline | ~100ms |
-
-## Best Practices
-
-1. **Always use fast I/O** in competitive programming
-2. **Use appropriate method** based on input size
-3. **Don't mix** cin/cout with scanf/printf after sync_with_stdio(false)
-4. **Use '\n'** instead of endl (endl flushes buffer)
-5. **Consider PyPy** for Python solutions
-6. **Batch output** using join() when possible
+| Method | Strength | Weakness |
+|--------|----------|----------|
+| `cin` + `sync_with_stdio(false)` | one line of setup | cannot mix with `scanf` |
+| `getchar` reader | fast parsing | per-character call overhead; only integers |
+| `FastInput` (`fread`) | least overhead | more code, whole-block reads |
+| Python `sys.stdin.readline` | good for line-structured input | one call per line |
+| Python `sys.stdin.read()` | fastest in CPython | needs memory; no interactivity |
+| Go `bufio.Reader` + `fmt.Fscan` | simple | slower than a hand-written parser |
 
 ## Common Pitfalls
 
-1. **Forgetting to tie(nullptr)** - cin and cout are synchronized by default
-2. **Using endl** - Forces buffer flush, slow for many outputs
-3. **Reading line-by-line** when you can read all at once
-4. **Not using bufio** in Go
+1. **`getchar()` stored in a `char`:** EOF is never recognised and the loop never ends. Use an `int`.
+2. **Mixing `cin` and `scanf`** after `sync_with_stdio(false)`.
+3. **`endl` in a loop** flushes every time.
+4. **Forgetting to flush:** `FastOutput` flushes in its destructor, a Go `bufio.Writer` needs `defer writer.Flush()`, a Python `BufferedOutput` needs `flush()`.
+5. **Negating the minimum integer** (`-INT_MIN`) is undefined behaviour.
+6. **Go line scanners:** the default limit is 64 KiB per line; split on words or raise the limit with `Buffer`.
+7. **Reading until EOF** when the input header gives the count; use the count.
 
+## Implementations
+
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `fast_io.py` | line readers, `BufferedInput`, `BufferedOutput`, `AllInputReader`; `buffer_size` is ignored |
+| C++ | [C++/](C++/) | `fast_io.cpp` | `readInt`, `readLong`, `writeInt`, `writeLong`, `FastInput`, `FastOutput` |
+| Go | [Go/](Go/) | `main.go` | `readInt`, `readInts`, `readString`, buffered writer, `BufferedInput` |
+
+## Practice Problems
+
+- [Static Range Sum Queries (CSES)](https://cses.fi/problemset/task/1646): many queries, one line of output each.
+- [Sum of Two Values (CSES)](https://cses.fi/problemset/task/1640): large input array.
+- [Distinct Numbers (CSES)](https://cses.fi/problemset/task/1621): 2 * 10^5 numbers to read.
+- Write a reader that parses 10^6 numbers from a file and compare it with `cin` on your machine.
+
+## Related
+
+- [Precomputation](../Precomputation/README.md)
+- [Modular Arithmetic Tricks](../Modular_Arithmetic_Tricks/README.md)
+- [Bitmasking](../Bitmasking/README.md)

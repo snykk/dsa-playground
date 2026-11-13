@@ -1,0 +1,183 @@
+---
+topic: Problem_Patterns/Binary_Search_on_Answer
+title: Binary Search on Answer
+lead: Instead of searching an array for a value, binary search the range of possible answers. If a yes/no check "is X big enough?" is monotone, the smallest X that passes can be found in log(range) checks, which turns many "minimize the maximum" problems into a single greedy scan.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n log R)
+    hint: n = cost of one check, R = size of the answer range
+  - label: Extra space
+    value: O(1)
+    hint: besides whatever the check needs
+  - label: Requirement
+    value: Monotone check
+    hint: False ... False True ... True
+    tone: warn
+  - label: Approach
+    value: Binary search plus greedy check
+properties:
+  - { label: In-place, value: true }
+  - { label: Needs sorted input, value: false }
+  - { label: Needs a monotone predicate, value: true }
+prerequisites:
+  - Algorithms/Searching/Binary_Search
+related:
+  - Algorithms/Greedy
+  - Problem_Patterns/Two_Pointers
+  - Problem_Patterns/Sliding_Window
+---
+
+## When to use it
+
+Look for a question of the form "what is the smallest (or largest) value of X such that something is possible?" Typical wording:
+
+- "minimize the maximum" or "maximize the minimum" (largest load, longest gap, ...);
+- "the least capacity / speed / time that still finishes within D days";
+- "the k-th smallest value among a huge set of candidates" (distances, products, sums);
+- the answer is a number in a known range, and **checking one candidate is easy** while **constructing the best answer is hard**.
+
+The test that decides it: if a candidate X is feasible, is every larger X (or every smaller one) also feasible? If yes, the feasible values form a suffix of the range and a binary search finds its first element.
+
+## How it works
+
+<Steps>
+  <Step title="Define the answer space">
+    Pick bounds `left` and `right` that surely contain the answer. For ship capacity: at least the heaviest package (`max(weights)`), at most everything in one day (`sum(weights)`).
+  </Step>
+  <Step title="Write a feasibility check">
+    `check(x)` answers "does x work?" in one greedy pass, usually <BigO of="n" />. It must be monotone: once it turns True it stays True for larger x.
+  </Step>
+  <Step title="Binary search for the boundary">
+    Probe `mid`. If `check(mid)` is True, remember it and search the lower half. Otherwise search the upper half. Stop when `left > right`.
+  </Step>
+  <Step title="Return the first True">
+    The last remembered feasible `mid` is the smallest feasible value. If nothing was feasible, the result stays `-1`.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+Every value below `left` is infeasible and every value above `right` is feasible-or-unchecked, and `result` holds the smallest feasible value seen so far. Each probe discards half of the remaining range without losing the boundary.
+</Callout>
+
+## Template
+
+```text
+binarySearchAnswer(left, right, check):
+    result = -1                       # -1 means: nothing in [left, right] works
+    while left <= right:
+        mid = left + (right - left) / 2
+        if check(mid):
+            result = mid              # mid works; try something smaller
+            right = mid - 1
+        else:
+            left = mid + 1            # mid is too small
+    return result
+```
+
+All three implementations share this exact loop and the `-1` convention. To **maximize** a value instead (largest X such that check holds), flip the branches: on True keep `mid` and set `left = mid + 1`.
+
+## See it in action
+
+Enter the package weights and the number of days, then press Apply. Each step probes one capacity and replays the greedy check for it. The chart marks capacities that are too small, capacities that work and the final answer; use the transport buttons to step through the halving.
+
+<ArticleViz ids={['binary-search-on-answer']} />
+
+## Worked example: ship capacity
+
+Weights `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]` must ship in at most 5 days, in order, one load per day. The search range is `[10, 55]`. Running `find_min_capacity` gives these probes:
+
+<DataTable
+  columns={['left', 'right', 'mid', 'days needed', 'check(mid)']}
+  rows={[
+    ['10', '55', '32', '2', 'True: keep 32, go lower'],
+    ['10', '31', '20', '4', 'True: keep 20, go lower'],
+    ['10', '19', '14', '6', 'False: 6 > 5 days, go higher'],
+    ['15', '19', '17', '4', 'True: keep 17, go lower'],
+    ['15', '16', '15', '5', 'True: keep 15, go lower'],
+    ['15', '14', 'stop', '', 'left > right: answer 15'],
+  ]}
+/>
+
+The picture below shows the predicate over the capacities. Everything from 15 up passes, everything below fails:
+
+<ArrayDiagram
+  legend={{ m: 'infeasible capacity (too small)', f: 'feasible capacity', p: 'the smallest feasible one' }}
+  rows={[
+    { label: 'capacity', values: [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], tones: 'mmmmmpffff', marks: { 4: 'check(14) = False', 5: 'answer' }, note: 'The check turns from False to True exactly once. That boundary is what the search locates.' },
+    { label: 'days needed', values: [7, 6, 6, 6, 6, 5, 5, 4, 4, 4], tones: 'mmmmmpffff', note: 'Days needed never increases as capacity grows, which is the monotonicity that makes the search valid.' },
+  ]}
+/>
+
+## Implementation
+
+The shared loop is `binary_search_answer` (`binarySearchAnswer` in C++ and Go). Three problems use it: `find_min_capacity` (ship within `days`), `split_array_largest_sum` (split into `m` parts) and `find_kth_smallest_distance` (k-th smallest pair distance). In Python the k-th distance search runs its own loop, and its `count_pairs_with_distance` check uses two pointers. All three return `-1` when there is no answer.
+
+<TopicCode topic="Problem_Patterns/Binary_Search_on_Answer" />
+
+Behaviour worth knowing: Python and C++ sort the caller's list in the k-th distance function, Go sorts a copy. Empty input is not handled the same way: Python raises, C++ is undefined behaviour and Go returns 0, so validate input first.
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Search loop', time: 'O(log R)', when: 'R = right - left + 1 is the size of the answer range; each probe halves it.' },
+    { case: 'Whole algorithm', time: 'O(C log R)', when: 'C is the cost of one check. For capacity and split problems C = O(n), so O(n log(sum)).' },
+    { case: 'k-th pair distance', time: 'O(n log n + n log D)', when: 'Sort once, then count pairs at most d apart with two pointers (O(n)), for log(D) values of d, where D = max - min.' },
+  ]}
+/>
+
+Space is <BigO of="1" /> besides the check's own storage. The range size matters, not the input size: 10<sup>9</sup> candidates need only about 30 probes.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Check(x)', 'Direction']}
+  rows={[
+    ['Capacity to Ship Packages Within D Days (LeetCode 1011)', 'greedy packing needs at most D days', 'minimize x'],
+    ['Split Array Largest Sum (LeetCode 410)', 'greedy cut needs at most m parts', 'minimize x'],
+    ['Koko Eating Bananas (LeetCode 875)', 'sum of ceil(pile / x) is at most h', 'minimize x'],
+    ['Find K-th Smallest Pair Distance (LeetCode 719)', 'number of pairs with distance <= x is at least k', 'minimize x'],
+    ['Aggressive Cows (classic)', 'cows fit with gaps of at least x', 'maximize x'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Change', 'Watch for']}
+  rows={[
+    ['Smallest feasible (this repo)', 'on True: `right = mid - 1`', 'initialise result to -1'],
+    ['Largest feasible', 'on True: `left = mid + 1`, keep `mid`', 'round mid up if you use `left < right`'],
+    ['Real-valued answer', 'loop a fixed number of times on floats', 'no `+1`/`-1`; precision, not termination'],
+    ['Count-based (k-th element)', 'check = "at least k values are <= x"', 'the first True is always a real value'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **A non-monotone check.** If feasibility is not a clean False-then-True, the search silently returns garbage. Test the property on small cases first.
+- **Bad bounds.** A `left` above the true answer or a `right` below it skips the answer. For capacity problems start `left` at the largest single item (anything smaller can never ship it) and `right` at the total.
+- **Off-by-one and endless loops.** With `left < right` and `mid = (left + right) / 2` you must use `right = mid` (not `mid - 1`). Mixing the two styles loops forever.
+- **Forgetting the infeasible case.** Return a sentinel such as `-1` instead of an end of the range, otherwise "no answer" looks like a valid answer.
+- **Overflow.** Sums of up to 10<sup>5</sup> values of 10<sup>9</sup> overflow 32-bit `int`. Use 64-bit types for bounds in C++ and Go.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How do I know binary search applies?">
+    Ask whether a larger candidate can only make the check easier (or only harder). Capacity, speed, time and distance almost always behave this way. If increasing x can flip the check back, the pattern does not apply.
+  </FaqItem>
+  <FaqItem question="Why is the check usually greedy?">
+    Because deciding feasibility for a fixed x is easier than optimizing: pack items into days left to right, start a new day only when the next item does not fit. The greedy choice is safe for a fixed limit, and the binary search supplies the optimization.
+  </FaqItem>
+  <FaqItem question="Does the answer have to be an integer?">
+    No. For real answers, run a fixed number of iterations (for example 100) on floating-point bounds. Integer answers need the careful `mid` and bound handling described above.
+  </FaqItem>
+  <FaqItem question="How is this different from ordinary binary search?">
+    Ordinary binary search looks for a value inside a sorted array. Here no array is searched at all: the search space is the range of possible answers and the "comparison" is a feasibility check.
+  </FaqItem>
+</Faq>

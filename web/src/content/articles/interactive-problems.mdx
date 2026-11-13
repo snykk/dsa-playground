@@ -1,0 +1,193 @@
+---
+topic: Utilities/Problem_Types/Interactive_Problems
+title: Interactive Problems
+lead: In an interactive problem your program talks to a judge program while it runs. You send queries, read answers and must find the hidden value within a query budget. Correct flushing, strict input and output formats and a good search strategy matter more than raw speed.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Typical budget
+    value: O(log n) queries
+    hint: binary search is the default tool
+  - label: Must do
+    value: Flush every query
+    hint: the judge sees nothing until you flush
+    tone: warn
+  - label: Strategy
+    value: Plan queries first
+    hint: count them before coding
+  - label: Testing
+    value: Fake judge
+    hint: a small in-process judge in tests
+properties:
+  - { label: Hidden input, value: true }
+  - { label: Query limit, value: true }
+  - { label: Adaptive judge possible, value: true }
+prerequisites:
+  - Algorithms/Searching/Binary_Search
+related:
+  - Problem_Patterns/Binary_Search_on_Answer
+  - Utilities/Problem_Types/Constructive_Algorithms
+  - Utilities/Problem_Types/Game_Theory
+---
+
+## When to use it
+
+A problem is interactive when the statement says:
+
+- "Your program communicates with the judge by reading and writing to standard streams."
+- The input is **hidden** and you may only ask a limited number of questions about it.
+- The response to one query decides the next query.
+- You must print a final answer in a specific format, such as `! x`.
+
+## How it works
+
+<Steps>
+  <Step title="Read the protocol exactly">
+    Note the query format (`? x`), the answer format (`! x`), what the judge replies, what an invalid reply looks like (often `-1`), and the maximum number of queries.
+  </Step>
+  <Step title="Count the queries before coding">
+    Compute the worst case of your strategy. Binary search over `n` values needs about log<sub>2</sub> n queries. If the limit is smaller than that, you need a different idea.
+  </Step>
+  <Step title="Write query, flush, read, repeat">
+    Each query must reach the judge before you wait for its answer. Flushing is part of the query.
+  </Step>
+  <Step title="Stop on errors and print the answer once">
+    If the judge sends `-1`, exit immediately. Print the final answer in the required format and flush it.
+  </Step>
+</Steps>
+
+<Callout title="Flushing is part of the protocol">
+Standard output is buffered. If you print `? 5` and read the reply without flushing, the judge never receives the query and both programs wait for each other. Most judges report that as an idleness or timeout verdict. Flush after **every** line you write.
+</Callout>
+
+## Flushing in each language
+
+<DataTable
+  columns={['Language', 'How to flush', 'Note']}
+  rows={[
+    ['Python', '`print(x, flush=True)`', 'The Python implementation passes `flush=True` on every query and answer.'],
+    ['C++', '`cout << x << endl;` or `cout << x << "\n"; cout.flush();`', '`endl` flushes but is slower; the repository uses `"\n"` plus an explicit `flush()`.'],
+    ['Go', 'a `bufio.Writer`, then `writer.Flush()`', 'The repository writes to a package-level `bufio.Writer` and flushes after each query.']
+  ]}
+/>
+
+## Template
+
+```text
+solve():
+    n = read()
+    while the answer is not known:
+        q = choose next query from what we know     # e.g. the midpoint
+        print("? " + q)
+        flush()
+        r = read()
+        if r == -1: exit                            # judge says we erred or ran out of queries
+        update what we know using r
+    print("! " + answer)
+    flush()
+```
+
+## Worked example: guess a number
+
+The judge holds a secret in `1..10`. `guess_number(10)` asks the midpoint and the judge answers `higher`, `lower` or `correct`. For the secret 7:
+
+<DataTable
+  columns={['Query', 'Interval before', 'Reply', 'Interval after']}
+  rows={[
+    ['? 5', '[1, 10]', 'higher', '[6, 10]'],
+    ['? 8', '[6, 10]', 'lower', '[6, 7]'],
+    ['? 6', '[6, 7]', 'higher', '[7, 7]']
+  ]}
+/>
+
+The interval has one value left, so the program prints `! 7`. That is 3 queries. The interval shrinks like this:
+
+<ArrayDiagram
+  legend={{ m: 'ruled out', l: 'still possible', p: 'queried this round' }}
+  rows={[
+    { label: 'start', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'llllllllll' },
+    { label: '? 5 higher', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'mmmmplllll', note: 'The secret is above 5, so 1..5 are gone.' },
+    { label: '? 8 lower', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'mmmmmllpmm', note: 'The secret is below 8, so 8..10 are gone.' },
+    { label: '? 6 higher', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'mmmmmplmmm', note: 'Only 7 is left: print the answer without another query.' },
+  ]}
+/>
+
+If the judge ever replies `correct`, the function returns at once without printing `! x`, because in this protocol the judge ends the game itself. If your problem wants an explicit answer line, print it.
+
+Why it takes at most floor(log<sub>2</sub> n) + 1 queries: each query leaves at most half of the interval, and the loop stops when one value is left.
+
+## Implementation
+
+The three languages share the idea but not the helpers:
+
+- **Python** has query and answer helpers (`query`, `query_multi`, `answer`, `answer_multi`) and strategies: `guess_number`, `binary_search_answer`, `explore_graph`, `find_maximum`, `tournament`, `guess_subset`, `binary_subset_search`, plus `check_response` and a `solve` template.
+- **C++** has `queryWithEndl`, `queryWithFlush`, `answer`, `guessNumber`, `findMinimumInteractive`, `exploreGraph`, `findMaximum`, `guessSubset`, `checkResponse` and a `solve` template.
+- **Go** has `Query`, `Answer`, `GuessNumber` and `BinarySearchAnswer`.
+
+All three read the judge's reply after flushing. In the tests each language drives its functions against a small in-process fake judge: Python replaces `input()` and stdout, C++ swaps the `cin` and `cout` buffers, Go swaps its reader and writer for pipes. The tests check the final answers and the query counts, and they fail if a query is read before it is flushed (Python).
+
+<TopicCode topic="Utilities/Problem_Types/Interactive_Problems" />
+
+## Query budgets
+
+<DataTable
+  columns={['Strategy', 'Queries', 'Used for']}
+  rows={[
+    ['Binary search (`guess_number`)', 'at most floor(log2 n) + 1', 'a monotone yes/no or higher/lower oracle'],
+    ['Find minimum in a rotated array (`findMinimumInteractive`)', 'at most ceil(log2 n) + 1', 'value queries; the value at `hi` is asked once and reused'],
+    ['Bit-by-bit search (`binary_subset_search`)', 'bit length of n', 'a hidden number tested by AND masks'],
+    ['Linear scan for the maximum (`find_maximum`)', 'n - 1', 'comparisons; n - 1 is also the lower bound'],
+    ['Tournament (`tournament`)', 'n - 1 in about log2 n rounds', 'comparisons that can be batched per round'],
+    ['One query per element (`guess_subset`)', 'n', 'hidden subsets; a smarter split uses fewer'],
+    ['BFS exploration (`explore_graph`)', 'one per reachable node', 'unknown graph with a neighbor oracle']
+  ]}
+/>
+
+Each query is O(1) work on your side, so the running time is the number of queries plus bookkeeping. The limit that matters is the judge's query limit, not the CPU time.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['LeetCode 374, Guess Number Higher or Lower', 'binary search with a `guess` API'],
+    ['LeetCode 278, First Bad Version', 'binary search with an `isBadVersion` API'],
+    ['LeetCode 702, Search in a Sorted Array of Unknown Size', 'double an index to bound the range, then binary search'],
+    ['LeetCode 1095, Find in Mountain Array', 'find the peak with a few `get` calls, then search both sides']
+  ]}
+/>
+
+## Variants
+
+- **Adaptive judge:** the hidden value is not fixed; the judge may change it as long as it stays consistent with earlier replies. Your strategy must work for the worst case.
+- **Multiple test cases:** loop and keep a separate budget for each case.
+- **Batching:** some problems allow several questions in one line to save round trips.
+- **Randomised strategies:** useful against an adaptive judge, but you need an upper bound on the failure probability.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forgetting to flush** after a query or the final answer.
+- **Printing debug output on stdout.** The judge reads it as a query. Write debug text to stderr.
+- **Reading ahead of the protocol.** Do not read a reply the judge has not sent.
+- **Ignoring `-1`.** Keep going after an error and the verdict becomes unclear. Exit at once.
+- **Wasting queries.** The original C++ `findMinimumInteractive` re-asked `hi` in every iteration and spent two queries per step; it now asks it once.
+- **Answering twice or not at all.** Print `! x` exactly once, unless the protocol ends on `correct`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How do I test an interactive solution without the judge?">
+    Write a fake judge. It is a small function that receives each line you print and returns the reply. The tests in this repository do exactly that in all three languages. For stand-alone binaries use two pipes or a local interactor program that plays the judge.
+  </FaqItem>
+  <FaqItem question="Why does the code use higher and lower instead of numbers?">
+    The reply format comes from the problem statement. Here it is a word; many judges use `<`, `>` and `=` or numbers. Parse exactly what the statement defines.
+  </FaqItem>
+  <FaqItem question="Can I use fast input in an interactive problem?">
+    Only reading what is available now. Reading the whole input up front blocks forever, because the judge only writes after your query. Use line-based reads or token reads that stop at the end of the reply.
+  </FaqItem>
+  <FaqItem question="What does the tournament function do differently from find_maximum?">
+    Both use n - 1 comparisons. The tournament compares in rounds of independent pairs, so the comparisons of one round could be sent together if the problem allows batching.
+  </FaqItem>
+</Faq>

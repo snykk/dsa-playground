@@ -1,173 +1,38 @@
-# Topological Sort (Go)
+# Topological Sort -- Go Implementation
 
-**Topological Sort** is a linear ordering of vertices in a directed acyclic graph (DAG) such that for every directed edge (u, v), vertex u comes before v in the ordering.
+Kahn's algorithm and a DAG check. For the idea, the trace and the complexity, see the topic README: [../README.md](../README.md).
 
----
+## Files
 
-## Overview
+| File | Purpose |
+|------|---------|
+| `main.go` | `TopologicalSortKahn`, `IsDAG` and a demo `main` |
+| `main_test.go` | 6 tests: basic order, cycle, `IsDAG`, empty graph and neighbour-only vertices, order validity, a 10^6-vertex chain |
+| `go.mod` | Module definition (`go 1.21`) |
 
-Topological sort is used to find a valid ordering of tasks with dependencies. It only works on Directed Acyclic Graphs (DAGs) - graphs with no cycles. If a cycle exists, topological sort is impossible.
+## API
 
-**Example**:
-- Graph: 1 → 2 → 3, 1 → 4
-- Valid orderings: [1, 2, 4, 3] or [1, 4, 2, 3]
-- Note: 1 must come before 2 and 4, 2 must come before 3
+- `TopologicalSortKahn(graph map[int][]int) []int`: an order including neighbour-only vertices, or an empty slice for a cycle (and for an empty graph).
+- `IsDAG(graph map[int][]int) bool`: true for the empty graph and for any acyclic graph, false when there is a cycle.
 
----
+There is no DFS version, all-orders enumeration or longest path in Go (Python has them).
 
-## Algorithm
+## Go-Specific Notes
 
-### Kahn's Algorithm (BFS-based)
+- **Empty slice is ambiguous.** It means a cycle or an empty graph; use `IsDAG`.
+- **Queue.** The queue is `container/list`, a plain slice would also do.
+- **Map iteration is random**, so the order of vertices with equal readiness varies between runs; test for validity.
+- **In-degrees** are built from keys and neighbours, so neighbour-only vertices are counted.
 
-1. **Calculate in-degrees**: Count incoming edges for each vertex
-2. **Initialize queue**: Add all vertices with in-degree 0
-3. **Process**: While queue is not empty:
-   - Remove vertex from queue
-   - Add to result
-   - Reduce in-degree of all neighbors
-   - Add neighbors with in-degree 0 to queue
-4. **Check**: If result contains all vertices, return ordering; else cycle exists
-
----
-
-## Complexity Analysis
-
-| Algorithm | Time | Space |
-|-----------|------|-------|
-| **Kahn's Algorithm** | O(V + E) | O(V) |
-
-Where:
-- V = number of vertices
-- E = number of edges
-
----
-
-## Implementation Details
-
-### Functions
-
-1. **`TopologicalSortKahn(graph)`**
-   - Kahn's algorithm (BFS-based)
-   - Returns topological ordering or empty slice if cycle detected
-   - Time: O(V + E), Space: O(V)
-
-2. **`IsDAG(graph)`**
-   - Check if graph is DAG
-   - Returns true if DAG, false otherwise
-   - Time: O(V + E), Space: O(V)
-
----
-
-## Usage
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    graph := map[int][]int{
-        1: {2, 4},
-        2: {3},
-        3: {},
-        4: {},
-    }
-    
-    order := TopologicalSortKahn(graph)
-    fmt.Println(order)  // [1 2 4 3] or [1 4 2 3]
-    
-    // Check if DAG
-    is_valid := IsDAG(graph)
-    fmt.Println(is_valid)  // true
-}
-```
-
-## Testing
-
-Run tests with:
+## How to Run
 
 ```bash
-# Run tests
-go test -v
-
-# Or run the main file to see example usage
-go run main.go
+go test ./...
+go run main.go      # demo
 ```
 
----
+## Key Takeaways
 
-## Important Notes
-
-1. **DAG requirement**: Only works on Directed Acyclic Graphs
-2. **Cycle detection**: Returns empty slice if cycle detected
-3. **Multiple orderings**: There may be multiple valid orderings
-4. **In-degree calculation**: Must account for all vertices
-5. **Go containers**: Uses container/list for queue
-
----
-
-## Advantages
-
-1. ✅ **Efficient**: O(V + E) time complexity
-2. ✅ **Simple**: Easy to understand and implement
-3. ✅ **Cycle detection**: Can detect cycles
-4. ✅ **Queue-based**: Natural BFS approach
-
----
-
-## Disadvantages
-
-1. ❌ **DAG only**: Doesn't work on graphs with cycles
-2. ❌ **Directed only**: Only works on directed graphs
-3. ❌ **Memory**: Requires O(V) space for queue and in-degrees
-
----
-
-## When to Use
-
-- ✅ Task scheduling with dependencies
-- ✅ Course prerequisites ordering
-- ✅ Build system dependency resolution
-- ✅ Event ordering in distributed systems
-- ❌ Graphs with cycles (must remove cycles first)
-- ❌ Undirected graphs (not applicable)
-
----
-
-## Testing
-
-Run the test suite:
-
-```bash
-go test -v
-```
-
----
-
-## Related Algorithms
-
-- **DFS**: Can be used for DFS-based topological sort
-- **BFS**: Used in Kahn's algorithm
-- **Cycle Detection**: Topological sort detects cycles
-
----
-
-## Applications
-
-1. **Task Scheduling**: Order tasks with dependencies
-2. **Course Prerequisites**: Determine course order
-3. **Build Systems**: Resolve build dependencies
-4. **Package Managers**: Resolve package dependencies
-
----
-
-## References
-
-- Kahn, A. B. (1962). "Topological sorting of large networks"
-- "Introduction to Algorithms" by CLRS (Chapter 22)
-- "Algorithm Design Manual" by Steven Skiena
-
----
-
-_Last Updated: December 2025_
-
+1. Build the vertex set from keys and neighbours.
+2. Never compare a Go order with a fixed list: map order is random.
+3. `IsDAG` handles the empty graph.

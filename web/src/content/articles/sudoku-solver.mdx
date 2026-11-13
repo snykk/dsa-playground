@@ -1,0 +1,222 @@
+---
+topic: Algorithms/Advanced_Algorithms/Backtracking/Sudoku_Solver
+title: Sudoku Solver
+lead: A 9 x 9 Sudoku must be filled so that every row, column and 3 x 3 box contains each digit from 1 to 9 once. The backtracking solver checks the givens, then fills the first empty cell with each legal digit in turn and undoes the choice when a later cell has no legal digit.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Worst time
+    value: O(9^k)
+    hint: k is the number of empty cells
+    tone: warn
+  - label: Extra space
+    value: O(k)
+    hint: recursion depth; the board is solved in place
+  - label: Typical puzzle
+    value: 4,209 calls
+    hint: the 51-blank puzzle in this article, with plain backtracking
+  - label: Approach
+    value: Backtracking
+properties:
+  - { label: Exact, value: true }
+  - { label: Checks the givens, value: true }
+  - { label: Solves in place, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Advanced_Algorithms/Backtracking/N_Queens_Problem
+  - Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring
+  - Algorithms/Advanced_Algorithms/Backtracking/Rat_in_a_Maze
+---
+
+## How the Sudoku solver works
+
+The board is a 9 x 9 grid of integers; `0` marks an empty cell. A digit `d` is **legal** at `(row, col)` if `d` does not already appear in that row, that column or that 3 x 3 box. The box of a cell starts at `((row // 3) * 3, (col // 3) * 3)`.
+
+<Steps>
+  <Step title="Validate the puzzle">
+    `solve_sudoku` first calls `is_valid_puzzle`. It rejects a board that is not 9 x 9, has a value outside 0..9, or whose given digits already repeat in a row, column or box. In that case it returns `False` and does not touch the board.
+  </Step>
+  <Step title="Find the first empty cell">
+    `find_empty` scans row by row. If there is none, every cell is filled and the puzzle is solved.
+  </Step>
+  <Step title="Try the digits 1 to 9">
+    For each digit that `is_valid` accepts, write it into the cell and recurse to the next empty cell.
+  </Step>
+  <Step title="Undo on failure">
+    If the recursive call fails, set the cell back to 0 and try the next digit. When all nine digits fail, return `False` so that the caller changes its own digit.
+  </Step>
+</Steps>
+
+<Callout title="Why the validation step matters">
+The search only checks a digit against the cells around it when it places that digit. Givens are never re-checked, so two equal givens in one row would be accepted silently, and a completely filled but invalid board would be reported as solved. That is why `is_valid_puzzle` runs once before the search.
+</Callout>
+
+## Worked example
+
+This is the puzzle used by the examples and the tests. It has 30 givens (grey-blue) and 51 empty cells:
+
+<GridDiagram
+  rows={[[5, 3, '', '', 7, '', '', '', ''], [6, '', '', 1, 9, 5, '', '', ''], ['', 9, 8, '', '', '', '', 6, ''], [8, '', '', '', 6, '', '', '', 3], [4, '', '', 8, '', 3, '', '', 1], [7, '', '', '', 2, '', '', '', 6], ['', 6, '', '', '', '', 2, 8, ''], ['', '', '', 4, 1, 9, '', '', 5], ['', '', '', '', 8, '', '', 7, 9]]}
+  tones={['ll..l....', 'l..lll...', '.ll....l.', 'l...l...l', 'l..l.l..l', 'l...l...l', '.l....ll.', '...lll..l', '....l..ll']}
+  blocks={3}
+  legend={{ l: 'given digit' }}
+/>
+
+The first empty cell is `(0, 2)`. The digits 5, 3 and 7 are in its row, 8 is in its column, and its box holds 5, 3, 6, 9 and 8. Only 1, 2 and 4 remain, so the solver tries 1 first:
+
+<GridDiagram
+  rows={[[5, 3, '?', '', 7, '', '', '', ''], [6, '', '', 1, 9, 5, '', '', ''], ['', 9, 8, '', '', '', '', 6, ''], [8, '', '', '', 6, '', '', '', 3], [4, '', '', 8, '', 3, '', '', 1], [7, '', '', '', 2, '', '', '', 6], ['', 6, '', '', '', '', 2, 8, ''], ['', '', '', 4, 1, 9, '', '', 5], ['', '', '', '', 8, '', '', 7, 9]]}
+  tones={['rrp.r....', 'r..lll...', '.rr....l.', 'l...l...l', 'l..l.l..l', 'l...l...l', '.l....ll.', '...lll..l', '....l..ll']}
+  blocks={3}
+  legend={{ p: 'the cell being filled', r: 'digits that rule out 5, 3, 7, 6, 8 and 9 for it (row, column, box)', l: 'other givens' }}
+/>
+
+Run on this puzzle, the opening of the search looks like this. After `(0, 7) = 9` the cell `(0, 8)` has no legal digit, and `(0, 7)` had no other choice, so the search unwinds two levels:
+
+<DataTable
+  columns={['Event', 'Cell', 'Digit', 'What happens']}
+  rows={[
+    ['1', '(0, 2)', '1', 'placed'],
+    ['2', '(0, 3)', '2', 'placed'],
+    ['3', '(0, 5)', '4', 'placed'],
+    ['4', '(0, 6)', '8', 'placed'],
+    ['5', '(0, 7)', '9', 'placed; (0, 8) then has no legal digit'],
+    ['6', '(0, 7)', '-', 'undone, no other digit fits'],
+    ['7', '(0, 6)', '-', 'undone, 8 failed'],
+    ['8', '(0, 6)', '9', 'placed, but the next cells fail, so it is undone again'],
+    ['9', '(0, 5)', '6', 'the 4 is undone too, then 6 is placed'],
+  ]}
+  caption="The first events of the search. In total the solver is called 4,209 times and undoes 4,157 placements before the 51 empty cells are filled."
+/>
+
+The unique solution that the search returns (aqua cells are filled by the solver):
+
+<GridDiagram
+  rows={[[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8], [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3], [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6], [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5], [3, 4, 5, 2, 8, 6, 1, 7, 9]]}
+  tones={['llfflffff', 'lfflllfff', 'fllfffflf', 'lffflfffl', 'lfflflffl', 'lffflfffl', 'flffffllf', 'ffflllffl', 'fffflffll']}
+  blocks={3}
+  legend={{ l: 'given', f: 'filled by the solver' }}
+/>
+
+## Pseudocode
+
+```text
+isValid(board, row, col, num):
+    if num appears in board[row][*]: return false
+    if num appears in board[*][col]: return false
+    if num appears in the 3x3 box of (row, col): return false
+    return true
+
+search(board):
+    (row, col) = first cell with board[row][col] == 0
+    if there is none: return true
+    for num = 1 to 9:
+        if isValid(board, row, col, num):
+            board[row][col] = num
+            if search(board): return true
+            board[row][col] = 0              # backtrack
+    return false
+
+solveSudoku(board):
+    if not isValidPuzzle(board): return false   # shape, range 0..9, no conflicting givens
+    return search(board)
+```
+
+## Implementation
+
+The three versions are identical in structure: `is_valid_puzzle`, `is_valid`, `find_empty`, a recursive search, and `solve_sudoku`, which validates and then searches. All of them solve the board in place and return a boolean. They differ only in naming (`isValidPuzzle`, `solveSudoku` in C++ and Go) and in what they use for the empty-cell lookup: a tuple or `None` in Python, `std::optional` in C++, and an index pair plus a flag in Go.
+
+<TopicCode topic="Algorithms/Advanced_Algorithms/Backtracking/Sudoku_Solver" />
+
+## Complexity analysis
+
+With `k` empty cells, each recursion level tries at most nine digits, so the search tree has at most 9<sup>k</sup> leaves. Each node costs a constant amount of work on a fixed 9 x 9 board: `find_empty` scans 81 cells and `is_valid` scans up to 27.
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(k)', space: 'O(k)', when: 'Every digit tried first is correct, so there is no backtracking.' },
+    { case: 'Worst case', time: 'O(9^k)', space: 'O(k)', when: 'Puzzles whose early empty cells accept many wrong digits. The bound is loose, because legal digits are far fewer than nine.' },
+  ]}
+/>
+
+<Equation label="Search tree" expr="nodes <= 1 + 9 + 9^2 + ... + 9^k" result="O(9^k)" />
+
+The recursion is `k` deep. The validation step runs once and costs <BigO of="81" />, a constant. The example puzzle is solved by this simple method in a small fraction of a second in Python, but puzzles can be built to defeat it by making the early cells in scan order accept many wrong digits.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Improvement', 'Idea', 'Effect']}
+  rows={[
+    ['Plain backtracking (this repository)', 'first empty cell in scan order, digits 1 to 9', '4,209 calls on the example puzzle'],
+    ['Most constrained cell first (MRV)', 'always fill the empty cell with the fewest legal digits', '52 calls on the example puzzle, in a scratch experiment'],
+    ['Bitmasks per row, column and box', 'a legal-digit set is three ANDs, no scans', 'constant-factor speed-up'],
+    ['Constraint propagation', 'fill forced cells (a single candidate) before guessing', 'solves many puzzles without any search'],
+    ['Exact cover (Dancing Links)', 'model the grid as an exact-cover problem', 'fast on hard puzzles and counts all solutions'],
+  ]}
+/>
+
+The repository code uses the first variant only. The MRV figure comes from an experiment with a copy of the same search that scans all empty cells for the one with the fewest candidates; it is not part of the repository code.
+
+## Sudoku solver vs similar searches
+
+<DataTable
+  columns={['', 'Sudoku', 'N-Queens', 'Graph Coloring']}
+  highlight={0}
+  rows={[
+    ['Variable', 'an empty cell', 'a row', 'a vertex'],
+    ['Domain', 'digits 1 to 9', 'columns 0 to n-1', 'colors 1 to m'],
+    ['Constraint', 'row, column and box all differ', 'no shared column or diagonal', 'adjacent vertices differ'],
+    ['Next variable', 'first empty cell', 'next row', 'next vertex'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Simple and short, and it always finds the solution if one exists.',
+    'Works in place, using memory proportional to the number of empty cells.',
+    'It shows the full choose, check, recurse, undo cycle on a familiar puzzle.',
+  ]}
+  cons={[
+    'Exponential in the worst case; adversarial puzzles can take very long.',
+    'The scan order ignores how constrained each cell is, which wastes thousands of calls.',
+    'It stops at the first solution, so it does not tell whether the solution is unique.',
+    'Only the standard 9 x 9 grid is supported.',
+  ]}
+/>
+
+## Applications
+
+- **Puzzle solving and checking.** Generators use a solver to verify that a puzzle has a solution.
+- **Constraint satisfaction.** The same pattern solves timetabling and register-allocation style problems.
+- **Teaching.** It introduces pruning, constraint propagation and search heuristics.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Trusting the givens.** Without a check, two equal givens or a full but invalid board look solved. This solver validates first and returns `False` without touching the board.
+- **Wrong box index.** The box origin is `(row // 3) * 3` and `(col // 3) * 3`; using `row % 3` shifts the box.
+- **Forgetting to reset the cell.** A failed branch must set the cell back to 0, or later searches see a stale digit.
+- **Assuming an answer exists.** A puzzle whose givens do not conflict can still have no solution; the solver then returns `False` and the board is restored.
+- **Assuming uniqueness.** A puzzle with several solutions returns the first one in digit order.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the solver validate the board before searching?">
+    The search only checks a new digit against the existing ones. Conflicts among the givens are invisible to it, so an invalid starting board could be accepted. Validation costs a single pass over 81 cells.
+  </FaqItem>
+  <FaqItem question="Is the answer always unique?">
+    Well-formed puzzles have exactly one solution, but the solver does not check this. If several solutions exist it returns the first one it reaches.
+  </FaqItem>
+  <FaqItem question="What happens to the board when there is no solution?">
+    The search undoes every placement while unwinding, so the board is exactly the input board and the function returns `False`.
+  </FaqItem>
+  <FaqItem question="How can I make it much faster?">
+    Always branch on the empty cell with the fewest legal digits, and fill cells that have a single candidate before guessing. The same example puzzle then needs 52 calls instead of 4,209.
+  </FaqItem>
+</Faq>

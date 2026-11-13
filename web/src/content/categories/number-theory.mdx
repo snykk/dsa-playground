@@ -1,0 +1,145 @@
+---
+category: Algorithms/Mathematical_Algorithms/Number_Theory
+title: Number Theory Algorithms
+lead: Number theory algorithms work on exact integers, using divisors, remainders, powers and primes. They build on each other. The Euclidean algorithm gives gcd and inverses, modular arithmetic and exponentiation use them, and the sieve and Miller-Rabin tell primes apart.
+updated: 2026-11-13
+facts:
+  - label: gcd
+    value: O(log min(a, b))
+    hint: Euclidean algorithm
+  - label: Power mod m
+    value: O(log e)
+    hint: square and multiply, not O(e)
+  - label: All primes up to n
+    value: O(n log log n)
+    hint: Sieve of Eratosthenes, O(n) memory
+  - label: One big number
+    value: O(log n)
+    hint: per Miller-Rabin witness, 12 fixed witnesses for n < 2^64
+contents:
+  - folder: Euclidean_Algorithm
+    note: gcd by repeated remainders, and the extended form that gives the Bezout coefficients behind inverses.
+  - folder: Modular_Arithmetic
+    note: Add, subtract and multiply with wrap-around, and divide by multiplying with an inverse.
+  - folder: Modular_Exponentiation
+    note: base^e mod m in O(log e) multiplications by squaring the base once per bit of the exponent.
+  - folder: Chinese_Remainder_Theorem
+    note: Combine congruences with different moduli into one, using an extended Euclid per congruence.
+  - folder: Sieve_of_Eratosthenes
+    note: Cross out multiples of each prime to list every prime up to n and answer "is k prime?" in O(1).
+  - folder: Miller_Rabin_Primality_Test
+    note: Decide whether one huge number is prime with a few modular exponentiations.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Mathematical_Algorithms/Advanced_Math
+  - Algorithms/Coding_Theory/Galois_Field
+  - Algorithms/Dynamic_Programming
+---
+
+## The problem
+
+These topics answer questions about whole numbers without floating point: what divides these two numbers, what is a power modulo `m`, which numbers are prime, and which number has these remainders? All results are exact, and most are fast because they work on remainders instead of full values.
+
+The topics form a chain:
+
+- The **Euclidean algorithm** finds gcd and, in its extended form, the inverse of a number modulo `m`.
+- **Modular arithmetic** keeps numbers small with `mod` and divides with that inverse.
+- **Modular exponentiation** computes huge powers inside that arithmetic.
+- The **Chinese Remainder Theorem** merges congruences, with one extended Euclid per step.
+- The **sieve** and **Miller-Rabin** are two ways to find primes: all of them up to `n`, or a verdict on one large number. Miller-Rabin is built on modular exponentiation.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Idea', 'Key property', { label: 'Cost', kind: 'mono' }]}
+  rows={[
+    ['Euclidean algorithm', 'replace `(a, b)` by `(b, a mod b)` until `b` is 0', 'the extended form gives `a*x + b*y = gcd`', 'O(log min(a, b))'],
+    ['Modular arithmetic', 'keep only the remainder after every operation', 'results stay in `0 .. m-1`; an inverse exists when `gcd(a, m) = 1`', 'O(1); inverse O(log m)'],
+    ['Modular exponentiation', 'square the base once per exponent bit, multiply on 1 bits', 'no huge intermediate numbers', 'O(log e)'],
+    ['Chinese Remainder Theorem', 'merge two congruences at a time', 'unique modulo the lcm; detects contradictions', 'O(n log max m)'],
+    ['Sieve of Eratosthenes', 'cross out multiples of each prime, starting at its square', 'finds all primes up to n, then answers queries in O(1)', 'O(n log log n)'],
+    ['Miller-Rabin', 'test a property every prime has and most composites lack', 'never rejects a prime; exact for n < 2^64 with 12 fixed bases', 'O(log n) per witness'],
+  ]}
+/>
+
+## One small problem through several topics
+
+All values here come from running the Python code in this repository.
+
+<DataTable
+  columns={['Topic', 'Call', 'Result']}
+  rows={[
+    ['Euclidean algorithm', '`gcd(48, 18)`, `extended_gcd(48, 18)`, `lcm(48, 18)`', 'gcd 6; the extended form returns `(6, -1, 3)`, so `48*(-1) + 18*3 = 6`; lcm 144'],
+    ['Modular arithmetic', '`mod_inverse(3, 11)`', '4, because `3 * 4 = 12` leaves remainder 1'],
+    ['Modular exponentiation', '`mod_pow(3, 9, 11)`', '4 again: for a prime modulus, `a^(m-2)` is the inverse of `a`'],
+    ['Chinese Remainder Theorem', 'remainders `[2, 3, 2]`, moduli `[3, 5, 7]`', '23, the smallest solution of all three congruences'],
+    ['Sieve of Eratosthenes', '`sieve_of_eratosthenes(30)`', '`[2, 3, 5, 7, 11, 13, 17, 19, 23, 29]`'],
+    ['Miller-Rabin', '`miller_rabin_deterministic` on 97, 91 and 561', 'True, False, False. 91 is `7 * 13` and 561 is a Carmichael number'],
+  ]}
+/>
+
+The inverse of 3 modulo 11 is found two ways, by the extended Euclid inside modular arithmetic and by square and multiply, and both give 4.
+
+## Complexity
+
+<DataTable
+  columns={['Topic', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Note']}
+  rows={[
+    ['Euclidean algorithm', 'O(log min(a, b))', 'O(1)', 'O(log n) for the recursive version; Lame\'s theorem bounds the steps'],
+    ['Modular arithmetic', 'O(1); inverse O(log m)', 'O(1)', 'the inverse uses the extended Euclid'],
+    ['Modular exponentiation', 'O(log e)', 'O(1)', 'O(log e) for the recursive Python version; the naive loop is O(e)'],
+    ['Chinese Remainder Theorem', 'O(n log max m)', 'O(1)', 'the lcm must fit in 64 bits in C++ and Go'],
+    ['Sieve of Eratosthenes', 'O(n log log n)', 'O(n)', 'one flag per number'],
+    ['Miller-Rabin', 'O(k log n) multiplications for k witnesses', 'O(1)', 'a composite passes one random witness with probability at most 1/4'],
+  ]}
+/>
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['gcd or lcm of two numbers', 'Euclidean algorithm', 'a few remainder steps, no factoring'],
+    ['Counting or hashing modulo a prime', 'Modular arithmetic', 'wrap after every step so values stay small'],
+    ['A huge power modulo m', 'Modular exponentiation', 'about 2 log2(e) multiplications instead of e'],
+    ['Remainders modulo several numbers', 'Chinese Remainder Theorem', 'one answer modulo the lcm, or a report that none exists'],
+    ['All primes up to a limit', 'Sieve of Eratosthenes', 'the table also answers later queries in O(1)'],
+    ['Is this one large number prime?', 'Miller-Rabin', 'a sieve would need memory proportional to the number'],
+  ]}
+/>
+
+## Applications
+
+- **Cryptography.** Modular exponentiation and Miller-Rabin generate and use RSA-size keys.
+- **Competitive programming.** Answers modulo a prime, inverses for division, and sieves for factor tables.
+- **Hashing.** Rolling hashes compute in modular arithmetic.
+- **Scheduling and cycles.** The Chinese Remainder Theorem finds when several periodic events line up.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Computing `a * b / gcd` for the lcm.** The product can overflow. Divide first: `a / gcd * b`.
+- **Assuming an inverse always exists.** It needs `gcd(a, m) = 1`. Python's `mod_inverse` returns `None` otherwise.
+- **Trusting a remainder of a negative number.** The results here always land in `0 .. m-1`, but some languages return a negative remainder for a negative operand.
+- **Overflowing 64-bit products.** Modular multiplication of two values near `m` needs 128-bit intermediates once `m` is above about 3.04e9, in both exponentiation and Miller-Rabin.
+- **Using a sieve for one big number.** It needs O(n) memory and is only practical for n up to a few hundred million. Use Miller-Rabin instead.
+- **Forgetting that Fermat's test is fooled.** Carmichael numbers such as 561 pass it for every coprime base, which is why Miller-Rabin tests more than `a^(n-1) = 1`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Euclidean algorithm, modular arithmetic, modular exponentiation, the Chinese Remainder Theorem, the sieve, then Miller-Rabin. Each of the first four leans on the one before it, and Miller-Rabin needs modular exponentiation.
+  </FaqItem>
+  <FaqItem question="Do the moduli have to be coprime for the Chinese Remainder Theorem?">
+    No. The implementation merges congruences one at a time and reports no solution when two of them contradict each other. With coprime moduli a solution always exists and is unique modulo the product.
+  </FaqItem>
+  <FaqItem question="Is Miller-Rabin exact?">
+    With random witnesses it is probabilistic, and a composite number slips past one witness with probability at most 1/4. The deterministic version with 12 fixed bases is exact for every 64-bit integer. A prime is never rejected.
+  </FaqItem>
+  <FaqItem question="Why does modular exponentiation need so few multiplications?">
+    It squares the base once per bit of the exponent and multiplies the answer in only for the 1 bits, so a power with an exponent near 10^18 takes about 120 multiplications.
+  </FaqItem>
+</Faq>

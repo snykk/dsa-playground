@@ -1,0 +1,211 @@
+---
+topic: Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring
+title: Graph Coloring
+lead: Graph coloring gives every vertex one of m colors so that no edge joins two vertices of the same color. The backtracking solver colors vertices in index order and undoes a choice when a later vertex has no legal color left. It decides m-colorability and finds the chromatic number on small graphs.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V * m^V)
+    hint: m^V assignments, O(V) safety check each
+    tone: warn
+  - label: Extra space
+    value: O(V)
+    hint: the color array plus the recursion depth
+  - label: Problem class
+    value: NP-complete
+    hint: for m >= 3 colors
+  - label: Approach
+    value: Backtracking
+properties:
+  - { label: Exact answer, value: true }
+  - { label: Polynomial time, value: false }
+  - { label: Finds the minimum, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Advanced_Algorithms/Backtracking/Sudoku_Solver
+  - Algorithms/Advanced_Algorithms/Backtracking/N_Queens_Problem
+  - Algorithms/Advanced_Algorithms/Backtracking/Rat_in_a_Maze
+---
+
+## How graph coloring works
+
+A coloring is **proper** if the two ends of every edge have different colors. The **m-coloring problem** asks whether a proper coloring with at most m colors exists. The **chromatic number** is the smallest such m.
+
+The solver fills the color array one vertex at a time, in index order `0, 1, ..., V-1`:
+
+<Steps>
+  <Step title="Take the next vertex">
+    Vertex `v` is the first one without a color. If `v == V`, every vertex is colored and the search succeeds.
+  </Step>
+  <Step title="Try each color from 1 to m">
+    A color `c` is **safe** for `v` when no neighbor of `v` already has color `c`. `is_safe` scans row `v` of the adjacency matrix, so one check costs <BigO of="V" />.
+  </Step>
+  <Step title="Commit and recurse">
+    Give `v` the color and move on to `v + 1`. If that call succeeds, return success up the stack.
+  </Step>
+  <Step title="Backtrack when stuck">
+    If the recursive call fails, reset `color[v] = 0` and try the next color. When all m colors fail, return failure; the caller then changes its own choice.
+  </Step>
+</Steps>
+
+`chromatic_number` calls the m-coloring solver for `m = 1, 2, ...` and returns the first m that works. That is correct because any proper coloring with m colors is also a proper coloring with m + 1 colors, so the answer is monotone in m.
+
+<Callout title="The invariant">
+At every call for vertex `v`, the colored vertices `0..v-1` form a proper partial coloring. A color is committed only after `is_safe` confirms it, so the invariant holds on entry to every deeper call, and a full assignment is automatically a proper coloring.
+</Callout>
+
+## Worked example
+
+The graph has 4 vertices and 5 edges: `0-1, 0-2, 0-3, 1-2, 2-3`. Vertices 0, 1, 2 form a triangle, so at least 3 colors are needed. With `m = 3` the solver never has to backtrack:
+
+<GraphDiagram
+  edges="0-1, 0-2, 0-3, 1-2, 2-3"
+  positions={{ 0: [10, 50], 1: [50, 8], 2: [50, 92], 3: [90, 50] }}
+  tones={{ 0: 'p', 1: 'l', 2: 'f', 3: 'l' }}
+  badges={{ 0: '1', 1: '2', 2: '3', 3: '2' }}
+  legend={{ p: 'color 1', l: 'color 2', f: 'color 3' }}
+  caption="Result of graph_coloring(graph, 3): [1, 2, 3, 2]. Vertex 3 reuses color 2 because it is not adjacent to vertex 1."
+/>
+
+With `m = 2` the same search fails after 5 calls. Vertex 0 gets color 1 and vertex 1 gets color 2, then vertex 2 sees both colors among its neighbors and has nothing left. The solver retries vertex 0 with color 2 and vertex 1 with color 1, hits the same wall, and reports that no 2-coloring exists. `chromatic_number` therefore returns 3.
+
+<DataTable
+  columns={['Step', 'Vertex', 'Colors tried', 'Outcome']}
+  rows={[
+    ['1', '0', '1', 'safe, commit `color[0] = 1`'],
+    ['2', '1', '1, 2', '1 clashes with vertex 0; 2 is safe'],
+    ['3', '2', '1, 2', 'both clash (neighbors 0 and 1): fail, undo vertex 1'],
+    ['4', '1', '(none left)', 'fail, undo vertex 0'],
+    ['5', '0', '2', 'safe; then the same failure repeats with the colors swapped'],
+  ]}
+  caption="The m = 2 search on the example graph (vertex 3 is never reached)."
+/>
+
+## Pseudocode
+
+```text
+isSafe(graph, v, color, c):
+    for i = 0 to V - 1:
+        if graph[v][i] == 1 and color[i] == c:
+            return false
+    return true
+
+solve(graph, m, color, v):
+    if v == V:
+        return true
+    for c = 1 to m:
+        if isSafe(graph, v, color, c):
+            color[v] = c
+            if solve(graph, m, color, v + 1):
+                return true
+            color[v] = 0            # backtrack
+    return false
+
+chromaticNumber(graph):
+    for m = 1 to V:
+        if graphColoring(graph, m) succeeds:
+            return m
+    return V
+```
+
+## Implementation
+
+All three versions share the same structure: `is_safe`, a recursive helper, `graph_coloring(graph, m)` and `chromatic_number(graph)`. A graph is an adjacency matrix of 0 and 1. Python returns a list or `None`, C++ returns `std::optional<std::vector<int>>` and Go returns a slice or `nil`. Colors are numbered from 1, and 0 means "uncolored".
+
+<TopicCode topic="Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(V^2)', space: 'O(V)', when: 'No backtracking: each vertex finds a safe color on its first or second try, and every safety check costs O(V).' },
+    { case: 'Worst case', time: 'O(V * m^V)', space: 'O(V)', when: 'The search tree has up to m^V leaves and each node does an O(V) safety scan. This happens when no m-coloring exists but the conflict only shows up late.' },
+    { case: 'Chromatic number', time: 'O(V * V^V)', space: 'O(V)', when: 'Calls the solver for m = 1, 2, ..., V. The largest m dominates the sum.' },
+  ]}
+/>
+
+The search tree has depth V and branching factor m, which gives:
+
+<Equation label="Search tree" expr="nodes <= 1 + m + m^2 + ... + m^V" result="O(m^V)" />
+
+Pruning with `is_safe` cuts most of that tree in practice, but the bound cannot be improved in general: deciding 3-colorability is NP-complete. The recursion depth is V and the color array has V entries, so space is <BigO of="V" /> beyond the input matrix.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Approach', 'Result', 'Time', 'Note']}
+  rows={[
+    ['Backtracking (this repository)', 'exact', 'O(V * m^V)', 'vertices in index order, smallest color first'],
+    ['Greedy coloring', 'at most max degree + 1 colors, not minimal', 'O(V + E) with lists', 'not in this repository'],
+    ['DSatur', 'good heuristic, exact on bipartite graphs', 'polynomial', 'colors the vertex with the most distinct neighbor colors first'],
+    ['Bipartite check (BFS or DFS)', 'decides 2-colorability', 'O(V + E)', 'the only case m = 2 that is easy'],
+  ]}
+/>
+
+The order in which vertices are visited matters a lot. Coloring the vertex with the highest degree first makes conflicts appear early, so the tree is pruned near its root. This repository uses plain index order.
+
+## Graph coloring vs alternatives
+
+<DataTable
+  columns={['', 'Backtracking', 'Greedy']}
+  highlight={0}
+  rows={[
+    ['Guarantees the minimum', 'Yes', 'No'],
+    ['Time', 'exponential', 'linear in V + E'],
+    ['Handles "does m colors suffice?"', 'directly', 'only if greedy happens to use at most m'],
+    ['Practical size', 'tens of vertices', 'millions of vertices'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Exact: it either returns a valid coloring or proves that none exists for that m.',
+    'Short and easy to verify; the validity of the result follows from the invariant.',
+    'The same template solves other constraint problems such as Sudoku and N-Queens.',
+  ]}
+  cons={[
+    'Exponential time: more than a few dozen vertices becomes impractical.',
+    'Index order is a poor vertex ordering; the tree can be far larger than needed.',
+    'Colors are interchangeable, so the search repeats the same coloring under every permutation of colors.',
+    'The adjacency matrix costs <BigO of="V^2" /> memory even for sparse graphs.',
+  ]}
+/>
+
+## Applications
+
+- **Scheduling.** Exams are vertices, a shared student is an edge, colors are time slots; the chromatic number is the minimum number of slots.
+- **Register allocation.** Variables that are live at the same time conflict; colors are CPU registers.
+- **Map coloring.** Regions are vertices and shared borders are edges. Maps are planar, so four colors always suffice.
+- **Frequency assignment.** Transmitters that interfere may not share a frequency.
+- **Sudoku.** Cells are vertices and cells in a shared row, column or box are edges, with nine colors.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forgetting to reset the color.** Without `color[v] = 0` after a failed branch, a stale color blocks the neighbors that are tried next.
+- **Asymmetric or self-loop matrices.** The code reads `graph[v][i]` only, so the matrix must be symmetric. A self-loop `graph[v][v] = 1` is never detected, because `color[v]` is still 0 when `v` is checked.
+- **Using 0 as a color.** 0 marks an uncolored vertex, so valid colors start at 1.
+- **Expecting a minimal coloring from `graph_coloring`.** It returns some coloring with colors in `1..m`, not necessarily one that uses fewer colors. Use `chromatic_number` for the minimum.
+- **Assuming the greedy bound is tight.** A graph with max degree d can still need far fewer than d + 1 colors, and an unlucky greedy order can use more than the chromatic number.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does chromatic_number try m = 1, 2, 3, ... instead of binary search?">
+    Binary search would also be correct, because the answer is monotone in m. Linear order is simpler, and the calls with a small m have a small search tree (m<sup>V</sup>), so they are cheap to fail. The expensive call is the one just below the answer either way.
+  </FaqItem>
+  <FaqItem question="What is the chromatic number of common graphs?">
+    A graph with no edges needs 1, an even cycle or any tree needs 2, an odd cycle needs 3, and the complete graph on n vertices needs n. The tests in this repository check these cases.
+  </FaqItem>
+  <FaqItem question="Is there a fast algorithm?">
+    Not for the general problem unless P = NP. Two colors can be tested in <BigO of="V + E" /> by checking whether the graph is bipartite. For three or more colors the problem is NP-complete, so practical solvers use better vertex ordering and pruning, or heuristics such as DSatur.
+  </FaqItem>
+  <FaqItem question="How is this different from the N-Queens search?">
+    The pattern is the same: place one item, check constraints, recurse, undo. Here the choice for vertex v is a color and the constraint is its neighbors; in N-Queens the choice for row r is a column and the constraint is the earlier queens.
+  </FaqItem>
+</Faq>

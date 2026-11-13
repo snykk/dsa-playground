@@ -1,0 +1,106 @@
+---
+category: Algorithms/Mathematical_Algorithms
+title: Mathematical Algorithms
+lead: Mathematical algorithms compute with exact integers and structured numbers. Number Theory covers divisors, remainders, powers and primes. Advanced Math covers matrix powers and the Fast Fourier Transform, which cut a slow computation to a logarithmic one.
+updated: 2026-11-13
+facts:
+  - label: gcd
+    value: O(log min(a, b))
+    hint: Euclidean algorithm
+  - label: Power mod m
+    value: O(log e)
+    hint: square and multiply
+  - label: Linear recurrence
+    value: O(log k)
+    hint: Fibonacci F(k) by matrix power
+  - label: Polynomial product
+    value: O(n log n)
+    hint: Fast Fourier Transform, with rounding
+contents:
+  - folder: Number_Theory
+    note: Euclid, modular arithmetic and exponentiation, the Chinese Remainder Theorem, the sieve and Miller-Rabin.
+  - folder: Advanced_Math
+    note: Matrix exponentiation for recurrences and the Fast Fourier Transform for polynomial products.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Coding_Theory
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Divide_and_Conquer
+---
+
+## What this area covers
+
+This folder collects algorithms whose input is numbers and whose answer is a number, a list of numbers or a yes or no.
+
+- **Number Theory** works on whole numbers. It finds a gcd, computes powers and inverses modulo `m`, merges congruences and finds primes. Everything is exact.
+- **Advanced Math** applies the same halving idea to larger objects. Matrix exponentiation squares a matrix to reach the `k`-th term of a recurrence, and the FFT splits a sequence in two to multiply polynomials in O(n log n).
+
+The two meet in modular exponentiation. Square and multiply for numbers is the template for matrix exponentiation, which squares matrices in the same way.
+
+## At a glance
+
+<DataTable
+  columns={['Sub-area', 'Topics', 'Question it answers', { label: 'Typical cost', kind: 'mono' }]}
+  rows={[
+    ['Number Theory', 'Euclid, Modular Arithmetic, Modular Exponentiation, CRT, Sieve, Miller-Rabin', 'divisors, remainders, big powers, primes', 'O(log n) to O(n log log n)'],
+    ['Advanced Math', 'Matrix Exponentiation, Fast Fourier Transform', 'the k-th term of a recurrence, products of long polynomials', 'O(n^3 log k), O(n log n)'],
+  ]}
+/>
+
+## A path through them
+
+<Steps>
+  <Step title="Euclidean algorithm and modular arithmetic">
+    These give gcd, the wrap-around of remainders, and the modular inverse. Everything later uses them.
+  </Step>
+  <Step title="Modular exponentiation">
+    Square and multiply is the idea you will meet again in matrix exponentiation.
+  </Step>
+  <Step title="The Chinese Remainder Theorem, the sieve and Miller-Rabin">
+    CRT builds on the extended Euclid, and Miller-Rabin builds on modular exponentiation. The sieve needs only the basics.
+  </Step>
+  <Step title="Matrix exponentiation, then the Fast Fourier Transform">
+    Both are divide and conquer on a larger object. Matrix exponentiation comes first because it extends modular exponentiation.
+  </Step>
+</Steps>
+
+## Choosing a sub-area
+
+<DataTable
+  columns={['Situation', 'Go to', 'Why']}
+  rows={[
+    ['gcd, lcm or a modular inverse', 'Number Theory: Euclid', 'a few remainder steps'],
+    ['A huge power modulo m', 'Number Theory: Modular Exponentiation', 'O(log e) multiplications'],
+    ['Is a large number prime?', 'Number Theory: Miller-Rabin', 'exact for n < 2^64 with 12 fixed bases'],
+    ['All primes up to n', 'Number Theory: Sieve', 'O(n log log n), O(1) lookups afterwards'],
+    ['The k-th term of a linear recurrence', 'Advanced Math: Matrix Exponentiation', 'O(log k) small matrix products'],
+    ['Multiplying long polynomials', 'Advanced Math: FFT', 'O(n log n) instead of O(n^2), with rounding error'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Overflow in 64 bits.** Modular products need 128-bit intermediates once the modulus is above about 3.04e9. Matrix entries and Fibonacci numbers overflow without a modulus.
+- **Treating the FFT as exact.** It rounds from doubles, so it is exact only while coefficients stay below about 2^53.
+- **Dividing modulo `m` without an inverse.** The inverse exists only when `gcd(a, m) = 1`.
+- **Using a sieve for a single big number.** Use Miller-Rabin; the sieve needs O(n) memory.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Where do I start?">
+    With the Euclidean algorithm in Number Theory. Modular arithmetic, the Chinese Remainder Theorem and Miller-Rabin all depend on it directly or indirectly.
+  </FaqItem>
+  <FaqItem question="How are the two sub-areas related?">
+    Advanced Math reuses the halving trick of Number Theory. Square and multiply gives `a^e mod m`, and the same repeated squaring gives `A^k` for a matrix `A`.
+  </FaqItem>
+  <FaqItem question="Which results are exact?">
+    Everything in Number Theory is exact integer arithmetic, as is matrix exponentiation inside a 64-bit range or with a modulus. The FFT works with doubles and is exact only while coefficients stay below about 2^53.
+  </FaqItem>
+  <FaqItem question="Does any of this connect to other folders?">
+    Yes. Coding Theory builds a finite field on modular ideas, and Dynamic Programming uses matrix powers to speed up linear recurrences.
+  </FaqItem>
+</Faq>

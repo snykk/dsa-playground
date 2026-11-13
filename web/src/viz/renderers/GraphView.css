@@ -1,0 +1,37 @@
+/* Edges of the graph renderer; nodes come from the NodeGlyph atom. */
+.graph .edge line,
+.graph .edge path {
+  stroke: var(--axis);
+  stroke-width: 2;
+  fill: none;
+}
+.graph .edge.role-compare line,
+.graph .edge.role-active line,
+.graph .edge.role-done line,
+.graph .edge.role-compare path,
+.graph .edge.role-active path,
+.graph .edge.role-done path {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.graph .edge.role-muted line,
+.graph .edge.role-muted path {
+  stroke-dasharray: 5 4;
+  opacity: 0.6;
+}
+.graph .edge-weight {
+  font-size: 12px;
+  fill: var(--text-2);
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.graph .arrow {
+  fill: var(--axis);
+}
+.graph .edge.role-compare line,
+.graph .edge.role-compare path {
+  stroke-dasharray: 9 6;
+  animation: viz-march 0.8s linear infinite;
+}

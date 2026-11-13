@@ -1,40 +1,45 @@
-# Convex Hull Trick — Python Implementation
+# Convex Hull Trick -- Python Implementation
 
-Two CHT variants: a monotonic deque-based version (O(1) amortized) and a Li Chao Tree (O(log V), any order).
-
-For the conceptual overview, see the parent README: [../README.md](../README.md)
-
----
+A monotonic deque-based CHT and a Li Chao tree, both for minimum queries over lines `y = m*x + b` with integer coefficients.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `cht.py` | `MonotonicCHT` class + `LiChaoTree` class |
-| `cht_test.py` | Unit tests including random stress against brute-force `min` |
+| File | Description |
+|------|-------------|
+| `cht.py` | `MonotonicCHT` and `LiChaoTree` |
+| `cht_test.py` | `unittest` tests (12): classic examples, equal slopes, random stress against a brute-force minimum |
 
----
+## API
+
+- `MonotonicCHT()`: `add_line(m, b)` (slopes non-increasing; equal slopes keep the lower intercept), `query(x)` (x non-decreasing; raises `ValueError` if no line was added). O(1) amortized each.
+- `LiChaoTree(lo, hi)`: `add_line(m, b)` in any order and `query(x)` for `lo <= x <= hi`. O(log(hi - lo)) each. `query` raises `ValueError` outside the range and returns `float('inf')` on an empty tree.
+
+```python
+from cht import MonotonicCHT
+
+cht = MonotonicCHT()
+for m, b in [(3, 0), (2, 4), (1, 3), (0, 7)]:
+    cht.add_line(m, b)
+print([cht.query(x) for x in range(7)])   # [0, 3, 5, 6, 7, 7, 7]
+```
 
 ## Python-Specific Notes
 
-- **Integer arithmetic only** in the `_bad` predicate: `(b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)` avoids floating-point division. Python's arbitrary-precision `int` makes cross-multiplication overflow-free.
-- **`list.pop(0)` in `query`** of the monotonic CHT is O(n) — but amortized O(1) across the entire sequence of queries because each line is popped at most once. For worst-case behavior use `collections.deque`.
-- **Li Chao nodes via `__slots__`**: saves ~40 bytes per node. For a tree over range 10⁹, up to 30 levels deep — the constant matters.
-- **Recursive Li Chao insert/query**: clean and O(log V) deep, well within Python's default recursion limit for reasonable ranges. For `V > 2²⁰` depths, bump the limit.
-- **`float("inf")`** as the initial query result. Switching to a fixed large sentinel (`10¹⁸`) would be slightly faster but less defensive.
-
----
+- Integer arithmetic only: the redundancy test `(b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)` avoids division, and Python integers cannot overflow.
+- The lines are stored in a `collections.deque`, so popping from the front is O(1). (A list with `pop(0)` is O(n) per pop and made query sweeps quadratic.)
+- Li Chao nodes use `__slots__` to save memory. The recursion depth is about log2 of the range size, well within Python's default limit.
+- Queries of the monotonic CHT mutate it (front lines are discarded), so queries must not go backwards.
 
 ## How to Run
 
+From this folder:
+
 ```bash
-python3 -m unittest cht_test.py
+python3 -m unittest cht_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **Cross-multiplication beats floating-point division.** The moment you write `(b1 - b2) / (m2 - m1)` in a CHT, you're one adversarial test case away from a precision bug. Always cross-multiply.
-2. **Monotonic CHT is orders simpler than Li Chao.** If the problem guarantees monotonic slopes and queries, prefer it — 30 lines vs 80.
-3. **Li Chao is your universal tool.** When the problem statement doesn't promise monotonicity, Li Chao works without the caller having to sort or batch. The log factor is usually acceptable.
+- Cross-multiplication keeps the comparisons exact; never divide.
+- The monotonic version is simple but silently wrong if slopes or queries are out of order.
+- The Li Chao tree needs no ordering, at the cost of a logarithmic factor and a bounded range.

@@ -1,0 +1,25 @@
+---
+import { getContent } from '../../lib/repo';
+import Implementations from './Implementations.astro';
+
+/** The repository's Python / C++ / Go sources of a topic, as tabs inside an article. */
+interface Props {
+  /** Repository folder, e.g. "Algorithms/Sorting/Quick_Sort". */
+  topic: string;
+}
+
+const { topic } = Astro.props;
+const node = getContent().byRel.get(topic);
+if (!node) throw new Error(`TopicCode: unknown topic folder "${topic}"`);
+---
+
+<div id="code" class="topic-code">
+  <Implementations node={node} titled={false} readmes={false} />
+</div>
+
+<style>
+  .topic-code {
+    margin: 20px 0 28px;
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+</style>

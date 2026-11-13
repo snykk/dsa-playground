@@ -1,0 +1,143 @@
+---
+category: Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components
+title: Strongly Connected Components
+lead: A strongly connected component is a maximal group of vertices in a directed graph that can all reach each other. Kosaraju and Tarjan both find every component in O(V + E) time with DFS. Kosaraju uses two passes and the reversed graph, Tarjan one pass and a stack.
+updated: 2026-11-13
+facts:
+  - label: Time
+    value: O(V + E)
+    hint: both algorithms
+  - label: Kosaraju passes
+    value: '2'
+    hint: on G, then on the reversed graph
+  - label: Tarjan passes
+    value: '1'
+    hint: no reversed graph needed
+  - label: Output order
+    value: Opposite
+    hint: Kosaraju lists the source component first, Tarjan the sink component first
+    tone: warn
+contents:
+  - folder: Kosarajus_Algorithm
+    note: Two DFS passes. Finish order on the graph, then flood the reversed graph in reverse finish order. Easy to prove and to follow.
+  - folder: Tarjans_Algorithm
+    note: One DFS with discovery times, low-links and a stack. A vertex whose low-link equals its discovery time roots a component.
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation
+---
+
+## The problem
+
+In a directed graph, vertex `u` can reach `v` along edges without `v` being able to reach `u`. A **strongly connected component** (SCC) is a maximal set of vertices in which every vertex can reach every other. Every vertex belongs to exactly one SCC, and a vertex on no cycle is a component of its own.
+
+If you shrink each component to one vertex, the result, called the condensation, has no cycles. That makes SCCs the standard way to turn a directed graph with cycles into a DAG, and the list of components comes out in a topological order of that DAG.
+
+Both algorithms find the components with DFS and return the same sets of vertices. They differ in how they know where one component ends.
+
+## At a glance
+
+<DataTable
+  columns={['Property', 'Kosaraju', 'Tarjan']}
+  rows={[
+    ['DFS passes', '2', '1'],
+    ['Needs the reversed graph', 'yes', 'no'],
+    ['Core idea', 'the vertex that finishes last in pass 1 lies in a source component', 'a vertex with low-link equal to its discovery time is a component root'],
+    ['Output order', 'source component first (topological order)', 'sink component first (reverse topological order)'],
+    ['Time', 'O(V + E)', 'O(V + E)'],
+    ['Extra space', 'O(V + E), the transposed graph', 'O(V), indices, low-links and a stack'],
+    ['Python version', 'iterative DFS', 'iterative DFS'],
+  ]}
+/>
+
+## See them side by side
+
+Each tab runs one algorithm. Load **Two cycles joined** in both and compare the order in which the components are reported. Then try **Chain (all singletons)**, where every vertex is its own component, and **One big cycle**, where there is only one.
+
+<ArticleViz ids={['kosaraju', 'tarjan-scc']} />
+
+## One graph, two lists
+
+Take six vertices and the directed edges `0->1`, `1->2`, `1->3`, `2->0`, `3->4`, `4->5` and `5->3`. Vertices 0, 1 and 2 form a cycle. Vertices 3, 4 and 5 form another. One edge, `1->3`, leads from the first cycle to the second and nothing leads back. These results come from the repository's Python code.
+
+<GraphDiagram
+  edges="0->1, 1->2, 2->0, 1->3, 3->4, 4->5, 5->3"
+  positions={{ 0: [6, 50], 1: [28, 12], 2: [28, 88], 3: [62, 50], 4: [84, 12], 5: [84, 88] }}
+  tones={{ 0: 'l', 1: 'l', 2: 'l', 3: 'r', 4: 'r', 5: 'r' }}
+  edgeTones={{ '1->3': 'p' }}
+  legend={{ l: 'first component', r: 'second component', p: 'the only edge between the components' }}
+  caption="Two components joined by one edge. The condensation is a single edge from the first component to the second."
+  label="Directed graph with two strongly connected components"
+/>
+
+<DataTable
+  columns={['Algorithm', 'Components, in the order returned']}
+  rows={[
+    ['Kosaraju', '`[0, 2, 1]`, then `[3, 5, 4]`'],
+    ['Tarjan', '`[5, 4, 3]`, then `[2, 1, 0]`'],
+  ]}
+/>
+
+Both find the same two sets, `0, 1, 2` and `3, 4, 5`. Kosaraju reports the component with no incoming edge first. Tarjan reports the component with no outgoing edge first, so its list is the reverse. The order of the vertices inside a component also differs, and neither order is sorted. If you need a particular order, sort the result yourself.
+
+## Complexity
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['Kosaraju', 'O(V + E)', 'O(V + E)', 'two DFS passes plus building the transpose; the transposed graph is the extra cost'],
+    ['Tarjan', 'O(V + E)', 'O(V)', 'one pass; indices, low-links and the component stack'],
+  ]}
+/>
+
+The time does not depend on the shape of the graph: both visit each vertex and each edge a constant number of times.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Learning, or you want a result that is easy to explain', 'Kosaraju', 'two plain DFS passes and a clear correctness argument'],
+    ['Memory is tight, or the graph cannot be reversed cheaply', 'Tarjan', 'one pass, and no second copy of the graph'],
+    ['You will feed the components into 2-SAT', 'Tarjan', 'its output order gives the assignment directly'],
+    ['You need the components in topological order', 'Kosaraju', 'it already lists the source component first'],
+    ['Only a yes or no on whether the graph is one component', 'either', 'both provide an `is_strongly_connected` helper in Python'],
+  ]}
+/>
+
+## Applications
+
+- **Condensation.** Collapse cycles to get a DAG, which you can then order or run dynamic programming on.
+- **2-SAT.** A formula is unsatisfiable exactly when a variable and its negation share a component.
+- **Dependency analysis.** Cyclic groups of modules or packages show up as components with more than one vertex.
+- **Web and social graphs.** Groups of pages or people who can all reach each other.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Running either algorithm on an undirected graph.** Every connected component is then strongly connected, so a plain traversal does the job.
+- **Assuming one output order.** Kosaraju and Tarjan return opposite orders of components, and code that relies on one breaks when you swap the other in.
+- **Recursing on a deep graph.** A recursive DFS overflows the call stack on a long cycle. The Python versions here use an explicit stack.
+- **Forgetting to reverse the graph in Kosaraju.** The second pass must run on the transpose, in reverse finish order.
+- **Updating a low-link from a vertex that is no longer on the stack.** In Tarjan, an edge to a finished vertex in another component must be skipped.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which one should I learn first?">
+    Kosaraju. Its two passes are easy to follow and to prove correct. Tarjan is the better tool once you know the idea, because it needs one pass and no reversed graph.
+  </FaqItem>
+  <FaqItem question="Do the two always return the same components?">
+    Yes, the same sets of vertices. Only the order of the components and the order of the vertices inside each one differ.
+  </FaqItem>
+  <FaqItem question="How is this different from connected components?">
+    Connected components ignore edge direction. In a directed graph two vertices can be connected one way only, and a strongly connected component needs a path in both directions.
+  </FaqItem>
+  <FaqItem question="How do SCCs help with 2-SAT?">
+    Build a graph with an edge for each implication of the formula. If a variable and its negation end up in one component, they imply each other and no assignment works. Otherwise the order of the components gives an assignment.
+  </FaqItem>
+</Faq>

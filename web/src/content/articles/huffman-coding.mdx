@@ -1,0 +1,250 @@
+---
+topic: Algorithms/Greedy/Huffman_Coding
+title: Huffman Coding
+lead: Huffman coding gives every symbol a binary code whose length depends on how often the symbol occurs, so frequent symbols get short codes and rare ones long codes. It builds the tree by repeatedly merging the two least frequent nodes, and the result is the shortest possible prefix-free code.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Build time
+    value: O(k log k)
+    hint: k distinct symbols; counting the text is O(N)
+  - label: Space
+    value: O(k)
+    hint: the tree and the code table
+  - label: Approach
+    value: Greedy
+    hint: merge the two lightest nodes
+  - label: Implemented in
+    value: Python only
+    hint: the C++ and Go files are placeholders
+    tone: warn
+properties:
+  - { label: Greedy, value: true }
+  - { label: Lossless, value: true }
+  - { label: Prefix-free codes, value: true }
+  - { label: Optimal per symbol, value: true }
+prerequisites:
+  - Algorithms/Greedy
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
+related:
+  - Algorithms/Greedy/Activity_Selection
+  - Algorithms/Greedy/Fractional_Knapsack
+  - Algorithms/Greedy/Job_Scheduling
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
+---
+
+## How Huffman coding works
+
+A text of ASCII characters normally spends 8 bits on every character. Huffman coding spends fewer bits on common characters and more on rare ones. To decode without separators, no code may be the beginning of another code (a **prefix-free** code). A binary tree guarantees that: each symbol is a leaf, its code is the path from the root (left edge `0`, right edge `1`), and no leaf lies on the path to another leaf.
+
+<Steps>
+  <Step title="Count the frequencies">
+    Count how many times each symbol occurs in the text (`Counter(text)` in Python).
+  </Step>
+  <Step title="Put every symbol in a min-heap">
+    Each symbol becomes a leaf node with its frequency as the key. Nodes compare by frequency only.
+  </Step>
+  <Step title="Merge the two lightest nodes">
+    Pop the two smallest nodes. Create a new node whose frequency is their sum, with the first popped node as the left child and the second as the right child, and push it back.
+  </Step>
+  <Step title="Repeat until one node is left">
+    That node is the root. With k distinct symbols there are exactly k - 1 merges.
+  </Step>
+  <Step title="Read the codes off the tree">
+    Walk from the root: append `0` for a left edge and `1` for a right edge. The code of a leaf is the path to it.
+  </Step>
+</Steps>
+
+<Callout title="Why merging the two lightest is optimal">
+Two facts prove it. First, in some optimal tree the two least frequent symbols are siblings at the deepest level: if a heavier symbol sat deeper, swapping it with a lighter one cannot make the total longer. Second, merging those two siblings into one symbol with the summed frequency gives a smaller problem, and its optimal cost plus the sum of the two frequencies is the cost of the original. So each greedy merge is safe, and induction on the number of symbols finishes the proof.
+</Callout>
+
+## Worked example
+
+A text of 100 characters with these frequencies: `a` 45, `b` 13, `c` 12, `d` 16, `e` 9, `f` 5. Every merge below has a unique smallest pair, so the tree does not depend on tie-breaking.
+
+<DataTable
+  columns={['Step', 'Heap before the merge (merged nodes in brackets)', 'Merge', 'New node']}
+  rows={[
+    ['1', 'f 5, e 9, c 12, b 13, d 16, a 45', 'f 5 + e 9', '[14]'],
+    ['2', 'c 12, b 13, [14], d 16, a 45', 'c 12 + b 13', '[25]'],
+    ['3', '[14], d 16, [25], a 45', '[14] + d 16', '[30]'],
+    ['4', '[25], [30], a 45', '[25] + [30]', '[55]'],
+    ['5', 'a 45, [55]', 'a 45 + [55]', '[100], the root'],
+  ]}
+/>
+
+The resulting tree, with each leaf showing its symbol and, above it, its frequency:
+
+<TreeDiagram
+  root={{ label: 100, tone: 'l', children: [
+    { label: 'a', badge: '45', tone: 'f', edge: '0' },
+    { label: 55, tone: 'l', edge: '1', children: [
+      { label: 25, tone: 'l', edge: '0', children: [
+        { label: 'c', badge: '12', tone: 'f', edge: '0' },
+        { label: 'b', badge: '13', tone: 'f', edge: '1' },
+      ] },
+      { label: 30, tone: 'l', edge: '1', children: [
+        { label: 14, tone: 'l', edge: '0', children: [
+          { label: 'f', badge: '5', tone: 'f', edge: '0' },
+          { label: 'e', badge: '9', tone: 'f', edge: '1' },
+        ] },
+        { label: 'd', badge: '16', tone: 'f', edge: '1' },
+      ] },
+    ] },
+  ] }}
+  legend={{ f: 'a symbol (leaf)', l: 'a merged node (internal)' }}
+  caption="Edge labels are the code bits: left is 0, right is 1."
+/>
+
+<DataTable
+  columns={['Symbol', 'Frequency', 'Code', 'Bits used']}
+  rows={[
+    ['a', '45', '0', '45'],
+    ['b', '13', '101', '39'],
+    ['c', '12', '100', '36'],
+    ['d', '16', '111', '48'],
+    ['e', '9', '1101', '36'],
+    ['f', '5', '1100', '20'],
+  ]}
+/>
+
+The encoded text is 45 + 39 + 36 + 48 + 36 + 20 = 224 bits. The same text at 8 bits per character is 800 bits, so `calculate_compression_ratio` reports 0.28 (72% saved). A fixed 3-bit code for six symbols would need 300 bits.
+
+**Decoding.** Start at the root and follow one bit at a time; at a leaf, output its symbol and go back to the root. The bits `1010111` read as `101` (b), `0` (a), `111` (d): the text `bad`.
+
+## Pseudocode
+
+```text
+buildHuffmanTree(text):
+    if text is empty: return null
+    freq = count of each symbol in text
+    heap = min-heap of leaf nodes (symbol, freq), ordered by freq
+    while heap has more than one node:
+        left = pop(heap)
+        right = pop(heap)
+        push(heap, node(freq = left.freq + right.freq, left, right))
+    return the only node in heap
+
+buildCodes(node, code):
+    if node is a leaf:
+        codes[node.symbol] = code if code is not empty else "0"
+        return
+    buildCodes(node.left,  code + "0")
+    buildCodes(node.right, code + "1")
+
+decode(bits, root):
+    node = root
+    for bit in bits:
+        node = node.left if bit == "0" else node.right
+        if node is a leaf: output node.symbol; node = root
+```
+
+A text with one distinct symbol gives a single leaf, so its code would be empty; the code uses `"0"` for it.
+
+## Implementation
+
+<Callout tone="warning" title="Only Python is implemented">
+The Python file has the full algorithm: `build_huffman_tree`, `build_codes`, `huffman_encode`, `huffman_decode` and `calculate_compression_ratio`. The C++ and Go files are placeholders. `huffmanEncode` (C++) and `HuffmanEncode` (Go) return an empty map, and their tests only check that the call runs. Ports with a heap, a tree, a code table, encode and decode are still to be written.
+</Callout>
+
+<TopicCode topic="Algorithms/Greedy/Huffman_Coding" />
+
+**Notes on the Python code.**
+
+- `huffman_encode` returns `(encoded, codes, tree)`. The encoded text is a Python string of the characters `0` and `1`, one character per bit, so it demonstrates the code but is not packed into real bits.
+- `huffman_decode(encoded, tree)` needs the tree. The code table alone is not enough in this API.
+- Symbols are Python characters (Unicode code points), but `calculate_compression_ratio` assumes a baseline of 8 bits per character, so the ratio is only meaningful for ASCII-sized text. Its `codes` parameter is not used.
+- `HuffmanNode.__lt__` compares frequencies only, so when frequencies tie, the order of nodes (and therefore the exact code table) depends on the heap. Every outcome is optimal; do not rely on exact bit patterns.
+
+## Complexity analysis
+
+Let N be the text length and k the number of distinct symbols.
+
+<ComplexityTable
+  rows={[
+    { case: 'Count frequencies', time: 'O(N)', space: 'O(k)', when: 'One pass over the text.' },
+    { case: 'Build the tree', time: 'O(k log k)', space: 'O(k)', when: 'k - 1 merges, each with two pops and one push on a heap of at most k nodes.' },
+    { case: 'Build the codes', time: 'O(total code length)', space: 'O(total code length)', when: 'A walk over the tree. Each code is built as a string, so the cost is the sum of the code lengths, at most k times the longest code.' },
+    { case: 'Encode and decode', time: 'O(N + output bits)', space: 'O(output bits)', when: 'Encoding looks up one code per character; decoding follows one tree edge per bit.' },
+  ]}
+/>
+
+The tree has k leaves and k - 1 internal nodes, so it needs <BigO of="k" /> memory. In the worst case the tree is a chain and L is k - 1, so codes can be long; for typical text the depth is small. `build_codes` is recursive, and its depth equals the depth of the tree.
+
+**How good is it?** The average code length of a Huffman code is within one bit of the entropy of the source: H &le; average length &lt; H + 1. For the example above, the entropy is about 2.22 bits per symbol and the Huffman code averages 2.24 bits.
+
+## Huffman coding vs alternatives
+
+<DataTable
+  columns={['Method', 'Idea', 'Strength', 'Limit']}
+  highlight={0}
+  rows={[
+    ['Huffman coding', 'whole number of bits per symbol, from frequencies', 'optimal among prefix codes that assign one codeword per symbol', 'at least 1 bit per symbol, even for a very likely one'],
+    ['Fixed-length code', 'the same number of bits for every symbol', 'trivial, random access', 'ignores the frequencies'],
+    ['Arithmetic coding', 'encodes a whole message as one number', 'can use fractions of a bit per symbol and get closer to the entropy', 'more complex to implement'],
+    ['Dictionary methods (LZ family)', 'replace repeated strings with references', 'exploit repeated phrases, not just frequencies', 'a different kind of redundancy; often combined with Huffman coding'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Optimal among prefix codes with one codeword per symbol.',
+    'Lossless: decoding returns exactly the original text.',
+    'Simple to build: a heap and a loop.',
+    'Decoding is a plain tree walk, one step per bit.',
+  ]}
+  cons={[
+    'Needs the frequencies first, so it takes two passes over the data (or a stored table).',
+    'The tree or the table must be sent with the data.',
+    'Cannot spend less than one bit per symbol, so very skewed sources lose against arithmetic coding.',
+    'Exact codes depend on tie-breaking; the encoder and decoder must use the same tree.',
+  ]}
+/>
+
+## Applications
+
+- **General-purpose compression.** The DEFLATE format used by gzip, zip and PNG uses Huffman codes as one of its stages.
+- **Image compression.** JPEG uses Huffman coding to store its quantized coefficients.
+- **A last stage after modelling.** Compressors first turn the data into symbols with skewed frequencies (for example with a dictionary method) and then use Huffman coding on those symbols.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming the code table is unique.** With tied frequencies several optimal tables exist. Store or share the tree (or the code lengths), not just the symbols.
+- **A single distinct symbol.** The tree is one leaf, and the path to it is empty. Give it a code like `0`, as the Python code does, or decoding cannot work.
+- **Forgetting that the encoder and decoder need the same tree.** Decoding with a tree built from different frequencies gives garbage.
+- **Counting the ratio wrongly.** Compare bits with bits: the Python helper uses 8 bits per character as the baseline and does not count the cost of storing the tree.
+- **Treating the C++ and Go files as implementations.** They are placeholders.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the code need to be prefix-free?">
+    Codes are written one after another with no separator. If one code were the start of another, the decoder could not tell where a symbol ends. In a tree where all symbols are leaves, a code is never a prefix of another.
+  </FaqItem>
+  <FaqItem question="Is Huffman coding really optimal?">
+    It is optimal among codes that give each symbol its own whole-bit codeword. Methods that code several symbols together, such as arithmetic coding, can do better, especially when one symbol is very likely.
+  </FaqItem>
+  <FaqItem question="Does the order of equal frequencies matter?">
+    It changes the tree and the exact codes, but not the total encoded length. Every resulting code is optimal.
+  </FaqItem>
+  <FaqItem question="Why is the build O(k log k) and not O(N log N)?">
+    The heap holds one node per distinct symbol, not per character. Counting the characters is a single O(N) pass; only the k distinct symbols are merged.
+  </FaqItem>
+  <FaqItem question="What happens for text with a single distinct symbol?">
+    `huffman_encode("aaaa")` gives the code table `{'a': '0'}` and the encoded string `0000`: one bit per character. There is no compression gain, but decoding still works because `huffman_decode` handles a tree that is a single leaf.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['LeetCode 1167, Minimum Cost to Connect Sticks', 'the same loop as Huffman: always merge the two smallest with a min-heap; the cost is the sum of the merges'],
+  ]}
+/>

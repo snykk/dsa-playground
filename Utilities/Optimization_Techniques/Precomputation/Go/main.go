@@ -53,7 +53,16 @@ func (f *Factorials) NCr(n, r int) int64 {
 
 // Prime Sieve
 
+// Sieve returns the primes up to n and a boolean slice indexed by number.
+// For n < 2 there are no primes.
 func Sieve(n int) ([]int, []bool) {
+	if n < 2 {
+		size := n + 1
+		if size < 0 {
+			size = 0
+		}
+		return nil, make([]bool, size)
+	}
 	isPrime := make([]bool, n+1)
 	for i := range isPrime {
 		isPrime[i] = true

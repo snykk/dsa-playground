@@ -1,0 +1,185 @@
+---
+import { Code } from 'astro:components';
+import { renderMarkdown } from '../../lib/markdown';
+import { githubUrl, type DocNode } from '../../lib/repo';
+import SectionTitle from '../atoms/SectionTitle.astro';
+
+interface Props {
+  node: DocNode;
+  /** Show the "Implementations" section title (articles bring their own heading). */
+  titled?: boolean;
+  /** Show each language README above its code (articles explain the code themselves). */
+  readmes?: boolean;
+}
+
+const { node, titled = true, readmes = true } = Astro.props;
+
+/**
+ * Language READMEs sit inside a section of the topic page, so demote their
+ * headings two levels and namespace their ids to avoid clashing with the
+ * topic README's anchors.
+ */
+function nestReadme(html: string, prefix: string): string {
+  return html
+    .replace(/<(\/?)h([1-6])\b/g, (_m, slash: string, level: string) => `<${slash}h${Math.min(6, Number(level) + 2)}`)
+    .replace(/\sid="([^"]+)"/g, ` id="${prefix}-$1"`)
+    .replace(/href="#([^"]+)"/g, `href="#${prefix}-$1"`);
+}
+
+const panels = await Promise.all(
+  node.languages.map(async (lang) => ({
+    lang,
+    readme: readmes && lang.readme ? nestReadme((await renderMarkdown(lang.readme.source, lang.readme.rel)).html, lang.id) : '',
+  })),
+);
+const lineCount = (code: string) => code.replace(/\n$/, '').split('\n').length;
+---
+
+<section
+  class="implementations"
+  aria-labelledby={titled ? 'implementations-title' : undefined}
+  aria-label={titled ? undefined : 'Implementations'}
+>
+  {titled && <SectionTitle id="implementations-title">Implementations</SectionTitle>}
+  <div class="impl-tabs" data-impl-tabs>
+    <div class="impl-tablist" role="tablist" aria-label="Implementation language">
+      {
+        panels.map(({ lang }, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`tab-${lang.id}`}
+            aria-controls={`impl-${lang.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            {lang.label}
+          </button>
+        ))
+      }
+    </div>
+    {
+      panels.map(({ lang, readme }, i) => (
+        <div class="impl-panel" role="tabpanel" id={`impl-${lang.id}`} aria-labelledby={`tab-${lang.id}`} hidden={i !== 0}>
+          {readme && <div class="prose" set:html={readme} />}
+          {lang.files.map((f) => (
+            <details class="code-file" open={!f.isTest}>
+              <summary>
+                {f.name}
+                <span>
+                  {f.isTest ? 'tests' : 'implementation'} &#xb7; {lineCount(f.code)} lines
+                </span>
+              </summary>
+              <div class="code-block">
+                <Code code={f.code} lang={f.lang as 'python'} themes={{ light: 'github-light', dark: 'github-dark' }} />
+              </div>
+            </details>
+          ))}
+          <p>
+            <a href={githubUrl(lang.rel, true)} target="_blank" rel="noopener noreferrer">
+              Open the {lang.label} folder on GitHub &#x2197;
+            </a>
+          </p>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-impl-tabs]')) {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const select = (tab: HTMLButtonElement, focus = false) => {
+      for (const t of tabs) {
+        const selected = t === tab;
+        t.setAttribute('aria-selected', String(selected));
+        t.tabIndex = selected ? 0 : -1;
+        const panel = document.getElementById(t.getAttribute('aria-controls') ?? '');
+        if (panel) panel.hidden = !selected;
+      }
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (step) select(tabs[(i + step + tabs.length) % tabs.length], true);
+      });
+    });
+    // README links like "Python/" resolve to #impl-python: open that tab.
+    const fromHash = () => {
+      const tab = tabs.find((t) => `#${t.getAttribute('aria-controls')}` === location.hash);
+      if (tab) {
+        select(tab);
+        root.scrollIntoView({ block: 'start' });
+      }
+    };
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+  }
+</script>
+
+<style>
+  .impl-tabs {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .impl-tablist {
+    display: flex;
+    gap: 2px;
+    padding: 6px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .impl-tablist button {
+    font: inherit;
+    font-size: 14px;
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  .impl-tablist button[aria-selected='true'] {
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  .impl-panel {
+    padding: 16px 20px 20px;
+  }
+  .impl-panel[hidden] {
+    display: none;
+  }
+  .code-file {
+    margin: 12px 0 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .code-file > summary {
+    cursor: pointer;
+    padding: 8px 12px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .code-file > summary span {
+    color: var(--text-3);
+    font-family: var(--font-sans);
+  }
+  /* <pre> is rendered by Astro's <Code> component, outside this component's scope. */
+  .code-file :global(pre) {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    max-height: 560px;
+  }
+</style>

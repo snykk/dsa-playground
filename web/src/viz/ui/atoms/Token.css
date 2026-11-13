@@ -1,0 +1,16 @@
+/* Token atom: one item of a strip (queue entry, stack frame, packed item...). */
+.viz-token {
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+}
+.viz-token.role-active,
+.viz-token.role-compare,
+.viz-token.role-done {
+  background: var(--role);
+  border-color: var(--role);
+  color: var(--viz-ink-on-fill);
+}

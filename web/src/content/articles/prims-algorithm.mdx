@@ -1,0 +1,231 @@
+---
+topic: Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm
+title: Prim's Algorithm
+lead: Prim's algorithm builds a minimum spanning tree by growing a single tree from a start vertex, always adding the cheapest edge that leaves the tree. With a binary heap it runs in O(E log V); with an array and an adjacency matrix it runs in O(V^2), which suits dense graphs.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time (heap)
+    value: O(E log V)
+    hint: lazy version; the heap holds up to E entries
+  - label: Time (matrix)
+    value: O(V^2)
+    hint: array scan for the minimum key
+  - label: Approach
+    value: Greedy
+    hint: cheapest edge across the cut
+  - label: Disconnected graph
+    value: Start component only
+    hint: vertices that cannot be reached are left out
+    tone: warn
+properties:
+  - { label: Greedy, value: true }
+  - { label: Grows one tree, value: true }
+  - { label: Negative weights, value: true }
+  - { label: Needs a connected graph, value: false }
+prerequisites:
+  - Data_Structures/Non_Linear/Heaps
+  - Algorithms/Greedy
+related:
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
+  - Algorithms/Greedy/Activity_Selection
+---
+
+## How Prim's algorithm works
+
+Prim's algorithm looks like Dijkstra's algorithm, with one difference in the priority: Dijkstra ranks a vertex by its total distance from the source, Prim ranks it by the weight of **one edge** that connects it to the tree.
+
+<Steps>
+  <Step title="Start the tree">
+    Put the start vertex in the tree. Push all its edges into a min-heap, ordered by weight.
+  </Step>
+  <Step title="Take the cheapest crossing edge">
+    Pop the lightest edge from the heap. If its far end is already in the tree, it is a stale entry: ignore it.
+  </Step>
+  <Step title="Add the new vertex">
+    Otherwise the edge joins a new vertex to the tree. Keep the edge, mark the vertex, and push every edge from it to a vertex that is still outside.
+  </Step>
+  <Step title="Repeat">
+    Continue until the heap is empty or the tree has V - 1 edges. Vertices that cannot be reached from the start are never added.
+  </Step>
+</Steps>
+
+<Callout title="Why the cheapest crossing edge is safe: the cut property">
+At any moment the tree and the remaining vertices form a cut. Every edge in the heap that still crosses the cut leaves the tree. The lightest edge across any cut belongs to some minimum spanning tree, so adding it can never rule out an optimal answer. Repeating this V - 1 times produces a minimum spanning tree.
+</Callout>
+
+## See it in action
+
+Step through the tree growing from the start vertex. The popped edge, the edges waiting in the heap, and the stale entries that get skipped are shown. Change the start vertex (`; start C`) and compare: the tree can contain different edges only when weights tie, and the total never changes.
+
+<ArticleViz ids={['prim']} />
+
+## Worked example
+
+The same graph as in the Kruskal article: seven vertices A to G (0 to 6 in the code), started at A. The number above each vertex is the order in which it joined the tree.
+
+<GraphDiagram
+  edges="A-B 7, A-D 5, B-C 8, B-D 9, B-E 7, C-E 5, D-E 15, D-F 6, E-F 8, E-G 9, F-G 11"
+  positions={{ A: [8, 22], B: [40, 6], C: [84, 14], D: [16, 74], E: [56, 54], F: [44, 96], G: [94, 84] }}
+  tones={{ A: 'p' }}
+  badges={{ A: '1', D: '2', F: '3', B: '4', E: '5', C: '6', G: '7' }}
+  edgeTones={{ 'A-D': 'f', 'D-F': 'f', 'A-B': 'f', 'B-E': 'f', 'C-E': 'f', 'E-G': 'f' }}
+  legend={{ p: 'start vertex', f: 'tree edge, in the order they were added: A-D, D-F, A-B, B-E, E-C, E-G' }}
+  caption="Total weight 5 + 6 + 7 + 7 + 5 + 9 = 39, the same as Kruskal."
+/>
+
+The heap as `prim_mst_adjacency_list` runs it. Each entry is (weight, from, to); the smallest comes out first:
+
+<DataTable
+  columns={['Pop', 'Result', 'Edges pushed']}
+  rows={[
+    ['(0, A, A)', 'start: A joins', 'A-B 7, A-D 5'],
+    ['(5, A, D)', 'D joins, edge A-D', 'D-B 9, D-E 15, D-F 6'],
+    ['(6, D, F)', 'F joins, edge D-F', 'F-E 8, F-G 11'],
+    ['(7, A, B)', 'B joins, edge A-B', 'B-C 8, B-E 7'],
+    ['(7, B, E)', 'E joins, edge B-E', 'E-C 5, E-G 9'],
+    ['(5, E, C)', 'C joins, edge E-C', 'nothing new'],
+    ['(8, B, C)', 'stale: C is in the tree', '-'],
+    ['(8, F, E)', 'stale: E is in the tree', '-'],
+    ['(9, D, B)', 'stale', '-'],
+    ['(9, E, G)', 'G joins, edge E-G', 'nothing new'],
+    ['(11, F, G), (15, D, E)', 'stale', '-'],
+  ]}
+/>
+
+`prim_mst_edge_list(edges, 7, 0)` returns the six edges `(0, 3, 5), (3, 5, 6), (0, 1, 7), (1, 4, 7), (4, 2, 5), (4, 6, 9)` with total 39. Stale entries are the price of lazy deletion: instead of lowering an entry already in the heap (decrease-key), the code leaves it and skips it when it comes out.
+
+## Pseudocode
+
+```text
+primHeap(graph, start):                         # adjacency list
+    heap = [(0, start, start)]                  # (weight, from, to)
+    visited = {}; mst = []; total = 0
+    while heap is not empty:
+        w, from, to = heap.popMin()
+        if to in visited: continue              # stale entry
+        visited.add(to)
+        if from != to: mst.append((from, to, w)); total += w
+        for (nb, w2) in graph.get(to, []):
+            if nb not in visited: heap.push((w2, to, nb))
+    return mst, total
+
+primMatrix(matrix, start):                      # O(V^2), no heap
+    key[v] = infinity; key[start] = 0; parent[v] = none
+    repeat V times:
+        u = unvisited vertex with the smallest key
+        if none: break
+        visit u; if parent[u] exists: add edge (parent[u], u, key[u])
+        for v with matrix[u][v] != 0 and v unvisited and matrix[u][v] < key[v]:
+            key[v] = matrix[u][v]; parent[v] = u
+```
+
+## Implementation
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['Functions', '`prim_mst_adjacency_list`, `prim_mst_edge_list`, `prim_mst_adjacency_matrix`', '`primMST`', '`PrimMST`'],
+    ['Graph type', 'dict of `(neighbor, weight)`; edge list; matrix', '`vector` of `(neighbor, weight)` lists', 'map to `[]Edge`'],
+    ['Returns', '`(edges, total_weight)`', 'edges only (tuples)', '`(edges, total)`'],
+    ['Heap tie-breaking', 'weight, then from, then to', 'weight, then from, then to', 'weight only'],
+    ['Default start', '0', 'passed in', 'passed in'],
+  ]}
+/>
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm" />
+
+Notes:
+
+- Every version is the lazy variant: stale entries are skipped when popped, so the heap can hold up to E entries.
+- The matrix version uses `0` for "no edge", so it cannot represent an edge of weight 0. Negative weights are supported.
+- A vertex that appears only in neighbor lists (not as a key) is handled in the Python and Go dictionary versions. In C++ the graph is a vector, so every vertex has a row.
+- On a graph with no vertices, or a single vertex, every version returns no edges.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Binary heap (lazy)', time: 'O(E log V)', space: 'O(V + E)', when: 'Each edge is pushed at most twice (once per endpoint), and each push and pop costs O(log E) = O(log V).' },
+    { case: 'Array and matrix', time: 'O(V^2)', space: 'O(V)', when: 'V rounds, each scanning V keys for the minimum and V matrix entries to update. Independent of E.' },
+    { case: 'Fibonacci heap', time: 'O(E + V log V)', when: 'Decrease-key in O(1) amortized. Mostly of theoretical interest.' },
+  ]}
+/>
+
+On a dense graph E is about V<sup>2</sup>, so the heap version costs O(V<sup>2</sup> log V) and the array version, at O(V<sup>2</sup>), wins. On a sparse graph the heap version is better.
+
+## Disconnected graphs
+
+Prim's algorithm grows one tree, so it covers only the component of the start vertex. For edges `(0,1,1), (2,3,1)` on 4 vertices, `prim_mst_edge_list` returns just `[(0, 1, 1)]` with total 1, while Kruskal returns both edges (total 2). To get a spanning forest with Prim, restart from every vertex that is still unvisited. Check that the result has V - 1 edges before treating it as a spanning tree.
+
+## Prim vs Kruskal
+
+<DataTable
+  columns={['', 'Prim', 'Kruskal']}
+  highlight={0}
+  rows={[
+    ['Idea', 'grow one tree from a start vertex', 'merge trees by the globally lightest safe edge'],
+    ['Main structure', 'priority queue (or key array)', 'sort + union-find'],
+    ['Time', 'O(E log V) heap; O(V^2) array', 'O(E log E)'],
+    ['Usually better on', 'dense graphs (array version)', 'sparse graphs'],
+    ['Graph input', 'adjacency structure', 'edge list'],
+    ['Disconnected graph', 'start component only', 'spanning forest'],
+  ]}
+/>
+
+## Prim vs Dijkstra
+
+The loops are almost identical: a priority queue, a visited set and relaxation of the edges of the vertex just taken. Dijkstra pushes `dist[v] + w`, the length of a whole path; Prim pushes `w`, a single edge. Because of that, a spanning tree from Prim is not a shortest-path tree, and Dijkstra's tree is not a minimum spanning tree.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'The O(V^2) array version is excellent on dense graphs and needs no heap.',
+    'Grows a connected tree at every step, which suits adjacency-list or implicit graphs.',
+    'Handles negative weights.',
+    'Easy to adapt: it is Dijkstra with a different priority.',
+  ]}
+  cons={[
+    'Covers only the start component of a disconnected graph.',
+    'The lazy heap holds stale entries, up to O(E) in total.',
+    'Needs an adjacency structure; an edge list must be converted first.',
+    'On sparse graphs with an edge list, Kruskal is usually simpler.',
+  ]}
+/>
+
+## Applications
+
+- **Network design:** the cheapest set of links that connects every site, for cables, pipes or roads.
+- **Clustering:** cutting the heaviest tree edges leaves clusters.
+- **Approximation:** a minimum spanning tree is the first step of the metric travelling-salesman 2-approximation.
+- **Image segmentation and maze generation:** a randomized Prim (random weights) builds mazes.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using the total distance as the priority.** That is Dijkstra, and it builds a shortest-path tree, not a minimum spanning tree.
+- **Stopping at `len(graph)` vertices.** If a vertex appears only as a neighbor, `len(graph)` undercounts and the loop ends early. The code here runs until the heap is empty.
+- **No stale check.** Without the `visited` test, an edge to a vertex already in the tree would be added again and create a cycle.
+- **Zero-weight edges in a matrix.** The matrix version treats 0 as "no edge".
+- **Assuming a connected graph.** A disconnected input returns a smaller tree without any error.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Does the start vertex change the result?">
+    Not the total weight. The tree is the same unless edge weights tie, in which case a different tree of equal weight can come out.
+  </FaqItem>
+  <FaqItem question="Heap or matrix version?">
+    Use the heap on sparse graphs (E much smaller than V<sup>2</sup>). Use the array and matrix version on dense graphs, where O(V<sup>2</sup>) beats O(E log V).
+  </FaqItem>
+  <FaqItem question="Does Prim's algorithm work with negative weights?">
+    Yes. It only compares weights. The matrix version treats every non-zero entry as an edge, negative ones included.
+  </FaqItem>
+  <FaqItem question="How is Prim different from Dijkstra?">
+    Dijkstra's priority is the distance from the source through a path; Prim's is the weight of one connecting edge. The answers differ: a minimum spanning tree minimizes total edge weight, not distances from a vertex.
+  </FaqItem>
+</Faq>

@@ -8,7 +8,6 @@ Bridge rule:      low[v] >  disc[u]  on tree edge (u, v)
 Articulation:     low[v] >= disc[u]  (non-root) or root has >= 2 DFS children
 """
 
-import sys
 from typing import Dict, List, Set, Tuple
 
 
@@ -28,38 +27,45 @@ def find_bridges_and_articulations(
     low = [-1] * n
     bridges: List[Tuple[int, int]] = []
     articulations: Set[int] = set()
-    timer = [0]
+    timer = 0
 
-    # Bump recursion limit for safety on long chains.
-    old_limit = sys.getrecursionlimit()
-    sys.setrecursionlimit(max(old_limit, n + 100))
-
-    def dfs(u: int, parent_edge: int) -> None:
-        disc[u] = low[u] = timer[0]
-        timer[0] += 1
-        children = 0
-        for v, edge_idx in adj[u]:
-            if edge_idx == parent_edge:
-                continue                   # skip the edge we came in on
-            if disc[v] == -1:              # tree edge
-                children += 1
-                dfs(v, edge_idx)
-                low[u] = min(low[u], low[v])
-                if low[v] > disc[u]:
-                    bridges.append((min(u, v), max(u, v)))
-                if parent_edge != -1 and low[v] >= disc[u]:
-                    articulations.add(u)
-            else:                           # back edge
-                low[u] = min(low[u], disc[v])
-        if parent_edge == -1 and children > 1:
-            articulations.add(u)
-
-    try:
-        for start in range(n):
-            if disc[start] == -1:
-                dfs(start, -1)
-    finally:
-        sys.setrecursionlimit(old_limit)
+    # Iterative DFS. Each frame is [u, parent_edge, next adjacency index, children]
+    # and stands for one call of the recursive dfs(u, parent_edge). An explicit
+    # stack avoids Python's recursion limit; raising that limit instead lets a long
+    # path (n = 100000) overflow the C stack and crash the interpreter.
+    for start in range(n):
+        if disc[start] != -1:
+            continue
+        disc[start] = low[start] = timer
+        timer += 1
+        stack = [[start, -1, 0, 0]]
+        while stack:
+            frame = stack[-1]
+            u, parent_edge, i = frame[0], frame[1], frame[2]
+            if i < len(adj[u]):
+                frame[2] += 1
+                v, edge_idx = adj[u][i]
+                if edge_idx == parent_edge:
+                    continue                   # skip the edge we came in on
+                if disc[v] == -1:              # tree edge: descend into v
+                    frame[3] += 1
+                    disc[v] = low[v] = timer
+                    timer += 1
+                    stack.append([v, edge_idx, 0, 0])
+                else:                          # back edge
+                    low[u] = min(low[u], disc[v])
+                continue
+            # u is finished: return to its parent p, as after a recursive call
+            stack.pop()
+            if stack:
+                p, p_parent_edge = stack[-1][0], stack[-1][1]
+                low[p] = min(low[p], low[u])
+                if low[u] > disc[p]:
+                    bridges.append((min(p, u), max(p, u)))
+                if p_parent_edge != -1 and low[u] >= disc[p]:
+                    articulations.add(p)
+            elif frame[3] > 1:                 # root with >= 2 DFS children
+                articulations.add(u)
 
     return sorted(bridges), sorted(articulations)
 

@@ -1,0 +1,275 @@
+---
+topic: Data_Structures/Non_Linear/Trees/B_Tree
+title: B-Tree
+lead: A B-tree is a balanced search tree whose nodes hold many sorted keys, so the tree stays very shallow. Search, insert and delete cost O(log n) comparisons but only O(log<sub>t</sub> n) node visits, which is what matters when each node is a disk page.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Search
+    value: O(log n)
+    hint: O(log_t n) node reads
+  - label: Insert
+    value: O(log n)
+    hint: one pass, splits on the way down
+  - label: Delete
+    value: O(log n)
+    hint: borrow or merge on the way down
+  - label: Keys per node
+    value: t-1 .. 2t-1
+    tone: warn
+    hint: the root may have fewer
+properties:
+  - { label: Self-balancing, value: true }
+  - { label: All leaves at one depth, value: true }
+  - { label: Keys in internal nodes, value: true }
+  - { label: Duplicates rejected, value: false }
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+related:
+  - Data_Structures/Non_Linear/Trees/B_Plus_Tree
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Red_Black_Tree
+---
+
+## What a B-tree is
+
+A B-tree of **minimum degree** `t` (at least 2) is a search tree with these rules:
+
+- Every node holds its keys in sorted order. A node with `k` keys has `k + 1` children, and the keys separate the children: everything in child `i` lies between key `i - 1` and key `i`.
+- Every node except the root holds between `t - 1` and `2t - 1` keys. The root holds between 1 and `2t - 1` (or 0 when the tree is empty).
+- All leaves are at the same depth.
+
+Unlike a B+ tree, **every node stores real keys**, internal nodes included. A binary search tree is the case of one key per node; a B-tree packs many keys into one node so that one node visit does the work of several BST levels. The repository's default is `t = 3` (2 to 5 keys per node); `t = 2` gives the 2-3-4 tree.
+
+<TreeDiagram
+  root={{
+    label: [20, 40],
+    children: [
+      { label: [5, 10] },
+      { label: [25, 30, 35] },
+      { label: [50, 60, 70] },
+    ],
+  }}
+  caption="A B-tree with t = 2 (1 to 3 keys per node). The root has 2 keys and 3 children; all three leaves are at depth 1."
+/>
+
+Because the tree only grows at the root (a root split) and shrinks at the root (a root merge), all leaves always move down or up together. That is how the equal-depth rule survives every operation.
+
+<Callout title="Height is logarithmic in the node size">
+A tree whose leaves are at depth `h` (root at depth 0) holds at least `2 t^h - 1` keys: the root has 2 children and every other internal node at least `t`. Solving for `h` gives `h <= log_t((n + 1) / 2)`. With `t = 100` a billion keys fit in a tree about five levels deep. Each level is one node read, which is why B-trees dominate on disks.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`search(key)`', 'descend, picking the child between two neighbouring keys', 'O(log n)'],
+    ['`insert(key)`', 'one pass downward; a full node is split before the pass enters it', 'O(log n)'],
+    ['`delete(key)`', 'one pass downward; a minimal node is topped up (borrow) or merged before the pass enters it', 'O(log n)'],
+    ['`traverse()`', 'in-order walk, returns all keys sorted', 'O(n)'],
+  ]}
+/>
+
+The API differs a little per language. Python: `search` returns `(node, index)` or `None`, and `delete` returns nothing. C++ and Go: `search` returns a boolean, `remove` (C++) and `Delete` (Go) return whether a key was removed, and `traverse` / `Traverse` return a sorted list. Inserting a key that is already present stores a second copy; delete removes one copy.
+
+### Search
+
+In each node, scan to the first key that is `>=` the target. If it equals the target, done. Otherwise follow the child just left of that key, or report a miss at a leaf. Searching `30` in the tree above:
+
+<TreeDiagram
+  legend={{ l: 'node on the search path', f: 'the key was found here' }}
+  root={{
+    label: [20, 40],
+    tone: 'l',
+    children: [
+      { label: [5, 10] },
+      { label: [25, 30, 35], tone: 'f' },
+      { label: [50, 60, 70] },
+    ],
+  }}
+  caption="30 is greater than 20 and less than 40, so descend into the middle child, where it is the second key."
+/>
+
+### Insert: split on the way down
+
+Inserting always happens in a leaf. The classic trick (CLRS, and this repository) is to split every **full** node (`2t - 1` keys) *before* entering it, so the leaf always has room and the algorithm never has to walk back up. A split cuts a full node around its median key: the left half and the right half become two siblings, and the median moves up into the parent (which is known not to be full).
+
+Inserting `10, 20, 30, 40, 50, 60` into an empty `t = 2` tree:
+
+<TreeDiagram
+  legend={{ p: 'median promoted by a split' }}
+  root={{
+    label: [20],
+    children: [
+      { label: [10] },
+      { label: [30, 40] },
+    ],
+  }}
+  caption="After 10, 20, 30 the root is full ([10, 20, 30]). Inserting 40 first splits the root: 20 moves up into a new root, and 40 then goes into the right half."
+/>
+
+<TreeDiagram
+  root={{
+    label: [20, 40],
+    children: [
+      { label: [10] },
+      { label: [30] },
+      { label: [50, 60] },
+    ],
+  }}
+  caption="After 50 the right leaf is [30, 40, 50] (full). Inserting 60 splits it before descending: 40 moves up into the root, and 60 joins [50]."
+/>
+
+Only a root split makes the tree taller. That is the only way the height can increase, and every leaf gets one level deeper at the same moment.
+
+### Delete: keep every node above the minimum
+
+Deleting could leave a node with fewer than `t - 1` keys. The repository's delete avoids that by making sure the child it is about to enter has more than `t - 1` keys, fixing it first if not. There are three cases:
+
+<Steps>
+  <Step title="Key is in a leaf">
+    Remove it. The leaf was topped up on the way down, so it still has at least `t - 1` keys.
+  </Step>
+  <Step title="Key is in an internal node">
+    If the child on its left has more than `t - 1` keys, replace the key by its **predecessor** (the largest key of that subtree) and delete the predecessor below. Otherwise do the same with the **successor** from the right child. If both children are minimal, **merge** them with the key into one node and continue deleting inside it.
+  </Step>
+  <Step title="Key is not in this node">
+    Before descending into child `i`, if it has exactly `t - 1` keys, fix it: **borrow** a key through the parent from a sibling that has spare keys (left first, then right), else **merge** it with a sibling. A last child merges with its left sibling, any other child with its right one.
+  </Step>
+</Steps>
+
+Deleting `40` and then `10` from the `t = 2` tree `[20, 40]` over `[10]`, `[25, 30, 35]`, `[50, 60]`:
+
+<TreeDiagram
+  legend={{ f: 'the predecessor that replaced 40' }}
+  root={{
+    label: [20, 35],
+    children: [
+      { label: [10] },
+      { label: [25, 30] },
+      { label: [50, 60] },
+    ],
+  }}
+  caption="delete(40): 40 is in the root and its left child [25, 30, 35] has spare keys, so the predecessor 35 replaces 40 and is removed from the leaf."
+/>
+
+<TreeDiagram
+  root={{
+    label: [25, 35],
+    children: [
+      { label: [20] },
+      { label: [30] },
+      { label: [50, 60] },
+    ],
+  }}
+  caption="delete(10): the leaf [10] is minimal and its right sibling [25, 30] has a spare key, so one key rotates through the root (borrow from the right). Then 10 is removed."
+/>
+
+Merging happens when the siblings have nothing to give. Continuing, `delete(30)` borrows again, giving `[25, 50]` over `[20]`, `[35]`, `[60]`. Then `delete(20)` finds a minimal child with only minimal siblings, so it merges `[20]`, `25` and `[35]` into `[20, 25, 35]`. The root `[50]` keeps two children:
+
+<TreeDiagram
+  legend={{ p: 'node created by a merge' }}
+  root={{
+    label: [50],
+    children: [
+      { label: [25, 35], tone: 'p' },
+      { label: [60] },
+    ],
+  }}
+  caption="After delete(20): the merge pulled 25 down from the root, and 20 was then removed from the merged node. Had the root been emptied, its only child would become the new root and the tree would be one level shorter."
+/>
+
+## Implementation
+
+The three versions share the same structure: a node with `keys` and `children`, a proactive `split_child`, `insert_non_full`, and a delete built from `fill_child`, borrow and merge helpers. All three are tested against a sorted reference on thousands of random insert/delete/search operations, with an invariant checker (fill bounds, key order, equal leaf depth) after the run. The C++ tree owns its nodes (destructor, copying disabled).
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/B_Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Node reads', kind: 'mono' }, { label: 'Comparisons', kind: 'mono' }, 'Why']}
+  rows={[
+    ['search', 'O(log_t n)', 'O(t log_t n)', 'height is at most log_t((n + 1) / 2); each node is scanned linearly'],
+    ['insert', 'O(log_t n)', 'O(t log_t n)', 'one descent; a split costs O(t) and happens at most once per level'],
+    ['delete', 'O(log_t n)', 'O(t log_t n)', 'one descent; a borrow or merge costs O(t) per level'],
+    ['traverse', 'O(n / t)', 'O(n)', 'every key is visited once'],
+  ]}
+/>
+
+The code scans each node linearly, hence the factor `t`. Binary search inside the node would make comparisons O(log n) again, but the point of a B-tree is to minimise node reads, not comparisons. Space is O(n); the recursion is as deep as the tree is tall.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Used for']}
+  rows={[
+    ['B+ tree', 'data lives only in the leaves, which are linked', 'database indexes, range scans (see B+ Tree)'],
+    ['2-3-4 tree (`t = 2`)', 'nodes with 1 to 3 keys', 'teaching; maps one-to-one onto red-black trees'],
+    ['Top-down vs bottom-up', 'split before descending (this code) or split on the way back up', 'top-down needs no parent pointers or stack'],
+  ]}
+/>
+
+## B-tree vs other search trees
+
+<DataTable
+  columns={['Structure', 'Height', 'Best when', 'Notes']}
+  highlight={0}
+  rows={[
+    ['B-tree', 'O(log_t n)', 'data lives on disk or in large blocks', 'few node reads; wide nodes'],
+    ['AVL / red-black tree', 'O(log_2 n)', 'data lives in memory', 'one key per node; many more pointer hops'],
+    ['Sorted array', 'n/a', 'static data', 'binary search is O(log n); insert is O(n)'],
+    ['Hash table', 'n/a', 'exact-match lookups only', 'no order, no range queries'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Very shallow, so few node reads per operation.',
+    'Always balanced; no rotations or rebalancing heuristics.',
+    'Keys in internal nodes mean a search can stop early.',
+    'Sorted order for free: in-order traversal, predecessor and successor.',
+  ]}
+  cons={[
+    'More complex to implement than a BST, especially delete.',
+    'In memory, a linear scan inside a wide node can lose to a plain binary tree for small trees.',
+    'Range scans must climb back through internal nodes; B+ trees do this better.',
+    'Nodes are partly empty (at least half full), so space is not tight.',
+  ]}
+/>
+
+## Applications
+
+- **Database and file-system indexes:** the structure is designed for block storage. Production systems often use the B+ variant (see B+ Tree).
+- **Ordered key-value stores in memory** with a large `t`, where cache-line-sized nodes beat pointer-chasing binary trees.
+- **Teaching balanced trees:** the `t = 2` case is the 2-3-4 tree, a clean way to understand red-black rotations.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Splitting after the insert instead of before the descent.** The one-pass algorithm relies on the parent never being full when a child splits.
+- **Merging with the wrong sibling.** The last child must merge with its left sibling; if the delete then keeps descending at the old index it enters the wrong subtree (this was a real bug in the Python version) and may leave a key behind.
+- **Forgetting to shrink the root.** After a merge, an empty internal root must be replaced by its only child.
+- **Mixing up `t` with the maximum.** `t` is the *minimum* degree: a node has at most `2t - 1` keys.
+- **Expecting set semantics.** Inserting an existing key adds a second copy.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why do B-trees use many keys per node?">
+    Reading a disk block costs far more than comparing keys already in memory. A node sized to one block lets a single read narrow the search by a factor of `t` or more, so the tree is only a few levels deep.
+  </FaqItem>
+  <FaqItem question="What is the difference between a B-tree and a B+ tree?">
+    In a B-tree every node holds keys (and, in a map, values). In a B+ tree only leaves hold data, internal nodes hold copies of separators, and the leaves are linked for fast range scans.
+  </FaqItem>
+  <FaqItem question="Why split a full node before descending into it?">
+    It guarantees the parent has room for the promoted median, so the insert never has to go back up. The cost is that a node may be split slightly before it is strictly necessary.
+  </FaqItem>
+  <FaqItem question="Can the root have fewer than t - 1 keys?">
+    Yes. The root is exempt from the minimum; it only needs one key (or none when the tree is empty), and it is the only node whose removal makes the tree shorter.
+  </FaqItem>
+</Faq>

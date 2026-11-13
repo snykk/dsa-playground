@@ -1,0 +1,13 @@
+/* ByteRows organism: the decoder's polynomials under the codeword rows. */
+.viz-math {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  color: var(--text);
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+.viz-math span.label {
+  font-family: var(--font-sans);
+  color: var(--text-3);
+  margin-right: 6px;
+}

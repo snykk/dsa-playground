@@ -1,0 +1,196 @@
+---
+topic: Algorithms/Searching/Linear_Search
+title: Linear Search
+lead: Linear Search checks the elements one by one until it finds the target or reaches the end. It is the simplest search, it works on any data in any order, and for small or unsorted collections it is often the right choice.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Worst time
+    value: O(n)
+    hint: the target is last or absent
+    tone: warn
+  - label: Best time
+    value: O(1)
+    hint: the target is the first element
+  - label: Average comparisons
+    value: (n + 1) / 2
+    hint: target present, every position equally likely
+  - label: Extra space
+    value: O(1)
+    hint: iterative
+properties:
+  - { label: Needs sorted data, value: false }
+  - { label: Works on linked lists, value: true }
+  - { label: In-place, value: true }
+  - { label: Finds all matches, value: true }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Searching/Binary_Search
+  - Algorithms/Searching/Interpolation_Search
+  - Algorithms/Searching/Ternary_Search
+---
+
+## How Linear Search works
+
+Start at the first element and compare each one with the target in order. Return the index of the first match. If the end is reached with no match, return -1.
+
+<Steps>
+  <Step title="Start at index 0">
+    The search looks at one element at a time and needs nothing else: no ordering, no random access.
+  </Step>
+  <Step title="Compare with the target">
+    If `arr[i] == target`, return `i` immediately. The first match wins, so duplicates are not an issue.
+  </Step>
+  <Step title="Advance">
+    Move to `i + 1` and repeat.
+  </Step>
+  <Step title="Report a miss">
+    After the last element, return -1. All `n` elements were compared.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+Before checking index `i`, the target is known to differ from `arr[0 .. i - 1]`. When the loop finishes, the target differs from every element, so -1 is correct.
+</Callout>
+
+## See it in action
+
+Enter any values and a target and press Apply, or press Random for a random input. The transport buttons step through the scan: watch the compared element, the part of the array already ruled out, and how the cost changes when the target is first, last or missing.
+
+<ArticleViz ids={['linear-search']} />
+
+## Worked example
+
+Search for 30 in `[10, 20, 30, 40, 50]`:
+
+<ArrayDiagram
+  legend={{ c: 'being compared', m: 'ruled out (not equal)', f: 'match' }}
+  rows={[
+    { label: 'i = 0', values: [10, 20, 30, 40, 50], tones: 'c....', marks: { 0: 'i' }, note: '10 != 30: keep going.' },
+    { label: 'i = 1', values: [10, 20, 30, 40, 50], tones: 'mc...', marks: { 1: 'i' }, note: '20 != 30: keep going.' },
+    { label: 'i = 2', values: [10, 20, 30, 40, 50], tones: 'mmf..', marks: { 2: 'i' }, note: '30 == 30: return 2 after 3 comparisons.' },
+  ]}
+/>
+
+If the target were 99, the loop would compare all five elements and return -1.
+
+## Pseudocode
+
+```text
+linearSearch(arr, target):
+    for i = 0 to len(arr) - 1:
+        if arr[i] == target:
+            return i
+    return -1
+
+allOccurrences(arr, target):
+    indices = []
+    for i = 0 to len(arr) - 1:
+        if arr[i] == target:
+            indices.append(i)
+    return indices
+```
+
+## Implementation
+
+Each language has `linear_search`-style functions for the first match, a recursive form and all occurrences. There is no last-occurrence function: scan from the end, or take the last element of the all-occurrences result.
+
+- **Python:** `linear_search`, `linear_search_recursive(arr, target, index=0)` and `linear_search_all_occurrences`. The recursive form raises `RecursionError` once the list is longer than about a thousand elements (Python's default recursion limit), so treat it as a teaching example.
+- **C++:** templates with instances for `int`, `double` and `std::string`. They return `int` indexes.
+- **Go:** `LinearSearch` and `LinearSearchAllOccurrences` for `[]int`, `LinearSearchRecursive(arr, target, index)`, and the generic `LinearSearchGeneric[T comparable]`.
+
+An empty input returns -1 (or an empty list of indexes) everywhere.
+
+<TopicCode topic="Algorithms/Searching/Linear_Search" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(1)', when: 'The target is the first element: one comparison.' },
+    { case: 'Average case', time: 'O(n)', when: 'If the target is present and every position is equally likely, (n + 1) / 2 comparisons.' },
+    { case: 'Worst case', time: 'O(n)', when: 'The target is last or absent: n comparisons.' },
+    { case: 'Space', time: 'O(1)', when: 'Iterative. The recursive version uses O(n) stack; the all-occurrences version stores the k matches.' },
+  ]}
+/>
+
+For a present target at position `i` (1-indexed), the search makes `i` comparisons, so the average over `n` positions is `(1 + 2 + ... + n) / n = (n + 1) / 2`. Missing targets always cost `n`, so a workload with many misses is closer to the worst case.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Variant', 'Idea', 'Effect']}
+  rows={[
+    ['First match (here)', 'stop at the first equal element', 'fastest for a single result'],
+    ['All occurrences (here)', 'scan everything and collect indexes', 'always n comparisons'],
+    ['Recursive (here)', 'check `index`, recurse on `index + 1`', 'O(n) stack: only for teaching'],
+    ['Sentinel', 'put the target after the last element so the loop needs no bounds check', 'about half the comparisons per step; not implemented here'],
+    ['Move to front', 'move each found item toward the front', 'popular items get cheaper over repeated queries; not implemented here'],
+  ]}
+/>
+
+## Linear Search vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Needs sorted', 'Best for']}
+  highlight={0}
+  rows={[
+    ['Linear Search', 'O(n)', 'No', 'unsorted data, small n, linked lists, one-off queries'],
+    ['Binary Search', 'O(log n)', 'Yes', 'many lookups in a sorted array'],
+    ['Interpolation Search', 'O(log log n) on uniform data', 'Yes', 'large, evenly spread numeric keys'],
+    ['Hash table', 'O(1) average', 'No', 'many exact lookups; costs memory and a build step'],
+  ]}
+/>
+
+Sorting first only pays off if you search often: `n` linear searches cost `O(n^2)`, while one sort plus `n` binary searches costs `O(n log n)`.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'No preconditions: unsorted data, linked lists and streams all work.',
+    'Simplest possible code, hard to get wrong.',
+    'O(1) extra space and cache-friendly sequential access.',
+    'Needs only equality, not ordering.',
+  ]}
+  cons={[
+    'O(n) per search: slow for large data and repeated queries.',
+    'A missing target always costs the full n comparisons.',
+    'Other structures (sorted arrays, hash tables) answer repeated queries faster.',
+  ]}
+/>
+
+## Applications
+
+- **Small collections**, where the constant factor beats any smarter method.
+- **Unsorted or one-off data**, where sorting or building an index would cost more than one scan.
+- **Linked lists and other sequential structures** with no random access.
+- **Finding the first element that satisfies a predicate**, not only an equal value.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using it on large sorted data.** Binary Search does the same job in O(log n).
+- **Recursing on long inputs.** The Python recursive version fails with `RecursionError` on about a thousand elements.
+- **Forgetting that it returns the first match only.** Use the all-occurrences function if you need every position.
+- **Returning a valid index for a miss.** Return -1 (or another value that cannot be an index) and check it.
+- **Comparing floating-point numbers with `==`.** Rounding can make equal values compare unequal; use a tolerance.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is Linear Search ever faster than Binary Search?">
+    Yes, on small arrays and when the data is not sorted. Binary Search needs sorted data (an O(n log n) sort if it is not), and for tiny `n` the simple loop is as fast or faster.
+  </FaqItem>
+  <FaqItem question="What does the sentinel trick do?">
+    You temporarily store the target in a slot after the last element. The loop can then drop its `i < n` test, since a match is guaranteed, and afterwards checks whether the match was the sentinel. It saves one comparison per step but needs a spare slot.
+  </FaqItem>
+  <FaqItem question="How many comparisons does it make on average?">
+    If the target is present and every position is equally likely, `(n + 1) / 2`. If the target is absent, exactly `n`.
+  </FaqItem>
+  <FaqItem question="How do I find the last occurrence?">
+    Scan from the end, or take the last element of the result of the all-occurrences function. This repository has no dedicated last-occurrence function.
+  </FaqItem>
+</Faq>

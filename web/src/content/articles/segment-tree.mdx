@@ -1,0 +1,197 @@
+---
+topic: Data_Structures/Non_Linear/Trees/Segment_Tree
+title: Segment Tree
+lead: A segment tree stores the sum of every dyadic block of an array in a complete binary tree, so any range sum is assembled from O(log n) precomputed blocks. The repository version is the compact bottom-up layout with point assignment.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Range sum query
+    value: O(log n)
+  - label: Point update
+    value: O(log n)
+    hint: assigns a value
+  - label: Build
+    value: O(n)
+  - label: Space
+    value: 2 * size
+    hint: size = next power of two >= n
+properties:
+  - { label: Iterative (no recursion), value: true }
+  - { label: Works for min / max, value: false }
+  - { label: Range update, value: false }
+  - { label: Needs power-of-two padding, value: true }
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
+related:
+  - Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
+---
+
+## What a segment tree is
+
+The problem: an array that changes one element at a time and is asked "what is the sum of `a[l..r]`?" many times. A segment tree keeps a binary tree in which every node holds the sum of a contiguous block of the array: the leaves are single elements, and each parent is the sum of its two children, so the root is the total.
+
+This repository uses the **bottom-up array layout**. The array length is padded with zeros up to `size`, the next power of two, so the tree is perfect. The tree lives in one array of length `2 * size`: the root is `tree[1]`, node `i` has children `2i` and `2i + 1`, and the leaves are `tree[size + 0 .. size + n - 1]`. For `[1, 3, 5, 7, 9, 11]` the size is 8:
+
+<TreeDiagram
+  levelOrder={[36, 16, 20, 4, 12, 20, 0, 1, 3, 5, 7, 9, 11, 0, 0]}
+  badges={['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']}
+  tones="fffffff........"
+  legend={{ f: 'internal node (sum of its block)' }}
+  caption="The tree for [1, 3, 5, 7, 9, 11], padded with two zeros. Badges are array positions: leaves are positions 8 to 15, and node 5 is the sum of leaves 10 and 11 (5 + 7 = 12)."
+/>
+
+<ArrayDiagram
+  rows={[
+    { label: 'tree', values: [0, 36, 16, 20, 4, 12, 20, 0, 1, 3, 5, 7, 9, 11, 0, 0], tones: 'm...............', marks: { 1: 'root', 8: 'leaf 0', 15: 'leaf 7' } },
+  ]}
+/>
+
+Position 0 is unused. The padding zeros do not disturb sums because 0 is the identity of addition.
+
+<Callout title="Why O(log n)">
+The tree has `log2(size)` levels. A range query takes at most two nodes per level, one on each boundary of the range, so it touches O(log n) nodes. An update changes one leaf and the one ancestor on each level above it.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`SegmentTree(arr)`', 'copy the array into the leaves, then fill parents from `size - 1` down to 1', 'O(n)'],
+    ['`update(i, value)`', '**assign** `value` to element `i` and recompute its ancestors', 'O(log n)'],
+    ['`query(l, r)`', 'sum of elements `l..r`, inclusive', 'O(log n)'],
+    ['`get(i)`', 'read the leaf', 'O(1)'],
+  ]}
+/>
+
+Indices are 0-based. Any index outside `0..n-1`, or `l > r`, is rejected: Python raises `IndexError`, C++ throws `std::out_of_range`, Go panics. C++ stores sums as `long long`. The structure is sum-only; min or max would need a different combine function.
+
+### Query: climb from both ends
+
+Convert both bounds to leaf positions (`l += size`, `r += size`). While `l <= r`:
+
+<Steps>
+  <Step title="Left boundary">
+    If `l` is a **right** child (odd), its block is wholly inside the range but its parent's is not: add `tree[l]` and move `l` one step right (`l += 1`).
+  </Step>
+  <Step title="Right boundary">
+    If `r` is a **left** child (even), do the mirror: add `tree[r]` and move `r` one step left (`r -= 1`).
+  </Step>
+  <Step title="Go up a level">
+    Halve both: `l //= 2`, `r //= 2`. The two pointers now bound the remaining blocks one level higher.
+  </Step>
+</Steps>
+
+Query `[1, 4]` on the tree above (the answer is 3 + 5 + 7 + 9 = 24):
+
+<DataTable
+  columns={['Level', 'l', 'r', 'Action', 'Sum so far']}
+  rows={[
+    ['leaves', '9', '12', 'l is odd: add tree[9] = 3, l = 10. r is even: add tree[12] = 9, r = 11.', '12'],
+    ['halve', '5', '5', 'l is odd: add tree[5] = 12, l = 6. r is odd: nothing.', '24'],
+    ['halve', '3', '2', 'l > r: stop.', '24'],
+  ]}
+  caption="Three nodes cover the range: leaf 9, leaf 12 and node 5 (the sum of leaves 10 and 11)."
+/>
+
+### Update: recompute upward
+
+`update(2, 10)` writes the leaf `tree[size + 2] = tree[10]` and then, for each ancestor `i = 5, 2, 1`, sets `tree[i] = tree[2i] + tree[2i + 1]`. Node 5 becomes 10 + 7 = 17, node 2 becomes 4 + 17 = 21 and the root 21 + 20 = 41, which is the old total 36 plus 5 (the element grew from 5 to 10).
+
+## Implementation
+
+The three versions are the same: pad to a power of two, build parents bottom-up, and use the two loops above. Tests cover the examples here, negative values, non-power-of-two sizes, index errors and a random differential run against brute force.
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Segment_Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['build', 'O(n)', 'size - 1 internal nodes, each computed once from its children'],
+    ['update', 'O(log n)', 'one node per level on the leaf-to-root path'],
+    ['query', 'O(log n)', 'at most two nodes per level'],
+    ['space', 'O(n)', '2 * size cells, and size < 2n, so under 4n'],
+  ]}
+/>
+
+The classic recursive layout allocates `4n` cells to be safe for any `n`. Padding to a power of two uses `2 * size` cells, which is always under `4n`.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference']}
+  rows={[
+    ['Other combine functions', 'min, max, gcd, XOR: change the combine and the identity (the repository is sum-only)'],
+    ['Recursive top-down', 'node `[lo, hi]` splits at the middle; works for any n without padding'],
+    ['Lazy propagation', 'range updates in O(log n) (see Segment Tree (Lazy Propagation))'],
+    ['Persistent / 2D / dynamic', 'older versions, grids, or sparse coordinate ranges'],
+  ]}
+/>
+
+## Segment tree vs alternatives
+
+<DataTable
+  columns={['Structure', 'Update', 'Range query', 'Notes']}
+  highlight={0}
+  rows={[
+    ['Segment tree', 'O(log n)', 'O(log n)', 'any associative operation; more memory'],
+    ['Fenwick tree', 'O(log n)', 'O(log n)', 'smaller and shorter; needs an invertible operation'],
+    ['Sparse table', 'static', 'O(1) for min/max', 'no updates'],
+    ['Prefix sums', 'O(n)', 'O(1)', 'static data'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Handles any associative combine, not only sums, with one small change.',
+    'Updates and queries are both logarithmic.',
+    'The iterative layout needs no recursion and one flat array.',
+    'Extends naturally to lazy range updates.',
+  ]}
+  cons={[
+    'About twice the memory of the input (a Fenwick tree needs one array of n).',
+    'The padding to a power of two wastes up to half the leaves.',
+    'Range updates need a different (lazy) version.',
+    'The bottom-up query is harder to read than a recursive one.',
+  ]}
+/>
+
+## Applications
+
+- **Range sum queries with updates**, such as LeetCode 307 (Range Sum Query - Mutable).
+- **Range minimum or maximum**, with the combine changed.
+- **Order statistics and counting** over a value range, as a counting tree.
+- **Sweep-line problems** that maintain a structure over coordinates.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Negative indices.** In Python they read internal nodes without raising, so the code rejects them explicitly.
+- **Forgetting that `update` assigns.** It sets the element; it does not add a delta.
+- **Using `size` instead of `n` for bounds.** The padded leaves are not valid indices.
+- **Sizing the tree `2n` for a recursive layout.** That is too small for non-powers of two; use `4n`, or pad as here.
+- **`int` overflow in C++.** Sums of `int` values overflow `int`; this code stores `long long`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why pad to a power of two?">
+    It makes the tree perfect, so node `i` always has children `2i` and `2i + 1` and the two-pointer climb is correct without extra checks.
+  </FaqItem>
+  <FaqItem question="Why does the query only take at most two nodes per level?">
+    At each level, a block is taken at the left boundary only when `l` is odd and at the right boundary only when `r` is even. In every other case the boundary block merges into its parent block, which the next level handles. So at most one block per boundary per level.
+  </FaqItem>
+  <FaqItem question="Can this version do range minimum?">
+    Not as written: it adds. Replacing the additions by `min`, and the padding zeros by an identity of `min` (such as +infinity), gives range minimum with the same loops.
+  </FaqItem>
+  <FaqItem question="When is a Fenwick tree better?">
+    When you only need sums (or other invertible operations) and want the smallest and shortest code. A segment tree is the more general tool.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,10 @@
+/* Tree renderer: parent-child edges and the caption; nodes come from the NodeGlyph atom. */
+.tree-view .t-edge {
+  stroke: var(--axis);
+  stroke-width: 2;
+  fill: none;
+}
+.tree-view .t-note {
+  fill: var(--text-3);
+  font-size: 12px;
+}

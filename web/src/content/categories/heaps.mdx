@@ -1,0 +1,144 @@
+---
+category: Data_Structures/Non_Linear/Heaps
+title: Heaps
+lead: A heap gives fast access to the smallest or largest element and nothing more. The min and max heap are the same array-backed binary heap with opposite orders; the Fibonacci heap trades that array for a lazy forest so that insert costs O(1).
+updated: 2026-11-13
+facts:
+  - label: Peek
+    value: O(1)
+    hint: the root, in all three heaps
+  - label: Binary heap insert
+    value: O(log n)
+    hint: min heap and max heap
+  - label: Fibonacci insert
+    value: O(1)
+    hint: worst case, a list splice
+  - label: Extract
+    value: O(log n)
+    hint: amortized for the Fibonacci heap
+  - label: Build from array
+    value: O(n)
+    hint: min and max heap, bottom-up heapify
+  - label: Not provided
+    value: decrease-key
+    hint: the Fibonacci heap here lacks it
+    tone: warn
+contents:
+  - folder: Min_Heap
+    note: The reference binary heap. A complete tree in an array with the smallest element at the root.
+  - folder: Max_Heap
+    note: The mirror image. The largest element sits at the root, which is what in-place heap sort needs.
+  - folder: Fibonacci_Heap
+    note: A lazy forest. Insert is a splice, and extract-min does the work by linking trees of equal degree.
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Data_Structures/Linear/Queue/Priority_Queue
+  - Algorithms/Sorting/Heap_Sort
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm
+---
+
+## The problem
+
+A priority queue must hand back the element with the best priority, again and again, while new elements keep arriving. A sorted array makes the read cheap and the insert expensive. An unsorted array does the opposite. A heap keeps just enough order to find the best element at once: every parent is ordered against its children, and siblings are not ordered at all.
+
+The three topics here are three answers to the same job:
+
+- The **min heap** and the **max heap** store a complete binary tree in a plain array. The children of index `i` sit at `2i + 1` and `2i + 2`, so no pointers are needed.
+- The **Fibonacci heap** stores heap-ordered trees as linked nodes and postpones all tidying to the moment you extract the minimum.
+
+A heap is not a search structure. Finding an arbitrary value costs O(n), and iterating a heap does not give sorted order.
+
+## At a glance
+
+<DataTable
+  columns={['Heap', 'Idea', 'Root holds', 'Storage']}
+  rows={[
+    ['Min heap', 'every parent is `<=` its children', 'the minimum', 'one array'],
+    ['Max heap', 'every parent is `>=` its children', 'the maximum', 'one array'],
+    ['Fibonacci heap', 'a circular list of heap-ordered trees, consolidated on extract-min', 'the minimum, through a `min_node` pointer', 'linked nodes with four pointers each'],
+  ]}
+/>
+
+The Fibonacci heap in this repository is the lazy core only: `insert`, `extract_min`, `peek`, `size`, `is_empty` and `clear`. It has no `decrease_key`, `delete` or `merge`, which are the operations that make a full Fibonacci heap worth its weight.
+
+## The same keys through all three
+
+Insert the keys `9 4 7 1 8 2 6` into each heap, then read the root and extract everything. The results come from running the Python classes.
+
+<DataTable
+  columns={['Heap', 'Root after the inserts', 'Extraction order', 'Array after the inserts']}
+  rows={[
+    ['Min heap', '1', '`1 2 4 6 7 8 9`', '`[1, 4, 2, 9, 8, 7, 6]`'],
+    ['Max heap', '9', '`9 8 7 6 4 2 1`', 'not shown'],
+    ['Fibonacci heap', '1', '`1 2 4 6 7 8 9`', 'none, it is a forest'],
+  ]}
+/>
+
+Repeated extraction is heap sort: the min heap gives ascending order and the max heap gives descending order. The Fibonacci heap returns the same sequence as the min heap. Building the min heap from the array `[9, 4, 7, 1, 8, 2, 6]` with the constructor, which uses bottom-up heapify, gives the same array as the seven inserts.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Min / max heap', kind: 'mono' }, { label: 'Fibonacci heap', kind: 'mono' }]}
+  rows={[
+    ['peek', 'O(1)', 'O(1)'],
+    ['insert', 'O(log n)', 'O(1) worst case'],
+    ['extract min / max', 'O(log n)', 'O(log n) amortized'],
+    ['build from an array', 'O(n)', 'not provided'],
+    ['decrease-key', 'not provided', 'not provided'],
+    ['search for a value', 'O(n)', 'O(n)'],
+    ['extra space', 'the array, O(n)', 'O(n), four pointers per node'],
+  ]}
+/>
+
+Amortized means the bound holds over a whole sequence of operations. One Fibonacci `extract_min` right after n inserts can take O(n) time, because that is when the postponed linking happens.
+
+## Choosing a heap
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['A priority queue where the smallest comes first', 'Min heap', 'O(1) peek, O(log n) insert and extract, no pointers'],
+    ['The largest comes first, or in-place heap sort', 'Max heap', 'the root is the maximum, so a sorted tail grows at the end of the array'],
+    ['Many inserts and few extractions', 'Fibonacci heap', 'insert is O(1), and the cost is paid only when you extract'],
+    ['Dijkstra or Prim with decrease-key', 'a heap with decrease-key', 'the Fibonacci heap here has none, so it cannot give the textbook bound'],
+    ['Everyday code', 'the standard library heap', '`heapq`, `std::priority_queue` and `container/heap` are tested and fast in practice'],
+  ]}
+/>
+
+## Applications
+
+- **Priority queues.** Task schedulers, event simulations and bandwidth management.
+- **Heap sort.** Build a max heap, then move the maximum to the end again and again.
+- **Top-k queries.** Keep a heap of size k while you stream through the data.
+- **Graph algorithms.** Dijkstra and Prim take the closest unvisited vertex from a heap.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Expecting sorted iteration.** Reading the array of a heap in order does not give sorted output; only repeated extraction does.
+- **Searching a heap.** There is no order between siblings, so looking for a value is O(n), not O(log n).
+- **Building by n inserts.** That costs O(n log n). Bottom-up heapify from an array is O(n).
+- **Calling the Fibonacci extract a worst-case bound.** O(log n) is amortized; a single call can cost O(n).
+- **Expecting decrease-key from the Fibonacci heap here.** It is not implemented, and the `marked` flag on each node is stored but never used.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with the min heap. It shows the heap property, sift up, sift down and bottom-up heapify. The max heap is the same code with the comparison reversed, so it takes minutes. Read the Fibonacci heap last; it needs the min heap as background.
+  </FaqItem>
+  <FaqItem question="Why is the Fibonacci heap not simply better?">
+    Its insert is cheaper, but each node carries four pointers and extract-min must link trees together, so the constants are large. The textbook advantage is O(1) amortized decrease-key, and this repository does not implement it. A binary heap has an O(log n) decrease-key and is usually faster in practice.
+  </FaqItem>
+  <FaqItem question="Is a heap the same as a priority queue?">
+    No. A priority queue is the interface: insert, and take the best element. A heap is one way to implement it. The Priority Queue topic under the queues shows the interface, and the heaps here show an implementation.
+  </FaqItem>
+  <FaqItem question="Why does build from an array cost only O(n)?">
+    Bottom-up heapify sifts down each internal node, starting from the last one. Most nodes sit near the bottom and sink only a short way, so the total work sums to O(n), not n times log n.
+  </FaqItem>
+</Faq>

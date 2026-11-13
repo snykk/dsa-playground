@@ -1,41 +1,39 @@
-# Randomized Quickselect — C++ Implementation
+# Randomized Quickselect -- C++ Implementation
 
-O(n) expected-time k-th smallest selection using Lomuto partition and `std::mt19937`.
-
-For the conceptual overview and proof of O(n) expected, see the parent README: [../README.md](../README.md)
-
----
+The k-th smallest element in O(n) expected time, using a three-way partition and `std::mt19937`. For the idea, the trace and the complexity argument see the [topic README](../README.md).
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `quickselect.h` | Header-only `quickselect(arr, k)` with explicit-RNG and default overloads |
-| `quickselect_test.cpp` | 10 tests including random cross-check against `std::sort` |
+- `quickselect.h` - header-only implementation.
+- `quickselect_test.cpp` - 11 assert-based tests, including a cross-check against `std::sort` and large duplicate-heavy inputs.
 
----
+## API
+
+- `int quickselect(std::vector<int>& arr, int k, std::mt19937& rng)` - the k-th smallest element, 0-indexed. Reorders `arr`. Throws `std::invalid_argument` if `arr` is empty and `std::out_of_range` if `k` is invalid.
+- `int quickselect(std::vector<int>& arr, int k)` - the same with a generator seeded from `std::random_device`.
+- `detail::partition3` - the internal three-way partition, returning `{lt, gt}`.
+
+There is no top-k helper in C++; after `quickselect(arr, k - 1)` the first `k` slots hold the k smallest elements.
 
 ## C++-Specific Notes
 
-- **`std::nth_element` does this better.** It's Introselect (Quickselect + median-of-medians fallback), guaranteeing O(n) worst-case. Use the stdlib in production; this header is for learning.
-- **`std::uniform_int_distribution` prevents modulo bias**: `dist(rng)` is uniform over `[lo, hi]`, unlike `rng() % (hi - lo + 1)` which is biased when the range doesn't divide the RNG's output range.
-- **Iterative loop** avoids recursion depth concerns. With random pivot, expected depth is O(log n) — never a problem — but iteration is still cleaner.
-- **In place**: mutates the input `std::vector<int>&`. Callers who need the original should copy: `auto work = arr;`.
-- **Namespace `detail::`** for partition isolates it from the public API without the `static` linkage boilerplate.
-
----
+- `std::nth_element` is the production choice. The standard only guarantees linear time on average; common implementations use introselect with a guaranteed fallback. This header is for learning.
+- `std::uniform_int_distribution` gives an unbiased pivot index; `rng() % n` would be slightly biased.
+- The loop is iterative, so there is no recursion depth to worry about.
+- The vector is reordered in place; copy it first (`auto work = arr;`) if you need the original.
+- Only `std::vector<int>` is supported; the header is not a template.
 
 ## How to Run
+
+From this folder:
 
 ```bash
 g++ -std=c++17 -O2 -Wall quickselect_test.cpp -o quickselect_test
 ./quickselect_test
 ```
 
----
+## Key Takeaways
 
-## Key Takeaways for Learners
-
-1. **`std::nth_element` > your hand-rolled Quickselect.** Introselect wraps Quickselect with a deterministic fallback, giving O(n) worst case. 99% of the time, reach for it.
-2. **Modulo bias is real.** `rand() % n` isn't uniform. Always use `std::uniform_int_distribution` for correctness — it also handles types other than `int` cleanly.
-3. **Random pivot = random-time algorithm.** Even on adversarial input, the expected run time holds because the adversary can't predict your pivot choices. The math doesn't lie — but the math assumes your RNG is unpredictable.
+- Three bands (`<`, `==`, `>`) keep duplicate-heavy input linear.
+- Use `std::uniform_int_distribution` for the pivot, not a modulo.
+- Prefer `std::nth_element` in real code.

@@ -1,0 +1,206 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+title: Modular Exponentiation
+lead: Modular exponentiation computes base^exponent mod m by square and multiply. It squares the base once per bit of the exponent and multiplies the answer in for every 1 bit, so a power with an exponent near 10^18 takes about 120 multiplications instead of 10^18.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(log e)
+    hint: at most 2 log2(e) + 2 multiplications
+  - label: Extra space
+    value: O(1)
+    hint: O(log e) for the recursive Python version
+  - label: Naive loop
+    value: O(e)
+  - label: Overflow
+    value: 128-bit products
+    hint: 64-bit products fail above about 3.04e9
+    tone: warn
+properties:
+  - { label: Handles negative base, value: true }
+  - { label: Negative exponent (inverse power), value: true }
+  - { label: Needs a prime modulus, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+related:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
+---
+
+## Definition
+
+Given integers `b`, `e >= 0` and `m >= 1`, compute the residue of `b^e` modulo `m`. Two identities make it fast.
+
+<Equation label="Splitting the exponent" expr="b^e = (b^(e/2))^2  (e even),   b^e = b * b^(e-1)  (e odd)" />
+<Equation label="Reduce at any time" expr="(x * y) mod m = ((x mod m) * (y mod m)) mod m" result="intermediate values stay below m" />
+
+By convention `b^0 = 1`, and every result modulo 1 is 0.
+
+## Intuition
+
+Write the exponent in binary. For `13 = 1101`, `b^13 = b^8 * b^4 * b^1`. The powers `b^1, b^2, b^4, b^8, ...` come from squaring the previous one, so reaching `b^(2^k)` costs `k` squarings. Then the bits of the exponent say which of those powers to multiply into the answer. The number of steps is the number of bits of `e`.
+
+<Callout title="Invariant">
+At the top of each loop iteration, `result * base^exponent = b^e (mod m)`. An odd exponent moves one factor of `base` into `result`; halving the exponent while squaring the base keeps the product unchanged. When the exponent reaches 0, `result` is the answer.
+</Callout>
+
+## How it works
+
+<Steps>
+  <Step title="Set up">
+    If `m = 1` return 0. Otherwise `result = 1` and `base = b mod m`; a negative base is reduced into `0 .. m-1` first.
+  </Step>
+  <Step title="Look at the lowest bit">
+    If the exponent is odd, multiply `result` by `base` and reduce modulo `m`.
+  </Step>
+  <Step title="Square and shift">
+    Replace `base` by `base * base mod m` and shift the exponent right by one bit.
+  </Step>
+  <Step title="Repeat">
+    Loop until the exponent is 0, then return `result`.
+  </Step>
+</Steps>
+
+A negative exponent means the inverse power: `b^(-e) = (b^-1)^e`. The code first looks for the inverse of `b` modulo `m` and returns `None` (Python) or `-1` (C++ and Go) if there is none.
+
+## Worked example
+
+`mod_pow(5, 13, 11)`. The binary expansion of 13 is `1101`; the loop reads the bits from the lowest one.
+
+<DataTable
+  columns={['i', 'exponent bit', 'base before squaring', 'result after this bit']}
+  rows={[
+    ['0', '1', '5', '1 * 5 = 5'],
+    ['1', '0', '5^2 = 25 = 3', '5 (unchanged)'],
+    ['2', '1', '3^2 = 9', '5 * 9 = 45 = 1'],
+    ['3', '1', '9^2 = 81 = 4', '1 * 4 = 4'],
+  ]}
+  caption='Everything modulo 11. The answer is 4: 5^13 = 5^1 * 5^4 * 5^8 = 5 * 9 * 4.'
+/>
+
+<ArrayDiagram
+  legend={{ p: 'bit is 1: this power is multiplied into the result', m: 'bit is 0: this power is skipped', f: 'final result' }}
+  rows={[
+    { label: 'bit i of 13', values: [1, 0, 1, 1], tones: 'pmpp', marks: { 0: 'i = 0', 1: 'i = 1', 2: 'i = 2', 3: 'i = 3' }, note: '13 = 1101 in binary, read from the lowest bit.' },
+    { label: '5^(2^i) mod 11', values: [5, 3, 9, 4], tones: 'pmpp', note: 'Each value is the square of the one before it.' },
+    { label: 'result after bit i', values: [5, 5, 1, 4], tones: 'lllf', note: 'The last value is 5^13 mod 11 = 4.' },
+  ]}
+/>
+
+That is 4 squarings and 3 multiplications, against 12 multiplications for the naive loop.
+
+## Pseudocode
+
+```text
+modPow(base, exponent, modulus):
+    if exponent < 0:                        # inverse power
+        inv = modInverse(base, modulus)
+        if inv is none: return none
+        return modPow(inv, -exponent, modulus)
+    if modulus == 1: return 0
+    result = 1
+    base = floorMod(base, modulus)
+    while exponent > 0:
+        if exponent is odd:
+            result = result * base mod modulus      # 128-bit product in C++ and Go
+        base = base * base mod modulus
+        exponent = exponent >> 1
+    return result
+```
+
+The recursive Python version `mod_pow_recursive` returns `(f(e/2))^2` for even `e` and `base * f(e-1)` for odd `e`, with `f(0) = 1`.
+
+## Implementation
+
+Python has the iterative `mod_pow`, the recursive `mod_pow_recursive` and `mod_inverse`. C++ and Go have `modPow` and `modInverse`. Results are always in `[0, modulus)` (an earlier version returned `-3` for `(-2)^3 mod 5` in C++ and Go). In C++ and Go every product goes through a 128-bit multiplication (`__int128`, `math/bits`); the old 64-bit product gave wrong answers for moduli above about 3.04e9, for example `3^1000000 mod (10^18 + 3)`.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Iterative', time: 'O(log e)', space: 'O(1)', when: 'One squaring per bit of e plus one multiplication per 1 bit: at most 2 floor(log2 e) + 2 multiplications.' },
+    { case: 'Recursive (Python)', time: 'O(log e)', space: 'O(log e)', when: 'About two stack frames per bit, because odd steps peel off one factor first.' },
+    { case: 'Naive loop', time: 'O(e)', space: 'O(1)', when: 'e - 1 multiplications; hopeless for e near 10^18.' },
+  ]}
+/>
+
+With 64-bit values each multiplication is `O(1)`. With big integers each one costs more, but the bit-by-bit structure is the same.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Where it appears']}
+  rows={[
+    ['Right-to-left (this code)', 'square the base, multiply result on 1 bits, lowest bit first', 'mod_pow, modPow, ModPow'],
+    ['Recursive', 'halve on even exponents, peel one factor on odd', 'mod_pow_recursive in Python'],
+    ['Left-to-right', 'square the result, multiply by the base on 1 bits, highest bit first', 'not implemented here'],
+    ['Inverse power', 'invert the base, then use |e|', 'negative exponents in all three languages'],
+    ['Matrix power', 'the same loop with matrices', 'Matrix Exponentiation, for linear recurrences'],
+  ]}
+/>
+
+## Modular Exponentiation vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Multiplications', kind: 'mono' }, 'Notes']}
+  highlight={1}
+  rows={[
+    ['Naive loop', 'e - 1', 'fine only for tiny exponents'],
+    ['Square and multiply', 'at most about 2 log2(e)', 'the standard method'],
+    ['Built-in pow(b, e, m) in Python', 'about the same', 'written in C; prefer it in real Python code'],
+    ['Full power, then reduce', '1 huge number', 'b^e has about e log2(b) bits: memory and time explode'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Logarithmic in the exponent, constant extra memory.',
+    'Every intermediate value stays below the modulus.',
+    'The same loop works for matrices, polynomials and other associative products.',
+  ]}
+  cons={[
+    'Needs overflow-free multiplication for a 64-bit modulus.',
+    'A negative exponent needs a modular inverse, which may not exist.',
+    'Not constant time: the branch on each bit leaks the exponent (relevant in cryptography).',
+  ]}
+/>
+
+## Applications
+
+- **Cryptography.** RSA and Diffie-Hellman are modular powers with huge exponents.
+- **Inverses.** For a prime `p`, `a^(p-2) mod p` is the inverse of `a`, by Fermat's little theorem.
+- **Primality tests.** Miller-Rabin and the Fermat test compute `a^d mod n` for each witness.
+- **Counting modulo 10^9 + 7.** Powers of two and inverse factorials in combinatorics problems.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Overflow.** `(result * base) % m` in signed 64-bit is wrong for `m` above about 3.04e9. Multiply in 128 bits.
+- **Negative base.** `%` keeps the sign in C++ and Go: `-2 % 5` is `-2`. Reduce the base into `0 .. m-1` first.
+- **Modulus 1.** The answer is 0, not 1.
+- **Reducing the exponent modulo `m`.** Only valid with Euler's theorem: reduce modulo `phi(m)` and only when the base is coprime to `m`. For a prime modulus `p`, reduce modulo `p - 1`.
+- **Negative exponents without an inverse.** `2^-1 mod 12` does not exist because `gcd(2, 12) = 2`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does squaring the base give the right powers?">
+    Because `(b^(2^i))^2 = b^(2^(i+1))`. After `i` squarings the base is `b^(2^i)`, and the bits of the exponent select which of those powers multiply into the product.
+  </FaqItem>
+  <FaqItem question="How many multiplications does it really take?">
+    One squaring per bit of the exponent and one multiplication per 1 bit. For `e = 13` (`1101`) the loop squares 4 times and multiplies 3 times. In general at most `2 floor(log2 e) + 2`.
+  </FaqItem>
+  <FaqItem question="What is 0^0?">
+    The code returns 1 for any base with exponent 0 when the modulus is greater than 1, so `0^0 = 1`, the usual convention here. With modulus 1 everything is 0.
+  </FaqItem>
+  <FaqItem question="Does the modulus have to be prime?">
+    No. Square and multiply works for any positive modulus. Only the tricks built on top of it need conditions: Fermat's inverse `a^(p-2)` needs a prime `p`, and a negative exponent needs `gcd(base, m) = 1`.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,228 @@
+---
+topic: Problem_Patterns/Graph_Traversal_Problems
+title: Graph Traversal Problems
+lead: Many problems are a graph in disguise, such as a grid of land and water, a set of course prerequisites or a maze. Traversal with BFS, DFS or Kahn's algorithm visits each vertex and edge once and answers reachability, shortest-path, component and ordering questions in O(V + E).
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V + E)
+    hint: every vertex and edge once
+  - label: Grid flood fill
+    value: O(R * C)
+    hint: each cell once
+  - label: Extra space
+    value: O(V)
+    hint: visited set plus queue or stack
+  - label: Shortest path
+    value: Unweighted only
+    hint: BFS counts edges, not weights
+    tone: warn
+properties:
+  - { label: Works on unweighted graphs, value: true }
+  - { label: Handles weights, value: false }
+  - { label: Detects cycles (Kahn), value: true }
+prerequisites:
+  - Data_Structures/Non_Linear/Graph
+related:
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+  - Problem_Patterns/Union_Find_Applications
+---
+
+## When to use it
+
+Signals in a problem statement:
+
+- "fewest moves / steps / edges" with every move costing the same: **BFS**;
+- "can I reach B from A", "how many connected regions", "count the islands": **flood fill** (DFS or BFS);
+- "do tasks with prerequisites have a valid order", "detect a cycle in dependencies": **topological sort**;
+- a grid, a board or a state space where each state has a few neighbours.
+
+If edges have different weights, BFS is wrong; use Dijkstra instead.
+
+## How it works
+
+All traversals share one loop: take a node from a frontier, mark it visited, add its unvisited neighbours. The data structure chosen for the frontier gives the order.
+
+<DataTable
+  columns={['Traversal', 'Frontier', 'Order', 'Best for']}
+  rows={[
+    ['BFS', 'queue (FIFO)', 'by distance, layer by layer', 'shortest path in unweighted graphs'],
+    ['DFS', 'stack or recursion (LIFO)', 'goes deep first', 'components, flood fill, reachability'],
+    ['Kahn (topological sort)', 'queue of in-degree 0 nodes', 'dependencies first', 'ordering, cycle detection'],
+  ]}
+/>
+
+<Steps>
+  <Step title="Represent the graph">
+    An adjacency list (`dict` of node to neighbours) for general graphs. For a grid, the neighbours of `(r, c)` are the four cells next to it that are inside the grid.
+  </Step>
+  <Step title="Mark nodes visited when they enter the frontier">
+    For BFS, mark on push, not on pop, so a node is never queued twice.
+  </Step>
+  <Step title="Process until the frontier is empty">
+    BFS pops from the front and pushes neighbours with `dist + 1`. DFS pops from the back. Kahn pops nodes whose in-degree has dropped to 0.
+  </Step>
+</Steps>
+
+<Callout title="Why BFS gives shortest paths">
+BFS removes nodes from the queue in order of non-decreasing distance. The first time a node is reached is therefore by a shortest route, because every shorter route would already have been explored layer by layer.
+</Callout>
+
+## Template
+
+```text
+bfs_shortest_path(graph, start, target):
+    if start not in graph: return -1
+    if start == target: return 0
+    queue = [(start, 0)]; visited = {start}
+    while queue:
+        node, dist = queue.pop_front()
+        if node == target: return dist
+        for nb in graph.get(node, []):
+            if nb not in visited:
+                visited.add(nb); queue.push_back((nb, dist + 1))
+    return -1
+
+num_islands(grid):                        # flood fill, modifies the grid
+    count = 0
+    for each cell (r, c) with grid[r][c] == '1':
+        count += 1
+        sink(r, c)                        # DFS: turn every connected '1' into '0'
+    return count
+
+topological_sort(n, edges):               # Kahn
+    queue = all nodes with in_degree 0
+    while queue:
+        u = queue.pop_front(); order.append(u)
+        for v in adj[u]:
+            in_degree[v] -= 1
+            if in_degree[v] == 0: queue.push_back(v)
+    return order if len(order) == n else []     # empty means a cycle
+```
+
+## Worked example: BFS distances
+
+Graph `0-1, 0-2, 1-3, 2-3, 3-4` from node 0 (`bfs_shortest_path(graph, 0, 4)` returns 3). The number above each node is its distance:
+
+<GraphDiagram
+  edges="0-1, 0-2, 1-3, 2-3, 3-4"
+  positions={{ 0: [5, 50], 1: [35, 12], 2: [35, 88], 3: [65, 50], 4: [95, 50] }}
+  tones={{ 0: 'p', 1: 'l', 2: 'l', 3: 'r', 4: 'f' }}
+  badges={{ 0: '0', 1: '1', 2: '1', 3: '2', 4: '3' }}
+  path="0,1,3,4"
+  width={520}
+  height={240}
+  legend={{ p: 'start (layer 0)', l: 'layer 1', r: 'layer 2', f: 'target (layer 3), one shortest path highlighted' }}
+/>
+
+The queue runs `0`, then `1, 2`, then `3` (found from 1, so 2 does not add it again), then `4`.
+
+## Worked example: counting islands
+
+The grid below has three islands. Starting a flood fill at each unvisited `1` and sinking everything connected to it counts one island per fill:
+
+<GridDiagram
+  rows={[[1, 1, 0, 0, 0], [1, 1, 0, 0, 0], [0, 0, 2, 0, 0], [0, 0, 0, 3, 3]]}
+  tones={['ffmmm', 'ffmmm', 'mmlmm', 'mmmrr']}
+  legend={{ f: 'island 1 (first fill)', l: 'island 2', r: 'island 3', m: 'water' }}
+  caption="Cells are labelled with the island they belong to. Diagonal cells do not connect: the 2 and the 3 are separate islands."
+/>
+
+## Worked example: topological order
+
+Courses with prerequisites `1 -> 0`, `2 -> 0`, `3 -> 1`, `3 -> 2` (an edge `u -> v` means `u` comes before `v`). `topological_sort(4, edges)` returns `[3, 1, 2, 0]`: node 3 has in-degree 0, removing it frees 1 and 2, and removing both frees 0.
+
+<GraphDiagram
+  edges="3->1, 3->2, 1->0, 2->0"
+  positions={{ 3: [8, 50], 1: [40, 15], 2: [40, 85], 0: [92, 50] }}
+  tones={{ 3: 'p', 1: 'l', 2: 'l', 0: 'f' }}
+  badges={{ 3: 'in 0', 1: 'in 1', 2: 'in 1', 0: 'in 2' }}
+  width={520}
+  height={240}
+  legend={{ p: 'removed first (in-degree 0)', l: 'freed after 3 is removed', f: 'last: needs both 1 and 2' }}
+/>
+
+If the output has fewer than `n` nodes, some nodes never reached in-degree 0, which means a cycle: `topological_sort(2, [[0, 1], [1, 0]])` returns an empty list.
+
+## Implementation
+
+Python provides `bfs_shortest_path`, `get_dfs_traversal`, `num_islands` and `topological_sort`. C++ (`GraphTraversal::` static methods) and Go (`BFSShortestPath`, `NumIslands`, `TopologicalSort`) provide BFS, flood fill and Kahn, but no standalone DFS traversal.
+
+Things to know:
+
+- The target of `bfs_shortest_path` need not be a key of the graph, so sink nodes of a directed graph are reachable.
+- Python's DFS and flood fill use an explicit stack, so deep inputs do not hit the recursion limit. The C++ and Go flood fills still recurse: a very large single island can exhaust the stack in C++.
+- `num_islands` overwrites visited cells with `'0'` in all three languages: pass a copy if you need the grid afterwards.
+- `topological_sort` returns an empty list on a cycle. In C++ edge endpoints must be below `n`; there is no bounds check.
+
+<TopicCode topic="Problem_Patterns/Graph_Traversal_Problems" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'BFS / DFS on a graph', time: 'O(V + E)', when: 'Each vertex enters the frontier once and each adjacency list is scanned once.' },
+    { case: 'Flood fill on an R by C grid', time: 'O(R * C)', when: 'Each cell is sunk once and looks at 4 neighbours.' },
+    { case: 'Kahn topological sort', time: 'O(V + E)', when: 'Build in-degrees in O(E), then each edge is relaxed once.' },
+  ]}
+/>
+
+Space is <BigO of="V" />: the visited set plus the queue or stack. Kahn also stores the adjacency list, <BigO of="V + E" />.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Number of Islands (LeetCode 200)', 'flood fill from every unvisited land cell'],
+    ['Flood Fill (LeetCode 733)', 'DFS or BFS from the start pixel'],
+    ['Rotting Oranges (LeetCode 994)', 'multi-source BFS, one layer per minute'],
+    ['Word Ladder (LeetCode 127)', 'BFS over words, an edge when they differ by one letter'],
+    ['Course Schedule (LeetCode 207)', 'Kahn: can all courses be ordered, i.e. no cycle'],
+    ['Course Schedule II (LeetCode 210)', 'Kahn: output the order'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Change']}
+  rows={[
+    ['Multi-source BFS', 'push all sources at distance 0 first'],
+    ['Grid with 8 neighbours', 'use 8 offsets instead of 4'],
+    ['Bidirectional BFS', 'search from both ends, meet in the middle'],
+    ['0-1 BFS', 'deque instead of queue for edge weights 0 and 1'],
+    ['DFS with timestamps', 'cycle detection, bridges, strongly connected components'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Marking visited on pop in BFS.** The same node can be queued many times, and on dense graphs that costs far more than O(V + E).
+- **Using BFS with weights.** It counts edges. Weighted graphs need Dijkstra.
+- **Requiring the target to be a key.** In a directed adjacency list, a node with no outgoing edges often has no entry.
+- **Deep recursion.** Recursive DFS on a long path or a big grid overflows the call stack. Use an explicit stack.
+- **Mutating the input.** Sinking islands destroys the grid; copy first or keep a separate visited array.
+- **Forgetting the cycle case.** A short Kahn output means a cycle, and you must report it instead of returning a partial order.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="BFS or DFS: which one should I use?">
+    BFS when you need the fewest steps. For plain reachability, counting components and flood fill, either works; DFS needs less memory on wide graphs, BFS needs less on deep ones.
+  </FaqItem>
+  <FaqItem question="Can BFS find the shortest path in a weighted graph?">
+    Only if all weights are equal. With weights 0 and 1 use 0-1 BFS, otherwise use Dijkstra.
+  </FaqItem>
+  <FaqItem question="How does Kahn's algorithm detect a cycle?">
+    Nodes on a cycle always have a predecessor that is also on the cycle, so their in-degree never reaches 0 and they are never output. If the output is shorter than n, a cycle exists.
+  </FaqItem>
+  <FaqItem question="Why do diagonal neighbours not count in Number of Islands?">
+    The standard problem defines connectivity by the four edge-sharing neighbours. The code here uses exactly those four offsets; add four more for 8-connectivity.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,132 @@
+---
+category: Algorithms/Divide_and_Conquer
+title: Divide and Conquer Algorithms
+lead: Divide and conquer splits a problem into smaller copies of itself, solves them recursively and combines the answers. This folder holds one topic, Strassen's matrix multiplication, and links to the divide-and-conquer algorithms that live in other categories.
+updated: 2026-11-13
+facts:
+  - label: Merge Sort
+    value: O(n log n)
+    hint: two halves plus a linear merge
+  - label: Binary Search
+    value: O(log n)
+    hint: one half, constant work to choose it
+  - label: Strassen
+    value: O(n^2.81)
+    hint: seven half-size products instead of eight
+contents:
+  - folder: Strassens_Matrix_Multiplication
+    note: Seven half-size products instead of eight lower n^3 to about n^2.81. The example that wins by saving one recursive call.
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Searching/Binary_Search
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform
+---
+
+## The problem
+
+Divide and conquer is a paradigm, not one problem. It fits problems that contain smaller instances of themselves. The recipe has three steps:
+
+- **Divide.** Split the input into smaller subproblems of the same kind.
+- **Conquer.** Solve each subproblem recursively. A subproblem small enough to answer directly ends the recursion.
+- **Combine.** Build the answer to the whole problem from the answers to the parts.
+
+Where the work happens separates the algorithms. Merge Sort splits cheaply and does its work when combining. Quick Sort does its work when dividing and combines for free. Binary Search discards all but one part, so it has nothing to combine. Strassen's algorithm saves work by making fewer recursive calls.
+
+This folder has one topic of its own, Strassen's matrix multiplication. The other divide-and-conquer algorithms in the repository sit in the category of their problem, so the table below links to them.
+
+## At a glance
+
+<DataTable
+  columns={['Algorithm', 'Divide', 'Combine', { label: 'Recurrence', kind: 'mono' }, { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['Merge Sort', 'two halves of the array', 'merge the sorted halves in O(n)', 'T(n) = 2T(n/2) + O(n)', 'O(n log n)'],
+    ['Quick Sort', 'partition around a pivot', 'nothing: the parts are already in place', 'two parts of sizes that depend on the pivot, O(n) to partition', 'O(n log n) average, O(n^2) worst'],
+    ['Binary Search', 'compare with the middle, keep one half', 'nothing', 'T(n) = T(n/2) + O(1)', 'O(log n)'],
+    ['Strassen', 'four blocks of each matrix, seven products', 'add and subtract the products', 'T(n) = 7T(n/2) + O(n^2)', 'O(n^2.81)'],
+    ['Closest Pair of Points', 'split the points at a vertical line', 'check a narrow strip around the line', 'solves both halves, then a linear strip check', 'O(n log n)'],
+    ['Fast Fourier Transform', 'split into even and odd positions', 'combine the two half transforms', 'two half-size transforms plus a linear combine', 'O(n log n)'],
+  ]}
+/>
+
+Merge Sort, Quick Sort and Binary Search live in `Algorithms/Sorting` and `Algorithms/Searching`. Closest Pair of Points is in computational geometry and the Fast Fourier Transform in mathematical algorithms.
+
+## A worked example: where Strassen's saving comes from
+
+Strassen's algorithm splits each `n x n` matrix into four blocks. The schoolbook rule for blocks needs eight block products, so `T(n) = 8T(n/2) + O(n^2)`, which solves to `O(n^3)`: no gain at all. Strassen's seven products give `T(n) = 7T(n/2) + O(n^2)`, which solves to `O(n^2.81)`. One recursive call fewer is enough to change the exponent.
+
+The repository's Python code was run on random integer matrices, with the naive triple loop counted at the cutoff of `n <= 64`:
+
+<DataTable
+  columns={['Matrix size', 'Levels of splitting', { label: 'Naive products of 64 x 64 blocks', kind: 'mono' }, { label: 'With eight products per split', kind: 'mono' }]}
+  rows={[
+    ['128 x 128', '1', '7', '8'],
+    ['256 x 256', '2', '49', '64'],
+    ['512 x 512', '3', '343', '512'],
+  ]}
+/>
+
+Each extra level multiplies the count by 7 and not 8, so the saving grows with the size of the matrix. The result matches the naive product exactly on every run.
+
+## Complexity
+
+A divide-and-conquer recurrence has the form `T(n) = a T(n/b) + f(n)`: `a` subproblems of size `n/b`, plus `f(n)` work to divide and combine. Which term dominates decides the result:
+
+<DataTable
+  columns={['Case', 'What happens', 'Example', { label: 'Result', kind: 'mono' }]}
+  rows={[
+    ['Every level costs about the same', 'the work per level is n and there are log n levels', 'Merge Sort', 'O(n log n)'],
+    ['The root dominates', 'the combine step costs more than all the smaller levels together', 'Randomized Quickselect (expected time)', 'O(n)'],
+    ['The leaves dominate', 'the number of leaves, `a^(log_b n)`, outgrows the work per level', 'Strassen', 'O(n^(log2 7)) = O(n^2.81)'],
+    ['One subproblem, constant work', 'the range shrinks by a factor of `b` each step', 'Binary Search', 'O(log n)'],
+  ]}
+/>
+
+The recursion also costs memory. The depth of the recursion is `log n` when the parts are even, and Quick Sort's Python version keeps it that way by recursing into the smaller side first. Merge Sort adds O(n) for its temporary halves and Strassen adds O(n^2) for its block sums.
+
+## Choosing divide and conquer
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['The problem contains smaller copies of itself and the answers combine cheaply', 'divide and conquer', 'the recursion is short and the cost follows from the recurrence'],
+    ['The subproblems overlap, as in Fibonacci numbers', 'dynamic programming', 'plain recursion would solve the same subproblem many times'],
+    ['A local rule is provably safe', 'a greedy algorithm', 'no recursion over the parts is needed'],
+    ['Small inputs inside a large recursion', 'a direct method below a cutoff', 'Strassen uses the naive loop for `n <= 64`'],
+    ['Multiplying matrices in practice', 'the schoolbook method or a tuned library', 'Strassen is not numerically stable and pays off only for large matrices'],
+  ]}
+/>
+
+## Applications
+
+- **Sorting and searching.** Merge Sort, Quick Sort and Binary Search.
+- **Geometry.** Finding the closest pair of points.
+- **Signal processing and polynomials.** The Fast Fourier Transform multiplies polynomials and convolves sequences.
+- **Linear algebra.** Strassen's algorithm for large matrix products.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Missing or wrong base case.** Without a direct answer for the smallest parts, the recursion never ends.
+- **Uneven splits.** Quick Sort with a bad pivot makes one part empty at every step and becomes O(n^2).
+- **A combine step that is too slow.** Copying whole arrays at every level of the recursion can turn O(n log n) into something worse.
+- **Using it when subproblems overlap.** Divide and conquer recomputes them. Use dynamic programming instead.
+- **Ignoring the cutoff.** Recursing all the way down costs more than a direct method on small inputs, which is why Strassen's code here switches to the naive loop at `n <= 64`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How is divide and conquer different from dynamic programming?">
+    Both split a problem into subproblems. Divide and conquer needs the subproblems to be independent, so each is solved once. Dynamic programming is for overlapping subproblems and stores the answers so that each is solved once.
+  </FaqItem>
+  <FaqItem question="Why does Strassen's algorithm use only seven products?">
+    Strassen found seven products of sums and differences of blocks whose combinations give all four result blocks. Every cross term cancels, so the result equals the schoolbook value. That changes the recurrence from `8T(n/2)` to `7T(n/2)` and the exponent from 3 to about 2.81.
+  </FaqItem>
+  <FaqItem question="Which topics use divide and conquer?">
+    Merge Sort, Quick Sort and Binary Search in sorting and searching, Closest Pair of Points in geometry, the Fast Fourier Transform in mathematical algorithms, and Strassen's algorithm here. The links under related lead to each.
+  </FaqItem>
+</Faq>

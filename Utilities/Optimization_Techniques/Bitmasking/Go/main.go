@@ -2,7 +2,10 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/bits"
+)
 
 // Basic Bit Operations
 
@@ -67,6 +70,9 @@ func EnumerateSubsets(mask int) []int {
 // TSP solves Traveling Salesman Problem using bitmask DP
 func TSP(dist [][]int) int {
 	n := len(dist)
+	if n <= 1 {
+		return 0 // nothing to visit: the tour has length 0
+	}
 	const INF = 1 << 30
 
 	// dp[mask][last] = minimum distance to visit all cities in mask, ending at last
@@ -146,13 +152,8 @@ func NextPowerOf2(n int) int {
 	if n <= 0 {
 		return 1
 	}
-	n--
-	n |= n >> 1
-	n |= n >> 2
-	n |= n >> 4
-	n |= n >> 8
-	n |= n >> 16
-	return n + 1
+	// bits.Len works for the full width of int, unlike a fixed shift-or ladder.
+	return 1 << bits.Len(uint(n-1))
 }
 
 // SOSDP computes Sum Over Subsets DP
@@ -161,12 +162,12 @@ func SOSDP(a []int) []int {
 	dp := make([]int, n)
 	copy(dp, a)
 
-	bits := 0
-	for (1 << bits) < n {
-		bits++
+	width := 0
+	for (1 << width) < n {
+		width++
 	}
 
-	for i := 0; i < bits; i++ {
+	for i := 0; i < width; i++ {
 		for mask := 0; mask < n; mask++ {
 			if mask&(1<<i) != 0 {
 				dp[mask] += dp[mask^(1<<i)]

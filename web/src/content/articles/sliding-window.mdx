@@ -1,0 +1,193 @@
+---
+topic: Problem_Patterns/Sliding_Window
+title: Sliding Window
+lead: A sliding window keeps a contiguous range of an array or string and moves its two ends forward, updating the answer incrementally instead of recomputing it. That turns many "best subarray or substring" problems from O(n<sup>2</sup>) or worse into a single O(n) pass.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n)
+    hint: each end moves at most n steps
+  - label: Extra space
+    value: O(1) to O(k)
+    hint: a running sum, or a frequency map
+  - label: Window types
+    value: Fixed or variable
+    hint: fixed size k, or grow-and-shrink until valid
+  - label: Requirement
+    value: Monotone validity
+    hint: shrinking a valid window must keep it valid
+    tone: warn
+properties:
+  - { label: In-place, value: true }
+  - { label: Online, value: true }
+  - { label: Needs sorted input, value: false }
+prerequisites:
+  - Data_Structures/Linear/Array
+related:
+  - Problem_Patterns/Two_Pointers
+  - Problem_Patterns/Monotonic_Queue
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+  - Data_Structures/Hashing/Hash_Table
+---
+
+## When to use it
+
+Signals in a problem statement:
+
+- "longest / shortest / maximum / minimum **contiguous** subarray or substring" with some condition;
+- "every window of size k": a **fixed** window;
+- a condition that gets easier when the window shrinks and harder when it grows (at most k distinct characters, no repeats, all required characters present): a **variable** window;
+- the input has non-negative values, or is a string, so the validity of the window is monotone.
+
+With negative numbers a sum condition is not monotone, and you need prefix sums with a hash map instead.
+
+## How it works
+
+Two indices `left` and `right` bound the window. `right` only moves forward; `left` only moves forward.
+
+<Steps>
+  <Step title="Expand">
+    Move `right` one step and add the new element to the window state (a sum, or a count in a frequency map).
+  </Step>
+  <Step title="Shrink while invalid">
+    While the window breaks the rule, remove `arr[left]` from the state and advance `left`.
+  </Step>
+  <Step title="Record the answer">
+    The window is now valid (or, for "minimum window", just became valid). Update the best length, sum or substring.
+  </Step>
+</Steps>
+
+For a **fixed** window of size k there is no shrink loop: add `arr[i]` and remove `arr[i - k]` in one step.
+
+<Callout title="Why it is O(n)">
+`right` advances n times and `left` advances at most n times in total. The inner `while` loop does not restart from scratch, so the total work is at most 2n steps even though the loops are nested.
+</Callout>
+
+## See it in action
+
+Enter a string and a limit k, then press Apply. The window slides over the characters with a live count of each letter. Watch `right` add a character, and `left` drop characters until the window is valid again.
+
+<ArticleViz ids={['sliding-window']} />
+
+## Template
+
+```text
+# variable window: longest substring with at most k distinct characters
+longest_substring_k_distinct(s, k):
+    if s is empty or k == 0: return 0
+    count = {};  left = 0;  best = 0
+    for right in 0 .. n - 1:
+        count[s[right]] += 1                      # expand
+        while len(count) > k:                     # shrink while invalid
+            count[s[left]] -= 1
+            if count[s[left]] == 0: delete count[s[left]]
+            left += 1
+        best = max(best, right - left + 1)        # window is valid here
+    return best
+
+# fixed window: maximum sum of k consecutive elements
+max_sum_subarray(arr, k):
+    if k <= 0 or k > len(arr): return 0
+    window = sum(arr[0 .. k - 1]);  best = window
+    for i in k .. n - 1:
+        window = window - arr[i - k] + arr[i]
+        best = max(best, window)
+    return best
+```
+
+## Worked example
+
+`longest_substring_k_distinct("eceba", 2)` returns 3 (the substring `ece`). The brackets in the notes show the window, and each row is the state after one `right` step finished shrinking:
+
+<ArrayDiagram
+  legend={{ l: 'inside the window', f: 'the best window so far', m: 'left behind' }}
+  rows={[
+    { label: 'right = 0', values: ['e', 'c', 'e', 'b', 'a'], tones: 'l....', marks: { 0: 'L, R' }, note: 'Window `e`, 1 distinct.' },
+    { label: 'right = 1', values: ['e', 'c', 'e', 'b', 'a'], tones: 'll...', marks: { 0: 'L', 1: 'R' }, note: 'Window `ec`, 2 distinct: valid, best = 2.' },
+    { label: 'right = 2', values: ['e', 'c', 'e', 'b', 'a'], tones: 'fff..', marks: { 0: 'L', 2: 'R' }, note: 'Window `ece`, still 2 distinct: best = 3.' },
+    { label: 'right = 3', values: ['e', 'c', 'e', 'b', 'a'], tones: 'mmll.', marks: { 2: 'L', 3: 'R' }, note: '`b` makes 3 distinct. Shrink: drop `e`, then `c` (its count reaches 0). Window `eb`.' },
+    { label: 'right = 4', values: ['e', 'c', 'e', 'b', 'a'], tones: 'mmmll', marks: { 3: 'L', 4: 'R' }, note: '`a` makes 3 distinct again. Drop `e` (index 2). Window `ba`, length 2. The best stays 3.' },
+  ]}
+/>
+
+For the fixed window, `max_sum_subarray([1, 4, 2, 10, 23, 3, 1, 0, 20], 4)` slides through six windows with sums 17, 39, 38, 37, 27 and 24, and returns 39. Each step subtracts the element that leaves and adds the one that enters.
+
+## Implementation
+
+Four functions exist in all three languages:
+
+- `max_sum_subarray(arr, k)`: fixed window; returns 0 when `k <= 0` or `k > len(arr)`.
+- `longest_substring_k_distinct(s, k)`: variable window with a count map; returns 0 for an empty string or `k == 0`.
+- `min_window_substring(s, t)`: smallest window of `s` containing every character of `t` with multiplicity; returns an empty string if there is none. The `valid` counter tracks how many distinct needed characters are satisfied.
+- `longest_substring_no_repeat(s)`: variable window with a last-seen index map, so `left` jumps instead of shrinking one step at a time.
+
+The strings are treated as bytes in C++ and Go (Python uses code points), so non-ASCII text may behave differently.
+
+<TopicCode topic="Problem_Patterns/Sliding_Window" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Fixed window', time: 'O(n)', when: 'One pass; each step updates the sum in O(1).' },
+    { case: 'Variable window', time: 'O(n)', when: 'Both pointers only move forward, at most n steps each. Map operations are O(1) on average.' },
+    { case: 'Minimum window substring', time: 'O(|s| + |t|)', when: 'Counting t costs |t|; the window pass costs |s|.' },
+  ]}
+/>
+
+Space is <BigO of="1" /> for the fixed window and <BigO of="k" /> (or the alphabet size) for a frequency map.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Type', 'Idea']}
+  rows={[
+    ['Maximum Average Subarray I (LeetCode 643)', 'fixed', 'sliding sum of size k'],
+    ['Longest Substring Without Repeating Characters (LeetCode 3)', 'variable', 'jump left past the previous occurrence'],
+    ['Longest Substring with At Most K Distinct Characters (LeetCode 340)', 'variable', 'count map, shrink while distinct > k'],
+    ['Minimum Window Substring (LeetCode 76)', 'variable', 'shrink while all of t is covered'],
+    ['Permutation in String (LeetCode 567)', 'fixed', 'window of length |t| with equal counts'],
+    ['Minimum Size Subarray Sum (LeetCode 209)', 'variable', 'positive numbers: shrink while the sum is at least the target'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Shrink when', 'Record the answer']}
+  rows={[
+    ['Longest valid window', 'the window is invalid', 'after shrinking'],
+    ['Shortest valid window', 'the window is valid', 'inside the shrink loop (before moving left)'],
+    ['Fixed size k', 'always, one element per step', 'every step'],
+    ['Last-seen index jump', 'a repeat is found', 'every step'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Recording the minimum window outside the shrink loop.** For the shortest window, update the answer while the window is still valid, before you advance `left`.
+- **Forgetting to delete zero counts.** `len(count)` counts distinct characters only if entries with count 0 are removed.
+- **Negative numbers in a sum condition.** Shrinking no longer fixes a too-large sum, so the window logic breaks. Use prefix sums and a hash map.
+- **Off-by-one in the length.** The window `[left, right]` has `right - left + 1` elements.
+- **Bad k.** `k <= 0` or `k` larger than the array has no valid window; the functions here return 0 for the fixed sum.
+- **Updating `left` when the repeat is outside the window.** In the last-seen map version, move `left` only if the stored index is `>= left`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Fixed window or variable window?">
+    If the problem says "of size k", it is a fixed window. If it asks for the longest or shortest range that satisfies a condition, it is variable: expand on the right and shrink on the left.
+  </FaqItem>
+  <FaqItem question="How does it differ from two pointers?">
+    Sliding window is two pointers moving in the same direction over a contiguous range, with window state kept up to date. Opposite-end two pointers work on sorted arrays and shrink inwards.
+  </FaqItem>
+  <FaqItem question="Why does the nested loop not make it O(n^2)?">
+    `left` never moves backwards, so across the whole run it advances at most n times. The inner loop is amortized.
+  </FaqItem>
+  <FaqItem question="What if I need the maximum of each window?">
+    Use a monotonic queue: it keeps the window maximum at the front in O(1).
+  </FaqItem>
+</Faq>

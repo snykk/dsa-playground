@@ -1,0 +1,150 @@
+---
+category: Algorithms/Dynamic_Programming/Linear_DP
+title: Linear Dynamic Programming
+lead: Linear DP uses a one-dimensional table, indexed by a position in a sequence or by an amount. Coin Change, the Longest Increasing Subsequence and Kadane's algorithm all fill that table left to right, and they differ in what an entry means and how many earlier entries it reads.
+updated: 2026-11-13
+facts:
+  - label: Coin Change
+    value: O(n*A)
+    hint: n coins, amount A, O(A) space
+  - label: LIS table
+    value: O(n^2)
+    hint: each element looks back at all earlier ones
+  - label: LIS with tails
+    value: O(n log n)
+    hint: binary search over the smallest tails
+  - label: Kadane
+    value: O(n)
+    hint: one pass, O(1) space
+  - label: Greedy on coins
+    value: Not always optimal
+    hint: coins 1, 3, 4 and amount 6
+    tone: warn
+  - label: Table
+    value: one array
+    hint: dp[i] or dp[amount]
+contents:
+  - folder: Coin_Change
+    note: Fewest coins, or number of ways, for an amount. Each entry reads one earlier entry per coin, and greedy can fail.
+  - folder: Longest_Increasing_Subsequence
+    note: dp[i] is the longest run ending at i. The O(n^2) table has an O(n log n) version that keeps only the smallest tail per length.
+  - folder: Maximum_Subarray_Kadanes_Algorithm
+    note: Best sum of a run ending here, so each entry reads only the previous one. That makes it O(n) time and O(1) space.
+prerequisites:
+  - Algorithms/Dynamic_Programming/Basic_DP
+related:
+  - Algorithms/Dynamic_Programming/2D_DP
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
+---
+
+## The problem
+
+Each topic here keeps one array and fills it in one direction. What changes is the meaning of an entry and which earlier entries it reads.
+
+<DataTable
+  columns={['Topic', 'Entry', 'Reads']}
+  rows={[
+    ['Coin Change', '`dp[a]`: fewest coins for amount `a` (or the number of ways)', '`dp[a - c]` for every coin `c`'],
+    ['LIS', '`dp[i]`: length of the longest increasing run that ends at index `i`', '`dp[j]` for every `j < i` with `arr[j] < arr[i]`'],
+    ['Kadane', 'the best sum of a run that ends at index `i`', 'the previous entry only'],
+  ]}
+/>
+
+An entry is a state, and the final answer is either the last entry (Coin Change) or the best entry (LIS, Kadane).
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Question answered', 'Key property', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['Coin Change', 'fewest coins, or the number of ways, to make an amount', 'each coin can be reused; greedy fails for some coin sets', 'O(n*A)', 'O(A)'],
+    ['LIS', 'length of the longest strictly increasing subsequence', 'a subsequence may skip elements; the answer is not unique', 'O(n^2), or O(n log n) with tails', 'O(n)'],
+    ['Kadane', 'largest sum of a non-empty contiguous run', 'restart when the running sum is worse than the element alone', 'O(n)', 'O(1)'],
+  ]}
+/>
+
+## See them side by side
+
+The tabs show one topic each, and the LIS appears twice, as the O(n^2) table and as the O(n log n) tails. Try `6 | 1, 3, 4` in Coin Change (greedy fails), and the **Textbook** example in Kadane. Paste one array into both LIS tabs and compare how each one reaches the same length.
+
+<ArticleViz ids={['coin-change', 'lis', 'lis-tails', 'kadane']} />
+
+## Three answers from the repository code
+
+Coin Change with coins `1, 3, 4` and amount 6, from `coin_change.py`:
+
+<DataTable
+  columns={['Function', 'Question', 'Result']}
+  rows={[
+    ['`coin_change_min_coins([1, 3, 4], 6)`', 'fewest coins, each coin reusable', '2'],
+    ['`coin_change_ways([1, 3, 4], 6)`', 'number of combinations', '4'],
+    ['`coin_change_01([1, 3, 4], 6)`', 'fewest coins, each coin used at most once', '-1 (impossible)'],
+  ]}
+/>
+
+Taking the largest coin first gives 4 + 1 + 1, three coins, while 3 + 3 uses two. The only difference between the first and third function is the loop direction over amounts: upward lets a coin repeat, downward allows it once.
+
+On the array `10, 9, 2, 5, 3, 7, 101, 18`, `lis_dp` and `lis_binary_search` both return 4, and `lis_with_sequence` returns the run `2, 5, 7, 101`. On `-2, 1, -3, 4, -1, 2, 1, -5, 4`, `kadane_with_indices` returns the sum 6 over indices 3 to 6.
+
+## Complexity
+
+<DataTable
+  columns={['Topic', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['Coin Change', 'O(n*A)', 'O(A)', 'the same for the min, ways and 0/1 versions'],
+    ['LIS, table', 'O(n^2)', 'O(n)', '`lis_with_sequence` adds a parent array to recover the run'],
+    ['LIS, tails', 'O(n log n)', 'O(n)', 'returns the length only; the tails array is not itself an LIS'],
+    ['Kadane', 'O(n)', 'O(1)', '`kadane_dp` keeps an O(n) table instead'],
+  ]}
+/>
+
+Coin Change is pseudo-polynomial: A is a value, not a count of digits, so a huge amount makes the table unusable.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Make an amount from reusable coins with the fewest coins', 'Coin Change, min coins', 'greedy is not safe for every coin set'],
+    ['Count the ways to make an amount', 'Coin Change, ways', 'the loops sum instead of taking a minimum'],
+    ['Each coin can be used once', 'Coin Change, 0/1 version', 'loop the amounts downward'],
+    ['Longest increasing run, small n or the run itself needed', 'LIS table', 'the parent array recovers the subsequence'],
+    ['Longest increasing run, large n', 'LIS with tails', 'O(n log n) by binary search'],
+    ['Best contiguous sum', 'Kadane', 'one pass and two numbers'],
+    ['Items are limited by a budget', '0/1 Knapsack in 2D DP', 'the state needs both the item and the capacity'],
+  ]}
+/>
+
+## Applications
+
+- **Payments and change-making.** Fewest coins or bills for an amount, when the denominations are not canonical.
+- **Sequence analysis.** LIS is used for patience-sorting style problems and for comparing orderings.
+- **Signals and time series.** Kadane finds the best stretch of gains, such as the best window of daily changes.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Trusting greedy for coins.** It fails for `1, 3, 4`, and DP is correct for any coin set.
+- **Using the wrong loop direction.** Upward over amounts allows reuse, downward allows one use per coin.
+- **Treating equal values as increasing.** The LIS here is strictly increasing, so `7, 7, 7` has length 1.
+- **Returning the tails array as the LIS.** It holds the smallest tail per length, and it need not be a subsequence of the input.
+- **Forgetting the all-negative case.** Kadane must return the largest element, because the run cannot be empty. Empty input returns 0.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Coin Change first, because it extends the Climbing Stairs table with a choice per entry. Then LIS, which looks back at every earlier entry, and Kadane, which looks back at one.
+  </FaqItem>
+  <FaqItem question="Is Kadane's algorithm really dynamic programming?">
+    Yes. The state is the best sum of a run that ends at `i`, and the transition is `max(arr[i], previous + arr[i])`. Because it reads one earlier value, two variables replace the table.
+  </FaqItem>
+  <FaqItem question="Why is the LIS tails method correct if tails is not an LIS?">
+    Only the length of `tails` is used. Its entry `k` is the smallest last value of any increasing run of length `k+1`, and that array stays sorted, so binary search finds where each value goes.
+  </FaqItem>
+  <FaqItem question="How does this differ from 2D DP?">
+    Linear DP needs one index per state. 2D DP needs two, such as an item and a capacity, or a position in each of two strings.
+  </FaqItem>
+</Faq>

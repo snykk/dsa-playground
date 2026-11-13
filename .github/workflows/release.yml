@@ -1,0 +1,121 @@
+name: Release
+
+# Publishes the GitHub Release for a pushed version tag, with that version's section of
+# CHANGELOG.md as its notes. RELEASING.md describes the whole flow.
+#
+# A tag is published only when it is annotated, its message says more than its own
+# version, CHANGELOG.md links it, its commit is on master's first-parent line, and CI
+# passed on that commit. A tag that fails a check is never moved: fix what is missing
+# on master, then publish it by hand with
+#   gh workflow run release.yml -f tag=vX.Y.Z
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: the tag to publish, as pushed
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  release:
+    name: Publish ${{ inputs.tag || github.ref_name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      # A pushed tag is read at its own commit; a dispatch reads master, where a
+      # changelog section written after the tag lands. The whole history, for the
+      # first-parent check.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.repository.default_branch || github.ref }}
+          fetch-depth: 0
+
+      - name: The tag is annotated, says something, is in the changelog, on master's line, and green
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # The annotated tag object itself, which the checkout may have flattened.
+          git fetch -q --force origin "refs/tags/$TAG:refs/tags/$TAG"
+          sha=$(git rev-parse "$TAG^{commit}")
+          bad=""
+          if [ "$(git cat-file -t "$TAG")" != "tag" ]; then
+            bad="$bad  it is a lightweight tag"$'\n'
+          fi
+          body=$(git tag -l --format='%(contents)' "$TAG" | tr -d '[:space:]')
+          if [ -z "$body" ] || [ "$body" = "$(printf '%s' "$TAG" | tr -d '[:space:]')" ]; then
+            bad="$bad  its message says nothing beyond its version"$'\n'
+          fi
+          if ! grep -qF "[$TAG]: " CHANGELOG.md; then
+            bad="$bad  CHANGELOG.md has no link for it"$'\n'
+          fi
+          # Not grep -q: it would exit at the match, rev-list would die of SIGPIPE,
+          # and pipefail would read that as no match.
+          if ! git rev-list --first-parent origin/master | grep -x "$sha" >/dev/null; then
+            bad="$bad  $sha is not on master's first-parent line"$'\n'
+          fi
+          green=$(gh run list -R "$GITHUB_REPOSITORY" -w ci.yml -c "$sha" --json conclusion \
+            -q '[.[] | select(.conclusion == "success")] | length')
+          if [ "$green" = "0" ]; then
+            bad="$bad  CI has not passed on $sha"$'\n'
+          fi
+          if [ -n "$bad" ]; then
+            echo "::error::$TAG is not published:"
+            printf '%s' "$bad"
+            echo "Once master holds the commit and CI has passed on it, publish it with"
+            echo "  gh workflow run release.yml -f tag=$TAG"
+            echo "A lightweight or empty tag stays as it is: the next version is the fix."
+            exit 1
+          fi
+
+      - name: Take the CHANGELOG section for this tag
+        run: |
+          set -euo pipefail
+          # A literal search with index(), not a regex: the `.` in a tag would match
+          # any character.
+          awk -v tag="$TAG" '
+            BEGIN { key = "[" tag "]"; inside = 0 }
+            /^## / {
+              if (inside) exit
+              if (index($0, key) > 0) { inside = 1; next }
+            }
+            inside && /^\[v[0-9]+\.[0-9]+\.[0-9]+\]: / { exit }
+            inside { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error::CHANGELOG.md has no section for $TAG"
+            echo "Its heading is '## [$TAG] - <date>'. Write it on the release branch,"
+            echo "merge it to master, then run: gh workflow run release.yml -f tag=$TAG"
+            exit 1
+          fi
+          echo "----- release notes -----"
+          cat notes.md
+
+      # The repository's latest release is its newest version, whichever tag was pushed
+      # last. A dispatch for a tag already published replaces its notes.
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          latest=false
+          if [ "$TAG" = "$(git tag -l 'v*.*.*' --sort=-v:refname | head -n 1)" ]; then
+            latest=true
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file notes.md
+          else
+            gh release create "$TAG" --verify-tag --title "$TAG" --notes-file notes.md --latest="$latest"
+          fi

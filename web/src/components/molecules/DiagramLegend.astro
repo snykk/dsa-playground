@@ -1,0 +1,22 @@
+---
+import { toneClass } from '../../lib/diagram';
+import { formatInline } from '../../lib/inline';
+
+/** What each tone means in one diagram: a swatch per tone character plus its label. */
+interface Props {
+  legend: Record<string, string>;
+}
+
+const { legend } = Astro.props;
+---
+
+<ul class="dg-legend">
+  {
+    Object.entries(legend).map(([tone, label]) => (
+      <li>
+        <span class={`dg-swatch ${toneClass(tone)}`} aria-hidden="true" />
+        <span set:html={formatInline(label)} />
+      </li>
+    ))
+  }
+</ul>

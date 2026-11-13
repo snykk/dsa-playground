@@ -1,0 +1,136 @@
+---
+category: Data_Structures/Linear/Queue
+title: Queue
+lead: "A queue serves items by a rule: first come first served, or by priority, or from either end. The four versions here differ in that rule and in how they store items, which decides whether removing the front is O(1) or O(n)."
+updated: 2026-11-13
+facts:
+  - label: Simple queue dequeue
+    value: O(n)
+    hint: Python and C++ shift the items; Go reslices in O(1)
+    tone: warn
+  - label: Circular queue
+    value: O(1)
+    hint: enqueue and dequeue, in a fixed array
+  - label: Deque front
+    value: O(n)
+    hint: array-backed, so the front is the costly end
+    tone: warn
+  - label: Priority queue
+    value: O(log n)
+    hint: enqueue and dequeue, on a binary min heap
+contents:
+  - folder: Simple_Queue
+    note: The baseline FIFO queue on a growable array. Enqueue is O(1), but dequeue shifts the items in Python and C++.
+  - folder: Circular_Queue
+    note: A ring buffer of fixed capacity. The indices wrap around, so enqueue and dequeue are O(1) and nothing shifts.
+  - folder: Deque
+    note: Add and remove at both ends, so it works as a stack, a queue or both. The array-backed front is O(n).
+  - folder: Priority_Queue
+    note: Serves the lowest priority value first, on a binary min heap. Equal priorities leave in insertion order.
+prerequisites:
+  - Data_Structures/Linear/Array
+related:
+  - Data_Structures/Linear/Stack
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
+  - Problem_Patterns/Monotonic_Queue
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+---
+
+## The problem
+
+A queue holds items that wait their turn. Items go in at one end and leave by a rule. The plain rule is first in, first out (FIFO): the item that has waited longest leaves first.
+
+The four structures in this section answer three different questions:
+
+- **Which item leaves next?** The oldest (simple and circular queue), the one with the best priority (priority queue), or whichever end you ask for (deque).
+- **How is it stored?** In a growable array, in a fixed ring, or in a heap.
+- **What does removing the front cost?** O(1), O(n) or O(log n), depending on the answers above.
+
+## At a glance
+
+<DataTable
+  columns={['Structure', 'Next to leave', 'Storage', 'Bounded', { label: 'Remove', kind: 'mono' }]}
+  rows={[
+    ['Simple queue', 'the oldest item', 'growable array, front at index 0', 'no', 'O(n) in Python and C++, O(1) in Go'],
+    ['Circular queue', 'the oldest item', 'fixed array used as a ring', 'yes, by `capacity`', 'O(1)'],
+    ['Deque', 'either end, your choice', 'growable array, front at index 0', 'no', 'O(1) at the back, O(n) at the front (Go `pop_front` is O(1))'],
+    ['Priority queue', 'the lowest priority value', 'binary min heap', 'no', 'O(log n)'],
+  ]}
+/>
+
+The circular queue is the only bounded one: `enqueue` on a full queue raises `OverflowError` in Python, and the capacity must be at least 1. Peek is O(1) in all four.
+
+## One sequence, four queues
+
+Add `A`, `B` and `C`, then remove twice. The priority queue gets the priorities 2, 1 and 2. The circular queue has capacity 3, and the deque adds with `push_back`, then uses `pop_front` followed by `pop_back`. These results come from running the Python versions.
+
+<DataTable
+  columns={['Structure', 'Removed first', 'Removed second', 'What is left']}
+  rows={[
+    ['Simple queue', '`A`', '`B`', '`C`'],
+    ['Circular queue (capacity 3)', '`A`', '`B`', '`C`, size 1; after `enqueue(D)` it holds 2 items and is not full'],
+    ['Deque (`pop_front`, then `pop_back`)', '`A`', '`C`', '`B`'],
+    ['Priority queue (A: 2, B: 1, C: 2)', '`B`', '`A`', '`C`'],
+  ]}
+/>
+
+The simple and circular queue always agree. The deque removes from the end you pick, so its second removal is `C`. The priority queue serves `B` first because 1 is the best priority, and then `A` before `C`, because equal priorities leave in the order they arrived.
+
+## Complexity
+
+<DataTable
+  columns={['Structure', { label: 'Enqueue', kind: 'mono' }, { label: 'Dequeue', kind: 'mono' }, { label: 'Peek', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['Simple queue', 'O(1) amortized', 'O(n); O(1) in Go', 'O(1)', 'O(n)'],
+    ['Circular queue', 'O(1)', 'O(1)', 'O(1)', 'O(capacity)'],
+    ['Deque', 'O(1) at the back, O(n) at the front', 'O(1) at the back, O(n) at the front; Go front is O(1)', 'O(1) at either end', 'O(n)'],
+    ['Priority queue', 'O(log n)', 'O(log n)', 'O(1)', 'O(n)'],
+  ]}
+/>
+
+## Choosing a queue
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Learning the idea, or a short queue that is rarely drained', 'Simple queue', 'the least code, and the shifting is cheap for a few items'],
+    ['A bounded buffer that is filled and drained all the time', 'Circular queue', 'O(1) at both ends and the memory never grows'],
+    ['Work at both ends, such as a sliding window', 'Deque', 'one structure serves as stack and queue'],
+    ['The most urgent item must go first', 'Priority queue', 'serves by priority in O(log n), with FIFO among ties'],
+    ['A large queue with O(1) at both ends in everyday code', 'a library type', 'Python `collections.deque` and C++ `std::deque` are O(1) at both ends'],
+  ]}
+/>
+
+## Applications
+
+- **Breadth-first search.** The queue holds the frontier in discovery order.
+- **Scheduling.** Round-robin task queues, print queues and request buffers.
+- **Sliding window and monotonic queue problems.** A deque keeps candidates at both ends.
+- **Shortest paths and event simulation.** A priority queue picks the next vertex or the next event.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming dequeue is O(1) in the simple queue.** In Python and C++ it shifts every remaining item. Only Go reslices.
+- **Using the deque's front as the fast end.** It is array-backed here, so `push_front` is O(n) in every language.
+- **Enqueueing on a full circular queue.** It raises `OverflowError` in Python instead of growing.
+- **Expecting a highest-first priority queue.** The lowest value leaves first. For max behaviour, negate the priorities.
+- **Expecting sorted iteration from the priority queue.** Only the next item is guaranteed; the heap array is not in sorted order.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with the simple queue, because the circular queue and the deque each fix one of its weaknesses. Then the circular queue, the deque and the priority queue. The priority queue also needs the min heap, from the Heaps section.
+  </FaqItem>
+  <FaqItem question="Why does the circular queue exist if the simple queue works?">
+    Dequeue on the simple queue costs O(n) in Python and C++. The circular queue moves two indices instead of the items, so both operations are O(1), at the price of a fixed capacity.
+  </FaqItem>
+  <FaqItem question="When do equal priorities matter?">
+    The priority queue stores an insertion counter with each item, so two items with the same priority leave in the order they were added. Without it the order among ties would be arbitrary.
+  </FaqItem>
+  <FaqItem question="Is a deque a queue or a stack?">
+    Both. Pushing and popping at the back gives a stack. Pushing at the back and popping at the front gives a queue.
+  </FaqItem>
+</Faq>

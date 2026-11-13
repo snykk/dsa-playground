@@ -1,0 +1,223 @@
+---
+topic: Data_Structures/Linear/Queue/Circular_Queue
+title: Circular Queue
+lead: A circular queue (ring buffer) stores a bounded FIFO queue in a fixed array and lets the front and rear indices wrap around the end. Enqueue and dequeue are both O(1) with no shifting, and the memory never grows.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Enqueue
+    value: O(1)
+  - label: Dequeue
+    value: O(1)
+  - label: Peek
+    value: O(1)
+  - label: Memory
+    value: Fixed
+    hint: set once by the capacity
+    tone: warn
+properties:
+  - { label: Array-backed, value: true }
+  - { label: Bounded capacity, value: true }
+  - { label: FIFO order, value: true }
+  - { label: Grows when full, value: false }
+prerequisites:
+  - Data_Structures/Linear/Queue/Simple_Queue
+  - Data_Structures/Linear/Array
+related:
+  - Data_Structures/Linear/Queue/Deque
+  - Data_Structures/Linear/Queue/Priority_Queue
+  - Data_Structures/Linear/Queue/Simple_Queue
+  - Problem_Patterns/Monotonic_Queue
+---
+
+## What a circular queue is
+
+A queue serves items in first-in, first-out order. A plain array queue wastes space: every dequeue frees a slot at the front that is never used again, or forces all remaining items to shift left. A circular queue fixes this by treating the array as a ring. When an index runs off the end, `% capacity` sends it back to slot 0, so freed slots at the front are reused.
+
+The queue keeps two indices:
+
+- `front`: the slot of the oldest item (the next one to dequeue);
+- `rear`: the slot of the newest item (the last one enqueued).
+
+<ArrayDiagram
+  legend={{ f: 'front (next to dequeue)', p: 'rear (last enqueued)', l: 'items in the queue', m: 'free slot' }}
+  caption="A queue of capacity 5 holding C, D, E and F. The items run from front, past the end of the array and back to slot 0."
+  rows={[
+    { label: 'array', values: ['F', '', 'C', 'D', 'E'], tones: 'pmfll', marks: { 0: 'rear', 2: 'front' } },
+  ]}
+/>
+
+The queue is not stored in index order: it is the slots from `front` up to `rear`, going forward and wrapping at the end. Both indices only ever move forward, by one slot per operation.
+
+<Callout title="One formula does all the wrapping">
+`next(i) = (i + 1) % capacity`. Dequeue advances `front` with it, enqueue advances `rear` with it, and nothing else ever moves. That is why both operations are O(1).
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`enqueue(x)`', 'advance `rear`, store `x` there; fails when the queue is full', 'O(1)'],
+    ['`dequeue()`', 'return the item at `front`, then advance `front`; fails when empty', 'O(1)'],
+    ['`peek()`', 'return the item at `front` without removing it; fails when empty', 'O(1)'],
+    ['`is_empty()`, `is_full()`, `size()`', 'index and counter arithmetic', 'O(1)'],
+  ]}
+/>
+
+The API names are `enqueue`, `dequeue`, `peek`, `is_empty`, `is_full` and `size` in Python and C++, and the capitalised forms (`Enqueue`, `IsFull`, ...) in Go. Errors differ per language:
+
+- Python raises `OverflowError` when full and `IndexError` when empty.
+- C++ throws `std::overflow_error` when full and `std::runtime_error` when empty.
+- Go returns an `error` from `Enqueue`, `Dequeue` and `Peek`.
+
+### Enqueue and dequeue with wrap-around
+
+Start with an empty queue of capacity 5, enqueue `A` to `E`, dequeue twice, then enqueue `F` and `G`. These states come from running the Python version:
+
+<ArrayDiagram
+  legend={{ f: 'front', p: 'rear', l: 'items in the queue', m: 'free slot' }}
+  rows={[
+    { label: 'enqueue A..E', values: ['A', 'B', 'C', 'D', 'E'], tones: 'flllp', marks: { 0: 'front', 4: 'rear' }, note: '`front = 0`, `rear = 4`, size 5: the queue is full.' },
+    { label: 'dequeue twice', values: ['', '', 'C', 'D', 'E'], tones: 'mmflp', marks: { 2: 'front', 4: 'rear' }, note: 'Returns `A`, then `B`. `front = 2`. Slots 0 and 1 are free again.' },
+    { label: 'enqueue F', values: ['F', '', 'C', 'D', 'E'], tones: 'pmfll', marks: { 0: 'rear', 2: 'front' }, note: '`rear = (4 + 1) % 5 = 0`: the ring wraps and reuses slot 0.' },
+    { label: 'enqueue G', values: ['F', 'G', 'C', 'D', 'E'], tones: 'lpfll', marks: { 1: 'rear', 2: 'front' }, note: '`rear = 1`, size 5. The queue is full again and dequeue returns `C`, `D`, `E`, `F`, `G` in that order.' },
+  ]}
+/>
+
+A simple array queue with a head index could not accept `F` and `G` here: its tail would already be at the end of the array, even though two slots are free.
+
+## Empty versus full
+
+Whether the queue is empty or full, `front` and `rear` alone can look the same: a full ring has `rear` right behind `front`, and an empty ring has no items to point at. The indices need extra information, and there are three standard ways to provide it:
+
+<DataTable
+  columns={['Strategy', 'Empty when', 'Full when', 'Cost']}
+  rows={[
+    ['Size counter', '`size == 0`', '`size == capacity`', 'one extra field, all slots usable'],
+    ['Wasted slot (`rear` is the next free slot)', '`front == rear`', '`(rear + 1) % cap == front`', 'one slot is never used'],
+    ['Sentinel (`front = -1`)', '`front == -1`', '`(rear + 1) % cap == front`', 'reset both indices when the last item leaves'],
+  ]}
+/>
+
+The repository uses two of them. Python and C++ use the sentinel: `front == -1` means empty, the first enqueue sets `front = 0`, and removing the last item resets `front` and `rear` to `-1`. They compute `size()` from the two indices. Go keeps an explicit `size` counter, starts with `rear = -1` and never needs a sentinel.
+
+<Callout title="Why the full test is safe">
+With the sentinel, the queue is full exactly when `(rear + 1) % capacity == front`, meaning the next slot to write is the oldest item. The empty state is checked first and uses `front == -1`, so the two never collide.
+</Callout>
+
+## Pseudocode
+
+```text
+enqueue(x):
+    if isFull(): error "full"
+    if isEmpty(): front = 0
+    rear = (rear + 1) % capacity
+    queue[rear] = x
+
+dequeue():
+    if isEmpty(): error "empty"
+    x = queue[front]
+    if front == rear: front = rear = -1      # last item left
+    else:             front = (front + 1) % capacity
+    return x
+```
+
+This is the Python and C++ scheme. Go replaces the `-1` bookkeeping with `size++` and `size--`.
+
+## Implementation
+
+All three versions allocate the array once. The capacity must be at least 1: Python raises `ValueError` and C++ throws `std::invalid_argument` for a smaller value, while Go's constructor has no error return, so a capacity of 0 gives a queue that is always full and a negative capacity panics in `make`. The C++ class owns a raw array, so copying is deleted. Python clears a slot on dequeue so the removed object can be garbage collected.
+
+<TopicCode topic="Data_Structures/Linear/Queue/Circular_Queue" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['enqueue', 'O(1)', 'one modulo, one store'],
+    ['dequeue', 'O(1)', 'one modulo, one load; nothing shifts'],
+    ['peek, is_empty, is_full, size', 'O(1)', 'arithmetic on `front`, `rear` (and `size`)'],
+    ['search for a value', 'O(n)', 'items are only reachable from the front'],
+  ]}
+/>
+
+Space is O(capacity) for the array, fixed at construction. Each operation needs only O(1) extra space.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'When to use it']}
+  rows={[
+    ['Overwriting ring buffer', 'enqueue on a full queue drops the oldest item instead of failing', 'logs, sensor streams, "last N events"'],
+    ['Growable ring buffer', 'doubles the array and copies items in order when full', 'when there is no natural bound (the Deque article)'],
+    ['Single-producer, single-consumer ring', 'one thread moves `rear`, another moves `front`', 'lock-free hand-off between two threads'],
+    ['Power-of-two capacity', 'replaces `% cap` with `& (cap - 1)`', 'hot loops where the modulo matters'],
+  ]}
+/>
+
+The repository implements only the plain bounded version, which rejects an enqueue when full.
+
+## Circular queue vs other queues
+
+<DataTable
+  columns={['Structure', { label: 'Enqueue', kind: 'mono' }, { label: 'Dequeue', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Circular queue', 'O(1)', 'O(1)', 'fixed memory, no shifting, bounded'],
+    ['Simple array queue (this repo)', 'O(1)', 'O(n) in Python and C++', 'dequeue shifts every item, see Simple Queue'],
+    ['Linked-list queue', 'O(1)', 'O(1)', 'unbounded, but one pointer and one allocation per item'],
+    ['Deque', 'O(1) at both ends', 'O(1) at both ends', 'also supports the other end, see Deque'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'O(1) enqueue and dequeue with no element ever moving.',
+    'Memory is allocated once, so there is no allocation in the hot path.',
+    'Contiguous storage is cache-friendly.',
+    'Natural fit for buffers that must never exceed a bound.',
+  ]}
+  cons={[
+    'Capacity is fixed: a full queue rejects new items.',
+    'Needs a rule to tell empty from full.',
+    'Index arithmetic with modulo is easy to get wrong.',
+    'Random access by logical position needs `(front + i) % capacity`.',
+  ]}
+/>
+
+## Applications
+
+- **Streaming and I/O buffers:** a producer writes at `rear` while a consumer reads at `front`.
+- **Keeping the last N items:** with an overwriting variant, such as recent log lines.
+- **Fixed-size task or request queues** where bounded memory matters more than accepting every item.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Capacity 0.** `% 0` divides by zero. Validate the capacity in the constructor (Python and C++ do).
+- **Confusing empty with full.** Without a counter, a sentinel or a wasted slot, `front == rear` is ambiguous.
+- **Forgetting to wrap.** Using `rear + 1` instead of `(rear + 1) % capacity` runs off the array.
+- **Computing `size` as `rear - front + 1`.** It is wrong after wrap-around, when `rear < front`. Add `capacity` in that case.
+- **Copying a C++ queue that owns a raw array.** Both copies free the same memory. The class deletes its copy operations for this reason.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why not just shift the elements on dequeue?">
+    Shifting makes dequeue O(n). The circular queue moves the `front` index instead, so nothing is copied, and the wrap-around lets the freed slots be reused.
+  </FaqItem>
+  <FaqItem question="How does the queue know whether it is empty or full?">
+    The repository uses a `front = -1` sentinel in Python and C++ and an explicit `size` counter in Go. The other common choice is to leave one slot unused, so that `front == rear` always means empty.
+  </FaqItem>
+  <FaqItem question="Can a circular queue grow?">
+    The bounded version cannot. A growable ring buffer allocates a larger array when full and copies the items in logical order, which makes enqueue amortized O(1). The Deque article describes that design.
+  </FaqItem>
+  <FaqItem question="Is it thread-safe?">
+    No. The implementations here assume a single thread. A ring buffer can be made lock-free only for exactly one producer and one consumer, and that needs careful memory ordering.
+  </FaqItem>
+</Faq>

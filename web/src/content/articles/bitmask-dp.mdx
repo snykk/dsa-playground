@@ -1,0 +1,252 @@
+---
+topic: Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
+title: Bitmask DP
+lead: Bitmask DP stores a subset of n items as the bits of one integer and uses that integer as a DP state. It turns searches over all n! orderings into a table of 2^n subsets, which is what makes the Traveling Salesman Problem solvable for around 20 cities.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: States
+    value: 2^n * n
+    hint: subset of visited cities, plus the last city
+  - label: TSP time
+    value: O(n^2 * 2^n)
+    hint: against O(n!) for brute force
+  - label: TSP space
+    value: O(n * 2^n)
+  - label: Practical limit
+    value: n about 20
+    hint: the table has n * 2^n cells
+    tone: warn
+properties:
+  - { label: Exact answer, value: true }
+  - { label: Polynomial time, value: false }
+  - { label: Fits n over 25, value: false }
+prerequisites:
+  - Problem_Patterns/Bit_Manipulation
+  - Utilities/Optimization_Techniques/Bitmasking
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
+related:
+  - Problem_Patterns/Meet_in_the_Middle
+  - Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Problem_Patterns/DP_Problem_Patterns
+---
+
+## When bitmask DP applies
+
+Use it when a problem asks for the best way to pick, order or assign a **small set of items** (n &le; 20 or so) and the future depends only on *which items are already used*, not on the order in which they were used.
+
+- The statement has a small bound such as `n <= 16` or `n <= 20` next to something factorial, like orderings or matchings.
+- You must visit, assign or cover every item exactly once.
+- Brute force would try every permutation, but many permutations lead to the same situation.
+
+The last point is the key. Two different paths that visited the same cities and now stand in the same city have the same future, so they can share one DP value.
+
+## How it works
+
+An integer with n bits represents a subset: bit `i` is 1 when item `i` is in the set. A 4-city subset such as `{A, C}` is `0b0101`, which is the number 5. Because the integer is also an array index, the whole set of subsets becomes one table of size 2<sup>n</sup>.
+
+<Steps>
+  <Step title="Define the state">
+    `dp[mask][last]` is the cheapest cost of a path that starts at city 0, visits exactly the cities in `mask` and currently stands at `last`. Bit `last` must be set in `mask`.
+  </Step>
+  <Step title="Set the base case">
+    `dp[1][0] = 0`: the mask with only city 0 set, standing at city 0, has cost 0. Every other cell starts at infinity.
+  </Step>
+  <Step title="Transition by adding one city">
+    From `dp[mask][last]` try every city `j` not in `mask`: `dp[mask | (1 << j)][j] = min(itself, dp[mask][last] + dist[last][j])`.
+  </Step>
+  <Step title="Close the tour">
+    Once `mask` is full, add the edge back to city 0 and take the minimum over `last`: `min(dp[full][last] + dist[last][0])`.
+  </Step>
+</Steps>
+
+<Callout title="Why increasing mask order is a valid order">
+A transition always turns one 0 bit into a 1 bit, so `new_mask` is strictly larger than `mask` as a number. Looping `mask` from 1 upward therefore finalizes every state before anything reads it, with no recursion and no memo dictionary.
+</Callout>
+
+### The bit operations you need
+
+<DataTable
+  columns={['Goal', 'Expression', 'Example with mask = 0b0101']}
+  rows={[
+    ['Is item `i` in the set?', '`mask & (1 << i)`', '`i = 2` gives non-zero: yes'],
+    ['Add item `i`', '`mask | (1 << i)`', '`i = 1` gives `0b0111`'],
+    ['Remove item `i`', '`mask & ~(1 << i)`', '`i = 0` gives `0b0100`'],
+    ['All n items', '`(1 << n) - 1`', '`n = 4` gives `0b1111`'],
+    ['Count items', 'popcount of `mask`', '2'],
+  ]}
+/>
+
+## A worked example
+
+Four cities A, B, C, D (bits 0 to 3) with these distances:
+
+<GridDiagram
+  corner="from \ to"
+  colLabels={['A', 'B', 'C', 'D']}
+  rowLabels={['A', 'B', 'C', 'D']}
+  rows={[[0, 10, 15, 20], [10, 0, 35, 25], [15, 35, 0, 30], [20, 25, 30, 0]]}
+  caption="The distance matrix used by the tests and the examples."
+/>
+
+Only masks that contain city A (bit 0) matter, so there are 8 rows. A cell shows `dp[mask][last]`; `inf` means that no path with this exact shape exists (for example `last` is not in `mask`). The mask is written with city D on the left: `0111` means `{A, B, C}`.
+
+<GridDiagram
+  corner="mask \ last"
+  colLabels={['A', 'B', 'C', 'D']}
+  rowLabels={['0001', '0011', '0101', '0111', '1001', '1011', '1101', '1111']}
+  rows={[
+    [0, 'inf', 'inf', 'inf'],
+    ['inf', 10, 'inf', 'inf'],
+    ['inf', 'inf', 15, 'inf'],
+    ['inf', 50, 45, 'inf'],
+    ['inf', 'inf', 'inf', 20],
+    ['inf', 45, 'inf', 35],
+    ['inf', 'inf', 50, 45],
+    ['inf', 70, 65, 75],
+  ]}
+  tones={['fmmm', 'm.mm', 'mm.m', 'm..m', 'mmm.', 'm.m.', 'mm..', 'mppl']}
+  legend={{ f: 'base case', p: 'last cities that give the optimal tour (70 + 10 and 65 + 15)', l: 'closing choice that loses (75 + 20)', m: 'unreachable shape' }}
+  caption="The full DP table, computed by the repository's Python code."
+/>
+
+For example `dp[0111][B] = 50`: the cheapest way to cover A, B, C and end at B is A &rarr; C &rarr; B, which costs 15 + 35 = 50. Closing the tour from the full mask `1111`:
+
+<DataTable
+  columns={['Last city', { label: 'dp[1111][last]', kind: 'mono' }, 'Edge back to A', { label: 'Total', kind: 'mono' }]}
+  rows={[
+    ['B', '70', '10', '80'],
+    ['C', '65', '15', '80'],
+    ['D', '75', '20', '95'],
+  ]}
+/>
+
+The answer is 80, for example A &rarr; B &rarr; D &rarr; C &rarr; A (10 + 25 + 30 + 15). Its reverse costs the same, which is why two last cities tie.
+
+## Pseudocode
+
+```text
+tsp(dist):
+    n = number of cities
+    if n == 0: return 0
+    dp = table (1 << n) x n, filled with infinity
+    dp[1][0] = 0
+    for mask = 1 to (1 << n) - 1:
+        if bit 0 not in mask: continue        # every tour starts at city 0
+        for last in 0 .. n-1 with last in mask:
+            for j in 0 .. n-1 with j not in mask:
+                nm = mask | (1 << j)
+                dp[nm][j] = min(dp[nm][j], dp[mask][last] + dist[last][j])
+    full = (1 << n) - 1
+    return min over last of dp[full][last] + dist[last][0]    # infinity if no tour
+```
+
+## Implementation
+
+The Python version is the complete solver and returns `float('inf')` when no tour exists, for example when a city has no usable edge. The C++ and Go folders are placeholders: they contain a stub file and a test that only prints a message. They do not implement bitmask DP yet.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP" />
+
+## Complexity analysis
+
+There are 2<sup>n</sup> masks and n values of `last`, so the table has n &middot; 2<sup>n</sup> cells. Each cell tries up to n next cities.
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(n^2 * 2^n)', when: '2^n masks, n choices of last city and n choices of next city. The code skips masks without city 0, which halves the work but not the bound.' },
+    { case: 'Space', time: 'O(n * 2^n)', when: 'One cost per (mask, last) pair. For n = 20 that is about 21 million cells, which is hundreds of megabytes as Python floats.' },
+  ]}
+/>
+
+<Equation label="TSP versus brute force" expr="n! orderings   vs   n * 2^n states" result="n = 20: 2.4 * 10^18 against 2.1 * 10^7" />
+
+A problem that only needs *which subset*, with no last item, uses a one-dimensional `dp[mask]` and costs O(2<sup>n</sup> &middot; n) time and O(2<sup>n</sup>) space. In pure Python the practical limit is lower than in C++ or Go because of per-cell object overhead.
+
+## Common bitmask DP problems
+
+<DataTable
+  columns={['Problem', 'State', 'Idea']}
+  rows={[
+    ['Traveling Salesman / Hamiltonian cycle', '`dp[mask][last]`', 'extend the path by one unvisited city'],
+    ['Assignment of n tasks to n workers', '`dp[mask]`', 'worker number is `popcount(mask)`; try each free task'],
+    ['Partition into groups under a limit', '`dp[mask]`', 'best (groups, load of last group) for the items in mask'],
+    ['Cover or tile a board row by row', '`dp[row][mask]`', 'the mask is the profile of the row, transitions check compatibility'],
+    ['Subset enumeration over submasks', 'loop over `sub = (sub - 1) & mask`', 'total work over all masks is 3^n'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Cost']}
+  rows={[
+    ['Subset DP', 'state is the mask only', 'O(2^n * n) time, O(2^n) space'],
+    ['Path DP (this article)', 'mask plus last item', 'O(2^n * n^2) time, O(2^n * n) space'],
+    ['Profile DP', 'mask is the shape of a frontier in a grid', 'O(rows * cols * 2^width)'],
+    ['Submask DP', 'transition splits a set into two parts', 'O(3^n)'],
+  ]}
+/>
+
+## Bitmask DP vs alternatives
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, 'Exact', 'Use when']}
+  highlight={1}
+  rows={[
+    ['Brute force over permutations', 'O(n!)', 'Yes', 'n up to about 10'],
+    ['Bitmask DP', 'O(n^2 * 2^n)', 'Yes', 'n up to about 20 (TSP)'],
+    ['Meet in the middle', 'O(2^(n/2) * n)', 'Yes', 'subset-sum style problems with n up to about 40'],
+    ['Heuristics or approximation', 'polynomial', 'No', 'n in the hundreds or more'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Exact answers, with a short and regular loop nest.',
+    'Iterating masks in increasing order needs no recursion or memo dictionary.',
+    'The same pattern solves TSP, assignment, set cover on small universes and board-profile problems.',
+  ]}
+  cons={[
+    'Exponential: every extra item doubles time and memory.',
+    'Only valid when the future depends on the set, not the order, of earlier choices.',
+    'Needs care with off-by-one bit positions and with infinity arithmetic.',
+    'The Python table gets large quickly, so n around 15 is comfortable there.',
+  ]}
+/>
+
+## Applications
+
+- Shortest route that visits every stop of a small delivery round.
+- Assigning a small number of jobs to workers at minimum total cost.
+- Counting tilings or placements on boards with a small width.
+- The inner step of larger solvers that handle a few special items exactly.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Mistaking infeasible for free.** Initializing with infinity is right, but returning 0 when the final minimum is still infinity hides the case where no tour exists. This implementation returns `float('inf')` and the tests cover it.
+- **Reading a state that was never reached.** `dp[mask][last]` is meaningful only when bit `last` is set in `mask`. Skip the rest.
+- **Wrong operator precedence.** In C-like languages write `mask & (1 << i)` with parentheses.
+- **Using 32-bit shifts.** `1 << j` overflows an `int` once j reaches 31; use `1LL << j` for larger masks.
+- **Forgetting the return edge.** TSP is a cycle: add `dist[last][0]` at the end, or the answer is a Hamiltonian path instead.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the state need the last city and not only the mask?">
+    The cost of the next edge depends on where you stand. Two paths covering the same cities but ending in different cities have different futures, so they cannot share a value.
+  </FaqItem>
+  <FaqItem question="Why does the table only use masks that contain city 0?">
+    A tour is a cycle, so any city can be the start. Fixing city 0 as the start removes a factor of n from the number of equivalent tours, and the code skips masks without bit 0 because they are never reached.
+  </FaqItem>
+  <FaqItem question="Can I recover the tour itself?">
+    Yes: store, next to each `dp[mask][last]`, the previous city that produced the minimum, then walk back from the best final state. The repository code returns only the cost.
+  </FaqItem>
+  <FaqItem question="Can I save memory?">
+    For subset-only DP, yes, when transitions read a limited set of masks. For TSP the full table is needed, which is why it stops around n = 20 to 25 in practice.
+  </FaqItem>
+</Faq>

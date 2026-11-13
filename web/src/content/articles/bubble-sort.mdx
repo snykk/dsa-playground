@@ -1,0 +1,201 @@
+---
+topic: Algorithms/Sorting/Bubble_Sort
+title: Bubble Sort
+lead: Bubble Sort walks along the array swapping neighbours that are out of order, so the largest remaining element sinks to the end on every pass. It is the simplest sort to write and a good way to learn invariants, but at O(n^2) it is a teaching tool, not a production one.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Average time
+    value: O(n^2)
+  - label: Worst time
+    value: O(n^2)
+    hint: reverse-sorted input, every pair is swapped
+    tone: warn
+  - label: Best time
+    value: O(n)
+    hint: already sorted, thanks to the early exit
+  - label: Extra space
+    value: O(1)
+properties:
+  - { label: In-place, value: true }
+  - { label: Stable, value: true }
+  - { label: Adaptive, value: true }
+  - { label: Comparison sort, value: true }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Sorting/Insertion_Sort
+  - Algorithms/Sorting/Selection_Sort
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Quick_Sort
+---
+
+## How Bubble Sort works
+
+Each pass compares every pair of neighbours and swaps the pair when the left one is larger. A large value keeps winning those comparisons, so it travels to the right until it meets a larger one. At the end of a pass the largest element of the range is in its final place, like a bubble that has reached the surface.
+
+<Steps>
+  <Step title="Scan the unsorted range">
+    Compare `arr[j]` with `arr[j + 1]` for `j = 0, 1, ...` up to the last unsettled position.
+  </Step>
+  <Step title="Swap out-of-order neighbours">
+    If `arr[j] > arr[j + 1]`, swap them and remember that a swap happened. Equal neighbours are never swapped.
+  </Step>
+  <Step title="Shrink the range">
+    After pass `i` (counting from 0) the last `i + 1` positions hold the largest elements in order, so the next pass stops one position earlier.
+  </Step>
+  <Step title="Stop early">
+    If a whole pass makes no swap, every neighbour pair is in order and the array is sorted. Stop without doing the remaining passes.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+After `i` passes the last `i` elements are the `i` largest values in sorted order, exactly where they belong. The first `n - i` elements are the rest, in some order. Each pass settles one more element, so at most `n - 1` passes are needed.
+</Callout>
+
+## See it in action
+
+Press play, or step through one comparison at a time. Blue bars are being compared, orange bars are being swapped, and aqua bars have reached their final position. Try the Reversed and Nearly sorted examples to compare the worst case with the early exit.
+
+<ArticleViz ids={['bubble-sort']} />
+
+## Worked example
+
+Sorting `[64, 34, 25, 12, 22, 11, 90]` takes 6 passes. The first five each swap something; the sixth finds nothing to swap and triggers the early exit. In total there are 21 comparisons and 14 swaps.
+
+<ArrayDiagram
+  legend={{ f: 'settled: final position, never touched again' }}
+  rows={[
+    { label: 'start', values: [64, 34, 25, 12, 22, 11, 90], tones: '.......' },
+    { label: 'pass 1', values: [34, 25, 12, 22, 11, 64, 90], tones: '......f', note: '5 swaps. 64 moves right until it meets 90, which is already the maximum.' },
+    { label: 'pass 2', values: [25, 12, 22, 11, 34, 64, 90], tones: '.....ff', note: '4 swaps. 34 sinks to the position before 64.' },
+    { label: 'pass 3', values: [12, 22, 11, 25, 34, 64, 90], tones: '....fff', note: '3 swaps.' },
+    { label: 'pass 4', values: [12, 11, 22, 25, 34, 64, 90], tones: '...ffff', note: '1 swap.' },
+    { label: 'pass 5', values: [11, 12, 22, 25, 34, 64, 90], tones: '..fffff', note: '1 swap. The array is now sorted, but the algorithm does not know it yet.' },
+    { label: 'pass 6', values: [11, 12, 22, 25, 34, 64, 90], tones: '.ffffff', note: '0 swaps: the early exit stops the sort.' },
+  ]}
+/>
+
+The number of swaps (5 + 4 + 3 + 1 + 1 = 14) equals the number of **inversions** of the input, the pairs `(i, j)` with `i < j` and `arr[i] > arr[j]`. Each swap of adjacent elements removes exactly one inversion, and the sort ends when none are left. That is why a nearly sorted array is fast and a reversed one is slow.
+
+## Pseudocode
+
+```text
+bubbleSort(arr):
+    n = length(arr)
+    for i = 0 to n - 1:
+        swapped = false
+        for j = 0 to n - i - 2:          # the last i elements are settled
+            if arr[j] > arr[j + 1]:
+                swap(arr[j], arr[j + 1])
+                swapped = true
+        if not swapped:
+            break
+    return arr
+```
+
+The test is a strict `>`, so equal elements are never swapped and keep their original order: that is what makes the sort stable.
+
+## Implementation
+
+All three languages sort in place. Python also has `bubble_sort_optimized` (the same code as `bubble_sort`, since the early exit is already built in) and `bubble_sort_recursive`, which does one pass and then recurses on the shorter prefix. C++ is a template over the element type of a `std::vector`. Go has `BubbleSort` for `[]int` and `BubbleSortGeneric` for any slice with a `less` function.
+
+<TopicCode topic="Algorithms/Sorting/Bubble_Sort" />
+
+## Complexity analysis
+
+Pass `i` makes `n - i - 1` comparisons, so a full run without early exit makes:
+
+<Equation label="Comparisons" expr="(n - 1) + (n - 2) + ... + 1" result="n(n - 1) / 2 = O(n^2)" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n)', space: 'O(1)', when: 'Already sorted: pass 1 makes n - 1 comparisons, no swap, and stops.' },
+    { case: 'Average case', time: 'O(n^2)', space: 'O(1)', when: 'A random permutation has about n(n - 1)/4 inversions, so about that many swaps, and it needs almost n passes.' },
+    { case: 'Worst case', time: 'O(n^2)', space: 'O(1)', when: 'Reverse-sorted: n(n - 1)/2 inversions, so every comparison swaps.' },
+  ]}
+/>
+
+<Callout title="Turtles and rabbits">
+A large value near the front travels the whole way to the right in one pass (a rabbit). A small value near the end moves only one place to the left per pass (a turtle). Input such as `[2, 3, 4, 5, 1]` therefore needs a full 4 passes even though it is almost sorted, and the early exit does not help.
+</Callout>
+
+The recursive Python version adds one stack frame per pass, so its space is <BigO of="n" /> and it raises `RecursionError` at a few thousand elements. Treat it as a teaching variant.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Effect']}
+  rows={[
+    ['Plain', 'always run all `n - 1` passes', 'always O(n^2), even for sorted input'],
+    ['Early exit (this repository)', 'stop after a pass with no swap', 'O(n) on sorted input'],
+    ['Shrinking range (this repository)', 'the inner loop stops at `n - i - 1`', 'about half the comparisons of the plain scan'],
+    ['Cocktail shaker', 'alternate left-to-right and right-to-left passes', 'moves turtles faster; still O(n^2); not implemented here'],
+  ]}
+/>
+
+## Bubble Sort vs other simple sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Swaps (worst)', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Bubble Sort', 'O(n)', 'O(n^2)', 'O(n^2)', 'Yes', 'many swaps; simplest to code'],
+    ['Insertion Sort', 'O(n)', 'O(n^2)', 'O(n^2) shifts', 'Yes', 'faster in practice; best simple sort for small or nearly sorted data'],
+    ['Selection Sort', 'O(n^2)', 'O(n^2)', 'O(n)', 'No', 'fewest swaps; never adapts to sorted input'],
+    ['Merge Sort', 'O(n log n)', 'O(n log n)', '-', 'Yes', 'the real choice for large inputs'],
+  ]}
+/>
+
+Bubble Sort and Insertion Sort do the same number of element moves (one per inversion), but Bubble Sort also re-scans the whole range on every pass, so Insertion Sort is faster in practice.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Trivial to write and to reason about.',
+    'In place and stable.',
+    'Adaptive: finishes in O(n) on sorted input and quickly when only a few elements are out of place near the end.',
+    'Detects a sorted array as a side effect.',
+  ]}
+  cons={[
+    'O(n^2) comparisons and swaps on average and in the worst case.',
+    'Turtles (small values near the end) move one place per pass.',
+    'More swaps than Selection Sort and more comparisons than Insertion Sort.',
+    'No real-world use for large data: any O(n log n) sort is far faster.',
+  ]}
+/>
+
+## Applications
+
+- **Teaching.** It introduces loops, swaps, invariants, stability and best versus worst case in a few lines.
+- **Tiny inputs.** For a handful of elements the constant factors dominate and the simplicity costs nothing.
+- **Checking for sortedness.** One pass without a swap proves an array is sorted, though a plain scan for `arr[j] > arr[j + 1]` does the same job faster.
+- **Counting inversions, slowly.** The number of swaps equals the inversion count, but Merge Sort counts inversions in O(n log n).
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Off-by-one in the inner loop.** The inner loop must stop at `n - i - 2` (so that `j + 1` stays in range). Running to `n - 1` reads past the end.
+- **Missing `swapped` reset.** The flag must be set to false at the start of every pass, not once before the loops.
+- **Using `>=` for the comparison.** It swaps equal elements and silently makes the sort unstable.
+- **Unsigned loop bounds in C++.** With `size_t`, `n - i - 1` wraps around when `n` is 0 if written carelessly. The repository version is safe because the outer loop never runs for an empty vector.
+- **Recursing in Python.** `bubble_sort_recursive` nests one call per pass and fails for lists of a few thousand elements.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is it called Bubble Sort?">
+    Large values rise to the end of the array pass after pass, like bubbles rising in water. In this repository the largest remaining element moves to the end, so the sorted part grows from the right.
+  </FaqItem>
+  <FaqItem question="Is Bubble Sort ever the best choice?">
+    Almost never. For small or nearly sorted data Insertion Sort is simpler to justify and faster. For anything large, use Merge Sort, Quick Sort or your language&apos;s built-in sort.
+  </FaqItem>
+  <FaqItem question="Why does the early exit give O(n) on sorted input?">
+    On sorted input the first pass compares each of the `n - 1` neighbour pairs, finds nothing to swap, and the `swapped` flag stays false. The loop breaks, so only one pass of linear work is done.
+  </FaqItem>
+  <FaqItem question="How is the swap count related to inversions?">
+    Swapping two adjacent out-of-order elements removes exactly one inversion and creates none, and Bubble Sort only ever swaps adjacent elements. So the total number of swaps equals the number of inversions in the input.
+  </FaqItem>
+</Faq>

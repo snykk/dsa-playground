@@ -1,0 +1,242 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform
+title: Fast Fourier Transform
+lead: The Fast Fourier Transform computes the discrete Fourier transform of n values in O(n log n) instead of O(n^2). Its best-known use in programming is multiplying two polynomials, or convolving two sequences, in O(n log n) instead of O(n^2).
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n log n)
+    hint: versus O(n^2) for the direct DFT
+  - label: Auxiliary space
+    value: O(n)
+  - label: Approach
+    value: Divide and conquer
+    hint: split into even and odd positions
+  - label: Precision
+    value: double
+    hint: exact only while output coefficients stay below about 2^53
+    tone: warn
+properties:
+  - { label: Needs a power-of-two length, value: true }
+  - { label: Exact for integers of any size, value: false }
+  - { label: Recursive, value: true }
+prerequisites:
+  - Algorithms/Divide_and_Conquer
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
+  - Algorithms/Coding_Theory/Galois_Field
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+---
+
+## Definition
+
+The discrete Fourier transform (DFT) of a sequence a<sub>0</sub>, &hellip;, a<sub>n-1</sub> evaluates the polynomial A(x) = a<sub>0</sub> + a<sub>1</sub>x + &hellip; + a<sub>n-1</sub>x<sup>n-1</sup> at the n complex n-th roots of unity.
+
+<Equation label="DFT" expr="X[k] = sum_{j=0..n-1} a[j] * w^(j k),  w = e^(-2 pi i / n)" />
+<Equation label="Inverse" expr="a[j] = (1/n) * sum_{k=0..n-1} X[k] * w^(-j k)" />
+
+**Sign convention used here.** The forward transform uses w = e<sup>-2&pi;i/n</sup>, the textbook and NumPy convention, so `fft([1, 2, 3, 4])` is `[10, -2+2j, -2, -2-2j]`. The inverse uses the opposite sign and divides by n. (An earlier version of this code used the opposite sign for the forward transform; polynomial multiplication was unaffected, but the spectrum was the complex conjugate of the standard one.)
+
+## Intuition
+
+A polynomial has two equivalent forms: its coefficients, or its values at n points. Multiplying in value form is cheap: multiply the values point by point, O(n). The transform converts between the two forms. Choosing the roots of unity as the n points makes the conversion fast, because their powers repeat in a pattern that the even-odd split exploits.
+
+Write A(x) = E(x<sup>2</sup>) + x O(x<sup>2</sup>), where E holds the even-indexed and O the odd-indexed coefficients. The squares of the n-th roots of unity are the n/2-th roots of unity, each reached twice. So one transform of size n becomes two of size n/2, plus n/2 cheap combinations.
+
+<Callout title="The butterfly identity">
+With w = e<sup>-2&pi;i/n</sup> and k from 0 to n/2-1: `X[k] = E[k] + w^k O[k]` and `X[k + n/2] = E[k] - w^k O[k]`, because w<sup>k+n/2</sup> = -w<sup>k</sup>. One twiddle multiplication serves two outputs.
+</Callout>
+
+## How it works
+
+<Steps>
+  <Step title="Pad to a power of two">
+    A forward transform of a length that is not a power of two is padded with zeros up to the next power of two, and the result has that padded length. The inverse refuses such input (see the callout below).
+  </Step>
+  <Step title="Split">
+    Put the even-indexed elements in one list and the odd-indexed elements in another. A list of length 1 is its own transform.
+  </Step>
+  <Step title="Recurse">
+    Transform both halves. Each has half the length.
+  </Step>
+  <Step title="Combine with butterflies">
+    For each k below n/2, compute `t = w^k * O[k]`, then set `X[k] = E[k] + t` and `X[k + n/2] = E[k] - t`.
+  </Step>
+  <Step title="Invert">
+    The inverse uses the same recursion with the opposite sign of the exponent, then divides every value by n.
+  </Step>
+</Steps>
+
+<Callout tone="warning" title="The inverse needs a power-of-two length">
+Padding a spectrum with zeros does not give the spectrum of a shorter signal, so an inverse of, say, length 3 has no meaningful answer. Python raises `ValueError`, C++ throws `std::invalid_argument` and Go panics. An empty input returns an empty result in all three.
+</Callout>
+
+## Worked example: fft([1, 2, 3, 4])
+
+With n = 4 the twiddle factors are w<sup>0</sup> = 1 and w<sup>1</sup> = -i.
+
+<ArrayDiagram
+  legend={{ l: 'even-indexed half', r: 'odd-indexed half', f: 'final spectrum' }}
+  rows={[
+    { label: 'input', values: [1, 2, 3, 4], note: 'Even positions hold `[1, 3]`, odd positions hold `[2, 4]`.' },
+    { label: 'FFT of the even half', values: [4, -2], tones: 'll', note: '`[1, 3]` transforms to `[1 + 3, 1 - 3] = [4, -2]`.' },
+    { label: 'FFT of the odd half', values: [6, -2], tones: 'rr', note: '`[2, 4]` transforms to `[6, -2]`.' },
+    { label: 'combine', values: ['10', '-2+2i', '-2', '-2-2i'], tones: 'ffff', note: '`X[0] = 4 + 6`, `X[2] = 4 - 6`. For k = 1: `t = -i * (-2) = 2i`, so `X[1] = -2 + 2i` and `X[3] = -2 - 2i`.' },
+  ]}
+/>
+
+### Multiplying polynomials
+
+To multiply (1 + 2x + 3x<sup>2</sup>) by (4 + 5x), the result has degree 3, so pad both to length 4, transform, multiply point by point, and invert.
+
+<DataTable
+  columns={['Stage', 'Values']}
+  rows={[
+    ['FFT of `[1, 2, 3, 0]`', '`[6, -2-2i, 2, -2+2i]`'],
+    ['FFT of `[4, 5, 0, 0]`', '`[9, 4-5i, -1, 4+5i]`'],
+    ['Pointwise product', '`[54, -18+2i, -2, -18-2i]`'],
+    ['Inverse FFT, rounded', '`[4, 13, 22, 15]`'],
+  ]}
+  caption="The product is 4 + 13x + 22x^2 + 15x^3."
+/>
+
+## Pseudocode
+
+```text
+fft(a, inverse):
+    n = len(a)
+    if n == 0: return []
+    if inverse and n is not a power of two: error
+    if n is not a power of two: pad a with zeros to the next power of two
+    result = rec(a, inverse)
+    if inverse: divide every value by n
+    return result
+
+rec(a, inverse):
+    n = len(a)
+    if n == 1: return a
+    even = rec(a[0], a[2], a[4], ...)
+    odd  = rec(a[1], a[3], a[5], ...)
+    sign = +1 if inverse else -1
+    for k = 0 to n/2 - 1:
+        t = exp(sign * 2 * pi * i * k / n) * odd[k]
+        result[k]       = even[k] + t
+        result[k + n/2] = even[k] - t
+    return result
+
+multiply(p, q):
+    n = smallest power of two >= len(p) + len(q) - 1
+    P = fft(pad(p, n));  Q = fft(pad(q, n))
+    R = ifft(P * Q pointwise)
+    return round(real part of R) for the first len(p) + len(q) - 1 entries
+```
+
+## Implementation
+
+All three versions are recursive and compute each twiddle factor directly with a complex exponential. The public functions are `fft`, `ifft`, `multiply_polynomials` and `convolve` (`FFT`, `IFFT`, `MultiplyPolynomials`, `Convolve` in Go). They differ in a few ways:
+
+- Python and Go return integer lists from `multiply_polynomials`; Python integers are unbounded and Go `int` is 64 bits. The C++ version returns `std::vector<long long>`, because a product of two `int` values can overflow `int`.
+- The C++ version divides by 2 at each level of the inverse recursion, which adds up to a division by n; Python and Go divide once at the top.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform" />
+
+## Complexity analysis
+
+<Equation label="Recurrence" expr="T(n) = 2 T(n/2) + O(n)" result="O(n log n)" />
+
+<ComplexityTable
+  rows={[
+    { case: 'FFT or inverse FFT', time: 'O(n log n)', space: 'O(n)', when: 'log2(n) levels, each doing n/2 butterflies. The recursion also builds new lists of total size O(n) per level while it runs.' },
+    { case: 'Polynomial multiplication', time: 'O(n log n)', space: 'O(n)', when: 'three transforms of size n, the smallest power of two that holds len(p) + len(q) - 1 coefficients.' },
+    { case: 'Direct DFT or schoolbook product', time: 'O(n^2)', when: 'the baseline FFT replaces.' },
+  ]}
+/>
+
+### Precision
+
+Everything runs in double precision, which keeps about 15 to 16 significant digits. Rounding errors grow with the size of the numbers being summed, so integer results are right only while the largest output coefficient is far below 2<sup>53</sup> (about 9&times;10<sup>15</sup>).
+
+<DataTable
+  columns={['Input', 'Largest output coefficient', 'Result']}
+  rows={[
+    ['n = 512, coefficients up to 10^6 (pseudo-random)', 'about 1.3e14', 'exact in the Python test'],
+    ['n = 4096, coefficients up to 10^7', 'around 10^17 or more', 'thousands of wrong coefficients in the audit run'],
+  ]}
+/>
+
+For larger values, split each coefficient into smaller pieces (for example 15 bits each) and combine several smaller products, or use a number-theoretic transform when the answer is wanted modulo a prime. This repository does not implement the NTT.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Variant', 'Idea', 'Trade-off']}
+  rows={[
+    ['Recursive (this repository)', 'split, recurse, combine', 'simple, allocates lists at every level'],
+    ['Iterative, in place', 'bit-reversal permutation, then loops over levels', 'less memory, faster, harder to read'],
+    ['Number-theoretic transform', 'roots of unity in a prime field instead of complex numbers', 'exact modulo the prime, no rounding'],
+    ['Bluestein / Rader', 'handle lengths that are not powers of two', 'more complex; not implemented here'],
+  ]}
+/>
+
+## FFT vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Exact?', 'Good for']}
+  highlight={0}
+  rows={[
+    ['FFT multiplication', 'O(n log n)', 'No (rounding)', 'long polynomials with moderate coefficients'],
+    ['Schoolbook multiplication', 'O(n^2)', 'Yes', 'short inputs'],
+    ['Karatsuba', 'O(n^1.585)', 'Yes', 'medium sizes, exact integers'],
+    ['NTT', 'O(n log n)', 'Yes, modulo a prime', 'counting problems modulo 998244353 and similar primes'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Brings convolution from quadratic to O(n log n).',
+    'The same routine serves both directions, with only a sign and a division changed.',
+    'Compact: the core is one loop over butterflies.',
+  ]}
+  cons={[
+    'Floating-point error: large integer results are silently wrong.',
+    'Requires a power-of-two length; zero-padding changes the spectrum of the input.',
+    'The recursive version allocates a lot; an in-place iterative version is faster.',
+  ]}
+/>
+
+## Applications
+
+- **Polynomial and big-number multiplication,** and convolutions such as string matching with wildcards.
+- **Signal processing:** spectra, filtering and correlation.
+- **Counting problems:** combining generating functions, usually with an NTT modulo a prime.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming the forward sign.** This code uses e<sup>-2&pi;i/n</sup>. If you compare against a library, check its convention first.
+- **Forgetting to divide by n** after the inverse transform (the code does it for you).
+- **Output too short.** Pad to at least len(p) + len(q) - 1, or the product wraps around (cyclic convolution).
+- **Trusting `round` on huge values.** Beyond about 10<sup>14</sup> in the output, verify against an exact method.
+- **Inverting a non-power-of-two spectrum.** It is rejected here; do not pad it yourself.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is the FFT faster than the DFT?">
+    The DFT multiplies an n-by-n matrix by a vector, which costs n<sup>2</sup>. The FFT notices that the matrix of roots of unity has repeated structure, so two half-size problems and n/2 butterflies do the same work.
+  </FaqItem>
+  <FaqItem question="Why does multiplying polynomials with an FFT work?">
+    The product of two polynomials, evaluated at any point, is the product of their values at that point. So evaluating at n points, multiplying the values and interpolating back gives the product, and the FFT does both conversions in O(n log n).
+  </FaqItem>
+  <FaqItem question="What if my length is not a power of two?">
+    Pad with zeros before a forward transform; the code does this automatically and returns the padded length. For polynomial multiplication this is exactly what you want. The inverse requires a power-of-two spectrum.
+  </FaqItem>
+  <FaqItem question="How do I get exact results modulo a prime?">
+    Use a number-theoretic transform, which replaces the complex roots of unity by roots of unity modulo a suitable prime. It is not implemented in this repository.
+  </FaqItem>
+</Faq>
