@@ -1,163 +1,55 @@
 # Specialized Techniques
 
-A comprehensive collection of **Specialized Techniques** for advanced algorithmic problems. These techniques are commonly used in competitive programming and complex problem-solving scenarios, providing efficient solutions to specific classes of problems.
+Four ways to split a big structure into pieces that are cheap to combine. Square root decomposition and Mo's algorithm answer range queries on an array, heavy-light and centroid decomposition work on trees. They differ in what they answer, whether updates are allowed, and whether queries must be known in advance.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-Specialized techniques are advanced algorithmic methods designed for specific problem types. They often involve:
-- Tree decomposition methods
-- Square root decomposition
-- Offline query processing
-- Advanced data structure techniques
+| # | Topic | What it adds | Level |
+|---|-------|--------------|-------|
+| 1 | [Square Root Decomposition](Square_Root_Decomposition/) | Blocks of about sqrt(n) elements with one sum each. Range sums with point updates, answered online. | Intermediate |
+| 2 | [Mo's Algorithm](Mos_Algorithm/) | Sort offline queries so a sliding window moves little. Counts distinct values per range, with no updates. | Advanced |
+| 3 | [Heavy-Light Decomposition](Heavy_Light_Decomposition/) | Cut a tree into chains so any path crosses O(log n) of them. Gives the LCA and the segments of a path. | Advanced |
+| 4 | [Centroid Decomposition](Centroid_Decomposition/) | Remove the centroid, recurse on the pieces and record who was removed inside whom. A second tree of height O(log n). | Advanced |
 
-These techniques enable efficient solutions to problems that would be difficult or inefficient with standard approaches.
+The first two work on an array and the last two on a tree. The two tree techniques are independent of the array ones.
 
----
+## How They Compare
 
-## Key Characteristics
+| Technique | Build | Query | Update | Extra space | Queries |
+|-----------|-------|-------|--------|-------------|---------|
+| Square root decomposition | O(n) | O(sqrt n) | O(1) for a point | O(sqrt n) plus a copy of the array | online |
+| Mo's algorithm | O(Q log Q) to sort the queries | O((N + Q) sqrt N) for all of them | not supported | O(N + Q) | offline |
+| Heavy-light decomposition | O(n) | O(log n) for LCA or the path segments | not in the code | O(n) | online |
+| Centroid decomposition | O(n log n) | O(log n) per centroid ancestor in a typical use | not supported | O(n) | online, once built |
 
-1. **Problem-Specific**: Designed for specific problem classes
-2. **Advanced**: Require deeper algorithmic understanding
-3. **Efficient**: Provide optimal or near-optimal solutions
-4. **Competitive Programming**: Commonly used in contests
+A heavy-light path query that also asks for a sum, with a segment tree over the positions, costs O(log^2 n). That segment tree is not part of this repository. Mo's algorithm needs an add or remove step of O(1); a slower step multiplies the total.
 
----
+## Choosing One
 
-## Techniques
+| Situation | Use | Why |
+|-----------|-----|-----|
+| Range sums with point updates, and you want simple code | Square root decomposition | one array and one block-sum array; a segment tree or Fenwick tree is faster at O(log n) |
+| Many range queries on a fixed array, statistic hard to merge | Mo's algorithm | only needs add and remove of one element; all queries must be known first |
+| Path queries or the LCA on a fixed tree | Heavy-light decomposition | any path becomes O(log n) contiguous ranges of one array |
+| Count paths of a given length, or nearest marked vertex | Centroid decomposition | every path passes through a centroid at some level, and the levels are O(log n) |
+| Range sums with no updates | [Prefix Sum and Difference Array](../../../Problem_Patterns/Prefix_Sum_Difference_Array/) | O(n) build and O(1) per query, no decomposition needed |
 
-### 🔹 Mo's Algorithm
-- **Description**: Offline range query processing using square root decomposition
-- **Time Complexity**: O((N + Q) × √N)
-- **Space Complexity**: O(N)
-- **Applications**: Range queries, distinct elements, frequency queries
+## Common Pitfalls
 
-### 🔹 Heavy-Light Decomposition
-- **Description**: Tree decomposition for efficient path queries
-- **Time Complexity**: O(log² N) per query
-- **Space Complexity**: O(N)
-- **Applications**: Tree path queries, path updates, LCA
+- A block size of 0: `sqrt(0)` is 0 and `i // 0` fails. Both array topics use a minimum block size of 1.
+- Mo's algorithm is offline and assumes the array never changes. Expand the window before shrinking it, or a count can go negative.
+- Segment tree indexes in heavy-light decomposition are `pos[u]`, not the vertex id `u`.
+- In centroid decomposition, recompute sizes for each piece and never walk back into a removed centroid.
 
-### 🔹 Centroid Decomposition
-- **Description**: Tree decomposition by recursively removing centroids
-- **Time Complexity**: O(N log N) construction, O(log N) per query
-- **Space Complexity**: O(N)
-- **Applications**: Tree problems, distance queries, divide-and-conquer
+## Related
 
-### 🔹 Square Root Decomposition
-- **Description**: Array decomposition into blocks for range operations
-- **Time Complexity**: O(√N) per query/update
-- **Space Complexity**: O(N)
-- **Applications**: Range queries, range updates, simpler than segment trees
-
----
-
-## Comparison
-
-| Technique | Time Complexity | Space Complexity | Best For |
-|----------|----------------|------------------|----------|
-| **Mo's Algorithm** | O((N+Q)√N) | O(N) | Offline range queries |
-| **HLD** | O(log² N) | O(N) | Tree path queries |
-| **Centroid Decomp** | O(N log N) | O(N) | Tree divide-and-conquer |
-| **Sqrt Decomp** | O(√N) | O(N) | Range queries |
-
----
-
-## When to Use
-
-- **Mo's Algorithm**: Multiple offline range queries
-- **Heavy-Light Decomposition**: Tree path queries and updates
-- **Centroid Decomposition**: Tree problems requiring divide-and-conquer
-- **Square Root Decomposition**: Range queries when segment tree is overkill
-
----
-
-## Implementation Approaches
-
-### 1. Standard Implementation
-- **Pros**: Well-documented, follows standard approach
-- **Cons**: May not be optimized for specific cases
-- **Use Case**: Learning, general problems
-
-### 2. Optimized Implementation
-- **Pros**: Better performance, handles edge cases
-- **Cons**: More complex code
-- **Use Case**: Production code, competitive programming
-
-### 3. Hybrid Approaches
-- **Pros**: Combines multiple techniques
-- **Cons**: Very complex
-- **Use Case**: Advanced problems, research
-
----
-
-## Common Patterns
-
-1. **Decomposition**: Breaking problems into manageable parts
-2. **Block-Based**: Using square root sized blocks
-3. **Tree Techniques**: Specialized tree algorithms
-4. **Offline Processing**: Processing queries in optimal order
-
----
-
-## Applications
-
-1. **Competitive Programming**: Common in programming contests
-2. **Tree Problems**: Complex tree operations
-3. **Range Queries**: Efficient range operations
-4. **Optimization**: Finding optimal solutions
-5. **Research**: Advanced algorithmic research
-
----
-
-## Implementations
-
-This folder contains implementations in three languages:
-
-- **Python** (`TechniqueName/Python/`)
-- **C++** (`TechniqueName/C++/`)
-- **Go** (`TechniqueName/Go/`)
-
-Each implementation includes:
-- Complete source code
-- Comprehensive test suite
-- Detailed README with usage examples
-
----
-
-## Complexity Analysis
-
-Specialized techniques provide efficient solutions:
-- **Mo's Algorithm**: O((N + Q) × √N) - Optimal for offline queries
-- **HLD**: O(log² N) - Efficient for tree paths
-- **Centroid Decomp**: O(N log N) - Efficient tree decomposition
-- **Sqrt Decomp**: O(√N) - Simpler than segment trees
-
-These complexities are often optimal or near-optimal for their problem classes.
-
----
-
-## Related Techniques
-
-- **Segment Trees**: Alternative for range queries
-- **Fenwick Trees**: Alternative for range sum
-- **Tree Traversal**: Foundation for tree techniques
-- **Divide and Conquer**: Core principle in many techniques
-
----
-
-## Further Reading
-
-- "Competitive Programming" by Halim & Halim
-- "Algorithm Design Manual" by Steven Skiena
-- "Introduction to Algorithms" by CLRS
-- Codeforces tutorials and blogs
-
----
-
-**Note**: These specialized techniques require a solid understanding of fundamental algorithms and data structures. Master the basics before attempting these advanced techniques. They are most valuable in competitive programming and complex problem-solving scenarios.
-
----
-
-_Last Updated: December 2025_
+- [Prefix Sum and Difference Array](../../../Problem_Patterns/Prefix_Sum_Difference_Array/): read first, for the array topics.
+- [DFS](../../Graph_Algorithms/Traversal/DFS/): read first, for the tree topics.
+- [Advanced Algorithms](../): the parent overview of both sub-areas.
+- [Backtracking Algorithms](../Backtracking/): the other sub-area.
+- [Divide and Conquer](../../Divide_and_Conquer/): the principle behind centroid decomposition.
+- [Segment Tree](../../../Data_Structures/Non_Linear/Trees/Segment_Tree/): the O(log n) alternative for range queries, and the usual partner of heavy-light decomposition.
+- [Fenwick Tree](../../../Data_Structures/Non_Linear/Trees/Fenwick_Tree/): the O(log n) alternative for range sums.
+- [Two Pointers](../../../Problem_Patterns/Two_Pointers/): the window idea behind Mo's algorithm.

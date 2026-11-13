@@ -1,101 +1,42 @@
 # Advanced Algorithms
 
-A comprehensive collection of **Advanced Algorithms**, including backtracking techniques and specialized decomposition algorithms.
+Two groups of techniques for problems that a plain loop cannot solve fast enough. Backtracking searches a space of candidates and drops dead ends early. Specialized techniques cut an array or a tree into pieces so that many queries stay cheap.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-This folder contains implementations of advanced algorithms in Python, C++, and Go. Each algorithm includes:
-- Complete implementation
-- Comprehensive test suites
-- Detailed documentation
-- Complexity analysis
+| # | Section | What it covers | Level |
+|---|---------|----------------|-------|
+| 1 | [Backtracking Algorithms](Backtracking/) | Choose, check, recurse, undo. Maze, N-Queens, Graph Coloring and Sudoku, with pruning that removes dead branches. | 4 topics |
+| 2 | [Specialized Techniques](Specialized_Techniques/) | Square root blocks, Mo's offline queries, heavy-light chains and centroid levels, for range and tree queries. | 4 topics |
 
----
+The two sub-areas are independent and have almost nothing in common in code. The only shared background is a depth-first search and some recursion.
 
-## Categories
+## How They Compare
 
-### 🔹 Backtracking
+| Sub-area | Typical question | Core idea | Cost shape |
+|----------|------------------|-----------|------------|
+| Backtracking | is there a valid arrangement, and what is one? | extend a partial solution and undo it when a rule breaks | exponential in the worst case, far less with pruning |
+| Specialized Techniques | what is the answer for this range or this tree path? | precompute pieces and combine a few per query | polynomial: O(sqrt n), O((N + Q) sqrt N), O(log n) |
 
-- **[N-Queens Problem](Backtracking/N_Queens_Problem/)**
-  - Classic backtracking problem
-  - Time: O(N!) worst case, typically much better
-  - Places N queens on N×N board without conflicts
+## Where to Start
 
-- **[Sudoku Solver](Backtracking/Sudoku_Solver/)**
-  - Backtracking-based Sudoku solver
-  - Time: O(9^m) where m is number of empty cells
-  - Solves standard 9×9 Sudoku puzzles
+1. Read Backtracking first if the recursion pattern is new. Start with Rat in a Maze, then N-Queens, Graph Coloring and Sudoku.
+2. Read Specialized Techniques from the array side. Square root decomposition comes first, Mo's algorithm second.
+3. Then take the tree side: heavy-light decomposition, then centroid decomposition.
 
-- **[Rat in a Maze](Backtracking/Rat_in_a_Maze/)**
-  - Find path from source to destination
-  - Time: O(2^(n×n)) worst case
-  - Backtracking pathfinding algorithm
+| If the problem says | Look at | Why |
+|---------------------|---------|-----|
+| find any arrangement that satisfies the rules | Backtracking | a search with undo, no formula needed |
+| count or find all solutions of a small puzzle | Backtracking | it visits every branch when asked to |
+| many range queries on one array | Specialized Techniques | blocks or an offline order beat a scan per query |
+| many path queries on one tree | Specialized Techniques | chains or centroids cut a path into a few pieces |
+| overlapping subproblems with a clear recurrence | [Dynamic Programming](../Dynamic_Programming/) | stored answers beat repeated search |
 
-- **[Graph Coloring](Backtracking/Graph_Coloring/)**
-  - Color graph with minimum colors
-  - Time: O(m × k^n) where k is number of colors
-  - Ensures no adjacent vertices share color
+## Related
 
----
-
-### 🔹 Specialized Techniques
-
-- **[Mo's Algorithm](Specialized_Techniques/Mos_Algorithm/)**
-  - Square root decomposition for range queries
-  - Time: O((N + Q) × √N)
-  - Efficient offline range query processing
-
-- **[Heavy-Light Decomposition](Specialized_Techniques/Heavy_Light_Decomposition/)**
-  - Tree decomposition for path queries
-  - Time: O(log² N) per query
-  - Efficient tree path operations
-
-- **[Centroid Decomposition](Specialized_Techniques/Centroid_Decomposition/)**
-  - Tree decomposition by centroids
-  - Time: O(N log N) construction
-  - Useful for tree problems
-
-- **[Square Root Decomposition](Specialized_Techniques/Square_Root_Decomposition/)**
-  - Array decomposition into blocks
-  - Time: O(√N) per query/update
-  - Efficient range queries and updates
-
----
-
-## Comparison
-
-| Algorithm | Time Complexity | Space Complexity | Best For |
-|-----------|----------------|-------------------|----------|
-| **N-Queens** | O(N!) | O(N²) | Constraint satisfaction |
-| **Sudoku Solver** | O(9^m) | O(1) | Puzzle solving |
-| **Rat in Maze** | O(2^(n²)) | O(n²) | Pathfinding |
-| **Graph Coloring** | O(m × k^n) | O(n) | Graph problems |
-| **Mo's Algorithm** | O((N+Q)√N) | O(N) | Offline range queries |
-| **HLD** | O(log² N) | O(N) | Tree path queries |
-| **Centroid Decomp** | O(N log N) | O(N) | Tree problems |
-| **Sqrt Decomp** | O(√N) | O(N) | Range queries |
-
----
-
-## When to Use
-
-- **Backtracking**: Constraint satisfaction problems, puzzles, optimization
-- **Mo's Algorithm**: Multiple offline range queries on arrays
-- **Heavy-Light Decomposition**: Path queries on trees
-- **Centroid Decomposition**: Tree problems requiring divide-and-conquer
-- **Square Root Decomposition**: Range queries when segment tree is overkill
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Competitive Programming" by Halim & Halim
-- "Handbook of Data Structures and Applications"
-
----
-
-_Last Updated: December 2025_
+- [DFS](../Graph_Algorithms/Traversal/DFS/): read first.
+- [Divide and Conquer](../Divide_and_Conquer/): both sub-areas cut a problem into parts.
+- [Dynamic Programming](../Dynamic_Programming/): the better tool when subproblems overlap.
+- [Segment Tree](../../Data_Structures/Non_Linear/Trees/Segment_Tree/): the O(log n) alternative to the range techniques here.
