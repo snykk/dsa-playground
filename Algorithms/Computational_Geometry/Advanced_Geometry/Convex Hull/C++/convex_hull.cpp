@@ -15,10 +15,13 @@ struct Point {
 };
 
 double crossProduct(const Point& o, const Point& a, const Point& b) {
-    // Two statements, so a compiler cannot fuse the products into one FMA instruction
-    // and change the rounding of the result.
-    double left = (a.x - o.x) * (b.y - o.y);
-    double right = (a.y - o.y) * (b.x - o.x);
+    // Each product is rounded on its own, as in Python. Writing it to a volatile double
+    // keeps a compiler from fusing `left - right` into one fused multiply-add, which GCC
+    // does at -O2 even across statements: the fused form keeps one product unrounded, so
+    // two equal products would no longer cancel to exactly 0 and collinear points would
+    // stop testing as collinear.
+    volatile double left = (a.x - o.x) * (b.y - o.y);
+    volatile double right = (a.y - o.y) * (b.x - o.x);
     return left - right;
 }
 
