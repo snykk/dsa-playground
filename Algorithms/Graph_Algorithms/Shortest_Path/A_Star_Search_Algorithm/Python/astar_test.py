@@ -130,6 +130,55 @@ class TestAStar(unittest.TestCase):
         self.assertEqual(distance, 0)
         self.assertEqual(path, [0])
     
+    def test_astar_admissible_inconsistent_heuristic_is_optimal(self):
+        """An admissible but inconsistent heuristic must still give the optimal path."""
+        # h(A) = 4 equals the true cost A -> C -> G, so h never overestimates, but it is
+        # not consistent (h(A) > w(A, C) + h(C)). C is first reached via B with g = 3 and
+        # expanded; the cheaper route via A (g = 2) must re-open it.
+        graph = {
+            'S': [('A', 1), ('B', 1)],
+            'A': [('C', 1)],
+            'B': [('C', 2)],
+            'C': [('G', 3)],
+            'G': []
+        }
+        h = {'A': 4}
+        result = astar(graph, 'S', 'G', lambda v: h.get(v, 0))
+        self.assertEqual(result, (5, ['S', 'A', 'C', 'G']))
+
+    def test_astar_grid_matches_bfs(self):
+        """Manhattan distance on a 4-connected grid maze gives the BFS shortest lengths."""
+        rows, cols = 4, 5
+        walls = {(1, 0), (1, 1), (1, 2), (1, 3)}  # row 1 is open only at column 4
+        graph = {}
+        for r in range(rows):
+            for c in range(cols):
+                if (r, c) in walls:
+                    continue
+                graph[r * cols + c] = [
+                    (nr * cols + nc, 1)
+                    for nr, nc in ((r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1))
+                    if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in walls
+                ]
+        # Reference: breadth-first search hop counts from cell 0.
+        hops, frontier = {0: 0}, [0]
+        for u in frontier:
+            for v, _ in graph[u]:
+                if v not in hops:
+                    hops[v] = hops[u] + 1
+                    frontier.append(v)
+        self.assertEqual(hops[2 * cols + 2], 8)  # right along row 0, down column 4, back left
+        for goal in graph:
+            goal_rc = divmod(goal, cols)
+            result = astar(graph, 0, goal, lambda v: manhattan_distance(divmod(v, cols), goal_rc))
+            self.assertIsNotNone(result)
+            distance, path = result
+            self.assertEqual(distance, hops[goal])
+            self.assertEqual(len(path), distance + 1)
+            self.assertEqual((path[0], path[-1]), (0, goal))
+            for a, b in zip(path, path[1:]):
+                self.assertIn((b, 1), graph[a])
+
     def test_manhattan_distance(self):
         """Test Manhattan distance heuristic."""
         pos1 = (0, 0)

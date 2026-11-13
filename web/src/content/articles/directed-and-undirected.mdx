@@ -1,0 +1,230 @@
+---
+topic: Data_Structures/Non_Linear/Graph/Directed_and_Undirected
+title: Directed and Undirected Graphs
+lead: In a directed graph every edge has a direction and u to v says nothing about v to u. In an undirected graph an edge works both ways. The choice changes what reachability, degree and connectivity mean, and how an edge is stored.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Storage
+    value: adjacency list
+    hint: dict of neighbor lists
+  - label: Undirected edge
+    value: 2 list entries
+    hint: one in each endpoint
+  - label: BFS / DFS
+    value: O(V + E)
+  - label: is_connected
+    value: undirected only
+    hint: raises, throws or panics on a directed graph
+    tone: warn
+properties:
+  - { label: Edges have a direction, value: true }
+  - { label: Symmetric when undirected, value: true }
+  - { label: Weights, value: false }
+  - { label: Parallel edges, value: false }
+prerequisites:
+  - Data_Structures/Non_Linear/Graph/Adjacency_List
+related:
+  - Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted
+  - Data_Structures/Non_Linear/Graph/Adjacency_Matrix
+  - Data_Structures/Non_Linear/Graph/Edge_List
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+---
+
+## What the two kinds are
+
+A graph is a set of vertices plus a set of edges. In an **undirected** graph an edge is an unordered pair `{u, v}`: friendship, a two-way road. In a **directed** graph (digraph) it is an ordered pair `(u, v)`: a hyperlink, a one-way street, "task u must finish before task v".
+
+The class `Graph(directed)` in this folder holds both kinds. It stores an adjacency list, a map from each vertex to the list of vertices it points to. The only difference between the modes is that an undirected `add_edge(u, v)` also records `u` in `v`'s list.
+
+The same five edges as an undirected graph and as a directed one:
+
+<GraphDiagram
+  edges="1-2, 1-4, 2-3, 4-3, 3-5"
+  positions={{ 1: [8, 50], 2: [38, 10], 4: [38, 90], 3: [66, 50], 5: [94, 50] }}
+  caption="Undirected: every edge can be walked both ways."
+/>
+
+<GraphDiagram
+  edges="1->2, 1->4, 2->3, 4->3, 3->5"
+  positions={{ 1: [8, 50], 2: [38, 10], 4: [38, 90], 3: [66, 50], 5: [94, 50] }}
+  caption="Directed: edges can only be followed along the arrow, so 1 reaches 5 but 5 reaches nothing."
+/>
+
+<DataTable
+  columns={['', 'Undirected', 'Directed']}
+  rows={[
+    ['Edge', 'unordered pair `{u, v}`', 'ordered pair `(u, v)`'],
+    ['Stored as', '`v` in `u`\'s list and `u` in `v`\'s list', '`v` in `u`\'s list only'],
+    ['Adjacency matrix', 'symmetric', 'any 0/1 matrix'],
+    ['Degree', 'number of incident edges', 'in-degree (arrows in) and out-degree (arrows out)'],
+    ['Connectivity', 'connected components', 'weakly and strongly connected components'],
+  ]}
+/>
+
+<Callout title="Undirected is directed with both arrows">
+Any undirected graph is a directed graph in which every edge appears in both directions. Many algorithms (BFS, DFS, Dijkstra) are written once for digraphs and work unchanged on undirected graphs stored this way.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`add_vertex(v)`', 'create an empty neighbor list', 'O(1)'],
+    ['`add_edge(u, v)`', 'create missing vertices; append unless already present (and the reverse when undirected)', 'O(deg(u) + deg(v))'],
+    ['`remove_edge(u, v)`', 'remove `v` from `u`\'s list (and `u` from `v`\'s when undirected)', 'O(deg(u) + deg(v))'],
+    ['`has_edge(u, v)`', 'scan `u`\'s list', 'O(deg(u))'],
+    ['`get_neighbors(u)`', 'return a copy of the out-neighbors', 'O(deg(u))'],
+    ['`get_edges()`', 'list edges; undirected edges appear once', 'O(V + E)'],
+    ['`bfs(s)`, `dfs(s)`', 'traversal order from `s`', 'O(V + E)'],
+    ['`is_connected()`', 'undirected only: does BFS reach every vertex?', 'O(V + E)'],
+    ['`get_degree(u)`', 'neighbors of `u`; for a directed graph, in-degree plus out-degree', 'O(V + E) directed, O(1) undirected'],
+  ]}
+/>
+
+The three languages share these operations (Go uses `AddEdge`, `GetNeighbors` and so on; C++ has no recursive DFS). Adding an edge that already exists changes nothing, so there are no parallel edges.
+
+### Add and remove an edge
+
+On the undirected graph, `add_edge(3, 5)` stores two entries, and `remove_edge(3, 5)` deletes both:
+
+<DataTable
+  columns={['Call', 'Lists changed']}
+  rows={[
+    ['`add_edge(3, 5)` undirected', '3: [2, 4, 5] and 5: [3]'],
+    ['`add_edge(3, 5)` directed', '3: [5] only; 5 has no way back'],
+    ['`remove_edge(3, 5)` undirected', 'both entries removed'],
+    ['`remove_edge(3, 5)` directed', 'only 3 -> 5 is removed; a 5 -> 3 edge, if any, stays'],
+  ]}
+/>
+
+### Degree
+
+In an undirected graph `deg(v)` counts incident edges. Summing every degree counts each edge twice, so the sum is 2E (the handshake lemma). In a digraph, the in-degrees sum to E and so do the out-degrees. For the directed graph above:
+
+<DataTable
+  columns={['Vertex', { label: 'In', kind: 'mono' }, { label: 'Out', kind: 'mono' }, { label: 'get_degree', kind: 'mono' }]}
+  rows={[
+    ['1', '0', '2', '2'],
+    ['2', '1', '1', '2'],
+    ['3', '2', '1', '3'],
+    ['4', '1', '1', '2'],
+    ['5', '1', '0', '1'],
+  ]}
+/>
+
+For a directed graph the code's `get_degree` returns in plus out. Computing the in-degree scans every list, so it costs O(V + E).
+
+### Traversal and reachability
+
+On the undirected graph, BFS from 1 visits `[1, 2, 4, 3, 5]` and so does every other start: the graph is connected. On the directed graph the answer depends on where you start:
+
+<DataTable
+  columns={['Start', 'Directed BFS result']}
+  rows={[
+    ['1', '[1, 2, 4, 3, 5]'],
+    ['3', '[3, 5]'],
+    ['5', '[5]'],
+  ]}
+/>
+
+That is why `is_connected()` refuses a directed graph (`ValueError` in Python, `std::invalid_argument` in C++, a panic in Go): "connected" needs a definition (weak or strong), and the code does not guess.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['space', 'O(V + E)', 'undirected edges are stored twice, so up to 2E entries'],
+    ['add / remove edge', 'O(deg)', 'the lists are scanned for a duplicate or for the entry to remove'],
+    ['has edge', 'O(deg(u))', 'linear scan of one list'],
+    ['BFS / DFS', 'O(V + E)', 'every vertex and every list entry is visited once'],
+    ['is_connected', 'O(V + E)', 'a single BFS'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Meaning']}
+  rows={[
+    ['Weakly connected digraph', 'connected if arrow directions are ignored'],
+    ['Strongly connected digraph', 'every vertex reaches every other one along the arrows'],
+    ['DAG', 'directed with no cycle; can be topologically sorted'],
+    ['Multigraph', 'allows parallel edges (not supported here)'],
+    ['Self-loop', 'an edge `u-u`; stored once even when undirected, so counting list entries gives degree 1 where the usual convention gives 2'],
+  ]}
+/>
+
+## Directed vs undirected
+
+<DataTable
+  columns={['Question', 'Undirected', 'Directed']}
+  highlight={0}
+  rows={[
+    ['Model it when', 'the relation is symmetric (friends, two-way roads)', 'the relation has an order (follows, depends on, flows to)'],
+    ['Edges stored', '2 per edge', '1 per edge'],
+    ['Cycle detection', 'a visited neighbor that is not the parent', 'a visited neighbor still on the current DFS path'],
+    ['Ordering problems', 'not applicable', 'topological sort needs a DAG'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'One class covers both kinds; the flag changes only how edges are mirrored.',
+    'The adjacency-list layout gives O(V + E) space and O(V + E) traversal.',
+    'Directed edges model asymmetric relations exactly.',
+    'Duplicate edges are ignored, so `add_edge` is safe to repeat.',
+  ]}
+  cons={[
+    'Undirected edges cost two entries and two updates.',
+    'In-degree of a directed vertex needs a scan of all lists.',
+    '`has_edge` is O(deg), not O(1).',
+    'No weights or parallel edges: see the weighted graph topic for weights.',
+  ]}
+/>
+
+## Applications
+
+- **Undirected:** social networks, road and cable networks, connected components, spanning trees.
+- **Directed:** web links, build and course dependencies (topological sort), state machines, flow networks.
+- **Directed reachability:** strongly connected components, cycle detection.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Mirroring a directed edge** or forgetting to mirror an undirected one. A traversal then silently misses vertices.
+- **Calling `is_connected()` on a directed graph.** It raises, throws or panics; decide between weak and strong connectivity first.
+- **Mixing up degree and out-degree.** `get_degree` on a digraph is in plus out, not the number of neighbors.
+- **Cycle detection with the undirected rule on a digraph.** Seeing a visited vertex is not enough; it must be on the current path.
+- **Assuming BFS from any vertex reaches everything** in a directed graph.
+- **Self-loops and degree.** An undirected self-loop is stored once, so its degree contribution is 1, not 2.
+</Callout>
+
+## Implementation
+
+All three versions are an adjacency list in a map. Python and Go return a copy from `get_neighbors`, so editing the result never corrupts the graph. `get_edges` skips the mirrored copy of an undirected edge.
+
+<TopicCode topic="Data_Structures/Non_Linear/Graph/Directed_and_Undirected" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is an undirected graph just a directed graph with two edges per pair?">
+    Yes for storage and algorithms: replacing each undirected edge by two opposite arrows gives an equivalent digraph. The two representations count edges differently (E versus 2E), so be careful with formulas.
+  </FaqItem>
+  <FaqItem question="What is the difference between in-degree and out-degree?">
+    The out-degree of v counts edges leaving v, and the in-degree counts edges entering v. Both sums over all vertices equal E.
+  </FaqItem>
+  <FaqItem question="When is a directed graph connected?">
+    Weakly connected means the graph is connected when directions are ignored. Strongly connected means every vertex can reach every other along the arrows. Algorithms such as Kosaraju or Tarjan find strongly connected components.
+  </FaqItem>
+  <FaqItem question="Does BFS work on directed graphs?">
+    Yes. It follows only outgoing edges, so it visits exactly the vertices reachable from the start, which may be fewer than all vertices.
+  </FaqItem>
+</Faq>

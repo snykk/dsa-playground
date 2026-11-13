@@ -1,25 +1,37 @@
-# Interactive Problems (Go)
+# Interactive Problems -- Go Implementation
 
-Go implementation for interactive competitive programming problems.
+## Files
 
-## Key Points
+| File | Contents |
+|------|----------|
+| `main.go` | `Query`, `Answer`, `GuessNumber`, `BinarySearchAnswer` and a demo `main()` |
+| `main_test.go` | tests that connect the reader and writer to an in-process fake judge through pipes |
+| `go.mod` | module `interactive` |
 
-- Always flush output after queries
-- Use `writer.Flush()` after each query
-- Handle responses carefully
+## API
 
-## Functions
+| Function | Description |
+|----------|-------------|
+| `Query(x int) int` | write `? x`, flush, read the integer reply |
+| `Answer(x int)` | write `! x`, flush |
+| `GuessNumber(n int)` | binary search with `higher` / `lower` / `correct` replies |
+| `BinarySearchAnswer(n int, predicate func(int) bool) int` | offline binary search for the largest `m` with `predicate(m)` |
 
-- `Query(x)` - Send query and get response
-- `Answer(x)` - Submit final answer
-- `GuessNumber(n)` - Binary search to guess number
-- `BinarySearchAnswer(n, predicate)` - Generic binary search
+Go has 4 of the roughly 12 functions in Python.
 
-## Usage
+## Go-Specific Notes
 
-```go
-defer writer.Flush()
-response := Query(42)
-Answer(result)
+- Reading and writing use package-level `bufio.Reader` and `bufio.Writer`; flush the writer after every query.
+- The tests swap `reader` and `writer` for pipes and run the judge in a goroutine.
+- `main` guesses a number between 1 and 100 against the real standard input.
+
+## How to Run
+
+```bash
+go test ./...
 ```
 
+## Key Takeaways
+
+- A buffered writer needs an explicit `Flush()` after each query.
+- A fake judge makes interactive code testable.

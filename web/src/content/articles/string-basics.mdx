@@ -1,0 +1,204 @@
+---
+topic: Data_Structures/Linear/String/String_Basics
+title: Introduction to Strings
+lead: A string is a sequence of characters stored like an array, so reading a character or the length is fast, but strings are often immutable and their length depends on what you count (bytes, code units or characters). This page covers the five basic operations and the traps behind them.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Access by index
+    value: O(1)
+  - label: Length
+    value: O(1)
+    hint: stored, not counted
+  - label: Concatenate
+    value: O(n + m)
+    hint: builds a new string
+    tone: warn
+  - label: Substring
+    value: O(k)
+    hint: Python and C++ copy; Go slices in O(1)
+properties:
+  - { label: Contiguous memory, value: true }
+  - { label: Immutable in Python and Go, value: true }
+  - { label: Mutable in C++, value: true }
+  - { label: Random access, value: true }
+prerequisites:
+  - Data_Structures/Linear/Array
+related:
+  - Data_Structures/Linear/String/String_Manipulation
+  - Algorithms/String_Algorithms/Pattern_Matching
+  - Data_Structures/Linear/String/Rope
+  - Algorithms/Searching/Linear_Search
+---
+
+## What a string is
+
+A string is an array of characters plus a length. The text `hello` is five cells in a row, indexed from 0. Because the cells are contiguous and equally sized (for plain ASCII), `s[i]` is a computed address, exactly as in an array.
+
+<ArrayDiagram
+  legend={{ p: 'the character read by s[1]' }}
+  rows={[
+    { label: 's = "hello", length 5', values: ['h', 'e', 'l', 'l', 'o'], tones: '.p...', marks: { 0: '0', 1: '1', 2: '2', 3: '3', 4: '4' }, note: '`s[1]` is `e`. `len(s)` is 5. The valid indexes are 0 to 4.' },
+  ]}
+/>
+
+The repository code has five functions: access a character, get the length, traverse, concatenate and take a substring. The same names are used in all three languages (`access_char`, `string_length`, `traverse_string`, `concatenate`, `substring`; Go capitalises them).
+
+<Callout title="One text, three lengths">
+The string `h` + e-with-acute-accent + `llo` has 5 characters (code points), 6 bytes in UTF-8 and 5 code units in UTF-16. A language fixes which one `len` and `s[i]` use. Python counts code points; C++ `std::string` and Go count bytes. This is the first thing to check when moving string code between languages.
+</Callout>
+
+## What each language counts
+
+<DataTable
+  columns={['Language', '`len` / length', '`s[i]` returns', 'Substring unit', 'Notes']}
+  rows={[
+    ['Python 3', 'code points', 'a one-character string', 'code points', 'slices are clamped; negative indexes count from the end; `s[i]` out of range raises `IndexError`'],
+    ['C++ `std::string`', 'bytes', 'a `char` (a byte)', 'bytes', '`s[i]` out of range is undefined behaviour; this repo clamps `substring`'],
+    ['Go `string`', 'bytes', 'a `byte`', 'bytes (`Substring`)', '`TraverseString` decodes runes; `AccessChar` out of range panics'],
+  ]}
+/>
+
+Here is `h` + e-acute + `llo` in UTF-8. The accented letter takes two bytes, so byte indexes and character indexes drift apart after it:
+
+<ArrayDiagram
+  legend={{ p: 'the two bytes of one character' }}
+  rows={[
+    { label: 'characters (Python)', values: ['h', 'e-acute', 'l', 'l', 'o'], tones: '.p...', marks: { 1: 'index 1' } },
+    { label: 'UTF-8 bytes (C++ and Go), hex', values: ['68', 'C3', 'A9', '6C', '6C', '6F'], tones: '.pp...', marks: { 1: 'byte 1', 2: 'byte 2' }, note: 'Byte 1 alone is half a character. A byte-based substring that cuts between bytes 1 and 2 produces invalid text.' },
+  ]}
+/>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`access_char(s, i)`', 'the character at index `i`', 'O(1)'],
+    ['`string_length(s)`', 'the stored length', 'O(1)'],
+    ['`traverse_string(s)`', 'every character, in order', 'O(n)'],
+    ['`concatenate(a, b)`', 'a new string `a` followed by `b`', 'O(n + m)'],
+    ['`substring(s, start, end)`', 'characters from `start` up to but not including `end`', 'O(k), k = end - start'],
+  ]}
+/>
+
+### Substring and its edge cases
+
+`substring("abcdef", 1, 4)` is `bcd`: start is inclusive, end is exclusive. After the fixes in this repository all three languages agree on the edge cases that used to differ:
+
+<DataTable
+  columns={['Call', 'Result', 'Why']}
+  rows={[
+    ['`substring("abcdef", 3, 1)`', '`""`', 'end before start is an empty range (C++ used to return the whole tail)'],
+    ['`substring("abc", 0, 9)`', '`"abc"`', 'end past the length is clamped (Go used to pad with NUL characters)'],
+    ['`substring("abcdef", 9, 12)`', '`""`', 'start past the end gives an empty string'],
+    ['`substring("abcdef", -3, 6)`', '`"def"` in Python, `"abcdef"` in C++ and Go', 'Python counts negative indexes from the end; C++ and Go clamp them to 0'],
+  ]}
+/>
+
+### Concatenation in a loop
+
+Strings are immutable in Python and Go, so `a + b` allocates a new string and copies both. Appending one character `n` times therefore copies 1 + 2 + &hellip; + n characters:
+
+<DataTable
+  columns={['Appends so far', 'Length after', 'Characters copied by this append', 'Total copied']}
+  rows={[
+    ['1', '1', '1', '1'],
+    ['2', '2', '2', '3'],
+    ['3', '3', '3', '6'],
+    ['4', '4', '4', '10'],
+    ['5', '5', '5', '15'],
+  ]}
+/>
+
+<Equation label="Total copy work of n appends" expr="1 + 2 + ... + n" result="n(n+1)/2 = O(n^2)" />
+
+Collect the pieces in a list and join once (`"".join(parts)` in Python, `strings.Builder` in Go) to make it O(n). C++ `std::string` is mutable, and `+=` is amortized O(1) like a dynamic array append. CPython sometimes grows a string in place when nothing else refers to it, but that is an implementation detail, not a guarantee.
+
+## Implementation
+
+The Python file is `main.py`, the C++ file is `main.cpp` (no `main()` function; it is a header-like source the test includes) and the Go package is `intro`.
+
+<TopicCode topic="Data_Structures/Linear/String/String_Basics" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['access by index', 'O(1)', 'address arithmetic (for fixed-width encodings; see the note below)'],
+    ['length', 'O(1)', 'stored with the string'],
+    ['traverse', 'O(n)', 'one step per character'],
+    ['concatenate', 'O(n + m)', 'new storage, both parts copied'],
+    ['substring', 'O(k) copy; O(1) for a Go slice', 'Python and C++ copy k characters; Go shares the bytes'],
+    ['equality or comparison', 'O(min(n, m))', 'stops at the first difference'],
+  ]}
+/>
+
+Space is O(n). Indexing by character is O(1) only when every character has the same width. Python stores each string with a fixed width per character (1, 2 or 4 bytes, chosen from the widest character present), so `s[i]` stays O(1). In a variable-width encoding such as UTF-8, finding the i-th character needs a scan, which is why C++ and Go index bytes instead.
+
+## Strings vs arrays
+
+<DataTable
+  columns={['Property', 'String', 'Array of characters']}
+  highlight={0}
+  rows={[
+    ['mutable', 'Python and Go: no; C++ `std::string`: yes', 'yes'],
+    ['element type', 'characters only', 'anything'],
+    ['hashable / usable as a key', 'yes (immutable strings)', 'usually no'],
+    ['built-in search, split, join, compare', 'yes', 'no'],
+    ['edit one character', 'copy the string (immutable) or `s[i] = c` in C++', 'O(1)'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Constant-time length and indexing.',
+    'Compact, contiguous storage.',
+    'Rich library support: search, split, join, compare, format.',
+    'Immutability makes strings safe to share and to use as hash keys.',
+  ]}
+  cons={[
+    'Editing or concatenating copies the data in immutable languages.',
+    '"Character" is ambiguous: bytes, code points and user-visible glyphs differ.',
+    'Byte indexing can cut a multi-byte character in half.',
+    'Repeated concatenation in a loop is O(n<sup>2</sup>) without a builder.',
+  ]}
+/>
+
+## Applications
+
+- **Parsing and formatting** text, logs, configuration and protocols.
+- **Keys** in hash maps and tries.
+- **Pattern matching, edit distance and palindromes**, which treat a string as an array of symbols.
+- **Text editing**, where large edits motivate structures such as a rope.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Assuming one unit.** `len` counts code points in Python and bytes in C++ and Go. For non-ASCII text the numbers differ.
+- **Slicing bytes in the middle of a character.** The result is invalid UTF-8. In Go, convert to runes first when you need whole characters.
+- **Off-by-one on `end`.** The end of a substring is exclusive: `substring(s, 0, len)` is the whole string.
+- **Out-of-range access.** `s[i]` raises in Python, panics in Go and is undefined behaviour in C++. Check `i < len` first.
+- **`+=` in a loop** on immutable strings: O(n<sup>2</sup>). Use a list and join, or a builder.
+- **Comparing with `==` and expecting equal-looking text to match.** The same visible character can have different code point sequences.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why are strings immutable in Python and Go?">
+    It lets strings be shared without copying, used as dictionary keys and passed between threads safely. The price is that every edit builds a new string.
+  </FaqItem>
+  <FaqItem question="Is s[i] always O(1)?">
+    It is for Python strings and for byte indexing in C++ and Go. Finding the i-th character of a UTF-8 text is O(i), because characters have different widths, which is why byte indexes are used instead.
+  </FaqItem>
+  <FaqItem question="What is the difference between a string and a character array?">
+    A string is a character sequence with a length and a library of text operations, and it is often immutable. A character array is a plain array you can edit element by element.
+  </FaqItem>
+  <FaqItem question="How do I build a long string efficiently?">
+    Append pieces to a list (or a `strings.Builder`, or a C++ `std::string`) and produce the final string once. That costs O(total length) instead of O(n<sup>2</sup>).
+  </FaqItem>
+</Faq>

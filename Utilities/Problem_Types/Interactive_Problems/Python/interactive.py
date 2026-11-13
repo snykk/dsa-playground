@@ -141,6 +141,7 @@ def tournament(n: int) -> int:
                 next_round.append(candidates[i])
         candidates = next_round
     
+    print(f"! {candidates[0]}", flush=True)
     return candidates[0]
 
 
@@ -166,8 +167,8 @@ def guess_subset(n: int) -> List[int]:
     return result
 
 
-def binary_subset_search(n: int) -> List[int]:
-    """Efficiently find hidden subset using binary search on bits."""
+def binary_subset_search(n: int) -> int:
+    """Find a hidden number in 0..n bit by bit (about log2(n) queries)."""
     def query_mask(mask: int) -> int:
         """Query if hidden number AND mask is non-zero."""
         print(f"? {mask}", flush=True)
@@ -179,6 +180,7 @@ def binary_subset_search(n: int) -> List[int]:
         if query_mask(1 << bit):
             result |= (1 << bit)
     
+    print(f"! {result}", flush=True)
     return result
 
 

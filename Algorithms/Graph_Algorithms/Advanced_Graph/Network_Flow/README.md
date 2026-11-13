@@ -38,8 +38,8 @@ Network flow problems model many real-world scenarios:
 
 ## Implementations
 
-- **[Ford-Fulkerson](./Ford-Fulkerson/)** - DFS-based algorithm
-- **[Edmonds-Karp](./Edmonds-Karp/)** - BFS-based algorithm
+- **[Ford-Fulkerson](Ford_Fulkerson/)** - DFS-based algorithm
+- **[Edmonds-Karp](Edmonds_Karp/)** - BFS-based algorithm
 
 ---
 

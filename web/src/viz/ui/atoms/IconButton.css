@@ -1,0 +1,27 @@
+/* IconButton atom: square transport button with an SVG icon. */
+.viz-icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.viz-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+.viz-icon.play {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.viz-icon:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

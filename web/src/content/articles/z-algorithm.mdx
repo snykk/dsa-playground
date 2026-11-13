@@ -1,0 +1,214 @@
+---
+topic: Algorithms/String_Algorithms/Advanced_String/Z_Algorithm
+title: Z-Algorithm
+lead: The Z-algorithm computes, for every position of a string, how long a prefix match starts there. It builds the whole Z-array in O(n) time, and that array finds every occurrence of a pattern in a text in O(n + m).
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n + m)
+    hint: Z-array in O(length); search on pattern + $ + text
+  - label: Space
+    value: O(n + m)
+    hint: the combined string and its Z-array
+  - label: Z-array
+    value: Z[i]
+    hint: longest match of s[i..] with a prefix of s
+  - label: Approach
+    value: Z-box reuse
+properties:
+  - { label: Linear in the worst case, value: true }
+  - { label: Needs no failure table, value: true }
+  - { label: Online (streams the text), value: false }
+  - { label: Finds overlapping matches, value: true }
+prerequisites:
+  - Algorithms/String_Algorithms/Pattern_Matching
+related:
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Longest_Palindromic_Substring_Manachers
+  - Algorithms/String_Algorithms/Advanced_String/Aho_Corasick
+  - Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search
+---
+
+## How the Z-algorithm works
+
+For a string `s`, `Z[i]` is the length of the longest substring that starts at `i` and is also a prefix of `s`. By convention `Z[0] = 0` here (the whole string would trivially match itself). For `s = aabxaab`, `Z[4] = 3` because `aab` starts at index 4 and equals the prefix `aab`.
+
+Computing each `Z[i]` from scratch would be quadratic. The algorithm keeps the **Z-box** `[l, r]`: the match that reaches furthest right so far, meaning `s[l..r]` equals the prefix `s[0..r-l]`.
+
+<Steps>
+  <Step title="Start with Z[i] = 0 and an empty box">
+    `l = r = 0`. Positions are processed from `i = 1` to `n - 1`.
+  </Step>
+  <Step title="Reuse the box when i is inside it">
+    If `i <= r`, then `s[i..r]` is a copy of `s[i-l..r-l]` near the start of the string. So `Z[i]` starts at `min(r - i + 1, Z[i - l])`: the value of the mirror, but clipped so it does not claim anything beyond `r`.
+  </Step>
+  <Step title="Extend by comparing">
+    While `i + Z[i] < n` and `s[Z[i]] == s[i + Z[i]]`, increase `Z[i]`. Only characters beyond the box are really compared.
+  </Step>
+  <Step title="Move the box">
+    If `i + Z[i] - 1 > r`, the new match reaches further right: set `l = i` and `r = i + Z[i] - 1`.
+  </Step>
+</Steps>
+
+<Callout title="Why it is linear">
+`r` never moves left, and every successful comparison in step 3 moves it right by one. When the mirror value is smaller than `r - i + 1`, nothing is compared at all, and when it is larger it is clipped to the box. So the total number of successful comparisons is at most `n`, and each position adds at most one failed comparison.
+</Callout>
+
+## See it in action
+
+Enter a text and a pattern and step through the search. The Z-algorithm runs on `pattern + "$" + text`, with the Z-box `[l, r]` marked, and the positions where `z >= m` are reported as occurrences. Try the `a$a | a` example: a `$` inside the input is handled correctly.
+
+<ArticleViz ids={['z-algorithm']} />
+
+## Worked example: the Z-array
+
+For `s = aabxaabxaab` the code computes `Z = [0, 1, 0, 0, 7, 1, 0, 0, 3, 1, 0]`.
+
+<ArrayDiagram
+  legend={{ l: 'the Z-box [4, 10]: s[4..10] equals the prefix s[0..6]', f: 'a position whose value came from the box without comparisons' }}
+  rows={[
+    { label: 's', values: ['a', 'a', 'b', 'x', 'a', 'a', 'b', 'x', 'a', 'a', 'b'], tones: '....lllllll' },
+    { label: 'Z', values: [0, 1, 0, 0, 7, 1, 0, 0, 3, 1, 0], tones: '....lffffff', marks: { 4: 'box starts' } },
+  ]}
+/>
+
+What happens, step by step:
+
+<DataTable
+  columns={['i', 'Z-box before', 'Start value', 'Comparisons', 'Z[i]', 'Box after']}
+  rows={[
+    ['1', 'empty', '0', '`a = a` succeeds, then `a` vs `b` fails', '1', '[1, 1]'],
+    ['2', '[1, 1]', '0', '`b` vs `a` fails', '0', '[1, 1]'],
+    ['3', '[1, 1]', '0', '`x` vs `a` fails', '0', 'empty (the code sets [3, 2])'],
+    ['4', 'empty ([3, 2])', '0', 'seven matches, then the string ends', '7', '[4, 10]'],
+    ['5', '[4, 10]', '`min(6, Z[1]) = 1`', 'none needed', '1', '[4, 10]'],
+    ['6', '[4, 10]', '`min(5, Z[2]) = 0`', 'none needed', '0', '[4, 10]'],
+    ['7', '[4, 10]', '`min(4, Z[3]) = 0`', 'none needed', '0', '[4, 10]'],
+    ['8', '[4, 10]', '`min(3, Z[4]) = 3`', 'none needed', '3', '[4, 10]'],
+    ['9', '[4, 10]', '`min(2, Z[5]) = 1`', 'none needed', '1', '[4, 10]'],
+    ['10', '[4, 10]', '`min(1, Z[6]) = 0`', 'none needed', '0', '[4, 10]'],
+  ]}
+/>
+
+Positions 5 to 10 cost no comparisons: the box already told us the answer.
+
+## Pattern search
+
+To search for `P` (length `m`) in `T`, build the Z-array of `P + "$" + T`. A text position `j` corresponds to `i = m + 1 + j`. If `Z[i] >= m`, then `P` occurs at `j`. For `aab` in `aabxaabaab` the combined string is `aab$aabxaabaab`:
+
+<ArrayDiagram
+  legend={{ c: 'the separator', f: 'z >= 3: an occurrence of the pattern' }}
+  rows={[
+    { label: 'combined', values: ['a', 'a', 'b', '$', 'a', 'a', 'b', 'x', 'a', 'a', 'b', 'a', 'a', 'b'], tones: '...c............' },
+    { label: 'Z', values: [0, 1, 0, 0, 3, 1, 0, 0, 3, 1, 0, 3, 1, 0], tones: '....f...f..f..', note: 'The three `3`s are at combined indices 4, 8 and 11, so the matches are at text indices 0, 4 and 7.' },
+  ]}
+/>
+
+The loop starts at `i = m + 1`, skipping the pattern and the separator. The code tests `z[i] >= m`, not `== m`: if `$` also occurs in the text or the pattern, a match can run past the separator and `Z[i]` can be larger than `m`. For example, `a$a` searched for `a` gives `[0, 2]`, not `[2]`.
+
+## Pseudocode
+
+```text
+build_z_array(s):
+    n = len(s); z = [0] * n; l = 0; r = 0
+    for i = 1 to n - 1:
+        if i <= r:
+            z[i] = min(r - i + 1, z[i - l])
+        while i + z[i] < n and s[z[i]] == s[i + z[i]]:
+            z[i] += 1
+        if i + z[i] - 1 > r:
+            l = i; r = i + z[i] - 1
+    return z
+
+z_algorithm_search(text, pattern):
+    if pattern is empty or text is empty or len(pattern) > len(text): return []
+    combined = pattern + "$" + text
+    z = build_z_array(combined); m = len(pattern)
+    return [i - m - 1 for i = m + 1 to len(combined) - 1 if z[i] >= m]
+```
+
+## Implementation
+
+Python exposes `build_z_array` and `z_algorithm_search`; C++ has `buildZArray` and `zAlgorithmSearch`; Go has `ZAlgorithmSearch` (its `buildZArray` is not exported). All three use the separator `$` and the `>=` test. Python indices are code points; C++ and Go indices are bytes.
+
+An **empty pattern** returns `[]` here, as in the naive, KMP, Rabin-Karp and Boyer-Moore searches. An empty text or a pattern longer than the text also returns `[]`.
+
+<TopicCode topic="Algorithms/String_Algorithms/Advanced_String/Z_Algorithm" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Z-array of a string of length k', time: 'O(k)', space: 'O(k)', when: 'Every successful comparison moves the right end of the Z-box forward; the box never moves back.' },
+    { case: 'Pattern search', time: 'O(n + m)', space: 'O(n + m)', when: 'The Z-array of the combined string of length n + m + 1, then one scan for z >= m.' },
+  ]}
+/>
+
+<Equation label="Total work" expr="successful comparisons <= k, failed comparisons <= k - 1" result="O(k)" />
+
+The search copies the text into the combined string, so it needs O(n + m) extra memory. KMP's table needs only O(m).
+
+## Z-algorithm vs alternatives
+
+<DataTable
+  columns={['', 'Z-algorithm', 'KMP', 'Rabin-Karp']}
+  rows={[
+    ['Preprocessing', 'Z-array of the combined string', 'LPS table of the pattern', 'hash of the pattern'],
+    ['Worst-case time', 'O(n + m)', 'O(n + m)', 'O(n*m)'],
+    ['Extra space', 'O(n + m)', 'O(m)', 'O(1)'],
+    ['Reads the text as a stream', 'No (needs the combined string)', 'Yes', 'Yes'],
+    ['Also gives', 'prefix matches at every position', 'borders of every prefix', 'rolling hashes'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Short and easy to code; the idea is a single window.',
+    'Linear time in the worst case, with no hashing and no collisions.',
+    'The Z-array itself solves other problems: periodicity, borders, prefix-suffix questions.',
+    'Overlapping matches come for free.',
+  ]}
+  cons={[
+    'Needs the combined string: O(n + m) memory, versus O(m) for KMP.',
+    'Not a streaming algorithm: it must see the whole text.',
+    'Needs a separator that does not occur in the input, or the `>=` test.',
+    'Matches several patterns only one at a time.',
+  ]}
+/>
+
+## Applications
+
+- **Pattern search.** All occurrences in linear time.
+- **Smallest period of a string.** The smallest `p` with `p + Z[p] == n` (and `p` dividing `n` for an exact repetition).
+- **Prefix versus suffix questions.** For example, which suffixes are also prefixes (borders).
+- **Counting and comparing** substrings against a fixed prefix.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Testing `z[i] == m`.** With `$` in the input, `z[i]` can exceed `m` and real matches are dropped. Use `>=`.
+- **Starting the scan at the wrong index.** Text position `j` is combined index `m + 1 + j`; the result is `i - m - 1`.
+- **Forgetting the clip.** `Z[i] = Z[i - l]` without `min(r - i + 1, ...)` claims matches beyond the box.
+- **Treating `Z[0]` as meaningful.** It is set to 0 here, and the loop starts at 1.
+- **Assuming an empty pattern matches everywhere.** This implementation returns `[]`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What is the Z-box?">
+    The segment `[l, r]` that reaches furthest right among all prefix matches found so far, so `s[l..r]` equals `s[0..r-l]`. Inside it, the Z-values near the start of the string tell you the Z-values near `l`.
+  </FaqItem>
+  <FaqItem question="Why must the separator not occur in the input?">
+    The separator stops a prefix match from running past the pattern. If it also appears in the text, a match can extend further and `Z[i]` exceeds `m`. This code avoids the problem by testing `z[i] >= m`, which is exact: for `i > m` the window `s[i..i+m-1]` lies entirely in the text, so `z[i] >= m` means the pattern occurs there.
+  </FaqItem>
+  <FaqItem question="How does it compare with KMP?">
+    Both are linear. KMP computes the LPS table of the pattern and streams the text, using O(m) space. The Z-algorithm builds one array over pattern + text, using O(n + m) space, but the array is easier to define and use.
+  </FaqItem>
+  <FaqItem question="Can I find the longest border of a string with it?">
+    Yes: a border of length `k` exists when `i + Z[i] == n` for `i = n - k`. The longest border comes from the smallest such `i`.
+  </FaqItem>
+</Faq>

@@ -43,7 +43,7 @@ def main() -> int:
         n_end = stripped.count("#endif  // !IS_TEST_BUILD")
         if n_if == n_end:
             continue
-        # Unbalanced — remove the stray #endif line.
+        # Unbalanced -- remove the stray #endif line.
         new_lines = []
         removed = 0
         for line in text.splitlines(keepends=True):

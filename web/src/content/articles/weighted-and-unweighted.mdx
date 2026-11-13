@@ -1,0 +1,213 @@
+---
+topic: Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted
+title: Weighted and Unweighted Graphs
+lead: A weighted graph attaches a number to every edge (distance, cost, time); an unweighted graph treats every edge as equal. Weights decide which algorithm finds the shortest path. BFS counts edges, Dijkstra adds weights, and Bellman-Ford copes with negative ones.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Storage
+    value: (neighbor, weight)
+    hint: adjacency list of pairs
+  - label: Unweighted default
+    value: weight 1.0
+  - label: Total weight
+    value: O(V + E)
+  - label: BFS on weights
+    value: wrong paths
+    hint: it minimizes edges, not cost
+    tone: warn
+properties:
+  - { label: Directed or undirected, value: true }
+  - { label: Negative weights stored, value: true }
+  - { label: BFS gives cheapest path, value: false }
+  - { label: Parallel edges, value: false }
+prerequisites:
+  - Data_Structures/Non_Linear/Graph/Adjacency_List
+  - Data_Structures/Non_Linear/Graph/Directed_and_Undirected
+related:
+  - Data_Structures/Non_Linear/Graph/Edge_List
+  - Data_Structures/Non_Linear/Graph/Adjacency_Matrix
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm
+---
+
+## What the two kinds are
+
+In an **unweighted** graph an edge either exists or it does not. The length of a path is its number of edges. In a **weighted** graph each edge carries a number, its weight, and the length of a path is the sum of its weights.
+
+The `WeightedGraph` class here stores an adjacency list of `(neighbor, weight)` pairs and serves both kinds: an edge added without a weight gets weight 1.0, so an "unweighted" graph is just one where every weight is 1.0.
+
+<GraphDiagram
+  edges="0-1 4, 0-2 1, 1-2 2, 2-3 5, 0-3 10"
+  positions={{ 0: [8, 50], 1: [42, 8], 2: [50, 92], 3: [92, 50] }}
+  caption="A weighted undirected graph. The number on each edge is its weight."
+/>
+
+Its adjacency list, with each undirected edge stored in both endpoints:
+
+<DataTable
+  columns={['Vertex', { label: 'List of (neighbor, weight)', kind: 'mono' }]}
+  rows={[
+    ['0', '(1, 4), (2, 1), (3, 10)'],
+    ['1', '(0, 4), (2, 2)'],
+    ['2', '(0, 1), (1, 2), (3, 5)'],
+    ['3', '(2, 5), (0, 10)'],
+  ]}
+/>
+
+<Callout title="Weight changes the meaning of shortest">
+In an unweighted graph the shortest path has the fewest edges. In a weighted graph it has the smallest total weight, and those two paths can be different.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`add_edge(u, v, w=1.0)`', 'replace any existing `u -> v` edge, then append `(v, w)` (and `(u, w)` to `v` when undirected)', 'O(deg(u) + deg(v))'],
+    ['`remove_edge(u, v)`', 'remove the edge (and its reverse when undirected)', 'O(deg(u) + deg(v))'],
+    ['`has_edge(u, v)`', 'scan `u`\'s list', 'O(deg(u))'],
+    ['`get_weight(u, v)`', 'the weight, or None (Python) / -1.0 (C++, Go) when absent', 'O(deg(u))'],
+    ['`get_neighbors(u)`', 'neighbor ids only', 'O(deg(u))'],
+    ['`get_neighbors_with_weights(u)`', 'a copy of the `(neighbor, weight)` pairs (Python)', 'O(deg(u))'],
+    ['`get_total_weight()`', 'sum of all edge weights, each undirected edge once', 'O(V + E)'],
+    ['`bfs(s)`', 'breadth-first order, ignoring weights', 'O(V + E)'],
+  ]}
+/>
+
+Python also has `get_edges`, `get_vertices`, `dfs`, `dfs_recursive` and `is_connected` (undirected only). C++ and Go have the operations above plus `bfs`. Adding an existing edge again **updates its weight**: `add_edge(0, 3, 1)` after `add_edge(0, 3, 10)` leaves one edge of weight 1 and lowers the total from 22 to 13 in the graph above.
+
+### Total weight
+
+For the graph above, the undirected edges once each weigh 4 + 1 + 2 + 5 + 10 = 22, which is what `get_total_weight()` returns. The method deduplicates the mirror entries; on a directed graph it just sums all entries.
+
+### Zero and negative weights
+
+Weights are plain numbers, so 0 and negative values are stored and returned as given (`get_weight` returns them; `has_edge` reports the edge). Storing a negative weight is easy. Using it is the hard part, because many algorithms assume weights are non-negative (see below). In C++ and Go an absent edge also returns -1.0 from `get_weight`, so use `has_edge` first when negative weights are possible.
+
+### Weights change the answer: BFS versus Dijkstra
+
+BFS ignores weights. From vertex 0 it reaches vertices 1 and 3 in one hop each, so it reports the direct edges as the "shortest" paths. Dijkstra's algorithm, which sums weights, finds cheaper routes through vertex 2:
+
+<DataTable
+  columns={['Target', 'BFS path (fewest edges)', 'BFS cost', 'Cheapest path', 'Cost']}
+  rows={[
+    ['1', '0 - 1', '4', '0 - 2 - 1', '3'],
+    ['2', '0 - 2', '1', '0 - 2', '1'],
+    ['3', '0 - 3', '10', '0 - 2 - 3', '6'],
+  ]}
+/>
+
+<GraphDiagram
+  edges="0-1 4, 0-2 1, 1-2 2, 2-3 5, 0-3 10"
+  positions={{ 0: [8, 50], 1: [42, 8], 2: [50, 92], 3: [92, 50] }}
+  tones={{ 0: 'p', 1: 'l', 2: 'l', 3: 'f' }}
+  badges={{ 0: '0', 1: '3', 2: '1', 3: '6' }}
+  edgeTones={{ '0-2': 'f', '1-2': 'f', '2-3': 'f' }}
+  legend={{ p: 'source', l: 'reached through vertex 2', f: 'cheapest total is 6, not 10' }}
+  caption="Badges show the cheapest distance from 0. Highlighted edges form the cheapest-path tree."
+/>
+
+The distances come from running Dijkstra on this exact graph. The class `WeightedGraph` does not include Dijkstra itself; it supplies the structure, and the algorithm lives in the shortest-path topics.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['space', 'O(V + E)', 'one `(neighbor, weight)` pair per edge end'],
+    ['add / remove edge', 'O(deg)', 'a list is scanned and rebuilt'],
+    ['get weight', 'O(deg(u))', 'scan one list'],
+    ['total weight', 'O(V + E)', 'visits every entry once'],
+    ['BFS / DFS', 'O(V + E)', 'ignores weights'],
+  ]}
+/>
+
+## Which algorithm for which graph
+
+<DataTable
+  columns={['Graph', 'Question', 'Algorithm']}
+  rows={[
+    ['Unweighted', 'fewest edges', 'BFS, O(V + E)'],
+    ['Weights &ge; 0', 'cheapest path from one source', 'Dijkstra, O((V + E) log V) with a binary heap'],
+    ['Negative weights', 'cheapest path from one source', 'Bellman-Ford, O(V E); detects negative cycles'],
+    ['Any weights', 'all pairs', 'Floyd-Warshall, O(V^3)'],
+    ['Undirected', 'cheapest connecting subgraph', 'Kruskal or Prim (minimum spanning tree)'],
+  ]}
+/>
+
+## Weighted vs unweighted
+
+<DataTable
+  columns={['', 'Unweighted', 'Weighted']}
+  highlight={0}
+  rows={[
+    ['Edge carries', 'nothing', 'a number'],
+    ['Path length', 'number of edges', 'sum of weights'],
+    ['Shortest path', 'BFS', 'Dijkstra or Bellman-Ford'],
+    ['Storage', 'neighbor ids', '(neighbor, weight) pairs'],
+    ['Typical data', 'friendships, links', 'distances, times, costs'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'One structure covers both kinds; weight defaults to 1.0.',
+    'Models real costs: distance, time, price, capacity.',
+    'Re-adding an edge updates its weight, so there are no parallel edges.',
+    'O(V + E) space and traversal, like any adjacency list.',
+  ]}
+  cons={[
+    'Weights make shortest-path algorithms more complex than BFS.',
+    'Negative weights break Dijkstra, and negative cycles make shortest paths undefined.',
+    'Floating-point weights suffer rounding, so equality checks on sums are fragile.',
+    'Each edge costs extra memory for its weight.',
+  ]}
+/>
+
+## Applications
+
+- **Routing and navigation:** distances or travel times on road networks.
+- **Network design:** latency or bandwidth costs, minimum spanning trees for cabling.
+- **Scheduling and planning:** costs of moving between states.
+- **Game pathfinding:** terrain costs, with A* on top.
+- **Unweighted special cases:** social graphs, mazes and grids, where BFS is enough.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Running BFS on a weighted graph** and calling the result the shortest path. It minimizes edges, not cost.
+- **Running Dijkstra with negative weights.** It can return wrong answers; use Bellman-Ford.
+- **Treating a weight of 0 as "no edge".** Here an edge with weight 0 exists; check with `has_edge`.
+- **Using -1.0 as a missing-edge marker** (C++ and Go `get_weight`) when -1 can be a real weight.
+- **Comparing float sums with `==`.** Use a tolerance, or integer weights.
+- **Updating only one direction** of an undirected edge. `add_edge` and `remove_edge` handle both for you.
+- **Summing all list entries** to get the total weight of an undirected graph: that counts every edge twice.
+</Callout>
+
+## Implementation
+
+All three versions store an adjacency list of `(neighbor, weight)` pairs. Python and C++ keep tuples or pairs in a map. Go stores `Edge{To, Weight}` structs and requires the weight argument, so pass 1.0 for an unweighted edge.
+
+<TopicCode topic="Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is an unweighted graph the same as a weighted graph with all weights 1?">
+    For shortest-path purposes, yes: with every weight equal to 1 the cheapest path is the one with the fewest edges, which BFS finds faster than Dijkstra. This class stores the weight 1.0 for you when none is given.
+  </FaqItem>
+  <FaqItem question="Why can BFS not find shortest paths in a weighted graph?">
+    BFS expands vertices in order of the number of edges, not the total weight. A path with more edges can be cheaper, as 0 - 2 - 3 (cost 6) beats the direct edge 0 - 3 (cost 10).
+  </FaqItem>
+  <FaqItem question="Which algorithm handles negative edge weights?">
+    Bellman-Ford handles them and detects negative cycles. Dijkstra requires non-negative weights.
+  </FaqItem>
+  <FaqItem question="What happens when I add an edge that already exists?">
+    The old edge is replaced, so its weight is updated and the graph still has one edge between the two vertices.
+  </FaqItem>
+</Faq>

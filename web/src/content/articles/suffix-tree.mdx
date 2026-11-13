@@ -1,0 +1,251 @@
+---
+topic: Data_Structures/Non_Linear/Trees/Suffix_Tree
+title: Suffix Tree
+lead: A suffix tree is a compressed trie of every suffix of a string. After one build you can find all occurrences of any pattern of length m in O(m + occ) time, independent of the text length, which makes it a classic index for substring queries.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Search
+    value: O(m + occ)
+    hint: m = pattern length, occ = matches
+  - label: Build (this repo)
+    value: O(n^2)
+    hint: suffix by suffix; Ukkonen does O(n)
+    tone: warn
+  - label: Nodes
+    value: at most 2(n + 1)
+    hint: n + 1 leaves, internal nodes branch
+  - label: Space
+    value: O(n)
+    hint: edges store index ranges, not strings
+properties:
+  - { label: Compressed trie, value: true }
+  - { label: Every suffix has a leaf, value: true }
+  - { label: Linear-time build here, value: false }
+  - { label: Needs a unique terminator, value: true }
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/Trie
+related:
+  - Algorithms/String_Algorithms/Advanced_String/Suffix_Array
+  - Data_Structures/Non_Linear/Trees/Trie
+  - Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring
+  - Algorithms/String_Algorithms/Advanced_String/Aho_Corasick
+---
+
+## What a suffix tree is
+
+Take a string `s` of length n and list its n suffixes. Put them all in a trie, then compress every chain of single-child nodes into one edge labelled with a substring. The result is a suffix tree: root-to-leaf paths spell the suffixes, and every substring of `s` is a prefix of some root-to-leaf path.
+
+The repository code appends a **terminator** to the text (written `$` below; internally the NUL character). With a last character that occurs nowhere else, no suffix is a prefix of another one, so every suffix ends at its own leaf. Without it, a suffix like `a` in `banana` would stop in the middle of an edge and would not be recorded.
+
+The suffix tree of `banana$`. Leaves show the start index of their suffix:
+
+<TreeDiagram
+  root={{
+    children: [
+      { label: '6', tone: 'f', edge: '$' },
+      { tone: 'l', edge: 'a', children: [
+        { label: '5', tone: 'f', edge: '$' },
+        { tone: 'l', edge: 'na', children: [
+          { label: '3', tone: 'f', edge: '$' },
+          { label: '1', tone: 'f', edge: 'na$' },
+        ] },
+      ] },
+      { label: '0', tone: 'f', edge: 'banana$' },
+      { tone: 'l', edge: 'na', children: [
+        { label: '4', tone: 'f', edge: '$' },
+        { label: '2', tone: 'f', edge: 'na$' },
+      ] },
+    ],
+  }}
+  legend={{ f: 'leaf: the number is where the suffix starts', l: 'internal node: a point where suffixes branch' }}
+  caption="The tree has 7 leaves (one per suffix of banana$) and 3 internal nodes. Reading the labels a, na, na$ down the left branch spells anana$, the suffix at index 1."
+/>
+
+Inside the code an edge does not store its label. It stores two indices `[start, end]` into the text, so the whole tree takes O(n) space even though the labels, written out, would take O(n<sup>2</sup>).
+
+<Callout title="A substring is a path prefix">
+`p` occurs in `s` exactly when the path spelling `p` exists from the root. All occurrences of `p` are the leaves below the point where the path ends, and each leaf stores its suffix start, which is the match position.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`SuffixTree(text)`', 'append the terminator and insert every suffix, splitting edges where needed', 'O(n^2)'],
+    ['`search(pattern)`', 'walk down matching edge labels, then collect every leaf below; sorted start indices', 'O(m + occ)'],
+    ['`get_all_suffixes()`', 'every non-empty suffix of the text, sorted', 'O(n^2)'],
+  ]}
+/>
+
+The same three operations exist in all languages (`GetAllSuffixes` and `Search` in Go, `get_all_suffixes` and `search` in C++). An empty pattern returns no matches. The NUL character is reserved for the terminator: the constructor raises `ValueError` in Python, throws `std::invalid_argument` in C++ and panics in Go if the text contains it, and a pattern containing it matches nothing. A `$` in the text is an ordinary character. Python indices are code points. C++ and Go work on bytes, so a multi-byte character counts as several positions.
+
+### Build: insert each suffix
+
+For each start index `i`, walk down from the root along the suffix `text[i:]`:
+
+<Steps>
+  <Step title="No edge starts with the next character">
+    Add a new leaf with the rest of the suffix as its label.
+  </Step>
+  <Step title="An edge starts with it">
+    Compare the suffix with the edge label character by character.
+  </Step>
+  <Step title="The whole label matches">
+    Move to the child and continue with the rest of the suffix.
+  </Step>
+  <Step title="A mismatch inside the label">
+    Split the edge at the mismatch: a new internal node keeps the common part, the old child keeps the rest, and a new leaf takes the remainder of the suffix.
+  </Step>
+</Steps>
+
+Building `banana$`, suffix by suffix (the first three suffixes only add leaves under the root):
+
+<DataTable
+  columns={['Insert', 'Suffix', 'What happens']}
+  rows={[
+    ['0', 'banana$', 'new leaf `banana$` under the root'],
+    ['1', 'anana$', 'new leaf `anana$`'],
+    ['2', 'nana$', 'new leaf `nana$`'],
+    ['3', 'ana$', 'shares `ana` with the edge `anana$`: split at offset 3, internal node `ana` with children `na$` (suffix 1) and `$` (suffix 3)'],
+    ['4', 'na$', 'shares `na` with the edge `nana$`: split, internal node `na` with children `na$` (suffix 2) and `$` (suffix 4)'],
+    ['5', 'a$', 'shares `a` with the edge `ana`: split into `a` and `na`, new leaf `$` (suffix 5)'],
+    ['6', '$', 'new leaf `$` under the root'],
+  ]}
+/>
+
+<Callout title="Edge splitting is the heart of the structure">
+Two sibling edges can never start with the same character. When a new suffix agrees with an edge for only part of its label, the edge must be split so that the shared part comes first and the two different continuations become siblings.
+</Callout>
+
+### Search: walk down, then collect leaves
+
+Search for `ana` in `banana`. The root edge `a` matches the first character, the next edge `na` matches the remaining `na`, and the pattern is used up exactly at the end of that edge. The leaves below that point are suffixes 1 and 3, so the answer is `[1, 3]`:
+
+<TreeDiagram
+  root={{
+    children: [
+      { label: '6', tone: 'm', edge: '$' },
+      { tone: 'l', edge: 'a', edgeTone: 'l', children: [
+        { label: '5', tone: 'm', edge: '$' },
+        { tone: 'l', edge: 'na', edgeTone: 'l', children: [
+          { label: '3', tone: 'f', edge: '$', edgeTone: 'f' },
+          { label: '1', tone: 'f', edge: 'na$', edgeTone: 'f' },
+        ] },
+      ] },
+      { label: '0', tone: 'm', edge: 'banana$' },
+      { tone: 'm', edge: 'na', children: [
+        { label: '4', tone: 'm', edge: '$' },
+        { label: '2', tone: 'm', edge: 'na$' },
+      ] },
+    ],
+  }}
+  legend={{ l: 'path spelling the pattern ana', f: 'leaves below it: the occurrences at 1 and 3', m: 'not visited' }}
+  caption="search('ana') returns [1, 3]. The cost is the pattern length plus the number of leaves collected."
+/>
+
+When the pattern ends in the middle of an edge, the match is still valid: collect the leaves below that edge's lower node. When a character differs from the edge label, or no edge starts with it, the pattern does not occur and the answer is `[]`.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['build (this repo)', 'O(n^2)', 'each of the n suffixes is compared along its length'],
+    ['build (Ukkonen)', 'O(n)', 'incremental construction with suffix links; not in this repository'],
+    ['search', 'O(m + occ)', 'm characters to walk, then one visit per leaf collected'],
+    ['space', 'O(n)', 'at most 2(n + 1) nodes with index-pair labels'],
+    ['collect all suffixes', 'O(n^2)', 'the output itself has quadratic total length'],
+  ]}
+/>
+
+Why at most 2(n + 1) nodes: there are n + 1 leaves (n suffixes plus the terminator alone). Every internal node (except possibly the root) has at least two children, and a tree with L leaves in which every internal node branches has fewer than L internal nodes.
+
+The deep case matters. On `aaaa...a` (n copies) the tree degenerates into a chain of depth about n. The search and the collection of leaves use an explicit stack in all three languages, so they handle this without recursion. C++ frees the nodes without recursion too.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference', 'Use']}
+  rows={[
+    ['Naive build (this repo)', 'insert suffix by suffix, O(n^2)', 'clear to read, fine up to a few thousand characters'],
+    ['Ukkonen / McCreight', 'linear-time construction with suffix links', 'large texts'],
+    ['Generalized suffix tree', 'several strings, each with its own terminator', 'longest common substring of two or more strings'],
+    ['Suffix array + LCP', 'sorted suffix start indices plus neighbor overlaps', 'less memory, same queries in O(m log n)'],
+  ]}
+/>
+
+## Suffix tree vs alternatives
+
+<DataTable
+  columns={['', 'Suffix tree', 'Suffix array', 'Trie of words', 'KMP / naive scan']}
+  highlight={0}
+  rows={[
+    ['Preprocess', 'O(n^2) here, O(n) Ukkonen', 'O(n^2 log n) here', 'O(total length)', 'none (KMP: O(m))'],
+    ['Find pattern', 'O(m + occ)', 'O(m log n)', 'prefix of stored words only', 'O(n + m) per query'],
+    ['Space', 'O(n), large constant', 'O(n), small', 'O(total length)', 'O(m)'],
+    ['Good for', 'many queries on one text', 'many queries, less memory', 'dictionaries', 'one-off search'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Query time depends on the pattern, not on the text: O(m + occ).',
+    'Answers many substring questions: occurrence count, longest repeat, longest common substring.',
+    'Linear space with index-pair edge labels.',
+    'All occurrences come out of one subtree walk.',
+  ]}
+  cons={[
+    'The build here is O(n^2); linear builds (Ukkonen) are intricate.',
+    'Large constant memory: a node and a hash map per branching point.',
+    'Needs a terminator that does not occur in the text.',
+    'For one-off searches a linear scan (KMP) is cheaper than building.',
+  ]}
+/>
+
+## Applications
+
+- **Substring search** over a fixed text with many queries.
+- **Counting and listing occurrences** of a pattern.
+- **Longest repeated substring:** the deepest internal node.
+- **Longest common substring** of two strings with a generalized suffix tree.
+- **Bioinformatics:** searching for a pattern across a fixed genome.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Reusing the terminator character inside the text.** Without a unique last character some suffixes end mid-edge and get no leaf, and their matches are lost. This code reserves NUL and rejects it.
+- **Never splitting edges.** If a mismatch in the middle of an edge drops the suffix, searches return too few or no matches.
+- **Returning only one leaf.** An occurrence list needs every leaf below the match point, not just the leaf of the edge you stopped on.
+- **Storing edge labels as substrings.** Copies make memory O(n<sup>2</sup>); store `[start, end]`.
+- **Assuming O(n) construction.** This version is quadratic; use Ukkonen for big inputs.
+- **Recursing along a degenerate tree.** Texts such as `aaaa...` produce depth n; use an explicit stack.
+- **Mixing index units.** Python indexes code points; C++ and Go index bytes.
+</Callout>
+
+## Implementation
+
+All three versions share the same plan: append the NUL terminator, insert every suffix with edge splitting, then answer searches by walking down and collecting the leaves below the match with an explicit stack. Python keeps nodes in dictionaries, C++ keeps every node in one list and frees it in the destructor (the class is not copyable), and Go keys children by byte.
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Suffix_Tree" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is a terminator needed?">
+    Without a unique last character, a suffix can be a prefix of another suffix (for example `a` and `ana` in `banana`). It would end in the middle of an edge instead of at a leaf, so its occurrence would not be recorded. A unique terminator makes every suffix end at its own leaf.
+  </FaqItem>
+  <FaqItem question="Suffix tree or suffix array?">
+    A suffix tree answers queries in O(m + occ) but uses more memory and is harder to build in linear time. A suffix array is smaller and easier, and answers in O(m log n). Many competitive programmers choose the array.
+  </FaqItem>
+  <FaqItem question="How do I find the longest repeated substring?">
+    It is the longest path label ending at an internal node: an internal node has at least two leaves below it, so its path string occurs at least twice. Take the deepest one.
+  </FaqItem>
+  <FaqItem question="What does an empty pattern return here?">
+    An empty list. The implementation defines no matches for an empty pattern, so check for it before calling search if you need every position.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,185 @@
+---
+topic: Data_Structures/Non_Linear/Trees/Sparse_Table
+title: Sparse Table
+lead: A sparse table precomputes the minimum (or maximum) of every window whose length is a power of two. Any range query is then the combination of two overlapping windows, answered in O(1), at the price of O(n log n) memory and no updates. It is not really a tree, despite its folder.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Query
+    value: O(1)
+    hint: two table lookups
+  - label: Build
+    value: O(n log n)
+  - label: Space
+    value: O(n log n)
+  - label: Updates
+    value: not supported
+    tone: warn
+    hint: static data only
+properties:
+  - { label: Static (immutable), value: true }
+  - { label: Min / max / gcd, value: true }
+  - { label: Range sum in O(1), value: false }
+  - { label: Needs an idempotent operation, value: true }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation
+---
+
+## What a sparse table is
+
+The problem: a fixed array and many queries "what is the minimum of `a[l..r]`?" A sparse table answers each in O(1) by storing the answer for *every window whose length is a power of two*.
+
+`table[i][j]` is the minimum of the `2^j` elements starting at `i`. Level 0 is the array itself, and each higher level combines two windows of the level below: `table[i][j] = min(table[i][j-1], table[i + 2^(j-1)][j-1])`. Only windows that fit inside the array are valid, so the number of levels is `floor(log2(n)) + 1`. For `[1, 3, 5, 7, 9, 11, 2, 4, 6, 8]` (min), with `-` marking windows that run off the end:
+
+<GridDiagram
+  corner="j \ i"
+  colLabels={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}
+  rowLabels={['j=0 (len 1)', 'j=1 (len 2)', 'j=2 (len 4)', 'j=3 (len 8)']}
+  rows={[
+    [1, 3, 5, 7, 9, 11, 2, 4, 6, 8],
+    [1, 3, 5, 7, 9, 2, 2, 4, 6, '-'],
+    [1, 3, 5, 2, 2, 2, 2, '-', '-', '-'],
+    [1, 2, 2, '-', '-', '-', '-', '-', '-', '-'],
+  ]}
+  tones={['..........', '..........', '...f......', '..........']}
+  legend={{ f: 'the example cell table[3][2]' }}
+  caption="table[i][j] = min of a[i .. i + 2^j - 1]. For example table[3][2] = min(7, 9, 11, 2) = 2."
+/>
+
+<Callout title="Why overlap is allowed">
+For minimum, counting an element twice changes nothing: `min(x, x) = x`. Operations with this property are called **idempotent** (min, max, gcd, bitwise AND and OR). That is why two overlapping windows suffice. For a sum the overlapped part would be counted twice, so a sparse table cannot answer sums in O(1).
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`SparseTable(arr, kind)`', 'build the levels bottom-up; `kind` is `min` or `max`', 'O(n log n)'],
+    ['`query(l, r)`', 'min or max of `a[l..r]`, inclusive', 'O(1)'],
+    ['`get(i)`', 'the original element', 'O(1)'],
+  ]}
+/>
+
+`kind` must be `'min'` or `'max'`; anything else raises `ValueError` (Python), throws `std::invalid_argument` (C++) or panics (Go). It used to silently mean max. An empty array is allowed, and every query on it fails with `IndexError`, `std::out_of_range` or a panic. An index outside `0..n-1` fails the same way. If `l > r` the bounds are swapped. The table is built from a copy of the input in all three languages. The exponent `k` is computed with integer bit operations, not floating-point `log2`.
+
+### Query: two windows
+
+Let `len = r - l + 1` and `k = floor(log2(len))`, the largest power of two that fits. The windows `[l, l + 2^k - 1]` and `[r - 2^k + 1, r]` together cover `[l, r]` (they may overlap), so the answer is `min(table[l][k], table[r - 2^k + 1][k])`.
+
+Minimum of `a[2..8]` (7 elements), so `k = 2` (windows of 4):
+
+<ArrayDiagram
+  legend={{ p: 'first window [2..5]', l: 'second window [5..8]', f: 'covered by both' }}
+  rows={[
+    { label: 'array', values: [1, 3, 5, 7, 9, 11, 2, 4, 6, 8], tones: '..pppflll.', marks: { 2: 'l', 8: 'r' }, note: 'table[2][2] = min(5, 7, 9, 11) = 5 and table[5][2] = min(11, 2, 4, 6) = 2. Answer: min(5, 2) = 2.' },
+  ]}
+/>
+
+Index 5 is counted by both windows, which is harmless for a minimum. With a **sum** the same two windows would give 55 instead of the true 44, because `a[5] = 11` would be added twice.
+
+### Build
+
+Level `j` is built from level `j - 1` for every start `i` with `i + 2^j <= n`. There are about `n` windows on each of about `log2(n)` levels, so building takes O(n log n) time and stores O(n log n) values (the code allocates `n` rows of `log_n` cells).
+
+## Implementation
+
+The three versions share the same structure: a `table[i][j]` of `n` rows by `floor(log2(n)) + 1` columns, a level-by-level build, and a two-window query. Tests check every possible range of random arrays against brute force, for both min and max.
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Sparse_Table" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['build', 'O(n log n)', 'n windows per level, log n levels, O(1) each'],
+    ['query', 'O(1)', 'one log lookup and two table reads'],
+    ['space', 'O(n log n)', 'one value per (start, level)'],
+    ['update', 'not supported', 'changing one element changes up to n windows per level; rebuild instead'],
+  ]}
+/>
+
+For one million elements the table has about 20 million entries, which is why sparse tables suit moderate n with very many queries.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea']}
+  rows={[
+    ['Min / max (this code)', 'overlapping windows, O(1)'],
+    ['Other idempotent operations', 'gcd, AND, OR use the same code with another combine'],
+    ['Disjoint sparse table', 'non-overlapping blocks, so any associative operation (even sum) in O(1) with more memory'],
+    ['Sum with a plain sparse table', 'split the range into powers of two, O(log n) per query'],
+    ['Argmin table', 'store indices instead of values to return where the minimum is'],
+  ]}
+/>
+
+## Sparse table vs alternatives
+
+<DataTable
+  columns={['Structure', 'Build', 'Query', 'Update', 'Notes']}
+  highlight={0}
+  rows={[
+    ['Sparse table', 'O(n log n)', 'O(1)', 'none', 'idempotent operations on static data'],
+    ['Segment tree', 'O(n)', 'O(log n)', 'O(log n)', 'any associative operation; mutable'],
+    ['Fenwick tree', 'O(n log n) as written', 'O(log n)', 'O(log n)', 'sums; invertible operations'],
+    ['Prefix sums', 'O(n)', 'O(1)', 'none', 'sums only'],
+  ]}
+/>
+
+Linear-preprocessing range-minimum structures with O(1) queries exist, so a sparse table is not the asymptotically fastest, only the simplest fast one.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'O(1) queries with just two array reads.',
+    'Very short code; the build is a simple double loop.',
+    'Also works for max, gcd and bitwise AND/OR.',
+  ]}
+  cons={[
+    'O(n log n) memory.',
+    'No updates: any change means a rebuild.',
+    'Needs an idempotent operation for the O(1) trick; sums do not qualify.',
+    'Not a tree: it lives in the Trees folder only because of its relatives.',
+  ]}
+/>
+
+## Applications
+
+- **Range minimum query (RMQ)** on static arrays, such as CSES "Static Range Minimum Queries".
+- **Lowest common ancestor** via an Euler tour and RMQ.
+- **Offline analytics:** many "min over a window" questions on fixed data.
+- **Range gcd** queries.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using it for sums.** The overlap would be counted twice.
+- **Using floating-point `log2`.** It can be off for large inputs; use integer bit length instead.
+- **Building levels past the array end.** Level `j` only has windows with `i + 2^j <= n`.
+- **Calling it after the data changed.** The table is a snapshot.
+- **Empty input.** There is nothing to query; this code allows an empty table and fails on any query.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is the query O(1) when a segment tree needs O(log n)?">
+    The table already contains the answer for every window whose length is a power of two. One window of that length starting at `l` and one ending at `r` cover the range, so two reads and one `min` are enough.
+  </FaqItem>
+  <FaqItem question="Can a sparse table answer range sums in O(1)?">
+    Not directly: overlapping windows double-count. Use prefix sums for static sums, or a disjoint sparse table.
+  </FaqItem>
+  <FaqItem question="How much memory does it use?">
+    About `n * (floor(log2 n) + 1)` values. For n = 100000 that is roughly 1.7 million entries.
+  </FaqItem>
+  <FaqItem question="Why is a sparse table in the Trees folder?">
+    It is related to the segment tree and the Fenwick tree as a range-query structure, but it contains no tree. The folder is only a grouping.
+  </FaqItem>
+</Faq>

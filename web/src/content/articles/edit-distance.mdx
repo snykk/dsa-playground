@@ -1,0 +1,214 @@
+---
+topic: Algorithms/Dynamic_Programming/2D_DP/Edit_Distance
+title: Edit Distance
+lead: Edit distance (Levenshtein distance) is the fewest single-character insertions, deletions and replacements that turn one string into another. A table over prefixes of both strings computes it in O(m n) time. It powers spell checking, fuzzy search and sequence alignment.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(m n)
+    hint: m and n are the string lengths
+  - label: Space
+    value: O(m n)
+    hint: O(min(m, n)) with two rows, if only the distance is needed
+  - label: Operations
+    value: Insert, delete, replace
+    hint: each costs 1; swapping two letters costs 2
+  - label: Approach
+    value: 2D DP over prefixes
+properties:
+  - { label: Symmetric, value: true }
+  - { label: Satisfies the triangle inequality, value: true }
+  - { label: Counts a swap as one edit, value: false }
+  - { label: Compares characters (Unicode-aware), value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
+related:
+  - Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Algorithms/String_Algorithms
+---
+
+## How Edit Distance works
+
+Look at the last characters of the two strings. Either they are equal and cost nothing, or the last step of some cheapest edit script is one of three moves. That reduces the problem to a smaller pair of prefixes, and the table stores the answer for every pair of prefixes. Let `dp[i][j]` be the distance between the first `i` characters of `s1` and the first `j` characters of `s2`.
+
+<Steps>
+  <Step title="Fill the borders">
+    `dp[i][0] = i`: deleting `i` characters turns a prefix into the empty string. `dp[0][j] = j`: inserting `j` characters builds a prefix from nothing.
+  </Step>
+  <Step title="Match: copy the diagonal">
+    If `s1[i-1] == s2[j-1]`, the last characters agree and `dp[i][j] = dp[i-1][j-1]`.
+  </Step>
+  <Step title="Mismatch: pay 1 for the best move">
+    Otherwise `dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])`: delete from `s1` (up), insert into `s1` (left), or replace (diagonal).
+  </Step>
+  <Step title="Read the corner">
+    The distance between the whole strings is `dp[m][n]`.
+  </Step>
+</Steps>
+
+<Callout title="Why copying the diagonal on a match is safe">
+`dp[i-1][j-1]` is never larger than the other two neighbors plus 1, because dropping one character from a string changes the distance by at most 1. A free match can therefore never be beaten by a delete or an insert, so the code does not look at them.
+</Callout>
+
+## See it in action
+
+Press play to fill the table cell by cell. Each cell shows the three candidates it chooses from, and the traceback at the end draws the path from the corner back to the start. Type your own two strings to compare.
+
+<ArticleViz ids={['edit-distance']} />
+
+## Worked example
+
+Convert `kitten` into `sitting`. These values come from running `edit_distance` on the pair; the distance is 3.
+
+<GridDiagram
+  corner="s1 \ s2"
+  colLabels={['-', 's', 'i', 't', 't', 'i', 'n', 'g']}
+  rowLabels={['-', 'k', 'i', 't', 't', 'e', 'n']}
+  rows={[
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [1, 1, 2, 3, 4, 5, 6, 7],
+    [2, 2, 1, 2, 3, 4, 5, 6],
+    [3, 3, 2, 1, 2, 3, 4, 5],
+    [4, 4, 3, 2, 1, 2, 3, 4],
+    [5, 5, 4, 3, 2, 2, 3, 4],
+    [6, 6, 5, 4, 3, 3, 2, 3],
+  ]}
+  tones={['f.......', '.f......', '..f.....', '...f....', '....f...', '.....f..', '......ff']}
+  legend={{ f: 'cells on the traceback path' }}
+/>
+
+**Reading the path** from `dp[6][7]` back to `dp[0][0]`. A diagonal step with the same value is a match; a diagonal step that is 1 smaller is a replace; a step up is a delete and a step left is an insert.
+
+<DataTable
+  columns={['Step', 'Cell', 'Operation', 'String after']}
+  rows={[
+    ['1', 'dp[1][1] = 1', 'replace k with s', 'sitten'],
+    ['2', 'dp[2][2] .. dp[4][4]', 'match i, t, t', 'sitten'],
+    ['3', 'dp[5][5] = 2', 'replace e with i', 'sittin'],
+    ['4', 'dp[6][6]', 'match n', 'sittin'],
+    ['5', 'dp[6][7] = 3', 'insert g', 'sitting'],
+  ]}
+/>
+
+The distance is the number of non-match steps: 3. The repository code returns only this number, so the traceback is a technique, not a function. When two moves tie, several equally cheap scripts exist.
+
+## Pseudocode
+
+```text
+editDistance(s1, s2):
+    m = length(s1); n = length(s2)
+    dp = (m + 1) x (n + 1) table
+    for i = 0 to m: dp[i][0] = i
+    for j = 0 to n: dp[0][j] = j
+    for i = 1 to m:
+        for j = 1 to n:
+            if s1[i-1] == s2[j-1]:
+                dp[i][j] = dp[i-1][j-1]
+            else:
+                dp[i][j] = 1 + min(dp[i-1][j],      # delete
+                                   dp[i][j-1],      # insert
+                                   dp[i-1][j-1])    # replace
+    return dp[m][n]
+```
+
+## Implementation
+
+All three languages have the same single function over a 2D table, returning only the distance. Python compares Unicode code points. C++ and Go compare **bytes**, so a non-ASCII character that takes several bytes in UTF-8 costs several edits. An accented e takes two bytes, so comparing it with a plain e costs 1 edit in Python but 2 in C++ and Go. Normalize or convert to code points first if that matters.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/2D_DP/Edit_Distance" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(m n)', when: 'The table has (m + 1)(n + 1) cells and each is filled from three neighbors in constant time. The input does not change this: there is no better or worse case.' },
+    { case: 'Space (table)', time: 'O(m n)', when: 'Needed if you want to trace back an edit script.' },
+    { case: 'Space (two rows)', time: 'O(min(m, n))', when: 'Row i only needs row i-1, so keep two rows and iterate along the longer string. Not in this repository.' },
+  ]}
+/>
+
+Without the table the recursion branches three ways on every mismatch:
+
+<Equation label="Plain recursion" expr="T(m, n) = T(m-1, n) + T(m, n-1) + T(m-1, n-1) + O(1)" result="exponential" />
+
+Memoization makes each of the (m + 1)(n + 1) pairs of prefixes cost O(1), which gives the table bound.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Allowed operations', 'Note']}
+  rows={[
+    ['Levenshtein (this code)', 'insert, delete, replace', 'unit costs'],
+    ['Indel distance', 'insert, delete', 'equals m + n - 2 * LCS(s1, s2)'],
+    ['Hamming distance', 'replace', 'only for equal-length strings; O(n)'],
+    ['Damerau-Levenshtein', 'adds swapping adjacent letters', 'a swap costs 1; plain Levenshtein charges 2 for "ab" to "ba"'],
+    ['Weighted edit distance', 'any, with a cost per operation', 'same table with the costs in place of the 1s'],
+  ]}
+/>
+
+## Edit distance vs alternatives
+
+<DataTable
+  columns={['Measure', 'Question it answers', { label: 'Time', kind: 'mono' }, 'Use it for']}
+  highlight={0}
+  rows={[
+    ['Edit distance', 'fewest edits to turn one string into the other', 'O(m n)', 'spell checking, fuzzy matching'],
+    ['Longest Common Subsequence', 'how much of the two strings can be kept in order', 'O(m n)', 'diff tools, sequence similarity'],
+    ['Hamming distance', 'how many positions differ', 'O(n)', 'equal-length codes and hashes'],
+    ['Exact equality', 'are they identical', 'O(n)', 'when no tolerance is needed'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Exact minimum, with a clear meaning in terms of edit operations.',
+    'A short recurrence that is easy to implement and to extend with weights.',
+    'The table can be traced back to produce the actual edits.',
+    'Symmetric and a true metric, so it works with metric-space indexes.',
+  ]}
+  cons={[
+    'Quadratic time: too slow to compare very long strings (millions of characters) naively.',
+    'Surface similarity only: "cat" and "feline" are 6 edits apart.',
+    'Does not treat a swap, case, accents or word order specially.',
+    'O(m n) memory when you need the edit script.',
+  ]}
+/>
+
+## Applications
+
+- **Spell checking and autocorrect.** Suggest dictionary words within a small distance of the typed word.
+- **Fuzzy search.** Match queries that contain typos against stored names.
+- **Bioinformatics.** Sequence alignment generalizes the same table with scores for matches and gaps.
+- **Record linkage.** Decide whether two similar strings name the same thing.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Off-by-one on indices.** The table is one larger than the strings: use `s1[i-1]` and `s2[j-1]` for the cell `dp[i][j]`.
+- **Wrong borders.** `dp[0][j] = j`, not 0: building a string of `j` characters from nothing takes `j` inserts.
+- **Counting a replace as two edits.** A replace is a single operation.
+- **Mixing up bytes and characters.** In C++ and Go a multi-byte character counts as several edits.
+- **Expecting a swap to cost 1.** Levenshtein charges 2 for `ab` to `ba`; use Damerau-Levenshtein for 1.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is the edit distance symmetric?">
+    Yes. A delete in one direction is an insert in the other, so `d(a, b) = d(b, a)`. The repository tests check this on several pairs.
+  </FaqItem>
+  <FaqItem question="How is it related to the Longest Common Subsequence?">
+    If you allow only inserts and deletes, the distance is `m + n - 2 * LCS`. The replace operation can beat that by fixing a mismatch with one edit instead of two.
+  </FaqItem>
+  <FaqItem question="How do I reduce the memory?">
+    Keep only the previous row and the current row, with the shorter string as the columns. You get O(min(m, n)) space and the same distance, but you lose the traceback.
+  </FaqItem>
+  <FaqItem question="Can it be faster than O(m n)?">
+    For general strings no strongly subquadratic algorithm is known, and under a well-known hardness conjecture none exists. If the distance is small (at most k), there are O(k n) algorithms.
+  </FaqItem>
+</Faq>

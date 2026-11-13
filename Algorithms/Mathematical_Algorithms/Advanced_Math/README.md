@@ -6,8 +6,8 @@ Advanced mathematical algorithms for competitive programming.
 
 | Algorithm | Description |
 |-----------|-------------|
-| [Fast Fourier Transform](Fast%20Fourier%20Transform/) | O(n log n) polynomial multiplication |
-| [Matrix Exponentiation](Matrix%20Exponentiation/) | Fast matrix power for recurrences |
+| [Fast Fourier Transform](Fast_Fourier_Transform/) | O(n log n) polynomial multiplication |
+| [Matrix Exponentiation](Matrix_Exponentiation/) | Fast matrix power for recurrences |
 
 ## Complexity
 

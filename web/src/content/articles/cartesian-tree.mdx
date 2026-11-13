@@ -1,0 +1,239 @@
+---
+topic: Data_Structures/Non_Linear/Trees/Cartesian_Tree
+title: Cartesian Tree
+lead: A Cartesian tree turns an array into a binary tree that is a min heap by value and reads back as the original array in in-order. It is built in O(n) with a stack, and the minimum of any range is the lowest common ancestor of its two ends.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Build
+    value: O(n)
+    hint: one pass with a stack
+  - label: Range minimum query
+    value: O(h)
+    hint: walk from the root to the LCA
+  - label: Worst height
+    value: n - 1
+    hint: sorted input gives a chain
+    tone: warn
+  - label: Space
+    value: O(n)
+properties:
+  - { label: In-order = original array, value: true }
+  - { label: Min-heap ordered, value: true }
+  - { label: Balanced, value: false }
+  - { label: Duplicates allowed, value: true }
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
+  - Data_Structures/Non_Linear/Heaps/Min_Heap
+related:
+  - Data_Structures/Non_Linear/Trees/Treap
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Problem_Patterns/Monotonic_Stack
+---
+
+## What a Cartesian tree is
+
+Given a sequence, its Cartesian tree is the one binary tree with two properties at once:
+
+- **Order by position:** the in-order traversal returns the sequence unchanged. Everything left of a node in the array is in its left subtree, and everything right of it is in its right subtree.
+- **Heap order by value:** every node is `<=` its children, so the root is the minimum of the array.
+
+The two properties fix the tree. The root must be the minimum (leftmost if there are ties); the part of the array to its left becomes the left subtree and the part to its right becomes the right subtree, recursively. Equal values: the later one becomes a descendant of the earlier one, so the leftmost minimum is always the ancestor.
+
+<TreeDiagram
+  levelOrder={[1, 3, 5, 9, 7, 8, null, null, null, null, null, null, 10, 12, 15, null, null, 20, 18]}
+  tones="p......"
+  legend={{ p: 'the root: the minimum of the whole array' }}
+  caption="The Cartesian tree of `[9, 3, 7, 1, 8, 12, 10, 20, 15, 18, 5]`. Reading it left to right, in-order, gives the array back; every parent is smaller than its children."
+/>
+
+<ArrayDiagram
+  rows={[
+    { label: 'array', values: [9, 3, 7, 1, 8, 12, 10, 20, 15, 18, 5], tones: '...p.......', marks: { 0: '0', 3: '3', 10: '10' } },
+  ]}
+  legend={{ p: 'minimum, index 3: the root' }}
+/>
+
+<Callout title="A treap is a Cartesian tree">
+A treap stores pairs (key, priority) and is the Cartesian tree of the keys in sorted order, with the priorities as the values. Random priorities make a random Cartesian tree, whose expected height is O(log n). See the Treap topic.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`CartesianTree(array)` / `build_from_array`', 'build the tree with a stack', 'O(n)'],
+    ['`get_min_index(l, r)`', 'index of the minimum of `array[l..r]` (leftmost on ties); -1 if invalid', 'O(h)'],
+    ['`inorder_traversal()`', 'returns the original array', 'O(n)'],
+    ['`preorder_traversal()`, `postorder_traversal()`', 'other orders', 'O(n)'],
+    ['`height()`, `size()`, `is_empty()`', 'shape information (height in edges, empty = -1)', 'O(n), O(n), O(1)'],
+  ]}
+/>
+
+## Building in O(n)
+
+Process the array left to right and keep a stack that holds the **right spine** of the tree built so far (values increasing from the bottom). For each new value `v`:
+
+<Steps>
+  <Step title="Pop larger values">
+    While the top of the stack is strictly greater than `v`, pop it. The last popped node is the root of the subtree that now belongs below `v`.
+  </Step>
+  <Step title="Hang the popped subtree on the left">
+    The last popped node becomes the left child of the new node.
+  </Step>
+  <Step title="Attach to the spine">
+    If the stack is not empty, the new node becomes the right child of the top. Push the new node. The root is the bottom of the stack at the end.
+  </Step>
+</Steps>
+
+Each value is pushed once and popped at most once, so the whole build is O(n). Because only strictly greater values are popped, an equal value stays on the stack and the new one hangs to its right.
+
+For `[9, 3, 7, 1, 8, 12, 10, 20, 15, 18, 5]`, the stack after each step (values, bottom to top):
+
+<DataTable
+  columns={['Read', 'Popped', 'Stack after']}
+  rows={[
+    ['9', 'none', '9'],
+    ['3', '9', '3'],
+    ['7', 'none', '3, 7'],
+    ['1', '7, 3', '1'],
+    ['8', 'none', '1, 8'],
+    ['12', 'none', '1, 8, 12'],
+    ['10', '12', '1, 8, 10'],
+    ['20', 'none', '1, 8, 10, 20'],
+    ['15', '20', '1, 8, 10, 15'],
+    ['18', 'none', '1, 8, 10, 15, 18'],
+    ['5', '18, 15, 10, 8', '1, 5'],
+  ]}
+/>
+
+When 1 arrives it pops 7 and then 3, so 3 (with 9 on its left and 7 on its right) becomes the left child of 1. The last value, 5, pops four nodes, and the chain 8 &rarr; 10 &rarr; 15 &rarr; 18 becomes its left subtree.
+
+## Range minimum query
+
+The minimum of `array[l..r]` is the **lowest common ancestor** of the nodes at positions `l` and `r`. By heap order the LCA is smaller than everything below it, and by position order it lies between `l` and `r`. So the code just walks down from the root:
+
+<Steps>
+  <Step title="Start at the root">
+    Look at the index `i` of the current node.
+  </Step>
+  <Step title="Move toward the range">
+    If `i < l`, the node is left of the range, so every candidate is in its right subtree: go right. If `i > r`, go left.
+  </Step>
+  <Step title="Stop inside the range">
+    The first node with `l <= i <= r` is the answer.
+  </Step>
+</Steps>
+
+Query `[4, 8]` on the array above (values 8, 12, 10, 20, 15):
+
+<TreeDiagram
+  levelOrder={[1, 3, 5, 9, 7, 8, null, null, null, null, null, null, 10, 12, 15, null, null, 20, 18]}
+  tones="l.l..f"
+  legend={{ l: 'nodes visited and skipped: index 3 < 4 goes right, index 10 > 8 goes left', f: 'the answer: 8 at index 4' }}
+  caption="Three nodes are visited: 1 (index 3, left of the range), 5 (index 10, right of the range) and 8 (index 4, inside the range)."
+/>
+
+Other queries (checked against the code): `[0, 2]` gives index 1 (value 3), `[5, 9]` gives index 6 (value 10), `[6, 10]` gives index 10 (value 5).
+
+The cost is the depth of the LCA, at most the tree height h. The answer for ties is the leftmost minimum. To answer queries in O(1), compute the LCA with an Euler tour and a sparse table; this repository walks the tree, so a query is O(h), not O(1).
+
+## Implementation
+
+The three languages build the tree the same way and keep the original array for range checks.
+
+- `get_min_index` walks from the root (an earlier version searched the whole tree, O(n) per query).
+- Traversals, height, size and destruction are iterative in Python and C++, so a chain from sorted input (n = 10<sup>6</sup> in the C++ tests) does not overflow the stack. Go uses recursion, which is safe because goroutine stacks grow.
+- C++ `buildFromArray` frees the previous tree, and the class is not copyable.
+- `GetRootValue` exists in C++ (`INT_MIN` when empty) and Go (`-1` when empty); Python has no such method, use `tree.root.value`.
+- The Go package has a small `main`, so `go run .` works.
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Cartesian_Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['build', 'O(n)', 'every element is pushed and popped at most once'],
+    ['range minimum', 'O(h)', 'one root-to-LCA path'],
+    ['traversals, size, height', 'O(n)', 'every node is visited'],
+  ]}
+/>
+
+The height h depends on the data. Random data gives O(log n) in expectation. A sorted array gives a chain with h = n - 1, so every query can cost O(n). Space is O(n) for the nodes plus a copy of the array.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Result']}
+  rows={[
+    ['Min Cartesian tree', 'root is the minimum (this repository)', 'range minimum queries'],
+    ['Max Cartesian tree', 'root is the maximum', 'range maximum queries'],
+    ['Treap', 'keys sorted, random priorities as values', 'balanced search tree in expectation'],
+    ['Cartesian tree + Euler tour + sparse table', 'O(1) LCA queries', 'O(n log n) preprocessing, O(1) queries'],
+  ]}
+/>
+
+## Cartesian tree vs alternatives for range minimum
+
+<DataTable
+  columns={['Structure', { label: 'Build', kind: 'mono' }, { label: 'Query', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Cartesian tree (this code)', 'O(n)', 'O(h)', 'static; the tree also answers other structure questions'],
+    ['Sparse table', 'O(n log n)', 'O(1)', 'static, more memory'],
+    ['Segment tree', 'O(n)', 'O(log n)', 'also supports point updates'],
+    ['Scan the range', 'none', 'O(n)', 'fine for few queries'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear-time construction with a simple stack.',
+    'Links range minimum queries to LCA, which opens up O(1) queries with more machinery.',
+    'The same idea underlies treaps and the largest-rectangle-in-histogram problem.',
+  ]}
+  cons={[
+    'Not balanced: sorted data gives a chain and O(n) queries here.',
+    'Static: changing a value means rebuilding or using a treap instead.',
+    'Extra pointers and a copy of the array compared with a sparse table.',
+  ]}
+/>
+
+## Applications
+
+- **Range minimum queries** through LCA.
+- **Treaps:** the shape of a treap is the Cartesian tree of its (key, priority) pairs.
+- **Largest rectangle in a histogram** and similar "nearest smaller element" problems: the stack in the build is the same stack. Related problems are LeetCode 84 (Largest Rectangle in Histogram) and LeetCode 654 (Maximum Binary Tree), which builds the max version of this tree.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Searching the whole tree for a range.** Once a node lies inside the range it is already the minimum of its subtree, so there is nothing to explore below it.
+- **Popping on `>=`.** This code pops only strictly greater values, so ties keep the leftmost element as the ancestor. Popping on `>=` changes which of the equal minima a query returns.
+- **Recursing on sorted input.** The tree is a chain; recursive traversal or destruction overflows the stack.
+- **Forgetting that the range is inclusive and validated.** `get_min_index(l, r)` returns -1 for `l < 0`, `r >= n`, `l > r` or an empty tree.
+- **Calling it a balanced tree.** Its shape is dictated by the data.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is the Cartesian tree unique?">
+    Yes, once ties are broken by a fixed rule. The root is the minimum (here the leftmost one), and the left and right parts of the array recurse independently, so there is exactly one tree.
+  </FaqItem>
+  <FaqItem question="Why is the build O(n) even though it has a nested loop?">
+    Each element is pushed once and popped at most once, so the total number of pops over the whole run is at most n.
+  </FaqItem>
+  <FaqItem question="Why is the range minimum the LCA?">
+    The LCA of the nodes at positions l and r lies between them in the array (in-order is the array) and is an ancestor of both, so it is no larger than either end and, by heap order, no larger than anything in the range below it.
+  </FaqItem>
+  <FaqItem question="How is a treap related?">
+    A treap is the Cartesian tree whose positions are the sorted keys and whose values are random priorities. Random priorities make a random shape with expected height O(log n).
+  </FaqItem>
+</Faq>

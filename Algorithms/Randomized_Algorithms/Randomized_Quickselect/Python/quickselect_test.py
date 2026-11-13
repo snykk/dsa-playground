@@ -47,6 +47,25 @@ class TestQuickselect(unittest.TestCase):
         for k in range(20):
             self.assertEqual(quickselect(list(arr), k), k)
 
+    def test_all_equal_large_is_fast(self):
+        """Regression: a two-way partition was O(n^2) on all-equal input"""
+        import time
+        n = 50000
+        start = time.time()
+        self.assertEqual(quickselect([7] * n, n // 2), 7)
+        self.assertLess(time.time() - start, 2.0)
+
+    def test_few_distinct_values_large(self):
+        """Regression: duplicate-heavy input must stay linear and correct"""
+        import time
+        rng = random.Random(7)
+        arr = [rng.randint(0, 3) for _ in range(50000)]
+        expected = sorted(arr)
+        start = time.time()
+        for k in (0, 12345, 25000, 49999):
+            self.assertEqual(quickselect(list(arr), k, rng), expected[k])
+        self.assertLess(time.time() - start, 2.0)
+
     def test_negative_k_raises(self):
         with self.assertRaises(IndexError):
             quickselect([1, 2, 3], -1)

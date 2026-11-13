@@ -1,0 +1,16 @@
+---
+import { formatInline } from '../../lib/inline';
+
+/**
+ * A complexity in running text: <BigO of="n^2" /> renders O(n squared) with a real superscript.
+ * Styled inline on purpose: a <style> block would leave whitespace after the span, which shows
+ * up as a gap before punctuation ("O(n) .").
+ */
+interface Props {
+  of: string;
+}
+
+const { of } = Astro.props;
+---
+
+<span class="big-o" style="font-family: var(--font-mono); font-size: 0.9em; white-space: nowrap" set:html={`O(${formatInline(of)})`} />

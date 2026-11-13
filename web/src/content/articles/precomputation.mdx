@@ -1,0 +1,205 @@
+---
+topic: Utilities/Optimization_Techniques/Precomputation
+title: Precomputation
+lead: Precomputation spends time and memory once, before the queries arrive, so that each query is answered in O(1) or O(log n). Factorial tables, prime sieves, smallest-prime-factor tables, prefix sums, sparse tables and binary lifting are the standard examples.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Idea
+    value: Pay once, answer many
+    hint: build a table, then look things up
+  - label: Prefix sum
+    value: O(n) build, O(1) query
+  - label: Sparse table
+    value: O(n log n) build, O(1) query
+    hint: only for idempotent operations such as min, max, gcd
+    tone: warn
+  - label: Sieve
+    value: O(n log log n)
+properties:
+  - { label: Trades memory for time, value: true }
+  - { label: Helps when queries repeat, value: true }
+  - { label: Supports updates, value: false }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+  - Utilities/Optimization_Techniques/Modular_Arithmetic_Tricks
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes
+  - Utilities/Optimization_Techniques/Bitmasking
+---
+
+## When to use it
+
+- **Many queries on fixed data:** range sums, range minimums, "is x prime?", "what are the prime factors of x?".
+- **A value is needed repeatedly:** factorials and inverse factorials for binomial coefficients, powers of 2, ancestors in a tree.
+- **The same sub-result is recomputed inside a loop,** so a table lookup replaces a loop or a recursion.
+
+It does not help when each value is needed once, or when the data changes between queries; then use a data structure that supports updates, such as a Fenwick tree or a segment tree.
+
+## How it works
+
+<Steps>
+  <Step title="Decide what the queries need">
+    Find the quantity that every query asks for, and a way to combine small stored pieces into the answer.
+  </Step>
+  <Step title="Build the table once">
+    Fill it with a loop that reuses earlier entries: `prefix[i+1] = prefix[i] + a[i]`, `fact[i] = fact[i-1] * i`, or `table[i][j] = op(table[i][j-1], table[i + 2^(j-1)][j-1])`.
+  </Step>
+  <Step title="Answer each query from the table">
+    Combine a constant or logarithmic number of entries.
+  </Step>
+  <Step title="Check the memory budget">
+    A table of n log n entries for n = 2&times;10<sup>5</sup> and 20 levels is 4&times;10<sup>6</sup> numbers; check that it fits.
+  </Step>
+</Steps>
+
+<Callout title="Why the sparse table query works only for some operations">
+A sparse table answers a query on [l, r] with two blocks of length 2<sup>k</sup> that may overlap in the middle. The overlap is harmless for min, max and gcd, where combining a value with itself changes nothing (idempotent). For a sum the overlapping part would be counted twice, so use a prefix sum there.
+</Callout>
+
+## Template
+
+```text
+# 1D prefix sum
+prefix[0] = 0
+prefix[i + 1] = prefix[i] + a[i]
+sum(l..r) = prefix[r + 1] - prefix[l]
+
+# 2D prefix sum
+P[i][j] = g[i-1][j-1] + P[i-1][j] + P[i][j-1] - P[i-1][j-1]
+rect(r1, c1, r2, c2) = P[r2+1][c2+1] - P[r1][c2+1] - P[r2+1][c1] + P[r1][c1]
+
+# sieve of Eratosthenes (is_prime for 0..n)
+for i = 2 while i*i <= n: if is_prime[i]: mark i*i, i*i + i, ... as composite
+
+# smallest prime factor, then factorize by hopping
+factorize(x): while x > 1: p = spf[x]; count p while divisible; record (p, count)
+
+# sparse table for an idempotent op
+table[i][0] = a[i];  table[i][j] = op(table[i][j-1], table[i + 2^(j-1)][j-1])
+query(l, r): k = floor(log2(r - l + 1)); op(table[l][k], table[r - 2^k + 1][k])
+
+# factorials mod p
+fact[i] = fact[i-1] * i;  invFact[n] = fact[n]^(p-2);  invFact[i-1] = invFact[i] * i
+nCr(n, r) = fact[n] * invFact[r] * invFact[n-r]
+```
+
+## Worked example
+
+### Prefix sums
+
+For `[3, 1, 4, 1, 5, 9, 2, 6]` the prefix array has one extra leading zero. The sum of indices 2 to 5 is `prefix[6] - prefix[2] = 23 - 4 = 19`, which equals 4 + 1 + 5 + 9.
+
+<ArrayDiagram
+  legend={{ l: 'elements 2..5, the queried range', f: 'the two prefix values that are subtracted' }}
+  rows={[
+    { label: 'array a', values: [3, 1, 4, 1, 5, 9, 2, 6], tones: '..llll..' },
+    { label: 'prefix (prefix[i] = sum of the first i elements)', values: [0, 3, 4, 8, 9, 14, 23, 25, 31], tones: '..f...f..', note: '`prefix[6] - prefix[2] = 23 - 4 = 19`.' },
+  ]}
+/>
+
+### Sparse table
+
+For `[5, 2, 8, 1, 9, 3, 7]` and `min`, level j stores the minimum of 2<sup>j</sup> consecutive elements:
+
+<DataTable
+  columns={['Level j', 'Block length', 'Stored minima, by start index']}
+  rows={[
+    ['0', '1', '`[5, 2, 8, 1, 9, 3, 7]`'],
+    ['1', '2', '`[2, 2, 1, 1, 3, 3]`'],
+    ['2', '4', '`[1, 1, 1, 1]`'],
+  ]}
+/>
+
+Query [1, 5] has length 5, so k = 2 and the answer is `min(table[1][2], table[2][2]) = min(1, 1) = 1`: the two blocks cover [1, 4] and [2, 5] and overlap in the middle. Query [4, 6] has length 3, so k = 1 and the answer is `min(table[4][1], table[5][1]) = min(3, 3) = 3`.
+
+### Factorizing with the smallest prime factor
+
+`factorize(720)` hops through `spf`: 720 has smallest prime 2 (four times), then 45 has 3 (twice), then 5 has 5 (once), giving `[(2, 4), (3, 2), (5, 1)]`.
+
+## Implementation
+
+Every language builds factorial tables, a sieve, smallest-prime-factor tables and 1D prefix sums. The rest varies:
+
+- **Python** has all of them: 2D prefix sums (`PrefixSum2D`), `SparseTable(arr, func)` and `LCA` with binary lifting.
+- **C++** has the same set as global arrays and functions (`precomputeFactorials`, `sieve`, `computeSPF`, `buildPrefixSum`, `buildPrefix2D`, `buildSparseTable`, `dfs` and `lca`, `precomputePow2`). The tables are sized by `MAXN = 2e5 + 5`, so call the builders once before use.
+- **Go** has factorials, `Sieve`, `ComputeSPF` and `PrefixSum` only: no 2D prefix sums, sparse table or LCA.
+- `sieve(0)` and negative limits return no primes in Python and Go (they used to raise or panic).
+- Python and Go start crossing out at i<sup>2</sup>; the C++ sieve starts at 2i, which gives the same primes with a little more work.
+- The C++ `pow2` table is unsigned, because 2<sup>63</sup> does not fit in a signed `long long`.
+
+<TopicCode topic="Utilities/Optimization_Techniques/Precomputation" />
+
+## Complexity
+
+<DataTable
+  columns={['Table', { label: 'Build', kind: 'mono' }, { label: 'Query', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['Factorials and inverse factorials', 'O(n)', 'O(1)', 'O(n)'],
+    ['Prime sieve', 'O(n log log n)', 'O(1)', 'O(n)'],
+    ['Smallest prime factor', 'O(n log log n)', 'O(log x) to factorize x', 'O(n)'],
+    ['1D prefix sum', 'O(n)', 'O(1)', 'O(n)'],
+    ['2D prefix sum', 'O(n m)', 'O(1)', 'O(n m)'],
+    ['Sparse table', 'O(n log n)', 'O(1)', 'O(n log n)'],
+    ['Binary lifting (LCA)', 'O(n log n)', 'O(log n)', 'O(n log n)'],
+  ]}
+/>
+
+The sieve bound comes from the harmonic sum over primes: the work is about n(1/2 + 1/3 + 1/5 + &hellip;) = O(n log log n). Factorizing with `spf` takes at most log<sub>2</sub>(x) hops, because every hop divides x by at least 2.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Sum of a subarray, many queries', '1D prefix sums'],
+    ['Sum of a rectangle in a grid', '2D prefix sums with inclusion-exclusion'],
+    ['Minimum or maximum of a range, static array', 'sparse table'],
+    ['Count primes up to n; test primality for many values', 'sieve'],
+    ['Prime factorization of many numbers', 'smallest-prime-factor table'],
+    ['Binomial coefficients modulo a prime', 'factorials and inverse factorials'],
+    ['Lowest common ancestor of many pairs', 'binary lifting'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Technique', 'Alternative', 'Choose the alternative when']}
+  rows={[
+    ['Prefix sum', 'Fenwick tree', 'the array changes between queries'],
+    ['Sparse table', 'segment tree', 'the array changes, or the operation is not idempotent'],
+    ['Binary lifting LCA', 'Euler tour plus sparse table', 'O(1) queries are needed'],
+    ['Sieve', 'segmented sieve', 'n is too large for one table'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Off-by-one in prefix sums.** Use an array of length n + 1 with a leading 0, and `prefix[r + 1] - prefix[l]` for an inclusive range.
+- **Non-idempotent sparse table.** A sum or xor over overlapping blocks is wrong; `SparseTable(arr, func)` does not check this.
+- **Table size too small.** The C++ tables hold `MAXN = 2e5 + 5` entries; a larger input needs a larger constant.
+- **Forgetting to build.** The C++ tables are zero until `precomputeFactorials()`, `sieve()`, `computeSPF()` and the other builders run.
+- **Sieve limit 0 or 1.** Handle the tiny cases; the Python and Go sieves return no primes for n below 2.
+- **Overflow in prefix sums.** Use 64-bit sums when the values are large (C++ uses `long long`).
+- **Using a table for updates.** Prefix sums and sparse tables are static.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How do I know when precomputation pays off?">
+    Compare the cost of building the table once with the cost of recomputing for every query. If there are q queries and each would cost c without the table, the table pays off roughly when its build cost is below q times c.
+  </FaqItem>
+  <FaqItem question="Why does the sieve start crossing out at i squared?">
+    Every multiple of i below i<sup>2</sup> has the form k * i with k less than i, so it has a prime factor smaller than i and was already crossed out earlier. Starting at i<sup>2</sup> skips that repeated work.
+  </FaqItem>
+  <FaqItem question="Why is the sparse table query O(1) but the build O(n log n)?">
+    Level j holds minima over blocks of 2<sup>j</sup> elements for every start index, which takes n entries per level and about log<sub>2</sub>(n) levels. A query reads exactly two entries.
+  </FaqItem>
+  <FaqItem question="When should I use inverse factorials instead of Pascal's triangle?">
+    When n is large (above a few thousand) and the modulus is prime. Pascal's triangle costs O(n<sup>2</sup>) time and memory; the factorial tables cost O(n) and answer each binomial in O(1).
+  </FaqItem>
+</Faq>

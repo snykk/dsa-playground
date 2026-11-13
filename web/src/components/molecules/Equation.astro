@@ -1,0 +1,57 @@
+---
+import { formatInline } from '../../lib/inline';
+
+/** A displayed formula such as a recurrence, with an optional label and result. */
+interface Props {
+  expr: string;
+  label?: string;
+  result?: string;
+}
+
+const { expr, label, result } = Astro.props;
+---
+
+<div class="equation">
+  {label && <span class="eq-label">{label}</span>}
+  <span class="eq-expr" set:html={formatInline(expr)} />
+  {
+    result && (
+      <span class="eq-result">
+        <span class="arrow" aria-label="which gives">
+          &#x21d2;
+        </span>
+        <span set:html={formatInline(result)} />
+      </span>
+    )
+  }
+</div>
+
+<style>
+  .equation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 14px;
+    margin: 10px 0;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 15px;
+  }
+  .eq-label {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 650;
+    color: var(--text-3);
+    min-width: 120px;
+  }
+  .eq-result {
+    display: inline-flex;
+    gap: 10px;
+    font-weight: 650;
+  }
+  .arrow {
+    color: var(--text-3);
+  }
+</style>

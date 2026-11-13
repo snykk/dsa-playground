@@ -1,0 +1,218 @@
+---
+topic: Algorithms/Searching/Binary_Search
+title: Binary Search
+lead: Binary Search finds a value in a sorted array by comparing it with the middle element and discarding the half that cannot contain it. Each probe halves the range, so a billion sorted items take at most 30 comparisons.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(log n)
+    hint: at most floor(log2 n) + 1 probes
+  - label: Best case
+    value: O(1)
+    hint: the target is the first middle element
+  - label: Extra space
+    value: O(1)
+    hint: iterative; O(log n) stack if recursive
+  - label: Needs
+    value: Sorted input
+    hint: and random access to any index
+    tone: warn
+properties:
+  - { label: Requires sorted data, value: true }
+  - { label: Random access needed, value: true }
+  - { label: In-place, value: true }
+  - { label: Divide and conquer, value: true }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Searching/Linear_Search
+  - Algorithms/Searching/Interpolation_Search
+  - Algorithms/Searching/Ternary_Search
+  - Problem_Patterns/Binary_Search_on_Answer
+  - Algorithms/Divide_and_Conquer
+---
+
+## How Binary Search works
+
+Keep a window `[lo, hi]` of positions where the target may still be. Look at the middle, and either you are done or half of the window is ruled out, because the array is sorted.
+
+<Steps>
+  <Step title="Start with the whole array">
+    Set `lo = 0` and `hi = n - 1`.
+  </Step>
+  <Step title="Probe the middle">
+    Compute `mid = lo + (hi - lo) / 2` and compare `arr[mid]` with the target. If they are equal, return `mid`.
+  </Step>
+  <Step title="Discard one half">
+    If `arr[mid] < target`, everything up to `mid` is too small: set `lo = mid + 1`. Otherwise everything from `mid` on is too large: set `hi = mid - 1`.
+  </Step>
+  <Step title="Stop when the window is empty">
+    When `lo > hi` there is nothing left and the target is absent: return -1.
+  </Step>
+</Steps>
+
+<Callout title="The loop invariant">
+If the target is in the array, it is inside `arr[lo..hi]`. The invariant holds at the start, each step keeps it (the discarded half cannot contain the target in a sorted array), and when the window is empty it means the target is not there.
+</Callout>
+
+## See it in action
+
+Enter a sorted array and a target, then press Apply, or press Random for a random input. The transport buttons step through the probes: watch the middle position being compared, the ruled-out cells fading, and the window shrink by half each time.
+
+<ArticleViz ids={['binary-search']} />
+
+## Worked example
+
+Search for 7 in `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]` (indexes 0 to 9). The probes are from the repository's algorithm.
+
+<ArrayDiagram
+  legend={{ c: 'mid: the probe', l: 'still in the window [lo..hi]', m: 'ruled out', f: 'found' }}
+  rows={[
+    { label: 'step 1', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'llllclllll', marks: { 0: 'lo', 4: 'mid', 9: 'hi' }, note: 'lo = 0, hi = 9, mid = 4. `arr[4] = 5 < 7`: drop the left half, `lo = 5`.' },
+    { label: 'step 2', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'mmmmmllcll', marks: { 5: 'lo', 7: 'mid', 9: 'hi' }, note: 'mid = 7. `arr[7] = 8 > 7`: drop the right half, `hi = 6`.' },
+    { label: 'step 3', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'mmmmmclmmm', marks: { 5: 'lo, mid', 6: 'hi' }, note: 'lo = 5, hi = 6, mid = 5. `arr[5] = 6 < 7`: `lo = 6`.' },
+    { label: 'step 4', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tones: 'mmmmmmfmmm', marks: { 6: 'lo, mid, hi' }, note: 'lo = hi = 6, mid = 6. `arr[6] = 7`: found, return 6.' },
+  ]}
+/>
+
+Four probes for ten elements, which is the worst case here: `floor(log2 10) + 1 = 4`.
+
+## Pseudocode
+
+```text
+binarySearch(arr, target):
+    left = 0; right = len(arr) - 1
+    while left <= right:
+        mid = left + (right - left) / 2
+        if arr[mid] == target:  return mid
+        elif arr[mid] < target: left = mid + 1
+        else:                   right = mid - 1
+    return -1
+
+firstOccurrence(arr, target):             # last occurrence: mirror it
+    left = 0; right = len(arr) - 1; result = -1
+    while left <= right:
+        mid = left + (right - left) / 2
+        if arr[mid] == target:  result = mid; right = mid - 1   # keep looking left
+        elif arr[mid] < target: left = mid + 1
+        else:                   right = mid - 1
+    return result
+```
+
+## Implementation
+
+The Python, C++ and Go files all contain the iterative search, a recursive search and the first and last occurrence searches. Python also has `binary_search_closest`, which returns the index of the element nearest to the target (the larger one on a tie, `-1` for an empty list). C++ is a template with instances for `int` (and `double` for the basic and recursive forms); Go works on `[]int`. Python's `binary_search_recursive` defaults `right` to the end of the list; the C++ and Go recursive functions take `left` and `right` explicitly.
+
+<TopicCode topic="Algorithms/Searching/Binary_Search" />
+
+## Complexity analysis
+
+Each probe halves the window, so after `k` probes at most `n / 2^k` positions remain. The search ends when that reaches zero.
+
+<Equation label="Recurrence" expr="T(n) = T(n/2) + O(1)" result="O(log n)" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(1)', when: 'The first middle element is the target.' },
+    { case: 'Average case', time: 'O(log n)', when: 'Typically about log2(n) - 1 probes for a present target.' },
+    { case: 'Worst case', time: 'O(log n)', when: 'The target is absent or found on the last probe: floor(log2 n) + 1 comparisons.' },
+    { case: 'Space', time: 'O(1)', when: 'Iterative. The recursive version uses O(log n) stack frames.' },
+  ]}
+/>
+
+How slowly the cost grows:
+
+<DataTable
+  columns={['n', { label: 'Linear (worst)', kind: 'mono' }, { label: 'Binary (worst)', kind: 'mono' }]}
+  rows={[
+    ['10', '10', '4'],
+    ['1,000', '1,000', '10'],
+    ['1,000,000', '1,000,000', '20'],
+    ['1,000,000,000', '1,000,000,000', '30'],
+  ]}
+/>
+
+Binary search is optimal among comparison-based searches of a sorted array: a decision tree with `n + 1` outcomes needs depth at least `log2(n + 1)`.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'What it returns', 'Key change']}
+  rows={[
+    ['Exact match', 'any index holding the target, or -1', 'return as soon as `arr[mid] == target`'],
+    ['First occurrence', 'the leftmost match', 'on a match, save `mid` and set `hi = mid - 1`'],
+    ['Last occurrence', 'the rightmost match', 'on a match, save `mid` and set `lo = mid + 1`'],
+    ['Closest element (Python)', 'index of the nearest value', 'narrow with `lo < hi` and `hi = mid`, then compare the neighbors'],
+    ['Lower and upper bound', 'the insertion point of the target', 'not in this repository; see Python `bisect_left` and `bisect_right`'],
+    ['Binary search on the answer', 'the smallest value that satisfies a yes/no test', 'search a range of answers instead of an array, see the Binary Search on Answer pattern'],
+  ]}
+/>
+
+With duplicates, the exact-match version returns an arbitrary one of them: on `[1, 2, 2, 2, 2, 3, 4]` searching for 2 returns index 3, while the first and last occurrence searches return 1 and 4.
+
+## Binary Search vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Needs sorted', 'Best for']}
+  highlight={0}
+  rows={[
+    ['Binary Search', 'O(log n)', 'Yes', 'repeated lookups in a sorted array'],
+    ['Linear Search', 'O(n)', 'No', 'unsorted data, tiny arrays, linked lists'],
+    ['Interpolation Search', 'O(log log n) on uniform data', 'Yes', 'uniformly distributed numbers; degrades to O(n)'],
+    ['Ternary Search', 'O(log n), more comparisons', 'Yes (or unimodal)', 'maxima of unimodal functions, not plain lookup'],
+    ['Hash table', 'O(1) average', 'No', 'exact lookups with no ordering needs'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Logarithmic time: doubling the data adds one probe.',
+    'Constant extra space with the iterative form.',
+    'Simple to implement, and the first and last occurrence variants are small changes.',
+    'The same idea searches any monotone yes/no condition, not only arrays.',
+  ]}
+  cons={[
+    'The data must be sorted first, which costs O(n log n) once.',
+    'It needs random access, so it is slow on linked lists.',
+    'Insertions into a sorted array are O(n), so it suits mostly static data.',
+    'Easy to get wrong: off-by-one errors in the bounds are the classic bug.',
+  ]}
+/>
+
+## Applications
+
+- **Dictionary-style lookups** in sorted arrays and sorted files.
+- **Insertion points and range counts:** the number of values in `[a, b]` is two bound searches.
+- **Binary search on the answer:** minimum capacity, smallest feasible speed, and similar optimization questions, as in LeetCode 875 "Koko Eating Bananas".
+- **Debugging:** `git bisect` uses the same halving idea to find the commit that introduced a bug.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Searching unsorted data.** The result is meaningless, and no error is raised.
+- **Wrong loop condition.** With `hi = n - 1` the loop must be `lo <= hi`. Mixing it with `hi = mid` loops forever.
+- **Not shrinking the window.** Writing `lo = mid` instead of `lo = mid + 1` can make the loop run forever on two elements.
+- **Overflow in the midpoint.** In C++ and Go, `(lo + hi) / 2` can overflow `int` on huge arrays. Write `lo + (hi - lo) / 2` (Python integers cannot overflow, but the repository uses the same form).
+- **Duplicates.** The plain search returns any match. Use the first or last occurrence variant when the position matters.
+- **Ties in closest.** The Python `binary_search_closest` prefers the larger value on a tie: for `[1, 3, 5, 7, 9]` and target 4, it returns the index of 5, not 3.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why must the array be sorted?">
+    The discard step relies on order: if `arr[mid] < target`, every element at or before `mid` is also smaller, so none of them can match. On unsorted data that argument fails.
+  </FaqItem>
+  <FaqItem question="Is recursive or iterative better?">
+    Iterative. Both are O(log n) in time, but the recursive form uses O(log n) stack, and the depth is tiny (about 30 frames for a billion items) so it is safe, but it adds nothing. The recursive form is useful for teaching.
+  </FaqItem>
+  <FaqItem question="Can I use binary search on a linked list?">
+    Not usefully. Reaching the middle node takes O(n), so the total cost is no better than a linear scan.
+  </FaqItem>
+  <FaqItem question="What does it return when the target is missing?">
+    -1 in every function here. If you need the position where the value would be inserted, use a lower-bound search (such as Python `bisect_left`) instead.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,189 @@
+---
+topic: Data_Structures/Advanced_Structures/LRU_Cache
+title: LRU Cache
+lead: An LRU (least recently used) cache holds a fixed number of key-value pairs and, when full, throws away the entry that has gone unused the longest. A hash map plus a doubly linked list gives O(1) get and put.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: get
+    value: O(1)
+  - label: put
+    value: O(1)
+  - label: Space
+    value: O(capacity)
+  - label: Eviction rule
+    value: Oldest use
+    hint: reading a key also counts as a use
+    tone: warn
+properties:
+  - { label: Fixed capacity, value: true }
+  - { label: Reads change the order, value: true }
+  - { label: Resists scans, value: false }
+  - { label: Thread-safe, value: false }
+prerequisites:
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Linear/Linked_List/Doubly
+related:
+  - Data_Structures/Advanced_Structures/LFU_Cache
+  - Data_Structures/Hashing/Hash_Table
+  - Data_Structures/Linear/Queue/Deque
+---
+
+## What an LRU cache is
+
+A cache keeps recent results close at hand. It has a capacity, so adding a new key to a full cache must remove one. LRU removes the key that was **used least recently**, where both `get` and `put` count as a use. The assumption is temporal locality: what you touched lately, you will probably touch again.
+
+Two structures cooperate:
+
+- a **hash map** from key to list node, for O(1) lookup;
+- a **doubly linked list** ordered by recency, most recent first, least recent last. A doubly linked list can unlink a node it already has a pointer to in O(1).
+
+<ListDiagram
+  kind="doubly"
+  values={['3:C', '2:B', '1:A']}
+  tones="lrf"
+  pointers={{ 0: 'MRU (front)', 2: 'LRU (back)' }}
+  legend={{ l: 'most recently used', r: 'in between', f: 'next victim (least recently used)' }}
+  caption="A cache of capacity 3 after put(1,A), put(2,B), put(3,C). The map points from each key to its node."
+/>
+
+<Callout title="Why the node stores its key">
+When the back node is evicted, the hash map entry for it must be deleted too, and the only way to know which key to delete is to read it from the node. The Python and Go versions also use two sentinel nodes (head and tail), which remove all special cases for an empty list or for the first and last element. C++ uses `std::list`, which handles that itself.
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`LRUCache(capacity)`', 'empty cache holding at most `capacity` entries', 'O(1)'],
+    ['`get(key)`', 'return the value and move the node to the front; -1 on a miss', 'O(1)'],
+    ['`put(key, value)`', 'update and move to front, or insert at front and evict from the back if over capacity', 'O(1)'],
+    ['`size`', 'current number of entries (`size` property in Python, `size()` in C++, `Size()` in Go)', 'O(1)'],
+  ]}
+/>
+
+The API uses `int` keys and values, and -1 means "not found", so a stored -1 cannot be told from a miss. Capacity 0 or negative gives a cache that stores nothing (`size` stays 0, every `get` returns -1) in all three languages.
+
+### get: move to front
+
+Look the key up in the map. On a miss return -1. On a hit, unlink the node from where it is, insert it at the front, and return its value. Starting from `[3:C, 2:B, 1:A]`, `get(1)` gives:
+
+<ListDiagram
+  kind="doubly"
+  values={['1:A', '3:C', '2:B']}
+  tones="lrf"
+  pointers={{ 0: 'MRU', 2: 'LRU' }}
+  legend={{ l: 'just used, now at the front', f: 'now the least recently used' }}
+  caption="After get(1) the order is 1, 3, 2. Key 1 moved to the front, so key 2 is now the victim."
+/>
+
+### put: insert and evict
+
+If the key exists, update its value and move it to the front. Otherwise add a new node at the front and register it in the map. If the entry count now exceeds capacity, remove the node at the back and delete its key from the map. Continuing from the picture above, `put(4, D)` evicts key 2:
+
+<ListDiagram
+  kind="doubly"
+  values={['4:D', '1:A', '3:C']}
+  tones="lrf"
+  pointers={{ 0: 'MRU', 2: 'LRU' }}
+  legend={{ l: 'new entry at the front', f: 'next victim' }}
+  caption="After put(4, D) the list is 4, 1, 3. Key 2 was removed from both the list and the map, so get(2) returns -1."
+/>
+
+Updating a key reorders it without changing the size: `put(3, C2)` on that list gives `[3:C2, 4:D, 1:A]`.
+
+The C++ version evicts before inserting (it checks `size >= capacity` first) and Python and Go insert first and then evict. The visible behaviour is the same.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['get', 'O(1)', 'one hash lookup, then a constant number of pointer changes'],
+    ['put', 'O(1)', 'same, plus removing the back node and one map deletion'],
+    ['space', 'O(capacity)', 'one map entry and one list node per cached key'],
+  ]}
+/>
+
+The hash lookups are O(1) on average, not worst case, because they depend on the hash map.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Trade-off']}
+  rows={[
+    ['`OrderedDict` (Python)', '`move_to_end` and `popitem(last=False)` do the same job', 'much shorter code; this repo writes the list by hand to show the mechanism'],
+    ['`functools.lru_cache`', 'a decorator that caches function results', 'for function calls, not a general key-value store'],
+    ['CLOCK', 'a circular buffer and a reference bit per entry', 'cheaper than exact LRU, approximates it'],
+    ['2Q / ARC', 'keep separate recency and frequency lists', 'resist scans, but more complex'],
+  ]}
+/>
+
+## LRU vs other eviction policies
+
+<DataTable
+  columns={['Policy', 'Evicts', 'Strength', 'Weakness']}
+  highlight={0}
+  rows={[
+    ['LRU', 'least recently used', 'simple, adapts quickly to changing access', 'one big scan can push out every hot key'],
+    ['LFU', 'least frequently used', 'keeps stable hot keys', 'old popularity lingers; more state'],
+    ['FIFO', 'oldest inserted', 'trivial', 'ignores reuse, so a hot key can be evicted just because it is old'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Every operation is O(1).',
+    'Few moving parts: one map and one list.',
+    'Matches how most real access patterns behave (recent things return).',
+  ]}
+  cons={[
+    'A scan over many cold keys evicts all the hot ones.',
+    'Every read writes to the list, so concurrent use needs a lock.',
+    'Ignores how often a key is used, only when.',
+    'Memory overhead of a list node and a map entry per key.',
+  ]}
+/>
+
+## Applications
+
+- Page, query and DNS-style caches that should keep recent results.
+- Memory page replacement approximations (CLOCK is the usual practical form).
+- The classic interview problem LeetCode 146 (LRU Cache), with LeetCode 460 (LFU Cache) as the follow-up.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Map and list out of sync.** Every insert and eviction must touch both. Deleting from the list but not the map leaves a dangling entry.
+- **Forgetting that get is a use.** If `get` does not move the node to the front, you have FIFO, not LRU.
+- **Not storing the key in the node.** Without it, eviction cannot find the map entry to delete.
+- **Evicting on an update.** Updating an existing key must not change the size.
+- **Capacity 0.** The code must not touch the back of an empty list. The C++ version once crashed here; it now returns immediately from `put` when the capacity is 0 or less.
+- **Copying the C++ cache.** The map holds iterators into the list that belongs to the original, so a copy would point into it. The copy operations are deleted; moves are allowed.
+</Callout>
+
+## Implementation
+
+Python and Go use sentinel head and tail nodes with the front as the most recent end. C++ uses `std::list` with `splice`, which moves a node in O(1) without invalidating the iterators stored in the map.
+
+<TopicCode topic="Data_Structures/Advanced_Structures/LRU_Cache" />
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why a doubly linked list and not a singly linked one?">
+    To unlink a node you need its predecessor. A doubly linked list stores it, so removal from the middle is O(1). With a singly linked list you would have to walk from the head.
+  </FaqItem>
+  <FaqItem question="Why not just use a hash map with timestamps?">
+    Finding the oldest timestamp would be a scan of all entries, which is O(n). The list keeps the oldest entry at the back at all times.
+  </FaqItem>
+  <FaqItem question="Does put on an existing key count as a use?">
+    Yes. It updates the value and moves the key to the front, exactly like get.
+  </FaqItem>
+  <FaqItem question="How do I make it thread-safe?">
+    Guard both operations with one lock, because even get mutates the list. Sharding the cache by key hash reduces contention.
+  </FaqItem>
+</Faq>

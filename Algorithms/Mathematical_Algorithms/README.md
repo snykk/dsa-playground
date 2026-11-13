@@ -18,32 +18,32 @@ This folder contains implementations of fundamental mathematical algorithms in P
 
 ### 🔹 Number Theory
 
-- **[Euclidean Algorithm (GCD, LCM)](./Number_Theory/Euclidean%20Algorithm/)**
+- **[Euclidean Algorithm (GCD, LCM)](Number_Theory/Euclidean_Algorithm/)**
   - Finds Greatest Common Divisor and Least Common Multiple
   - Time: O(log min(a, b)), Space: O(1)
   - Fundamental algorithm for number theory
 
-- **[Modular Arithmetic](./Number_Theory/Modular%20Arithmetic/)**
+- **[Modular Arithmetic](Number_Theory/Modular_Arithmetic/)**
   - Operations under modular arithmetic
   - Time: O(1) for basic operations
   - Essential for cryptography and number theory
 
-- **[Modular Exponentiation](./Number_Theory/Modular%20Exponentiation/)**
+- **[Modular Exponentiation](Number_Theory/Modular_Exponentiation/)**
   - Efficient exponentiation under modulo
   - Time: O(log exponent), Space: O(1)
   - Uses binary exponentiation
 
-- **[Sieve of Eratosthenes](./Number_Theory/Sieve%20of%20Eratosthenes/)**
+- **[Sieve of Eratosthenes](Number_Theory/Sieve_of_Eratosthenes/)**
   - Finds all primes up to n
   - Time: O(n log log n), Space: O(n)
   - Efficient prime number generation
 
-- **[Miller-Rabin Primality Test](./Number_Theory/Miller-Rabin%20Primality%20Test/)**
+- **[Miller-Rabin Primality Test](Number_Theory/Miller_Rabin_Primality_Test/)**
   - Probabilistic primality test
   - Time: O(k log³ n) where k is iterations
   - Fast and practical for large numbers
 
-- **[Chinese Remainder Theorem](./Number_Theory/Chinese%20Remainder%20Theorem/)**
+- **[Chinese Remainder Theorem](Number_Theory/Chinese_Remainder_Theorem/)**
   - Solves system of modular congruences
   - Time: O(n log max(moduli)), Space: O(n)
   - Useful in cryptography and number theory
@@ -52,12 +52,12 @@ This folder contains implementations of fundamental mathematical algorithms in P
 
 ### 🔹 Advanced Math
 
-- **[Fast Fourier Transform (FFT)](./Advanced_Math/Fast%20Fourier%20Transform/)**
+- **[Fast Fourier Transform (FFT)](Advanced_Math/Fast_Fourier_Transform/)**
   - Efficient polynomial multiplication
   - Time: O(n log n), Space: O(n)
   - Fundamental in signal processing
 
-- **[Matrix Exponentiation](./Advanced_Math/Matrix%20Exponentiation/)**
+- **[Matrix Exponentiation](Advanced_Math/Matrix_Exponentiation/)**
   - Fast computation of matrix powers
   - Time: O(n³ log k) for n×n matrix to k-th power
   - Useful for linear recurrences

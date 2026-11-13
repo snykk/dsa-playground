@@ -1,6 +1,7 @@
-"""Randomized Quickselect — O(n) expected-time k-th smallest element.
+"""Randomized Quickselect - O(n) expected-time k-th smallest element.
 
-Uses Lomuto partition with a random pivot. Mutates the input array.
+Uses a three-way (Dutch flag) partition with a random pivot, so duplicates
+cannot cause quadratic time. Mutates the input array.
 """
 
 import random
@@ -31,27 +32,35 @@ def quickselect(
 def _quickselect(arr: List[int], lo: int, hi: int, k: int,
                  rng: random.Random) -> int:
     while lo < hi:
-        pivot_idx = _partition(arr, lo, hi, rng.randint(lo, hi))
-        if k == pivot_idx:
-            return arr[k]
-        if k < pivot_idx:
-            hi = pivot_idx - 1
+        lt, gt = _partition3(arr, lo, hi, rng.randint(lo, hi))
+        if k < lt:
+            hi = lt - 1
+        elif k > gt:
+            lo = gt + 1
         else:
-            lo = pivot_idx + 1
+            return arr[k]  # k falls inside the band of keys equal to the pivot
     return arr[lo]
 
 
-def _partition(arr: List[int], lo: int, hi: int, pivot_idx: int) -> int:
-    """Lomuto partition: move pivot to `hi`, then reorder. Returns pivot's final index."""
-    arr[pivot_idx], arr[hi] = arr[hi], arr[pivot_idx]
-    pivot = arr[hi]
-    store = lo
-    for i in range(lo, hi):
+def _partition3(arr: List[int], lo: int, hi: int, pivot_idx: int):
+    """Three-way partition around arr[pivot_idx].
+
+    Reorders arr[lo..hi] into  < pivot | == pivot | > pivot  and returns
+    (lt, gt): arr[lt..gt] holds exactly the keys equal to the pivot.
+    """
+    pivot = arr[pivot_idx]
+    lt, i, gt = lo, lo, hi
+    while i <= gt:
         if arr[i] < pivot:
-            arr[i], arr[store] = arr[store], arr[i]
-            store += 1
-    arr[store], arr[hi] = arr[hi], arr[store]
-    return store
+            arr[lt], arr[i] = arr[i], arr[lt]
+            lt += 1
+            i += 1
+        elif arr[i] > pivot:
+            arr[i], arr[gt] = arr[gt], arr[i]
+            gt -= 1
+        else:
+            i += 1
+    return lt, gt
 
 
 def top_k_smallest(arr: List[int], k: int,

@@ -1,47 +1,42 @@
-# Bitmasking (Go)
+# Bitmasking -- Go Implementation
 
-Go implementation of bitmasking techniques for competitive programming.
+Bit operations, subset enumeration, bitmask DP, SOS DP and power-of-two helpers.
 
-## Functions
+For the concept, see the topic README: [../README.md](../README.md).
 
-### Basic Operations
-- `GetBit(mask, i)` - Check if i-th bit is set
-- `SetBit(mask, i)` - Set i-th bit to 1
-- `ClearBit(mask, i)` - Clear i-th bit
-- `ToggleBit(mask, i)` - Toggle i-th bit
-- `CountBits(mask)` - Count number of set bits
-- `LowestSetBit(mask)` - Get lowest set bit
-- `ClearLowestBit(mask)` - Clear lowest set bit
+## Files
 
-### Subset Enumeration
-- `EnumerateSubsets(mask)` - Get all subsets of a set
+| File | Purpose |
+|------|---------|
+| `main.go` | the functions below and a demo `main` |
+| `main_test.go` | 13 tests: bit operations, TSP (including one and zero cities), `NextPowerOf2` beyond 32 bits, subset enumeration, SOS DP |
+| `go.mod` | module definition |
 
-### Bitmask DP
-- `TSP(dist)` - Traveling Salesman Problem
-- `CountSubsetSum(nums, target)` - Count subsets that sum to target
+## API
 
-### Tricks
-- `IsPowerOf2(n)` - Check if n is power of 2
-- `NextPowerOf2(n)` - Round up to next power of 2
-- `SOSDP(a)` - Sum Over Subsets DP
+- `GetBit`, `SetBit`, `ClearBit`, `ToggleBit`, `CountBits`, `LowestSetBit`, `ClearLowestBit` (all on `int`).
+- `EnumerateSubsets(mask) []int`: every submask, empty set last.
+- `TSP(dist [][]int) int`: shortest tour from city 0; returns 0 for 0 or 1 city; `INF` is `1 << 30`.
+- `CountSubsetSum(nums []int, target int) int`.
+- `IsPowerOf2(n)`, `NextPowerOf2(n)`: uses `bits.Len`, correct for the full width of `int`.
+- `SOSDP(a []int) []int`: any length.
 
-## Usage
+## Go-Specific Notes
 
-```go
-package main
+- `int` is 64 bits on 64-bit platforms, so masks hold up to 63 items.
+- `&^` is Go's "and not", used by `ClearBit`.
+- `CountBits` loops with `mask &= mask - 1`; `math/bits.OnesCount` is the library alternative.
+- There is no Gosper's hack function and no meet in the middle in the Go version.
 
-import "fmt"
-
-func main() {
-    mask := 0b10110
-    fmt.Println(GetBit(mask, 1))  // true
-    fmt.Println(SetBit(mask, 0))  // 0b10111
-}
-```
-
-## Testing
+## How to Run
 
 ```bash
-go test
+go test ./...
+go run .
 ```
 
+## Key Takeaways
+
+1. `math/bits` gives width-correct primitives (`Len`, `OnesCount`).
+2. A fixed shift-or ladder is only correct up to its last shift.
+3. Test edge cases: zero, one element, and values above 2^32.

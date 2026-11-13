@@ -48,6 +48,12 @@ def enumerate_subsets(mask: int) -> Generator[int, None, None]:
 
 def subsets_of_size_k(n: int, k: int) -> Generator[int, None, None]:
     """Generate all subsets of size k from n elements."""
+    # The only subset of size 0 is the empty set (Gosper's hack divides by the
+    # lowest set bit, which does not exist for mask == 0).
+    if k == 0:
+        yield 0
+        return
+
     # Generate first subset of size k
     mask = (1 << k) - 1
     
@@ -64,6 +70,8 @@ def subsets_of_size_k(n: int, k: int) -> Generator[int, None, None]:
 def tsp(dist: List[List[int]]) -> int:
     """Traveling Salesman Problem using bitmask DP."""
     n = len(dist)
+    if n <= 1:
+        return 0  # nothing to visit: the tour has length 0
     INF = float('inf')
     
     # dp[mask][last] = minimum distance to visit all cities in mask, ending at last
@@ -113,13 +121,9 @@ def next_power_of_2(n: int) -> int:
     """Round up to next power of 2."""
     if n <= 0:
         return 1
-    n -= 1
-    n |= n >> 1
-    n |= n >> 2
-    n |= n >> 4
-    n |= n >> 8
-    n |= n >> 16
-    return n + 1
+    # Python integers are unbounded, so a fixed number of shift-or steps would
+    # stop at 32 bits; bit_length works for any size.
+    return 1 << (n - 1).bit_length()
 
 def log2_floor(n: int) -> int:
     """Floor of log base 2."""
@@ -134,13 +138,15 @@ def log2_ceil(n: int) -> int:
 def sos_dp(a: List[int]) -> List[int]:
     """
     Sum Over Subsets DP.
-    For each mask, compute sum of a[sub] for all sub ⊆ mask.
+    For each mask, compute sum of a[sub] for all sub that are subsets of mask.
+    The length need not be a power of two: missing entries count as absent.
     """
-    n = len(a).bit_length() - 1
+    size = len(a)
+    bits = max(size - 1, 0).bit_length()
     dp = a.copy()
     
-    for i in range(n):
-        for mask in range(1 << n):
+    for i in range(bits):
+        for mask in range(size):
             if mask & (1 << i):
                 dp[mask] += dp[mask ^ (1 << i)]
     

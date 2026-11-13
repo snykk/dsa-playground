@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"sort"
 	"testing"
+	"time"
 )
 
 func TestSingleElement(t *testing.T) {
@@ -138,4 +139,31 @@ func TestEmptyPanics(t *testing.T) {
 	}()
 	rng := rand.New(rand.NewSource(42))
 	Quickselect([]int{}, 0, rng)
+}
+
+// Regression: a two-way partition was O(n^2) on all-equal / duplicate-heavy input.
+func TestManyDuplicatesIsFast(t *testing.T) {
+	rng := rand.New(rand.NewSource(42))
+	start := time.Now()
+
+	equal := make([]int, 200000)
+	for i := range equal {
+		equal[i] = 7
+	}
+	if got := Quickselect(equal, 100000, rng); got != 7 {
+		t.Fatalf("all-equal: got %d, want 7", got)
+	}
+
+	few := make([]int, 200000)
+	for i := range few {
+		few[i] = rng.Intn(4)
+	}
+	sorted := append([]int{}, few...)
+	sort.Ints(sorted)
+	if got := Quickselect(few, 150000, rng); got != sorted[150000] {
+		t.Fatalf("few distinct: got %d, want %d", got, sorted[150000])
+	}
+	if time.Since(start) > time.Second {
+		t.Errorf("took %v, expected well under a second", time.Since(start))
+	}
 }

@@ -1,0 +1,159 @@
+---
+import { toneAt, toneClass } from '../../lib/diagram';
+import { formatInline } from '../../lib/inline';
+import DiagramLegend from './DiagramLegend.astro';
+
+/**
+ * A static linked-list picture for articles: node boxes joined by next arrows
+ * (doubly: next and prev arrows; circular: the last node points back to the first),
+ * pointer labels under nodes (head, tail, prev, curr) and a null terminator.
+ */
+interface Props {
+  values: Array<string | number>;
+  kind?: 'singly' | 'doubly' | 'circular';
+  /** One tone character per node (see src/lib/diagram.ts). */
+  tones?: string;
+  /** Labels under nodes, by index: {{ 0: 'head', 3: 'tail' }}. */
+  pointers?: Record<number, string>;
+  legend?: Record<string, string>;
+  caption?: string;
+  label?: string;
+}
+
+const { values, kind = 'singly', tones, pointers = {}, legend, caption, label } = Astro.props;
+
+const BOX_W = 50;
+const BOX_H = 36;
+const PORT = 14; // the "next" (and "prev") compartment
+const GAP = 38;
+const PAD = 12;
+const doubly = kind === 'doubly';
+const circular = kind === 'circular';
+const nodeW = BOX_W + PORT + (doubly ? PORT : 0);
+const hasPointers = Object.keys(pointers).length > 0;
+const nullW = circular ? 0 : GAP + 34;
+/** A circular list draws its return arrow left of the first node, so it needs room there. */
+const left = PAD + (circular ? 22 : 0);
+const width = left + PAD + Math.max(values.length, 1) * nodeW + Math.max(values.length - 1, 0) * GAP + nullW;
+const top = PAD;
+const height = PAD * 2 + BOX_H + (hasPointers ? 34 : 0) + (circular ? 30 : 0);
+const xOf = (i: number) => left + i * (nodeW + GAP);
+const midY = top + BOX_H / 2;
+const lastX = xOf(values.length - 1) + nodeW;
+---
+
+<figure class="dg-figure list-diagram">
+  {legend && <DiagramLegend legend={legend} />}
+  <div class="dg-stage">
+    {
+      values.length === 0 ? (
+        <p class="empty">
+          <code>head</code> &#x2192; <code>null</code> (empty list)
+        </p>
+      ) : (
+        <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height} role="img" aria-label={label ?? `${kind} linked list: ${values.join(', ')}`}>
+          <defs>
+            <marker id="ld-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path class="arrow-head" d="M0,0 L10,5 L0,10 z" />
+            </marker>
+          </defs>
+          {values.map((v, i) => {
+            const x = xOf(i);
+            const dataX = x + (doubly ? PORT : 0);
+            return (
+              <g class={toneClass(toneAt(tones, i))}>
+                <rect class="shape" x={x} y={top} width={nodeW} height={BOX_H} rx={7} />
+                {doubly && <line class="divider" x1={x + PORT} y1={top} x2={x + PORT} y2={top + BOX_H} />}
+                <line class="divider" x1={dataX + BOX_W} y1={top} x2={dataX + BOX_W} y2={top + BOX_H} />
+                {doubly && <circle class="port" cx={x + PORT / 2} cy={midY + 7} r={2.5} />}
+                <circle class="port" cx={dataX + BOX_W + PORT / 2} cy={midY - (doubly ? 7 : 0)} r={2.5} />
+                <text class="label" x={dataX + BOX_W / 2} y={midY}>
+                  {v}
+                </text>
+                {pointers[i] && (
+                  <g>
+                    <line class="pointer" x1={x + nodeW / 2} y1={top + BOX_H + 22} x2={x + nodeW / 2} y2={top + BOX_H + 4} marker-end="url(#ld-arrow)" />
+                    <text class="pointer-label" x={x + nodeW / 2} y={top + BOX_H + 30}>
+                      {pointers[i]}
+                    </text>
+                  </g>
+                )}
+              </g>
+            );
+          })}
+          {values.slice(1).map((_, k) => {
+            const from = xOf(k) + nodeW - PORT / 2;
+            const to = xOf(k + 1);
+            return (
+              <g>
+                <line class="link" x1={from} y1={midY - (doubly ? 7 : 0)} x2={to - 2} y2={midY - (doubly ? 7 : 0)} marker-end="url(#ld-arrow)" />
+                {doubly && <line class="link" x1={xOf(k + 1) + PORT / 2} y1={midY + 7} x2={xOf(k) + nodeW + 2} y2={midY + 7} marker-end="url(#ld-arrow)" />}
+              </g>
+            );
+          })}
+          {!circular && (
+            <g>
+              <line class="link" x1={lastX - PORT / 2} y1={midY - (doubly ? 7 : 0)} x2={lastX + GAP - 4} y2={midY - (doubly ? 7 : 0)} marker-end="url(#ld-arrow)" />
+              <text class="null" x={lastX + GAP} y={midY - (doubly ? 7 : 0)}>
+                null
+              </text>
+            </g>
+          )}
+          {circular && (
+            <path
+              class="link"
+              fill="none"
+              d={`M ${lastX - PORT / 2} ${midY} h 16 v ${BOX_H / 2 + 22 + (hasPointers ? 34 : 0)} H ${xOf(0) - 16} V ${midY} h 13`}
+              marker-end="url(#ld-arrow)"
+            />
+          )}
+        </svg>
+      )
+    }
+  </div>
+  {caption && <figcaption class="dg-caption" set:html={formatInline(caption)} />}
+</figure>
+
+<style>
+  .shape {
+    fill: var(--dg-fill);
+    stroke: var(--dg-stroke);
+    stroke-width: var(--dg-stroke-width);
+  }
+  .divider {
+    stroke: var(--dg-stroke);
+    stroke-width: 1;
+  }
+  .port {
+    fill: var(--dg-ink);
+  }
+  .label {
+    fill: var(--dg-ink);
+    font: 600 14px var(--font-mono);
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .link,
+  .pointer {
+    stroke: var(--text-3);
+    stroke-width: 1.8;
+  }
+  .arrow-head {
+    fill: var(--text-3);
+  }
+  .null,
+  .pointer-label {
+    fill: var(--text-2);
+    font: 600 12px var(--font-mono);
+    dominant-baseline: central;
+  }
+  .pointer-label {
+    text-anchor: middle;
+    fill: var(--text);
+  }
+  .empty {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+</style>

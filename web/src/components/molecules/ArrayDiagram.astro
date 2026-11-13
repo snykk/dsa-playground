@@ -1,0 +1,145 @@
+---
+import { toneAt, toneClass } from '../../lib/diagram';
+import { formatInline } from '../../lib/inline';
+import DiagramLegend from './DiagramLegend.astro';
+
+/**
+ * A static, illustrated walk-through of an array algorithm (one card per step),
+ * built from the same cell look as the visualizations.
+ *
+ * Each row gives the array values, a tone string with one character per cell (the shared
+ * diagram tones in src/lib/diagram.ts: p primary, l light, r secondary, c current,
+ * f final, m muted, "." none), pointer marks under cells (index -> label) and a note.
+ */
+interface Row {
+  values: Array<number | string>;
+  tones?: string;
+  marks?: Record<number, string>;
+  label?: string;
+  note?: string;
+}
+
+interface Props {
+  rows: Row[];
+  /** What each tone means in this diagram, keyed by tone character. */
+  legend?: Record<string, string>;
+  caption?: string;
+}
+
+const { rows, legend, caption } = Astro.props;
+---
+
+<figure class="dg-figure array-diagram">
+  {legend && <DiagramLegend legend={legend} />}
+  <ol class="rows">
+    {
+      rows.map((row) => (
+        <li class="row">
+          {row.label && <p class="row-label" set:html={formatInline(row.label)} />}
+          <div class="cells-scroll">
+            <div class="cells" role="img" aria-label={`Array: ${row.values.join(', ')}`}>
+              {row.values.map((v, i) => (
+                <div class="slot">
+                  <span class="idx">{i}</span>
+                  <span class={`cell ${toneClass(toneAt(row.tones, i))}`}>{v}</span>
+                  <span class="mark">{row.marks?.[i] ?? ''}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {row.note && <p class="row-note" set:html={formatInline(row.note)} />}
+        </li>
+      ))
+    }
+  </ol>
+  {caption && <figcaption class="dg-caption" set:html={formatInline(caption)} />}
+</figure>
+
+<style>
+  .rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  /* Label, cells and note side by side; the note drops below the cells when the
+     array is too wide to leave it a readable column. */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .row-label {
+    flex: 0 0 96px;
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 650;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+  }
+  .cells-scroll {
+    flex: 0 1 auto;
+    overflow-x: auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .cells {
+    display: flex;
+    gap: 4px;
+  }
+  .slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .idx,
+  .mark {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.2;
+    min-height: 1.2em;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .mark {
+    color: var(--text);
+    font-weight: 650;
+  }
+  .cell {
+    display: grid;
+    place-items: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 6px;
+    border-radius: 8px;
+    border: var(--dg-stroke-width) solid var(--dg-stroke);
+    background: var(--dg-fill);
+    color: var(--dg-ink);
+    font-family: var(--font-mono);
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+  .row-note {
+    flex: 1 1 260px;
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--text-2);
+  }
+  .row-note :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+  @media (max-width: 759px) {
+    .row-label {
+      flex-basis: 100%;
+    }
+  }
+</style>

@@ -1,0 +1,215 @@
+---
+topic: Problem_Patterns/Meet_in_the_Middle
+title: Meet in the Middle
+lead: Meet in the middle splits a search over 2^n possibilities into two halves of 2^(n/2), enumerates each half separately and combines them with sorting or hashing. It makes subset-style problems with n around 40 solvable, where brute force is hopeless and DP over the values is too large.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Brute force
+    value: O(2^n)
+    hint: n = 40 is about 10^12 subsets
+    tone: warn
+  - label: Meet in the middle
+    value: O(2^(n/2) * n)
+    hint: n = 40 is about 2 * 10^6 sums per half
+  - label: Space
+    value: O(2^(n/2))
+    hint: the stored sums of one half
+  - label: Typical n
+    value: 30 to 45
+properties:
+  - { label: Exact answer, value: true }
+  - { label: Polynomial time, value: false }
+  - { label: Needs small n, value: true }
+prerequisites:
+  - Algorithms/Searching/Binary_Search
+  - Data_Structures/Hashing/Hash_Set
+related:
+  - Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
+  - Problem_Patterns/Two_Pointers
+  - Problem_Patterns/Bit_Manipulation
+  - Problem_Patterns/Coordinate_Compression
+---
+
+## When to use it
+
+The signals are in the constraints.
+
+- `n` is between about 30 and 45: too large for 2<sup>n</sup>, small enough for 2<sup>n/2</sup> (about a million).
+- The values are large (up to 10<sup>9</sup> or more), so a DP over the sum is impossible.
+- The choice per element is independent (take it or not), and the two halves interact only through one combined quantity, such as a total sum.
+
+If `n` is at most about 20, plain subset enumeration is enough. If the sums are small, a DP over the sum (as in knapsack) is faster. Meet in the middle is for the gap between the two.
+
+## How it works
+
+<Steps>
+  <Step title="Split the input in two halves">
+    Cut the array at the middle: `left = nums[:n/2]`, `right = nums[n/2:]`. Each half has at most about `n/2` elements.
+  </Step>
+  <Step title="Enumerate each half">
+    List every subset sum of the left half (2<sup>n/2</sup> values) and of the right half. This is brute force, but on half the size.
+  </Step>
+  <Step title="Combine through the shared quantity">
+    A full subset is one left subset plus one right subset. For each left sum, look up the right sums that complete the goal: an exact partner (hash set) or the best partner not above a limit (sorted list and binary search).
+  </Step>
+</Steps>
+
+<Callout title="Why it is correct">
+Every subset of the whole array is exactly one pair (left subset, right subset), and the total is the sum of the two parts. Enumerating both halves covers every pair, and looking up the partner for each left subset finds the best pair without visiting all 2<sup>n</sup> of them.
+</Callout>
+
+## Template
+
+```text
+meetInTheMiddle(items, goal):
+    left, right = split items in two halves
+    L = all subset sums of left                  # 2^(n/2) values
+    R = all subset sums of right                 # 2^(n/2) values
+    prepare R for lookup:  sort it, or put it in a hash set
+    best = nothing
+    for each a in L:
+        look up in R the value that combines with a toward the goal
+        update best
+    return best
+```
+
+## A worked example
+
+Largest subset sum of `[5, 3, 2, 7, 10]` that does not exceed 14. The split is `n // 2 = 2`, so the left half is `[5, 3]` and the right half is `[2, 7, 10]`. The repository code produces these sums:
+
+<ArrayDiagram
+  legend={{ p: 'left half sums', l: 'right half sums (sorted)' }}
+  rows={[
+    { label: 'left [5, 3]', values: [0, 5, 3, 8], tones: 'pppp', note: 'subsets: {}, {5}, {3}, {5, 3}' },
+    { label: 'right [2, 7, 10]', values: [0, 2, 7, 9, 10, 12, 17, 19], tones: 'llllllll', note: 'eight subset sums, sorted' },
+  ]}
+/>
+
+For each left sum `a`, binary search the largest right sum `<= 14 - a`:
+
+<DataTable
+  columns={['Left sum a', 'Room 14 - a', 'Best right sum', 'Total']}
+  rows={[
+    ['0', '14', '12', '12'],
+    ['5', '9', '9', '14'],
+    ['3', '11', '10', '13'],
+    ['8', '6', '2', '10'],
+  ]}
+/>
+
+The best total is 14, from `a = 5` and the right sum 9: `5 + 2 + 7 = 14`. Four left sums and four binary searches replaced a scan of all 32 subsets.
+
+### What it saves
+
+<Equation label="Subset enumeration" expr="2^n   versus   2 * 2^(n/2) sums plus a binary search each" result="n = 40: about 1.1 * 10^12 versus about 2.1 * 10^6 sums" />
+
+## Implementation
+
+The Python version solves the **closest sum** problem, `closest_subset_sum(nums, target)`: the largest subset sum that is at most the target, with a sorted list and `bisect`. It requires non-negative numbers and a non-negative target, and raises `ValueError` otherwise.
+
+The C++ and Go versions solve a different question, **exact sum**: `subsetSumMeetInMiddle(arr, target)` answers whether some subset sums to exactly the target, using hash sets. They accept negative values. The languages do not implement the same problem.
+
+<TopicCode topic="Problem_Patterns/Meet_in_the_Middle" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Time (closest sum, Python)', time: 'O(2^(n/2) * n)', when: 'Each half has 2^(n/2) sums; sorting costs O(2^(n/2) * n/2) and each of the 2^(n/2) lookups is a binary search of O(n/2).' },
+    { case: 'Time (exact sum, C++ and Go)', time: 'O(2^(n/2))', when: 'Building two hash sets and one lookup per left sum, on average.' },
+    { case: 'Space', time: 'O(2^(n/2))', when: 'The sums of both halves are stored (about 2 * 2^(n/2) numbers).' },
+  ]}
+/>
+
+Memory is the real limit: with 2<sup>20</sup> sums per half the lists hold about 2 million numbers, fine in C++ and acceptable in Python. At n = 50 each half has 2<sup>25</sup> sums, which is too much memory in practice.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Subset sum, large values, n up to 40', 'exact partner in a hash set'],
+    ['Largest subset sum not above a limit', 'sorted right sums plus binary search (this repository)'],
+    ['Count subsets with sum S', 'a counting map for the right half instead of a set'],
+    ['4-sum', 'split into pairs, store all pair sums, match complements'],
+    ['Knapsack with huge weights and small n', 'enumerate (weight, value) of each half, prune dominated pairs, two pointers'],
+    ['Search with two independent halves of the state', 'enumerate each half and join on the shared key'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Combine step', 'Cost']}
+  rows={[
+    ['Exact match', 'hash set lookup of `target - a`', 'O(2^(n/2)) average'],
+    ['Best not above a limit', 'sort one side, binary search', 'O(2^(n/2) * n)'],
+    ['Two pointers on two sorted lists', 'sort both sides and sweep', 'O(2^(n/2) * n) for the sorts, then linear'],
+    ['Counting', 'map from sum to count', 'O(2^(n/2)) average'],
+    ['Three or more parts', 'not directly applicable: the combine step becomes expensive', 'n/a'],
+  ]}
+/>
+
+## Meet in the middle vs alternatives
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, 'Use when']}
+  highlight={1}
+  rows={[
+    ['Brute force over subsets', 'O(2^n * n)', 'n up to about 20'],
+    ['Meet in the middle', 'O(2^(n/2) * n)', 'n about 30 to 45, large values'],
+    ['DP over the sum (knapsack)', 'O(n * S)', 'the sum S is small (up to about 10^6)'],
+    ['Bitmask DP', 'O(2^n * n)', 'the answer needs the order or identity of the chosen set'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Turns 2^n into 2^(n/2): the difference between impossible and a second of work at n = 40.',
+    'Exact: no heuristics, no dependence on the size of the values.',
+    'Simple building blocks: subset sums, sorting, binary search or hashing.',
+  ]}
+  cons={[
+    'Still exponential; it stops being practical around n = 45 to 50.',
+    'Needs memory for 2^(n/2) sums per half.',
+    'Works only when the halves interact through one combinable quantity.',
+    'The sorted-list version needs non-negative values to prune by `l_sum > target`.',
+  ]}
+/>
+
+## Applications
+
+- Subset sum and its relatives (count, closest, partition) with a small number of large numbers.
+- Cryptographic and number-theoretic searches that split a key space in two.
+- Searching a game or puzzle state space from both the start and the goal.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Splitting unevenly.** The halves must have about equal size, otherwise one side is close to 2<sup>n</sup>.
+- **Forgetting the empty subset.** Both halves include the sum 0.
+- **Negative values with pruning.** The closest-sum code skips left sums above the target, which is only valid when every number is non-negative. The repository code rejects negative numbers with `ValueError`.
+- **Negative target.** With non-negative numbers even the empty subset (sum 0) exceeds a negative target, so no subset qualifies; the code raises `ValueError` rather than returning 0.
+- **Overflow.** The C++ version uses `int` sums, so values near 2<sup>31</sup> overflow; use 64-bit integers for large inputs.
+- **Using it when DP fits.** If the sum is small, a knapsack DP is faster and uses less memory.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does splitting in half help so much?">
+    The cost of enumeration is exponential in the size you enumerate. Two enumerations of size n/2 cost 2 &middot; 2<sup>n/2</sup>, while one of size n costs 2<sup>n</sup>. The combination step is only about one lookup per left subset.
+  </FaqItem>
+  <FaqItem question="Does the order of the elements matter for the split?">
+    No for correctness, since any split into two groups works. For speed, an even split is best, and choosing the groups so that sums repeat can shrink the sets when you deduplicate.
+  </FaqItem>
+  <FaqItem question="Why do the Python and C++ versions answer different questions?">
+    Python finds the largest subset sum not above the target. The C++ and Go versions only check whether the target can be hit exactly. Both are meet in the middle: they differ only in the combine step, a binary search versus a hash lookup.
+  </FaqItem>
+  <FaqItem question="How do I count subsets instead of testing existence?">
+    Store a count per sum for the right half (a dictionary from sum to number of subsets) and add the count of `target - a` for every left sum `a`.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,67 @@
+/* KnapsackFill organism: item blocks that glide into a capacity bar; numbers come from Cell atoms. */
+.knapsack {
+  margin-bottom: 10px;
+}
+.knapsack .kn-ghost,
+.knapsack .kn-piece,
+.knapsack .kn-used {
+  transition: transform 0.45s ease;
+}
+.knapsack .kn-ghost rect {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.knapsack .kn-ghost rect.kn-rest {
+  fill: var(--viz-neutral);
+  fill-opacity: 0.3;
+  stroke: none;
+}
+.knapsack .kn-piece rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1;
+  transition: fill 0.2s ease, opacity 0.2s ease;
+}
+.knapsack .kn-piece.role-idle rect {
+  fill: var(--surface-3);
+  stroke: var(--viz-neutral);
+}
+.knapsack .kn-piece.role-muted rect {
+  opacity: 0.35;
+}
+.knapsack .kn-piece text {
+  fill: var(--viz-ink-on-fill);
+  font-size: 11px;
+  font-weight: 700;
+}
+.knapsack .kn-piece.role-idle text,
+.knapsack .kn-piece.role-muted text {
+  fill: var(--text);
+}
+.knapsack .kn-label {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+}
+.knapsack .kn-frame {
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1.5;
+}
+.knapsack .kn-used line {
+  stroke: var(--text);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.knapsack .kn-note,
+.knapsack .kn-row {
+  fill: var(--text-3);
+  font-size: 12px;
+}
+.knapsack .kn-tick {
+  fill: var(--text-3);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}

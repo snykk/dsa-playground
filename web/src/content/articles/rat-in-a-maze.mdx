@@ -1,0 +1,205 @@
+---
+topic: Algorithms/Advanced_Algorithms/Backtracking/Rat_in_a_Maze
+title: Rat in a Maze
+lead: A rat starts in the top-left cell of a grid and must reach the bottom-right cell, moving only through open cells. The backtracking solver tries right, down, left and up in turn, marks each cell it enters, and retreats from dead ends. It returns one path, not necessarily the shortest.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n^2)
+    hint: every cell is entered at most once
+  - label: Extra space
+    value: O(n^2)
+    hint: solution matrix, visited matrix, recursion up to n^2 deep
+    tone: warn
+  - label: Moves
+    value: 4 directions
+    hint: right, down, left, up, in that order
+  - label: Approach
+    value: Backtracking (DFS)
+properties:
+  - { label: Finds a path if one exists, value: true }
+  - { label: Shortest path, value: false }
+  - { label: Square mazes only, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Advanced_Algorithms/Backtracking/N_Queens_Problem
+  - Algorithms/Advanced_Algorithms/Backtracking/Sudoku_Solver
+  - Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring
+---
+
+## How the search works
+
+The maze is an n x n grid: `1` is an open cell and `0` is a wall. The rat starts at `(0, 0)` and wants `(n-1, n-1)`. The solver is a depth-first search that remembers the cells on the current route.
+
+<Steps>
+  <Step title="Reject bad cells">
+    A cell is rejected if it lies outside the grid, is a wall, or was already entered earlier in this search. `is_safe` checks the first two conditions, and the `visited` matrix covers the third.
+  </Step>
+  <Step title="Mark and test the goal">
+    Mark the cell as visited and as part of the path (`solution[x][y] = 1`). If it is `(n-1, n-1)`, the search succeeds.
+  </Step>
+  <Step title="Try the four directions">
+    Recurse into the right, lower, left and upper neighbors, in that order. The first call that succeeds ends the search.
+  </Step>
+  <Step title="Retreat from a dead end">
+    If no direction works, remove the cell from the path (`solution[x][y] = 0`) and return failure. The cell stays marked as visited, because it would fail again if entered a second time.
+  </Step>
+</Steps>
+
+<Callout title="Two different marks">
+`solution` tracks the current route and is undone on backtracking. `visited` is never undone. Keeping them apart is what limits the search to <BigO of="n^2" /> steps: a cell that could not lead to the goal is never explored again.
+</Callout>
+
+## Worked example
+
+The maze below has a dead end at its top, `(0, 1)`. Orange cells are the start and the goal, aqua cells are the path that the code returns, and the muted cell is the dead end that was tried first:
+
+<GridDiagram
+  rows={[['S', '', '#', '#', '#'], ['', '#', '#', '', ''], ['', '', '', '', '#'], ['#', '#', '#', '', ''], ['#', '#', '#', '#', 'E']]}
+  tones={['pm...', 'f....', 'ffff.', '...ff', '....p']}
+  legend={{ p: 'start and goal', f: 'path returned', m: 'dead end, backtracked' }}
+  caption="Walls are marked #. The cells (1, 3) and (1, 4) are open but never visited."
+/>
+
+The search enters 10 cells in this order: `(0,0)`, `(0,1)`, `(1,0)`, `(2,0)`, `(2,1)`, `(2,2)`, `(2,3)`, `(3,3)`, `(3,4)`, `(4,4)`. Starting at `(0,0)` the rat first goes right into `(0,1)`. That cell has no open neighbor that is still unvisited, so it is undone, and the search tries down instead and walks along the path. The recursive helper is called 17 times in total, including the calls that are rejected immediately.
+
+The code returns this matrix, and the cell `(0, 1)` is back to 0:
+
+<GridDiagram
+  rows={[[1, 0, 0, 0, 0], [1, 0, 0, 0, 0], [1, 1, 1, 1, 0], [0, 0, 0, 1, 1], [0, 0, 0, 0, 1]]}
+  tones={['f....', 'f....', 'ffff.', '...ff', '....f']}
+  legend={{ f: 'cell on the path' }}
+/>
+
+## Why four directions matter
+
+With right and down only, a maze whose only route winds upward is reported as unsolvable. This maze needs an upward move: the path goes down column 0, right along row 3, up column 2 and around to the bottom right.
+
+<GridDiagram
+  rows={[[1, 0, 1, 1, 1], [1, 0, 1, 0, 1], [1, 0, 1, 0, 1], [1, 1, 1, 0, 1], [0, 0, 0, 0, 1]]}
+  tones={['f.fff', 'f.f.f', 'f.f.f', 'fff.f', '....f']}
+  legend={{ f: 'the only path: down, right, up, right, down' }}
+  caption="A right-and-down-only search fails here; the four-direction search finds the route."
+/>
+
+## Pseudocode
+
+```text
+solveMazeUtil(maze, x, y, n, solution, visited):
+    if not isSafe(maze, x, y, n) or visited[x][y]:
+        return false
+    visited[x][y] = true
+    solution[x][y] = 1
+    if x == n - 1 and y == n - 1:
+        return true
+    for (dx, dy) in [(0, 1), (1, 0), (0, -1), (-1, 0)]:    # right, down, left, up
+        if solveMazeUtil(maze, x + dx, y + dy, n, solution, visited):
+            return true
+    solution[x][y] = 0                                      # not on the path
+    return false
+
+solveMaze(maze):
+    n = size of maze
+    if maze is empty or not square or maze[0][0] == 0 or maze[n-1][n-1] == 0:
+        return none
+    if solveMazeUtil(maze, 0, 0, n, solution, visited): return solution
+    return none
+```
+
+## Implementation
+
+Each version returns an n x n matrix with 1 on the cells of one path, or nothing when there is none: `None` in Python, an empty `std::optional` in C++ and `nil` in Go. Empty and non-square mazes return nothing as well. The search is recursive in all three languages, and its depth equals the number of cells on the route being explored, which can be far more than n in a winding maze. In Python that can raise a `RecursionError` once the route passes roughly 1,000 cells.
+
+<TopicCode topic="Algorithms/Advanced_Algorithms/Backtracking/Rat_in_a_Maze" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n)', space: 'O(n^2)', when: 'The goal lies on the first route tried, for example an open corridor of 2n - 1 cells.' },
+    { case: 'Worst case', time: 'O(n^2)', space: 'O(n^2)', when: 'Every open cell is entered once and each does O(1) work for four neighbors.' },
+  ]}
+/>
+
+Each of the n<sup>2</sup> cells is entered at most once because `visited` is never reset, and each entry makes four constant-time checks. Space is the two n x n matrices plus a recursion stack that can reach n<sup>2</sup> frames.
+
+<Callout title="Without the visited mark the search is exponential">
+A backtracking search that only un-marks cells on the way out has to re-enter a dead end from every route that leads to it. The number of routes grows exponentially. In a Python test of an open 12 x 12 maze whose goal is walled off, a right-and-down-only search without a dead-end memory needed about 0.65 seconds, and each extra row and column multiplied that time by about four. With the visited mark the same maze takes well under a millisecond.
+</Callout>
+
+## Variants and design choices
+
+<DataTable
+  columns={['Variant', 'What it returns', 'Time', 'Note']}
+  rows={[
+    ['DFS with visited (this repository)', 'some path', 'O(n^2)', 'short code, but the path can wind around'],
+    ['Right and down only', 'a monotone path', 'exponential without a memo (about 4^n paths)', 'cannot use up or left moves; solves fewer mazes'],
+    ['BFS', 'a shortest path', 'O(n^2)', 'needs a parent matrix to rebuild the path'],
+    ['All paths', 'every simple path', 'exponential', 'visited is un-marked on the way out; not implemented here'],
+    ['Flood fill', 'only whether the goal is reachable', 'O(n^2)', 'no path needed'],
+  ]}
+/>
+
+## DFS backtracking vs BFS
+
+<DataTable
+  columns={['', 'DFS (this repository)', 'BFS']}
+  highlight={0}
+  rows={[
+    ['Path found', 'any path, depends on move order', 'a shortest path'],
+    ['Memory', 'recursion stack up to n^2 deep', 'a queue holding the current frontier'],
+    ['Code', 'recursive, 20 lines', 'queue plus parent matrix'],
+    ['Good for', 'existence and teaching backtracking', 'shortest route'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Very short and easy to follow; a direct example of choose, explore, undo.',
+    'Linear in the number of cells once cells are never re-entered.',
+    'The path is read directly from the solution matrix.',
+  ]}
+  cons={[
+    'The path is not shortest: with move order right, down, left, up it can wander.',
+    'Deep recursion on large winding mazes, which is a real limit in Python.',
+    'Only square mazes with a fixed start and goal are supported by this code.',
+  ]}
+/>
+
+## Applications
+
+- **Pathfinding in grids** such as puzzle games and robot navigation on an occupancy grid, when any route is enough.
+- **Connectivity checks** on grids: is a cell reachable from another?
+- **A first backtracking exercise** before N-Queens and Sudoku.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Only right and down.** The classic textbook version restricts the moves, but a maze may need an upward or left move; the four-direction search is required for general mazes.
+- **Un-marking visited cells.** If you reset the visited mark when backtracking, the search becomes exponential on mazes with many open cells.
+- **Forgetting to clear the path mark.** A dead-end cell left with `solution = 1` makes the returned path look wrong.
+- **Checking the goal before bounds.** Test `is_safe` before reading `maze[x][y]`.
+- **Assuming shortest.** The returned path depends on the move order and is not guaranteed to be minimal.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Does the code find the shortest path?">
+    No. It returns the first path that the depth-first order reaches. Use BFS when the length matters.
+  </FaqItem>
+  <FaqItem question="Why does a visited cell stay marked after backtracking?">
+    If a cell failed once, every route through it fails again, because the cells that remain reachable from it have already been tried. Re-entering it only repeats the work. Not un-marking is what gives O(n<sup>2</sup>) instead of exponential time.
+  </FaqItem>
+  <FaqItem question="What if the start or the goal is a wall?">
+    The solver returns nothing at once: `None`, an empty optional or `nil`.
+  </FaqItem>
+  <FaqItem question="How do I list every path?">
+    Keep the `solution` mark but reset the `visited` mark on the way out, and collect a copy of the matrix each time the goal is reached. This is a different search with exponential cost and is not implemented in this repository.
+  </FaqItem>
+</Faq>

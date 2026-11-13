@@ -62,7 +62,7 @@ class ReservoirSampler:
                 self._reservoir[j] = item
 
     def sample(self) -> list:
-        """Return the current sample (a copy — safe to mutate)."""
+        """Return the current sample (a copy, safe to mutate)."""
         return list(self._reservoir)
 
     def __len__(self) -> int:

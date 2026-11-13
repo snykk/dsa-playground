@@ -1,0 +1,256 @@
+---
+topic: Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication
+title: Strassen's Matrix Multiplication
+lead: Strassen's algorithm multiplies two n x n matrices with seven half-size products instead of eight, which lowers the cost from n^3 to about n^2.81. It is the classic example of a divide and conquer algorithm that wins by saving one recursive call.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n^2.81)
+    hint: n^{log2(7)}, against n^3 for the schoolbook method
+  - label: Products per split
+    value: '7'
+    hint: the schoolbook block method needs 8
+  - label: Extra space
+    value: O(n^2)
+    hint: temporary block sums and products
+  - label: Cutoff here
+    value: n <= 64
+    hint: smaller blocks use the naive triple loop
+    tone: warn
+properties:
+  - { label: Divide and conquer, value: true }
+  - { label: Exact on integers, value: true }
+  - { label: Numerically stable, value: false }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+  - Algorithms/Divide_and_Conquer
+related:
+  - Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Quick_Sort
+---
+
+## How Strassen's algorithm works
+
+Split each n x n matrix into four n/2 x n/2 blocks. The schoolbook rule for blocks needs eight block products (`A11*B11`, `A12*B21`, and so on), and the recurrence `T(n) = 8 T(n/2) + O(n^2)` solves to <BigO of="n^3" />, no gain at all. Strassen found seven products whose sums and differences still give every block of the result. Block additions cost only <BigO of="n^2" />, so trading one product for extra additions pays off.
+
+<Steps>
+  <Step title="Split">
+    Cut `A` and `B` into the quadrants `A11, A12, A21, A22` and `B11, B12, B21, B22`. This needs an even size; an odd size is padded first.
+  </Step>
+  <Step title="Form seven products">
+    Each `P1` ... `P7` multiplies one sum or difference of blocks of `A` by one of `B`, and each one is computed by a recursive call.
+  </Step>
+  <Step title="Recombine with additions only">
+    The four result blocks `C11, C12, C21, C22` are sums and differences of the seven products. No more multiplications are needed.
+  </Step>
+  <Step title="Stop at the cutoff">
+    A 1 x 1 matrix is a single multiplication. Below the cutoff (`n <= 64` in this repository) the recursion hands over to the naive triple loop, because the extra additions and allocations cost more than they save on small blocks.
+  </Step>
+</Steps>
+
+<Callout title="The identity behind it">
+Every result block is a bilinear expression in the blocks of `A` and `B`, and the seven products are chosen so that all cross terms cancel exactly. For example `C12 = P1 + P2 = A11(B12 - B22) + (A11 + A12) B22 = A11 B12 + A12 B22`, which is the schoolbook value. The proof is plain algebra, so the result is exact on integers.
+</Callout>
+
+## The seven products
+
+<DataTable
+  columns={['Product', 'Left factor', 'Right factor']}
+  rows={[
+    ['P1', '`A11`', '`B12 - B22`'],
+    ['P2', '`A11 + A12`', '`B22`'],
+    ['P3', '`A21 + A22`', '`B11`'],
+    ['P4', '`A22`', '`B21 - B11`'],
+    ['P5', '`A11 + A22`', '`B11 + B22`'],
+    ['P6', '`A12 - A22`', '`B21 + B22`'],
+    ['P7', '`A11 - A21`', '`B11 + B12`'],
+  ]}
+/>
+
+The result blocks are:
+
+<DataTable
+  columns={['Block', 'Formula', 'Adds / subtracts']}
+  rows={[
+    ['`C11`', '`P5 + P4 - P2 + P6`', '3'],
+    ['`C12`', '`P1 + P2`', '1'],
+    ['`C21`', '`P3 + P4`', '1'],
+    ['`C22`', '`P5 + P1 - P3 - P7`', '3'],
+  ]}
+/>
+
+Together with the 10 sums and differences that feed the products, that is 18 block additions per level.
+
+## Worked example: a 2 x 2 product
+
+Take the smallest case, where every block is a single number. The inputs and the answer:
+
+<GridDiagram
+  label='A times B equals C'
+  legend={{ p: 'A', r: 'B', f: 'C = A x B' }}
+  rows={[[1, 2, 5, 6, 19, 22], [3, 4, 7, 8, 43, 50]]}
+  tones={['pprrff', 'pprrff']}
+/>
+
+The seven products, computed from the repository's Python code:
+
+<DataTable
+  columns={['Product', 'Expression', 'Value']}
+  rows={[
+    ['P1', '1 * (6 - 8)', '-2'],
+    ['P2', '(1 + 2) * 8', '24'],
+    ['P3', '(3 + 4) * 5', '35'],
+    ['P4', '4 * (7 - 5)', '8'],
+    ['P5', '(1 + 4) * (5 + 8)', '65'],
+    ['P6', '(2 - 4) * (7 + 8)', '-30'],
+    ['P7', '(1 - 3) * (5 + 6)', '-22'],
+  ]}
+/>
+
+Recombining them:
+
+- `C11 = P5 + P4 - P2 + P6 = 65 + 8 - 24 - 30 = 19`
+- `C12 = P1 + P2 = -2 + 24 = 22`
+- `C21 = P3 + P4 = 35 + 8 = 43`
+- `C22 = P5 + P1 - P3 - P7 = 65 - 2 - 35 + 22 = 50`
+
+That is the matrix `[[19, 22], [43, 50]]`, the same as the schoolbook product, from 7 multiplications instead of 8.
+
+## Pseudocode
+
+```text
+strassen(A, B):                       # n x n
+    n = size of A
+    if n == 1: return [[A[0][0] * B[0][0]]]
+    if n <= 64: return naive(A, B)
+    if n is odd:                      # pad by one zero row and column
+        C = strassen(pad(A, n + 1), pad(B, n + 1))
+        return top-left n x n part of C
+    split A and B into A11 A12 A21 A22 and B11 B12 B21 B22
+    P1 = strassen(A11, B12 - B22)
+    P2 = strassen(A11 + A12, B22)
+    P3 = strassen(A21 + A22, B11)
+    P4 = strassen(A22, B21 - B11)
+    P5 = strassen(A11 + A22, B11 + B22)
+    P6 = strassen(A12 - A22, B21 + B22)
+    P7 = strassen(A11 - A21, B11 + B12)
+    C11 = P5 + P4 - P2 + P6
+    C12 = P1 + P2
+    C21 = P3 + P4
+    C22 = P5 + P1 - P3 - P7
+    return combine(C11, C12, C21, C22)
+```
+
+## Implementation
+
+All three languages follow this pseudocode, including the cutoff of 64 and the odd-size padding. Python also offers `strassen_multiply_general` for rectangular inputs: it pads to the next power of two, multiplies and cuts the result back to `m x p`. The C++ and Go versions work on `int` matrices only, so large products can overflow `int`. Each language comes with tests, including sizes 65, 128 and 130 that reach the seven-product recursion.
+
+<TopicCode topic="Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication" />
+
+## Complexity analysis
+
+One level does seven recursive products on half-size blocks plus a constant number of block additions, each <BigO of="n^2" />.
+
+<Equation label="Schoolbook blocks" expr="T(n) = 8 T(n/2) + O(n^2)" result="O(n^3)" />
+<Equation label="Strassen" expr="T(n) = 7 T(n/2) + O(n^2)" result="O(n^{log2(7)}) = O(n^2.81)" />
+
+By the master theorem, the leaves dominate: there are `7^(log2 n) = n^log2(7)` of them, and `log2(7)` is about 2.807. The additions are a lower-order term.
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(n^2.81)', when: 'The same for every input of a given size: the algorithm never looks at the values.' },
+    { case: 'Multiplications', time: '7^k', when: 'After k levels of splitting, against 8^k for the schoolbook method.' },
+    { case: 'Extra space', time: 'O(n^2)', when: 'Each level allocates block sums and the seven products; the sizes add up to a constant times n^2.' },
+  ]}
+/>
+
+How the saving grows with the number of levels `k` (block size `n / 2^k`):
+
+<DataTable
+  columns={['Levels k', { label: 'Strassen 7^k', kind: 'mono' }, { label: 'Schoolbook 8^k', kind: 'mono' }, 'Ratio']}
+  rows={[
+    ['1', '7', '8', '0.88'],
+    ['2', '49', '64', '0.77'],
+    ['4', '2,401', '4,096', '0.59'],
+    ['7', '823,543', '2,097,152', '0.39'],
+  ]}
+/>
+
+<Callout title="The cutoff matters more than the exponent">
+For n = 128 with the cutoff of 64, there is one level: 7 naive products of size 64 cost 7 * 64<sup>3</sup> = 1,835,008 multiplications, against 128<sup>3</sup> = 2,097,152 for the naive method (about 12 percent fewer), but with extra allocation and 18 block additions. Real implementations tune the cutoff by measurement.
+</Callout>
+
+## Variants and design choices
+
+<DataTable
+  columns={['Choice', 'Idea', 'Trade-off']}
+  rows={[
+    ['Cutoff to naive', 'stop recursing at a small size (64 here)', 'less overhead, but fewer levels of saving'],
+    ['Pad to a power of two', 'Python general wrapper: zero-fill up to 2^k', 'simple, but a size just above a power of two nearly doubles every dimension'],
+    ['Pad only odd sizes', 'what `strassen_multiply` does at each level', 'wastes at most one row and column per level'],
+    ['Winograd form', '7 products and 15 additions instead of 18', 'same exponent, a smaller constant; not implemented here'],
+  ]}
+/>
+
+## Strassen vs other multiplication methods
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Notes']}
+  highlight={1}
+  rows={[
+    ['Schoolbook', 'O(n^3)', 'simplest, best for small n, very cache friendly'],
+    ['Strassen', 'O(n^2.81)', 'wins for large n, needs extra memory, weaker rounding behavior on floats'],
+    ['Asymptotically faster methods', 'exponent below 2.4', 'galactic: constants make them impractical for real sizes'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Asymptotically faster than the schoolbook method: n^2.81 against n^3.',
+    'Exact on integers: the identity is algebraic, so no precision is lost.',
+    'A clean example of how the master theorem rewards one fewer recursive call.',
+  ]}
+  cons={[
+    'A large constant factor: a break-even size of dozens to hundreds, so small matrices are better served by the naive loop.',
+    'Needs O(n^2) extra memory for sums and products.',
+    'With floating point numbers it is less numerically stable than the schoolbook method.',
+    'Poor fit for sparse matrices, where the zero structure is better exploited directly.',
+  ]}
+/>
+
+## Applications
+
+- **Large dense matrix products** where the size is in the hundreds or thousands and the entries are exact (integers, or elements of a finite field).
+- **Reductions.** Anything that reduces to matrix multiplication, such as counting paths of length k with an adjacency matrix power, inherits the speed-up.
+- **Teaching.** It shows that the exponent of a problem can be lower than the obvious algorithm suggests.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Odd sizes.** Splitting at `n / 2` drops the last row and column when n is odd. The C++ and Go versions used to return a truncated matrix for an odd n above 64; they now pad by one zero row and column.
+- **No cutoff.** Recursing down to 1 x 1 makes the algorithm slower than the schoolbook method.
+- **Wrong sign in a block.** One flipped sign in a `C` block gives a plausible but wrong matrix. Always test against the naive product on random input larger than the cutoff.
+- **Integer overflow.** The C++ and Go versions use fixed-width `int`, and the intermediate sums can be larger than the inputs.
+- **Assuming it is faster everywhere.** Below a few hundred rows, a tuned naive kernel usually wins.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does saving one multiplication change the exponent?">
+    Because the saving repeats at every level. The number of leaf products is `7^(log2 n)` instead of `8^(log2 n)`, and `7^(log2 n) = n^log2(7)`, about n<sup>2.81</sup>, while `8^(log2 n) = n^3`.
+  </FaqItem>
+  <FaqItem question="Is Strassen's algorithm used in practice?">
+    Sometimes, for large matrices and with a high cutoff. Many numerical libraries rely on highly tuned schoolbook kernels instead, because of cache behavior and floating-point stability.
+  </FaqItem>
+  <FaqItem question="Does it work for non-square or non-power-of-two matrices?">
+    Yes, by padding. In this repository `strassen_multiply_general` (Python) pads rectangular input to a power-of-two square and crops the result. `strassen_multiply` and the C++ and Go functions take square matrices and pad any odd size they meet.
+  </FaqItem>
+  <FaqItem question="Can matrix multiplication go below n^2.81?">
+    Yes, asymptotically: researchers have found methods with exponents near 2.37. They are not used in practice because their constant factors are enormous.
+  </FaqItem>
+</Faq>

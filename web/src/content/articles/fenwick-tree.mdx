@@ -1,0 +1,208 @@
+---
+topic: Data_Structures/Non_Linear/Trees/Fenwick_Tree
+title: Fenwick Tree
+lead: A Fenwick tree (binary indexed tree) stores prefix sums of an array in a single array of the same size, using the lowest set bit of an index to decide which cells to touch. It answers prefix and range sums and applies point updates in O(log n) with very little code.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Point update
+    value: O(log n)
+  - label: Prefix / range sum
+    value: O(log n)
+  - label: Build
+    value: O(n log n)
+    hint: n updates; O(n) is possible
+  - label: Space
+    value: n + 1 cells
+    hint: no 4n padding
+  - label: Index base
+    value: 1-based inside
+    tone: warn
+    hint: index 0 would loop forever
+properties:
+  - { label: Needs an invertible operation (sum), value: true }
+  - { label: Range min / max, value: false }
+  - { label: Range update, value: false }
+  - { label: Implicit tree (no pointers), value: true }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
+  - Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation
+---
+
+## What a Fenwick tree is
+
+The problem: keep an array of numbers, change one element at a time, and answer "what is the sum of elements `0..i`?" A plain array makes updates O(1) and queries O(n). A prefix-sum array does the opposite. A Fenwick tree makes both O(log n).
+
+The trick is to let cell `i` (1-based) store the sum of a block of `lowbit(i)` elements that **ends at `i`**, where `lowbit(i) = i & -i` is the value of the lowest set bit of `i`. Cell 4 (`100`) covers 4 elements, cell 6 (`110`) covers 2, cell 7 (`111`) covers 1.
+
+<DataTable
+  columns={['Index i', 'Binary', 'lowbit(i)', 'Cell holds the sum of']}
+  rows={[
+    ['1', '001', '1', 'a[1]'],
+    ['2', '010', '2', 'a[1..2]'],
+    ['3', '011', '1', 'a[3]'],
+    ['4', '100', '4', 'a[1..4]'],
+    ['5', '101', '1', 'a[5]'],
+    ['6', '110', '2', 'a[5..6]'],
+  ]}
+  caption="Cell i covers the lowbit(i) elements ending at i (1-based)."
+/>
+
+For the array `[1, 3, 5, 7, 9, 11]` the internal array (index 0 unused) is:
+
+<ArrayDiagram
+  legend={{ l: 'covers one element', p: 'covers two elements', f: 'covers four elements' }}
+  rows={[
+    { label: 'array', values: [1, 3, 5, 7, 9, 11], marks: { 0: 'a[1]', 5: 'a[6]' } },
+    { label: 'tree[1..6]', values: [1, 4, 5, 16, 9, 20], tones: 'lplflp', marks: { 0: 'i=1', 1: 'i=2', 3: 'i=4', 5: 'i=6' }, note: 'tree[2] = 1 + 3, tree[4] = 1 + 3 + 5 + 7, tree[6] = 9 + 11.' },
+  ]}
+/>
+
+There are no pointers: the "tree" is implicit in the index arithmetic. Cell `i` has parent `i + lowbit(i)`, which is the next cell whose block contains `i`'s block.
+
+<Callout title="Why i & -i works">
+In two's complement, `-i` flips every bit of `i` above the lowest set bit and keeps that bit, so `i & -i` isolates it. Subtracting it from `i` clears the lowest set bit; adding it carries upward and produces the next index whose range covers `i`. Both walks take at most one step per bit of `i`, so O(log n).
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`update(i, delta)`', 'add `delta` to element `i`: climb with `i += lowbit(i)`', 'O(log n)'],
+    ['`prefix_sum(i)`', 'sum of elements `0..i`: descend with `i -= lowbit(i)`', 'O(log n)'],
+    ['`query(l, r)`', '`prefix_sum(r) - prefix_sum(l - 1)`', 'O(log n)'],
+    ['`get(i)`', 'a single element, as `query(i, i)`', 'O(log n)'],
+  ]}
+/>
+
+All three languages use 0-based public indices and convert to 1-based internally. `update` **adds** a delta; to assign a value, add the difference from the current one (`update(i, new - get(i))`). Any index outside `0..n-1`, and any `l > r`, is rejected: Python raises `IndexError`, C++ throws `std::out_of_range`, Go panics. C++ stores sums as `long long`.
+
+### Prefix query: descend
+
+To get the sum of `a[1..i]`, add `tree[i]`, strip the lowest set bit, and repeat until `i` is 0. Each step jumps over one whole block. For `prefix_sum` of 1-based index 5 on the array above:
+
+<ArrayDiagram
+  legend={{ p: 'cell added to the sum', m: 'cell not used' }}
+  rows={[
+    { label: 'i = 5', values: [1, 4, 5, 16, 9, 20], tones: 'mmmmpm', marks: { 4: 'i=5' }, note: 'Add tree[5] = 9. 5 = 101 minus its lowest bit 1 gives 4.' },
+    { label: 'i = 4', values: [1, 4, 5, 16, 9, 20], tones: 'mmmppm', marks: { 3: 'i=4' }, note: 'Add tree[4] = 16. 4 = 100 minus its lowest bit 4 gives 0: stop.' },
+  ]}
+/>
+
+The result is 9 + 16 = 25 = 1 + 3 + 5 + 7 + 9. Two cells, even though five elements were summed.
+
+### Point update: climb
+
+To add `delta` to `a[i]`, add it to `tree[i]`, then move to `i + lowbit(i)` and repeat until you pass `n`: those are exactly the cells whose block contains position `i`. Adding 5 to 0-based index 2 (1-based 3) of the same array:
+
+<ArrayDiagram
+  legend={{ p: 'cell being updated', f: 'updated' }}
+  rows={[
+    { label: 'before', values: [1, 4, 5, 16, 9, 20], tones: '..p...', marks: { 2: 'i=3' }, note: 'tree[3] += 5. 3 = 011 plus its lowest bit 1 gives 4.' },
+    { label: 'i = 4', values: [1, 4, 10, 16, 9, 20], tones: '...p..', marks: { 3: 'i=4' }, note: 'tree[4] += 5. 4 plus 4 gives 8, which is greater than n = 6: stop.' },
+    { label: 'after', values: [1, 4, 10, 21, 9, 20], tones: '..ff..', note: 'Two cells changed. The prefix sum of 1-based index 5 is now 9 + 21 = 30.' },
+  ]}
+/>
+
+## Implementation
+
+The three versions are the same: a `tree` array of size `n + 1`, a loop for `update` and a loop for `prefix_sum`. The constructor performs `n` updates. Tests cover the examples above, negative values, index errors and a random differential run against a brute-force array.
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Fenwick_Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['update', 'O(log n)', 'adding the lowest bit moves it at least one position up, so there are at most log2(n) + 1 steps'],
+    ['prefix_sum', 'O(log n)', 'each step clears one set bit; there are at most log2(n) + 1 of them'],
+    ['range query', 'O(log n)', 'two prefix sums'],
+    ['build (as implemented)', 'O(n log n)', 'n updates'],
+    ['build (alternative)', 'O(n)', 'for each i, add tree[i] into tree[i + lowbit(i)] once'],
+  ]}
+/>
+
+Space is exactly `n + 1` numbers, against up to `4n` for a Segment Tree.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'How', 'Notes']}
+  rows={[
+    ['Range update, point query', 'store the difference array; add `d` at `l`, subtract at `r + 1`', 'one Fenwick tree'],
+    ['Range update, range query', 'two Fenwick trees combined by a formula', 'a classic competitive-programming trick'],
+    ['Order statistics', 'binary-descend over the tree to find the k-th element in counts', 'needs non-negative counts'],
+    ['2D Fenwick tree', 'nest two index walks', 'sums over rectangles'],
+  ]}
+/>
+
+None of these variants is in the repository; the code supports point update and range sum only.
+
+## Fenwick tree vs alternatives
+
+<DataTable
+  columns={['Structure', 'Update', 'Range sum', 'Space', 'Notes']}
+  highlight={0}
+  rows={[
+    ['Fenwick tree', 'O(log n)', 'O(log n)', 'n', 'shortest code; needs an invertible operation'],
+    ['Segment Tree', 'O(log n)', 'O(log n)', 'about 2n', 'also min, max, gcd; more code'],
+    ['Prefix-sum array', 'O(n)', 'O(1)', 'n', 'best for static data'],
+    ['Plain array', 'O(1)', 'O(n)', 'n', 'best when queries are rare'],
+  ]}
+/>
+
+A Fenwick tree needs to *subtract* (`prefix(r) - prefix(l - 1)`), so it fits sums, XOR and counts but not min or max.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'About ten lines of code and one flat array.',
+    'Small constants: cache-friendly loops with no recursion.',
+    'Exactly n + 1 cells of memory.',
+  ]}
+  cons={[
+    'Only works for operations that can be undone (sum, XOR); no range min or max.',
+    'Hard to explain: the structure is hidden in bit arithmetic.',
+    'Range updates need extra tricks; a lazy Segment Tree is more direct.',
+    'Assignment must be expressed as an addition of a difference.',
+  ]}
+/>
+
+## Applications
+
+- **Dynamic prefix sums:** running totals with updates, for example "Dynamic Range Sum Queries" on CSES or LeetCode 307 (Range Sum Query - Mutable).
+- **Counting inversions:** sweep the array and query how many earlier values are larger (LeetCode 315, Count of Smaller Numbers After Self).
+- **Frequency tables and order statistics** over a bounded value range.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using index 0 internally.** `lowbit(0)` is 0, so `i += lowbit(i)` never moves: an infinite loop. Always convert to 1-based, and reject `-1` before converting (it becomes 0).
+- **Treating `update` as assignment.** It adds a delta.
+- **Overflow in C++.** Sums of `int` values overflow `int`; this code stores `long long`.
+- **Forgetting `l - 1` at `l = 0`.** `query` must special-case `l = 0`, since `prefix_sum(-1)` is out of range.
+- **Expecting range min or max.** Subtraction is required.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is it called a binary indexed tree?">
+    The responsibility of each cell is decided by the binary representation of its index: the lowest set bit gives the block length. The tree structure comes entirely from those bits.
+  </FaqItem>
+  <FaqItem question="When should I use a Segment Tree instead?">
+    When the operation has no inverse (min, max, gcd) or when you need range updates with range queries directly. A Fenwick tree is lighter when you only need sums.
+  </FaqItem>
+  <FaqItem question="How do I set a value instead of adding to it?">
+    Read the current value with `get(i)` and call `update(i, new_value - current)`.
+  </FaqItem>
+  <FaqItem question="Can I build it faster than n updates?">
+    Yes. Copy the array into `tree[1..n]`, then for each `i` add `tree[i]` into its parent `i + lowbit(i)` if that index is within `n`. This is O(n). The repository uses the simpler n updates, O(n log n).
+  </FaqItem>
+</Faq>

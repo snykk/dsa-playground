@@ -1,0 +1,241 @@
+---
+topic: Data_Structures/Non_Linear/Trees/B_Plus_Tree
+title: B+ Tree
+lead: A B+ tree is a B-tree variant that keeps every key and value in the leaves and links the leaves into a sorted list. Point lookups cost O(log n), and a range query is one descent plus a walk along the leaf chain, which is why it is the usual shape of a database index.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Search
+    value: O(log n)
+    hint: always ends at a leaf
+  - label: Insert
+    value: O(log n)
+    hint: split before descending
+  - label: Range query
+    value: O(log n + k)
+    hint: k = number of results
+  - label: Delete
+    value: not implemented
+    tone: warn
+    hint: this repository only inserts
+properties:
+  - { label: Self-balancing, value: true }
+  - { label: Data only in leaves, value: true }
+  - { label: Linked leaves, value: true }
+  - { label: Delete supported, value: false }
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/B_Tree
+related:
+  - Data_Structures/Non_Linear/Trees/B_Tree
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+---
+
+## What a B+ tree is
+
+A B+ tree has the same shape rules as a B-tree of minimum degree `t`: every node except the root holds between `t - 1` and `2t - 1` keys, and all leaves are at the same depth. The difference is **where the data lives**:
+
+- **Leaves** hold all the (key, value) pairs, sorted, and each leaf points to the next one.
+- **Internal nodes** hold only separator keys used to steer a search. They carry no values.
+- Each separator is a *copy* of the smallest key of the subtree to its right, so a key can appear twice: once in an internal node and once in a leaf.
+
+Keeping values out of internal nodes lets an internal node hold more separators per page, so the tree is a little shallower. The linked leaves turn "all keys between `a` and `b`" into a sequential scan.
+
+<TreeDiagram
+  legend={{ f: 'leaf level (holds the data)' }}
+  root={{
+    label: [30, 50],
+    children: [
+      { label: [20], children: [{ label: [10], tone: 'f' }, { label: [20], tone: 'f' }] },
+      { label: [40], children: [{ label: [30], tone: 'f' }, { label: [40], tone: 'f' }] },
+      { label: [60, 70], children: [{ label: [50], tone: 'f' }, { label: [60], tone: 'f' }, { label: [70, 80, 90], tone: 'f' }] },
+    ],
+  }}
+  caption="A t = 2 B+ tree after inserting 10, 20, ..., 90 (the values are omitted). The keys 20 to 70 appear both as separators and as leaf keys."
+/>
+
+<ListDiagram
+  values={['10', '20', '30', '40', '50', '60', '70 80 90']}
+  kind="singly"
+  tones="......."
+  caption="The same leaves as a chain: `next` pointers run left to right. A scan never has to go back up the tree."
+/>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`search(key)`', 'descend to the one leaf that could hold the key', 'O(log n)'],
+    ['`insert(key, value)`', 'split full nodes on the way down, insert into a leaf; an existing key is overwritten', 'O(log n)'],
+    ['`range_search(lo, hi)`', 'descend to the leaf for `lo`, then follow `next` until a key exceeds `hi`', 'O(log n + k)'],
+    ['`traverse()`', 'walk from the leftmost leaf along the chain', 'O(n)'],
+  ]}
+/>
+
+There is **no delete** in any of the three languages. In Python `search` returns the value or `None`. In C++ and Go it returns the value or the empty string, so a missing key and a stored empty value look the same. C++ and Go also have `range_search` (`rangeSearch` is `RangeSearch` in Go) and `traverse`, returning key and value pairs.
+
+### Search
+
+At each internal node go to the first child whose separator is **greater than** the key, that is, take the child to the right of every separator `<=` key. Equal keys go right, because a separator is the smallest key of its right subtree. The search always continues to a leaf, even when a separator equals the key, since the value is only stored there.
+
+### Insert: copy-up and push-up
+
+Like the B-tree, insertion splits every **full** node (`2t - 1` keys) before entering it, so a leaf always has room. The two kinds of split differ:
+
+- **Leaf split (copy-up).** The leaf's upper half (from index `t - 1`) moves to a new right leaf, the leaf chain is relinked, and the first key of the new leaf is **copied** into the parent. The key stays in the leaf.
+- **Internal split (push-up).** The median separator moves **up** into the parent and is kept in neither half, as in a B-tree.
+
+Inserting `1` to `8` into a `t = 3` tree (leaves hold 2 to 5 keys):
+
+<TreeDiagram
+  legend={{ p: 'key copied up into the parent' }}
+  root={{
+    label: [3],
+    tone: 'p',
+    children: [
+      { label: [1, 2] },
+      { label: [3, 4, 5, 6] },
+    ],
+  }}
+  caption="Inserting 6 into the full leaf [1, 2, 3, 4, 5] splits it: [1, 2] and [3, 4, 5], with 3 copied into the new root, then 6 joins the right leaf. 3 now lives in the root and in a leaf."
+/>
+
+<TreeDiagram
+  root={{
+    label: [3, 5],
+    children: [
+      { label: [1, 2] },
+      { label: [3, 4] },
+      { label: [5, 6, 7, 8] },
+    ],
+  }}
+  caption="Inserting 7 fills the leaf [3, 4, 5, 6, 7]. Inserting 8 splits it first: 5 is copied up into the root, then 8 joins the right leaf."
+/>
+
+An internal split looks different. With `t = 2`, the tree `[20, 30, 40]` over the leaves `[10]`, `[20]`, `[30]`, `[40, 50, 60]` has a full root. Inserting `70` splits the root first. The median `30` moves up and belongs to neither half (it still exists in leaf `[30]`), and then the leaf `[40, 50, 60]` splits, copying `50` up:
+
+<TreeDiagram
+  legend={{ p: 'key pushed up by an internal split' }}
+  root={{
+    label: [30],
+    tone: 'p',
+    children: [
+      { label: [20], children: [{ label: [10] }, { label: [20] }] },
+      { label: [40, 50], children: [{ label: [30] }, { label: [40] }, { label: [50, 60, 70] }] },
+    ],
+  }}
+  caption="After inserting 70 the tree is one level taller. Compare with the first diagram: the same keys, now with a new root."
+/>
+
+### Range query
+
+Find the leaf for `lo`, then read keys while they are `<= hi`, hopping along `next`. In the nine-key tree above, `range_search(25, 65)`:
+
+<Steps>
+  <Step title="Descend">
+    25 < 30 at the root, then 25 &ge; 20 in the left internal node: the target leaf is `[20]`.
+  </Step>
+  <Step title="Scan the chain">
+    `[20]` has nothing in range (20 < 25). The next leaves `[30]`, `[40]`, `[50]` and `[60]` contribute 30, 40, 50 and 60.
+  </Step>
+  <Step title="Stop">
+    The next leaf `[70, 80, 90]` starts with 70 > 65, so the scan ends. Result: 30, 40, 50, 60.
+  </Step>
+</Steps>
+
+## Implementation
+
+The three versions share the same structure: nodes with `keys`, `children` (internal) and `values` plus a `next` pointer (leaf), a proactive `split_child` with the two cases above, and `find_leaf`. The tests insert thousands of random keys and compare `search`, `range_search` and `traverse` with a dictionary or `std::map`, then check fill bounds, separators, equal leaf depth and the leaf chain. The C++ tree frees its nodes in a destructor and cannot be copied.
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/B_Plus_Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Node reads', kind: 'mono' }, 'Why']}
+  rows={[
+    ['search', 'O(log_t n)', 'one root-to-leaf path, about log_t(n) levels'],
+    ['insert', 'O(log_t n)', 'one descent (plus one extra to check for an existing key); a split costs O(t)'],
+    ['range query', 'O(log_t n + k / t)', 'one descent, then sequential leaf reads'],
+    ['traverse', 'O(n / t)', 'leaf chain only; internal nodes are skipped'],
+  ]}
+/>
+
+Comparisons inside a node are linear, so each node visit costs O(t) comparisons. Space is O(n) with at least half of every node used.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Difference']}
+  rows={[
+    ['B-tree', 'values in every node, no leaf links (see B-Tree)'],
+    ['Doubly linked leaves', 'allows scanning backwards; this code links forward only'],
+    ['B* tree', 'delays splits by redistributing to siblings, aiming for fuller nodes'],
+    ['Clustered vs secondary index', 'leaves hold whole rows, or hold pointers to rows'],
+  ]}
+/>
+
+## B+ tree vs B-tree
+
+<DataTable
+  columns={['Aspect', 'B+ tree', 'B-tree']}
+  highlight={0}
+  rows={[
+    ['Data location', 'leaves only', 'every node'],
+    ['Internal node size', 'keys only, higher fan-out', 'keys and values'],
+    ['Point lookup', 'always reaches a leaf', 'can stop at an internal node'],
+    ['Range scan', 'follow the leaf chain', 'in-order traversal through internal nodes'],
+    ['Duplicate keys in nodes', 'separators repeat leaf keys', 'each key appears once'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Range queries and ordered scans are a descent plus a sequential read.',
+    'Predictable search cost: every lookup reads the same number of nodes.',
+    'Internal nodes are small, so more of the upper levels fit in memory.',
+    'Always balanced, no rotations.',
+  ]}
+  cons={[
+    'A point lookup never stops early, even for keys in the root.',
+    'Separators duplicate leaf keys, a small space cost.',
+    'More code than a B-tree to keep leaf links and separators consistent; delete is the hardest part and is missing here.',
+    'Linear scans inside wide nodes cost O(t) per node.',
+  ]}
+/>
+
+## Applications
+
+- **Database indexes:** many relational databases use B+ tree variants, because range predicates (`BETWEEN`, `ORDER BY`) become leaf scans.
+- **File systems and key-value storage engines** that keep sorted keys on block storage.
+- **Any ordered map with frequent range queries** on large data.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Dropping the key on a leaf split.** The first key of the new leaf is copied up, not moved. Only an internal split moves its median up.
+- **Stopping the search at an equal separator.** The value lives in the leaf; keep descending (equal keys go right).
+- **Forgetting to relink `next`.** After a leaf split, the new leaf must take over the old `next` and the old leaf must point to the new one.
+- **Using `-inf` to find the leftmost leaf.** It breaks for non-numeric keys; follow `children[0]` instead.
+- **Reading an empty string as "missing".** In C++ and Go `search` returns an empty string for both a missing key and a stored empty value.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why are keys duplicated between internal nodes and leaves?">
+    The leaves must hold every key to support scans, while internal nodes only need a boundary to steer searches. A separator is just a copy of a boundary key, so it does no harm if that key is later removed from a leaf.
+  </FaqItem>
+  <FaqItem question="Why is a range query faster than in a B-tree?">
+    In a B-tree the keys of a range are scattered over internal and leaf nodes, so a scan must climb and descend. In a B+ tree they sit in consecutive leaves linked by `next`.
+  </FaqItem>
+  <FaqItem question="What happens when I insert a key that already exists?">
+    The value is overwritten and the tree does not change shape: this implementation is a map, not a multimap.
+  </FaqItem>
+  <FaqItem question="Does the repository support deleting keys?">
+    No. Insert, search, range search and traverse are implemented. A delete needs borrow and merge for leaves (with separator updates) and for internal nodes, and is left out.
+  </FaqItem>
+</Faq>

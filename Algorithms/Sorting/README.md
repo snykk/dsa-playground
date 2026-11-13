@@ -43,9 +43,9 @@ This folder contains implementations of various sorting algorithms, each with:
 | Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes |
 | Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No |
 | Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | No |
-| Counting Sort | O(n + k) | O(n + k) | O(n + k) | O(k) | Yes |
+| Counting Sort | O(n + k) | O(n + k) | O(n + k) | O(n + k) | Yes |
 | Radix Sort | O(d × n) | O(d × n) | O(d × n) | O(n + k) | Yes |
-| Bucket Sort | O(n + k) | O(n + k) | O(n²) | O(n) | Yes |
+| Bucket Sort | O(n + k) | O(n + k) | O(n²) | O(n) | Yes, if each bucket is sorted stably |
 
 ---
 
@@ -79,7 +79,7 @@ All implementations include comprehensive test suites. Run tests with:
 python algorithm_name_test.py
 
 # C++
-g++ -std=c++11 algorithm_name.cpp algorithm_name_test.cpp -o test
+g++ -std=c++17 algorithm_name_test.cpp -o test   # the test file includes the implementation
 ./test
 
 # Go

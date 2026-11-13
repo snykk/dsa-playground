@@ -26,6 +26,13 @@ func NewMonotonicCHT() *MonotonicCHT { return &MonotonicCHT{} }
 
 // AddLine inserts (m, b). Caller must pass slopes in non-increasing order.
 func (c *MonotonicCHT) AddLine(m, b int64) {
+	if n := len(c.lines); n > 0 && c.lines[n-1].M == m {
+		// Equal slopes: only the lower intercept can ever be optimal.
+		if c.lines[n-1].B <= b {
+			return
+		}
+		c.lines = c.lines[:n-1]
+	}
 	for len(c.lines) >= 2 &&
 		isBad(c.lines[len(c.lines)-2], c.lines[len(c.lines)-1], Line{m, b}) {
 		c.lines = c.lines[:len(c.lines)-1]
@@ -49,14 +56,9 @@ func eval(l Line, x int64) int64 { return l.M*x + l.B }
 // to avoid overflow.
 func isBad(l1, l2, l3 Line) bool {
 	// (b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)
-	lhs := new(big.Int).Mul(
-		big.NewInt(l3.B-l1.B),
-		big.NewInt(l1.M-l2.M),
-	)
-	rhs := new(big.Int).Mul(
-		big.NewInt(l2.B-l1.B),
-		big.NewInt(l1.M-l3.M),
-	)
+	diff := func(a, b int64) *big.Int { return new(big.Int).Sub(big.NewInt(a), big.NewInt(b)) }
+	lhs := new(big.Int).Mul(diff(l3.B, l1.B), diff(l1.M, l2.M))
+	rhs := new(big.Int).Mul(diff(l2.B, l1.B), diff(l1.M, l3.M))
 	return lhs.Cmp(rhs) <= 0
 }
 

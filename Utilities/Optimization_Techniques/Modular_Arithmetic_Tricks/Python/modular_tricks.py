@@ -22,13 +22,16 @@ def sub(a: int, b: int, m: int = MOD) -> int:
 
 def mul(a: int, b: int, m: int = MOD) -> int:
     """Modular multiplication."""
-    return (a % m * b % m) % m
+    return (a % m) * (b % m) % m
 
 # ==================== Fast Exponentiation ====================
 
 def power(base: int, exp: int, m: int = MOD) -> int:
-    """Fast modular exponentiation using binary exponentiation."""
-    result = 1
+    """Fast modular exponentiation using binary exponentiation.
+
+    Returns 1 % m, so power(x, 0, 1) is 0 (everything is 0 modulo 1).
+    """
+    result = 1 % m
     base = base % m
     while exp > 0:
         if exp & 1:
@@ -40,7 +43,11 @@ def power(base: int, exp: int, m: int = MOD) -> int:
 # ==================== Modular Inverse ====================
 
 def mod_inverse(a: int, m: int = MOD) -> int:
-    """Modular inverse using Fermat's Little Theorem (m must be prime)."""
+    """Modular inverse using Fermat's Little Theorem.
+
+    m must be prime and a must not be a multiple of m; otherwise the result is
+    not an inverse (use mod_inverse_ext_gcd for composite moduli).
+    """
     return power(a, m - 2, m)
 
 def ext_gcd(a: int, b: int) -> Tuple[int, int, int]:
@@ -95,11 +102,26 @@ class Factorials:
 # ==================== Lucas Theorem ====================
 
 def lucas_nCr(n: int, r: int, p: int, fact_obj: Factorials) -> int:
-    """nCr mod p for large n using Lucas' theorem."""
+    """nCr mod p for large n using Lucas' theorem.
+
+    p must be prime, and fact_obj must be exactly Factorials(p - 1, p): the
+    small binomials C(n % p, r % p) are read from its tables, which need every
+    index up to p - 1, and a table that reaches p or beyond contains
+    factorials that are 0 modulo p (so its inverses are wrong). Anything else
+    raises ValueError instead of returning a wrong value.
+    """
+    if fact_obj.m != p or len(fact_obj.fact) != p:
+        raise ValueError("fact_obj must be Factorials(p - 1, p) for the same prime p")
+    if r < 0 or r > n:
+        return 0
+    return _lucas(n, r, p, fact_obj)
+
+
+def _lucas(n: int, r: int, p: int, fact_obj: Factorials) -> int:
     if r == 0:
         return 1
     return mul(
-        lucas_nCr(n // p, r // p, p, fact_obj),
+        _lucas(n // p, r // p, p, fact_obj),
         fact_obj.nCr(n % p, r % p),
         p
     )
@@ -107,17 +129,28 @@ def lucas_nCr(n: int, r: int, p: int, fact_obj: Factorials) -> int:
 # ==================== Chinese Remainder Theorem ====================
 
 def chinese_remainder(remainders: List[int], moduli: List[int]) -> int:
-    """Solve system of congruences using CRT."""
-    M = 1
-    for m in moduli:
-        M *= m
-    
-    result = 0
+    """Solve x = r_i (mod m_i) for all i (generalized CRT).
+
+    The moduli need not be coprime. Returns the smallest non-negative
+    solution, which is unique modulo lcm(moduli); for pairwise coprime moduli
+    that is their product. Raises ValueError when the system has no solution
+    (two congruences disagree modulo the gcd of their moduli).
+    """
+    if len(remainders) != len(moduli):
+        raise ValueError("remainders and moduli must have the same length")
+    x, lcm = 0, 1
     for r, m in zip(remainders, moduli):
-        Mi = M // m
-        result += r * Mi * mod_inverse_ext_gcd(Mi, m)
-    
-    return result % M
+        if m <= 0:
+            raise ValueError("moduli must be positive")
+        g, p, _ = ext_gcd(lcm, m)
+        if (r - x) % g != 0:
+            raise ValueError("the system of congruences has no solution")
+        # Merge x (mod lcm) with r (mod m): x + lcm * t with t = (r - x)/g * p (mod m/g).
+        step = (r - x) // g * p % (m // g)
+        x += lcm * step
+        lcm = lcm // g * m
+        x %= lcm
+    return x
 
 # ==================== Matrix Exponentiation ====================
 

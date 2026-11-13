@@ -1,0 +1,22 @@
+---
+import VizMount from '../../viz/VizMount';
+
+/** An interactive visualization placed inside an article (MDX: <ArticleViz ids={['quick-sort']} />). */
+interface Props {
+  ids: string[];
+}
+
+const { ids } = Astro.props;
+---
+
+<div id="visualize" class="article-viz">
+  <VizMount client:visible ids={ids} />
+  <noscript><p>The visualization needs JavaScript; the rest of the article works without it.</p></noscript>
+</div>
+
+<style>
+  .article-viz {
+    margin: 20px 0 28px;
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+</style>

@@ -1,5 +1,6 @@
 // Randomized Quickselect: k-th smallest element in O(n) expected time.
-// Uses Lomuto partition; mutates the input vector.
+// Uses a three-way (Dutch flag) partition, so duplicates cannot cause
+// quadratic time. Mutates the input vector.
 
 #ifndef QUICKSELECT_H
 #define QUICKSELECT_H
@@ -7,21 +8,26 @@
 #include <algorithm>
 #include <random>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 namespace detail {
-inline int partition(std::vector<int>& arr, int lo, int hi, int pivotIdx) {
-    std::swap(arr[pivotIdx], arr[hi]);
-    int pivot = arr[hi];
-    int store = lo;
-    for (int i = lo; i < hi; ++i) {
+// Reorders arr[lo..hi] into  < pivot | == pivot | > pivot  around arr[pivotIdx].
+// Returns {lt, gt}: arr[lt..gt] holds exactly the keys equal to the pivot.
+inline std::pair<int, int> partition3(std::vector<int>& arr, int lo, int hi,
+                                      int pivotIdx) {
+    int pivot = arr[pivotIdx];
+    int lt = lo, i = lo, gt = hi;
+    while (i <= gt) {
         if (arr[i] < pivot) {
-            std::swap(arr[i], arr[store]);
-            ++store;
+            std::swap(arr[lt++], arr[i++]);
+        } else if (arr[i] > pivot) {
+            std::swap(arr[i], arr[gt--]);
+        } else {
+            ++i;
         }
     }
-    std::swap(arr[store], arr[hi]);
-    return store;
+    return {lt, gt};
 }
 }  // namespace detail
 
@@ -37,10 +43,10 @@ inline int quickselect(std::vector<int>& arr, int k,
     int lo = 0, hi = static_cast<int>(arr.size()) - 1;
     while (lo < hi) {
         std::uniform_int_distribution<int> dist(lo, hi);
-        int pivotIdx = detail::partition(arr, lo, hi, dist(rng));
-        if (k == pivotIdx) return arr[k];
-        if (k < pivotIdx) hi = pivotIdx - 1;
-        else lo = pivotIdx + 1;
+        std::pair<int, int> band = detail::partition3(arr, lo, hi, dist(rng));
+        if (k < band.first) hi = band.first - 1;
+        else if (k > band.second) lo = band.second + 1;
+        else return arr[k];  // k falls inside the band of keys equal to the pivot
     }
     return arr[lo];
 }
