@@ -1,0 +1,94 @@
+---
+category: Data_Structures
+title: Data Structures
+lead: "Four areas that organize data in different ways: sequences in a line, key lookups by hash, trees and graphs with branching links, and structures built from the others to solve one job. What separates them is which operation each makes cheap."
+updated: 2026-11-13
+facts:
+  - label: Array read by index
+    value: O(1)
+    hint: "contiguous memory: base + i * w"
+  - label: Insert in the middle of an array
+    value: O(n)
+    hint: elements shift
+    tone: warn
+  - label: Hash table lookup
+    value: O(1) average
+    hint: O(n) in the worst case
+  - label: Balanced tree search
+    value: O(log n)
+    hint: AVL tree, worst case
+contents:
+  - folder: Linear
+    note: Elements in a sequence. Arrays, strings, linked lists, stacks and queues are the building blocks of everything else.
+  - folder: Hashing
+    note: Find a key without searching. Hash tables and sets, collision handling, and the Bloom filter.
+  - folder: Non_Linear
+    note: Elements with branching links. Trees keep order and range queries, heaps give the minimum or maximum, and graphs model relations.
+  - folder: Advanced_Structures
+    note: Disjoint set union, and the LRU and LFU caches. Each combines simpler structures to do one job in O(1) or near O(1).
+prerequisites:
+  - Complexity_Analysis
+related:
+  - Algorithms
+  - Problem_Patterns
+---
+
+## What this area covers
+
+A data structure is a way to arrange data so that the operations you need are cheap. No structure makes every operation cheap, so each area here is a different trade.
+
+- **Linear** structures keep elements in a sequence. An array reads any index in O(1) and pays O(n) to insert in the middle. A linked list inserts after a known node in O(1) and pays O(n) to reach an index. Stacks and queues restrict access to the ends, which keeps push and pop at O(1). The priority queue is the exception, at O(log n), because it is built on a heap.
+- **Hashing** trades order for speed. A hash table finds a key in O(1) on average, and it keeps no sorted order. The Bloom filter answers membership with a small, approximate structure.
+- **Non-Linear** structures branch. Trees keep keys ordered, so a search costs O(log n) when the tree is balanced. Heaps expose the smallest or largest element. Graphs describe arbitrary relations, and the algorithms in the Algorithms folder run on them.
+- **Advanced** structures combine the others. The LRU cache pairs a hash map with a doubly linked list so that `get` and `put` are both O(1). Disjoint set union tracks merging groups.
+
+## At a glance
+
+<DataTable
+  columns={['Area', 'Organizes data as', 'Cheap operations', 'Gives up']}
+  rows={[
+    ['Linear', 'a sequence', 'index access, and push or pop at an end', 'search by value, and inserting in the middle'],
+    ['Hashing', 'buckets chosen by a hash', 'insert, lookup and remove by key, O(1) on average', 'sorted order, and a worst case of O(n)'],
+    ['Non-Linear', 'nodes with links: trees, heaps, graphs', 'ordered search, min or max, neighbours', 'simplicity, because balancing and layouts add code'],
+    ['Advanced', 'a combination of the above', 'one specialized job, such as a cache or a merge of groups', 'generality'],
+  ]}
+  caption="Costs from the topic articles and READMEs: array index O(1), hash table O(1) average, AVL tree O(log n), LRU cache O(1)."
+/>
+
+## A suggested path
+
+The repository's study guide takes them in this order:
+
+1. **Linear.** Array first, then strings, linked lists, stacks and queues. Everything else builds on arrays and linked nodes.
+2. **Hashing.** Hash tables and sets, then collision handling, then the Bloom filter as a probabilistic variant.
+3. **Trees.** Binary tree, binary search tree, AVL tree and trie, then heaps. The priority queue in Linear is a heap in disguise, so read Heaps beside it.
+4. **Graphs.** Adjacency list and matrix, which BFS and DFS in the Algorithms folder then use.
+5. **Advanced trees.** Segment tree, Fenwick tree, lazy propagation and treap, for range queries.
+6. **Advanced structures.** Disjoint set union, and the LRU and LFU caches.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Expecting a hash table to be ordered.** It gives O(1) average lookups and no sorted order. Use a tree when you need ordered keys or ranges.
+- **Reading O(1) as always O(1).** Hash operations are O(1) on average and O(n) in the worst case, and an array append is O(1) amortized.
+- **Using a plain binary search tree on sorted input.** It becomes a chain, and every operation is O(n). A balanced tree such as an AVL tree keeps O(log n) in the worst case.
+- **Picking an advanced structure too early.** Most problems need an array, a hash table or a heap. Use the specialized structures when the job matches them.
+- **Searching Non_Linear for the priority queue.** It lives under Linear, in Queue, although it is implemented as a heap.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Where should I start?">
+    With Linear, and with Array first. It is the base layer for stacks, queues, heaps and hash tables, and its cost model, O(1) access and O(n) middle insert, shows up everywhere.
+  </FaqItem>
+  <FaqItem question="How do I choose a structure?">
+    Start from the operation you repeat most. Reading by position points to an array, lookup by key to a hash table, ordered access or range queries to a tree, the smallest element to a heap, and relations between items to a graph.
+  </FaqItem>
+  <FaqItem question="Why is the priority queue in Linear and not with the heaps?">
+    It is an interface, and a heap is one way to build it. The Priority_Queue topic sits in Linear/Queue, and the Heaps topics under Non_Linear show the structure underneath.
+  </FaqItem>
+  <FaqItem question="Which structures do the algorithms need?">
+    Many of them. Dijkstra uses a heap, Kruskal uses disjoint set union, Aho-Corasick uses a trie, and BFS uses a queue. The Algorithms folder builds on this one.
+  </FaqItem>
+</Faq>

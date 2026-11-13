@@ -1,197 +1,336 @@
-# 📘 DSA Study Guide — A Structured Learning Path
+# DSA Study Guide
 
-> A week-by-week curriculum that takes you from "I know basic programming" to "I can tackle advanced competitive programming problems," using only the topics in this repository. Each step has a _single_ directory to study, plus LeetCode / Codeforces problems to practice on.
+A week-by-week path through every topic in this repository, from basic programming to competitive programming. Each phase has a goal, its topics in reading order, and a milestone. The order agrees with the READMEs of each area.
 
-This is intentionally opinionated — if you're studying DSA for the first time, picking a path is harder than following one. You can safely skip levels you already know, or dig deeper on any topic you find interesting.
+## How to Use This Guide
 
----
+- Follow the phases in order; inside a phase, follow the sections and the order of the topics. Skip what you already know.
+- Pick one language. Every topic has Python, C++ and Go code with tests; Python is gentle for a first pass and C++ is the usual choice for contests.
+- Read the topic article first, then read the code, close it, and write your own version. Run the tests to check it.
+- Solve a few practice problems per topic before you move on. Depth matters more than speed.
+- The level after each topic (Beginner, Intermediate, Advanced) comes from its article. Weeks are a guide, not a deadline.
 
-## 🎯 How to Use This Guide
+## Contents
 
-- **Read the parent README first** — they explain intuition, complexity, and when to use each technique.
-- **Pick one language** (recommendation: Python if you're new; C++ for competitive programming; Go if you already know Python and want more performance).
-- **Run the tests** — all implementations have `_test.py` / `_test.cpp` / `_test.go` files. Running them confirms your environment works.
-- **Solve 3-5 practice problems per topic** — the "Practice Problems" section at the bottom of most topic READMEs has curated LeetCode / Codeforces links.
-- **Don't rush.** Depth > breadth. Implementing one sort from scratch teaches more than reading about five.
+- [Phase 1: Foundations (Weeks 1-3)](#phase-1-foundations-weeks-1-3)
+- [Phase 2: Core Structures (Weeks 4-6)](#phase-2-core-structures-weeks-4-6)
+- [Phase 3: Problem Patterns (Weeks 7-10)](#phase-3-problem-patterns-weeks-7-10)
+- [Phase 4: Advanced Algorithms and Structures (Weeks 11-15)](#phase-4-advanced-algorithms-and-structures-weeks-11-15)
+- [Phase 5: Competitive Programming (Week 16 onward)](#phase-5-competitive-programming-week-16-onward)
 
----
+## Phase 1: Foundations (Weeks 1-3)
 
-## 📅 Phase 1: Foundations (Week 1-3)
+**Goal:** Measure the cost of code, then learn the sequences and the first sorts and searches. (24 topics)
 
-**Goal:** understand how data is represented, how programs use memory, and how to measure algorithm cost.
+**Why this order:** Everything later is judged by its cost, and every other structure is built from arrays, nodes, stacks and queues.
 
-### 1. Complexity Analysis
-Start here — you'll use Big-O notation for the rest of your career.
+### Complexity analysis
 
-- [Big-O Notation](Complexity_Analysis/Time%20Complexity/Big-O%20Notation/)
-- [Big-Theta (Θ)](Complexity_Analysis/Time%20Complexity/Big-Theta%20(Θ)/)
-- [Big-Omega (Ω)](Complexity_Analysis/Time%20Complexity/Big-Omega%20(Ω)/)
-- [Space Complexity](Complexity_Analysis/Space%20Complexity/)
-- [Amortized Analysis](Complexity_Analysis/Amortized%20Analysis/)
+Big-O, Big-Omega and Big-Theta are bounds on a function; best, average and worst are cases. Any case can take any bound.
 
-### 2. Linear Data Structures
-The primitive building blocks of every other structure.
+- [Big-O Notation](Complexity_Analysis/Time_Complexity/Big_O_Notation/) (Beginner)
+- [Big-Omega Notation](Complexity_Analysis/Time_Complexity/Big_Omega/) (Intermediate)
+- [Big-Theta Notation](Complexity_Analysis/Time_Complexity/Big_Theta/) (Intermediate)
+- [Space Complexity](Complexity_Analysis/Space_Complexity/) (Beginner)
+- [Amortized Analysis](Complexity_Analysis/Amortized_Analysis/) (Intermediate)
 
-- [Array](Data%20Structures/Linear/Array/) — static and dynamic
-- [String](Data%20Structures/Linear/String/) — introduction + manipulation
-- [Linked List](Data%20Structures/Linear/Linked%20List/) — singly, doubly, circular
-- [Stack](Data%20Structures/Linear/Stack/)
-- [Queue](Data%20Structures/Linear/Queue/) — simple, circular, deque
+### Arrays and strings
 
-### 3. Basic Sorting & Searching
-Classical algorithms; every interview touches them.
+- [Array](Data_Structures/Linear/Array/) (Beginner)
+- [Introduction to Strings](Data_Structures/Linear/String/String_Basics/) (Beginner)
+- [String Manipulation](Data_Structures/Linear/String/String_Manipulation/) (Beginner)
 
-- [Bubble / Selection / Insertion Sort](Algorithms/Sorting/) — O(n²), educational
-- [Merge Sort](Algorithms/Sorting/Merge%20Sort/) — divide & conquer introduction
-- [Quick Sort](Algorithms/Sorting/Quick%20Sort/) — pivot strategy matters
-- [Linear Search](Algorithms/Searching/Linear%20Search/)
-- [Binary Search](Algorithms/Searching/Binary%20Search/) — **master this**
+### Linked lists, stacks and queues
 
-**Milestone:** you can solve LeetCode Easy problems reliably.
+The priority queue waits for heaps in Phase 2.
 
----
+- [Singly Linked List](Data_Structures/Linear/Linked_List/Singly/) (Beginner)
+- [Doubly Linked List](Data_Structures/Linear/Linked_List/Doubly/) (Intermediate)
+- [Circular Linked List](Data_Structures/Linear/Linked_List/Circular/) (Intermediate)
+- [Static Size Array Stack](Data_Structures/Linear/Stack/Static_Array_Stack/) (Beginner)
+- [Dynamic Size Array Stack](Data_Structures/Linear/Stack/Dynamic_Array_Stack/) (Beginner)
+- [Linked List Stack](Data_Structures/Linear/Stack/Linked_List_Stack/) (Beginner)
+- [Simple Queue](Data_Structures/Linear/Queue/Simple_Queue/) (Beginner)
+- [Circular Queue](Data_Structures/Linear/Queue/Circular_Queue/) (Beginner)
+- [Deque](Data_Structures/Linear/Queue/Deque/) (Beginner)
 
-## 📅 Phase 2: Core Structures (Week 4-6)
+### Basic sorting and searching
 
-**Goal:** make hash tables, trees, and heaps feel natural.
+Binary search is the one to master.
 
-### 4. Hashing
-- [Hash Table / Map / Set](Data%20Structures/Hashing/)
-- [Collision Handling](Data%20Structures/Hashing/Collision%20Handling/) — chaining vs open addressing
-- [Bloom Filter](Data%20Structures/Hashing/Bloom%20Filter/) — probabilistic variant
+- [Bubble Sort](Algorithms/Sorting/Bubble_Sort/) (Beginner)
+- [Insertion Sort](Algorithms/Sorting/Insertion_Sort/) (Beginner)
+- [Selection Sort](Algorithms/Sorting/Selection_Sort/) (Beginner)
+- [Merge Sort](Algorithms/Sorting/Merge_Sort/) (Intermediate)
+- [Quick Sort](Algorithms/Sorting/Quick_Sort/) (Intermediate)
+- [Linear Search](Algorithms/Searching/Linear_Search/) (Beginner)
+- [Binary Search](Algorithms/Searching/Binary_Search/) (Beginner)
 
-### 5. Trees — Essentials
-- [Binary Tree](Data%20Structures/Non_Linear/Trees/Binary%20Tree/)
-- [Binary Search Tree (BST)](Data%20Structures/Non_Linear/Trees/Binary%20Search%20Tree/)
-- [AVL Tree](Data%20Structures/Non_Linear/Trees/AVL%20Tree/) — first balanced BST
-- [Trie](Data%20Structures/Non_Linear/Trees/Trie/) — string-keyed tree
+**Milestone:** you can state the cost of a loop or a recursion, and solve LeetCode Easy problems reliably.
 
-### 6. Heaps
-- [Min / Max Heap](Data%20Structures/Non_Linear/Heaps/)
-- [Priority Queue](Data%20Structures/Linear/Queue/Priority%20Queue/) — heap in disguise
+## Phase 2: Core Structures (Weeks 4-6)
 
-### 7. Graph Basics
-- [Adjacency List / Matrix](Data%20Structures/Non_Linear/Graph/)
-- [BFS](Algorithms/Graph_Algorithms/Traversal/BFS/)
-- [DFS](Algorithms/Graph_Algorithms/Traversal/DFS/)
-- [Topological Sort](Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort/)
+**Goal:** Make hash tables, trees, heaps and graphs feel natural, and traverse a graph. (23 topics)
 
-**Milestone:** you can solve LeetCode Medium problems in trees/graphs.
+**Why this order:** Hashing and trees come first, heaps reuse the tree idea, and the graph layouts must exist before BFS and DFS can run on them.
 
----
+### Hashing
 
-## 📅 Phase 3: Problem Patterns (Week 7-9)
+- [Hash Table](Data_Structures/Hashing/Hash_Table/) (Beginner)
+- [Collision Handling](Data_Structures/Hashing/Collision_Handling/) (Intermediate)
+- [Hash Set](Data_Structures/Hashing/Hash_Set/) (Beginner)
+- [Bloom Filter](Data_Structures/Hashing/Bloom_Filter/) (Intermediate)
 
-**Goal:** recognize the _shape_ of a problem and pick the right technique.
+### Trees
 
-### 8. Two Pointers & Sliding Window
-These two patterns appear in 40%+ of array/string problems.
+Binary tree and BST first; the AVL tree shows how balancing keeps O(log n).
 
-- [Two Pointers](Problem_Patterns/Two%20Pointers/)
-- [Sliding Window](Problem_Patterns/Sliding%20Window/)
-- [Binary Search on Answer](Problem_Patterns/Binary%20Search%20on%20Answer/)
+- [Binary Tree](Data_Structures/Non_Linear/Trees/Binary_Tree/) (Beginner)
+- [Binary Search Tree](Data_Structures/Non_Linear/Trees/Binary_Search_Tree/) (Beginner)
+- [AVL Tree](Data_Structures/Non_Linear/Trees/AVL_Tree/) (Intermediate)
+- [Trie](Data_Structures/Non_Linear/Trees/Trie/) (Intermediate)
 
-### 9. Prefix Sum & Difference Array
-- [Prefix Sum / Difference Array](Problem_Patterns/Prefix%20Sum%20Difference%20Array/)
+### Heaps and the sorts that use them
 
-### 10. Monotonic Structures
-- [Monotonic Stack](Problem_Patterns/Monotonic%20Stack/)
-- [Monotonic Queue](Problem_Patterns/Monotonic%20Queue/) — O(n) sliding window max/min
+- [Min Heap](Data_Structures/Non_Linear/Heaps/Min_Heap/) (Intermediate)
+- [Max Heap](Data_Structures/Non_Linear/Heaps/Max_Heap/) (Intermediate)
+- [Priority Queue](Data_Structures/Linear/Queue/Priority_Queue/) (Intermediate)
+- [Heap Sort](Algorithms/Sorting/Heap_Sort/) (Intermediate)
+- [Counting Sort](Algorithms/Sorting/Counting_Sort/) (Intermediate)
+- [Radix Sort](Algorithms/Sorting/Radix_Sort/) (Intermediate)
+- [Bucket Sort](Algorithms/Sorting/Bucket_Sort/) (Intermediate)
 
-### 11. Dynamic Programming (start here!)
-- [Fibonacci / Climbing Stairs](Algorithms/Dynamic_Programming/Basic%20DP/) — 1D DP intro
-- [Maximum Subarray (Kadane's)](Algorithms/Dynamic_Programming/Linear%20DP/Maximum%20Subarray/)
-- [Longest Increasing Subsequence](Algorithms/Dynamic_Programming/Linear%20DP/Longest%20Increasing%20Subsequence/)
-- [Coin Change](Algorithms/Dynamic_Programming/Linear%20DP/Coin%20Change/)
-- [Longest Common Subsequence](Algorithms/Dynamic_Programming/2D%20DP/Longest%20Common%20Subsequence/) — **2D DP gateway**
-- [Edit Distance](Algorithms/Dynamic_Programming/2D%20DP/Edit%20Distance/)
-- [0/1 Knapsack](Algorithms/Dynamic_Programming/2D%20DP/0-1%20Knapsack/)
+### Graph representations
 
-**Milestone:** you can solve LeetCode Medium DP problems consistently.
+- [Adjacency List](Data_Structures/Non_Linear/Graph/Adjacency_List/) (Beginner)
+- [Adjacency Matrix](Data_Structures/Non_Linear/Graph/Adjacency_Matrix/) (Beginner)
+- [Edge List](Data_Structures/Non_Linear/Graph/Edge_List/) (Beginner)
+- [Directed and Undirected Graphs](Data_Structures/Non_Linear/Graph/Directed_and_Undirected/) (Beginner)
+- [Weighted and Unweighted Graphs](Data_Structures/Non_Linear/Graph/Weighted_and_Unweighted/) (Beginner)
 
----
+### Graph basics
 
-## 📅 Phase 4: Advanced Algorithms (Week 10-13)
+- [Breadth-First Search (BFS)](Algorithms/Graph_Algorithms/Traversal/BFS/) (Beginner)
+- [Depth-First Search (DFS)](Algorithms/Graph_Algorithms/Traversal/DFS/) (Beginner)
+- [Topological Sort](Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort/) (Intermediate)
 
-**Goal:** the topics that separate "can pass interviews" from "can tackle ICPC."
+**Milestone:** you can solve LeetCode Medium problems on trees and graphs.
 
-### 12. Advanced Graph
-- [Dijkstra](Algorithms/Graph_Algorithms/Shortest_Path/Dijkstra's_Algorithm/)
-- [Bellman-Ford](Algorithms/Graph_Algorithms/Shortest_Path/Bellman-Ford_Algorithm/)
-- [Floyd-Warshall](Algorithms/Graph_Algorithms/Shortest_Path/Floyd-Warshall_Algorithm/)
-- [MST: Kruskal / Prim](Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/)
-- [Union-Find (DSU)](Algorithms/Graph_Algorithms/Advanced_Graph/Union-Find_DSU/) — essential
-- [Strongly Connected Components](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/)
-- [Tarjan's Bridges & Articulation Points](Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/)
+## Phase 3: Problem Patterns (Weeks 7-10)
 
-### 13. Advanced String
-- [KMP / Rabin-Karp / Boyer-Moore](Data%20Structures/Linear/String/Pattern%20Matching/)
-- [Z-Algorithm](Algorithms/String_Algorithms/Advanced_String/Z-Algorithm/)
-- [Manacher's Algorithm](Algorithms/String_Algorithms/Advanced_String/Longest%20Palindromic%20Substring%20(Manacher's)/)
-- [Aho-Corasick](Algorithms/String_Algorithms/Advanced_String/Aho-Corasick/) — multi-pattern
+**Goal:** Recognize the shape of a problem and pick the technique, including greedy, backtracking and your first dynamic programming. (28 topics)
 
-### 14. Advanced Trees
-- [Segment Tree](Data%20Structures/Non_Linear/Trees/Segment%20Tree/)
-- [Fenwick Tree (BIT)](Data%20Structures/Non_Linear/Trees/Fenwick%20Tree/)
-- [Segment Tree with Lazy Propagation](Data%20Structures/Non_Linear/Trees/Segment%20Tree%20(Lazy%20Propagation)/)
-- [Treap](Data%20Structures/Non_Linear/Trees/Treap/) — randomized BST
+**Why this order:** The scan patterns come first because they need only arrays; groups, greedy and backtracking follow; DP comes last because it builds on all of them.
 
-### 15. Caches (System Design Interview)
-- [LRU Cache](Data%20Structures/Advanced_Structures/LRU%20Cache/)
-- [LFU Cache](Data%20Structures/Advanced_Structures/LFU%20Cache/)
+### Array and string patterns
 
-**Milestone:** you can solve LeetCode Hard problems; interview-ready for senior roles.
+These patterns appear in a large share of array and string problems.
 
----
+- [Two Pointers](Problem_Patterns/Two_Pointers/) (Beginner)
+- [Sliding Window](Problem_Patterns/Sliding_Window/) (Beginner)
+- [Prefix Sum and Difference Array](Problem_Patterns/Prefix_Sum_Difference_Array/) (Beginner)
+- [Binary Search on Answer](Problem_Patterns/Binary_Search_on_Answer/) (Intermediate)
+- [Ternary Search](Algorithms/Searching/Ternary_Search/) (Intermediate)
+- [Interpolation Search](Algorithms/Searching/Interpolation_Search/) (Intermediate)
 
-## 📅 Phase 5: Competitive Programming (Week 14+)
+### Monotonic structures
 
-**Goal:** the techniques that win ICPC / Codeforces contests.
+- [Monotonic Stack](Problem_Patterns/Monotonic_Stack/) (Intermediate)
+- [Monotonic Queue](Problem_Patterns/Monotonic_Queue/) (Intermediate)
 
-### 16. Advanced DP
-- [DP on Trees](Algorithms/Dynamic_Programming/Advanced%20DP/DP%20on%20Trees/)
-- [Bitmask DP](Algorithms/Dynamic_Programming/Advanced%20DP/Bitmask%20DP/)
-- [Digit DP](Algorithms/Dynamic_Programming/Advanced%20DP/Digit%20DP/)
-- [Convex Hull Trick / Li Chao Tree](Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick/) — linear-function optimization
+### Groups and graph problems
 
-### 17. Decomposition Techniques
-- [Square Root Decomposition](Algorithms/Advanced_Algorithms/Specialized%20Techniques/Square%20Root%20Decomposition/)
-- [Heavy-Light Decomposition](Algorithms/Advanced_Algorithms/Specialized%20Techniques/Heavy-Light%20Decomposition/)
-- [Centroid Decomposition](Algorithms/Advanced_Algorithms/Specialized%20Techniques/Centroid%20Decomposition/)
-- [Mo's Algorithm](Algorithms/Advanced_Algorithms/Specialized%20Techniques/Mo's%20Algorithm/)
+- [Disjoint Set Union](Data_Structures/Advanced_Structures/Disjoint_Set_Union/) (Intermediate)
+- [Union-Find Applications](Problem_Patterns/Union_Find_Applications/) (Intermediate)
+- [Graph Traversal Problems](Problem_Patterns/Graph_Traversal_Problems/) (Intermediate)
 
-### 18. Special Techniques
-- [2-SAT Solver](Algorithms/Graph_Algorithms/Advanced_Graph/2-SAT/) — SAT via SCC
-- [Network Flow](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/) — Ford-Fulkerson / Edmonds-Karp
-- [FFT](Algorithms/Mathematical_Algorithms/Advanced%20Math/Fast%20Fourier%20Transform%20(FFT)/)
-- [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced%20Math/Matrix%20Exponentiation/)
+### Greedy
 
-### 19. Specialized Patterns
-- [Meet in the Middle](Problem_Patterns/Meet%20in%20the%20Middle/) — 2^n → 2^(n/2)
-- [Coordinate Compression](Problem_Patterns/Coordinate%20Compression/)
-- [Inclusion-Exclusion Principle](Problem_Patterns/Inclusion-Exclusion%20Principle/)
+A greedy choice needs a proof; when it fails, DP is the usual fallback.
 
-**Milestone:** Codeforces Div 2 A-D reliably; eligible for ICPC regionals.
+- [Activity Selection](Algorithms/Greedy/Activity_Selection/) (Beginner)
+- [Fractional Knapsack](Algorithms/Greedy/Fractional_Knapsack/) (Beginner)
+- [Huffman Coding](Algorithms/Greedy/Huffman_Coding/) (Intermediate)
+- [Job Scheduling](Algorithms/Greedy/Job_Scheduling/) (Intermediate)
 
----
+### Backtracking
 
-## 🎓 Learning Tips
+- [Rat in a Maze](Algorithms/Advanced_Algorithms/Backtracking/Rat_in_a_Maze/) (Beginner)
+- [N-Queens Problem](Algorithms/Advanced_Algorithms/Backtracking/N_Queens_Problem/) (Intermediate)
+- [Graph Coloring](Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring/) (Intermediate)
+- [Sudoku Solver](Algorithms/Advanced_Algorithms/Backtracking/Sudoku_Solver/) (Intermediate)
 
-1. **Implement before memorizing.** Every topic here has full implementations — read them, then close the file and write your own from scratch.
-2. **Test edge cases.** Empty input, single element, duplicates, sorted / reversed input. The test files in this repo demonstrate what to check.
-3. **Understand the _why_, not just the _how_.** Each parent README has a "When to use / When NOT to use" section — that's the interview-critical knowledge.
-4. **Time yourself.** If you can't solve a Medium LeetCode problem in 30 minutes, review the pattern, don't just read the answer.
-5. **Revisit old topics.** DSA knowledge compounds — after learning DP, come back to graph algorithms; you'll see them differently.
+### Dynamic programming
 
----
+Coin Change is the first problem where greedy fails; LCS opens 2D tables; the recipe topic ties them together.
 
-## 🔗 Resource Recommendations
+- [Fibonacci Numbers](Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers/) (Beginner)
+- [Climbing Stairs](Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs/) (Beginner)
+- [Coin Change](Algorithms/Dynamic_Programming/Linear_DP/Coin_Change/) (Intermediate)
+- [Longest Increasing Subsequence](Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence/) (Intermediate)
+- [Maximum Subarray (Kadane's Algorithm)](Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray_Kadanes_Algorithm/) (Intermediate)
+- [Longest Common Subsequence](Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence/) (Intermediate)
+- [Edit Distance](Algorithms/Dynamic_Programming/2D_DP/Edit_Distance/) (Intermediate)
+- [0/1 Knapsack](Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack/) (Intermediate)
+- [DP Problem Patterns](Problem_Patterns/DP_Problem_Patterns/) (Intermediate)
 
-- **Books**: _Introduction to Algorithms_ (CLRS), _Competitive Programming_ (Halim), _The Algorithm Design Manual_ (Skiena)
-- **Problem sets**: LeetCode (interview prep), Codeforces (contests), AtCoder DP Contest (DP mastery), CSES Problem Set (complete catalog)
-- **Visualizations**: [VisuAlgo](https://visualgo.net/), [Algorithm Visualizer](https://algorithm-visualizer.org/)
-- **Theory**: [CP-Algorithms](https://cp-algorithms.com/), [USACO Guide](https://usaco.guide/)
+**Milestone:** you can solve LeetCode Medium problems with patterns and DP consistently.
 
----
+## Phase 4: Advanced Algorithms and Structures (Weeks 11-15)
 
-**Happy learning! 🚀** Every topic in this repo is there because it matters. Take your time — depth beats breadth.
+**Goal:** Learn the topics that separate passing interviews from solving contest problems. (47 topics)
+
+**Why this order:** Graph algorithms reuse the Phase 2 structures, strings reuse the trie, range structures come before the specialist trees, and bitmask DP needs bit manipulation.
+
+### Shortest paths and spanning trees
+
+Dijkstra first; the others each change one assumption.
+
+- [Dijkstra's Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm/) (Intermediate)
+- [Bellman-Ford Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm/) (Intermediate)
+- [Floyd-Warshall Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm/) (Intermediate)
+- [A* Search](Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm/) (Intermediate)
+- [Kruskal's Algorithm](Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Kruskals_Algorithm/) (Intermediate)
+- [Prim's Algorithm](Algorithms/Graph_Algorithms/Minimum_Spanning_Tree/Prims_Algorithm/) (Intermediate)
+
+### Advanced graphs
+
+SCC, bridges and 2-SAT reuse DFS; network flow is self-contained.
+
+- [Kosaraju's Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosarajus_Algorithm/) (Advanced)
+- [Tarjan's SCC Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm/) (Advanced)
+- [Bridges and Articulation Points](Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/) (Advanced)
+- [2-SAT](Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT/) (Advanced)
+- [Ford-Fulkerson Method](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson/) (Advanced)
+- [Edmonds-Karp Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp/) (Advanced)
+
+### String algorithms
+
+KMP's border table is the idea most later algorithms borrow.
+
+- [Naive Pattern Search](Algorithms/String_Algorithms/Pattern_Matching/Naive_Pattern_Search/) (Beginner)
+- [Rabin-Karp Algorithm](Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm/) (Intermediate)
+- [Knuth-Morris-Pratt (KMP) Algorithm](Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm/) (Intermediate)
+- [Boyer-Moore Algorithm](Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm/) (Intermediate)
+- [Z-Algorithm](Algorithms/String_Algorithms/Advanced_String/Z_Algorithm/) (Intermediate)
+- [Aho-Corasick](Algorithms/String_Algorithms/Advanced_String/Aho_Corasick/) (Advanced)
+- [Suffix Array](Algorithms/String_Algorithms/Advanced_String/Suffix_Array/) (Advanced)
+- [Manacher's Algorithm](Algorithms/String_Algorithms/Advanced_String/Longest_Palindromic_Substring_Manachers/) (Advanced)
+- [Longest Common Substring](Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring/) (Intermediate)
+
+### Range-query structures
+
+- [Fenwick Tree](Data_Structures/Non_Linear/Trees/Fenwick_Tree/) (Intermediate)
+- [Segment Tree](Data_Structures/Non_Linear/Trees/Segment_Tree/) (Intermediate)
+- [Segment Tree (Lazy Propagation)](Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation/) (Advanced)
+- [Sparse Table](Data_Structures/Non_Linear/Trees/Sparse_Table/) (Intermediate)
+- [Coordinate Compression](Problem_Patterns/Coordinate_Compression/) (Intermediate)
+
+### Balanced and specialist trees
+
+- [Red-Black Tree](Data_Structures/Non_Linear/Trees/Red_Black_Tree/) (Advanced)
+- [Splay Tree](Data_Structures/Non_Linear/Trees/Splay_Tree/) (Advanced)
+- [Treap](Data_Structures/Non_Linear/Trees/Treap/) (Advanced)
+- [Cartesian Tree](Data_Structures/Non_Linear/Trees/Cartesian_Tree/) (Advanced)
+- [Interval Tree](Data_Structures/Non_Linear/Trees/Interval_Tree/) (Advanced)
+- [K-D Tree](Data_Structures/Non_Linear/Trees/K_D_Tree/) (Advanced)
+- [B-Tree](Data_Structures/Non_Linear/Trees/B_Tree/) (Advanced)
+- [B+ Tree](Data_Structures/Non_Linear/Trees/B_Plus_Tree/) (Advanced)
+- [Suffix Tree](Data_Structures/Non_Linear/Trees/Suffix_Tree/) (Advanced)
+
+### Other advanced structures
+
+The caches are common in system-design interviews.
+
+- [Skip List](Data_Structures/Linear/Linked_List/Skip_List/) (Advanced)
+- [Rope](Data_Structures/Linear/String/Rope/) (Advanced)
+- [Fibonacci Heap](Data_Structures/Non_Linear/Heaps/Fibonacci_Heap/) (Advanced)
+- [LRU Cache](Data_Structures/Advanced_Structures/LRU_Cache/) (Intermediate)
+- [LFU Cache](Data_Structures/Advanced_Structures/LFU_Cache/) (Advanced)
+
+### Advanced dynamic programming
+
+Bit manipulation first, because bitmask DP stores a subset in an integer.
+
+- [Bit Manipulation](Problem_Patterns/Bit_Manipulation/) (Intermediate)
+- [Matrix Chain Multiplication](Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication/) (Advanced)
+- [DP on Trees](Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees/) (Advanced)
+- [DP on Graphs](Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs/) (Advanced)
+- [Bitmask DP](Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP/) (Advanced)
+- [Digit DP](Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP/) (Advanced)
+- [Convex Hull Trick and Li Chao Tree](Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick/) (Advanced)
+
+**Milestone:** you can solve LeetCode Hard problems and are interview-ready for senior roles.
+
+## Phase 5: Competitive Programming (Week 16 onward)
+
+**Goal:** Pick up the techniques that win contests, plus the utilities around them. (31 topics)
+
+**Why this order:** Decompositions need segment trees and DFS, number theory comes before matrix exponentiation and FFT, and the utilities are used together with all of it.
+
+### Decomposition techniques
+
+Array side first (square root, Mo), then the tree side (heavy-light, centroid).
+
+- [Square Root Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition/) (Intermediate)
+- [Mo's Algorithm](Algorithms/Advanced_Algorithms/Specialized_Techniques/Mos_Algorithm/) (Advanced)
+- [Heavy-Light Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Heavy_Light_Decomposition/) (Advanced)
+- [Centroid Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposition/) (Advanced)
+
+### Number theory and matrices
+
+CRT builds on extended Euclid, Miller-Rabin on modular exponentiation, and matrix exponentiation reuses square and multiply.
+
+- [Euclidean Algorithm](Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm/) (Beginner)
+- [Modular Arithmetic](Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic/) (Beginner)
+- [Modular Exponentiation](Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation/) (Beginner)
+- [Chinese Remainder Theorem](Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem/) (Intermediate)
+- [Sieve of Eratosthenes](Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes/) (Beginner)
+- [Miller-Rabin Primality Test](Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test/) (Advanced)
+- [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation/) (Intermediate)
+- [Fast Fourier Transform](Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/) (Advanced)
+- [Strassen's Matrix Multiplication](Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication/) (Advanced)
+
+### Counting and search tricks
+
+- [Inclusion-Exclusion Principle](Problem_Patterns/Inclusion_Exclusion_Principle/) (Intermediate)
+- [Meet in the Middle](Problem_Patterns/Meet_in_the_Middle/) (Advanced)
+
+### Computational geometry
+
+Convex hull first; rotating calipers takes a hull as input; closest pair is independent.
+
+- [Point, Line and Circle](Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle/) (Beginner)
+- [Line Intersection](Algorithms/Computational_Geometry/Basic_Geometry/Line_Intersection/) (Intermediate)
+- [Convex Hull](Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull/) (Intermediate)
+- [Rotating Calipers](Algorithms/Computational_Geometry/Advanced_Geometry/Rotating_Calipers/) (Advanced)
+- [Closest Pair of Points](Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points/) (Advanced)
+
+### Randomized algorithms and coding theory
+
+- [Randomized Quickselect](Algorithms/Randomized_Algorithms/Randomized_Quickselect/) (Intermediate)
+- [Reservoir Sampling](Algorithms/Randomized_Algorithms/Reservoir_Sampling/) (Intermediate)
+- [Galois Field GF(2^8)](Algorithms/Coding_Theory/Galois_Field/) (Advanced)
+- [Reed-Solomon Codes](Algorithms/Coding_Theory/Reed_Solomon/) (Advanced)
+
+### Utilities for contests
+
+Start from the [templates](Utilities/Templates/); these topics make a correct solution fast enough or cover problems defined by their format.
+
+- [Fast I/O](Utilities/Optimization_Techniques/Fast_IO/) (Beginner)
+- [Precomputation](Utilities/Optimization_Techniques/Precomputation/) (Intermediate)
+- [Bitmasking](Utilities/Optimization_Techniques/Bitmasking/) (Intermediate)
+- [Modular Arithmetic Tricks](Utilities/Optimization_Techniques/Modular_Arithmetic_Tricks/) (Intermediate)
+- [Constructive Algorithms](Utilities/Problem_Types/Constructive_Algorithms/) (Intermediate)
+- [Interactive Problems](Utilities/Problem_Types/Interactive_Problems/) (Intermediate)
+- [Game Theory (Nim and Sprague-Grundy)](Utilities/Problem_Types/Game_Theory/) (Advanced)
+
+**Milestone:** you solve Codeforces Div 2 A-D reliably and can read an unfamiliar problem for its technique.
+
+## Learning Tips
+
+1. Implement before memorizing. Read an implementation, close it, and write your own from scratch.
+2. Test edge cases: empty input, one element, duplicates, sorted and reversed input.
+3. Learn when not to use a technique as well as when to use it. Each area README has a Choosing section and a list of common pitfalls.
+4. Time yourself. If a Medium problem takes more than 30 minutes, review the pattern before you read the answer.
+5. Revisit old topics. After DP, graph algorithms look different.

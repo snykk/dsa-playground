@@ -1,0 +1,255 @@
+---
+topic: Data_Structures/Linear/String/Rope
+title: Rope
+lead: A rope stores a long string as a balanced binary tree of short fragments. Because edits only rebuild a path through the tree, concatenating, splitting, inserting and deleting cost O(log n) instead of copying the whole text, in exchange for O(log n) indexing.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Index a character
+    value: O(log n)
+    hint: a flat string is O(1)
+    tone: warn
+  - label: Concat, split, insert, delete
+    value: O(log n)
+    hint: plus the size of the inserted text
+  - label: Length
+    value: O(1)
+    hint: cached in every node
+  - label: Read everything
+    value: O(n)
+properties:
+  - { label: Persistent (sources unchanged), value: true }
+  - { label: Self-balancing, value: true }
+  - { label: Random access in O(1), value: false }
+  - { label: Cache-friendly, value: false }
+prerequisites:
+  - Data_Structures/Linear/String/String_Basics
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
+related:
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Treap
+  - Data_Structures/Linear/String/String_Manipulation
+  - Data_Structures/Linear/Linked_List/Doubly
+---
+
+## What a rope is
+
+Editing the middle of a flat string of n characters moves everything after the edit: O(n) per edit, which is painful for a text editor holding megabytes. A rope cuts the text into short fragments, kept in the **leaves** of a binary tree. Reading the text left to right across the leaves gives the string.
+
+Each **internal node** stores a `weight`: the number of characters in its left subtree. The code also caches each node's total `length` and its `height`. The weight is what makes position lookup possible, much like the keys in a search tree, except that the key is a position rather than a value.
+
+<TreeDiagram
+  root={{ label: 15, badge: 'w=15', tone: 'p', children: [
+    { label: 7, badge: 'w=7', children: [
+      { label: 'Hello,_' },
+      { label: 'World!_N' },
+    ] },
+    { label: 8, badge: 'w=8', children: [
+      { label: 'ice_to_m' },
+      { label: 'eet_you!' },
+    ] },
+  ] }}
+  legend={{ p: 'the root: 15 characters are in its left subtree' }}
+  caption="The rope for `Hello, World! Nice to meet you!` (31 characters, `_` stands for a space), as the constructor builds it. Leaves hold at most 10 characters."
+/>
+
+The constructor splits the text in halves until a piece has at most 10 characters. Every operation then returns a **new** rope that shares most nodes with the old one: ropes are persistent, and the code never modifies a node after creating it.
+
+<Callout title="The tree must stay balanced">
+Everything above is O(log n) only while the tree height is O(log n). A rope that just joins ropes under a new root grows one level per append, and after a few thousand appends it is a linked list: index becomes O(n) and a recursive walk overflows the stack. This implementation therefore keeps sibling heights within 1 with an AVL-style join (below).
+</Callout>
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`index(i)`', 'follow the weights from the root to the leaf holding position `i`', 'O(log n)'],
+    ['`concat(other)`', 'join two ropes into a new one; the originals are untouched', 'O(log n)'],
+    ['`split(i)`', 'two new ropes: positions before `i` and from `i` on', 'O(log n)'],
+    ['`insert(i, text)`', 'split at `i`, build a rope from `text`, join the three', 'O(log n + len(text))'],
+    ['`delete(i, length)`', 'split at `i`, split the rest at `length`, join the outer two', 'O(log n)'],
+    ['`to_string()`', 'read all leaves in order', 'O(n)'],
+    ['length', 'cached in the root', 'O(1)'],
+  ]}
+/>
+
+Names differ by language: `to_string` / `toString` / `ToString`, `len(r)` / `length()` / `Len()`, `delete` / `deleteStr` / `Delete`. A split or insert position that is out of range is clamped to the ends. The C++ and Go ropes also have a `height()` / `Height()` method. A position counts code points in Python and bytes in C++ and Go, so Go's `Split(4)` on `caf` plus an accented e cuts inside that letter and yields two invalid UTF-8 halves.
+
+### Index: follow the weights
+
+At an internal node, if `i < weight` go left; otherwise go right with `i - weight`. At a leaf, read `data[i]`. Finding position 20 of the rope above:
+
+<TreeDiagram
+  root={{ label: 15, badge: 'w=15', tone: 'l', children: [
+    { label: 7, badge: 'w=7', children: [
+      { label: 'Hello,_' },
+      { label: 'World!_N' },
+    ] },
+    { label: 8, badge: 'w=8', tone: 'l', edgeTone: 'l', children: [
+      { label: 'ice_to_m', tone: 'f', edgeTone: 'l' },
+      { label: 'eet_you!' },
+    ] },
+  ] }}
+  legend={{ l: 'the search path', f: 'the leaf that holds the character' }}
+  caption="20 is not less than 15, so go right with 20 - 15 = 5. At weight 8, 5 < 8 goes left with 5. In the leaf `ice_to_m`, position 5 is `o`."
+/>
+
+The walk visits one node per level: O(height) = O(log n).
+
+### Split: cut a path, then join the pieces
+
+`split(i)` walks the same way. At each internal node there are three cases: `i` is less than the weight (cut inside the left subtree and join the right piece with the node's right child), greater (cut inside the right subtree and join the node's left child with the left piece), or equal (the cut falls exactly between the two children, nothing to cut). At a leaf it either returns the leaf whole or cuts it into two shorter leaves. Splitting the rope above at position 7:
+
+<TreeDiagram
+  root={{ label: 15, badge: 'w=15', children: [
+    { label: 7, badge: 'w=7', tone: 'l', children: [
+      { label: 'Hello,_', tone: 'f' },
+      { label: 'World!_N', tone: 'p' },
+    ] },
+    { label: 8, badge: 'w=8', children: [
+      { label: 'ice_to_m' },
+      { label: 'eet_you!' },
+    ] },
+  ] }}
+  legend={{ l: 'node where 7 == weight: the cut falls between its children', f: 'left result', p: 'start of the right result' }}
+  caption="Position 7 is the weight of the left child, so the cut is between its two leaves. The left result is the leaf `Hello,_`. The right result is `World!_N` joined with the old right subtree, a new node of height 2 over a leaf and a height-1 node."
+/>
+
+Only the nodes on the path are rebuilt (about log n of them). The untouched subtrees are shared by the old and the new ropes.
+
+### Join: keeping the tree balanced
+
+Joining two ropes under a new root is correct but can make the tree lopsided, so `concat` uses an AVL-style join, which costs O(|height difference| + 1). If the two heights differ by at most 1, make a new root. Otherwise, take the taller one and walk down its facing spine until the heights match, attach the other rope there, and repair any node that ended up two levels out of balance with a rotation on the way back up:
+
+<DataTable
+  columns={['Situation after attaching', 'Fix']}
+  rows={[
+    ['sibling heights differ by at most 1', 'nothing to do'],
+    ['too tall on the outer side', 'single rotation: lift the middle subtree'],
+    ['too tall on the inner side', 'double rotation: split the inner subtree between the two new nodes'],
+  ]}
+/>
+
+Rotations here only regroup subtrees. They never reorder leaves, so the text is unchanged, and each new node recomputes its weight, length and height from its children.
+
+### Insert: split, build, join
+
+Inserting `,` at position 5 of `Hello World!` (12 characters, a root with leaves `Hello_` and `World!`):
+
+<DataTable
+  columns={['Step', 'Result']}
+  rows={[
+    ['`split(5)`', 'position 5 is inside the leaf `Hello_`: it becomes `Hello` and `_`. Left part: leaf `Hello`. Right part: `_` joined with `World!`'],
+    ['`Rope(",")`', 'a single leaf `,`'],
+    ['join left and middle', 'a node over `Hello` and `,` (weight 5, height 1)'],
+    ['join with the right part', 'both sides have height 1, so a new root (weight 6, height 2) over the two'],
+  ]}
+/>
+
+<TreeDiagram
+  root={{ label: 6, badge: 'w=6', tone: 'f', children: [
+    { label: 5, badge: 'w=5', children: [
+      { label: 'Hello' },
+      { label: ',', tone: 'p' },
+    ] },
+    { label: 1, badge: 'w=1', children: [
+      { label: '_' },
+      { label: 'World!' },
+    ] },
+  ] }}
+  legend={{ p: 'the inserted text', f: 'the new root' }}
+  caption="`Hello,_World!`: 13 characters. Only the nodes on the cut path were created; the rest (here, the leaf `World!`) are shared with the old rope."
+/>
+
+### Delete: two splits and a join
+
+`delete(5, 2)` on `Hello, World!` splits at 5 (`Hello` and `, World!`), splits the second part at 2 (`, ` and `World!`), discards the middle `, ` and joins `Hello` with `World!`. The result is `HelloWorld!`.
+
+## Implementation
+
+All three versions follow the same design: leaves hold at most 10 characters when built from a string, internal nodes cache `weight`, `length` and `height`, and `split` and `concat` go through the AVL join. The tests include a randomized comparison with a plain string and a check of the tree invariants. A traversal such as `to_string` or `index` recurses to a depth of O(log n), which is safe.
+
+<TopicCode topic="Data_Structures/Linear/String/Rope" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['index', 'O(log n)', 'one node per level, height is O(log n)'],
+    ['concat', 'O(log n)', 'the AVL join walks one spine, at most the height difference'],
+    ['split', 'O(log n)', 'one root-to-leaf path, with a join at each level whose costs add up to O(log n)'],
+    ['insert / delete', 'O(log n)', 'a constant number of splits and joins (plus O(len) to build inserted text)'],
+    ['length', 'O(1)', 'cached in each node'],
+    ['to_string', 'O(n)', 'visits every leaf'],
+  ]}
+/>
+
+Space is O(n) for the text plus about one internal node per fragment. A leaf may be cut into shorter pieces by a split, so after many edits the leaves can be much smaller than 10 characters, which raises the overhead per character. The tree height is O(log n) because the join keeps sibling heights within 1, as in an AVL tree: with n leaves, the height is at most about 1.44 log<sub>2</sub> n. In a test of repeated one-character appends at the end, the height was 10 after 1,000 appends and 14 after 10,000.
+
+## Rope vs other text structures
+
+<DataTable
+  columns={['Structure', 'Edit in the middle', { label: 'Index', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Flat string or array', 'O(n)', 'O(1)', 'fastest to read and index, slow to edit'],
+    ['Rope', 'O(log n)', 'O(log n)', 'cheap concat and split, persistent, no large copies'],
+    ['Gap buffer', 'O(1) near the cursor, O(n) to move the gap', 'O(1)', 'great for one cursor, poor for scattered edits'],
+    ['Piece table', 'O(pieces)', 'O(pieces) without an index', 'append-only original text and add buffer, cheap undo'],
+    ['Linked list of lines', 'O(1) once located', 'O(lines)', 'simple, poor random access'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Insert, delete, split and concat without copying the whole text.',
+    'Persistent: old versions stay valid, which gives cheap undo and snapshots.',
+    'Length is available in O(1).',
+    'Handles very long texts without one huge contiguous allocation.',
+  ]}
+  cons={[
+    'Index is O(log n) instead of O(1).',
+    'More memory per character than a flat string, and worse cache behaviour.',
+    'Heavier to implement correctly, since balance must be maintained.',
+    'Overkill for short strings; a flat string is faster below a few kilobytes.',
+  ]}
+/>
+
+## Applications
+
+- **Text editors:** large buffers with scattered edits. The xi-editor, Zed and Helix (through the `ropey` library) are built on ropes; some other editors use different structures such as piece tables.
+- **Undo and snapshots,** because old ropes keep sharing nodes with new ones.
+- **Building big strings from many pieces** with cheap concatenation.
+- **Competitive programming:** problems with many cut-and-paste operations on a string, often solved with an implicit treap, a close relative.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Not rebalancing.** Joining under a new root each time makes a chain. This repository's rope used to do exactly that: after about 1,000 appends at the end, Python raised `RecursionError`, and C++ crashed at 500,000. Index cost grew linearly. Balance is what makes the O(log n) claims true.
+- **Weight is the left subtree only.** Looking up `i` means comparing with the left length, and going right subtracts it.
+- **Mixing units.** Python positions are code points, C++ and Go positions are bytes: do not move an index between them for non-ASCII text, and never split inside a multi-byte character.
+- **Tiny leaves everywhere.** Splitting repeatedly leaves many short fragments. Real implementations merge small neighbours or rebuild occasionally.
+- **Recursion on deep trees.** Recursive traversal is only safe once the height is logarithmic.
+- **Expecting O(1) indexing,** or using a rope for a short string, where a flat string is simply faster.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does a rope index in O(log n) when a string indexes in O(1)?">
+    A flat string stores characters contiguously, so position `i` is a computed address. A rope scatters the characters over leaves, so it must walk from the root to the right leaf, one node per level.
+  </FaqItem>
+  <FaqItem question="Does concat copy the text?">
+    No. It builds a few new internal nodes and shares both ropes. Only a split that cuts through a leaf copies, and only that leaf's characters (at most 10 when built from a string).
+  </FaqItem>
+  <FaqItem question="Why join with rotations instead of just a new root?">
+    A new root over two ropes of very different heights gives a lopsided node. Repeated appends then stack one level on top of another until the tree is a chain, and every operation becomes O(n). The AVL-style join keeps sibling heights within 1.
+  </FaqItem>
+  <FaqItem question="Is a rope the same as an implicit treap?">
+    They solve the same problem. Both are balanced trees ordered by position, where each node knows its subtree size. An implicit treap stores one character per node and balances with random priorities; a rope stores fragments in leaves.
+  </FaqItem>
+</Faq>

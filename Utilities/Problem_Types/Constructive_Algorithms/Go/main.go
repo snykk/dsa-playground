@@ -7,20 +7,39 @@ import (
 	"fmt"
 )
 
-// ConstructPermutation builds permutation with k distinct differences
+// ConstructPermutation builds a permutation of 1..n whose adjacent differences
+// take exactly k distinct values (1 <= k <= n-1; n = 1 needs k = 0). It returns
+// nil when that is impossible.
 func ConstructPermutation(n, k int) []int {
-	if k >= n {
+	if n < 1 {
+		return nil
+	}
+	if n == 1 {
+		if k == 0 {
+			return []int{1}
+		}
+		return nil
+	}
+	if k < 1 || k >= n {
 		return nil
 	}
 
-	perm := make([]int, n)
-	for i := 0; i < n; i++ {
-		perm[i] = i + 1
+	// Zig-zag 1, k+1, 2, k, ... (differences k, k-1, ..., 1), then k+2..n.
+	perm := make([]int, 0, n)
+	lo, hi := 1, k+1
+	takeLow := true
+	for lo <= hi {
+		if takeLow {
+			perm = append(perm, lo)
+			lo++
+		} else {
+			perm = append(perm, hi)
+			hi--
+		}
+		takeLow = !takeLow
 	}
-
-	// Reverse suffix
-	for i, j := n-k-1, n-1; i < j; i, j = i+1, j-1 {
-		perm[i], perm[j] = perm[j], perm[i]
+	for x := k + 2; x <= n; x++ {
+		perm = append(perm, x)
 	}
 
 	return perm
@@ -59,11 +78,7 @@ type Edge struct {
 func ConstructGraph(degrees []int) []Edge {
 	var edges []Edge
 
-	// Priority queue: (-degree, node)
-	type Node struct {
-		deg  int
-		node int
-	}
+	// Priority queue of (-degree, node)
 	pq := make(PriorityQueue, 0)
 	heap.Init(&pq)
 

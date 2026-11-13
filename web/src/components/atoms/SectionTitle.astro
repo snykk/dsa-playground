@@ -1,0 +1,19 @@
+---
+/** Heading that opens a major page section, with a divider above it. */
+interface Props {
+  id?: string;
+}
+
+const { id } = Astro.props;
+---
+
+<h2 class="section-title" id={id}><slot /></h2>
+
+<style>
+  .section-title {
+    font-size: 22px;
+    margin: 48px 0 16px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+</style>

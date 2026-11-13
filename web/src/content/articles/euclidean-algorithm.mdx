@@ -1,0 +1,196 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
+title: Euclidean Algorithm
+lead: The Euclidean algorithm finds the greatest common divisor of two integers by replacing the pair (a, b) with (b, a mod b) until the second number is zero. It needs only O(log min(a, b)) steps, and its extended form yields the Bezout coefficients behind modular inverses.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(log min(a, b))
+    hint: Lame's theorem bounds the steps
+  - label: Extra space
+    value: O(1)
+    hint: O(log n) for the recursive version
+  - label: Extended form
+    value: a*x + b*y = gcd
+    hint: for inputs of any sign
+  - label: LCM overflow
+    value: divide first
+    hint: a / gcd * b, not a * b / gcd
+    tone: warn
+properties:
+  - { label: Exact integers only, value: true }
+  - { label: Handles negative input, value: true }
+  - { label: Finds prime factors, value: false }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+---
+
+## Definition
+
+The greatest common divisor `gcd(a, b)` is the largest integer that divides both `a` and `b`, with `gcd(0, 0) = 0` by convention. The algorithm rests on one identity, and on the Bezout identity for the extended form.
+
+<Equation label="Euclid's step" expr="gcd(a, b) = gcd(b, a mod b)" result="stop when b = 0: gcd(a, 0) = |a|" />
+<Equation label="Bezout's identity" expr="a*x + b*y = gcd(a, b)" result="x and y are integers" />
+
+## Intuition
+
+Any number that divides both `a` and `b` also divides `a - k*b`, and any number that divides `b` and `a - k*b` also divides `a`. So `(a, b)` and `(b, a mod b)` have exactly the same common divisors, and the pair shrinks at every step. Picture a rectangle tiled with the largest squares that fit: the square side you end with is the gcd.
+
+<DataTable
+  columns={['Step', 'a', 'b', 'a / b', 'a mod b']}
+  rows={[
+    ['1', '48', '18', '2', '12'],
+    ['2', '18', '12', '1', '6'],
+    ['3', '12', '6', '2', '0'],
+  ]}
+  caption='gcd(48, 18): b reaches 0 after three steps, and the last non-zero remainder, 6, is the answer.'
+/>
+
+## How it works
+
+<Steps>
+  <Step title="Take absolute values">
+    The repository functions work on `|a|` and `|b|`, so signs never matter for the gcd.
+  </Step>
+  <Step title="Reduce">
+    While `b` is not zero, replace `(a, b)` by `(b, a mod b)`.
+  </Step>
+  <Step title="Read the answer">
+    When `b` is zero, `a` is the gcd.
+  </Step>
+</Steps>
+
+<Callout title="Why it always stops">
+The remainder `a mod b` is strictly smaller than `b`, so the second number decreases at every step and must reach 0. In fact, after two steps the larger number has at least halved, which gives the logarithmic bound.
+</Callout>
+
+## Extended Euclid
+
+The extended algorithm keeps, for every remainder `r`, the coefficients with `r = a*x + b*y`. Starting from `a = 1*a + 0*b` and `b = 0*a + 1*b`, each new remainder is the old one minus `q` times the next, so the coefficients follow the same recurrence. Worked on `240` and `46`:
+
+<DataTable
+  columns={['r', 'quotient q', 'x', 'y', 'check: 240x + 46y']}
+  rows={[
+    ['240', '', '1', '0', '240'],
+    ['46', '', '0', '1', '46'],
+    ['10', '5', '1', '-5', '240 - 230 = 10'],
+    ['6', '4', '-4', '21', '-960 + 966 = 6'],
+    ['4', '1', '5', '-26', '1200 - 1196 = 4'],
+    ['2', '1', '-9', '47', '-2160 + 2162 = 2'],
+    ['0', '2', '', '', 'stop: gcd = 2'],
+  ]}
+  caption='extended_gcd(240, 46) returns (2, -9, 47). The code recurses and back-substitutes, and reaches the same pair.'
+/>
+
+### Negative inputs
+
+The code runs on `|a|` and `|b|` and then negates `x` if `a` was negative and `y` if `b` was negative. For `-240` and `46` it returns `(2, 9, 47)`, and `-240*9 + 46*47 = 2`. Skipping that last step is a classic bug: the coefficients then satisfy `|a|*x + |b|*y = g`, which is a different identity.
+
+## Pseudocode
+
+```text
+gcd(a, b):
+    a = |a|; b = |b|
+    while b != 0:
+        (a, b) = (b, a mod b)
+    return a
+
+lcm(a, b):
+    if a == 0 or b == 0: return 0
+    return |a| / gcd(a, b) * |b|        # divide first
+
+extendedGcd(a, b):                      # returns (g, x, y)
+    (g, x, y) = extendedGcdNonNegative(|a|, |b|)
+    if a < 0: x = -x
+    if b < 0: y = -y
+    return (g, x, y)
+
+extendedGcdNonNegative(a, b):
+    if b == 0: return (a, 1, 0)
+    (g, x1, y1) = extendedGcdNonNegative(b, a mod b)
+    return (g, y1, x1 - (a / b) * y1)
+```
+
+## Implementation
+
+Each language provides a recursive and an iterative `gcd`, `lcm` and `extended_gcd`. The C++ and Go versions use 64-bit integers: `lcm` divides before it multiplies, and Go takes absolute values in integer arithmetic (an older version went through `float64` and returned wrong answers above 2^53). Python integers have no limit. The minimum 64-bit integer is not supported in C++ and Go, since its absolute value does not fit.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(1)', space: 'O(1)', when: 'b divides a at once, such as gcd(100, 25): one division.' },
+    { case: 'Worst case', time: 'O(log min(a, b))', space: 'O(1)', when: 'Consecutive Fibonacci numbers: gcd(89, 55) needs 9 division steps, all with quotient 1 except the last.' },
+  ]}
+/>
+
+Two steps at least halve the larger number, so there are at most about `2 log2(min)` steps. Lame's theorem tightens this to at most five times the number of decimal digits of the smaller input. The recursive versions use a stack of the same depth: `O(log min(a, b))`. The extended version also needs that much.
+
+## Euclid vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Euclid with modulo', 'O(log n)', 'the default; this repository'],
+    ['Repeated subtraction', 'O(n)', 'gcd(1000000000, 1) takes a billion steps'],
+    ['Binary GCD (Stein)', 'O(log n)', 'shifts and subtractions instead of division; not implemented here'],
+    ['Factor both numbers', 'much slower', 'gives all divisors, but factoring is the hard part'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Tiny and exact: a loop of one modulo operation.',
+    'Logarithmic, even on 64-bit or big-integer inputs.',
+    'The extended form gives modular inverses and solves linear Diophantine equations.',
+  ]}
+  cons={[
+    'Division is slower than shifts on some hardware (binary GCD avoids it).',
+    'Says nothing about the factors of the numbers.',
+    'The extended form needs care with signs and with overflow in lcm.',
+  ]}
+/>
+
+## Applications
+
+- **Fractions.** Divide numerator and denominator by their gcd to reduce a fraction.
+- **LCM.** `lcm(a, b) = |a| / gcd(a, b) * |b|`, used for synchronizing periodic events.
+- **Modular inverses.** If `gcd(a, m) = 1`, the `x` from `a*x + m*y = 1` is the inverse of `a` modulo `m`.
+- **Linear Diophantine equations.** `a*x + b*y = c` has integer solutions exactly when `gcd(a, b)` divides `c`.
+- **Chinese Remainder Theorem.** The merge step of the topic next door is one extended Euclid per congruence.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Multiplying before dividing in lcm.** `a * b / gcd` overflows when `a * b` does not fit, even if the lcm does: `lcm(4000000000, 4000000000)` is 4000000000, but the product 1.6e19 does not fit in 64 bits. Write `a / gcd * b`.
+- **Dropping signs in the extended form.** Apply the sign corrections to `x` and `y`, or `a*x + b*y` is not the gcd for negative `a` or `b`.
+- **Using floating point for the absolute value.** `float64` rounds integers above 2^53: `GCD(2^53 + 1, 3)` must be 3, not 1.
+- **Forgetting zero.** `gcd(0, 0)` is 0, and `lcm` with a zero argument is defined as 0, so dividing by the gcd without checking would divide by zero.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is the answer the last non-zero remainder?">
+    Because the common divisors never change from step to step, and when `b` is 0 the pair is `(g, 0)`, whose largest common divisor is `g` itself.
+  </FaqItem>
+  <FaqItem question="Are the Bezout coefficients unique?">
+    No. If `(x, y)` works, so does `(x + k*b/g, y - k*a/g)` for any integer `k`. The algorithm returns one particular pair.
+  </FaqItem>
+  <FaqItem question="How do I get a modular inverse from this?">
+    Run extended Euclid on `a` and `m`. If the gcd is 1, then `a*x = 1 (mod m)`, so `x` reduced into `0..m-1` is the inverse. If the gcd is not 1, no inverse exists.
+  </FaqItem>
+  <FaqItem question="Does the order of the arguments matter?">
+    Not for the gcd: if `a < b`, the first step swaps them, because `a mod b = a`. The extended coefficients do depend on the order.
+  </FaqItem>
+</Faq>

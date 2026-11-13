@@ -1,0 +1,240 @@
+---
+topic: Algorithms/Coding_Theory/Reed_Solomon
+title: Reed-Solomon Codes
+lead: Reed-Solomon adds n-k parity bytes to a k-byte message so that the receiver can repair up to (n-k)/2 corrupted bytes anywhere in the codeword, or up to n-k bytes whose positions are known. It is the error-correcting code behind QR codes, optical discs, RAID-6 and deep-space links.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Correct (unknown positions)
+    value: floor((n-k)/2) bytes
+  - label: Correct (known positions)
+    value: n-k erasures
+    hint: the budget is e + 2v <= n-k
+    tone: warn
+  - label: Decode time
+    value: O(n (n-k))
+    hint: syndromes, Berlekamp-Massey, Chien search
+  - label: Field
+    value: GF(2^8)
+    hint: polynomial 0x11B, alpha = 3
+properties:
+  - { label: Systematic (message kept as is), value: true }
+  - { label: MDS (minimum distance n-k+1), value: true }
+  - { label: Corrects bursts of bytes, value: true }
+  - { label: Corrects scattered single bits efficiently, value: false }
+prerequisites:
+  - Algorithms/Coding_Theory/Galois_Field
+related:
+  - Algorithms/Coding_Theory/Galois_Field
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+---
+
+## Definition
+
+An RS(n, k) code over GF(2<sup>8</sup>) turns a message of k bytes into a codeword of n &le; 255 bytes. The codeword, read as a polynomial, is a multiple of the generator
+
+<Equation label="Generator" expr="g(x) = (x + a^fcr)(x + a^(fcr+1)) ... (x + a^(fcr+n-k-1))" result="degree n - k" />
+
+where `a` is a primitive element of the field and `fcr` is the first consecutive root. Every codeword vanishes at the n-k roots of `g(x)`. Any two distinct codewords differ in at least n-k+1 positions, the largest distance possible for these parameters (an MDS code). That distance gives the budget:
+
+<Equation label="Correction budget" expr="e + 2v <= n - k" result="e erasures, v unknown errors" />
+
+An unknown error has two unknowns (where, and by how much); an erasure has one (by how much), so it costs half as much.
+
+## Intuition
+
+A polynomial of degree k-1 is determined by any k of its points. Send more than k evaluations and the receiver can rebuild the polynomial from whichever k it trusts. The systematic form used here does it differently but equivalently: the message sits unchanged in the codeword and the parity bytes are chosen so that the whole word is divisible by `g(x)`.
+
+<Callout title="Layout in this repository">
+Polynomials are stored lowest degree first, so a codeword is `[parity_0 ... parity_(n-k-1) | msg_0 ... msg_(k-1)]`: the message is the last k bytes. Erasure positions refer to this layout, counted from the start of the codeword.
+</Callout>
+
+## See it in action
+
+Enter n, k, the message, unknown errors (`err=position:newValue`) and known erasures (`era=positions`). Apply runs your input, Random makes one, and the transport buttons step through encoding, syndromes, locating and correcting. Corrupted bytes are marked as bad, located positions are highlighted, and corrected bytes are marked as fixed. Try the same damage with and without `era=` to see the budget at work.
+
+<ArticleViz ids={['reed-solomon']} />
+
+## How it works
+
+<Steps>
+  <Step title="Build g(x) once per code">
+    Multiply the n-k factors `(x + a^(fcr+i))`. In characteristic 2, minus is plus.
+  </Step>
+  <Step title="Encode systematically">
+    Shift the message up by n-k positions, divide by `g(x)` and keep the remainder as the parity bytes. The codeword is `[remainder | message]`, divisible by `g(x)`.
+  </Step>
+  <Step title="Compute the syndromes">
+    For the received word `r`, evaluate `s_i = r(a^(fcr+i))` for i from 0 to n-k-1. Because the codeword part vanishes, `s_i` depends only on the error pattern. All zeros and no declared erasures means the word is clean: return the last k bytes.
+  </Step>
+  <Step title="Find the locator with Berlekamp-Massey">
+    Build the erasure locator `Gamma(x)` from the known positions and seed Berlekamp-Massey with it, starting at syndrome `e`. It returns the locator of all bad positions, `Lambda(x) * Gamma(x)`.
+  </Step>
+  <Step title="Chien search">
+    Test every position p from 0 to n-1 and keep those where the locator is zero at `a^(-p)`. A locator of degree d must have exactly d roots inside the codeword; otherwise raise a decode error.
+  </Step>
+  <Step title="Forney and verification">
+    Compute each error value with Forney's formula, XOR it in, then recompute the syndromes. If any is nonzero, raise a decode error instead of returning a wrong message.
+  </Step>
+</Steps>
+
+<Callout title="Why decoding can be trusted">
+Berlekamp-Massey always returns some polynomial, even when the damage exceeds the budget. The decoder therefore checks twice: the Chien search must find exactly deg(locator) roots, and the corrected word must have all-zero syndromes. Otherwise it reports failure.
+</Callout>
+
+## Worked example: RS(7, 5)
+
+Two parity bytes, so one unknown error can be corrected. All numbers come from the Python implementation (field `0x11B`, `a = 3`, `fcr = 0`). The generator is (x + 1)(x + 3) = x<sup>2</sup> + 2x + 3, because 1 XOR 3 = 2.
+
+<ArrayDiagram
+  legend={{ l: 'parity bytes', f: 'message bytes', p: 'byte hit in transit', c: 'position found by the decoder' }}
+  rows={[
+    { label: 'codeword', values: [87, 95, 2, 3, 5, 7, 11], tones: 'llfffff', note: 'Message `[2, 3, 5, 7, 11]` encodes to `[87, 95 | 2, 3, 5, 7, 11]`. Check: the codeword evaluates to 0 at 1 and at 3.' },
+    { label: 'received', values: [87, 95, 2, 3, 5, 99, 11], tones: '.....p.', note: 'Position 5 changed from 7 to 99. The syndromes are `s0 = 100` and `s1 = 130`.' },
+    { label: 'locate', values: [87, 95, 2, 3, 5, 99, 11], tones: '.....c.', marks: { 5: 'p = 5' }, note: 'One error gives `s0 = e` and `s1 = e * a^p`, so `a^p = 130 / 100 = 51 = a^5`. Berlekamp-Massey returns the locator `1 + 51x`.' },
+    { label: 'corrected', values: [87, 95, 2, 3, 5, 7, 11], tones: '.....f.', note: 'Forney gives the value 100, and 99 XOR 100 = 7. The message is the last five bytes.' },
+  ]}
+/>
+
+With two bytes destroyed the same code shows the value of erasure information:
+
+<DataTable
+  columns={['Received', 'Call', 'Result']}
+  rows={[
+    ['`[87, 95, 0, 3, 5, 0, 11]`', '`decode(received)`', '`DecodeError: error locations could not be determined`, since 2 unknown errors exceed t = 1'],
+    ['`[87, 95, 0, 3, 5, 0, 11]`', '`decode(received, erasures=[2, 5])`', '`[2, 3, 5, 7, 11]`: 2 erasures <= n - k = 2'],
+  ]}
+/>
+
+## Pseudocode
+
+```text
+encode(msg):                                   # len(msg) == k
+    dividend = [0] * (n-k) + msg               # msg * x^(n-k)
+    remainder = dividend mod g
+    return remainder (padded to n-k) + msg
+
+decode(received, erasures):
+    s = [received(a^(fcr+i)) for i in 0..n-k-1]
+    if all(s == 0) and no erasures: return received[-k:]
+    gamma = product over erased p of (1 + a^p * x)
+    phi = berlekampMassey(s, e, gamma)         # from syndrome e on
+    positions = [p for p in 0..n-1 if phi(a^-p) == 0]
+    if len(positions) != degree(phi): fail
+    for p in positions:
+        r[p] ^= a^(p*(1-fcr)) * omega(a^-p) / phi'(a^-p)
+    if any syndrome of r != 0: fail
+    return r[-k:]
+```
+
+Here `omega = (s * phi) mod x^(n-k)`, and `phi'` is the formal derivative, which keeps only the odd-degree terms in characteristic 2.
+
+## Implementation
+
+All three versions support errors plus erasures and a configurable `fcr`, and are checked against the same RS(7, 5) fixture. They differ in structure. Python and C++ reuse the Galois Field topic (a `sys.path` shim and a relative `#include`); Go carries its own minimal GF(2<sup>8</sup>). Python runs Berlekamp-Massey in the swap-and-scale form, C++ and Go in the classical length-tracking form; all three return the same locator.
+
+<TopicCode topic="Algorithms/Coding_Theory/Reed_Solomon" />
+
+## Complexity
+
+<DataTable
+  columns={['Phase', { label: 'Time', kind: 'mono' }, 'Why']}
+  rows={[
+    ['Generator', 'O((n-k)^2)', 'multiply n-k linear factors, once per code'],
+    ['Encode', 'O(k (n-k))', 'polynomial division by g(x)'],
+    ['Syndromes', 'O(n (n-k))', 'n-k evaluations of a degree n-1 polynomial'],
+    ['Berlekamp-Massey', 'O((n-k)^2)', 'about n-k-e iterations, each O(n-k)'],
+    ['Chien search', 'O(n (n-k))', 'a locator of degree at most n-k at n positions'],
+    ['Forney', 'O((n-k)^2)', 'one O(n-k) evaluation per bad position'],
+    ['Decode in total', 'O(n (n-k))', 'dominated by syndromes and Chien search'],
+  ]}
+/>
+
+Space is O(n). For scale, the educational Python version decodes an RS(255, 223) block with 16 errors in a few milliseconds on a laptop; table-driven C and hardware decoders are far faster.
+
+## Capability of common codes
+
+<DataTable
+  columns={['Code', 'Parity', 'Corrects (unknown positions)', 'Known use']}
+  rows={[
+    ['RS(7, 5)', '2', '1 byte, or 2 erasures', 'the worked example'],
+    ['RS(15, 11)', '4', '2 bytes', 'the demo in the code'],
+    ['RS(255, 223)', '32', '16 bytes', 'tested in all three languages; the CCSDS deep-space code'],
+    ['2 parity disks', '2', '2 failed disks (erasures)', 'RAID-6 style layouts'],
+  ]}
+/>
+
+## The fcr parameter
+
+`fcr` picks which consecutive powers of `a` are the roots of `g(x)`. The correction power is the same for every choice, but the codes are different: a codeword for one `fcr` is generally not a codeword for another. It must match in two places, the syndromes (`a^(fcr+i)`) and Forney's factor `X^(1-fcr)`, which is `X` for `fcr = 0` and 1 for `fcr = 1`. A clean `fcr = 1` RS(15, 11) word given to an `fcr = 0` decoder shows the syndromes `[190, 0, 0, 0]` and raises `DecodeError`.
+
+<Callout title="Not bit-compatible with real standards">
+This code fixes the field to `0x11B`. QR codes use `0x11D` with `a = 2` and `fcr = 0`, and CCSDS uses `0x187` with a dual-basis mapping, so these implementations teach the algebra but do not produce those formats' bytes.
+</Callout>
+
+## Reed-Solomon vs other codes
+
+<DataTable
+  columns={['Code', 'Strength', 'Weakness']}
+  highlight={0}
+  rows={[
+    ['Reed-Solomon', 'optimal for its length and rate; strong against byte bursts', 'blocks of at most 255 bytes over GF(2^8)'],
+    ['Hamming', 'tiny and fast; corrects 1 bit per block', 'only 1 bit per block'],
+    ['BCH', 'several random bit errors', 'less natural for byte bursts'],
+    ['LDPC and turbo codes', 'close to the channel limit with soft decisions', 'iterative decoding, more complex'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Meets the Singleton bound: no code with the same n and k corrects more errors.',
+    'Erasures cost half an error, so known-bad data is cheap to repair.',
+    'Systematic: error-free data needs no decoding work.',
+    'Deterministic, with a verification step that rejects failed decodes.',
+  ]}
+  cons={[
+    'Block length is limited to 255 symbols with 8-bit symbols.',
+    'Many scattered bit errors are expensive: each bad byte costs a whole symbol.',
+    'Decoding is much more complex than encoding.',
+    'Parameters (field, alpha, fcr) must match exactly on both ends.',
+  ]}
+/>
+
+## Applications
+
+- **Storage and optical media:** two-layer Reed-Solomon codes protect CDs and DVDs against scratches.
+- **QR codes:** the error-correction levels are Reed-Solomon parity.
+- **RAID-6:** two parity blocks rebuild any two lost disks, the pure-erasure case.
+- **Deep-space links:** the RS(255, 223) code with a 16-byte correction budget is used in space communication standards.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Using `a = 2` with `0x11B`.** Its order is 51, not 255, so the code silently breaks for longer words. Use 3, or switch the field to `0x11D`.
+- **Mismatched parameters.** Field polynomial, `a` and `fcr` must agree between encoder and decoder.
+- **Erasure positions in the wrong layout.** Positions count from the parity end of this repository's layout, not from the message.
+- **Declaring too many erasures.** More than n-k erasures is rejected, and each erasure spends one parity byte even if the byte was actually fine.
+- **Trusting Berlekamp-Massey blindly.** Check the root count and the final syndromes.
+- **Forgetting Forney's `X^(1-fcr)` factor.** It gives wrong values that pass small tests.
+- **Confusing bytes with bits.** RS(255, 223) corrects 16 bytes; 17 bit errors in 17 different bytes defeat it.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why n - k parity bytes for only (n-k)/2 errors?">
+    Locating an error needs one equation and finding its value needs another. With known positions only the value is missing, so n-k parity bytes repair n-k erasures.
+  </FaqItem>
+  <FaqItem question="What happens if there are too many errors?">
+    The decoder raises `DecodeError` (Python, C++) or returns `ErrDecode` (Go) when the Chien search or the final syndrome check fails. Malformed input, such as a wrong length, is a separate error. A pattern of more than t errors can still, rarely, look like a different valid codeword; the code cannot detect that.
+  </FaqItem>
+  <FaqItem question="Why is the message at the end of the codeword?">
+    Polynomials are stored lowest degree first and the message is shifted up by n-k positions, so it occupies the high-degree end. Libraries that print high degree first show the message first.
+  </FaqItem>
+  <FaqItem question="Why does the syndrome ignore the message?">
+    Each codeword is zero at the roots of g(x), so the evaluation of received = codeword + error equals the evaluation of the error alone.
+  </FaqItem>
+</Faq>

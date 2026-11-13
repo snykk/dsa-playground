@@ -1,0 +1,138 @@
+---
+category: Algorithms/Graph_Algorithms/Traversal
+title: Graph Traversal Algorithms
+lead: Traversal visits every vertex reachable from a start vertex in O(V + E) time. BFS and DFS differ in one choice, which discovered vertex to expand next, and that choice gives BFS shortest hop counts and gives DFS the entry and exit order behind cycles and topological sort.
+updated: 2026-11-13
+facts:
+  - label: Time
+    value: O(V + E)
+    hint: both, on an adjacency list
+  - label: BFS data structure
+    value: FIFO queue
+    hint: nearest vertices first
+  - label: DFS data structure
+    value: Stack or recursion
+    hint: deepest vertex first
+  - label: Weighted edges
+    value: Ignored
+    hint: neither one finds cheapest paths
+    tone: warn
+contents:
+  - folder: BFS
+    note: Expand the oldest discovered vertex. Visits in rings of equal hop distance, so it gives fewest-edge paths in unweighted graphs.
+  - folder: DFS
+    note: Expand the newest discovered vertex. Goes deep, then backtracks; the finish order powers cycles, topological sort and components.
+prerequisites:
+  - Data_Structures/Non_Linear/Graph
+  - Data_Structures/Linear/Queue
+  - Data_Structures/Linear/Stack
+related:
+  - Algorithms/Graph_Algorithms/Shortest_Path
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components
+  - Problem_Patterns/Graph_Traversal_Problems
+---
+
+## The problem
+
+Given a graph and a start vertex, visit every vertex reachable from the start exactly once. Both algorithms keep a set of visited vertices and a collection of discovered but unexpanded vertices. They take one vertex from the collection, visit its unvisited neighbours and repeat.
+
+The only difference is the collection. A queue hands back the oldest vertex, which makes the search spread outwards in rings. A stack, or the call stack in recursion, hands back the newest vertex, which makes the search run down one branch before it tries another.
+
+Each vertex and each edge is handled a constant number of times, so the cost is O(V + E) with an adjacency list.
+
+## At a glance
+
+<DataTable
+  columns={['Property', 'BFS', 'DFS']}
+  rows={[
+    ['Collection of discovered vertices', 'queue (FIFO)', 'stack or recursion (LIFO)'],
+    ['Visit order', 'by distance from the start, in rings', 'down one branch, then back up'],
+    ['Fewest-edge path in an unweighted graph', 'yes', 'no'],
+    ['Detects a cycle', 'possible, but not its natural use', 'yes, from the entry and exit state'],
+    ['Gives a topological order', 'with in-degrees (Kahn)', 'yes, from the finish order'],
+    ['Extra space', 'O(V)', 'O(V) to O(V + E)'],
+    ['Needs recursion', 'no', 'optional'],
+  ]}
+/>
+
+## See them side by side
+
+Each tab runs one traversal on a graph you type in. Load **Two rings** in both tabs and compare the visit order. Then load **Directed**, where the edge `E->B` closes a cycle, and watch how each one handles an edge back to a visited vertex.
+
+<ArticleViz ids={['bfs', 'dfs']} />
+
+## One graph, two orders
+
+Take seven vertices numbered 0 to 6 with the undirected edges `0-1`, `0-2`, `1-3`, `2-3`, `2-4`, `3-5`, `4-5` and `4-6`. These results come from running the repository's Python code from vertex 0.
+
+<DataTable
+  columns={['Question', 'BFS', 'DFS']}
+  rows={[
+    ['Visit order', '`0, 1, 2, 3, 4, 5, 6`', '`0, 1, 3, 2, 4, 5, 6`'],
+    ['Path from 0 to 6', '`0, 2, 4, 6`', '`0, 1, 3, 2, 4, 6`'],
+    ['Edges in that path', '3', '5'],
+  ]}
+/>
+
+BFS also groups the vertices by distance: `[0]`, `[1, 2]`, `[3, 4]`, `[5, 6]`. Vertex 6 is three edges away, and the BFS path has exactly that length. The DFS path is valid but takes five edges, because DFS follows the first branch, `0 -> 1 -> 3`, and only later reaches 2 from 3.
+
+## Complexity
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['BFS', 'O(V + E)', 'O(V)', 'the visited set plus a queue that holds at most one ring or two'],
+    ['DFS', 'O(V + E)', 'O(V) to O(V + E)', 'O(V) with real recursion; up to O(E) for the stack of the marking-on-pop version'],
+  ]}
+/>
+
+On an adjacency matrix, finding the neighbours of a vertex costs O(V), so both take O(V^2).
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Fewest edges between two vertices', 'BFS', 'the first time it reaches a vertex is along a shortest path'],
+    ['Every vertex within k steps', 'BFS', 'the rings are the distances'],
+    ['Detect a cycle, or order tasks by dependency', 'DFS', 'entry and exit times show back edges and give a topological order'],
+    ['Connected components', 'either', 'one search per unvisited vertex; both cost O(V + E) in total'],
+    ['Cheapest path with weights', 'neither', 'use Dijkstra, which is BFS with a priority queue'],
+    ['Strongly connected components, bridges', 'DFS', 'Kosaraju, Tarjan and the bridge algorithm are all built on DFS'],
+  ]}
+/>
+
+## Applications
+
+- **Shortest hops.** Routing in an unweighted network, word ladders, grid mazes.
+- **Reachability and components.** Flood fill, counting islands, finding connected groups.
+- **Dependency order.** Build systems and course schedules, through DFS or Kahn's algorithm.
+- **Structure.** Cycle detection, bipartite checks, bridges and strongly connected components.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Marking a vertex as visited too late in BFS.** Mark it when you enqueue it, not when you dequeue it, or the same vertex enters the queue many times.
+- **Expecting DFS to find the shortest path.** It finds a path. In the example above it needs five edges where BFS needs three.
+- **Starting from one vertex only.** A search covers one component. For a disconnected graph, loop over all vertices and start a new search from each unvisited one.
+- **Recursing on a deep graph.** A path graph with a hundred thousand vertices can overflow the call stack, so use an explicit stack.
+- **Using either one for weighted shortest paths.** Neither looks at weights.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which one should I learn first?">
+    BFS. It is the simpler picture, a queue and rings, and it leads straight into Dijkstra's algorithm. Learn DFS next, because strongly connected components, bridges and topological sort all build on it.
+  </FaqItem>
+  <FaqItem question="Do they visit vertices in the same order?">
+    Not in general. They visit the same set of vertices but in different orders. Both also depend on the order of each adjacency list, so the same graph stored with its neighbours in another order gives another visit order.
+  </FaqItem>
+  <FaqItem question="Which one uses more memory?">
+    On a wide graph BFS holds a whole ring in its queue. On a long, thin graph recursive DFS holds a deep call stack. Both are O(V) in the worst case.
+  </FaqItem>
+  <FaqItem question="Can DFS be written without recursion?">
+    Yes. Use an explicit stack. The repository has both an iterative version, `dfs_adjacency_list`, and a recursive one, `dfs_recursive`, and on the example graph above they give the same order.
+  </FaqItem>
+</Faq>

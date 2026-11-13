@@ -1,0 +1,191 @@
+---
+topic: Problem_Patterns/Prefix_Sum_Difference_Array
+title: Prefix Sum and Difference Array
+lead: A prefix sum array answers "what is the sum of a[l..r]?" in O(1) after one O(n) pass. Its inverse, the difference array, applies "add v to a[l..r]" in O(1) and rebuilds the final array with one pass. Together they remove the inner loop from range queries and range updates.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Prefix build
+    value: O(n)
+    hint: one running total
+  - label: Range sum query
+    value: O(1)
+    hint: prefix[r + 1] - prefix[l]
+  - label: Range update
+    value: O(1)
+    hint: two writes into the difference array
+  - label: Limitation
+    value: Static or offline
+    hint: no mixing of updates and queries
+    tone: warn
+properties:
+  - { label: In-place, value: false }
+  - { label: Online (updates between queries), value: false }
+  - { label: Needs sorted input, value: false }
+prerequisites:
+  - Data_Structures/Linear/Array
+related:
+  - Utilities/Optimization_Techniques/Precomputation
+  - Data_Structures/Non_Linear/Trees/Fenwick_Tree
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+  - Problem_Patterns/Sliding_Window
+---
+
+## When to use it
+
+Signals in a problem statement:
+
+- many queries "sum of elements from l to r" on an array that does not change: **prefix sum**;
+- many operations "add v to every element from l to r" followed by one read of the result: **difference array**;
+- "number of subarrays with sum k" (prefix sums plus a hash map of seen values);
+- intervals, bookings, flights or events that overlap on a timeline.
+
+If updates and queries are interleaved, use a Fenwick tree or a segment tree instead.
+
+## How it works
+
+<Steps>
+  <Step title="Prefix sums">
+    Define `prefix[0] = 0` and `prefix[i + 1] = prefix[i] + a[i]`. Then `prefix[i]` is the sum of the first i elements, and the array has n + 1 entries.
+  </Step>
+  <Step title="Range sum by subtraction">
+    The sum of `a[l..r]` (inclusive) is `prefix[r + 1] - prefix[l]`. The common part cancels, so one query is two reads.
+  </Step>
+  <Step title="Difference array">
+    Store changes between neighbours. To add v to `a[l..r]`, do `diff[l] += v` and `diff[r + 1] -= v`.
+  </Step>
+  <Step title="Materialize">
+    The running sum of `diff` gives the final array: `a[i] = diff[0] + ... + diff[i]`. The difference array is the inverse of the prefix sum.
+  </Step>
+</Steps>
+
+<Callout title="Why the difference array works">
+The running sum turns `+v` at index l into "+v from l onwards", and the `-v` at r + 1 cancels it from there on. The net effect is exactly `+v` on `[l, r]`. All updates are just additions, so they commute: they can be applied in any order and read once at the end.
+</Callout>
+
+## See it in action
+
+The first visualization builds a prefix array and answers range queries; the second applies range updates to a difference array and then sweeps the running sum. Edit the values and press Apply, then step through.
+
+<ArticleViz ids={['prefix-sum', 'difference-array']} />
+
+## Template
+
+```text
+class PrefixSum(arr):
+    prefix = [0]
+    for x in arr: prefix.append(prefix[-1] + x)
+    query(l, r):  return prefix[r + 1] - prefix[l]          # inclusive l..r
+
+class DifferenceArray(size):
+    diff = [0] * (size + 1)                                 # one spare cell for r + 1
+    update(l, r, v):
+        diff[l] += v
+        if r + 1 < len(diff): diff[r + 1] -= v
+    get_array():
+        current = 0
+        for i in 0 .. size - 1:
+            current += diff[i]; result[i] = current
+        return result
+```
+
+## Worked example: range sums
+
+For `[3, 1, 4, 1, 5]`, the prefix array is `[0, 3, 4, 8, 9, 14]`. The query `query(1, 3)` is `prefix[4] - prefix[1] = 9 - 3 = 6`, which is the sum 1 + 4 + 1. The whole array is `prefix[5] - prefix[0] = 14`.
+
+<ArrayDiagram
+  legend={{ l: 'prefix[l] to subtract (sum before the range)', f: 'prefix[r + 1] (sum up to the range end)', m: 'not used by this query' }}
+  rows={[
+    { label: 'arr', values: [3, 1, 4, 1, 5], tones: 'mlllm', marks: { 1: 'l = 1', 3: 'r = 3' }, note: 'The queried range is a[1..3].' },
+    { label: 'prefix', values: [0, 3, 4, 8, 9, 14], tones: 'mlmmfm', marks: { 1: 'prefix[l]', 4: 'prefix[r + 1]' }, note: 'prefix[4] - prefix[1] = 9 - 3 = 6.' },
+  ]}
+/>
+
+## Worked example: range updates
+
+Start from five zeros. Add 5 to `[0, 2]` and add 3 to `[1, 3]`:
+
+<ArrayDiagram
+  legend={{ l: 'cell holding +v (an update starts here)', r: 'cell holding -v (the update stops here)', p: 'final value after the running sum' }}
+  rows={[
+    { label: 'start', values: [0, 0, 0, 0, 0, 0], tones: '......', note: '`diff` has size + 1 = 6 cells.' },
+    { label: 'add 5 to [0, 2]', values: [5, 0, 0, -5, 0, 0], tones: 'l..r..', note: '`diff[0] += 5` and `diff[3] -= 5`.' },
+    { label: 'add 3 to [1, 3]', values: [5, 3, 0, -5, -3, 0], tones: 'll.rr.', note: '`diff[1] += 3` and `diff[4] -= 3`.' },
+    { label: 'running sum', values: [5, 8, 8, 3, 0], tones: 'ppppp', note: 'The sweep gives the final array `[5, 8, 8, 3, 0]`.' },
+  ]}
+/>
+
+## Implementation
+
+All three languages have `PrefixSum` (constructor, `query(left, right)` inclusive) and `DifferenceArray` (`update(left, right, value)`, `get_array`). Python also has the helpers `range_sum_queries(arr, queries)` and `range_updates(arr, updates)`, which wrap the classes; C++ and Go have only the two classes.
+
+None of the classes validates indices: `query(l, r)` with `r >= n` or a negative index is an error (an exception in Python, undefined behaviour in C++, a panic in Go, except that a negative Python index silently wraps). Values are `int`, so sums above 2<sup>31</sup> overflow in C++.
+
+<TopicCode topic="Problem_Patterns/Prefix_Sum_Difference_Array" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Build prefix sums', time: 'O(n)', when: 'One pass with a running total.' },
+    { case: 'Range sum query', time: 'O(1)', when: 'Two array reads and a subtraction.' },
+    { case: 'Range update (difference array)', time: 'O(1)', when: 'Two writes, wherever the range is.' },
+    { case: 'Materialize the updated array', time: 'O(n)', when: 'One running-sum pass after all updates.' },
+  ]}
+/>
+
+Both structures use <BigO of="n" /> extra space. For q operations the totals are <BigO of="n + q" />, against <BigO of="n * q" /> for a loop per operation.
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Range Sum Query - Immutable (LeetCode 303)', 'prefix sum'],
+    ['Subarray Sum Equals K (LeetCode 560)', 'prefix sums plus a hash map of counts'],
+    ['Product of Array Except Self (LeetCode 238)', 'prefix and suffix products'],
+    ['Corporate Flight Bookings (LeetCode 1109)', 'difference array over flights'],
+    ['Car Pooling (LeetCode 1094)', 'difference array over stops'],
+    ['Range Sum Query 2D - Immutable (LeetCode 304)', '2D prefix sum (see the Precomputation topic)'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Where']}
+  rows={[
+    ['2D prefix sum', 'four-corner inclusion-exclusion for rectangles', 'Utilities Precomputation topic'],
+    ['Suffix sums and products', 'same idea from the right', 'not implemented here'],
+    ['Prefix XOR or count', 'any operation that can be undone', 'XOR and counts qualify; min and max do not'],
+    ['Online updates and queries', 'Fenwick tree or segment tree', 'separate topics'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Off-by-one on the index.** With a leading zero the sum of `a[l..r]` is `prefix[r + 1] - prefix[l]`, not `prefix[r] - prefix[l]`.
+- **A difference array of size n.** It needs n + 1 cells (or an explicit bounds check) because `r + 1` can equal n.
+- **Mixing updates with queries.** After each update the prefix sums of the changed array are stale. Rebuild, or switch to a Fenwick tree.
+- **Overflow.** Sums of many large values need 64-bit integers in C++ and Go.
+- **Forgetting the original array.** The difference array holds only the changes. `range_updates` adds the starting array back after the sweep.
+- **Using min or max.** Subtraction needs an invertible operation; a prefix minimum cannot answer arbitrary range minimum queries.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the prefix array have n + 1 entries?">
+    The leading zero represents the empty prefix, so a range that starts at index 0 needs no special case: `prefix[r + 1] - prefix[0]`.
+  </FaqItem>
+  <FaqItem question="What is the relationship between prefix sums and difference arrays?">
+    They are inverses: the prefix sum of the difference array is the original array, and the difference of the prefix array is the original again. One accumulates, the other takes neighbouring differences.
+  </FaqItem>
+  <FaqItem question="Can I mix range updates and range queries?">
+    Not with these two alone. A Fenwick tree (with two arrays for range update plus range query) or a segment tree with lazy propagation handles both in O(log n).
+  </FaqItem>
+  <FaqItem question="How do I count subarrays with sum k?">
+    Keep a running prefix sum and a map of how often each prefix value has occurred. For each position, add the count of `current - k`.
+  </FaqItem>
+</Faq>

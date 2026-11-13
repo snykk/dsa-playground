@@ -1,0 +1,193 @@
+---
+topic: Algorithms/Greedy/Fractional_Knapsack
+title: Fractional Knapsack
+lead: Fill a knapsack of limited capacity with items that each have a value and a weight, taking whole items or any fraction of one. Because items can be cut, taking the best value per unit of weight first is optimal. Sort by that ratio and fill until the bag is full.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n log n)
+    hint: sorting by value / weight; the fill is O(n)
+  - label: Extra space
+    value: O(n)
+    hint: the sorted copy in Python; C++ and Go sort the input in place
+  - label: Approach
+    value: Greedy
+    hint: highest value per unit of weight first
+  - label: 0/1 version
+    value: Greedy fails
+    hint: if items cannot be cut, use dynamic programming
+    tone: warn
+properties:
+  - { label: Greedy, value: true }
+  - { label: Always optimal, value: true }
+  - { label: Items can be split, value: true }
+  - { label: Works for the 0/1 knapsack, value: false }
+prerequisites:
+  - Algorithms/Greedy
+  - Algorithms/Sorting/Merge_Sort
+related:
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Algorithms/Greedy/Activity_Selection
+  - Algorithms/Greedy/Job_Scheduling
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
+---
+
+## How Fractional Knapsack works
+
+You are given `n` items, each with a `value` and a `weight`, and a capacity `W`. You may take any amount `x` between 0 and 1 of each item, which brings in `x * value` and uses `x * weight` of capacity. The goal is the largest total value that fits.
+
+The deciding number is the **ratio** `value / weight`: how much value one unit of capacity buys.
+
+<Steps>
+  <Step title="Compute each ratio">
+    Divide `value` by `weight`. An item of weight 0 uses no capacity, so its ratio is treated as infinite and it is taken first.
+  </Step>
+  <Step title="Sort by ratio, highest first">
+    The best deals come first. Ties can go in either order; the total is the same.
+  </Step>
+  <Step title="Fill the bag in that order">
+    While capacity remains: if the whole item fits, take it all and subtract its weight. If it does not fit, take the fraction `remaining / weight` of it, which fills the bag exactly, and stop.
+  </Step>
+</Steps>
+
+<Callout title="Why the best ratio first is optimal">
+Suppose a full bag contains some of a lower-ratio item while a higher-ratio item is not used up. Remove a small amount of weight `d` from the lower item and add `d` of the higher one. The weight is unchanged, and the value changes by `d * (high ratio - low ratio)`, which is at least 0. So the swap never hurts, and repeating it turns any solution into the greedy one without losing value. This only works because items can be cut: you can always move exactly `d` of weight.
+</Callout>
+
+## See it in action
+
+Press play, or step through one item at a time. Items are considered in order of value per unit of weight and poured into a capacity bar; the last item that does not fit is cut to the fraction that fills the bag. Enter your own capacity and items, or use the example that shows greedy failing for the 0/1 knapsack.
+
+<ArticleViz ids={['fractional-knapsack']} />
+
+## Worked example
+
+Capacity 50 and three items, written `value / weight`: `60 / 10`, `100 / 20`, `120 / 30`. Their ratios are 6, 5 and 4, so they are already in the right order. `fractional_knapsack` returns a total of 240 and the fractions `1.0`, `1.0` and `2/3`.
+
+<ArrayDiagram
+  legend={{ f: 'taken whole', p: 'taken partly (cut to fit)', c: 'being considered' }}
+  rows={[
+    { label: 'sorted', values: ['60 / 10', '100 / 20', '120 / 30'], marks: { 0: 'ratio 6', 1: 'ratio 5', 2: 'ratio 4' }, note: 'Capacity 50, value 0.' },
+    { label: 'item 1', values: ['60 / 10', '100 / 20', '120 / 30'], tones: 'f..', note: '10 <= 50: take it all. Remaining 40, value 60.' },
+    { label: 'item 2', values: ['60 / 10', '100 / 20', '120 / 30'], tones: 'ff.', note: '20 <= 40: take it all. Remaining 20, value 160.' },
+    { label: 'item 3', values: ['60 / 10', '100 / 20', '120 / 30'], tones: 'ffp', note: '30 > 20: take 20 / 30 = 2/3 of it, worth 80. Remaining 0, value 240.' },
+  ]}
+/>
+
+The same items with the 0/1 rule (take an item whole or not at all) give a different answer. The greedy order would take the first two items (value 160, weight 30) and then find that the third no longer fits. The real 0/1 optimum is the second and third items together, value 220. That is why greedy is only safe when items can be split.
+
+## Pseudocode
+
+```text
+fractionalKnapsack(items, W):
+    if items is empty or W <= 0: return 0
+    sort items by value / weight, highest first     # weight 0: ratio = infinity
+    total = 0
+    remaining = W
+    for each item (value, weight) in that order:
+        if remaining <= 0: break
+        if weight == 0:
+            total += value                          # free item: take all of it
+            continue
+        take = min(weight, remaining)
+        total += value * (take / weight)
+        remaining -= take
+    return total
+```
+
+## Implementation
+
+The Python version has two functions: `fractional_knapsack` returns the total and the list of `(value, weight, fraction)` it took, and `fractional_knapsack_value_only` returns just the total. C++ and Go return only the total. In Python, items are `(value, weight)` tuples; in C++ they are `std::pair<double, double>` and in Go `Item{Value, Weight}`.
+
+<TopicCode topic="Algorithms/Greedy/Fractional_Knapsack" />
+
+**Two differences to know.** Python sorts a copy, so your list keeps its order. The C++ and Go versions sort the vector or slice you pass in, so the caller's order changes. And C++ and Go work in `double` / `float64`, so totals are floating-point values.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Sort by ratio', time: 'O(n log n)', space: 'O(n)', when: 'The only expensive step. Python builds a sorted copy; C++ and Go sort in place.' },
+    { case: 'Fill the bag', time: 'O(n)', space: 'O(1)', when: 'A single pass that stops as soon as the bag is full.' },
+    { case: 'Total', time: 'O(n log n)', space: 'O(n)', when: 'Space is O(1) extra in C++ and Go (apart from the sort), at the price of changing the input order.' },
+  ]}
+/>
+
+If you only need the total and the capacity is small compared with the items, you do not need a full sort: finding the cut-off ratio with a selection algorithm such as Quickselect gives <BigO of="n" /> expected time. The repository code does the plain sort.
+
+## Fractional vs 0/1 knapsack
+
+<DataTable
+  columns={['', 'Fractional', '0/1']}
+  rows={[
+    ['Can an item be cut?', 'Yes, any fraction', 'No, whole or nothing'],
+    ['Method', 'greedy by value / weight', 'dynamic programming'],
+    ['Time', 'O(n log n)', 'O(n * W)'],
+    ['Greedy by ratio optimal?', 'Yes', 'No: 160 vs 220 on the example above'],
+    ['Answer is an integer?', 'Not necessarily', 'Yes, if values are integers'],
+  ]}
+/>
+
+The fractional answer is always at least the 0/1 answer for the same items, because every 0/1 choice is also a legal fractional choice. That makes it a quick upper bound, which branch-and-bound solvers use for 0/1 knapsack.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Provably optimal, with a short exchange argument.',
+    'Simple: one sort and one pass.',
+    'Fast: <BigO of="n log n" /> time.',
+    'Gives an upper bound for the harder 0/1 problem.',
+  ]}
+  cons={[
+    'Only valid when items can really be split; for indivisible items it can be far from optimal.',
+    'Floating-point results; fractions such as 2/3 are not exact.',
+    'C++ and Go reorder the caller\'s data.',
+    'Assumes non-negative values and weights; the code does not check for this.',
+  ]}
+/>
+
+## Applications
+
+- **Divisible resources.** Filling a tank, a truck or a budget with materials that can be taken in any quantity, such as liquids, grain or computing time.
+- **Upper bounds.** The fractional optimum bounds the 0/1 optimum from above, which is how branch and bound prunes.
+- **Choosing the best mix** under a single resource limit when the amounts are continuous.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Sorting by value or by weight alone.** Only the ratio works. A heavy valuable item can have a lower ratio than a small cheap one.
+- **Using the greedy for 0/1.** It is wrong there. Use dynamic programming.
+- **Dividing by a zero weight.** `value / weight` fails for a free item. The code gives such items an infinite ratio and takes them whole. It once raised `ZeroDivisionError` in Python and returned NaN in C++ and Go.
+- **Capacity of 0 or less.** All three versions return 0 immediately, before looking at the items. That also skips a free item (weight 0) that could have been taken.
+- **Forgetting the partial item.** After the whole items, the last one is cut with `remaining / weight`. Stopping early leaves value on the table.
+- **Surprised by reordering.** In C++ and Go the input is sorted in place.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the greedy rule work here but not for 0/1 knapsack?">
+    Because here you can move any amount of weight between items, so the exchange argument always applies. With whole items, the best-ratio item may leave a gap that no remaining item fills well, and a different set of items can be better. The example above shows 160 against 220.
+  </FaqItem>
+  <FaqItem question="Is the optimal answer unique?">
+    The total is unique. The chosen items are not when ratios tie: any order of equal-ratio items gives the same total.
+  </FaqItem>
+  <FaqItem question="Can the result be larger than the sum of the values?">
+    No. The total is at most the sum of all values, and it equals that sum when everything fits (the all-items-fit test).
+  </FaqItem>
+  <FaqItem question="Which language returns the fractions taken?">
+    Only Python, through `fractional_knapsack`. C++ and Go return the total value only.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['LeetCode 1710, Maximum Units on a Truck', 'every box takes one unit of capacity, so sort box types by units per box and take the best first'],
+    ['LeetCode 455, Assign Cookies', 'a greedy matching on sorted arrays: the same sort-then-sweep pattern'],
+  ]}
+/>

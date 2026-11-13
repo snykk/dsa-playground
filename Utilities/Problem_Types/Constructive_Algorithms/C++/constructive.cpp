@@ -4,7 +4,13 @@
  * Constructive problems ask you to build an object satisfying given constraints.
  */
 
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <iostream>
+#include <queue>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
 using namespace std;
 
 typedef long long ll;
@@ -17,18 +23,23 @@ typedef vector<int> vi;
  * Build a permutation satisfying certain properties
  */
 vi constructPermutation(int n, int k) {
-    // Example: Construct permutation with exactly k distinct adjacent differences
-    if (k >= n) return {};  // Impossible
-    
-    vi perm(n);
-    
-    // Start with sorted array
-    for (int i = 0; i < n; i++) perm[i] = i + 1;
-    
-    // Reverse suffix to create k differences
-    // [1,2,3,4,5] -> reverse last k+1 -> [1,2,3,5,4] has 2 distinct diffs
-    reverse(perm.begin() + (n - k - 1), perm.end());
-    
+    // Permutation of 1..n whose adjacent differences take exactly k distinct values
+    // (1 <= k <= n - 1; n = 1 needs k = 0).
+    if (n < 1) return {};
+    if (n == 1) return k == 0 ? vi{1} : vi{};
+    if (k < 1 || k >= n) return {};  // Impossible
+
+    // Zig-zag the first k + 1 numbers: 1, k+1, 2, k, ... gives differences k, k-1, ..., 1.
+    // Then continue upwards with k+2..n; those steps never create a new difference.
+    vi perm;
+    int lo = 1, hi = k + 1;
+    bool takeLow = true;
+    while (lo <= hi) {
+        perm.push_back(takeLow ? lo++ : hi--);
+        takeLow = !takeLow;
+    }
+    for (int x = k + 2; x <= n; x++) perm.push_back(x);
+
     return perm;
 }
 
@@ -100,6 +111,9 @@ string constructString(int n, int a, int b) {
     // Construct string with 'a' occurrences of 'a' and 'b' occurrences of 'b'
     // such that no two same characters are adjacent
     
+    if (a < 0 || b < 0 || n != a + b) {
+        return "";  // Impossible: the counts must add up to n
+    }
     if (a > b + 1 || b > a + 1) {
         return "";  // Impossible
     }
@@ -130,12 +144,12 @@ string constructString(int n, int a, int b) {
  * Pattern 5: Greedy Construction
  * Build sequence by greedily choosing elements
  */
-vi greedyConstruction(int n, vi& constraints) {
+vi greedyConstruction(int n, const vi& constraints) {
     vi result;
     set<int> available;
     for (int i = 1; i <= n; i++) available.insert(i);
     
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < constraints.size(); i++) {
         // Find smallest available element >= constraint[i]
         auto it = available.lower_bound(constraints[i]);
         if (it == available.end()) {
@@ -152,7 +166,7 @@ vi greedyConstruction(int n, vi& constraints) {
  * Pattern 6: Matrix Construction
  * Build matrix with given row and column sums
  */
-vector<vi> constructMatrix(vi& rowSums, vi& colSums) {
+vector<vi> constructMatrix(vi rowSums, vi colSums) {  // by value: the caller's vectors stay intact
     int n = rowSums.size();
     int m = colSums.size();
     
@@ -183,9 +197,10 @@ vector<vi> constructMatrix(vi& rowSums, vi& colSums) {
  * Break down problem into smaller solvable parts
  */
 vi constructByDecomposition(int target) {
-    // Express target as sum of powers of 2
+    // Express target as sum of powers of 2 (smallest first); nothing for target < 1
     vi result;
-    for (int bit = 0; bit < 30; bit++) {
+    if (target < 1) return result;
+    for (int bit = 0; bit < 31; bit++) {
         if (target & (1 << bit)) {
             result.push_back(1 << bit);
         }
@@ -219,6 +234,8 @@ vi constructByDecomposition(int target) {
    - Graph degree constraints
 */
 
+#ifndef TESTING
+#ifndef IS_TEST_BUILD
 int main() {
     // Example usage
     vi perm = constructPermutation(5, 3);
@@ -236,4 +253,5 @@ int main() {
     
     return 0;
 }
-
+#endif
+#endif  // !IS_TEST_BUILD

@@ -1,0 +1,211 @@
+---
+topic: Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP
+title: Digit DP
+lead: Digit DP counts the numbers in a range whose digits satisfy a rule, such as a given digit sum, by building each number one digit at a time and memoizing on the position, a tight flag and a small running state. It handles bounds up to 10^18 in a few thousand steps.
+level: Advanced
+updated: 2026-11-12
+facts:
+  - label: Brute force
+    value: O(n)
+    hint: test every number up to the bound
+    tone: warn
+  - label: Digit DP time
+    value: O(d * S * 10)
+    hint: d digits, S = number of running states
+  - label: Space
+    value: O(d * S)
+  - label: Approach
+    value: Memoized DP over digit positions
+properties:
+  - { label: Exact count, value: true }
+  - { label: Needs a small state, value: true }
+  - { label: Range queries via subtraction, value: true }
+prerequisites:
+  - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
+related:
+  - Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
+  - Problem_Patterns/DP_Problem_Patterns
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+  - Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees
+---
+
+## When digit DP applies
+
+Reach for digit DP when a problem counts integers up to a huge bound `N` (often 10<sup>18</sup>) that satisfy a property of their **decimal digits**, and the property can be tracked with a small amount of state.
+
+- "How many numbers in `[L, R]` have digit sum `S`?"
+- "...contain no two equal adjacent digits / never contain the digit 4?"
+- "...are divisible by `k` (track the remainder), or have digits in non-decreasing order (track the last digit)?"
+
+The bound is far too big to loop over, but a number has only about 18 digits, and the property depends on the digits only through a short summary.
+
+## How it works
+
+Write the bound as a digit array, most significant first. Build a candidate number left to right. At each position you may pick any digit, except that you must never exceed the bound.
+
+<Steps>
+  <Step title="Convert the bound to digits">
+    `n = 25` becomes `[2, 5]`. Counting numbers from 0 to `n` is the same as counting digit strings of this length with leading zeros allowed: `05` is the number 5 and contributes digit sum 5.
+  </Step>
+  <Step title="Track a tight flag">
+    `tight` is true while the digits chosen so far equal the bound's prefix. A tight position may use digits `0..digits[pos]`. After choosing a smaller digit the flag drops to false and every later position may use `0..9`.
+  </Step>
+  <Step title="Carry the problem state">
+    For a digit sum, the state is the sum so far. The memo key is `(pos, tight, sum)`.
+  </Step>
+  <Step title="Stop at the end">
+    When `pos` equals the number of digits, return 1 if the state satisfies the rule (sum equals the target), else 0. Otherwise add up the answers for each allowed next digit.
+  </Step>
+</Steps>
+
+<Callout title="Why memoization collapses the work">
+Once `tight` is false, the remaining digits are completely free. The answer then depends only on `(pos, sum)`, not on which digits led there, so thousands of different prefixes reuse the same memo entry. Only the single chain of tight states is special.
+</Callout>
+
+## A worked example
+
+Count the numbers from 0 to 25 whose digit sum is 5. The digit array is `[2, 5]`. The first digit can be 0, 1 or 2 (tight allows `0..2`). Only picking 2 keeps the flag tight; picking 0 or 1 frees the second digit.
+
+<TreeDiagram
+  root={{
+    label: 'start',
+    tone: 'p',
+    badge: '3',
+    children: [
+      { label: 'free, sum 0', tone: 'l', badge: '1', edge: '0', children: [{ label: '05', tone: 'f', edge: '5' }] },
+      { label: 'free, sum 1', tone: 'l', badge: '1', edge: '1', children: [{ label: '14', tone: 'f', edge: '4' }] },
+      { label: 'tight, sum 2', tone: 'p', badge: '1', edge: '2', children: [{ label: '23', tone: 'f', edge: '3' }] },
+    ],
+  }}
+  legend={{ p: 'tight: still equal to the bound prefix', l: 'free: any digit 0 to 9 may follow', f: 'a counted number (digit sum 5)' }}
+  caption="Only branches that can still reach sum 5 are shown; the code prunes the rest as soon as the sum would exceed the target. Badges are the memoized counts."
+/>
+
+The answer is 3: the numbers 5, 14 and 23. In the tight branch the last digit is limited to `0..5`, and the only digit that reaches sum 5 is 3. Running the repository code gives the same states in its memo: `(0, tight, 0)` = 3, `(1, free, 0)` = 1, `(1, free, 1)` = 1 and `(1, tight, 2)` = 1.
+
+### Counting a range
+
+A range is the difference of two prefix counts, the same trick as prefix sums:
+
+<Equation label="Range count" expr="count(L..R) = count(0..R) - count(0..L-1)" result="count(10..100, sum 5) = 6 - 1 = 5" />
+
+The five numbers are 14, 23, 32, 41 and 50 (the number 5 is below 10). When `L = 0` the second term is `count(-1)`, which the implementation defines as 0.
+
+## Pseudocode
+
+```text
+count(n, target):
+    if n < 0: return 0
+    digits = decimal digits of n, most significant first
+    memo = empty map
+
+    dp(pos, tight, sum):
+        if pos == len(digits):
+            return 1 if sum == target else 0
+        if (pos, tight, sum) in memo: return memo[(pos, tight, sum)]
+        limit = digits[pos] if tight else 9
+        total = 0
+        for d = 0 to limit:
+            if sum + d <= target:
+                total += dp(pos + 1, tight and d == limit, sum + d)
+        memo[(pos, tight, sum)] = total
+        return total
+
+    return dp(0, true, 0)
+```
+
+## Implementation
+
+The Python version, `count_numbers_with_digit_sum(n, target_sum)`, counts numbers in `0..n` with the given digit sum. The C++ and Go folders are placeholders: they hold a stub and a test that asserts nothing, so only Python implements the algorithm.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP" />
+
+## Complexity analysis
+
+There are `d` positions (the number of digits of `n`), 2 values of `tight` and at most `target + 1` sums. Each state tries up to 10 digits.
+
+<ComplexityTable
+  rows={[
+    { case: 'Time', time: 'O(d * S * 10)', when: 'd positions, S distinct running states (here target + 1), 10 digits per state. For n = 10^18 and target 162 that is about 19 * 163 * 10 * 2 steps.' },
+    { case: 'Space', time: 'O(d * S)', when: 'One memo entry per (pos, tight, sum) plus the recursion depth d.' },
+  ]}
+/>
+
+The number of reachable memo entries is smaller than the bound suggests, because the code stops extending a prefix once its sum exceeds the target.
+
+## Choosing the state
+
+The state is the only part that changes between problems.
+
+<DataTable
+  columns={['Property of the number', 'Extra state', 'State size']}
+  rows={[
+    ['Digit sum equals S', 'current sum', 'S + 1'],
+    ['Divisible by k', 'remainder mod k', 'k'],
+    ['No two adjacent digits equal', 'previous digit', '10'],
+    ['Digits non-decreasing', 'previous digit', '10'],
+    ['Count of a digit d', 'how many so far', 'd digits + 1'],
+    ['Leading zeros matter', 'a started flag', '2'],
+  ]}
+/>
+
+## Digit DP vs alternatives
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, 'Use when']}
+  highlight={2}
+  rows={[
+    ['Loop over 0..N and test each', 'O(N * d)', 'N up to about 10^7'],
+    ['Closed-form counting', 'O(1) or O(d)', 'the property has a simple formula, such as stars and bars for digit sum without a bound'],
+    ['Digit DP', 'O(d * S * 10)', 'a bound such as 10^18 and a property with a small state'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Handles bounds that no loop could reach, since the cost depends on the number of digits.',
+    'One template covers many problems; only the state and the base case change.',
+    'Range queries come for free by subtracting two prefix counts.',
+  ]}
+  cons={[
+    'Needs a rule that can be summarized in a small state; some properties cannot be.',
+    'Leading zeros and the "number 0" are easy to get wrong.',
+    'Recursion plus a dictionary memo is slow for large states; table-based versions are faster.',
+  ]}
+/>
+
+## Applications
+
+- Competitive-programming counting problems over huge ranges, such as digit sum, divisibility and forbidden-digit questions.
+- Generating the k-th number with a digit property, by combining the counts with a digit-by-digit descent.
+- Counting numbers by properties in other bases: the same code works with base 2 or 16 and a different loop limit.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Dropping the tight flag from the memo key.** A tight state and a free state at the same position have different answers.
+- **Forgetting that `L - 1` can be negative.** For `L = 0` the prefix count of `-1` must be 0. `int(str(-1))` style digit conversion would otherwise raise `ValueError`; this implementation returns 0 for `n < 0`.
+- **Leading zeros.** With the digit-sum rule, leading zeros add nothing, so they are harmless. For rules about adjacent digits or the digit 0 you need a `started` flag.
+- **Memoizing on `tight` incorrectly.** Share memo entries between calls only when the bound is the same; a new `n` needs a new memo.
+- **Counting the bound twice.** With the range formula use `count(R) - count(L - 1)`, not `count(L)`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why do we allow leading zeros?">
+    It lets every number below the bound be a string of the same length, so one recursion covers numbers of all lengths. It is safe whenever a leading zero does not change the property, as with digit sums.
+  </FaqItem>
+  <FaqItem question="How does the answer change for a different base?">
+    Replace the digit array with the digits in that base and the loop limit `9` with `base - 1`. The tight-flag logic is unchanged.
+  </FaqItem>
+  <FaqItem question="Is it top-down or bottom-up?">
+    The repository version is top-down with a dictionary memo. A bottom-up version fills a table by position, and it is faster in compiled languages, but the logic is the same.
+  </FaqItem>
+  <FaqItem question="How do I count numbers with the digit sum in a range of sums?">
+    Run the counter for every target in the range and add the results, or change the base case to accept any sum within the range and prune with the upper limit.
+  </FaqItem>
+</Faq>

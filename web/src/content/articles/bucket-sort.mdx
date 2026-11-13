@@ -1,0 +1,208 @@
+---
+topic: Algorithms/Sorting/Bucket_Sort
+title: Bucket Sort
+lead: Bucket Sort spreads values over a row of buckets by their magnitude, sorts each small bucket, and reads the buckets out in order. When the input is spread evenly it runs in O(n) time, but a crowded bucket drags it towards O(n^2).
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Average time
+    value: O(n + k)
+    hint: uniformly spread input, k buckets
+  - label: Worst time
+    value: O(n^2)
+    hint: all values land in one bucket (Python, insertion-sorted buckets)
+    tone: warn
+  - label: Extra space
+    value: O(n + k)
+  - label: Approach
+    value: Distribute, sort, concatenate
+properties:
+  - { label: In-place, value: false }
+  - { label: Stable, value: false }
+  - { label: Comparison sort, value: false }
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+  - Algorithms/Sorting/Insertion_Sort
+related:
+  - Algorithms/Sorting/Counting_Sort
+  - Algorithms/Sorting/Radix_Sort
+  - Algorithms/Sorting/Insertion_Sort
+  - Algorithms/Sorting/Quick_Sort
+---
+
+## How Bucket Sort works
+
+Bucket Sort uses the value of an element, not comparisons with other elements, to decide roughly where it goes. The implementations in this repository sort numbers in the closed interval `[0.0, 1.0]` with `n` buckets: a value `x` goes to bucket `floor(x * n)`, and `1.0` goes to the last bucket.
+
+<Steps>
+  <Step title="Validate the range">
+    Every value must satisfy `0.0 <= x <= 1.0`. Anything else (a negative number, a value above 1, NaN) has no bucket, so Python raises `ValueError`, C++ throws `std::invalid_argument` and Go panics.
+  </Step>
+  <Step title="Distribute">
+    Create `n` empty buckets and append each value to bucket `floor(x * n)`. Bucket `b` collects the values in `[b/n, (b+1)/n)`, and the last one also takes `1.0`.
+  </Step>
+  <Step title="Sort each bucket">
+    Sort every bucket on its own. Python uses a small insertion sort; C++ and Go call the library sort (`std::sort`, `sort.Float64s`).
+  </Step>
+  <Step title="Concatenate">
+    Read the buckets from first to last. Every value in bucket `b` is smaller than every value in bucket `b + 1`, so the result is sorted.
+  </Step>
+</Steps>
+
+<Callout title="Why the output is sorted">
+The bucket index `floor(x * n)` never decreases as `x` grows, so a smaller value can never end up in a later bucket than a larger one. Buckets therefore hold disjoint, increasing ranges, and sorting inside each bucket finishes the job.
+</Callout>
+
+## See it in action
+
+Press play, or step through each phase. Use the Textbook example to see a well-spread input, and the Clustered example to watch one crowded bucket. Blue marks the value being read or the bucket being sorted, orange the value being written, grey the values already handled, and aqua the values in their final place.
+
+<ArticleViz ids={['bucket-sort']} />
+
+## Worked example
+
+Ten values, so ten buckets. The Python implementation puts them into these buckets (`floor(x * 10)`), before and after sorting each bucket. Buckets 0, 4, 5 and 8 stay empty.
+
+<GridDiagram
+  label='Buckets before and after sorting'
+  corner='bucket'
+  colLabels={['1st', '2nd', '3rd', 'sorted 1st', 'sorted 2nd', 'sorted 3rd']}
+  rowLabels={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}
+  rows={[
+    ['', '', '', '', '', ''],
+    [0.17, 0.12, '', 0.12, 0.17, ''],
+    [0.26, 0.21, 0.23, 0.21, 0.23, 0.26],
+    [0.39, '', '', 0.39, '', ''],
+    ['', '', '', '', '', ''],
+    ['', '', '', '', '', ''],
+    [0.68, '', '', 0.68, '', ''],
+    [0.78, 0.72, '', 0.72, 0.78, ''],
+    ['', '', '', '', '', ''],
+    [0.94, '', '', 0.94, '', ''],
+  ]}
+  tones={['......', 'll.ff.', 'lllfff', 'l..f..', '......', '......', 'l..f..', 'll.ff.', '......', 'l..f..']}
+  legend={{ l: 'in arrival order', f: 'after the bucket is sorted' }}
+/>
+
+The input was `[0.78, 0.17, 0.39, 0.26, 0.72, 0.94, 0.21, 0.12, 0.23, 0.68]`. Reading the buckets from top to bottom gives `[0.12, 0.17, 0.21, 0.23, 0.26, 0.39, 0.68, 0.72, 0.78, 0.94]`. No bucket holds more than three values, so the sorting step is cheap.
+
+## Pseudocode
+
+```text
+bucketSort(arr):                     # values in [0, 1]
+    n = length(arr)
+    for x in arr:
+        if not (0 <= x <= 1): error
+    buckets = n empty lists
+    for x in arr:
+        b = floor(x * n)
+        if b == n: b = n - 1         # x == 1.0
+        append x to buckets[b]
+    for each bucket: sort it
+    return buckets joined in order
+```
+
+## Implementation
+
+The three versions follow the pseudocode. Differences worth knowing:
+
+- Python takes an optional `num_buckets` (default `len(arr)`), sorts each bucket with insertion sort and returns a new list (for an empty list it returns the same object). C++ and Go always use `n` buckets and sort in place.
+- Python also has `bucket_sort_integers`, which uses one bucket per integer value, from the minimum to the maximum. That is Counting Sort written with lists: it accepts negatives, but needs memory proportional to `max - min + 1`.
+
+<TopicCode topic="Algorithms/Sorting/Bucket_Sort" />
+
+## Complexity analysis
+
+Distributing and concatenating cost <BigO of="n + k" /> for `k` buckets. The sorting step depends on how many values share a bucket. If bucket `i` holds `n_i` values and is insertion-sorted:
+
+<Equation label="Total time" expr="T(n) = O(n + k) + sum of O(n_i^2)" result="O(n) when every n_i is about n/k" />
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n + k)', space: 'O(n + k)', when: 'Every bucket has at most a few values, so sorting the buckets is linear in total.' },
+    { case: 'Average case', time: 'O(n + k)', space: 'O(n + k)', when: 'Uniformly distributed input with k about n: the expected size of each bucket is a constant.' },
+    { case: 'Worst case', time: 'O(n^2)', space: 'O(n + k)', when: 'All values fall into one bucket (clustered input), so the whole sort is one insertion sort. C++ and Go sort buckets with a library sort, so there it is O(n log n).' },
+  ]}
+/>
+
+The extra space is the `n` buckets plus the `n` stored values.
+
+<Callout title="The uniformity assumption is the whole point">
+The linear bound is a statement about the input distribution, not about the algorithm. Values such as `[0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.9]` all land in a single bucket except one, and the sort degenerates to the inner sort. Choose bucket boundaries from the data (for example from the minimum and maximum) or a better inner sort if the data is skewed.
+</Callout>
+
+## Variants and design choices
+
+<DataTable
+  columns={['Choice', 'Options', 'Trade-off']}
+  rows={[
+    ['Number of buckets', '`k = n` (here), fewer, more', 'more buckets: smaller buckets but more memory and empty-bucket scanning'],
+    ['Inner sort', 'insertion sort (Python) or library sort (C++, Go)', 'insertion sort is stable and fast for tiny buckets; a library sort protects against crowded buckets'],
+    ['Bucket function', '`floor(x * n)` on [0, 1]', 'for any other range, scale first with `(x - min) / (max - min)`; not implemented here'],
+    ['One bucket per value', '`bucket_sort_integers` (Python)', 'this is Counting Sort: O(n + range), no inner sort needed'],
+  ]}
+/>
+
+## Bucket Sort vs other sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Average', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Needs']}
+  highlight={0}
+  rows={[
+    ['Bucket Sort', 'O(n + k)', 'O(n^2)', 'O(n + k)', 'Depends', 'numbers with a known range and an even spread'],
+    ['Counting Sort', 'O(n + k)', 'O(n + k)', 'O(n + k)', 'Yes', 'small integer range'],
+    ['Radix Sort', 'O(d (n + b))', 'O(d (n + b))', 'O(n + b)', 'Yes', 'integers of bounded digit count'],
+    ['Quick Sort', 'O(n log n)', 'O(n^2)', 'O(log n)', 'No', 'only a comparison'],
+    ['Merge Sort', 'O(n log n)', 'O(n log n)', 'O(n)', 'Yes', 'only a comparison'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear expected time on uniformly distributed input, beating the O(n log n) comparison-sort bound.',
+    'Works on floating-point numbers, which Counting Sort cannot handle directly.',
+    'The buckets are independent, so they can be sorted in parallel.',
+    'Needs no comparisons between values from different buckets.',
+  ]}
+  cons={[
+    'O(n^2) in Python (and bad behaviour in general) when the data is clustered.',
+    'Needs O(n + k) extra memory.',
+    'The implementations here accept only values in [0, 1] and reject everything else.',
+    'The inner sort decides stability: C++ and Go use unstable library sorts.',
+  ]}
+/>
+
+## Applications
+
+- **Uniform real numbers.** Random samples in a known range, such as the textbook case of values in `[0, 1)`.
+- **External or parallel sorting.** Distributing data into value ranges and sorting each range separately (on separate machines or threads) is the same idea.
+- **Frequency grouping.** Placing items into buckets by count is the idea behind many "top k frequent" solutions.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Forgetting the `1.0` case.** `floor(1.0 * n)` is `n`, one past the last bucket. Clamp it to `n - 1`.
+- **Values outside the range.** Negative values give a negative (wrapping) index and values above 1 give an index past the end. Validate, or normalise by the minimum and maximum.
+- **Assuming it is always linear.** Without an even spread, a single bucket holds most of the data.
+- **Calling it stable without checking the inner sort.** Only the insertion-sort version here is stable, and for bare numbers that rarely matters.
+- **Huge integer ranges.** `bucket_sort_integers` allocates `max - min + 1` lists.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is Bucket Sort really O(n)?">
+    Only in expectation and only when the input is spread evenly over the buckets. In the worst case every value falls into one bucket and the cost is that of the inner sort (O(n^2) for insertion sort).
+  </FaqItem>
+  <FaqItem question="How many buckets should I use?">
+    About `n` is the usual choice: each bucket then holds a constant number of values on average, and the distribute and concatenate steps stay linear. This repository uses exactly `n` buckets, except for Python, where you can pass `num_buckets`.
+  </FaqItem>
+  <FaqItem question="How is Bucket Sort different from Counting Sort?">
+    Counting Sort keeps one counter per distinct value, so it works for a small integer range and never sorts inside a bucket. Bucket Sort keeps one bucket per value range, so it handles real numbers, but the buckets still need sorting.
+  </FaqItem>
+  <FaqItem question="Can it sort negative numbers or values above 1?">
+    Not directly here: the functions reject them. Scale the data to `[0, 1]` first with `(x - min) / (max - min)`, or use `bucket_sort_integers` in Python for integers.
+  </FaqItem>
+</Faq>

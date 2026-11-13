@@ -3,7 +3,7 @@
 
 Many impl .cpp files have a demo `main()` parked inside a /* ... */ comment
 block, preceded by both `#ifndef TESTING` and `#ifndef IS_TEST_BUILD` but
-with only a single trailing `#endif` — the inner `#endif` for the second
+with only a single trailing `#endif` -- the inner `#endif` for the second
 guard was missing.
 
 The preprocessor doesn't see the directives inside the comment so they
@@ -11,7 +11,7 @@ don't affect compilation, but the imbalance is ugly when reading the
 source and confuses static analyzers. Add the missing `#endif` so each
 commented block is self-balanced.
 
-Idempotent — re-runs are no-ops once balanced.
+Idempotent -- re-runs are no-ops once balanced.
 """
 import re
 from pathlib import Path

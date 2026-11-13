@@ -1,0 +1,222 @@
+---
+topic: Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+title: Binary Search Tree
+lead: A binary search tree keeps its keys ordered so that every comparison discards a whole subtree. Search, insert and delete cost O(h), the height of the tree. That is O(log n) when the tree is balanced, but O(n) when keys arrive sorted and it degenerates into a chain.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Search / insert / delete
+    value: O(h)
+    hint: h is the height of the tree
+  - label: Balanced tree
+    value: O(log n)
+    hint: h is about log2(n)
+  - label: Sorted input
+    value: O(n)
+    hint: the tree becomes a chain
+    tone: warn
+  - label: In-order traversal
+    value: sorted
+    hint: O(n)
+properties:
+  - { label: Ordered, value: true }
+  - { label: Self-balancing, value: false }
+  - { label: Duplicates allowed, value: false }
+prerequisites:
+  - Data_Structures/Non_Linear/Trees/Binary_Tree
+related:
+  - Data_Structures/Non_Linear/Trees/AVL_Tree
+  - Data_Structures/Non_Linear/Trees/Red_Black_Tree
+  - Data_Structures/Non_Linear/Trees/Treap
+  - Data_Structures/Non_Linear/Trees/Splay_Tree
+---
+
+## What a binary search tree is
+
+A binary search tree (BST) is a binary tree in which each node holds a key and obeys the **BST property**: every key in the node's left subtree is smaller than the node's key, and every key in its right subtree is larger.
+
+The property is about **all** keys in a subtree, not just the two children. A node whose children look right can still be wrong if a deeper descendant is on the wrong side of an ancestor.
+
+<TreeDiagram
+  levelOrder={[50, 30, 70, 20, 40, 60, 80]}
+  tones="p......"
+  legend={{ p: 'the root: everything on its left is < 50, everything on its right is > 50' }}
+  caption="A BST of height 2 with 7 keys. Its in-order traversal is `20 30 40 50 60 70 80`."
+/>
+
+<Callout title="In-order is sorted">
+Visiting left subtree, node, right subtree yields the keys in increasing order. That is the easiest way to test the property: a tree is a BST exactly when its in-order traversal is strictly increasing.
+</Callout>
+
+This repository's trees ignore duplicate inserts. Height is counted in **edges**: an empty tree has height -1 and a single node has height 0. (The AVL Tree folder counts nodes instead.)
+
+## Operations
+
+<DataTable
+  columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`search(x)`', 'compare with the node, go left or right, stop at a match or an empty spot', 'O(h)'],
+    ['`insert(x)`', 'search for `x`; attach a new leaf where the search ends', 'O(h)'],
+    ['`delete(x)`', 'remove the node; three cases by number of children', 'O(h)'],
+    ['`find_min()`, `find_max()`', 'follow left (or right) links to the end', 'O(h)'],
+    ['traversals', 'in-order, pre-order, post-order, level-order', 'O(n)'],
+    ['`height()`, `size()`', 'visit every node', 'O(n)'],
+    ['`is_empty()`', 'check the root', 'O(1)'],
+  ]}
+/>
+
+### Search and insert
+
+Searching for 60 in the tree above visits 50, 70, 60: three comparisons instead of seven. Searching for a missing key such as 65 walks down to the empty spot where it would be. Insert uses exactly that walk and attaches the key there, so a new key is always a leaf.
+
+<TreeDiagram
+  levelOrder={[50, 30, 70, 20, 40, 60, 80, null, null, null, null, null, 65]}
+  tones="l.l..l......p"
+  legend={{ l: 'path of the search for 65', p: 'the new leaf' }}
+  caption="Inserting 65: compare with 50 (go right), 70 (go left), 60 (go right) and attach it as 60's right child."
+/>
+
+### Delete: three cases
+
+<DataTable
+  columns={['Node to remove', 'What happens']}
+  rows={[
+    ['leaf', 'drop it'],
+    ['one child', 'the child takes its place (splice it out)'],
+    ['two children', 'copy the **in-order successor** (the smallest key of the right subtree) into the node, then delete the successor, which has no left child'],
+  ]}
+/>
+
+Starting from the 7-key tree, delete 20 (a leaf), then 30 (one child left, 40), then 50 (two children). The level orders from the Python code are:
+
+<DataTable
+  columns={['Step', 'Level order after', 'Note']}
+  rows={[
+    ['start', '50, 30, 70, 20, 40, 60, 80', ''],
+    ['delete 20', '50, 30, 70, 40, 60, 80', 'leaf removed'],
+    ['delete 30', '50, 40, 70, 60, 80', '40 takes the place of 30'],
+    ['delete 50', '60, 40, 70, 80', 'successor 60 is copied to the root, then its old node is removed']
+  ]}
+/>
+
+<TreeDiagram
+  levelOrder={[50, 40, 70, null, null, 60, 80]}
+  tones="p....f"
+  legend={{ p: 'node 50 (two children)', f: 'its in-order successor, 60' }}
+  caption="Before deleting 50: the successor is the leftmost node of the right subtree."
+/>
+
+<TreeDiagram
+  levelOrder={[60, 40, 70, null, null, null, 80]}
+  tones="f"
+  legend={{ f: 'the key 60 now sits in the old node of 50' }}
+  caption="After the delete: `[60, 40, 70, 80]` in level order."
+/>
+
+## See it in action
+
+<ArticleViz ids={['bst']} />
+
+Type operations such as `50 30 70` to insert, `-30` to delete and `?60` to search, then press Apply. Random builds an input and the transport buttons step through each comparison. Try the sorted-input example to watch the tree turn into a chain.
+
+## Implementation
+
+All three versions have the same API: `insert`, `search`, `delete`, `find_min`, `find_max`, four traversals, `height`, `size`, `is_empty`. Differences:
+
+- The Python version is **iterative** (insert, search, delete and every traversal), so a chain of 5,000 or more nodes works without a `RecursionError`.
+- C++ and Go are recursive for insert, search and delete. The C++ destructor is iterative.
+- Empty tree: Python `find_min` returns `None`, C++ throws `std::runtime_error`, Go returns an error.
+- The C++ class owns raw pointers, so its copy constructor and assignment are deleted.
+
+<TopicCode topic="Data_Structures/Non_Linear/Trees/Binary_Search_Tree" />
+
+## Complexity
+
+<DataTable
+  columns={['Case', { label: 'Search / insert / delete', kind: 'mono' }, 'Shape']}
+  rows={[
+    ['best, average (random keys)', 'O(log n)', 'a randomly built tree has height O(log n); the average node depth is about 1.39 log2(n)'],
+    ['worst', 'O(n)', 'sorted or reverse-sorted input: a chain, h = n - 1'],
+  ]}
+/>
+
+Every operation follows a single root-to-leaf path and does constant work per node, so the cost is the height h. A randomly built tree is shallow, but real input is often partly sorted. After many random deletes with the successor rule the shape can also drift toward lopsided, which is one reason balanced trees exist.
+
+Space is O(n) for the nodes. The recursive versions use O(h) stack.
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'Guarantee']}
+  rows={[
+    ['AVL tree', 'rotations keep subtree heights within 1', 'O(log n) worst case'],
+    ['Red-Black tree', 'color rules bound the longest path', 'O(log n) worst case'],
+    ['Treap', 'random priorities, split and merge', 'O(log n) expected'],
+    ['Splay tree', 'move each accessed key to the root', 'O(log n) amortized'],
+  ]}
+/>
+
+B-Trees are not binary search trees: they have many keys per node and are built for disk pages.
+
+## BST vs alternatives
+
+<DataTable
+  columns={['Structure', { label: 'Search', kind: 'mono' }, { label: 'Insert', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['BST', 'O(log n) average, O(n) worst', 'O(log n) average, O(n) worst', 'ordered, simple, no balance guarantee'],
+    ['Balanced BST (AVL, Red-Black)', 'O(log n)', 'O(log n)', 'ordered with a worst-case guarantee'],
+    ['Sorted array', 'O(log n)', 'O(n)', 'binary search, but shifting on insert'],
+    ['Unsorted array', 'O(n)', 'O(1) append', 'no order'],
+    ['Hash table', 'O(1) average', 'O(1) average', 'no order, no range queries'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Simple to implement and to reason about.',
+    'Keeps keys ordered: in-order traversal, min, max, predecessor and successor, range queries.',
+    'Fast on average when keys arrive in random order.',
+  ]}
+  cons={[
+    'No balance guarantee: sorted input gives O(n) operations.',
+    'Pointer-based, so less cache-friendly than an array.',
+    'Needs a rebalancing variant for worst-case guarantees.',
+  ]}
+/>
+
+## Applications
+
+- Ordered sets and maps in small programs, and the base for balanced trees.
+- Range queries and nearest-key lookups (successor and predecessor).
+- Sorting by inserting all keys, then reading the in-order traversal (tree sort).
+- Interview staples: validate a BST, find the k-th smallest, lowest common ancestor.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Checking only parent and child.** Validating `left < node < right` locally accepts invalid trees. Pass down a (low, high) bound for every subtree, or check that the in-order output is increasing.
+- **Assuming O(log n).** The bound holds only for balanced trees. Sorted input is the worst case.
+- **Forgetting the duplicate policy.** This code ignores duplicates. Other designs store a count or allow equal keys on one fixed side. Pick one and keep it consistent.
+- **Two-child delete with the wrong node.** Use the in-order successor (or predecessor), then delete that node, which has at most one child.
+- **Deep recursion.** A chain of 10<sup>5</sup> nodes overflows the stack in a recursive implementation; Python's default limit is about 1,000 frames.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does in-order traversal give sorted output?">
+    Everything in the left subtree is smaller than the node and everything in the right subtree is larger. Visiting left, node, right therefore emits smaller keys first, recursively at every level.
+  </FaqItem>
+  <FaqItem question="When does a BST become a linked list?">
+    When keys are inserted in sorted or reverse-sorted order. Each new key goes to the same side of the previous one, so the height becomes n - 1.
+  </FaqItem>
+  <FaqItem question="Successor or predecessor for a two-child delete?">
+    Either works. This repository uses the in-order successor, the smallest key of the right subtree.
+  </FaqItem>
+  <FaqItem question="How do I stop the tree from degenerating?">
+    Use a self-balancing variant: an AVL or Red-Black tree for worst-case guarantees, or a treap for randomized balancing.
+  </FaqItem>
+</Faq>

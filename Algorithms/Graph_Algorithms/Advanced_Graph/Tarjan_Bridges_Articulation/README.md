@@ -1,204 +1,117 @@
-# Tarjan's Bridges & Articulation Points
+# Tarjan's Bridges and Articulation Points
 
-> Given an **undirected** graph, find its **critical edges (bridges)** — edges whose removal disconnects the graph — and its **articulation points (cut vertices)** — vertices whose removal disconnects the graph. Tarjan's algorithm finds both in **O(V + E)** via a single DFS.
+Given an **undirected** graph, find its **bridges** (edges whose removal disconnects the graph) and its **articulation points** (vertices whose removal disconnects it). Tarjan's algorithm finds both in one DFS in **O(V + E)** time.
 
----
+## Intuition
 
-## 🎯 Intuition
+Think of a road map. A bridge is a road that, if closed, cuts a neighbourhood off. An articulation point is an intersection that, if blocked, does the same. Both are single points of failure in a network.
 
-Imagine a city's road map:
+A DFS on an undirected graph produces tree edges and back edges (a back edge goes to an ancestor). Two numbers per vertex are enough:
 
-- A **bridge** (in graph-theory sense) is a road that, if closed, would cut off some neighborhood from the rest.
-- An **articulation point** is an intersection that, if blocked, would do the same.
+- `disc[u]`: when the DFS discovered `u`.
+- `low[u]`: the smallest `disc` reachable from `u`'s subtree using tree edges and at most one back edge.
 
-Both concepts matter for **network reliability** analysis: which links are single points of failure? In a computer network, an articulation point is a router whose crash disconnects clients; a bridge is a cable whose cut does the same.
+If `u`'s child `v` has `low[v] > disc[u]`, the subtree of `v` cannot get back to `u` or above, so the edge `(u, v)` is the only link: a bridge. If `low[v] >= disc[u]`, the subtree can reach `u` but not past it, so removing `u` cuts it off: `u` is an articulation point (the root is one only if it has two or more DFS children).
 
-The brilliance of Tarjan: **one DFS pass**, keeping two timestamps per vertex:
-- `disc[u]` — the time `u` was first discovered (pre-order timestamp).
-- `low[u]` — the smallest `disc` value reachable from `u`'s DFS subtree, including via one non-tree (back) edge.
+## Visual
 
-These two values tell us everything we need about bridges and cut vertices.
+Two triangles joined by the edge 2-3. Badges are `disc/low`:
 
----
+```text
+   0 (0/0)                 4 (4/3)
+   |  \                    |  \
+   |   2 (2/0) ---- 3 (3/3)   |
+   |  /                    |  /
+   1 (1/0)                 5 (5/3)
 
-## 📊 Visual: DFS Timestamps and `low` Values
-
-```
-Graph:
-    1 --- 2
-    |     |
-    0     3
-    |
-    4 --- 5
-
-DFS from 0 (arbitrary root):
-    disc[0]=1  low[0]=1
-    disc[1]=2  low[1]=1   (can reach 0 via back edge ... but only tree edge here)
-    disc[2]=3  low[2]=3
-    disc[3]=4  low[3]=3
-    disc[4]=5  low[4]=5
-    disc[5]=6  low[5]=5
-
-Edges considered:
-    (0,1) - tree. low[1]=2 > disc[0]=1 → this is a BRIDGE ✓
-    (1,2) - tree. low[2]=3 > disc[1]=2 → BRIDGE ✓
-    (2,3) - tree. low[3]=4 > disc[2]=3 → BRIDGE ✓
-    (0,4) - tree. low[4]=5 > disc[0]=1 → BRIDGE ✓
-    (4,5) - tree. low[5]=6 > disc[4]=5 → BRIDGE ✓
-
-Articulation points:
-    0 is root with 2 children (1, 4) → cut vertex ✓
-    1 has child 2 with low[2]=3 ≥ disc[1]=2 → cut vertex ✓
-    2 has child 3 with low[3]=4 ≥ disc[2]=3 → cut vertex ✓
-    4 has child 5 with low[5]=6 ≥ disc[4]=5 → cut vertex ✓
-
-This is a tree, so every internal vertex is a cut vertex and every edge is a bridge.
+   edges: 0-1 1-2 2-0 | 2-3 | 3-4 4-5 5-3
+   bridge: 2-3        articulation points: 2 and 3
 ```
 
----
+The back edges 2-0 and 5-3 pull `low` down to 0 and 3. The edge 2-3 has `low[3] = 3 > disc[2] = 2`, so it is a bridge.
 
-## 🧮 Algorithm
+## How It Works
 
-```
-function dfs(u, parent):
-    disc[u] = low[u] = time++
-    children = 0
-    for v in adj[u]:
-        if disc[v] == -1:           # tree edge
-            children += 1
-            dfs(v, u)
-            low[u] = min(low[u], low[v])
-            # Bridge condition: no back edge from v's subtree reaches u or earlier
-            if low[v] > disc[u]:
-                bridges.add((u, v))
-            # Articulation condition: v's subtree can't reach above u (except for root)
-            if parent != -1 and low[v] >= disc[u]:
-                articulation.add(u)
-        elif v != parent:            # back edge
-            low[u] = min(low[u], disc[v])
-    # Root is articulation iff it has ≥ 2 children in DFS tree
-    if parent == -1 and children > 1:
-        articulation.add(u)
-```
+1. `dfs(u, parentEdge)`: set `disc[u] = low[u] = timer++`.
+2. For each edge `(v, id)` of `u`, skip `id == parentEdge` (skip by edge id, not by parent vertex).
+3. If `v` is new: it is a tree edge. Recurse, then `low[u] = min(low[u], low[v])`. Then:
+   - if `low[v] > disc[u]`, edge `(u, v)` is a bridge;
+   - if `low[v] >= disc[u]` and `u` is not the root, `u` is an articulation point.
+4. If `v` is already discovered: back edge, `low[u] = min(low[u], disc[v])`.
+5. After the loop: the root is an articulation point if it has more than one DFS child.
 
-Two rules:
-- **Bridge**: `low[v] > disc[u]` — `v`'s subtree has NO escape route back to `u` or ancestors, so removing `(u, v)` disconnects.
-- **Articulation**: `low[v] ≥ disc[u]` for non-root, or root has `≥ 2` DFS children.
+## Step-by-Step Trace
 
----
+Graph `0-1, 1-2, 2-0, 2-3, 3-4, 4-5, 5-3` on 6 vertices. The DFS discovers 0, 1, 2, 3, 4, 5 in that order:
 
-## 🚶 Step-by-Step Trace
+| Child returns | low[child] | disc[parent] | Bridge (>) | Cut vertex (>=) |
+|---------------|-----------|--------------|-----------|-----------------|
+| 5 to 4 | 3 | 4 | no | no |
+| 4 to 3 | 3 | 3 | no | yes: 3 |
+| 3 to 2 | 3 | 2 | yes: 2-3 | yes: 2 |
+| 2 to 1 | 0 | 1 | no | no |
+| 1 to 0 | 0 | 0 | no | root with one child |
 
-Graph: `0 - 1 - 2 - 0` (triangle) plus `2 - 3`.
+Result from `find_bridges_and_articulations`: bridges `[(2, 3)]`, articulation points `[2, 3]`.
 
-```
-Call dfs(0, -1):
-    disc[0]=1, low[0]=1
-    Neighbors of 0: [1, 2]
-    → visit 1 (tree edge):
-        disc[1]=2, low[1]=2
-        Neighbors: [0, 2]
-        → 0 is parent, skip
-        → visit 2 (tree edge):
-            disc[2]=3, low[2]=3
-            Neighbors: [0, 1, 3]
-            → 0: disc[0]=1 != -1, 0 != parent=1 → back edge! low[2] = min(3, 1) = 1
-            → 1 is parent, skip
-            → visit 3 (tree edge):
-                disc[3]=4, low[3]=4
-                Neighbors: [2] (parent) — done
-                low[3] = 4
-            Back in 2: low[2] = min(1, low[3]=4) = 1
-            Check bridge: low[3]=4 > disc[2]=3 → BRIDGE (2, 3) ✓
-            Check articulation: parent=1 != -1 && low[3]=4 ≥ disc[2]=3 → ARTICULATION 2 ✓
-        Back in 1: low[1] = min(2, low[2]=1) = 1
-        Check bridge: low[2]=1 > disc[1]=2? NO → not a bridge (correct, triangle reroutes)
-        Check articulation: low[2]=1 ≥ disc[1]=2? NO → not articulation
-    Back in 0: low[0] = min(1, low[1]=1) = 1
-    Root check: children=1 → NOT articulation
-
-Result: bridges = [(2,3)], articulations = [2]
-```
-
-Exactly what you'd expect: the triangle has no bridges (any edge can be bypassed), but the tail `2—3` is a dead-end bridge, and vertex 2 is the only cut vertex.
-
----
-
-## ⏱️ Complexity — and Why
+## Complexity
 
 | Phase | Time | Space |
 |-------|------|-------|
-| DFS | O(V + E) | O(V) for recursion + arrays |
-| **Total** | **O(V + E)** | **O(V)** |
+| DFS | O(V + E) | O(V + E) |
+| **Total** | **O(V + E)** | **O(V + E)** |
 
-Single DFS visits each edge twice (once from each endpoint) and each vertex once. `low` and `disc` updates are O(1) each.
+Each edge is scanned from both endpoints and each vertex is discovered once; every `low` update is O(1). Space covers the adjacency lists with edge ids, `disc`, `low` and the DFS stack.
 
----
+## When to Use
 
-## 🎯 When to Use
+Use it when:
 
-✅ **Use Tarjan's when:**
-- Network reliability analysis (find single points of failure)
-- Biconnected components (as a building block — bridges delineate BCCs)
-- Identifying cycles (non-bridge edges belong to some cycle)
-- 2-edge-connectivity / 2-vertex-connectivity checking
-- Problems about "minimum edges/vertices to remove to disconnect"
+- you need single points of failure in a network (cables and routers);
+- you want 2-edge-connected components (remove the bridges) or the block structure of a graph;
+- you need to know which edges lie on a cycle (exactly the non-bridges).
 
-❌ **Don't use for:**
-- **Directed** graphs → use SCC (Kosaraju / Tarjan's SCC) for analogous concepts
-- Edge/vertex connectivity in the broader sense (κ(G), λ(G)) → max-flow is the tool
-- Finding specific cycles → use DFS with parent tracking, or cycle-finding algorithms
+Do not use it when:
 
----
+- the graph is directed: use strongly connected components;
+- you need the exact connectivity numbers of a graph: that is a max-flow problem.
 
-## ⚔️ Bridges vs. Articulation Points
+## Bridges vs. Articulation Points
 
-| Concept | Definition | Detection rule |
-|---------|-----------|----------------|
-| **Bridge** | Edge (u,v) whose removal disconnects graph | `low[v] > disc[u]` (strictly greater) |
-| **Articulation** | Vertex whose removal disconnects graph | `low[v] ≥ disc[u]` (≥), special-cased for root |
+| | Bridge | Articulation point |
+|---|---|---|
+| What | an edge | a vertex |
+| Test on tree edge (u, v) | `low[v] > disc[u]` | `low[v] >= disc[u]`, u not the root |
+| Root | no special case | cut vertex if 2 or more DFS children |
+| Parallel edges | a doubled edge is never a bridge | unaffected |
 
-**Key difference**: bridges test whether `v`'s subtree can reach strictly **above** `u` — articulation tests whether it can reach `u` or above. The root is an articulation iff it has **≥ 2 DFS children**.
+A bridge endpoint that has other edges is an articulation point; a leaf at the end of a bridge is not. A vertex can be an articulation point without touching a bridge (two cycles sharing one vertex).
 
-Every bridge endpoint is (usually) an articulation point — but not always, and not conversely. A triangle has no bridges but no articulation points either.
+## Common Pitfalls
 
----
+1. **Parallel edges.** Skipping the parent vertex hides the second copy of the edge. Skip the edge id you arrived by.
+2. **`>` versus `>=`.** Strict for bridges, non-strict for articulation points.
+3. **The root rule.** A non-root vertex needs a child with `low[v] >= disc[u]`; the root needs two DFS children.
+4. **Recursion depth.** Raising `sys.setrecursionlimit` for a long path ends in an interpreter crash. Python and C++ here use an explicit stack; Go uses a recursive closure, which is safe because goroutine stacks grow.
+5. **Vertex labels.** Vertices must be numbered `0..n-1`. A larger label raises `KeyError` in Python, is undefined behaviour in C++ and panics in Go.
 
-## ⚠️ Common Pitfalls
+## Implementations
 
-1. **Multi-edge handling.** If the graph has parallel edges (two edges between u and v), the parent-tracking `v != parent` check fails. Track edges by edge-index instead of parent-vertex.
-2. **Strict `>` vs `≥` confusion.** Bridge uses `>`; articulation uses `≥`. Swapping them gives silently wrong answers that look plausible on small examples.
-3. **Root is special for articulation.** A non-root vertex is an articulation iff it has a child `v` with `low[v] ≥ disc[u]`. The root is an articulation iff it has ≥ 2 DFS children — a different rule.
-4. **Recursion depth on long paths.** DFS on a linear chain of 100,000 vertices will blow Python's recursion limit. Use an iterative DFS or raise `sys.setrecursionlimit`.
-5. **Back edges to parent** should not update `low`. That's why we check `v != parent`. Forgetting this gives `low` values that are too small, causing missed bridges.
+| Language | Folder | Main file | Notes |
+|----------|--------|-----------|-------|
+| Python | [Python/](Python/) | `tarjan_bridges.py` | iterative DFS; returns sorted `(bridges, articulation_points)` |
+| C++ | [C++/](C++/) | `tarjan_bridges.h` | header-only class; iterative DFS; `TarjanResult` struct |
+| Go | [Go/](Go/) | `main.go` | recursive closure DFS; `Result` struct |
 
----
+## Practice Problems
 
-## 🔧 Implementations
+- [LeetCode 1192. Critical Connections in a Network](https://leetcode.com/problems/critical-connections-in-a-network/): the canonical bridges problem.
+- [Codeforces 118E. Bertown Roads](https://codeforces.com/problemset/problem/118/E): orient the edges of a bridge-free graph.
+- [UVa 315. Network](https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=11&page=show_problem&problem=251): the canonical articulation points problem.
 
-| Language | Folder | Notes |
-|----------|--------|-------|
-| Python | [Python/](Python/) | Recursive DFS; `sys.setrecursionlimit` bump for safety |
-| C++ | [C++/](C++/) | Recursive DFS with `std::vector` adjacency lists |
-| Go | [Go/](Go/) | Iterative DFS to avoid stack overflow on large graphs |
+## Related
 
----
-
-## 📝 Practice Problems
-
-- [LeetCode 1192. Critical Connections in a Network](https://leetcode.com/problems/critical-connections-in-a-network/) — the canonical bridges problem
-- [Codeforces 118E. Bertown Roads](https://codeforces.com/problemset/problem/118/E) — orienting a bridge-free graph
-- [UVa 315. Network](https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=11&page=show_problem&problem=251) — canonical articulation points
-- [HackerRank — Articulation Point](https://www.hackerrank.com/challenges/ctci-connected-cells-in-a-grid/problem)
-
----
-
-## 🔗 Related
-
-- [DFS](../../Traversal/DFS/README.md) — the traversal Tarjan's builds on
-- [Strongly Connected Components](../Strongly_Connected_Components/README.md) — directed-graph analog
-- [Union-Find](../Union-Find_DSU/README.md) — alternative approach (incremental edge-addition)
-
----
-
-_Part of [Advanced Graph Algorithms](../README.md)._
+- [DFS](../../Traversal/DFS/README.md): the traversal Tarjan builds on
+- [Strongly Connected Components](../Strongly_Connected_Components/README.md): the directed analogue
+- [Tarjan's SCC Algorithm](../Strongly_Connected_Components/Tarjans_Algorithm/README.md): the same low-link idea with a stack
+- [Union-Find](../../../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/README.md): an alternative when edges arrive incrementally

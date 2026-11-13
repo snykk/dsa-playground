@@ -82,3 +82,34 @@ func TestLiChaoArbitraryOrder(t *testing.T) {
 		}
 	}
 }
+
+func TestMonotonicEqualSlopes(t *testing.T) {
+	// Regression: the middle line {2, 1} used to be dropped
+	cht := NewMonotonicCHT()
+	for _, l := range []Line{{2, 5}, {2, 1}, {2, 3}} {
+		cht.AddLine(l.M, l.B)
+	}
+	if got := cht.Query(0); got != 1 {
+		t.Errorf("got %d, want 1", got)
+	}
+
+	rng := rand.New(rand.NewSource(11))
+	for round := 0; round < 300; round++ {
+		var lines []Line
+		m := int64(20)
+		count := 1 + rng.Intn(12)
+		for i := 0; i < count; i++ {
+			m -= int64(rng.Intn(4)) // 0 allowed: equal slopes
+			lines = append(lines, Line{m, int64(rng.Intn(61) - 30)})
+		}
+		c := NewMonotonicCHT()
+		for _, l := range lines {
+			c.AddLine(l.M, l.B)
+		}
+		for x := int64(-15); x <= 15; x++ {
+			if got, want := c.Query(x), bruteMin(lines, x); got != want {
+				t.Fatalf("lines %v at x=%d got %d, want %d", lines, x, got, want)
+			}
+		}
+	}
+}

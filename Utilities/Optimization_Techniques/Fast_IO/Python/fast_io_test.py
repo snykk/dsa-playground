@@ -6,8 +6,93 @@ import unittest
 import io
 import sys
 from fast_io import (
-    BufferedOutput, AllInputReader
+    BufferedInput, BufferedOutput, AllInputReader, fast_input, fast_int,
+    fast_ints, fast_floats, fast_strings, fast_iter_ints, fast_print,
+    fast_print_list, fast_print_matrix, read_all_ints,
 )
+
+
+class FakeStdin:
+    """Context manager that replaces sys.stdin (and optionally captures stdout)."""
+
+    def __init__(self, text):
+        self.text = text
+
+    def __enter__(self):
+        self.old_in, self.old_out = sys.stdin, sys.stdout
+        sys.stdin = io.StringIO(self.text)
+        sys.stdout = io.StringIO()
+        return self
+
+    def __exit__(self, *exc):
+        self.output = sys.stdout.getvalue()
+        sys.stdin, sys.stdout = self.old_in, self.old_out
+        return False
+
+
+class TestRealFunctions(unittest.TestCase):
+    """Tests that run the module's own readers and writers on fake stdin."""
+
+    def test_line_readers(self):
+        with FakeStdin("hello world\n42\n1 2 3\n1.5 2.5\na b c\n4 5\n"):
+            self.assertEqual(fast_input(), "hello world")
+            self.assertEqual(fast_int(), 42)
+            self.assertEqual(fast_ints(), [1, 2, 3])
+            self.assertEqual(fast_floats(), [1.5, 2.5])
+            self.assertEqual(fast_strings(), ["a", "b", "c"])
+            self.assertEqual(list(fast_iter_ints()), [4, 5])
+
+    def test_fast_int_at_end_of_input(self):
+        """An exhausted stream gives an empty line, which is not an integer"""
+        with FakeStdin(""):
+            self.assertEqual(fast_input(), "")
+            with self.assertRaises(ValueError):
+                fast_int()
+            self.assertEqual(fast_ints(), [])
+
+    def test_negative_and_large(self):
+        with FakeStdin("-5 123456789012345678901234567890\n"):
+            self.assertEqual(fast_ints(), [-5, 123456789012345678901234567890])
+
+    def test_writers(self):
+        with FakeStdin("") as ctx:
+            fast_print(1, "a", 2.5)
+            fast_print(7, 8, sep=",", end="!")
+            fast_print_list([1, 2, 3], sep="-")
+            fast_print_matrix([[1, 2], [3, 4]])
+        self.assertEqual(ctx.output, "1 a 2.5\n7,8!1-2-3\n1 2\n3 4\n")
+
+    def test_buffered_input_tokens(self):
+        with FakeStdin("3\n10 20\n30 1.5\nword\n"):
+            reader = BufferedInput()
+            self.assertEqual(reader.next_int(), 3)
+            self.assertEqual(reader.next_ints(3), [10, 20, 30])
+            self.assertEqual(reader.next_float(), 1.5)
+            self.assertEqual(reader.next_line(), "word")
+            with self.assertRaises(IndexError):
+                reader.next()
+
+    def test_buffered_output_flush_clears(self):
+        out = BufferedOutput()
+        out.write("a", "b")
+        out.write_list([1, 2], sep=",")
+        with FakeStdin("") as ctx:
+            out.flush()
+            out.flush()  # second flush writes nothing
+        self.assertEqual(ctx.output, "a b\n1,2\n")
+
+    def test_read_all(self):
+        with FakeStdin("1 2\n3\n4 5 6\n"):
+            self.assertEqual(read_all_ints(), [1, 2, 3, 4, 5, 6])
+
+    def test_all_input_reader(self):
+        with FakeStdin("2\n3 1 2 3\n2 10 20\n"):
+            reader = AllInputReader()
+            self.assertEqual(reader.next(), 2)
+            n = reader.next()
+            self.assertEqual(reader.next_n(n), [1, 2, 3])
+            n = reader.next()
+            self.assertEqual(reader.next_n(n), [10, 20])
 
 
 class TestFastIO(unittest.TestCase):

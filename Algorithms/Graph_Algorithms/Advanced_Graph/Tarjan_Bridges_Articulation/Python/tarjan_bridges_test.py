@@ -31,13 +31,13 @@ class TestBridges(unittest.TestCase):
         self.assertEqual(aps, [1, 2])
 
     def test_isolated_vertices(self):
-        # Vertices 0,1,2 all isolated — no bridges, no articulations
+        # Vertices 0,1,2 all isolated - no bridges, no articulations
         bridges, aps = find_bridges_and_articulations(3, [])
         self.assertEqual(bridges, [])
         self.assertEqual(aps, [])
 
     def test_disconnected_components(self):
-        # Two disjoint triangles — no bridges, no articulations
+        # Two disjoint triangles - no bridges, no articulations
         edges = [(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)]
         bridges, aps = find_bridges_and_articulations(6, edges)
         self.assertEqual(bridges, [])
@@ -59,7 +59,7 @@ class TestBridges(unittest.TestCase):
         self.assertEqual(aps, [1])
 
     def test_parallel_edges(self):
-        # Two parallel edges between 0 and 1 — not a bridge
+        # Two parallel edges between 0 and 1 - not a bridge
         edges = [(0, 1), (0, 1)]
         bridges, aps = find_bridges_and_articulations(2, edges)
         self.assertEqual(bridges, [])
@@ -71,6 +71,26 @@ class TestBridges(unittest.TestCase):
         bridges, aps = find_bridges_and_articulations(5, edges)
         self.assertEqual(bridges, [(2, 4)])
         self.assertEqual(aps, [2])
+
+
+    def test_long_path_is_iterative(self):
+        # Regression: the recursive DFS (with a raised recursion limit) crashed the
+        # interpreter with a segfault on a 100000-vertex path
+        n = 100000
+        bridges, aps = find_bridges_and_articulations(n, [(i, i + 1) for i in range(n - 1)])
+        self.assertEqual(len(bridges), n - 1)
+        self.assertEqual(aps, list(range(1, n - 1)))
+
+    def test_long_cycle_has_no_bridges(self):
+        n = 100000
+        edges = [(i, (i + 1) % n) for i in range(n)]
+        self.assertEqual(find_bridges_and_articulations(n, edges), ([], []))
+
+    def test_self_loop(self):
+        # A self-loop is a back edge to the vertex itself: it changes nothing
+        bridges, aps = find_bridges_and_articulations(3, [(0, 1), (1, 1), (1, 2)])
+        self.assertEqual(bridges, [(0, 1), (1, 2)])
+        self.assertEqual(aps, [1])
 
 
 if __name__ == "__main__":

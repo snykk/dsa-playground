@@ -1,0 +1,131 @@
+---
+category: Algorithms/Coding_Theory
+title: Coding Theory
+lead: Coding theory protects data from accidents such as scratches, noise and lost packets. The two topics pair up. The Galois field GF(2^8) is the arithmetic on bytes, and the Reed-Solomon code runs on that arithmetic to repair corrupted bytes.
+updated: 2026-11-13
+facts:
+  - label: Field size
+    value: '256'
+    hint: GF(2^8), one element per byte
+  - label: Field polynomial
+    value: '0x11B'
+    hint: x^8 + x^4 + x^3 + x + 1, generator 3
+    tone: warn
+  - label: Unknown errors
+    value: floor((n-k)/2) bytes
+    hint: Reed-Solomon, positions not known
+  - label: Known positions
+    value: n-k erasures
+    hint: the budget is e + 2v <= n-k
+contents:
+  - folder: Galois_Field
+    note: The arithmetic. Add is XOR, multiply and divide are table lookups, and every nonzero byte has an inverse.
+  - folder: Reed_Solomon
+    note: The code. Add n-k parity bytes to k message bytes, then locate and repair damaged bytes with the field.
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+related:
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform
+  - Algorithms/Mathematical_Algorithms/Number_Theory
+---
+
+## The problem
+
+A noisy channel changes some bytes of a message. A checksum tells you that something changed. An error-correcting code adds enough redundancy to tell you what changed and to fix it.
+
+Reed-Solomon does this with polynomials over a finite field. It needs arithmetic in which any two bytes can be added, subtracted, multiplied and divided, and the result is always a byte again. Ordinary integer arithmetic does not do that, because bytes overflow and most have no inverse mod 256. GF(2^8) does, so the two topics belong together:
+
+- **Galois Field** builds the arithmetic.
+- **Reed-Solomon** encodes and decodes with it. Python and C++ reuse the Galois Field topic directly, and Go carries its own minimal copy.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Role', 'Key property', { label: 'Cost', kind: 'mono' }]}
+  rows={[
+    ['Galois Field', 'byte arithmetic with no overflow', 'add is XOR; every nonzero element has an inverse', 'O(1) per operation after an O(256) setup'],
+    ['Reed-Solomon', 'error and erasure correction', 'corrects floor((n-k)/2) unknown errors, or n-k known erasures', 'decode O(n (n-k))'],
+  ]}
+/>
+
+## See it side by side
+
+The Reed-Solomon visualization shows the whole decode: syndromes, Berlekamp-Massey, the search for error positions and the repair. Its input names the code and the damage: `n=7 k=5 msg=2,3,5,7,11 err=5:99`. Start with **README trace**, then try **Erasures double the power** (`era=2,5`) and **Same damage, no positions** (`err=2:0,5:0`) to see the same two damaged bytes handled once with known positions and once without.
+
+<ArticleViz ids={['reed-solomon']} />
+
+## The field inside one decode
+
+Take RS(7, 5) with the parameters the code here really uses: field polynomial `0x11B`, `alpha = 3`, `fcr = 0`, so the generator polynomial has the roots `alpha^0 = 1` and `alpha^1 = 3`. Every number below comes from the Python code.
+
+<DataTable
+  columns={['Step', 'Field operation', 'Result']}
+  rows={[
+    ['Generator', '`(x + 1)(x + 3)`: the middle term is `1 XOR 3`', '`x^2 + 2x + 3`'],
+    ['Encode', 'message `[2, 3, 5, 7, 11]`, remainder of the message times `x^2` divided by the generator', 'codeword `[87, 95, 2, 3, 5, 7, 11]`: 2 parity bytes, then the message'],
+    ['Damage', 'position 5 changes from 7 to 99', 'received `[87, 95, 2, 3, 5, 99, 11]`'],
+    ['Syndromes', 'evaluate the received word at 1 and at 3', '`s0 = 100`, `s1 = 130`; both were 0 before the damage'],
+    ['Locate', 'for one error, `s1 / s0 = alpha^p`', '`130 / 100 = 51`, and `3^5 = 51`, so `p = 5`'],
+    ['Repair', 'Forney gives the error value 100', '`99 XOR 100 = 7`'],
+  ]}
+/>
+
+Division in the locate step is a lookup: the field divides by multiplying with an inverse, and every nonzero byte has one.
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Note']}
+  rows={[
+    ['Field setup', 'O(256)', 'O(256)', 'once: the log and antilog tables'],
+    ['Add, subtract', 'O(1)', 'O(1)', 'XOR'],
+    ['Multiply, divide, inverse', 'O(1)', 'O(1)', 'two table lookups'],
+    ['Reed-Solomon decode', 'O(n (n-k))', 'O(n)', 'syndromes, Berlekamp-Massey, Chien search'],
+  ]}
+/>
+
+## Choosing between them
+
+<DataTable
+  columns={['Situation', 'Read', 'Why']}
+  rows={[
+    ['You want the arithmetic behind AES, RAID-6 or QR codes', 'Galois Field', 'bytes as polynomials over GF(2), reduced by a fixed polynomial'],
+    ['You want to repair corrupted bytes', 'Reed-Solomon', 'parity bytes plus a decoder that finds positions and values'],
+    ['You know which bytes are bad', 'Reed-Solomon, erasures', 'each erasure costs one parity byte, an unknown error costs two'],
+    ['You need to compare this code with a standard', 'Reed-Solomon, the fcr section', 'the field here is fixed to 0x11B, so it is not bit-compatible with QR codes or CCSDS'],
+  ]}
+/>
+
+## Applications
+
+- **QR codes and optical discs.** Reed-Solomon parity lets a damaged symbol or a scratched disc still read.
+- **RAID-6.** Two parity blocks survive two lost disks, which is erasure decoding.
+- **Deep-space links.** The RS(255, 223) code corrects 16 bytes per block.
+- **Cryptography.** GF(2^8) is also the field behind AES.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Treating GF(2^8) as integers mod 256.** Addition is XOR, not a sum with wrap-around, and multiplication reduces by the field polynomial.
+- **Confusing bytes with bits.** RS(255, 223) corrects 16 bytes, so 17 bit errors in 17 different bytes defeat it.
+- **Exceeding the budget.** Erasures `e` and unknown errors `v` must satisfy `e + 2v <= n-k`. Past it, the decoder raises `DecodeError` in almost every case, but a heavy pattern can rarely look like a different valid codeword, and the code cannot detect that.
+- **Assuming standard compatibility.** QR codes use polynomial `0x11D` with `alpha = 2`. This code fixes `0x11B`, so its codewords are not QR codewords. The same holds for CCSDS RS(255, 223).
+- **Mixing `fcr` values.** The encoder and the decoder must use the same `fcr`, or a clean word looks corrupted.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why do I need a finite field at all?">
+    Bytes must stay bytes. In GF(2^8) every operation returns a byte, and every nonzero byte has an inverse, so the decoder can divide. Integers mod 256 fail the second test: even numbers have no inverse.
+  </FaqItem>
+  <FaqItem question="What is the difference between an error and an erasure?">
+    An erasure is a damaged byte whose position is known. An error is a damaged byte at an unknown position, so the decoder must find both where and what. That is why an erasure costs one parity byte and an error costs two.
+  </FaqItem>
+  <FaqItem question="Which parameters does this repository use?">
+    The field polynomial is `0x11B` with `alpha = 3`, `fcr` defaults to 0, and `n` must be at most 255. The code is RS(n, k) with `n - k` parity bytes.
+  </FaqItem>
+  <FaqItem question="In what order should I read the topics?">
+    Galois Field first, because every Reed-Solomon step is an operation in it. Then Reed-Solomon.
+  </FaqItem>
+</Faq>

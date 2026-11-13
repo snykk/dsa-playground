@@ -1,0 +1,228 @@
+---
+topic: Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm
+title: A* Search
+lead: A* finds a cheapest path from a start to one goal. It works like Dijkstra's algorithm, but it expands the vertex with the smallest g + h, where h is a heuristic estimate of the remaining cost, so it can skip large parts of the graph that point away from the goal.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Priority
+    value: f = g + h
+    hint: cost so far plus estimated cost to the goal
+  - label: Optimal when
+    value: h never overestimates
+    hint: admissible heuristic, non-negative weights
+  - label: Worst case
+    value: O(b^d)
+    hint: a useless heuristic degrades to Dijkstra on an implicit search tree
+    tone: warn
+  - label: With h = 0
+    value: Dijkstra's algorithm
+properties:
+  - { label: Informed search, value: true }
+  - { label: Optimal with an admissible h, value: true }
+  - { label: Negative edge weights, value: false }
+  - { label: Single goal, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Data_Structures/Non_Linear/Heaps
+related:
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm
+---
+
+## How A* works
+
+Dijkstra's algorithm expands vertices in order of the distance already travelled, g. That is safe but blind: it spreads in every direction. A* adds a guess h(v) of the distance still to go, and expands the vertex with the smallest **f(v) = g(v) + h(v)**. Vertices that look like they lead away from the goal wait in the queue and are often never expanded.
+
+<Steps>
+  <Step title="Start the queue">
+    Push the start with g = 0 and f = h(start). Record `g[start] = 0`.
+  </Step>
+  <Step title="Pop the smallest f">
+    Take the entry with the smallest f. If it is the goal, return its g and its path. If its g is larger than the recorded `g[v]`, it is a stale entry; skip it.
+  </Step>
+  <Step title="Relax its edges">
+    For each edge to a neighbor, compute `g + w`. If that beats the recorded g of the neighbor, or the neighbor is new, record it and push the neighbor with f = g + h.
+  </Step>
+  <Step title="Repeat">
+    Continue until the goal is popped or the queue is empty, which means the goal is unreachable.
+  </Step>
+</Steps>
+
+<Callout title="Why the goal can be returned the moment it is popped">
+If h never overestimates, then f(v) = g(v) + h(v) is a lower bound on the cost of any complete path through v. When the goal is popped with f = g, every other queued entry has f at least as large, so no path through them can be cheaper. This is also why **h must never overestimate**: a guess that is too large can hide the best path.
+</Callout>
+
+## See it in action
+
+The visualization runs A* on a grid map with walls and rough terrain. Type your own map (`.` floor, `#` wall, digits for costly cells, `S` start, `G` goal), or press Random. Watch the cell being expanded, the open set with its f values, the closed cells that were already expanded, and the final path. Try the open field and compare how few cells get expanded against a map where a wall forces a detour.
+
+<ArticleViz ids={['a-star']} />
+
+## Worked example
+
+An undirected graph with edge weights. The heuristic is written next to each vertex. The goal is G.
+
+<GraphDiagram
+  edges="S-A 2, S-B 3, S-E 1, A-C 4, B-C 1, B-D 5, C-G 3, D-G 2, E-F 2, F-G 20"
+  positions={{ S: [6, 50], A: [30, 90], B: [30, 50], E: [30, 8], C: [56, 70], D: [56, 28], F: [74, 8], G: [94, 50] }}
+  tones={{ S: 'l', B: 'l', A: 'l', C: 'l', D: 'r', E: 'r', F: 'm', G: 'p' }}
+  badges={{ S: 'h=6', A: 'h=5', B: 'h=3', C: 'h=3', D: 'h=2', E: 'h=7', F: 'h=7', G: 'h=0' }}
+  path="S,B,C,G"
+  legend={{ l: 'expanded', r: 'queued but never expanded', m: 'never reached', p: 'goal', f: 'the shortest path, cost 7' }}
+  caption="This heuristic is consistent: for every edge, h differs by at most the edge weight."
+/>
+
+Running the repository's `astar` on this graph (S, A, B, C, D, G, E, F numbered 0 to 7 in that order) gives distance 7 and the path S, B, C, G. The queue pops in this order:
+
+<DataTable
+  columns={['Pop', 'g', 'h', 'f', 'Pushed']}
+  rows={[
+    ['S', '0', '6', '6', 'A (f 7), B (f 6), E (f 8)'],
+    ['B', '3', '3', '6', 'C (g 4, f 7), D (g 8, f 10)'],
+    ['A', '2', '5', '7', 'nothing: C via A costs 6, worse than 4'],
+    ['C', '4', '3', '7', 'G (g 7, f 7)'],
+    ['G', '7', '0', '7', 'goal reached, return 7'],
+  ]}
+/>
+
+A* expanded 4 vertices: S, B, A, C. E and D were queued but never expanded, and F was never reached. With h = 0 (Dijkstra) the same search expands S, E, A, B, F and C, six vertices, before it pops G with the same answer.
+
+## Admissible versus consistent
+
+- **Admissible:** h(v) is at most the true cheapest cost from v to the goal. Required for optimality.
+- **Consistent (monotone):** h(u) &le; w(u, v) + h(v) for every edge. This is stronger: every consistent heuristic is admissible. With a consistent h, f never decreases along a path, and the first time a vertex is popped its g is already final.
+
+Many textbook implementations keep a closed set and never reopen a vertex. That is correct only for consistent heuristics. The repository code has no closed set. It compares against `g_scores`, so a vertex whose cost improves later is pushed and expanded again. Here is a graph where the difference matters. The edges are `S->A 1, S->B 1, A->C 1, B->C 2, C->G 3`, with h(A) = 4 and 0 elsewhere. h(A) is admissible (the true cost from A is 4) but not consistent, because h(A) = 4 is more than 1 + h(C) = 1:
+
+<DataTable
+  columns={['Step', 'Pop', 'What happens']}
+  rows={[
+    ['1', 'S (f 0)', 'push A (g 1, f 5) and B (g 1, f 1)'],
+    ['2', 'B (f 1)', 'push C with g 3, f 3'],
+    ['3', 'C (f 3)', 'push G with g 6, f 6. A closed-set A* would now mark C closed with the wrong cost 3.'],
+    ['4', 'A (f 5)', 'C via A costs 2, better than 3: push C again (g 2, f 2)'],
+    ['5', 'C (f 2)', 'push G with g 5, f 5'],
+    ['6', 'G (f 5)', 'return cost 5, path S, A, C, G. The closed-set version returns 6.'],
+  ]}
+/>
+
+## Pseudocode
+
+```text
+astar(graph, start, goal, h):
+    pq = [(h(start), 0, start, [start])]        # (f, g, vertex, path)
+    g = {start: 0}
+    while pq is not empty:
+        f, gv, v, path = pq.popMin()
+        if v == goal: return (gv, path)
+        if gv > g[v]: continue                   # stale entry
+        for (u, w) in graph.get(v, []):
+            t = gv + w
+            if u not in g or t < g[u]:           # also re-opens a vertex
+                g[u] = t
+                pq.push((t + h(u), t, u, path + [u]))
+    return none
+```
+
+Ties in f are broken by the smaller g (Python tuple order), then by vertex number; C++ and Go compare only f, so equal-f entries can pop in a different order. The returned cost is the same either way.
+
+## Implementation
+
+All three languages take an adjacency list with `(neighbor, weight)` pairs and a heuristic function of one vertex, and return the cost and the path. Python returns `None` when there is no path, C++ returns `(-1, {})` and Go returns `(-1, nil)`. Python also offers `manhattan_distance` and `euclidean_distance` for coordinates; to use them as the callback you wrap them yourself, for example `lambda v: manhattan_distance(pos[v], pos[goal])`.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm" />
+
+Each priority-queue entry carries a copy of its whole path, which keeps the code short but costs O(path length) per push. A production version stores a `came_from` map and rebuilds the path at the end.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(d) expansions', when: 'A perfect heuristic: only vertices on the solution path of length d are expanded.' },
+    { case: 'Explicit graph, consistent h', time: 'O((V + E) log V)', when: 'Every vertex is expanded at most once, like Dijkstra, with a binary heap.' },
+    { case: 'Worst case', time: 'O(b^d)', when: 'A useless heuristic, or one that is only admissible and forces re-expansions. b is the branching factor and d the solution depth.' },
+  ]}
+/>
+
+Memory is the practical limit: A* keeps every generated vertex, so on large searches it runs out of memory before it runs out of time.
+
+## Choosing a heuristic
+
+<DataTable
+  columns={['Heuristic', 'Use on', 'Admissible', 'Notes']}
+  rows={[
+    ['h = 0', 'any graph', 'Yes', 'A* becomes Dijkstra'],
+    ['Manhattan distance', 'grid, 4 directions', 'Yes', 'exact on an open grid'],
+    ['Euclidean distance', 'grid or map, any direction', 'Yes', 'weaker than Manhattan on a 4-direction grid, so more cells are expanded'],
+    ['Manhattan distance on an 8-direction grid', '8-direction grid', 'No', 'it can overestimate diagonal moves'],
+    ['Weighted: k * h with k > 1', 'when speed matters more than optimality', 'No', 'faster, but the path can cost up to k times the optimum'],
+  ]}
+/>
+
+A heuristic that is closer to the true cost, without exceeding it, expands fewer vertices.
+
+## A* vs alternatives
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, 'Uses a goal', 'Edge weights', 'Best for']}
+  highlight={0}
+  rows={[
+    ['A*', 'O((V + E) log V) with a consistent h', 'Yes', 'non-negative', 'one source and one goal, with a good heuristic'],
+    ['Dijkstra', 'O((V + E) log V)', 'No', 'non-negative', 'distances to all vertices'],
+    ['BFS', 'O(V + E)', 'No', 'all equal', 'fewest edges'],
+    ['Bellman-Ford', 'O(V * E)', 'No', 'negative allowed', 'negative edges'],
+    ['Floyd-Warshall', 'O(V^3)', 'No', 'negative allowed', 'all pairs on small graphs'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Expands far fewer vertices than Dijkstra when the heuristic is informative.',
+    'Optimal with an admissible heuristic, and it adapts: h = 0 gives Dijkstra, a stronger h gives more speed.',
+    'Works on implicit graphs such as grids and puzzle states, where the graph is generated on demand.',
+  ]}
+  cons={[
+    'It needs a good, admissible heuristic, which is domain knowledge you must supply.',
+    'Memory use grows with the number of generated vertices.',
+    'Answers only one source and one goal; it does not produce all distances.',
+    'An inconsistent heuristic can cause many re-expansions.',
+  ]}
+/>
+
+## Applications
+
+- **Grid pathfinding** in games and robots, with Manhattan or Euclidean distance as h.
+- **Route planning** on road maps, with straight-line distance as h.
+- **Puzzle solving** such as the sliding puzzle, with the sum of tile distances as h.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **An overestimating heuristic.** Optimality is lost silently: you still get a path, but not the cheapest. In this repository the tests check that an over-estimating h only guarantees a path at least as long as the optimum.
+- **A closed set on an inconsistent heuristic.** It returns a worse path (the example above). Re-open on a better g, as the repository does.
+- **Mixing the cost and the estimate.** The returned cost is g only, not f. The heuristic only steers the search.
+- **Negative weights.** A* assumes non-negative weights, like Dijkstra.
+- **Passing a pair-valued heuristic.** `manhattan_distance(a, b)` takes two coordinates. The `heuristic` argument takes one vertex, so wrap it.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is A* always better than Dijkstra's algorithm?">
+    No. With a heuristic that is close to useless it expands about as many vertices, and it pays for computing h. A* also answers one goal only; Dijkstra gives the distance to every vertex.
+  </FaqItem>
+  <FaqItem question="What happens if the heuristic overestimates?">
+    The search becomes greedy toward the goal. It is usually faster, but it can return a path that is not the cheapest.
+  </FaqItem>
+  <FaqItem question="Why must h(goal) be zero?">
+    An admissible h cannot exceed the true cost, and the true cost from the goal to itself is zero. With h(goal) greater than 0, f would overstate the cost of the finished path.
+  </FaqItem>
+  <FaqItem question="What does A* return if the goal is unreachable?">
+    It empties the queue and reports no path: `None` in Python, `(-1, {})` in C++ and `(-1, nil)` in Go. If start equals the goal, it returns cost 0 and the path with that single vertex.
+  </FaqItem>
+</Faq>

@@ -2,7 +2,8 @@
  * Modular Arithmetic Tricks for Competitive Programming (C++)
  */
 
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
 using namespace std;
 
 typedef long long ll;
@@ -22,14 +23,18 @@ ll sub(ll a, ll b, ll m = MOD) {
     return mod(mod(a, m) - mod(b, m) + m, m);
 }
 
+// The product goes through a 128-bit intermediate, so it is exact for any
+// modulus below 2^62 (a plain 64-bit product overflows once m exceeds about 3e9;
+// mod() itself needs 2 * m to fit in a signed 64-bit integer).
 ll mul(ll a, ll b, ll m = MOD) {
-    return mod(mod(a, m) * mod(b, m), m);
+    return static_cast<ll>(static_cast<__int128>(mod(a, m)) * mod(b, m) % m);
 }
 
 // Fast Exponentiation
 
+// Returns 1 % m, so power(x, 0, 1) is 0 (everything is 0 modulo 1).
 ll power(ll base, ll exp, ll m = MOD) {
-    ll result = 1;
+    ll result = 1 % m;
     base = mod(base, m);
     while (exp > 0) {
         if (exp & 1) result = mul(result, base, m);
@@ -41,7 +46,8 @@ ll power(ll base, ll exp, ll m = MOD) {
 
 // Modular Inverse
 
-// Using Fermat's Little Theorem (when m is prime)
+// Using Fermat's Little Theorem. m must be prime and a must not be a multiple
+// of m; otherwise use modInverseExtGCD.
 ll modInverse(ll a, ll m = MOD) {
     return power(a, m - 2, m);
 }
@@ -75,6 +81,7 @@ ll div_mod(ll a, ll b, ll m = MOD) {
 const int MAXN = 2e5 + 5;
 ll fact[MAXN], invFact[MAXN];
 
+// Call precompute() once before nCr / nPr: until then the tables are all 0.
 void precompute() {
     fact[0] = 1;
     for (int i = 1; i < MAXN; i++) {
@@ -98,9 +105,24 @@ ll nPr(int n, int r) {
 
 // Lucas Theorem (nCr mod p for large n)
 
+// p must be prime. The small binomials C(n % p, r % p) are computed modulo p
+// directly (the global nCr tables are built for MOD and are wrong here).
+// Cost: O(p) per base-p digit of n, so it suits p up to about 1e6.
+ll smallNCrModP(ll n, ll r, ll p) {
+    if (r < 0 || r > n) return 0;
+    if (r > n - r) r = n - r;
+    ll num = 1, den = 1;
+    for (ll i = 1; i <= r; i++) {
+        num = mul(num, n - r + i, p);
+        den = mul(den, i, p);
+    }
+    return mul(num, power(den, p - 2, p), p);
+}
+
 ll lucasNCr(ll n, ll r, ll p) {
+    if (r < 0 || r > n) return 0;
     if (r == 0) return 1;
-    return mul(lucasNCr(n / p, r / p, p), nCr(n % p, r % p), p);
+    return mul(lucasNCr(n / p, r / p, p), smallNCrModP(n % p, r % p, p), p);
 }
 
 // Modular Arithmetic with Negative Numbers
@@ -130,6 +152,7 @@ ll mulmodSlow(ll a, ll b, ll m) {
     return result;
 }
 
+#ifndef IS_TEST_BUILD
 int main() {
     precompute();
     
@@ -142,4 +165,4 @@ int main() {
     
     return 0;
 }
-
+#endif  // IS_TEST_BUILD

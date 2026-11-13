@@ -1,0 +1,259 @@
+---
+category: Data_Structures/Non_Linear/Trees
+title: Trees
+lead: Seventeen trees share one idea. They arrange data in a hierarchy so that one comparison or lookup discards a large part of it. By purpose they are ordered search trees and balanced variants, multiway trees for disks, range-query structures, string trees and a few specialists.
+updated: 2026-11-13
+facts:
+  - label: Balanced search
+    value: O(log n)
+    hint: AVL, worst case
+  - label: Unbalanced worst case
+    value: O(n)
+    hint: a plain BST on sorted keys
+    tone: warn
+  - label: Range sum
+    value: O(log n)
+    hint: Fenwick and segment tree
+  - label: Static range minimum
+    value: O(1)
+    hint: sparse table, no updates
+  - label: String lookup
+    value: O(L)
+    hint: trie, L = word length
+  - label: Topics
+    value: "17"
+    hint: five groups by purpose
+contents:
+  - folder: Binary_Tree
+    note: The shape every other tree builds on. At most two children per node, and the four traversals.
+  - folder: Binary_Search_Tree
+    note: Keys ordered so each comparison drops a subtree. O(h), which is O(n) when the tree is a chain.
+  - folder: AVL_Tree
+    note: A BST kept within 1 in subtree height by rotations. O(log n) in the worst case.
+  - folder: Red_Black_Tree
+    note: A BST with a color bit. The longest path is at most twice the shortest. Insert only here, no delete.
+  - folder: Splay_Tree
+    note: No balance data. Every access rotates the node to the root, so cost is O(log n) amortized.
+  - folder: Treap
+    note: A BST on keys and a max-heap on random priorities. O(log n) expected, built on split and merge.
+  - folder: B_Tree
+    note: Many sorted keys per node, so the tree is shallow. Built for disk pages.
+  - folder: B_Plus_Tree
+    note: A B-tree with all data in linked leaves. A range query is one descent plus a leaf walk. Insert only here.
+  - folder: Fenwick_Tree
+    note: Prefix sums in one array, driven by the lowest set bit. Point update and range sum in O(log n).
+  - folder: Segment_Tree
+    note: Block sums in a complete tree. Range sum and point assignment in O(log n), built bottom-up.
+  - folder: Segment_Tree_Lazy_Propagation
+    note: Adds pending tags so that a range add also costs O(log n) instead of touching every element.
+  - folder: Sparse_Table
+    note: Windows of power-of-two length. O(1) range min or max, but static and O(n log n) in space.
+  - folder: Interval_Tree
+    note: A BST on interval left ends with a subtree maximum, so an overlap query skips whole subtrees.
+  - folder: Cartesian_Tree
+    note: An array as a min-heap-ordered tree that reads back in order. Built in O(n); range minimum is an LCA.
+  - folder: K_D_Tree
+    note: Points in k dimensions, split by one axis per level. Nearest-neighbour and rectangle queries.
+  - folder: Trie
+    note: One character per edge, so words share prefixes. Insert, search and prefix search in O(L).
+  - folder: Suffix_Tree
+    note: A compressed trie of every suffix. Pattern search in O(m + occ), built here in O(n^2).
+prerequisites:
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Data_Structures/Non_Linear/Heaps
+  - Data_Structures/Non_Linear/Graph
+  - Algorithms/Searching/Binary_Search
+  - Algorithms/String_Algorithms/Advanced_String/Suffix_Array
+---
+
+## The problem
+
+A list answers most questions by looking at every item. A tree gives up that flat layout to answer one kind of question much faster. What differs between the trees is the question:
+
+- Is this key present, and what comes next? The **search trees** keep keys in order.
+- What is the sum or minimum of positions `l` to `r`? The **range structures** precompute blocks.
+- Which stored intervals overlap this one, or which point is nearest? The **specialists** prune whole regions.
+- Does any word start with this prefix? The **string trees** share common prefixes.
+
+The cost of a search tree is its height `h`, and a tree does not control its own height. Sorted input turns a plain binary search tree into a chain. Most of this section is about the ways to prevent that.
+
+## The five groups
+
+<DataTable
+  columns={['Group', 'Topics', 'What the group answers']}
+  rows={[
+    ['The shape', 'Binary Tree', 'what a binary hierarchy is and how to walk it'],
+    ['Search trees and balanced variants', 'Binary Search Tree, AVL Tree, Red-Black Tree, Splay Tree, Treap', 'ordered keys: search, insert, delete, in-order traversal'],
+    ['Multiway trees for disks', 'B-Tree, B+ Tree', 'ordered keys when each node is a disk page'],
+    ['Range-query structures', 'Fenwick Tree, Segment Tree, Segment Tree (Lazy Propagation), Sparse Table', 'a sum, minimum or maximum over a range of an array'],
+    ['String trees', 'Trie, Suffix Tree', 'prefixes and substrings'],
+    ['Others', 'Interval Tree, Cartesian Tree, K-D Tree', 'overlapping intervals, range minimum through a tree, points in space'],
+  ]}
+/>
+
+The sparse table sits in this folder although it is not really a tree; it is a table of windows. It is read together with the range structures, which is why it is listed next to them.
+
+## At a glance
+
+<DataTable
+  columns={['Tree', 'Idea', 'Key property', 'Balanced']}
+  rows={[
+    ['Binary Tree', 'at most two children per node', 'no ordering; this insert fills the first free slot level by level', 'height O(log n) here, because the insert keeps it complete'],
+    ['Binary Search Tree', 'left keys are smaller, right keys are larger', 'in-order traversal is sorted', 'no'],
+    ['AVL Tree', 'rotations keep subtree heights within 1', 'height below 1.44 log2(n+2)', 'yes, strictly'],
+    ['Red-Black Tree', 'five color rules', 'height at most 2 log2(n+1); insert needs at most 2 rotations', 'yes, loosely'],
+    ['Splay Tree', 'rotate every accessed node to the root', 'no balance data; reads change the tree', 'no, amortized only'],
+    ['Treap', 'BST on keys, max-heap on random priorities', 'the shape of a BST built from shuffled input', 'in expectation'],
+    ['B-Tree', 'many sorted keys per node', 'all leaves at one depth; `t-1` to `2t-1` keys per node, the root may have fewer', 'yes'],
+    ['B+ Tree', 'keys and values only in linked leaves', 'a range query walks the leaf chain', 'yes'],
+    ['Fenwick Tree', 'prefix sums in one array of n + 1 cells', 'needs an operation you can undo, such as sum', 'implicit'],
+    ['Segment Tree', 'sum of every power-of-two block, padded to a power of two', 'point assignment, range sum', 'complete tree'],
+    ['Segment Tree (Lazy)', 'a pending tag on each node', 'range add and range sum', 'built on a fixed shape'],
+    ['Sparse Table', 'minimum or maximum of every power-of-two window', 'two overlapping windows answer any query', 'not a tree'],
+    ['Interval Tree', 'BST by left end plus the largest right end below', 'overlap queries prune subtrees', 'no'],
+    ['Cartesian Tree', 'min-heap by value, original order in-order', 'range minimum is the LCA of the two ends', 'no'],
+    ['K-D Tree', 'split by one coordinate per level, cycling the axes', 'nearest neighbour and rectangle search', 'no, never rebalances'],
+    ['Trie', 'one character per edge', 'words with a common prefix share a path', 'depth follows the word length'],
+    ['Suffix Tree', 'compressed trie of all suffixes', 'every suffix has a leaf; needs a unique terminator', 'not applicable'],
+  ]}
+/>
+
+## See them side by side
+
+Two of the trees have visualizations. Each tab takes a list of operations: a number inserts, `-n` deletes and `?n` searches. Paste the same input into both. The plain BST's **Sorted input (degenerates)** example, `10 20 30 40 50 60`, builds a chain. The AVL tab's **Sorted input stays balanced** example, `10 20 30 40 50 60 70`, rotates after the inserts that would unbalance it. Try the AVL tab's **Left-Right** example, `30 10 20`, to see a double rotation.
+
+<ArticleViz ids={['bst', 'avl']} />
+
+## One input, four search trees
+
+Insert the keys 1 to 15 in increasing order, then insert the same 15 keys in a balanced order, `8 4 12 2 6 10 14 1 3 5 7 9 11 13 15`. The table gives the height of each tree in edges. The numbers come from running the Python classes and measuring the trees.
+
+<DataTable
+  columns={['Tree', { label: 'Keys 1 to 15 in order', kind: 'mono' }, { label: 'Balanced order', kind: 'mono' }, 'What happened']}
+  rows={[
+    ['Binary Search Tree', '14', '3', 'a chain on sorted input; perfect on the balanced order'],
+    ['AVL Tree', '3', '3', 'rotations repair every imbalance at once'],
+    ['Red-Black Tree', '5', '3', 'within the 2 log2(n+1) bound, but taller than AVL'],
+    ['Splay Tree', '14', '10', 'no balancing at insert; accesses rebalance over time'],
+  ]}
+/>
+
+The AVL and red-black classes count differently from this table: the AVL `height()` returns 4 and the red-black `height()` returns 6 on the sorted run, because they count nodes. The splay tree's insert pulls each new key to the root, so sorted input leaves a chain of height 14, and its guarantee is O(log n) amortized, not per operation. The treap is left out because its priorities are random, so its height differs from run to run.
+
+## One array, four range structures
+
+Take the array `[5, 3, 8, 6, 2, 7, 4, 10]`. The sum of positions 2 to 5 is 23, and the structures built on it give the same answer. They differ in what else they can do:
+
+<DataTable
+  columns={['Structure', 'Question it answers', 'Update it supports', 'Cells used here']}
+  rows={[
+    ['Fenwick Tree', 'sum of 2 to 5 is 23', 'add a delta at one index: `update(3, -5)` makes the sum 18', '9'],
+    ['Segment Tree', 'sum of 2 to 5 is 23', 'assign at one index: `update(3, 1)` makes the sum 18', '16'],
+    ['Segment Tree (Lazy)', 'sum of 2 to 5 is 23', 'add to a range: adding 10 to positions 2 to 5 gives sum 63, whole array 85', '64, in two arrays'],
+    ['Sparse Table', 'minimum of 2 to 5 is 2, maximum is 8', 'none; rebuild after a change', '32'],
+  ]}
+/>
+
+Element 3 starts as 6, so assigning 1 and adding -5 are the same change. The table shows the split: sums with point updates go to Fenwick or the segment tree, range updates need lazy propagation, and a minimum or maximum on data that never changes goes to the sparse table. The segment trees here sum only; they do not answer minimum or maximum.
+
+## Complexity
+
+Search trees. Costs follow the topic articles; `h` is the height.
+
+<DataTable
+  columns={['Tree', { label: 'Search', kind: 'mono' }, { label: 'Insert', kind: 'mono' }, { label: 'Delete', kind: 'mono' }, 'Worst case']}
+  rows={[
+    ['Binary Tree', 'O(n)', 'O(n)', 'not provided', 'search scans every node'],
+    ['Binary Search Tree', 'O(h)', 'O(h)', 'O(h)', 'O(n) on sorted input'],
+    ['AVL Tree', 'O(log n)', 'O(log n)', 'O(log n)', 'worst case, not just average; delete may rotate on every level'],
+    ['Red-Black Tree', 'O(log n)', 'O(log n)', 'not implemented', 'at most 2 rotations per insert'],
+    ['Splay Tree', 'O(log n) amortized', 'O(log n) amortized', 'O(log n) amortized', 'one operation can cost O(n)'],
+    ['Treap', 'O(log n) expected', 'O(log n) expected', 'O(log n) expected', 'O(n), exponentially unlikely'],
+    ['B-Tree', 'O(log n)', 'O(log n)', 'O(log n)', 'only O(log_t n) node reads'],
+    ['B+ Tree', 'O(log n)', 'O(log n)', 'not implemented', 'range query O(log n + k)'],
+  ]}
+/>
+
+Range structures, specialists and string trees:
+
+<DataTable
+  columns={['Structure', { label: 'Build', kind: 'mono' }, { label: 'Query', kind: 'mono' }, { label: 'Update', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['Fenwick Tree', 'O(n log n)', 'O(log n)', 'O(log n)', 'n + 1 cells'],
+    ['Segment Tree', 'O(n)', 'O(log n)', 'O(log n)', '2 * size'],
+    ['Segment Tree (Lazy)', 'O(n)', 'O(log n)', 'O(log n) range add', 'two arrays of 4n'],
+    ['Sparse Table', 'O(n log n)', 'O(1)', 'not supported', 'O(n log n)'],
+    ['Interval Tree', 'O(h) per insert', 'O(h + k) typical, O(n) worst', 'delete supported', 'one extra number per node'],
+    ['Cartesian Tree', 'O(n)', 'range minimum O(h)', 'none', 'O(n)'],
+    ['K-D Tree', 'O(n log n)', 'nearest O(log n) average; range O(sqrt n + k)', 'insert O(h), no rebalance', 'O(n)'],
+    ['Trie', 'O(L) per word', 'O(L)', 'delete O(L)', 'O(total characters)'],
+    ['Suffix Tree', 'O(n^2) here', 'O(m + occ)', 'none', 'O(n)'],
+  ]}
+/>
+
+Here `size` is the next power of two that is at least n, `k` is the number of results, `L` is a word length and `m` is a pattern length. The K-D tree build is O(n log n) in the cost model and O(n log^2 n) in Python and Go, which sort at every level. Its nearest-neighbour bound is for low dimensions; the worst case is O(n). The suffix tree is built suffix by suffix here; Ukkonen's algorithm builds it in O(n). The Fenwick build runs n updates; an O(n) build exists.
+
+## Choosing a tree
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Ordered keys, and a hard bound on every operation', 'AVL Tree', 'height below 1.44 log2(n+2), so search, insert and delete are O(log n) worst case'],
+    ['Ordered keys with cheap inserts', 'Red-Black Tree', 'at most 2 rotations per insert; this repository has no delete for it'],
+    ['Ordered keys, simple code, random input', 'Binary Search Tree', 'no rebalancing code; fine until the input is sorted'],
+    ['Ordered keys with short code', 'Treap', 'split and merge give O(log n) expected with little code'],
+    ['Recently used keys should stay close', 'Splay Tree', 'each access moves the key to the root'],
+    ['Data too large for memory', 'B-Tree or B+ Tree', 'a node is a disk page, so a search touches O(log_t n) nodes'],
+    ['A database-style range scan', 'B+ Tree', 'one descent, then a walk along the linked leaves'],
+    ['Prefix sums with point updates', 'Fenwick Tree', 'the shortest code and n + 1 cells'],
+    ['Range sums with range updates', 'Segment Tree (Lazy Propagation)', 'range add and range sum are both O(log n)'],
+    ['Range minimum on data that never changes', 'Sparse Table', 'O(1) per query after an O(n log n) build'],
+    ['Which stored intervals overlap this one', 'Interval Tree', 'the subtree maximum lets a query skip whole subtrees'],
+    ['Nearest point or points in a rectangle', 'K-D Tree', 'regions that cannot hold an answer are skipped'],
+    ['Autocomplete and prefix tests', 'Trie', 'O(L) regardless of how many words are stored'],
+    ['Many substring queries on one fixed text', 'Suffix Tree', 'O(m + occ) per query after one build'],
+  ]}
+/>
+
+## Applications
+
+- **Databases and file systems.** B-trees and B+ trees as indexes, with the leaf chain serving range scans.
+- **Ordered maps and sets.** Balanced search trees keep keys sorted while allowing inserts and deletes.
+- **Competitive programming.** Fenwick, segment and sparse tables answer range queries on arrays.
+- **Spell check and autocomplete.** Tries answer prefix queries.
+- **Geometry and games.** K-D trees find nearest neighbours; interval trees find overlapping events.
+- **Text indexing.** Suffix trees locate every occurrence of a pattern.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Trusting a plain BST with sorted input.** Each key goes to the same side as the one before, so the height becomes n - 1 and every operation is O(n).
+- **Calling a splay tree O(log n) per operation.** The bound is amortized. A single operation can cost O(n), and reads change the tree.
+- **Looking for delete in the red-black tree or the B+ tree.** Neither implements it in this repository.
+- **Using a Fenwick tree for minimum or maximum.** It needs an operation that can be undone, such as a sum. Use a sparse table for static data or a segment tree for sums.
+- **Expecting the sparse table to take updates.** It is static. Any change means a rebuild.
+- **Feeding index 0 to Fenwick code by hand.** Inside, indices are 1-based, and index 0 would loop forever.
+- **Assuming the K-D tree and interval tree rebalance.** Both are unbalanced, so sorted input makes a chain.
+- **Skipping the terminator in a suffix tree.** Without a unique end symbol, a suffix can end inside another suffix and lose its leaf.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="In what order should I read these?">
+    Start with the binary tree and the binary search tree. Then pick one balanced variant, AVL first, and read the red-black tree, splay tree and treap as other answers to the same problem. The range structures can be read on their own, from the Fenwick tree to the lazy segment tree. The B-tree comes after the balanced trees, and the string trees and specialists last.
+  </FaqItem>
+  <FaqItem question="AVL or red-black: which is better?">
+    AVL is stricter: its height stays below about 1.44 log2(n), so search is a little faster. Red-black allows a taller tree, up to 2 log2(n+1), but an insert needs at most 2 rotations. Both give O(log n) search and insert.
+  </FaqItem>
+  <FaqItem question="Which range structure should I use?">
+    Ask what changes. If nothing changes and you need a minimum or maximum, use the sparse table. If you need sums with point updates, use a Fenwick tree or a segment tree. If you also need to add a value to a whole range, use the lazy segment tree.
+  </FaqItem>
+  <FaqItem question="Why does a B-tree have so many keys per node?">
+    Reading a node from disk costs far more than comparing keys in memory. A node with up to 2t-1 sorted keys makes the tree shallow, so a search reads only O(log_t n) nodes while still doing O(log n) comparisons.
+  </FaqItem>
+  <FaqItem question="What is the difference between a trie and a suffix tree?">
+    A trie stores a set of words, one character per edge. A suffix tree is a compressed trie of every suffix of one string, so it answers substring queries, not only prefix queries, in O(m + occ).
+  </FaqItem>
+</Faq>

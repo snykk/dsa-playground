@@ -1,0 +1,213 @@
+---
+topic: Problem_Patterns/Two_Pointers
+title: Two Pointers
+lead: Two pointers scan a sequence with two indices instead of a nested loop. When each step can prove that one end cannot be part of the best answer, a pointer moves and never comes back, so pair-finding, partitioning and palindrome problems run in O(n) with O(1) extra space.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(n)
+    hint: each pointer moves at most n steps
+  - label: Extra space
+    value: O(1)
+  - label: Three sum
+    value: O(n^2)
+    hint: one fixed index plus a two-pointer scan
+  - label: Precondition
+    value: Sorted or monotone
+    hint: opposite-end scans need an order to prune with
+    tone: warn
+properties:
+  - { label: In-place, value: true }
+  - { label: Online, value: false }
+  - { label: Needs sorted input (opposite ends), value: true }
+prerequisites:
+  - Data_Structures/Linear/Array
+related:
+  - Problem_Patterns/Sliding_Window
+  - Problem_Patterns/Binary_Search_on_Answer
+  - Algorithms/Searching/Binary_Search
+  - Problem_Patterns/Monotonic_Stack
+---
+
+## When to use it
+
+Signals in a problem statement:
+
+- a **sorted** array and "find a pair / triplet with a given sum";
+- "is this string a palindrome", "reverse in place";
+- "remove duplicates in place", "partition in place": a read pointer and a write pointer;
+- "maximize an area between two positions" where moving the shorter side is the only move that can help;
+- you would otherwise write two nested loops over the same array.
+
+## How it works
+
+There are two shapes:
+
+<DataTable
+  columns={['Shape', 'Start', 'Move', 'Examples']}
+  rows={[
+    ['Opposite ends', '`left = 0`, `right = n - 1`', 'towards each other', 'two sum on a sorted array, palindrome, container with most water'],
+    ['Same direction', 'both at the start', '`read` runs ahead of `write`', 'remove duplicates, move zeros, partitioning'],
+  ]}
+/>
+
+<Steps>
+  <Step title="Place the pointers">
+    Opposite ends for a sorted array or a palindrome, or a read and a write index for in-place filtering.
+  </Step>
+  <Step title="Compare and decide which pointer to move">
+    Use the current pair to rule out one end for good. For two sum on a sorted array: if `arr[left] + arr[right]` is too small, `arr[left]` cannot pair with anything at or left of `right`, so `left` moves up.
+  </Step>
+  <Step title="Stop when the pointers meet">
+    `left < right` fails, or `read` reaches the end. Every element was visited once.
+  </Step>
+</Steps>
+
+<Callout title="Why moving one pointer never skips the answer">
+For two sum, if the sum is smaller than the target, every pair `(left, j)` with `j < right` has an even smaller sum, so `arr[left]` has no partner and can be dropped. The same argument works for `right` when the sum is too large. For the container problem, moving the taller side can only shrink the width without raising the height limit set by the shorter side, so only moving the shorter side can improve the area.
+</Callout>
+
+## See it in action
+
+Enter a sorted array and a target, then press Apply. The two arrows close in on each other; the muted cells are the ones ruled out, and the pair is highlighted when found. Try the preset with no pair to see the scan end.
+
+<ArticleViz ids={['two-pointers']} />
+
+## Template
+
+```text
+two_sum_sorted(arr, target):
+    left = 0; right = n - 1
+    while left < right:
+        s = arr[left] + arr[right]
+        if s == target: return [left, right]
+        if s < target:  left += 1          # arr[left] has no partner
+        else:           right -= 1         # arr[right] has no partner
+    return none
+
+three_sum(arr, target):
+    sort a copy (Go) or arr itself (Python, C++)
+    for i in 0 .. n - 3:
+        skip if arr[i] == arr[i - 1]
+        two-pointer scan over i + 1 .. n - 1 for target - arr[i]
+        after a hit, step both pointers past equal values
+
+remove_duplicates(arr):                    # sorted input
+    write = 1
+    for read in 1 .. n - 1:
+        if arr[read] != arr[write - 1]: arr[write] = arr[read]; write += 1
+    return write
+```
+
+## Worked example: two sum on a sorted array
+
+Find two numbers summing to 17 in `[1, 3, 4, 6, 8, 10, 13]`. `two_sum_sorted` returns the indices `[2, 6]`:
+
+<ArrayDiagram
+  legend={{ l: 'the two elements being added', f: 'the pair that reaches the target', m: 'ruled out for good' }}
+  rows={[
+    { label: 'step 1', values: [1, 3, 4, 6, 8, 10, 13], tones: 'l.....l', marks: { 0: 'left', 6: 'right' }, note: '1 + 13 = 14 < 17: `left` has no partner, move it up.' },
+    { label: 'step 2', values: [1, 3, 4, 6, 8, 10, 13], tones: 'ml....l', marks: { 1: 'left', 6: 'right' }, note: '3 + 13 = 16 < 17: move `left` up again.' },
+    { label: 'step 3', values: [1, 3, 4, 6, 8, 10, 13], tones: 'mmf...f', marks: { 2: 'left', 6: 'right' }, note: '4 + 13 = 17: found, return `[2, 6]`.' },
+  ]}
+/>
+
+## Worked example: container with most water
+
+For heights `[1, 8, 6, 2, 5, 4, 8, 3, 7]` the answer is 49. The scan always moves the shorter wall:
+
+<DataTable
+  columns={['left', 'right', 'heights', 'area', 'best', 'move']}
+  rows={[
+    ['0', '8', '1, 7', '8', '8', 'left (1 is shorter)'],
+    ['1', '8', '8, 7', '49', '49', 'right (7 is shorter)'],
+    ['1', '7', '8, 3', '18', '49', 'right'],
+    ['1', '6', '8, 8', '40', '49', 'right (equal: either may move)'],
+    ['1', '5', '8, 4', '16', '49', 'right'],
+    ['1', '4', '8, 5', '15', '49', 'right'],
+    ['1', '3', '8, 2', '4', '49', 'right'],
+    ['1', '2', '8, 6', '6', '49', 'right; then the pointers meet'],
+  ]}
+/>
+
+## Implementation
+
+Five functions exist in all three languages:
+
+- `two_sum_sorted(arr, target)`: indices of the first pair found by the scan, `None` / empty / `nil` if there is none.
+- `three_sum(arr, target)`: unique triplets in sorted order. Python and C++ **sort the caller's array in place**; Go works on a copy.
+- `is_palindrome(s)`: ignores non-alphanumeric characters and case (ASCII only in C++ and Go, where strings are indexed by byte).
+- `remove_duplicates(arr)`: keeps the first of each run in the front part of the array and returns the new length; the values after that length are left as they were, so only `arr[:length]` is meaningful.
+- `container_with_most_water(heights)`: maximum area.
+
+`three_sum` handles arrays with fewer than 3 elements (an empty result). Fast and slow pointers on linked lists are not implemented here.
+
+<TopicCode topic="Problem_Patterns/Two_Pointers" />
+
+## Complexity
+
+<ComplexityTable
+  rows={[
+    { case: 'Opposite-end scan', time: 'O(n)', when: 'Every step moves a pointer, and the pointers meet after at most n - 1 steps.' },
+    { case: 'Three sum', time: 'O(n^2)', when: 'Sorting costs O(n log n); then n two-pointer scans of O(n) each.' },
+    { case: 'Read/write filtering', time: 'O(n)', when: 'One pass; each element is read once and written at most once.' },
+  ]}
+/>
+
+Extra space is <BigO of="1" /> apart from the output list (and the sorted copy in Go).
+
+## Typical problems
+
+<DataTable
+  columns={['Problem', 'Idea']}
+  rows={[
+    ['Two Sum II - Input Array Is Sorted (LeetCode 167)', 'opposite ends'],
+    ['3Sum (LeetCode 15)', 'sort, fix one index, scan for the other two, skip duplicates'],
+    ['Valid Palindrome (LeetCode 125)', 'compare from both ends, skipping punctuation'],
+    ['Remove Duplicates from Sorted Array (LeetCode 26)', 'read and write pointers'],
+    ['Container With Most Water (LeetCode 11)', 'move the shorter wall'],
+    ['Move Zeroes (LeetCode 283)', 'read and write pointers'],
+  ]}
+/>
+
+## Variants
+
+<DataTable
+  columns={['Variant', 'Idea', 'In this repository']}
+  rows={[
+    ['Opposite ends', 'sorted pair search, palindromes, area', 'yes'],
+    ['Read and write', 'in-place filter or partition', 'remove_duplicates'],
+    ['Fast and slow', 'cycle detection, middle of a linked list', 'no'],
+    ['k-sum', 'fix k - 2 elements, scan for the last two', 'only 3-sum'],
+    ['Merge two sorted arrays', 'one pointer per array', 'no'],
+  ]}
+/>
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Unsorted input.** The opposite-end sum argument only holds on a sorted array. Sort first, but then the original indices are lost.
+- **Not skipping duplicates in 3-sum.** The same triplet is reported several times. Skip equal `i` values and step both pointers past equal values after a hit.
+- **`left <= right` instead of `left < right`.** A pair needs two different elements.
+- **Unsigned underflow in C++.** `arr.size() - 2` wraps around for short arrays; write `i + 2 < size`.
+- **Forgetting that `three_sum` sorts its input** (Python and C++). Pass a copy if the order matters.
+- **Reading past the new length** after `remove_duplicates`: the tail still holds old values.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="How do I know which pointer to move?">
+    Move the one whose current element cannot be part of a better answer. On a sorted array with a sum that is too small, that is the left one; too large, the right one. For the container, it is the shorter wall.
+  </FaqItem>
+  <FaqItem question="Does two pointers need a sorted array?">
+    Opposite-end pair problems do. Read/write pointer problems and palindrome checks do not, but remove-duplicates-in-place assumes equal values are adjacent.
+  </FaqItem>
+  <FaqItem question="How is it different from sliding window?">
+    A sliding window moves both ends in the same direction and keeps a state about the range between them. Opposite-end two pointers move towards each other and use the order of the data.
+  </FaqItem>
+  <FaqItem question="What if I need the original indices of an unsorted array?">
+    Sort pairs of `(value, index)`, or use a hash map for two sum, which needs no sorting and costs O(n) extra space.
+  </FaqItem>
+</Faq>

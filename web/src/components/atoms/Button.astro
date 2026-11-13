@@ -1,0 +1,41 @@
+---
+/** Link styled as a button (calls to action). */
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary';
+  size?: 'md' | 'sm';
+  /** Opens in a new tab (links that leave the site). */
+  external?: boolean;
+}
+
+const { href, variant = 'secondary', size = 'md', external = false } = Astro.props;
+const linkProps = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<a class:list={['button', size, { primary: variant === 'primary' }]} href={href} {...linkProps}><slot /></a>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .button.sm {
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+</style>

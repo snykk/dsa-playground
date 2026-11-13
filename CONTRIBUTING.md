@@ -1,158 +1,131 @@
 # Contributing Guidelines
 
-Thank you for your interest in contributing to the **Data Structures & Algorithms (DSA) Playground** repository! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to the **Data Structures & Algorithms (DSA) Playground** repository. This document explains how to propose a change and what a good change looks like.
 
----
+## How to Contribute
 
-## 🤝 How to Contribute
+Contributions of all kinds are welcome:
 
-We welcome contributions of all kinds! Here are some ways you can help:
+- **Report bugs**: found a wrong result or a broken page? Open an issue.
+- **Suggest features**: a missing topic, a new visualization, a site improvement.
+- **Improve documentation**: clearer explanations, fixed facts, better diagrams.
+- **Add implementations**: a missing topic, or a missing language for an existing one.
+- **Add test cases**: edge cases and error cases that are not covered yet.
+- **Fix issues**: bugs and code quality.
 
-- 🐛 **Report Bugs**: Found an issue? Let us know!
-- 💡 **Suggest Features**: Have an idea? Share it!
-- 📝 **Improve Documentation**: Help make our docs better
-- 💻 **Add Implementations**: Implement missing data structures or algorithms
-- ✅ **Add Test Cases**: Improve test coverage
-- 🔧 **Fix Issues**: Help fix bugs and improve code quality
+## Contribution Process
 
----
+Branch and commit conventions are the maintainer's, written down in [RELEASING.md](RELEASING.md). Follow them in your pull request.
 
-## 📋 Contribution Process
+### 1. Fork and clone (outside contributors)
 
-### 1. Fork the Repository
-
-1. Click the "Fork" button on the top right of the repository page
-2. This creates a copy of the repository in your GitHub account
-
-### 2. Clone Your Fork
+Click "Fork" on the repository page, then clone your fork:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/dsa-playground.git
 cd dsa-playground
 ```
 
-### 3. Create a Feature Branch
+### 2. Create a branch
+
+Start from an up-to-date `master` and give the branch one clear piece of work. Name it for what is true once the change lands:
 
 ```bash
-git checkout -b feature/your-feature-name
-# or
-git checkout -b fix/your-bug-fix
+git switch -c fix/a-splay-tree-search-miss-returns-none
 ```
 
-**Branch Naming Convention:**
-- `feature/` - for new features
-- `fix/` - for bug fixes
-- `docs/` - for documentation updates
-- `test/` - for adding tests
-- `refactor/` - for code refactoring
+Prefixes: `feat/` (new topic, visualization or feature), `fix/` (bug fix), `docs/` (documentation only), `chore/` (maintenance), `ci/` (workflows).
 
-### 4. Make Your Changes
+### 3. Make your changes
 
-- Write clean, readable code
-- Follow the existing code style
-- Add comments where necessary
-- Include test cases
-- Update documentation if needed
+- Write clean, readable code in the style of the folder you are editing.
+- Comment the why, not the what.
+- Add or update tests with the code.
+- Update the READMEs in the same change when behaviour or facts change.
 
-### 5. Test Your Changes
-
-Make sure your code works correctly:
-
-**Python:**
-```bash
-python data_structure_test.py
-```
-
-**C++:**
-```bash
-g++ -o test data_structure_test.cpp && ./test
-```
-
-**Go:**
-```bash
-go test
-```
-
-### 6. Commit Your Changes
-
-Write clear, descriptive commit messages:
+### 4. Test your changes
 
 ```bash
-git add .
-git commit -m "feat: add Binary Search Tree implementation
-
-- Add BST implementation in Python, C++, and Go
-- Include insert, search, delete operations
-- Add comprehensive test cases
-- Update README with usage examples"
+make test                # Python, Go and C++ together
+make test-python         # or one language at a time
+make test-go
+make test-cpp
+python3 scripts/check_readme_style.py "<topic or category folder>"   # when a README changed (or --all)
+make test-web            # when the web site changes (needs Node)
 ```
 
-**Commit Message Format:**
-- `feat:` - new feature
-- `fix:` - bug fix
-- `docs:` - documentation changes
-- `test:` - adding tests
-- `refactor:` - code refactoring
-- `chore:` - maintenance tasks
+To run one topic by hand, use the commands in its language README ("How to Run").
 
-### 7. Push to Your Fork
+### 5. Commit
+
+A commit title reads `type: <what is true afterwards>`, with no scope. Types: `feat`, `fix`, `docs`, `chore`, `ci`, `build`, `refactor`, `test`. Add a short body when the reason is not obvious.
 
 ```bash
-git push origin feature/your-feature-name
+git add <the files you changed>
+git commit -m "fix: a splay tree search miss returns None, and delete keeps the tree intact"
 ```
 
-### 8. Create a Pull Request
+### 6. Push and open a pull request
 
-1. Go to the original repository on GitHub
-2. Click "New Pull Request"
-3. Select your fork and branch
-4. Fill out the PR template
-5. Submit the pull request
+```bash
+git push origin <your-branch>
+```
 
----
+Open a pull request against `master`. Describe what changed and why, list the checks you ran, and link any related issue. The maintainer merges accepted pull requests into the next release branch, and releases follow [RELEASING.md](RELEASING.md).
 
-## 📁 Project Structure
+## Project Structure
 
 ### Directory Structure
 
-```
+```text
 dsa-playground/
-├── Data Structures/
-│   ├── Linear/
-│   │   ├── Array/
-│   │   │   ├── Python/
-│   │   │   │   ├── array.py
-│   │   │   │   ├── array_test.py
-│   │   │   │   └── README.md
-│   │   │   ├── C++/
-│   │   │   │   ├── array.cpp
-│   │   │   │   ├── array_test.cpp
-│   │   │   │   └── README.md
-│   │   │   ├── Go/
-│   │   │   │   ├── main.go
-│   │   │   │   ├── main_test.go
-│   │   │   │   ├── go.mod
-│   │   │   │   └── README.md
-│   │   │   └── README.md
-│   │   └── ...
-│   └── Non_Linear/
-│       └── ...
-└── Algorithms/
-    └── ...
+  Data_Structures/       Linear/, Non_Linear/, Hashing/, Advanced_Structures/
+  Algorithms/            Sorting/, Searching/, Graph_Algorithms/, Dynamic_Programming/, ...
+  Problem_Patterns/      two pointers, sliding window, prefix sums, ...
+  Complexity_Analysis/   Time_Complexity/, Space_Complexity/, Amortized_Analysis/
+  Utilities/             Optimization_Techniques/, Problem_Types/, Templates/
+  web/                   the Astro site (articles, visualizations, tests)
+  scripts/               test runners and check_readme_style.py
+  Makefile               make test and the other targets
+  README.md  STUDY_GUIDE.md  CONTRIBUTING.md  RELEASING.md  CHANGELOG.md  LICENSE
 ```
 
-### Required Files for Each Implementation
+Every topic folder has the same layout, for example `Algorithms/Sorting/Quick_Sort/`:
 
-Each data structure/algorithm implementation must include:
+```text
+Quick_Sort/
+  README.md                topic README
+  Python/
+    quick_sort.py
+    quick_sort_test.py
+    README.md
+  C++/
+    quick_sort.cpp
+    quick_sort_test.cpp
+    README.md
+  Go/
+    main.go
+    main_test.go
+    go.mod
+    README.md
+```
 
-1. **Implementation File** (`*.py`, `*.cpp`, `*.go`)
-2. **Test File** (`*_test.py`, `*_test.cpp`, `*_test.go`)
-3. **README.md** - Documentation for the specific language
-4. **Main README.md** - Overview documentation in the parent folder
+Folders that group topics (for example `Algorithms/Sorting/`) have only a category README and sub-folders.
 
----
+### Folder Names
 
-## 💻 Coding Standards
+Every content folder is named in `Title_Case_With_Underscores`, ASCII only: no spaces, apostrophes, parentheses, `&`, `+` or other symbols. Examples: `Binary_Search_Tree`, `Dijkstras_Algorithm`, `B_Plus_Tree`, `Divide_and_Conquer`. The language folders are always `Python/`, `C++/` and `Go/`.
+
+Each topic has exactly one folder. When a topic belongs to two areas (for example Kruskal's algorithm, which is both greedy and a graph algorithm), it lives in the area where readers look for it first, and the other area's overview links to it.
+
+### Required Files for Each Topic
+
+1. **Implementation** in each language folder (`*.py`, `*.cpp`, `main.go`)
+2. **Test file** next to it (`*_test.py`, `*_test.cpp`, `main_test.go`)
+3. **Language README** in each language folder
+4. **Topic README** in the topic folder
+
+## Coding Standards
 
 ### Python
 
@@ -230,23 +203,61 @@ func (bst *BinarySearchTree) Insert(value int) {
 }
 ```
 
----
-
-## 📝 Documentation Standards
+## Documentation Standards
 
 ### README.md Structure
 
-Each implementation should have a README.md with:
+Every topic folder has a **topic README** (the explanation) and one **language README** per language folder (that implementation and how to run it). The web site has its own, richer article for each topic; the READMEs are the GitHub-side documentation and must stand on their own.
 
-1. **Title** - Name of the data structure/algorithm
-2. **Overview** - Brief description
-3. **Concept** - Key concepts and properties
-4. **Operations** - Table of operations with descriptions
-5. **Complexity** - Time and space complexity table
-6. **Usage Examples** - Code examples in the language
-7. **Running Tests** - How to run tests
-8. **When to Use** - Use cases and applications
-9. **Notes** - Additional information
+Rules for every README:
+
+- Plain headings and lists: no emoji, no check / cross marks (write "Yes" / "No", or put pros and cons under their own headings).
+- Facts must match the code in the folder (variant, tie-breaking, API, what each language does differently). If a change alters behaviour, update the README in the same change.
+- No "Last Updated" stamps; git history has the date.
+- Diagrams are ASCII art inside a ` ```text ` block.
+
+**Topic README** (`<Topic>/README.md`), sections in this order:
+
+1. `# <Topic name>`, then one short paragraph: what it is, the problem it solves, its headline complexity.
+2. `## Intuition` - the idea in plain words (an analogy if it helps) and the invariant that makes it correct.
+3. `## Visual` - an ASCII diagram of the structure or of one step.
+4. `## How It Works` (algorithms) or `## Operations` (data structures) - numbered steps, or one subsection per operation.
+5. `## Step-by-Step Trace` - a small input traced to the answer (a table or a short list).
+6. `## Complexity` - time and space per case or per operation, and *why* (the recurrence, the amortized argument).
+7. `## When to Use` - when it is the right tool, and when it is not.
+8. `## <Topic> vs. <Alternatives>` - a short comparison table.
+9. `## Common Pitfalls` - the bugs people actually write (off-by-one, overflow, empty input, duplicates, ...).
+10. `## Implementations` - a table: language, folder, main file, notes on how the languages differ.
+11. `## Practice Problems` - three to six problems with links.
+12. `## Related` - links to related topic folders.
+
+Theory topics (for example Big-O notation) may call section 4 `## Definition`; the other sections still apply.
+
+**Language README** (`<Topic>/<Language>/README.md`):
+
+1. `# <Topic> -- <Language> Implementation`
+2. `## Files` - each file and what it contains.
+3. `## API` - the public functions and types, one line each.
+4. `## <Language>-Specific Notes` - idioms, memory handling, overflow, differences from the other languages.
+5. `## How to Run` - the exact commands for the tests (and the demo, if there is one).
+6. `## Key Takeaways` - two to four bullets.
+
+**Category README** (a folder that groups topics, for example `Algorithms/Sorting/README.md`). It is the GitHub-side twin of the category's overview on the web site, `web/src/content/categories/<name>.mdx`, and says the same things more briefly. Sections, in this order:
+
+1. `# <Category name>`, exactly the title the site shows, then a one-paragraph lead: what the topics share and what separates them.
+2. `## Topics` - a table in reading order: `#`, the linked topic or sub-category, what it adds (one line), and its level (or "N topics" for a sub-category). Every sub-folder that is a topic or has a README must be linked.
+3. `## How They Compare` - one comparison table, usually complexity. For a category of sub-categories, compare the sub-areas instead and add `## Where to Start`.
+4. `## Choosing One` - situation, choice and reason, when the topics are alternatives to each other.
+5. `## Common Pitfalls` - three to five bullets.
+6. `## Related` - linked prerequisites ("read first") and related folders.
+
+Category READMEs are ASCII only (write `n^2`, `<=`, `sigma`, `Omega`).
+
+Check a folder with `python3 scripts/check_readme_style.py "<topic or category folder>"` (or `--all`). For a topic, it checks the topic README and its language READMEs. For a category, it checks:
+- ASCII only, and no emoji;
+- the `## Topics` section;
+- a link to every sub-folder;
+- that every relative link resolves.
 
 ### Code Comments
 
@@ -255,9 +266,7 @@ Each implementation should have a README.md with:
 - Keep comments up-to-date with code
 - Remove commented-out code before submitting
 
----
-
-## ✅ Testing Requirements
+## Testing Requirements
 
 ### Test Coverage
 
@@ -304,88 +313,59 @@ func TestInsertEmptyTree(t *testing.T) {
 }
 ```
 
----
+## Implementation Checklist
 
-## 🎯 Implementation Checklist
+Before opening a pull request, check that:
 
-Before submitting, ensure:
+- [ ] the code follows the coding standards
+- [ ] `make test` passes (and `make test-web` if the site changed)
+- [ ] `python3 scripts/check_readme_style.py` passes for every README you touched
+- [ ] the READMEs match the code
+- [ ] comments explain why, with no commented-out code
+- [ ] commit titles read `type: <what is true afterwards>`
+- [ ] the branch is up to date with `master`
 
-- [ ] Code follows the coding standards
-- [ ] All tests pass
-- [ ] Documentation is complete and accurate
-- [ ] README.md files are updated
-- [ ] Code is properly commented
-- [ ] No linter errors
-- [ ] Commit messages are clear and descriptive
-- [ ] Branch is up-to-date with main/master
+## Code Review Process
 
----
-
-## 🔍 Code Review Process
-
-1. **Automated Checks**: Your PR will be checked by automated tools
-2. **Review**: Maintainers will review your code
-3. **Feedback**: You may receive feedback or requested changes
-4. **Approval**: Once approved, your PR will be merged
+1. **Automated checks**: CI runs the Python, Go and C++ tests (C++ also under sanitizers), checks the READMEs and links, and builds the site.
+2. **Review**: the maintainer reads the change and may ask for edits.
+3. **Merge**: an approved pull request goes into the next release branch.
 
 ### What Reviewers Look For
 
-- ✅ Code correctness and functionality
-- ✅ Code style and consistency
-- ✅ Test coverage
-- ✅ Documentation quality
-- ✅ Performance considerations
-- ✅ Edge case handling
+- Correctness
+- Style and consistency with the surrounding code
+- Test coverage, including edge cases
+- Documentation that matches the code
+- Performance where it matters
 
----
+## Adding a New Data Structure or Algorithm
 
-## 📚 Adding New Data Structures/Algorithms
+1. **Check it is not already there.** Search the repository, and see the topic lists in [README.md](README.md) and [STUDY_GUIDE.md](STUDY_GUIDE.md).
 
-### Step-by-Step Guide
+2. **Create the folder** in the area where readers look for it first (see Folder Names):
 
-1. **Check if it's already implemented**
-   - Search the repository
-   - Check the progress checklist in README.md
-
-2. **Create the folder structure**
-   ```
-   Data Structures/Non_Linear/Trees/Your Data Structure/
-   ├── Python/
-   ├── C++/
-   ├── Go/
-   └── README.md
+   ```text
+   Data_Structures/Non_Linear/Trees/Your_Topic/
+     README.md
+     Python/
+     C++/
+     Go/
    ```
 
-3. **Implement in all three languages**
-   - Python
-   - C++
-   - Go
+3. **Implement it in all three languages**, each with a test file covering every operation, edge cases and error cases.
 
-4. **Add comprehensive tests**
-   - Test all operations
-   - Test edge cases
-   - Test error handling
+4. **Write the documentation**: the topic README and a README in each language folder, following the templates above.
 
-5. **Write documentation**
-   - Main README.md (overview)
-   - Language-specific README.md files
-   - Code comments
+5. **Link it**: add it to the category README's `## Topics` table, and to the study guide if it belongs in a phase.
 
-6. **Update main README.md**
-   - Add to progress checklist
-   - Update progress percentages
+6. **Check and submit**: run `make test` and `python3 scripts/check_readme_style.py "<your topic folder>"`, then open the pull request.
 
-7. **Submit PR**
-   - Follow the PR template
-   - Link any related issues
-
----
-
-## 🐛 Reporting Bugs
+## Reporting Bugs
 
 ### Bug Report Template
 
-```markdown
+````markdown
 **Describe the bug**
 A clear description of what the bug is.
 
@@ -413,11 +393,9 @@ What actually happened.
 
 **Additional context**
 Any other relevant information.
-```
+````
 
----
-
-## 💡 Suggesting Features
+## Suggesting Features
 
 ### Feature Request Template
 
@@ -438,21 +416,11 @@ Any alternative solutions you've considered.
 Any other relevant information.
 ```
 
----
+## Documentation Contributions
 
-## 📖 Documentation Contributions
+Documentation fixes are welcome: typos, unclear explanations, wrong facts, more examples, better diagrams. Follow the README templates above.
 
-We welcome documentation improvements:
-
-- Fix typos and grammar
-- Improve clarity
-- Add more examples
-- Add visual diagrams
-- Translate documentation (if applicable)
-
----
-
-## 🎓 Learning Resources
+## Learning Resources
 
 If you're new to contributing:
 
@@ -460,35 +428,20 @@ If you're new to contributing:
 - [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)
 - [Code Review Guidelines](https://google.github.io/eng-practices/review/)
 
----
-
-## ❓ Questions?
+## Questions?
 
 If you have questions:
 
 - Open an issue with the `question` label
-- Check existing issues and discussions
-- Review the README.md for project information
+- Check existing issues
+- Read [README.md](README.md) for project information
 
----
+## Recognition
 
-## 🙏 Recognition
+Contributions are credited in the git history and named in the release notes of the release that ships them.
 
-Contributors will be:
-
-- Listed in the README.md (if desired)
-- Credited in commit messages
-- Acknowledged in release notes
-
----
-
-## 📄 License
+## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
----
-
-**Thank you for contributing to DSA Playground! 🚀**
-
-Every contribution, no matter how small, helps make this repository better for everyone.
-
+**Thank you for contributing to DSA Playground.**

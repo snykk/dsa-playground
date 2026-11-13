@@ -1,0 +1,206 @@
+---
+topic: Algorithms/Randomized_Algorithms/Randomized_Quickselect
+title: Randomized Quickselect
+lead: Quickselect finds the k-th smallest element of an unsorted array in O(n) expected time. It partitions around a random pivot like Quick Sort, but follows only the one side that contains rank k, so it is faster than sorting when you need a single order statistic.
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Expected time
+    value: O(n)
+    hint: random pivot, any input
+  - label: Worst time
+    value: O(n^2)
+    hint: only if the random pivots are unlucky every time
+    tone: warn
+  - label: Extra space
+    value: O(1)
+    hint: iterative loop, in place
+  - label: Approach
+    value: Prune and search
+    hint: discard the side that cannot hold rank k
+properties:
+  - { label: In-place, value: true }
+  - { label: Randomized, value: true }
+  - { label: Stable, value: false }
+  - { label: Sorts the array, value: false }
+prerequisites:
+  - Algorithms/Sorting/Quick_Sort
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Randomized_Algorithms/Reservoir_Sampling
+  - Algorithms/Sorting/Heap_Sort
+  - Algorithms/Sorting/Merge_Sort
+---
+
+## How Quickselect works
+
+Quick Sort partitions and then sorts both sides. Quickselect partitions and keeps **one** side, the one that contains the element of rank `k` (0-indexed, so `k = 0` is the minimum). The other side is thrown away, so the work shrinks geometrically instead of repeating on every level.
+
+<Steps>
+  <Step title="Pick a random pivot">
+    Draw an index uniformly from the current range `lo..hi`. Randomness means no fixed input is bad for the algorithm.
+  </Step>
+  <Step title="Three-way partition">
+    Rearrange `arr[lo..hi]` into three bands: keys `<` the pivot, keys `==` the pivot, keys `>` the pivot. The partition returns the band of equal keys as `lt..gt`.
+  </Step>
+  <Step title="Decide where k lies">
+    If `k < lt`, continue in the left band. If `k > gt`, continue in the right band. Otherwise `k` is inside the equal band and `arr[k]` is the answer.
+  </Step>
+  <Step title="Repeat on the smaller range">
+    Update `lo` or `hi` and loop. A range of one element is its own answer.
+  </Step>
+</Steps>
+
+<Callout title="The invariant">
+The element of rank `k` always lies inside `arr[lo..hi]`. Every partition places keys smaller than the pivot to its left and larger keys to its right, so if `k` is outside the equal band, the discarded side contains no element of rank `k`.
+</Callout>
+
+## Worked example
+
+Find the 4th smallest (`k = 3`, 0-indexed) of `[7, 2, 9, 2, 5, 2, 8]`. Sorted, the array is `[2, 2, 2, 5, 7, 8, 9]`, so the answer is 5. These rows come from running the repository's partition on the array with the pivots shown.
+
+<ArrayDiagram
+  legend={{ p: 'pivot value', l: 'band equal to the pivot', m: 'discarded: cannot contain rank k', f: 'answer' }}
+  rows={[
+    { label: 'start', values: [7, 2, 9, 2, 5, 2, 8], tones: '.p.....', marks: { 1: 'pivot', 3: 'k = 3' }, note: 'Pivot: the value 2 at index 1.' },
+    { label: 'round 1', values: [2, 2, 2, 5, 9, 8, 7], tones: 'lllp...', marks: { 0: 'lt = 0', 2: 'gt = 2', 3: 'k = 3' }, note: '`k = 3 > gt = 2`: the answer is in the right band. Indexes 0 to 2 are discarded for good.' },
+    { label: 'round 2', values: [2, 2, 2, 5, 8, 7, 9], tones: 'mmmf...', marks: { 3: 'lt = gt = 3, k' }, note: 'Pivot: the value 5 at index 3 of the range 3..6. The equal band is `3..3` and contains `k`, so `arr[3] = 5` is returned.' },
+  ]}
+/>
+
+Two rounds touched 7 and then 4 elements. The three equal keys were removed in one pass, which is exactly what a two-way partition cannot do (see the pitfalls below).
+
+## Pseudocode
+
+```text
+quickselect(arr, k):
+    lo = 0; hi = len(arr) - 1
+    while lo < hi:
+        lt, gt = partition3(arr, lo, hi, random index in [lo, hi])
+        if k < lt:   hi = lt - 1
+        elif k > gt: lo = gt + 1
+        else:        return arr[k]
+    return arr[lo]
+
+partition3(arr, lo, hi, p):          # Dutch national flag
+    pivot = arr[p]
+    lt = lo; i = lo; gt = hi
+    while i <= gt:
+        if arr[i] < pivot:   swap(arr[lt], arr[i]); lt++; i++
+        elif arr[i] > pivot: swap(arr[i], arr[gt]); gt--
+        else:                i++
+    return lt, gt                    # arr[lt..gt] == pivot
+```
+
+## Implementation
+
+All three languages use the same iterative loop and three-way partition. They differ in the API:
+
+- **Python:** `quickselect(arr, k, rng=None)` raises `ValueError` on an empty list and `IndexError` for a bad `k`. `top_k_smallest(arr, k, rng=None)` works on a copy.
+- **C++:** `quickselect(arr, k, rng)` or `quickselect(arr, k)` (seeded from `std::random_device`) throws `std::invalid_argument` or `std::out_of_range`. There is no top-k helper.
+- **Go:** `Quickselect(arr, k, rng)` panics on an empty slice or a bad `k`, and `rng` may be `nil`. `TopKSmallest` copies the input.
+
+All of them reorder the input array in place and use `int`.
+
+<TopicCode topic="Algorithms/Randomized_Algorithms/Randomized_Quickselect" />
+
+## Complexity analysis
+
+A partition of a range of `s` elements costs <BigO of="s" />. What matters is how fast the range shrinks.
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n)', when: 'The first pivot lands in the equal band that contains k.' },
+    { case: 'Expected case', time: 'O(n)', when: 'Any input, because the pivot is random. About 3.4 n comparisons for the median.' },
+    { case: 'Worst case', time: 'O(n^2)', when: 'Every random pivot is close to the minimum or maximum, which has probability near zero for large n.' },
+  ]}
+/>
+
+Why linear: a random pivot lies in the middle half of the range with probability 1/2, and then at most 3/4 of the range survives. So on average every two rounds shrink the range to 3/4 of its size or less.
+
+<Equation label="Expected work" expr="E[T(n)] <= E[T(3n/4)] + O(n)" result="O(n)" />
+
+The costs form a geometric series, `n + 3n/4 + 9n/16 + ...`, whose sum is a constant times `n`. Quick Sort recurses into both sides, which keeps the total at `n` per level and gives <BigO of="n log n" />.
+
+<Callout title="Duplicates need a three-way partition">
+A two-way partition with a strict `<` test puts every key equal to the pivot on the same side. On an all-equal array nothing is ever discarded beyond the pivot itself, so the loop does about `n` rounds of `O(n)` work, whatever pivot is drawn. This repository's earlier version did exactly that (about 4 times slower each time n doubled). The three-way partition removes the whole equal band in one pass, so all-equal input is a single round.
+</Callout>
+
+## Variants and design choices
+
+<DataTable
+  columns={['Choice', 'How it works', 'Trade-off']}
+  rows={[
+    ['Random pivot (here)', 'uniform index in `lo..hi`', 'expected O(n) on every input; simple'],
+    ['Median of three', 'median of first, middle and last', 'good on sorted data, but a crafted input can still beat it'],
+    ['Median of medians', 'deterministic pivot with a guaranteed split', 'O(n) worst case, with a large constant factor'],
+    ['Introselect', 'quickselect that switches to a guaranteed fallback', 'what C++ `std::nth_element` is based on in common implementations'],
+    ['Two-way vs three-way partition', 'one band of equal keys or two', 'three-way costs a few more swaps but is linear on duplicates'],
+  ]}
+/>
+
+## Quickselect vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Best for']}
+  highlight={0}
+  rows={[
+    ['Quickselect', 'O(n) expected', 'O(1)', 'one rank (median, percentile) from an array in memory'],
+    ['Sort then index', 'O(n log n)', 'O(1) to O(n)', 'when you also need the sorted order, or ranks repeatedly'],
+    ['Heap of size k', 'O(n log k)', 'O(k)', 'k much smaller than n, or streaming data'],
+    ['Median of medians', 'O(n) worst', 'O(1) to O(n)', 'a hard worst-case guarantee'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear expected time for any input and any rank, and no sorting of the rest of the array.',
+    'In place with an iterative loop, so the extra space is O(1).',
+    'The partition is the same primitive as Quick Sort, so it is easy to reuse.',
+    'After the call, `arr[:k]` holds the k smallest elements (unordered), which gives top-k for free.',
+  ]}
+  cons={[
+    'The O(n) bound is an expectation, not a guarantee: a bad run is possible, though very unlikely.',
+    'It reorders the input, so copy the array first if the order matters.',
+    'It needs random access, so it is a poor fit for linked lists and streams.',
+    'A single call gives one rank; repeated queries are better served by sorting once.',
+  ]}
+/>
+
+## Applications
+
+- **Medians and percentiles** of a batch of measurements without a full sort.
+- **Top-k selection.** After `quickselect(arr, k - 1)`, the first `k` slots hold the k smallest keys.
+- **Pivot choice** inside other algorithms that need a median split.
+- **Practice problems.** LeetCode 215 "Kth Largest Element in an Array" is the standard Quickselect problem.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Recursing into both sides.** That is Quick Sort and costs <BigO of="n log n" />. Keep only the side that holds `k`.
+- **A two-way partition on duplicates.** The equal keys stay on one side and the time becomes quadratic. Use three bands.
+- **Off-by-one on k.** This code is 0-indexed: `k = 0` is the minimum and `k = n - 1` the maximum. The 4th smallest is `k = 3`.
+- **A fixed pivot.** First or last element pivots are quadratic on sorted input. Randomize.
+- **Forgetting that the input is reordered.** Copy it first if the caller still needs the original order.
+- **Biased pivot choice.** Use a uniform generator (`randint`, `uniform_int_distribution`, `Intn`), not `rand() % n`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Is the k-th smallest the same as the k-th largest?">
+    By symmetry, yes: the k-th largest of `n` elements (1-indexed) is the element of rank `n - k` in 0-indexed ascending order. Pass that rank to `quickselect`.
+  </FaqItem>
+  <FaqItem question="Can the worst case really happen?">
+    With a random pivot there is no bad input, only bad luck. Reaching a quadratic running time requires drawing extreme pivots over and over, and the probability drops exponentially with `n`. If you need a guaranteed bound, use median of medians or an introselect fallback.
+  </FaqItem>
+  <FaqItem question="Does C++ std::nth_element guarantee O(n)?">
+    The standard only requires linear time on average. Common implementations use introselect, which falls back to a slower guaranteed method if the recursion goes badly, so the practical worst case is not quadratic.
+  </FaqItem>
+  <FaqItem question="When is a heap better than Quickselect?">
+    When `k` is small compared with `n` or the data arrives as a stream: a heap of size `k` takes <BigO of="n log k" /> time and only `O(k)` memory, and it never needs the whole array at once.
+  </FaqItem>
+</Faq>

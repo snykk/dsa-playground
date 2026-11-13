@@ -1,0 +1,138 @@
+---
+category: Algorithms/Graph_Algorithms/Advanced_Graph
+title: Advanced Graph Algorithms
+lead: These algorithms look for structure inside a graph instead of paths through it. A valid task order, groups of mutually reachable vertices, single points of failure, a yes-or-no answer to a logic formula, and the most flow a network can carry. Most of them are one DFS or BFS with extra bookkeeping.
+updated: 2026-11-13
+facts:
+  - label: Order, SCC, bridges
+    value: O(V + E)
+    hint: one pass over the graph
+  - label: 2-SAT
+    value: O(n + m)
+    hint: n variables, m clauses
+  - label: Edmonds-Karp
+    value: O(V E^2)
+    hint: maximum flow, whatever the capacities
+  - label: Ford-Fulkerson
+    value: O(E f)
+    hint: f is the maximum flow, integer capacities
+    tone: warn
+contents:
+  - folder: Topological_Sort
+    note: Order a DAG so every edge points forward, with Kahn's algorithm or DFS. The simplest topic here, and it detects cycles.
+  - folder: Strongly_Connected_Components
+    note: Split a directed graph into maximal groups of mutually reachable vertices. Kosaraju uses two DFS passes, Tarjan one.
+  - folder: Tarjan_Bridges_Articulation
+    note: Find the edges and vertices whose removal disconnects an undirected graph, with discovery times and low-links in one DFS.
+  - folder: 2_SAT
+    note: Decide a formula of two-literal clauses by building an implication graph and running an SCC algorithm on it.
+  - folder: Network_Flow
+    note: Maximum flow from a source to a sink with augmenting paths. Ford-Fulkerson finds any path, Edmonds-Karp the shortest.
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal
+related:
+  - Algorithms/Graph_Algorithms/Shortest_Path
+  - Algorithms/Graph_Algorithms/Minimum_Spanning_Tree
+  - Data_Structures/Advanced_Structures/Disjoint_Set_Union
+  - Problem_Patterns/Graph_Traversal_Problems
+---
+
+## The problem
+
+Traversal, shortest paths and spanning trees ask about reachability and cost. The topics here ask about the shape of the graph:
+
+- **Order.** Can the vertices be listed so that every edge goes forward? That is a topological order, and it exists only for a directed acyclic graph.
+- **Components.** Which vertices can reach each other in both directions? Those are the strongly connected components.
+- **Weak spots.** Which edges or vertices, if removed, split an undirected graph? Those are bridges and articulation points.
+- **Satisfiability.** Can a formula of clauses of two literals be satisfied? 2-SAT turns that into a component question.
+- **Capacity.** How much can flow from a source to a sink through edges with limits? That is maximum flow.
+
+The first four sit close together. Topological sort, strongly connected components and bridges are built on DFS, and 2-SAT is a thin layer over an SCC algorithm. Network flow stands apart. It is built on BFS or DFS, but it repeatedly changes a residual graph instead of walking the graph once.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Input', 'Output', 'Built on', { label: 'Time', kind: 'mono' }, 'Level']}
+  rows={[
+    ['Topological sort', 'directed acyclic graph', 'an order of the vertices, or a cycle report', 'in-degrees and a queue, or DFS', 'O(V + E)', 'Intermediate'],
+    ['Strongly connected components', 'directed graph', 'the components, in a topological order of the condensation', 'DFS, twice or once', 'O(V + E)', 'Advanced'],
+    ['Bridges and articulation points', 'undirected multigraph', 'the bridges and the cut vertices', 'one DFS with disc and low values', 'O(V + E)', 'Advanced'],
+    ['2-SAT', 'clauses with two literals each', 'satisfiable or not, plus an assignment', 'implication graph and Tarjan', 'O(n + m)', 'Advanced'],
+    ['Network flow', 'directed graph with capacities', 'the maximum flow value', 'augmenting paths in a residual graph', 'O(E f) or O(V E^2)', 'Advanced'],
+  ]}
+/>
+
+## See them side by side
+
+The tabs cover the four topics that have a visualization. Topological sort and the two SCC algorithms take a directed graph, and the bridge finder takes an undirected one. Load **Cycle with a tail** in the topological sort tab to see a cycle block the order, **Two cycles joined** in the SCC tabs, and **Triangle with a tail** in the bridges tab.
+
+<ArticleViz ids={['topological-sort', 'kosaraju', 'tarjan-scc', 'bridges-articulation']} />
+
+## A path through the topics
+
+<Steps>
+  <Step title="Topological sort">
+    It needs only DFS or a queue and makes the idea of a directed acyclic graph concrete.
+  </Step>
+  <Step title="Strongly connected components">
+    Read Kosaraju first, since its two passes are easy to follow, then Tarjan, which does the same job in one pass.
+  </Step>
+  <Step title="Bridges and articulation points">
+    The discovery-time and low-link idea of Tarjan's SCC algorithm reappears here on undirected graphs.
+  </Step>
+  <Step title="2-SAT">
+    It uses the SCC algorithm as a tool, so read it after Tarjan.
+  </Step>
+  <Step title="Network flow">
+    It is independent of the rest. Read Ford-Fulkerson for the residual graph, then Edmonds-Karp for the one change that makes it polynomial.
+  </Step>
+</Steps>
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['Order tasks by their dependencies', 'Topological_Sort', 'every task comes after everything it depends on'],
+    ['Check whether a dependency graph has a cycle', 'Topological_Sort', 'Kahn leaves vertices unplaced when a cycle exists'],
+    ['Group a directed graph into mutually reachable parts', 'Strongly_Connected_Components', 'the components form a DAG you can then order'],
+    ['Find the weak links of a network', 'Tarjan_Bridges_Articulation', 'one DFS lists every bridge and articulation point'],
+    ['Decide pairwise either-or constraints', '2_SAT', 'a conflict is exactly a variable in the same SCC as its negation'],
+    ['Carry as much as possible from a source to a sink', 'Network_Flow', 'augmenting paths reach the maximum, and a minimum cut proves it'],
+  ]}
+/>
+
+## Applications
+
+- **Scheduling and builds.** Topological order of tasks, packages and course prerequisites.
+- **Program analysis.** Components of a call graph or a module graph, with mutual recursion showing up as one component.
+- **Network reliability.** Bridges and articulation points mark single points of failure.
+- **Constraint solving.** 2-SAT for pairwise constraints such as seating or choice problems.
+- **Capacity planning.** Maximum flow for traffic, pipelines, matching and assignment.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Running topological sort on a graph with a cycle.** No valid order exists. Check the result for a cycle report instead of trusting it.
+- **Mixing up the two SCC output orders.** Kosaraju lists the source component first and Tarjan the sink component first, so the orders are reverse of each other.
+- **Using the bridge algorithm on a directed graph.** It is defined for undirected graphs only, and its vertices must be numbered from 0 to n - 1.
+- **Using 3 literals in 2-SAT.** With three literals per clause the problem is NP-complete, and the implication graph no longer works.
+- **Using Ford-Fulkerson with large or irrational capacities.** Its running time depends on the flow value, and with irrational capacities it may never stop. Use Edmonds-Karp.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which of these should I read first?">
+    Topological sort. It is the simplest, and it explains what a DAG is. Strongly connected components follow naturally, since the components of any directed graph form a DAG.
+  </FaqItem>
+  <FaqItem question="Why does 2-SAT belong with the SCC algorithms?">
+    Each clause of two literals gives two implications, which makes a directed graph. The formula is unsatisfiable exactly when some variable and its negation lie in the same strongly connected component, so an SCC algorithm decides it.
+  </FaqItem>
+  <FaqItem question="Do I need all of these for interviews or contests?">
+    Topological sort, SCC and bridges appear often in graph problems. 2-SAT and network flow are rarer, but when they apply, nothing else is as simple.
+  </FaqItem>
+  <FaqItem question="Are there other graph topics outside this folder?">
+    Yes. Shortest paths and spanning trees have their own sections, and the union-find structure that Kruskal's algorithm uses lives under Data Structures.
+  </FaqItem>
+</Faq>

@@ -1,0 +1,85 @@
+---
+category: Algorithms/Advanced_Algorithms
+title: Advanced Algorithms
+lead: Two groups of techniques for problems that a plain loop cannot solve fast enough. Backtracking searches a space of candidates and drops dead ends early. Specialized techniques cut an array or a tree into pieces so that many queries stay cheap.
+updated: 2026-11-13
+facts:
+  - label: Sub-areas
+    value: '2'
+    hint: Backtracking and Specialized Techniques
+  - label: Topics
+    value: '8'
+    hint: four in each sub-area
+  - label: Backtracking
+    value: Exponential
+    hint: O(n!), O(m^V) or O(9^k) in the worst case
+    tone: warn
+  - label: Decompositions
+    value: O(sqrt n) to O(log n)
+    hint: per query, after a linear or n log n build
+contents:
+  - folder: Backtracking
+    note: Choose, check, recurse, undo. Maze, N-Queens, Graph Coloring and Sudoku, with pruning that removes dead branches.
+  - folder: Specialized_Techniques
+    note: Square root blocks, Mo's offline queries, heavy-light chains and centroid levels, for range and tree queries.
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Divide_and_Conquer
+  - Algorithms/Dynamic_Programming
+  - Data_Structures/Non_Linear/Trees/Segment_Tree
+---
+
+## What this area covers
+
+The two sub-areas answer different questions and have almost nothing in common in code.
+
+- **Backtracking** looks for a configuration that obeys a set of rules: queens that do not attack each other, a coloring with no clash on an edge, a filled Sudoku, a route through a maze. The cost is exponential in the worst case, and the work is in pruning.
+- **Specialized techniques** answer a stream of queries on one fixed structure. They spend time once to split it and then answer each query by touching only a few pieces. The cost per query is O(sqrt n) or O(log n).
+
+The only shared background is a depth-first search and some recursion. The tree techniques in the second area use DFS to compute sizes, and the maze in the first is a DFS on a grid.
+
+## At a glance
+
+<DataTable
+  columns={['Sub-area', 'Typical question', 'Core idea', 'Cost shape']}
+  rows={[
+    ['Backtracking', 'is there a valid arrangement, and what is one?', 'extend a partial solution and undo it when a rule breaks', 'exponential in the worst case, far less with pruning'],
+    ['Specialized Techniques', 'what is the answer for this range or this tree path?', 'precompute pieces and combine a few per query', 'polynomial: O(sqrt n), O((N + Q) sqrt N), O(log n)'],
+  ]}
+/>
+
+## A path through the area
+
+1. Read **Backtracking** first if the recursion pattern is new. Start with Rat in a Maze, then N-Queens, Graph Coloring and Sudoku.
+2. Read **Specialized Techniques** from the array side. Square root decomposition comes first, Mo's algorithm second.
+3. Then take the tree side: heavy-light decomposition, then centroid decomposition.
+
+The two sub-areas are independent, so you can take either one first. Within each, the order in the lists above goes from the simplest topic to the hardest.
+
+## Choosing a sub-area
+
+<DataTable
+  columns={['If the problem says', 'Look at', 'Why']}
+  rows={[
+    ['find any arrangement that satisfies the rules', 'Backtracking', 'a search with undo, no formula needed'],
+    ['count or find all solutions of a small puzzle', 'Backtracking', 'it visits every branch when asked to'],
+    ['many range queries on one array', 'Specialized Techniques', 'blocks or an offline order beat a scan per query'],
+    ['many path queries on one tree', 'Specialized Techniques', 'chains or centroids cut a path into a few pieces'],
+    ['overlapping subproblems with a clear recurrence', 'Dynamic Programming', 'stored answers beat repeated search'],
+  ]}
+/>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why are these two groups in one folder?">
+    They are the two sets of techniques in the repository that go beyond the standard sorting, searching and graph topics, and they both rely on recursion and on cutting a problem into parts. Each has its own overview with the details.
+  </FaqItem>
+  <FaqItem question="Do I need Backtracking before Specialized Techniques?">
+    No. The two sub-areas do not depend on each other. Specialized Techniques needs prefix sums for the array topics, and a depth-first search for the tree topics.
+  </FaqItem>
+  <FaqItem question="Which area is harder?">
+    The backtracking topics are Beginner or Intermediate, and each is short. Specialized Techniques goes from Intermediate (square root decomposition) to Advanced (Mo's algorithm, heavy-light and centroid decomposition), because the ideas need more setup.
+  </FaqItem>
+</Faq>

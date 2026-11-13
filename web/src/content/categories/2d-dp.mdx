@@ -1,0 +1,148 @@
+---
+category: Algorithms/Dynamic_Programming/2D_DP
+title: 2D Dynamic Programming
+lead: In 2D DP a state has two indices and the answer is read from a table. LCS and Edit Distance compare prefixes of two strings, 0/1 Knapsack pairs items with a capacity, and Matrix Chain Multiplication fills the intervals of one chain by length.
+updated: 2026-11-13
+facts:
+  - label: LCS and Edit Distance
+    value: O(m*n)
+    hint: m and n are the string lengths
+  - label: 0/1 Knapsack
+    value: O(n*W)
+    hint: pseudo-polynomial in the capacity W
+    tone: warn
+  - label: Matrix Chain
+    value: O(n^3)
+    hint: n^2 intervals, up to n splits each
+  - label: Space
+    value: O(m*n)
+    hint: one row suffices if no traceback is needed
+contents:
+  - folder: Longest_Common_Subsequence
+    note: The base table. dp[i][j] is the LCS of two prefixes. Match and take the diagonal, else take the better neighbor.
+  - folder: Edit_Distance
+    note: The same table shape over prefixes, with a minimum over replace, delete and insert, and a first row and column of 0..n.
+  - folder: 0_1_Knapsack
+    note: Items against a capacity. Each cell chooses to skip an item or take it, and the table needs O(n*W) cells.
+  - folder: Matrix_Chain_Multiplication
+    note: Interval DP. Fill the table by chain length and try every split point. The hardest of the four, at O(n^3).
+prerequisites:
+  - Algorithms/Dynamic_Programming/Basic_DP
+  - Algorithms/Dynamic_Programming/Linear_DP
+related:
+  - Algorithms/Dynamic_Programming/Advanced_DP
+  - Algorithms/String_Algorithms
+  - Algorithms/Greedy/Fractional_Knapsack
+  - Problem_Patterns/DP_Problem_Patterns
+---
+
+## The problem
+
+One index is not enough to name the subproblem, so the table has two axes. What each axis means decides the shape of the table.
+
+<DataTable
+  columns={['Topic', 'Table', 'Cell `dp[i][j]`']}
+  rows={[
+    ['LCS', '`(m+1) x (n+1)`', 'length of the LCS of the first `i` characters of `s1` and the first `j` of `s2`'],
+    ['Edit Distance', '`(m+1) x (n+1)`', 'fewest edits that turn the first `i` characters of `s1` into the first `j` of `s2`'],
+    ['0/1 Knapsack', '`(n+1) x (W+1)`', 'best value using the first `i` items with capacity `j`'],
+    ['Matrix Chain', '`(n+1) x (n+1)` for n matrices', 'fewest scalar multiplications for the chain from matrix `i` to matrix `j`'],
+  ]}
+/>
+
+The first three fill row by row, and each cell reads only its neighbors above and to the left. Matrix Chain fills by chain length, because a cell reads shorter intervals of its own chain.
+
+## At a glance
+
+<DataTable
+  columns={['Topic', 'Transition', 'Base case', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['LCS', 'equal characters: diagonal + 1, else the larger of up and left', 'first row and column are 0', 'O(m*n)', 'O(m*n), or O(min(m, n)) for the length only'],
+    ['Edit Distance', 'equal characters: diagonal, else 1 + the smallest of up, left and diagonal', 'row `i` and column `j` start at `i` and `j`', 'O(m*n)', 'O(m*n)'],
+    ['0/1 Knapsack', 'the larger of skipping item `i` and taking it, if it fits', 'row 0 is 0', 'O(n*W)', 'O(n*W), or O(W) with one row'],
+    ['Matrix Chain', 'the smallest over every split `k` of two sub-chains plus the product cost', 'a single matrix costs 0', 'O(n^3)', 'O(n^2)'],
+  ]}
+/>
+
+## See them side by side
+
+Each tab fills its table cell by cell. Try the textbook `ABCBDAB | BDCABA` in LCS and `kitten | sitting` in Edit Distance, then `W=10; 6:30, 5:20, 5:20` in Knapsack, where taking the best-looking item first is wrong, and the **CLRS** example in Matrix Chain.
+
+<ArticleViz ids={['lcs', 'edit-distance', 'knapsack', 'matrix-chain']} />
+
+## Two string tables, one pair of strings
+
+LCS and Edit Distance ask different questions about the same pair, so their numbers can differ. The values below come from `lcs_length`, `lcs_sequence` and `edit_distance`.
+
+<DataTable
+  columns={['s1', 's2', { label: 'LCS length', kind: 'mono' }, 'One LCS', { label: 'Edit distance', kind: 'mono' }]}
+  rows={[
+    ['`kitten`', '`sitting`', '4', '`ittn`', '3'],
+    ['`ABCBDAB`', '`BDCABA`', '4', '`BDAB`', '5'],
+  ]}
+/>
+
+Edit Distance allows replacement, so for `kitten` and `sitting` it is 3, less than the 5 that deletions and insertions alone would need (6 + 7 - 2*4). Both functions use the same table shape and the same `s1[i-1] == s2[j-1]` test.
+
+## Complexity
+
+<DataTable
+  columns={['Topic', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'What grows it']}
+  rows={[
+    ['LCS', 'O(m*n)', 'O(m*n)', 'string lengths; `lcs_optimized` keeps two rows'],
+    ['Edit Distance', 'O(m*n)', 'O(m*n)', 'string lengths; two rows give O(min(m, n)) if only the distance is needed'],
+    ['0/1 Knapsack', 'O(n*W)', 'O(n*W)', 'the value of the capacity, not its digit count'],
+    ['Matrix Chain', 'O(n^3)', 'O(n^2)', 'chain length: n^2 intervals, up to n splits each'],
+  ]}
+/>
+
+All four have the same best, average and worst time, because the loops do not depend on the data.
+
+## Choosing one
+
+<DataTable
+  columns={['Situation', 'Use', 'Why']}
+  rows={[
+    ['The longest shared sequence of two strings or arrays', 'LCS', 'the table also recovers the sequence'],
+    ['How far apart two strings are, in single edits', 'Edit Distance', 'insert, delete and replace each cost 1'],
+    ['Choose items under a budget, each at most once', '0/1 Knapsack', 'greedy by value or ratio can fail'],
+    ['Items can be split into fractions', 'Fractional Knapsack in Greedy', 'sorting by value per weight is optimal'],
+    ['The best way to bracket a product of matrices', 'Matrix Chain', 'the order changes the cost, not the result'],
+    ['A contiguous common run, not a subsequence', 'Longest Common Substring', 'a subsequence may skip characters'],
+  ]}
+/>
+
+## Applications
+
+- **Diff tools and version control.** LCS finds the lines two files share.
+- **Spell checking and fuzzy search.** Edit Distance ranks candidate words.
+- **Resource allocation.** Knapsack selects projects or cargo under a limit.
+- **Query planning and compilers.** Interval DP chooses the cheapest order of associative operations.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Confusing subsequence and substring.** LCS may skip characters, while a common substring may not.
+- **Counting a swap as one edit.** Edit Distance here has only insert, delete and replace, so swapping two letters costs 2.
+- **Looping capacity upward in a one-row knapsack.** It lets an item be taken twice. `knapsack_01_optimized` loops downward.
+- **Expecting items back from the space-saving versions.** A single row or two rows drop the table that the traceback needs.
+- **Treating O(n*W) as polynomial.** A capacity of 10^9 makes the table unusable, even with few items.
+- **Assuming the answer is unique.** Several subsequences can share the LCS length, and the code returns one of them.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which one should I read first?">
+    LCS. Edit Distance reuses its table shape, and Knapsack and Matrix Chain build on the same idea of filling a table from smaller cells.
+  </FaqItem>
+  <FaqItem question="Why does Matrix Chain fill by chain length?">
+    A cell for matrices `i` to `j` reads the cells for `i` to `k` and `k+1` to `j`, both shorter chains. Filling by length guarantees they are ready.
+  </FaqItem>
+  <FaqItem question="Can I recover the solution, not just its value?">
+    Yes, by walking back from the final cell and following which neighbor produced each value. LCS, Edit Distance and Knapsack allow it in the full table, and the one-row versions do not.
+  </FaqItem>
+  <FaqItem question="How does this relate to Linear DP?">
+    A 1D table has one index. Here the second index adds a second sequence, a capacity or the other end of an interval, so the table grows from O(n) to O(n^2) cells or more.
+  </FaqItem>
+</Faq>

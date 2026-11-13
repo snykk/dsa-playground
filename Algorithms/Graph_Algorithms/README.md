@@ -1,186 +1,75 @@
 # Graph Algorithms
 
-A comprehensive collection of **Graph Algorithms** implementations, including traversal, shortest path, and minimum spanning tree algorithms.
+Graph algorithms answer questions about vertices and edges, such as what is reachable, what is cheapest, what connects everything for the least cost, and what structure hides in the graph. The four areas here build on each other, from plain traversal up to components, orders and flows.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-This folder contains implementations of fundamental graph algorithms in Python, C++, and Go. Each algorithm includes:
-- Complete implementation
-- Comprehensive test suites
-- Detailed documentation
-- Complexity analysis
+| # | Section | What it adds | Level |
+|---|---------|--------------|-------|
+| 1 | [Graph Traversal Algorithms](Traversal/) | Visit every reachable vertex. BFS goes ring by ring, DFS goes deep first; almost everything else is built on one of them. | 2 topics |
+| 2 | [Shortest Path Algorithms](Shortest_Path/) | Cheapest routes in weighted graphs. Dijkstra, Bellman-Ford for negative edges, Floyd-Warshall for all pairs, A* for one goal. | 4 topics |
+| 3 | [Minimum Spanning Tree](Minimum_Spanning_Tree/) | Connect all vertices with the least total weight. Kruskal sorts edges, Prim grows one tree. | 2 topics |
+| 4 | [Advanced Graph Algorithms](Advanced_Graph/) | Structure inside a graph. Topological order, strongly connected components, bridges, 2-SAT and maximum flow. | 7 topics |
 
----
+All four areas are implemented in Python, C++ and Go.
 
-## Categories
+## How They Compare
 
-### 🔹 Traversal Algorithms
+| Area | Question | Main tools | Typical time | Weights |
+|------|----------|------------|--------------|---------|
+| Traversal | what is reachable, and in what order | BFS with a queue, DFS with a stack or recursion | O(V + E) | ignored |
+| Shortest path | cheapest route from a source, or between all pairs | Dijkstra, Bellman-Ford, Floyd-Warshall, A* | O((V + E) log V) to O(V^3) | the point of the area |
+| Minimum spanning tree | cheapest set of edges that connects everything | Kruskal with union-find, Prim with a heap | O(E log E) or O(E log V) | the point of the area |
+| Advanced graph | order, components, bridges, satisfiability, flow | Kahn, Kosaraju, Tarjan, 2-SAT, Ford-Fulkerson, Edmonds-Karp | O(V + E) to O(V E^2) | only for flow capacities |
 
-- **[BFS (Breadth-First Search)](./Traversal/BFS/)**
-  - Level-order traversal
-  - Shortest path in unweighted graphs
-  - Time: O(V + E), Space: O(V)
+| Area | Algorithm | Time | Extra space |
+|------|-----------|------|-------------|
+| Traversal | BFS, DFS | O(V + E) | O(V) |
+| Shortest path | Dijkstra | O((V + E) log V) | O(V + E) |
+| Shortest path | Bellman-Ford | O(V * E) | O(V) |
+| Shortest path | Floyd-Warshall | O(V^3) | O(V^2) |
+| Minimum spanning tree | Kruskal | O(E log E) | O(V) |
+| Minimum spanning tree | Prim with a heap | O(E log V) | O(V + E) |
+| Advanced graph | Topological sort, SCC, bridges | O(V + E) | O(V) to O(V + E) |
+| Advanced graph | Edmonds-Karp | O(V E^2) | O(V + E) |
 
-- **[DFS (Depth-First Search)](./Traversal/DFS/)**
-  - Depth-first traversal
-  - Path finding, cycle detection
-  - Time: O(V + E), Space: O(V)
+DFS needs O(V) with real recursion and up to O(E) for the stack of its marking-on-pop version.
 
----
+## Where to Start
 
-### 🔹 Shortest Path Algorithms
+1. Read the Graphs data structures first: adjacency list, adjacency matrix and edge list. Every algorithm here takes one of them as input.
+2. Traversal: BFS and DFS. They are short, and the rest of the section reuses both.
+3. Shortest Path: start with Dijkstra's algorithm. Bellman-Ford, Floyd-Warshall and A* each change one of its assumptions: negative edges, all pairs, a single goal with a hint.
+4. Minimum Spanning Tree: Kruskal and Prim solve the same problem from two directions. Kruskal also needs the union-find structure.
+5. Advanced Graph: take topological sort first, then strongly connected components, bridges and 2-SAT, which reuse DFS. Network flow is the most self-contained part and can be read last.
 
-- **[Dijkstra's Algorithm](./Shortest_Path/Dijkstra's_Algorithm/)**
-  - Single-source shortest path
-  - Non-negative edge weights
-  - Time: O((V + E) log V), Space: O(V)
+## Choosing an Area
 
-- **[Bellman-Ford Algorithm](./Shortest_Path/Bellman-Ford_Algorithm/)**
-  - Single-source shortest path
-  - Works with negative weights
-  - Detects negative cycles
-  - Time: O(V * E), Space: O(V)
+| Situation | Go to | Why |
+|-----------|-------|-----|
+| Is B reachable from A, or how many components are there | [Traversal](Traversal/) | one BFS or DFS answers it in O(V + E) |
+| Fewest hops in an unweighted graph | [Traversal](Traversal/) (BFS) | the first visit to a vertex is along a shortest path |
+| Cheapest route with positive costs | [Shortest Path](Shortest_Path/) (Dijkstra) | it settles the closest vertex first |
+| Cheapest route with negative edges, or a negative cycle check | [Shortest Path](Shortest_Path/) (Bellman-Ford) | it relaxes every edge V - 1 times and then checks once more |
+| Connect all sites with the least cable | [Minimum Spanning Tree](Minimum_Spanning_Tree/) | every vertex is joined and no cycle is paid for |
+| Order tasks that depend on each other | [Advanced Graph](Advanced_Graph/) (Topological Sort) | every edge points forward in the result |
+| Find mutually reachable groups, or single points of failure | [Advanced Graph](Advanced_Graph/) | strongly connected components and bridges, each in one DFS |
+| Largest amount that can pass from a source to a sink | [Advanced Graph](Advanced_Graph/) (Network Flow) | augmenting paths in a residual graph reach the maximum |
 
-- **[Floyd-Warshall Algorithm](./Shortest_Path/Floyd-Warshall_Algorithm/)**
-  - All pairs shortest paths
-  - Works with negative weights
-  - Time: O(V³), Space: O(V²)
+## Common Pitfalls
 
-- **[A* Search Algorithm](./Shortest_Path/A_Star_Search_Algorithm/)**
-  - Informed search with heuristics
-  - Optimal pathfinding
-  - Time: O(b^d), Space: O(b^d)
+- BFS counts edges, not cost: on a weighted graph it returns the fewest-hop path, which can cost far more than the cheapest one.
+- Dijkstra does not fail on a negative edge. It silently returns wrong distances; use Bellman-Ford.
+- A minimum spanning tree minimises total weight, not the distance from any one vertex.
+- One traversal from one start covers one component. On a disconnected graph, Kruskal returns a forest.
+- Topological sort needs a DAG, SCC algorithms need directed edges, and bridges are defined for undirected graphs.
 
----
+## Related
 
-### 🔹 Minimum Spanning Tree Algorithms
-
-- **[Kruskal's Algorithm](./Minimum_Spanning_Tree/Kruskal's_Algorithm/)**
-  - Edge-based approach
-  - Best for sparse graphs
-  - Time: O(E log E), Space: O(V)
-  - _See full implementation: [Greedy Algorithms](../../Greedy/Minimum%20Spanning%20Tree/Kruskal's%20Algorithm/)_
-
-- **[Prim's Algorithm](./Minimum_Spanning_Tree/Prim's_Algorithm/)**
-  - Vertex-based approach
-  - Best for dense graphs
-  - Time: O((V + E) log V), Space: O(V)
-  - _See full implementation: [Greedy Algorithms](../../Greedy/Minimum%20Spanning%20Tree/Prim's%20Algorithm/)_
-
----
-
-### 🔹 Advanced Graph Algorithms
-
-- **[Topological Sort](./Advanced_Graph/Topological_Sort/)**
-  - Linear ordering of vertices in DAG
-  - Task scheduling, dependency resolution
-  - Time: O(V + E), Space: O(V)
-
-- **[Strongly Connected Components](./Advanced_Graph/Strongly_Connected_Components/)**
-  - **[Kosaraju's Algorithm](./Advanced_Graph/Strongly_Connected_Components/Kosaraju's_Algorithm/)**
-    - Two DFS passes
-    - Intuitive approach
-    - Time: O(V + E), Space: O(V)
-  - **[Tarjan's Algorithm](./Advanced_Graph/Strongly_Connected_Components/Tarjan's_Algorithm/)**
-    - Single DFS pass
-    - More efficient
-    - Time: O(V + E), Space: O(V)
-
-- **[Union-Find / DSU](./Advanced_Graph/Union-Find_DSU/)**
-  - Disjoint set operations
-  - Cycle detection, MST
-  - Time: O(α(n)) per operation, Space: O(n)
-
-- **[Network Flow](./Advanced_Graph/Network_Flow/)**
-  - **[Ford-Fulkerson](./Advanced_Graph/Network_Flow/Ford-Fulkerson/)**
-    - DFS-based maximum flow
-    - Time: O(E × max_flow), Space: O(V + E)
-  - **[Edmonds-Karp](./Advanced_Graph/Network_Flow/Edmonds-Karp/)**
-    - BFS-based maximum flow
-    - Polynomial time: O(V × E²), Space: O(V + E)
-
----
-
-## Algorithm Comparison
-
-### Shortest Path Algorithms
-
-| Algorithm | Time Complexity | Works with Negative Weights | All Pairs | Best For |
-|-----------|----------------|----------------------------|-----------|----------|
-| **BFS** | O(V + E) | N/A (unweighted) | No | Unweighted graphs |
-| **Dijkstra's** | O((V + E) log V) | No | No | Non-negative weights |
-| **Bellman-Ford** | O(V * E) | Yes | No | Negative weights |
-| **Floyd-Warshall** | O(V³) | Yes (no cycles) | Yes | All pairs |
-| **A*** | O(b^d) | Depends | No | Pathfinding with heuristics |
-
-### Minimum Spanning Tree Algorithms
-
-| Algorithm | Time Complexity | Best For | Data Structure |
-|-----------|----------------|----------|----------------|
-| **Kruskal's** | O(E log E) | Sparse graphs | Union-Find |
-| **Prim's** | O((V + E) log V) | Dense graphs | Priority Queue |
-
----
-
-## Complexity Summary
-
-| Category | Algorithms | Time Complexity Range |
-|----------|-----------|----------------------|
-| **Traversal** | BFS, DFS | O(V + E) |
-| **Shortest Path** | Dijkstra's, Bellman-Ford, Floyd-Warshall, A* | O(V + E) to O(V³) |
-| **MST** | Kruskal's, Prim's | O(E log E) to O((V + E) log V) |
-
----
-
-## When to Use Which Algorithm
-
-### For Shortest Path:
-- **Unweighted graph**: Use **BFS**
-- **Non-negative weights, single-source**: Use **Dijkstra's**
-- **Negative weights, single-source**: Use **Bellman-Ford**
-- **All pairs shortest paths**: Use **Floyd-Warshall**
-- **Pathfinding with heuristics**: Use **A***
-
-### For Minimum Spanning Tree:
-- **Sparse graph**: Use **Kruskal's**
-- **Dense graph**: Use **Prim's**
-
----
-
-## Implementation Details
-
-All implementations follow consistent patterns:
-- **Python**: Type hints, comprehensive docstrings
-- **C++**: C++17 standard, template support
-- **Go**: Generic types, comprehensive tests
-
-Each algorithm includes:
-- ✅ Complete implementation
-- ✅ Test suite
-- ✅ README documentation
-- ✅ Complexity analysis
-- ✅ Usage examples
-
----
-
-## Related Topics
-
-- **Data Structures**: [Graph Data Structures](../../Data%20Structures/Non_Linear/Graph/)
-- **Greedy Algorithms**: [Greedy Algorithms](../../Greedy/)
-- **Dynamic Programming**: [DP on Graphs](../../Dynamic_Programming/Advanced%20DP/DP%20on%20Graphs/)
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS
-- "Algorithm Design Manual" by Steven Skiena
-- "Artificial Intelligence: A Modern Approach" by Russell & Norvig
-
----
-
-_Last Updated: December 2025_
-
-
+- [Graphs](../../Data_Structures/Non_Linear/Graph/): read first.
+- [Disjoint Set Union](../../Data_Structures/Advanced_Structures/Disjoint_Set_Union/): the union-find structure behind Kruskal's algorithm.
+- [Heaps](../../Data_Structures/Non_Linear/Heaps/): the priority queue behind Dijkstra and Prim.
+- [Greedy Algorithms](../Greedy/): Kruskal and Prim are greedy.
+- [Graph Traversal Problems](../../Problem_Patterns/Graph_Traversal_Problems/): practice problems for BFS and DFS.

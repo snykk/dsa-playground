@@ -1,0 +1,210 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+title: Modular Arithmetic
+lead: Modular arithmetic keeps only remainders, so numbers wrap around after reaching the modulus, like hours on a clock. It lets you add, subtract, multiply and take powers of huge numbers while holding only small ones, and it replaces division with a modular inverse.
+level: Beginner
+updated: 2026-11-12
+facts:
+  - label: Add, subtract, multiply
+    value: O(1)
+  - label: Inverse
+    value: O(log m)
+    hint: extended Euclid
+  - label: Inverse exists when
+    value: gcd(a, m) = 1
+  - label: Result range
+    value: always 0 .. m-1
+    hint: also for negative operands
+    tone: warn
+properties:
+  - { label: Needs a prime modulus, value: false }
+  - { label: Handles negative operands, value: true }
+  - { label: Division always possible, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
+related:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test
+---
+
+## Definition
+
+Two integers are congruent modulo `m` if they differ by a multiple of `m`.
+
+<Equation label="Congruence" expr="a = b (mod m)  <=>  m divides (a - b)" />
+
+Reduction commutes with addition, subtraction and multiplication, so you may reduce at any point:
+
+<Equation label="Compatibility" expr="(a * b) mod m = ((a mod m) * (b mod m)) mod m" result="the same holds for + and -" />
+
+The modular inverse of `a` is a number `x` with `a * x = 1 (mod m)`. It exists exactly when `gcd(a, m) = 1`, and then it is unique modulo `m`. Division by `b` means multiplication by the inverse of `b`.
+
+## Intuition
+
+Think of a clock with `m` ticks. Adding walks forward and wraps around; subtracting walks backward and wraps the other way. A negative number is just a position counted backwards: `-3` on an 11-tick clock is tick 8. Division is the odd one out. On a clock of 12, `4x = 8` has several answers and `4x = 1` has none, because 4 shares a factor with 12. On a clock of 11, every non-zero number can be undone.
+
+<GridDiagram
+  corner='* mod 7'
+  colLabels={[1, 2, 3, 4, 5, 6]}
+  rowLabels={[1, 2, 3, 4, 5, 6]}
+  rows={[[1, 2, 3, 4, 5, 6], [2, 4, 6, 1, 3, 5], [3, 6, 2, 5, 1, 4], [4, 1, 5, 2, 6, 3], [5, 3, 1, 6, 4, 2], [6, 5, 4, 3, 2, 1]]}
+  tones={['f.....', '...f..', '....f.', '.f....', '..f...', '.....f']}
+  legend={{ f: 'a product equal to 1: the row and column labels are inverses' }}
+  caption='Multiplication modulo 7. Each non-zero row has exactly one 1, so every non-zero number has exactly one inverse.'
+/>
+
+## Worked examples
+
+Everything modulo 11, with the repository's functions:
+
+<DataTable
+  columns={['Expression', 'Work', 'Result']}
+  rows={[
+    ['mod_add(7, 5, 11)', '12 - 11', '1'],
+    ['mod_subtract(3, 5, 11)', '-2 + 11', '9'],
+    ['mod_multiply(7, 5, 11)', '35 - 33', '2'],
+    ['mod_inverse(5, 11)', '5 * 9 = 45 = 1', '9'],
+    ['mod_divide(7, 5, 11)', '7 * 9 = 63 = 8 (mod 11)', '8'],
+    ['mod_inverse(-3, 11)', '-3 = 8, and 8 * 7 = 56 = 1', '7'],
+    ['mod_power(2, 5, 11)', '32 - 22', '10'],
+    ['mod_power(2, -1, 11)', 'the inverse of 2', '6'],
+  ]}
+  caption='A negative argument is reduced first: the inverse of -3 is the inverse of 8.'
+/>
+
+## How the code works
+
+<Steps>
+  <Step title="Normalize operands">
+    Reduce each input into `0 .. m-1`. Python's `%` already does this; C++ and Go need an explicit `floorMod`, because their `%` keeps the sign of the dividend (`-3 % 11` is `-3`).
+  </Step>
+  <Step title="Combine without overflow">
+    C++ and Go add with a comparison against `m - y` instead of `x + y`, and multiply in 128 bits (`__int128`, `math/bits`), so any modulus up to the largest 64-bit integer works.
+  </Step>
+  <Step title="Invert with extended Euclid">
+    `mod_inverse` runs the extended gcd on `(a, m)`. If the gcd is 1, the coefficient of `a`, reduced modulo `m`, is the inverse; otherwise there is none.
+  </Step>
+  <Step title="Power by squaring">
+    `mod_power` is binary exponentiation. A negative exponent inverts the base first.
+  </Step>
+</Steps>
+
+<Callout title="Invariant">
+Every function returns a value in `0 .. m-1` (or the no-inverse marker). That is why the `-1` sentinel of C++ and Go is unambiguous: a valid result is never negative.
+</Callout>
+
+## Pseudocode
+
+```text
+modAdd(a, b, m):                       # modAdd, modSubtract, modMultiply: all in [0, m)
+    x = floorMod(a, m); y = floorMod(b, m)
+    if x >= m - y: return x - (m - y)  # avoids x + y overflowing
+    return x + y
+
+modMultiply(a, b, m):
+    return (floorMod(a, m) * floorMod(b, m)) mod m      # 128-bit product
+
+modInverse(a, m):
+    (g, x, y) = extendedGcd(a, m)      # a*x + m*y = g, any signs
+    if g != 1: return none
+    return floorMod(x, m)
+
+modDivide(a, b, m):
+    inv = modInverse(b, m)
+    if inv is none: return none
+    return modMultiply(a, inv, m)
+
+modPower(base, e, m):
+    if e < 0:
+        inv = modInverse(base, m)
+        if inv is none: return none
+        return modPower(inv, -e, m)
+    result = 1 mod m; base = floorMod(base, m)
+    while e > 0:
+        if e is odd: result = result * base mod m
+        base = base * base mod m; e = e / 2
+    return result
+```
+
+## Implementation
+
+Python provides the functions plus its own `extended_gcd`. C++ and Go keep results in `[0, m)`, return `-1` when there is no inverse, and multiply in 128 bits. The modulus must be positive in all three languages. The extended gcd takes absolute values of its inputs and then fixes the signs of `x` and `y`; an earlier version skipped that step and returned 4 instead of 7 for `mod_inverse(-3, 11)`.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic" />
+
+## Complexity
+
+<DataTable
+  columns={['Operation', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }]}
+  rows={[
+    ['add, subtract, multiply', 'O(1)', 'O(1)'],
+    ['mod_inverse, mod_divide', 'O(log min(a, m))', 'O(log m)'],
+    ['mod_power', 'O(log e)', 'O(1)'],
+  ]}
+/>
+
+The inverse costs one extended Euclid, which takes a logarithmic number of division steps. Its recursion stack is the same depth. Power by squaring does one or two multiplications per bit of the exponent.
+
+## Two ways to find an inverse
+
+<DataTable
+  columns={['', 'Extended Euclid', 'Fermat: a^(p-2)']}
+  highlight={0}
+  rows={[
+    ['Modulus', 'any m with gcd(a, m) = 1', 'prime p only'],
+    ['Needs', 'extended gcd', 'fast exponentiation'],
+    ['Time', 'O(log m)', 'O(log p) multiplications'],
+    ['Detects no inverse', 'yes (gcd is not 1)', 'no: gives a wrong value if p is not prime'],
+    ['In this repository', 'mod_inverse', 'not implemented; use mod_power(a, p - 2, p)'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Keeps every value below the modulus, so 64-bit arithmetic is enough for huge counts.',
+    'All the field-like rules (associative, commutative, distributive) still hold.',
+    'Prime moduli give a division for every non-zero number.',
+  ]}
+  cons={[
+    'Division needs gcd(a, m) = 1; with a composite modulus some numbers have no inverse.',
+    'Order and magnitude are lost: you cannot compare residues.',
+    'Fixed-width integers need care: negative remainders and overflowing products.',
+  ]}
+/>
+
+## Applications
+
+- **Counting problems.** Answers requested modulo `10^9 + 7`, such as binomial coefficients through inverses of factorials.
+- **Cryptography.** RSA, Diffie-Hellman and other schemes work with powers and inverses modulo large numbers.
+- **Hashing and cyclic structures.** Polynomial rolling hashes, circular buffers and calendar arithmetic.
+- **Solving congruences.** The Chinese Remainder Theorem combines residues from different moduli.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Negative remainders.** `-3 % 11` is `-3` in C++ and Go. Normalize with `((a % m) + m) % m` before using the value as a residue.
+- **Overflow.** `(a * b) % m` in signed 64-bit is wrong once `m` is above about 3.04e9. Multiply in 128 bits.
+- **Dividing without an inverse.** Check `gcd(b, m) = 1`. Fermat's little theorem needs `m` prime and Euler's theorem needs `gcd(a, m) = 1`; outside those conditions the formulas silently return nonsense.
+- **Dropping the sign fix in extended gcd.** Applying `abs` to the inputs and forgetting to negate `x` or `y` gives the inverse of `|a|`, not of `a`.
+- **Reducing too late.** Reduce after every multiplication, not once at the end, or the intermediate value overflows.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does modular division need an inverse?">
+    Because `a / b` must be a number `q` with `q * b = a`. Modulo 12 the equation `4q = 1` has no solution, since `4q` is always even or a multiple of 4, so 4 cannot be divided out. Modulo 11, `4 * 3 = 12 = 1`, so dividing by 4 means multiplying by 3.
+  </FaqItem>
+  <FaqItem question="Why do C++ and Go return -1 for a missing inverse?">
+    Every real result is in `0 .. m-1`, so `-1` cannot be confused with an answer. Python returns `None` instead.
+  </FaqItem>
+  <FaqItem question="What does a negative exponent mean?">
+    `a^-e` is the inverse of `a` raised to `e`. `mod_power(2, -1, 11)` is 6, because `2 * 6 = 12 = 1`. If `a` has no inverse the function returns the no-inverse marker.
+  </FaqItem>
+  <FaqItem question="Is the answer the same as taking the full product and reducing at the end?">
+    Yes for addition, subtraction, multiplication and powers. That is exactly the compatibility rule, and reducing early only keeps the numbers small.
+  </FaqItem>
+</Faq>

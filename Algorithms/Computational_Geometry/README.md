@@ -1,84 +1,42 @@
 # Computational Geometry
 
-A comprehensive collection of **Computational Geometry** algorithms, including basic geometric operations and advanced geometric algorithms.
+Algorithms on points, lines and polygons in the plane. Basic Geometry supplies the primitives, orientation tests and segment intersection. Advanced Geometry uses them to find a convex hull, the diameter and width of a polygon, and the closest pair of points.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-This folder contains implementations of fundamental computational geometry algorithms in Python, C++, and Go. Each algorithm includes:
-- Complete implementation
-- Comprehensive test suites
-- Detailed documentation
-- Complexity analysis
+| # | Section | What it covers | Level |
+|---|---------|----------------|-------|
+| 1 | [Basic Geometry](Basic_Geometry/) | The primitives. Distance, cross product, orientation, angles, containment and segment intersection, all exact. | 2 topics |
+| 2 | [Advanced Geometry](Advanced_Geometry/) | Algorithms on point sets. Convex hull, rotating calipers for diameter and width, and the closest pair. | 3 topics |
 
----
+One rule runs through both: comparisons are exact. The code tests signs and equalities directly and uses no epsilon. With integer coordinates this is exact in Python, and in C++ and Go while the products stay below 2^53.
 
-## Categories
+## How They Compare
 
-### 🔹 Basic Geometry
+| Sub-area | Topics | Question it answers | Typical cost |
+|----------|--------|---------------------|--------------|
+| Basic Geometry | Point, Line and Circle; Line Intersection | left or right, inside or outside, do two segments meet | O(1) |
+| Advanced Geometry | Convex Hull; Rotating Calipers; Closest Pair of Points | outline, diameter and width, nearest two points | O(n log n), or O(n) on a given hull |
 
-- **[Point, Line, Circle Operations](./Basic_Geometry/Point%20Line%20Circle/)**
-  - Fundamental geometric primitives
-  - Time: O(1) for most operations
-  - Foundation for advanced algorithms
+## Where to Start
 
-- **[Line Intersection](./Basic_Geometry/Line%20Intersection/)**
-  - Find intersections between lines and segments
-  - Time: O(1) for intersection checks
-  - Essential for geometric queries
+1. Read Basic Geometry first. Point, Line and Circle introduces `cross_product` and `orientation`, and Line Intersection applies them.
+2. In Advanced Geometry, start with Convex Hull. It uses the cross product on every step.
+3. Take Rotating Calipers next, because its input is a convex hull.
+4. Finish with Closest Pair of Points, which is independent of the other two and uses divide and conquer.
 
----
+| If the problem says | Look at | Why |
+|---------------------|---------|-----|
+| which side of a line, or is this point inside | Basic Geometry | one cross product answers it |
+| do these two segments cross or touch | Basic Geometry | exact orientation tests handle every degenerate case |
+| the smallest polygon around the points | Advanced Geometry | the convex hull, by Graham's scan or Jarvis march |
+| the farthest two points, or the narrowest strip | Advanced Geometry | convex hull, then rotating calipers |
+| the two nearest points | Advanced Geometry | closest pair in O(n log n) |
 
-### 🔹 Advanced Geometry
+## Related
 
-- **[Convex Hull](./Advanced_Geometry/Convex%20Hull/)**
-  - Graham's Scan and Jarvis March algorithms
-  - Time: O(n log n) for Graham's Scan, O(nh) for Jarvis March
-  - Finds smallest convex polygon containing all points
-
-- **[Closest Pair of Points](../Divide_and_Conquer/Closest%20Pair%20of%20Points/)**
-  - Divide and conquer algorithm
-  - Time: O(n log n)
-  - Finds closest pair in 2D plane
-
-- **[Rotating Calipers](./Advanced_Geometry/Rotating%20Calipers/)**
-  - Algorithm for various geometric problems
-  - Time: O(n) after convex hull
-  - Finds diameter, width, and other properties
-
----
-
-## Comparison
-
-| Algorithm | Time Complexity | Space Complexity | Best For |
-|-----------|----------------|-------------------|----------|
-| **Point Operations** | O(1) | O(1) | Basic geometric queries |
-| **Line Intersection** | O(1) | O(1) | Intersection checks |
-| **Graham's Scan** | O(n log n) | O(n) | Convex hull (general) |
-| **Jarvis March** | O(nh) | O(n) | Convex hull (few hull points) |
-| **Closest Pair** | O(n log n) | O(n) | Finding closest points |
-| **Rotating Calipers** | O(n) | O(n) | Convex hull properties |
-
----
-
-## When to Use
-
-- **Point, Line, Circle**: Basic geometric operations
-- **Line Intersection**: Polygon operations, collision detection
-- **Convex Hull**: Shape analysis, path planning
-- **Closest Pair**: Spatial queries, clustering
-- **Rotating Calipers**: Diameter, width, minimum bounding box
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 33)
-- "Computational Geometry in C" by Joseph O'Rourke
-- "Algorithm Design Manual" by Steven Skiena
-- "Computational Geometry" by de Berg et al.
-
----
-
-_Last Updated: December 2025_
+- [Big O Notation](../../Complexity_Analysis/Time_Complexity/Big_O_Notation/): read first.
+- [Divide and Conquer](../Divide_and_Conquer/): the method behind Closest Pair of Points.
+- [Merge Sort](../Sorting/Merge_Sort/): divide and conquer on a simpler problem.

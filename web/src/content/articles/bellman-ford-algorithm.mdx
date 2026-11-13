@@ -1,0 +1,215 @@
+---
+topic: Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
+title: Bellman-Ford Algorithm
+lead: Bellman-Ford finds the shortest distance from one source to every vertex, even when some edges have negative weights, and it detects a negative cycle reachable from the source. It simply relaxes every edge V - 1 times, which costs O(V * E).
+level: Intermediate
+updated: 2026-11-12
+facts:
+  - label: Time
+    value: O(V * E)
+    hint: V - 1 rounds over all E edges, plus one check round
+    tone: warn
+  - label: Extra space
+    value: O(V)
+    hint: one distance per vertex
+  - label: Negative edges
+    value: Allowed
+  - label: Negative cycles
+    value: Detected
+    hint: when they are reachable from the source
+properties:
+  - { label: Handles negative weights, value: true }
+  - { label: Detects negative cycles, value: true }
+  - { label: Single source, value: true }
+  - { label: Greedy, value: false }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+related:
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+---
+
+## How Bellman-Ford works
+
+Dijkstra's algorithm is greedy and fails on negative edges. Bellman-Ford is not greedy at all. It keeps a tentative distance for every vertex and repeatedly **relaxes** every edge: if going through the edge (u, v, w) gives dist[u] + w &lt; dist[v], it lowers dist[v].
+
+<Steps>
+  <Step title="Initialize">
+    Set `dist[start] = 0` and every other distance to infinity.
+  </Step>
+  <Step title="Run V - 1 rounds">
+    In each round, go through the whole edge list and relax every edge whose tail already has a finite distance.
+  </Step>
+  <Step title="Run one check round">
+    Go through the edges once more. If any edge can still be relaxed, there is a negative cycle reachable from the start, and the shortest distances are not defined.
+  </Step>
+  <Step title="Return the distances">
+    Otherwise `dist` holds the shortest distance to every vertex. A vertex that is still at infinity is unreachable.
+  </Step>
+</Steps>
+
+<Callout title="The invariant: after k rounds, every path of at most k edges is covered">
+After round k, dist[v] is at most the length of the shortest path to v that uses at most k edges. A shortest path without cycles has at most V - 1 edges, so V - 1 rounds are enough. If round V still improves something, some path with V edges is shorter than every path with fewer edges, which can only happen when it contains a negative cycle.
+</Callout>
+
+## See it in action
+
+Step through the rounds: each round relaxes the edges in the order of the list, and the distance table updates. Try the example with a negative cycle and watch the extra check round flag it. Type your own edges, using arrows (`A->B -2`) for negative weights, and finish with `; start A`.
+
+<ArticleViz ids={['bellman-ford']} />
+
+## Worked example
+
+Five vertices, numbered 0 to 4 and drawn as A to E, with the source A. The edge list is processed in exactly this order, which is deliberately the worst order (the edges nearest the end of the path come first):
+
+<GraphDiagram
+  edges="D->E 1, C->D 3, B->C -2, A->C 4, A->B 5"
+  positions={{ A: [6, 50], B: [32, 14], C: [56, 50], D: [78, 14], E: [96, 50] }}
+  tones={{ A: 'p' }}
+  edgeTones={{ 'A->B': 'f', 'B->C': 'f', 'C->D': 'f', 'D->E': 'f' }}
+  legend={{ p: 'source', f: 'shortest-path tree: A to B to C to D to E, total 7' }}
+  caption="Edges in list order: D-E 1, C-D 3, B-C -2, A-C 4, A-B 5. The direct edge A-C (4) loses to A-B-C (5 - 2 = 3)."
+/>
+
+Distances after each full round, in the order A, B, C, D, E:
+
+<GridDiagram
+  corner="round"
+  colLabels={['A', 'B', 'C', 'D', 'E']}
+  rowLabels={['start', 'round 1', 'round 2', 'round 3', 'round 4']}
+  rows={[
+    [0, 'inf', 'inf', 'inf', 'inf'],
+    [0, 5, 4, 'inf', 'inf'],
+    [0, 5, 3, 7, 'inf'],
+    [0, 5, 3, 6, 8],
+    [0, 5, 3, 6, 7],
+  ]}
+  tones={['p....', '.ll..', '..ll.', '...ll', '....f']}
+  legend={{ p: 'source', l: 'improved in this round', f: 'last improvement; the final distances' }}
+/>
+
+Each round pushes the correct values one edge further along the path, because the edge list is processed backwards. With 5 vertices, 4 rounds are needed here. Processing the same edges in the opposite order finishes in one round, but the repository code has no early exit, so it still runs all V - 1 rounds. Adding the edge E to B with weight -3 creates the cycle B, C, D, E with total weight -2 + 3 + 1 - 3 = -1: the check round then finds an edge that still relaxes, and `bellman_ford` returns `None`.
+
+## Pseudocode
+
+```text
+bellmanFord(edges, n, start):
+    dist[0..n-1] = infinity
+    dist[start] = 0
+    repeat n - 1 times:
+        for each edge (u, v, w):
+            if dist[u] != infinity and dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+    for each edge (u, v, w):                   # check round
+        if dist[u] != infinity and dist[u] + w < dist[v]:
+            return negative cycle              # None / empty map / nil
+    return dist
+```
+
+`bellman_ford_with_path` (Python) also stores `previous[v] = u` on every relaxation and walks it back from the target.
+
+## Implementation
+
+The input is an edge list of `(u, v, weight)` triples with vertices numbered 0 to `num_vertices - 1`, plus the start. The three languages differ in how they report the special cases:
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['Unreachable vertex', 'float infinity', '`INT_MAX`', '`math.MaxInt`'],
+    ['Negative cycle', '`None`', 'empty map', '`nil` map'],
+    ['Edge endpoint out of range', 'not checked up front (may raise `KeyError`)', 'throws `out_of_range`', 'panics'],
+    ['Path function', '`bellman_ford_with_path`', 'none', 'none'],
+  ]}
+/>
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm" />
+
+Notes: the C++ and Go versions check every edge endpoint first, so a bad edge cannot be read as a vertex at distance 0. `bellman_ford_with_path` returns `None` both for "unreachable" and for "negative cycle". Distances are plain `int` in C++ and Go and are not checked for overflow, so keep weights well below the integer limits.
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'All cases', time: 'O(V * E)', space: 'O(V)', when: 'V - 1 rounds of E relaxations, then E checks. The repository has no early exit, so even a graph that settles in one round runs every round.' },
+  ]}
+/>
+
+<Equation label="Work" expr="(V - 1) * E + E" result="O(V * E)" />
+
+On a dense graph, E is about V<sup>2</sup>, so the cost is O(V<sup>3</sup>), the same as Floyd-Warshall for all pairs. An early exit (stop when a whole round changes nothing) helps on typical inputs but does not change the worst case, and a queue-based variant (SPFA) often runs faster in practice with the same worst case.
+
+## Negative cycles
+
+A negative cycle means there is no shortest path: going around once more always makes the walk shorter. Bellman-Ford reports it only if the cycle is **reachable from the start**. In the code, an edge whose tail is still at infinity is skipped, so a negative cycle in a part of the graph the source cannot reach is ignored and the distances are returned normally.
+
+The implementations return a single signal for the whole graph. They do not mark which vertices are affected (those would have distance minus infinity).
+
+<Callout title="One undirected negative edge is already a negative cycle">
+If an undirected edge u-v has weight -2, you can walk u, v, u, v, ... and lose 4 each lap. To use negative weights, give directed edges, and list an undirected edge as two directed ones only when its weight is not negative.
+</Callout>
+
+## Bellman-Ford vs alternatives
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, 'Negative edges', 'Negative cycles', 'Gives']}
+  highlight={0}
+  rows={[
+    ['Bellman-Ford', 'O(V * E)', 'Yes', 'detected', 'one source to all'],
+    ['Dijkstra', 'O((V + E) log V)', 'No', 'undefined', 'one source to all'],
+    ['Floyd-Warshall', 'O(V^3)', 'Yes', 'detected', 'all pairs'],
+    ['BFS', 'O(V + E)', 'No', 'n/a', 'fewest edges only'],
+    ['DAG relaxation in topological order', 'O(V + E)', 'Yes', 'none (acyclic)', 'one source to all, on a DAG only'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Handles negative edge weights, which Dijkstra cannot.',
+    'Detects negative cycles reachable from the source.',
+    'Very short to implement, and it only needs an edge list (no priority queue).',
+  ]}
+  cons={[
+    'O(V * E) is much slower than Dijkstra on graphs with non-negative weights.',
+    'No early exit in this implementation, so it always does the full amount of work.',
+    'A negative cycle gives one yes/no answer, not the list of affected vertices.',
+    'Fixed-width integer versions can overflow on huge weights.',
+  ]}
+/>
+
+## Applications
+
+- **Graphs with negative weights**, such as costs and refunds, or gains and losses along a route.
+- **Currency arbitrage.** Use weight = -log(rate); a negative cycle is a sequence of exchanges that ends with more money than it started with.
+- **Distance-vector routing**, where each node repeatedly improves its distances using its neighbors' distances, which is Bellman-Ford spread across routers.
+- **Difference constraints.** A system of constraints of the form x<sub>j</sub> - x<sub>i</sub> &le; c is solvable exactly when the constraint graph has no negative cycle.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Fewer than V - 1 rounds.** A shortest path can have V - 1 edges, and a bad edge order needs every round.
+- **Relaxing from an unreachable vertex.** Adding a weight to infinity or to `INT_MAX` overflows or produces a bogus finite distance. Skip edges whose tail is unreached.
+- **Using it on undirected negative edges.** That is a negative cycle by definition.
+- **Reading distances after a negative cycle.** They are not shortest distances; use the return value to tell.
+- **Edges outside the vertex range.** Vertices must be numbered 0 to `num_vertices - 1`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why exactly V - 1 rounds?">
+    A shortest path that repeats no vertex has at most V - 1 edges, and each round extends every correct partial path by at least one edge. After V - 1 rounds all shortest paths are final, if they exist.
+  </FaqItem>
+  <FaqItem question="How does the extra round find a negative cycle?">
+    Without a negative cycle all distances are final after V - 1 rounds, so no edge can relax. If an edge still relaxes, a walk with at least V edges is cheaper than every simple path, so it must contain a cycle with negative total weight.
+  </FaqItem>
+  <FaqItem question="Can Bellman-Ford fix Dijkstra's problem with negative edges?">
+    Yes, at the cost of speed. Dijkstra assumes a settled vertex never improves, which a negative edge breaks. Bellman-Ford never settles anything until the end.
+  </FaqItem>
+  <FaqItem question="What does bellman_ford return for an unreachable vertex?">
+    Infinity: `float('inf')` in Python, `INT_MAX` in C++ and `math.MaxInt` in Go. With `num_vertices` equal to 0, Python returns `{start: 0}` while C++ and Go return an empty map.
+  </FaqItem>
+</Faq>

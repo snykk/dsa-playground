@@ -1,0 +1,139 @@
+---
+import { getContent, joinBase } from '../../lib/repo';
+import NavTree from './NavTree.astro';
+
+/** Topic navigation: quick links, a live filter and the full repository tree. */
+interface Props {
+  currentSlug?: string;
+}
+
+const { currentSlug } = Astro.props;
+const { root } = getContent();
+const base = import.meta.env.BASE_URL;
+const quickLinks = [
+  { slug: '', label: 'Home' },
+  { slug: 'visualizations', label: 'All visualizations' },
+  { slug: 'study-guide', label: 'Study guide' },
+];
+---
+
+<nav class="sidebar" aria-label="Topics">
+  <label class="visually-hidden" for="nav-search">Filter topics</label>
+  <input id="nav-search" class="nav-search" type="search" placeholder="Filter topics&#x2026;" autocomplete="off" data-nav-search />
+  <ul class="nav-links tree">
+    {
+      quickLinks.map((l) => (
+        <li>
+          <a href={joinBase(base, l.slug)} aria-current={currentSlug === l.slug ? 'page' : undefined}>
+            {l.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <NavTree nodes={root.children} currentSlug={currentSlug} root />
+</nav>
+
+<script>
+  // Show matching items plus the categories that contain them; restore the tree when cleared.
+  const search = document.querySelector<HTMLInputElement>('[data-nav-search]');
+  const items = Array.from(document.querySelectorAll<HTMLLIElement>('[data-nav-text]')).reverse();
+  search?.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    for (const li of items) {
+      const self = (li.dataset.navText ?? '').includes(q);
+      const child = li.querySelector(':scope > details > ul > li:not([hidden])') !== null;
+      li.hidden = q !== '' && !self && !child;
+      const details = li.querySelector<HTMLDetailsElement>(':scope > details');
+      if (details) details.open = q === '' ? details.dataset.initialOpen === 'true' : child;
+    }
+  });
+</script>
+
+<style>
+  .sidebar {
+    font-size: 14px;
+  }
+  .nav-search {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+  }
+  .nav-links {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0 0 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  /* The tree markup is rendered by NavTree; style it from here so both lists match. */
+  .sidebar :global(.tree),
+  .sidebar :global(.tree ul) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .sidebar :global(.tree ul) {
+    margin-left: 10px;
+    padding-left: 8px;
+    border-left: 1px solid var(--border);
+  }
+  .sidebar :global(.tree summary) {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .sidebar :global(.tree summary::-webkit-details-marker) {
+    display: none;
+  }
+  .sidebar :global(.tree summary::before) {
+    content: '';
+    flex: none;
+    width: 14px;
+    height: 14px;
+    background: currentColor;
+    color: var(--text-3);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 4l4 4-4 4' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    transition: transform 0.15s ease;
+  }
+  .sidebar :global(.tree details[open] > summary::before) {
+    transform: rotate(90deg);
+  }
+  .sidebar :global(.tree a) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    color: var(--text-2);
+    text-decoration: none;
+    line-height: 1.4;
+    flex: 1;
+    min-width: 0;
+  }
+  .sidebar :global(.tree a:hover) {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  .sidebar :global(.tree a[aria-current='page']) {
+    color: var(--text);
+    background: var(--accent-soft);
+    font-weight: 600;
+  }
+  .sidebar :global(.tree .leaf) {
+    margin-left: 16px;
+  }
+  .sidebar :global(.viz-dot) {
+    flex: none;
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--viz-done);
+  }
+</style>
