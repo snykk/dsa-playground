@@ -1,103 +1,52 @@
 # String Algorithms
 
-A comprehensive collection of **String Algorithms** implementations, including pattern matching and advanced string processing algorithms.
+String algorithms search and analyse sequences of characters. Pattern Matching finds one pattern in a text. Advanced String adds many patterns at once, an index of every suffix, and questions about palindromes and shared substrings.
 
----
+## Topics
 
-## Overview
+Read them in this order.
 
-This folder contains implementations of fundamental string algorithms in Python, C++, and Go. Each algorithm includes:
-- Complete implementation
-- Comprehensive test suites
-- Detailed documentation
-- Complexity analysis
+| # | Section | What it adds | Level |
+|---|---------|--------------|-------|
+| 1 | [Pattern Matching Algorithms](Pattern_Matching/) | Find every occurrence of one pattern in a text. Four searches that differ in what they do after a mismatch. | 4 topics |
+| 2 | [Advanced String Algorithms](Advanced_String/) | Many patterns at once, suffix arrays, the Z-array, palindromes and common substrings. | 5 topics |
 
----
+Pattern Matching is the foundation. KMP's failure idea reappears in the Z-array and in the failure links of Aho-Corasick, and the suffix array is what you build when you ask the same question many times against one text.
 
-## Categories
+## How They Compare
 
-### 🔹 Pattern Matching Algorithms
+| Sub-area | Topics | Question it answers | Typical cost |
+|----------|--------|---------------------|--------------|
+| Pattern Matching | Naive, Rabin-Karp, KMP, Boyer-Moore | where does one pattern occur in one text? | O(n + m) to O(n*m) |
+| Advanced String | Z-algorithm, Aho-Corasick, Suffix Array, Manacher, Longest Common Substring | many patterns, an index of all suffixes, palindromes, shared substrings | O(n) to O(m*n) |
 
-- **[Naive Pattern Search](Pattern_Matching/Naive_Pattern_Search/)**
-  - Simplest string matching algorithm
-  - Time: O(n × m), Space: O(1)
-  - No preprocessing required
+`n` is the text length and `m` the pattern length. Costs depend on the topic; each sub-area README has a full table.
 
-- **[KMP Algorithm](Pattern_Matching/KMP_Algorithm/)**
-  - Efficient pattern matching with preprocessing
-  - Time: O(n + m), Space: O(m)
-  - Uses LPS array to avoid rechecking
+## Where to Start
 
-- **[Rabin-Karp Algorithm](Pattern_Matching/Rabin_Karp_Algorithm/)**
-  - Hash-based pattern matching
-  - Time: O(n + m) average, O(n × m) worst
-  - Uses rolling hash function
+1. Start with the naive search. It is the baseline every other algorithm improves on, and it needs only the string basics.
+2. Read KMP, then the other searches. KMP's table of borders is the idea most later algorithms borrow. Rabin-Karp and Boyer-Moore are independent of each other.
+3. Move to the Z-algorithm. It gives the same linear bound as KMP from a different array.
+4. Choose by problem. Aho-Corasick for a dictionary of patterns, the suffix array for many queries against one text, Manacher for palindromes, and the dynamic-programming table for the longest common substring.
 
-- **[Boyer-Moore Algorithm](Pattern_Matching/Boyer_Moore_Algorithm/)**
-  - Efficient for long patterns
-  - Time: O(n/m) best case, O(n × m) worst
-  - Uses bad character and good suffix heuristics
+| Situation | Go to | Why |
+|-----------|-------|-----|
+| One pattern, one text | [Pattern Matching](Pattern_Matching/) | KMP gives a guaranteed O(n + m); Boyer-Moore is usually fastest on prose |
+| A dictionary of patterns | [Aho-Corasick](Advanced_String/Aho_Corasick/) | one pass over the text finds every pattern |
+| Many queries against a fixed text | [Suffix Array](Advanced_String/Suffix_Array/) | build once, then each query is a binary search |
+| Palindromes | [Manacher's Algorithm](Advanced_String/Longest_Palindromic_Substring_Manachers/) | O(n) for the longest palindromic substring |
+| What two strings share | [Longest Common Substring](Advanced_String/Longest_Common_Substring/) | a table of matching-run lengths |
 
----
+## Common Pitfalls
 
-### 🔹 Advanced String Algorithms
+- Reaching for an advanced structure too early: for one search on a short text, the library `find` function or the naive search is enough.
+- Mixing up substring and subsequence: a substring is contiguous, and the longest common substring and the longest common subsequence are different problems.
+- Python indexes code points, while C++ and Go index bytes, so offsets differ on non-ASCII text.
+- Testing `Z == m` in a Z-search: if the separator also occurs in the input, a Z-value can exceed `m`, so the test must be `Z >= m`.
 
-- **[Z-Algorithm](Advanced_String/Z_Algorithm/)**
-  - Constructs Z-array for pattern matching
-  - Time: O(n + m), Space: O(n + m)
-  - Useful for string processing
+## Related
 
-- **[Suffix Array](Advanced_String/Suffix_Array/)**
-  - Sorted array of all suffixes
-  - Time: O(n log n) construction, O(m log n) search
-  - Powerful for string processing
-
-- **[Longest Common Substring](Advanced_String/Longest_Common_Substring/)**
-  - Finds longest common substring between two strings
-  - Time: O(m × n), Space: O(m × n)
-  - Uses dynamic programming
-
-- **[Longest Palindromic Substring (Manacher's)](Advanced_String/Longest_Palindromic_Substring_Manachers/)**
-  - Finds longest palindromic substring in linear time
-  - Time: O(n), Space: O(n)
-  - Optimal algorithm for palindrome detection
-
----
-
-## Comparison
-
-| Algorithm | Time Complexity | Space Complexity | Best For |
-|-----------|----------------|-------------------|----------|
-| **Naive** | O(n × m) | O(1) | Small texts, simplicity |
-| **KMP** | O(n + m) | O(m) | General purpose, guaranteed linear |
-| **Rabin-Karp** | O(n + m) avg | O(1) | Multiple patterns, average case |
-| **Boyer-Moore** | O(n/m) best | O(m) | Long patterns |
-| **Z-Algorithm** | O(n + m) | O(n + m) | String processing |
-| **Suffix Array** | O(n log n) | O(n) | Multiple queries |
-| **Manacher's** | O(n) | O(n) | Palindrome detection |
-
----
-
-## When to Use
-
-- **Naive**: Educational purposes, small texts
-- **KMP**: When guaranteed linear time is needed
-- **Rabin-Karp**: Multiple pattern searches, average case performance
-- **Boyer-Moore**: Long patterns, best case performance
-- **Z-Algorithm**: String processing, pattern matching
-- **Suffix Array**: Multiple pattern queries, string analysis
-- **Manacher's**: Palindrome-related problems
-
----
-
-## References
-
-- "Introduction to Algorithms" by CLRS (Chapter 32)
-- "Algorithm Design Manual" by Steven Skiena
-- Knuth, D. E., Morris, J. H., & Pratt, V. R. (1977). "Fast pattern matching in strings"
-- Manacher, G. (1975). "A new linear-time algorithm for finding the maximum palindrome"
-
----
-
-_Last Updated: December 2025_
-
+- [String Basics](../../Data_Structures/Linear/String/String_Basics/): read first.
+- [Trie](../../Data_Structures/Non_Linear/Trees/Trie/): the structure Aho-Corasick adds failure links to.
+- [Suffix Tree](../../Data_Structures/Non_Linear/Trees/Suffix_Tree/): the tree counterpart of the suffix array.
+- [Dynamic Programming](../Dynamic_Programming/): the table method behind the longest common substring.
