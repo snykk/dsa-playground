@@ -86,7 +86,7 @@ src/
       organisms/       Player
       hooks/           usePlayback, useTween, useReducedMotion
       roles.css        role -> color mapping;  symbols.ts  UI symbols as code points
-    renderers/         organisms that draw one frame (ArrayBars, GraphView, TreeView, StringMatch, Grid, ByteRows)
+    renderers/         organisms that draw one frame (ArrayBars, ChainView, GraphView, TreeView, Grid, ByteRows...)
     algorithms/        tracers: pure TypeScript, unit-tested
     specs/             glue per visualization: parser + tracer + renderer + pseudocode
     registry/          catalog entries + loaders, one file per area
@@ -111,7 +111,11 @@ input text ──parse──▶ input ──trace──▶ Frame[] ──▶ Pla
 
 - A **spec** ([`src/viz/core/types.ts`](src/viz/core/types.ts)) bundles a parser, a **tracer** that records every step as a full snapshot (`Frame`), a renderer, the pseudocode and a legend. Because every frame is a snapshot, stepping backwards and scrubbing are just index changes.
 - **Tracers** live in [`src/viz/algorithms/`](src/viz/algorithms/) and are plain TypeScript, so they are unit-tested without a browser.
-- **Renderers** (organisms) are shared across topics and built from `viz/ui` atoms: `ArrayBars` (sorting), `GraphView` (BFS / DFS / Dijkstra), `TreeView` (BST / AVL, with animated rotations), `StringMatch` (KMP), `Grid` (DP tables), `ByteRows` (Reed-Solomon).
+- **Renderers** (organisms) are shared across topics and built from `viz/ui` atoms:
+  - arrays: `ArrayBars` (sorting), `SearchBars`, `ArrayScene`, `BucketScene`, `DynamicArrayView` (a block that doubles and shrinks), `ArrayTrack` (stacks and queues on a Python list);
+  - linked structures: `ChainView` (nodes, pointers and named references: the linked lists, the linked stack, skip-list levels), `RingBuffer` (the circular queue), `HeapView` (a binary heap as a tree and an array at once);
+  - trees and graphs: `TreeView` (BST / AVL, with animated rotations), `ForestView` (union-find), `RopeView`, `GraphView` (BFS / DFS / Dijkstra);
+  - tables and text: `Grid` (DP tables), `GridMap`, `IntervalTimeline`, `KnapsackFill`, `StringMatch` (KMP), `StringScan`, `StringOpsView` (string operations), `ByteRows` (Reed-Solomon).
 - [`src/viz/registry/`](src/viz/registry/) holds one file per area with its catalog entries (which repository folders show which visualization) and its loaders (code-split, so a page only downloads what it shows). [`catalog.ts`](src/viz/catalog.ts) and [`loaders.ts`](src/viz/loaders.ts) merge them.
 
 ### Adding a visualization
@@ -129,7 +133,7 @@ input text ──parse──▶ input ──trace──▶ Frame[] ──▶ Pla
 The visualizations re-implement algorithms in TypeScript, so they are pinned to the repository implementations:
 
 - **Brute-force differential tests** for every tracer (sorting vs. the built-in sort, KMP vs. naive search, LCS and knapsack vs. exhaustive search, AVL invariants after random operations...).
-- **Golden fixtures** for Reed-Solomon: [`scripts/gen_rs_fixtures.py`](scripts/gen_rs_fixtures.py) runs the Python implementation and writes `src/viz/algorithms/__fixtures__/reed-solomon.json`; the TypeScript port must reproduce every codeword and decode result. CI regenerates the file and fails if it changes.
+- **Golden fixtures**: each `scripts/gen_<area>_fixtures.py` runs the repository's Python implementation on fixed inputs and writes `src/viz/algorithms/__fixtures__/<area>.json`, for example every Reed-Solomon codeword ([`gen_rs_fixtures.py`](scripts/gen_rs_fixtures.py)) or the state of a list, stack, queue or rope after every operation. The TypeScript ports must reproduce every value. CI regenerates every file and fails if one changes.
 
 ---
 
