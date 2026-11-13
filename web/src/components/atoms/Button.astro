@@ -3,12 +3,16 @@
 interface Props {
   href: string;
   variant?: 'primary' | 'secondary';
+  size?: 'md' | 'sm';
+  /** Opens in a new tab (links that leave the site). */
+  external?: boolean;
 }
 
-const { href, variant = 'secondary' } = Astro.props;
+const { href, variant = 'secondary', size = 'md', external = false } = Astro.props;
+const linkProps = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
-<a class:list={['button', { primary: variant === 'primary' }]} href={href}><slot /></a>
+<a class:list={['button', size, { primary: variant === 'primary' }]} href={href} {...linkProps}><slot /></a>
 
 <style>
   .button {
@@ -22,6 +26,12 @@ const { href, variant = 'secondary' } = Astro.props;
     color: var(--text);
     text-decoration: none;
     font-weight: 600;
+  }
+  .button.sm {
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
   }
   .button.primary {
     background: var(--accent);

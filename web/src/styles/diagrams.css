@@ -1,0 +1,82 @@
+/* Static article diagrams share one tone vocabulary (see src/lib/diagram.ts).
+ * A tone sets variables that each diagram applies to its own shapes:
+ *   --dg-fill (background / SVG fill), --dg-stroke (border), --dg-stroke-width, --dg-ink (text). */
+
+.dg-tone {
+  --dg-fill: var(--surface);
+  --dg-stroke: var(--border-strong);
+  --dg-stroke-width: 1.5px;
+  --dg-ink: var(--text);
+}
+.dg-tone.tone-p {
+  --dg-fill: var(--viz-active);
+  --dg-stroke: var(--viz-active);
+  --dg-ink: var(--viz-ink-on-fill);
+}
+.dg-tone.tone-l {
+  --dg-fill: color-mix(in srgb, var(--viz-compare) 22%, var(--surface));
+  --dg-stroke: var(--viz-compare);
+}
+.dg-tone.tone-r {
+  --dg-fill: var(--surface-3);
+}
+.dg-tone.tone-c {
+  --dg-stroke: var(--text);
+  --dg-stroke-width: 2.5px;
+}
+.dg-tone.tone-f {
+  --dg-fill: var(--viz-done);
+  --dg-stroke: var(--viz-done);
+  --dg-ink: var(--viz-ink-on-fill);
+}
+.dg-tone.tone-m {
+  opacity: 0.4;
+}
+
+.dg-figure {
+  margin: 20px 0 24px;
+}
+.dg-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: 13.5px;
+  color: var(--text-2);
+}
+.dg-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.dg-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--dg-fill);
+  border: var(--dg-stroke-width) solid var(--dg-stroke);
+}
+/* A framed, horizontally scrollable stage: diagrams keep their natural size on phones. */
+.dg-stage {
+  overflow-x: auto;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.dg-stage > svg {
+  display: block;
+  margin: 0 auto;
+  max-width: none;
+}
+.dg-caption {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-3);
+}
+.dg-caption code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
