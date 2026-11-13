@@ -102,7 +102,7 @@ With two bytes destroyed the same code shows the value of erasure information:
 <DataTable
   columns={['Received', 'Call', 'Result']}
   rows={[
-    ['`[87, 95, 0, 3, 5, 0, 11]`', '`decode(received)`', 'DecodeError: 2 unknown errors > t = 1'],
+    ['`[87, 95, 0, 3, 5, 0, 11]`', '`decode(received)`', '`DecodeError: error locations could not be determined`, since 2 unknown errors exceed t = 1'],
     ['`[87, 95, 0, 3, 5, 0, 11]`', '`decode(received, erasures=[2, 5])`', '`[2, 3, 5, 7, 11]`: 2 erasures <= n - k = 2'],
   ]}
 />
