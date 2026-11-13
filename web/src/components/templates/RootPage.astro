@@ -1,0 +1,68 @@
+---
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { getCollection } from 'astro:content';
+import { levelRange } from '../../lib/category';
+import type { PageData } from '../../lib/page';
+import { getContent, githubUrl, topicsUnder, type StandaloneDoc } from '../../lib/repo';
+import '../../styles/article.css';
+import '../../styles/diagrams.css';
+import { hasViz as topicHasViz } from '../../viz/catalog';
+import ArticleHeader from '../organisms/ArticleHeader.astro';
+import CategoryContents from '../organisms/CategoryContents.astro';
+import KeyFacts from '../organisms/KeyFacts.astro';
+import RelatedTopics from '../organisms/RelatedTopics.astro';
+import BaseLayout from './BaseLayout.astro';
+
+/**
+ * Page for a repository-root document with a hand-written article (src/content/pages): the
+ * overview (README.md) or the study guide (STUDY_GUIDE.md). Same look as a category overview:
+ * header with the repository's totals, key facts, the top-level areas when the page lists
+ * them, the MDX body (the slot) and related pages. Other root documents use DocPage.
+ */
+interface Props {
+  doc: StandaloneDoc;
+  page: PageData;
+  headings: MarkdownHeading[];
+  /** Whether the body embeds a visualization, so the header can link to it. */
+  hasViz: boolean;
+}
+
+const { doc, page, headings, hasViz } = Astro.props;
+const root = getContent().root;
+const topics = topicsUnder(root);
+const levels = new Map((await getCollection('articles')).map((a) => [a.data.topic, a.data.level]));
+const visualized = topics.filter((t) => topicHasViz(t.rel)).length;
+const stats = [
+  `${topics.length} topics`,
+  levelRange(topics.flatMap((t) => levels.get(t.rel) ?? [])),
+  'Python, C++, Go',
+  visualized > 0 ? `${visualized} visualized` : undefined,
+].filter((s): s is string => s !== undefined);
+const listsAreas = page.contents.length > 0;
+const toc: MarkdownHeading[] = [...(listsAreas ? [{ depth: 2, slug: 'areas', text: 'The areas' }] : []), ...headings];
+const section = doc.slug === 'overview' || doc.slug === 'study-guide' ? doc.slug : undefined;
+---
+
+<BaseLayout title={page.title} description={page.lead} currentSlug={doc.slug} toc={toc} section={section}>
+  <article class="article">
+    <ArticleHeader
+      source={githubUrl(doc.rel, false)}
+      title={page.title}
+      lead={page.lead}
+      stats={stats}
+      updated={page.updated}
+      prerequisites={[]}
+      hasViz={hasViz}
+    />
+    {page.facts.length > 0 && <KeyFacts facts={page.facts} />}
+    {listsAreas && <CategoryContents node={root} contents={page.contents} heading="The areas" id="areas" />}
+    <div class="article-body">
+      <slot />
+    </div>
+    <RelatedTopics title="Related" topics={page.related} />
+    <p class="article-foot">
+      Spotted a mistake or something unclear?
+      <a href={githubUrl(doc.rel, false)} target="_blank" rel="noopener noreferrer">See the source on GitHub</a>.
+    </p>
+  </article>
+</BaseLayout>

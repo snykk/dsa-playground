@@ -1,6 +1,6 @@
 /**
- * Components available inside topic articles (src/content/articles/*.mdx) without an
- * import: the page passes this map to the rendered MDX content. The list of names lives
+ * Components available inside the hand-written pages (src/content/articles, categories and
+ * pages) without an import: the page passes this map to the rendered MDX content. The list of names lives
  * in mdxNames.ts so the article checker can read it too.
  */
 import BigO from './atoms/BigO.astro';
