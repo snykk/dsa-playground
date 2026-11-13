@@ -27,7 +27,7 @@ func twoSumSorted(arr []int, target int) []int {
 }
 
 // threeSum finds all unique triplets that sum to target.
-// Time Complexity: O(n²)
+// Time Complexity: O(n^2)
 // Space Complexity: O(1) excluding output
 func threeSum(arr []int, target int) [][]int {
 	sorted := make([]int, len(arr))

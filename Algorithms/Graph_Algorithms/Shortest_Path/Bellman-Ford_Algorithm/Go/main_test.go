@@ -162,3 +162,29 @@ func TestBellmanFordNoPath(t *testing.T) {
 }
 
 
+
+// TestBellmanFordOutOfRangeEdgePanics: an edge endpoint outside
+// 0..numVertices-1 is an error, not a phantom vertex at distance 0.
+func TestBellmanFordOutOfRangeEdgePanics(t *testing.T) {
+	badInputs := [][]Edge{
+		{{5, 1, 1}},            // source endpoint out of range (was read as distance 0)
+		{{0, 1, 1}, {1, 7, 2}}, // target endpoint out of range
+		{{-1, 1, 1}},           // negative vertex id
+	}
+	for _, edges := range badInputs {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Errorf("Expected a panic for edges %v", edges)
+				}
+			}()
+			BellmanFord(edges, 3, 0)
+		}()
+	}
+
+	// Valid edges are unaffected; vertex 1 is unreachable from 0 here.
+	distances := BellmanFord([]Edge{{2, 1, 1}}, 3, 0)
+	if distances[0] != 0 || distances[1] != math.MaxInt {
+		t.Errorf("Expected dist[0] = 0 and dist[1] = MaxInt, got %v", distances)
+	}
+}

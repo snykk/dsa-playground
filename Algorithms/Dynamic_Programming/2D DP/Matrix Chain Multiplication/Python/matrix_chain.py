@@ -12,14 +12,18 @@ def matrix_chain_multiplication(dims):
     
     Args:
         dims: List of matrix dimensions [p0, p1, p2, ..., pn]
-              where matrix i has dimensions dims[i] × dims[i+1]
+              where matrix i has dimensions dims[i] x dims[i+1]
         
     Returns:
         Minimum number of scalar multiplications
+        (0 when there are fewer than two matrices)
         
-    Time Complexity: O(n³)
-    Space Complexity: O(n²)
+    Time Complexity: O(n^3)
+    Space Complexity: O(n^2)
     """
+    if len(dims) < 3:
+        return 0  # fewer than two matrices: nothing to multiply
+
     n = len(dims) - 1
     dp = [[0] * (n + 1) for _ in range(n + 1)]
     
@@ -35,4 +39,3 @@ def matrix_chain_multiplication(dims):
                 dp[i][j] = min(dp[i][j], cost)
     
     return dp[1][n]
-

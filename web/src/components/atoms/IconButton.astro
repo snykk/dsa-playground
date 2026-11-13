@@ -1,0 +1,46 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+/** Square button (or external link) holding an Icon; `label` is announced to screen readers. */
+type Props = HTMLAttributes<'button'> & {
+  label: string;
+  href?: string;
+};
+
+const { label, href, class: className, ...rest } = Astro.props;
+---
+
+{
+  href ? (
+    <a class:list={['icon-button', className]} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
+      <slot />
+    </a>
+  ) : (
+    <button type="button" class:list={['icon-button', className]} aria-label={label} {...rest}>
+      <slot />
+    </button>
+  )
+}
+
+<style>
+  .icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-2);
+    cursor: pointer;
+    text-decoration: none;
+    font: inherit;
+    font-size: 14px;
+  }
+  .icon-button:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+</style>

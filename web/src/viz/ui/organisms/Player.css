@@ -1,0 +1,54 @@
+/* Player organism: section frame, stage and caption. */
+.viz-loading,
+.viz-load-error {
+  padding: 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-2);
+}
+.viz {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--viz-surface);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+/* ---------- stage, legend, caption ---------- */
+
+.viz-stage {
+  margin: 16px 0 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  min-height: 160px;
+}
+.viz-stage svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 440px;
+}
+.viz-caption {
+  min-height: 3.2em;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--accent);
+  background: var(--surface-2);
+  border-radius: 0 8px 8px 0;
+  font-size: 15px;
+}
+.viz-keys {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* Compact player (home page teaser): stage, caption and controls only. */
+.viz.viz-compact {
+  padding: 12px;
+}
+.viz.viz-compact .viz-stage {
+  margin-top: 0;
+}

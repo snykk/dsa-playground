@@ -1,6 +1,6 @@
 # Matrix Chain Multiplication (Go)
 
-Go implementation of the Matrix Chain Multiplication problem using 2D interval DP to find the optimal parenthesization that minimizes the total number of scalar multiplications.
+Go implementation of the Matrix Chain Multiplication problem using 2D interval DP to find the minimum total number of scalar multiplications (the cost only; the optimal parenthesization itself is not returned).
 
 ## Files
 
@@ -34,7 +34,8 @@ go test ./...
 - Input `dims` is a slice of length n+1 where matrix i has dimensions `dims[i-1] x dims[i]`.
 - Uses interval DP: iterates over chain lengths, then starting positions, then split points.
 - `dp[i][j]` stores the minimum scalar multiplications to compute matrices i through j.
-- Initializes costs to `1<<31 - 1` (max int) to represent infinity.
+- Initializes costs to `math.MaxInt` to represent infinity, so totals above 2^31 - 1 are not capped.
+- Returns 0 when there are fewer than two matrices (`len(dims) < 3`).
 
 ---
 

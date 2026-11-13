@@ -78,10 +78,10 @@ Where:
    - Returns True if DAG, False otherwise
    - Time: O(V + E), Space: O(V)
 
-5. **`longest_path_dag(graph, weights)`**
+5. **`longest_path_dag(graph, weights, source=None)`**
    - Find longest path in weighted DAG
    - Uses topological sort
-   - Returns dictionary of longest distances
+   - Returns dictionary of longest distances for every vertex: from `source` if given (`-inf` if unreachable), otherwise from any vertex with no incoming edges; `{}` if the graph has a cycle
    - Time: O(V + E), Space: O(V)
 
 ---
@@ -118,7 +118,7 @@ print(is_valid)  # False
 
 # Find all orderings
 all_orders = topological_sort_all_orders(graph)
-print(all_orders)  # [[1, 2, 4, 3], [1, 4, 2, 3]]
+print(all_orders)  # [[1, 2, 3, 4], [1, 2, 4, 3], [1, 4, 2, 3]]
 
 # Longest path in weighted DAG
 graph = {0: [1, 2], 1: [3], 2: [3], 3: []}
@@ -209,7 +209,7 @@ print(is_valid)  # False
 
 # Find all orderings
 all_orders = topological_sort_all_orders(graph)
-print(all_orders)  # [[1, 2, 4, 3], [1, 4, 2, 3]]
+print(all_orders)  # [[1, 2, 3, 4], [1, 2, 4, 3], [1, 4, 2, 3]]
 
 # Longest path in weighted DAG
 graph = {0: [1, 2], 1: [3], 2: [3], 3: []}

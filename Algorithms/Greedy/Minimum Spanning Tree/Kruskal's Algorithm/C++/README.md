@@ -148,7 +148,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++11 kruskal.cpp kruskal_test.cpp -o kruskal_test
+g++ -std=c++17 kruskal_test.cpp -o kruskal_test
 ./kruskal_test
 ```
 
@@ -159,7 +159,7 @@ g++ -std=c++11 kruskal.cpp kruskal_test.cpp -o kruskal_test
 Run the test suite:
 
 ```bash
-g++ -std=c++11 kruskal_test.cpp -o test && ./test
+g++ -std=c++17 kruskal_test.cpp -o test && ./test
 ```
 
 ---

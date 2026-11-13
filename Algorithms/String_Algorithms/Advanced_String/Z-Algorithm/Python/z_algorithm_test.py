@@ -61,7 +61,17 @@ class TestZAlgorithmSearch(unittest.TestCase):
         self.assertEqual(z_algorithm_search("abc", "abc"), [0])
 
     def test_unicode_characters(self):
-        self.assertEqual(z_algorithm_search("αβγαβ", "αβ"), [0, 3])
+        # Greek letters, built from code points to keep this file ASCII-only.
+        alpha, beta, gamma = chr(0x3B1), chr(0x3B2), chr(0x3B3)
+        text = alpha + beta + gamma + alpha + beta
+        self.assertEqual(z_algorithm_search(text, alpha + beta), [0, 3])
+
+    def test_separator_character_in_input(self):
+        # Regression: with "$" in the input, Z[i] can run past the separator
+        # (Z[i] > m); the old Z[i] == m test dropped these matches.
+        self.assertEqual(z_algorithm_search("a$a", "a"), [0, 2])
+        self.assertEqual(z_algorithm_search("$$", "$"), [0, 1])
+        self.assertEqual(z_algorithm_search("ab$ab", "ab"), [0, 3])
 
 
 if __name__ == "__main__":

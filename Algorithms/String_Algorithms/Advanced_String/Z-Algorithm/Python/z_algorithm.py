@@ -59,9 +59,10 @@ def z_algorithm_search(text: str, pattern: str) -> List[int]:
     result = []
     m = len(pattern)
     
-    # Find positions where Z[i] == m (pattern length)
+    # A text position i is a match when Z[i] >= m. Use >=, not ==: when "$"
+    # also occurs in the text or pattern, Z[i] can run past the separator.
     for i in range(m + 1, len(combined)):
-        if z[i] == m:
+        if z[i] >= m:
             result.append(i - m - 1)
     
     return result

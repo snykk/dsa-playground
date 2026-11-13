@@ -35,6 +35,7 @@ g++ -std=c++17 -DTESTING -o test coin_change_test.cpp
 - `dp[i]` stores the minimum coins needed to make amount `i`.
 - Initializes `dp` values to `INT_MAX` to represent unreachable amounts.
 - Returns -1 when the target amount cannot be formed with the given coins.
+- Throws `std::invalid_argument` for a negative amount.
 
 ---
 

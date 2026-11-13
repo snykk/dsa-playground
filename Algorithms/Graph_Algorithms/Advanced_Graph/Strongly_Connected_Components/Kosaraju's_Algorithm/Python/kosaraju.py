@@ -33,34 +33,53 @@ def kosaraju_scc(graph: Dict[int, List[int]]) -> List[List[int]]:
     visited = set()
     finish_order = []
     
+    # Both DFS passes are iterative: an explicit stack of neighbor iterators visits
+    # vertices in the same order as recursion would, without Python's recursion
+    # limit (a recursive DFS fails on a path of about 1000 vertices).
+    
     # Step 1: First DFS to get finish times
-    def dfs1(vertex: int):
-        visited.add(vertex)
-        for neighbor in graph.get(vertex, []):
-            if neighbor not in visited:
-                dfs1(neighbor)
-        finish_order.append(vertex)
+    def dfs1(start: int):
+        visited.add(start)
+        stack = [(start, iter(graph.get(start, [])))]
+        while stack:
+            vertex, neighbors = stack[-1]
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    stack.append((neighbor, iter(graph.get(neighbor, []))))
+                    break
+            else:
+                stack.pop()
+                finish_order.append(vertex)  # vertex is finished
     
     for vertex in graph:
         if vertex not in visited:
             dfs1(vertex)
     
-    # Step 2: Reverse the graph
+    # Step 2: Reverse the graph (a vertex that only appears as a neighbor is not a
+    # key of graph, so create its entry on first use)
     reversed_graph = {v: [] for v in graph}
     for vertex in graph:
         for neighbor in graph[vertex]:
-            reversed_graph[neighbor].append(vertex)
+            reversed_graph.setdefault(neighbor, []).append(vertex)
     
     # Step 3: Second DFS on reversed graph
     visited.clear()
     sccs = []
     
-    def dfs2(vertex: int, component: List[int]):
-        visited.add(vertex)
-        component.append(vertex)
-        for neighbor in reversed_graph.get(vertex, []):
-            if neighbor not in visited:
-                dfs2(neighbor, component)
+    def dfs2(start: int, component: List[int]):
+        visited.add(start)
+        component.append(start)
+        stack = [iter(reversed_graph.get(start, []))]
+        while stack:
+            for neighbor in stack[-1]:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    component.append(neighbor)
+                    stack.append(iter(reversed_graph.get(neighbor, [])))
+                    break
+            else:
+                stack.pop()
     
     # Process in reverse finish order
     for vertex in reversed(finish_order):

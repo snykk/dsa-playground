@@ -20,7 +20,7 @@ Z[i] = length of longest substring starting at i that matches a prefix of the st
 
 ## Applications
 
-- Pattern matching (concatenate pattern + "$" + text)
+- Pattern matching (concatenate pattern + "$" + text; a text position i is a match when Z[i] >= len(pattern). Test >=, not ==: if "$" also occurs in the input, Z[i] can run past the separator)
 - String periodicity
 - Distinct substrings
 

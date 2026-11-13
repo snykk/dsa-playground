@@ -22,8 +22,8 @@
 ## Implementations
 
 - **Python** (`Python/`) - Complete with Union-Find
-- **C++** (`C++/`) - Basic
-- **Go** (`Go/`) - Basic
+- **C++** (`C++/`) - Complete with Union-Find (path compression, union by rank)
+- **Go** (`Go/`) - Complete with Union-Find (path compression, union by rank)
 
 ---
 

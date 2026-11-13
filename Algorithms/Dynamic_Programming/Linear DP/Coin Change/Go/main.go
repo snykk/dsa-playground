@@ -1,7 +1,11 @@
 package main
 
-// CoinChangeMinCoins finds minimum coins to make amount
+// CoinChangeMinCoins finds minimum coins to make amount, or -1 if it cannot be made.
+// It panics if amount is negative.
 func CoinChangeMinCoins(coins []int, amount int) int {
+	if amount < 0 {
+		panic("CoinChangeMinCoins: amount must be non-negative")
+	}
 	if amount == 0 {
 		return 0
 	}
@@ -27,4 +31,3 @@ func CoinChangeMinCoins(coins []int, amount int) int {
 	}
 	return dp[amount]
 }
-

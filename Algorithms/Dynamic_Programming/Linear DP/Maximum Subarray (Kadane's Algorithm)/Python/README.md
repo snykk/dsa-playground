@@ -37,7 +37,7 @@ Kadane's Algorithm solves the Maximum Subarray Problem: find the contiguous suba
 | **Naive (All Subarrays)** | O(n³) | O(1) | Check all possible subarrays |
 | **Optimized Naive** | O(n²) | O(1) | Use prefix sums |
 | **Kadane's Algorithm** | O(n) | O(1) | Optimal, single pass |
-| **DP Approach** | O(n) | O(1) | More explicit DP formulation |
+| **DP Approach** | O(n) | O(n) | More explicit DP formulation (`kadane_dp` keeps the whole dp array) |
 
 **Note**: Kadane's Algorithm is optimal - cannot be improved beyond O(n) time and O(1) space.
 
@@ -63,12 +63,7 @@ Kadane's Algorithm solves the Maximum Subarray Problem: find the contiguous suba
    - More explicit DP formulation
    - `dp[i]` = maximum sum ending at index `i`
    - Returns maximum subarray sum
-   - Time: O(n), Space: O(1) optimized
-
-4. **`kadane_all_negative(arr)`**
-   - Handles arrays with all negative numbers
-   - Returns maximum element (smallest negative)
-   - Time: O(n), Space: O(1)
+   - Time: O(n), Space: O(n) for the dp array (`kadane_algorithm` is the O(1)-space version)
 
 ---
 
@@ -78,8 +73,7 @@ Kadane's Algorithm solves the Maximum Subarray Problem: find the contiguous suba
 from kadane import (
     kadane_algorithm,
     kadane_with_indices,
-    kadane_dp,
-    kadane_all_negative
+    kadane_dp
 )
 
 arr = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
@@ -103,9 +97,9 @@ print(max_sum)  # Output: 6
 arr = [1, 2, 3, 4, 5]
 max_sum = kadane_algorithm(arr)  # Output: 15 (entire array)
 
-# All negative array
+# All negative array: the best subarray is the single largest element
 arr = [-5, -2, -1, -3]
-max_sum = kadane_all_negative(arr)  # Output: -1 (least negative)
+max_sum = kadane_algorithm(arr)  # Output: -1 (least negative)
 ```
 
 ---
@@ -184,7 +178,7 @@ python kadane_test.py
 
 ## References
 
-- Kadane, J. (1984). "A Simple Algorithm for Finding the Maximum Subarray"
+- Bentley, J. (1984). "Programming Pearls: Algorithm Design Techniques". Communications of the ACM 27(9) (the column that published Kadane's linear-time algorithm)
 - "Introduction to Algorithms" by CLRS (Chapter 4)
 - LeetCode Problem 53: Maximum Subarray
 

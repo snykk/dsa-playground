@@ -146,7 +146,7 @@ Monotonic queue **wins on speed** when you only need the extreme and the window 
 ## ⚠️ Common Pitfalls
 
 1. **Storing values, not indices.** You need indices to know when something slides out of the window. Storing only values works for one-shot max but loses window awareness.
-2. **`<=` vs `<` for the back-pop condition.** Use `<=` (strict decreasing isn't required) — otherwise equal values force extra work. Both are correct; `<=` is more cache-friendly in practice.
+2. **`<=` vs `<` for the back-pop condition.** Use `<=` (strict decreasing isn't required) — otherwise equal values force extra work. Both are correct as long as the deque holds indices; `<=` keeps the deque shorter when values repeat.
 3. **Forgetting the window-expiration check.** Step 1 of the loop must run _before_ step 4 emits the answer. Otherwise you may output a value that's no longer in the window.
 4. **Output only after the window fills.** For the first `k-1` iterations, the window isn't full — no output. Off-by-one here is a classic bug.
 5. **Deque vs. stack confusion.** Monotonic _stack_ is push/pop at one end. Monotonic _queue_ needs both ends — hence `deque`, not `stack`.
@@ -167,7 +167,7 @@ Monotonic queue **wins on speed** when you only need the extreme and the window 
 |----------|--------|-------|
 | Python | [Python/](Python/) | `collections.deque`-based with sliding-window max/min helpers |
 | C++ | [C++/](C++/) | `std::deque<int>`-based |
-| Go | [Go/](Go/) | Slice-based deque (front-pop via index head, back-push/pop via slice) |
+| Go | [Go/](Go/) | Slice-based deque (front-pop by reslicing `dq[1:]`, back-push/pop via slice) |
 
 ---
 

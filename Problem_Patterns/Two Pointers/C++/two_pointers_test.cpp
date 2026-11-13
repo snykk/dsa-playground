@@ -2,7 +2,22 @@
 #include <iostream>
 #include "two_pointers.cpp"
 
+// Regression: with fewer than two values the old loop bound `arr.size() - 2`
+// wrapped around (size_t) and threeSum read past the end of the vector.
+void testThreeSumTooFewValues() {
+    vector<int> empty;
+    assert(threeSum(empty, 0).empty());
+    vector<int> one = {5};
+    assert(threeSum(one, 5).empty());
+    vector<int> two = {1, -1};
+    assert(threeSum(two, 0).empty());
+    vector<int> three = {1, -1, 0};
+    assert(threeSum(three, 0).size() == 1);
+}
+
 int main() {
+    testThreeSumTooFewValues();
+
     vector<int> arr1 = {2, 7, 11, 15};
     vector<int> result1 = twoSumSorted(arr1, 9);
     assert(result1.size() == 2 && result1[0] == 0 && result1[1] == 1);

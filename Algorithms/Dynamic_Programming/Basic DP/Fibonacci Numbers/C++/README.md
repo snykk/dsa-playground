@@ -52,11 +52,10 @@ The naive recursive approach has exponential time complexity because it recalcul
    - Returns F(n)
    - Time: O(n), Space: O(1)
 
-3. **`fibonacciMatrix(n)`**
-   - Matrix exponentiation approach
-   - Fastest for very large n
+3. **`fibonacciMemoization(n)`**
+   - Top-down Dynamic Programming with an `unordered_map` cache
    - Returns F(n)
-   - Time: O(log n), Space: O(1)
+   - Time: O(n), Space: O(n)
 
 ---
 
@@ -75,9 +74,9 @@ int main() {
     result = fibonacciOptimized(50);
     std::cout << result << "\n";  // Output: 12586269025
 
-    // Matrix exponentiation (for very large n)
-    result = fibonacciMatrix(100);
-    std::cout << result << "\n";  // Very fast even for large n
+    // Memoization (top-down)
+    result = fibonacciMemoization(50);
+    std::cout << result << "\n";  // Output: 12586269025
 
     return 0;
 }
@@ -92,6 +91,7 @@ int main() {
 3. **Space Optimization**: Can reduce space from O(n) to O(1)
 4. **Matrix Method**: Optimal for very large n (n > 10^9)
 5. **C++ Types**: Use `long long` for n up to ~90, `BigInt` for larger
+6. **Negative n**: every function throws `std::invalid_argument` for n < 0
 
 ---
 
@@ -124,8 +124,7 @@ int main() {
 ## Compilation
 
 ```bash
-g++ -std=c++11 fibonacci.cpp fibonacci_test.cpp -o test
-./test
+g++ -std=c++17 -DIS_TEST_BUILD fibonacci_test.cpp -o fibonacci_test && ./fibonacci_test
 ```
 
 ---

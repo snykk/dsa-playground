@@ -32,7 +32,7 @@ For 32-bit ints with base 256, `d = 4` and `k = 256`, giving effectively O(n) â€
 
 - **Use base 256 (byte-level) on modern hardware**, not base 10. Four passes for 32-bit ints, eight for 64-bit. Cache-friendly because the count array fits in L1.
 - **Per-digit sort must be stable**. Counting Sort is naturally stable â€” but if you substitute an unstable sort, Radix Sort breaks silently.
-- **Negative numbers**: bias-shift inputs by `INT_MIN` before sorting, then unshift at the end. Or treat the sign bit separately.
+- **Negative numbers**: when the minimum is negative, `radixSort` takes the digits of `value - min` (a 64-bit key, never negative, same order as the values). Byte-wise radix sorts usually bias by `INT_MIN` or treat the sign bit separately instead.
 - **`std::vector<int>` over raw arrays**: automatic sizing and bounds safety. The `count` array can be `std::array<int, 256>` (stack-allocated, no allocation cost).
 
 ---

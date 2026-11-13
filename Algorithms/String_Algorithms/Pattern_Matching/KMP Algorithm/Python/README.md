@@ -17,7 +17,7 @@ The KMP algorithm improves upon naive pattern search by using information from p
 **Example:**
 - Text: "ABABDABACDABABCABC"
 - Pattern: "ABABCABC"
-- LPS: [0, 0, 1, 2, 0, 1, 2, 3]
+- LPS: [0, 0, 1, 2, 0, 1, 2, 0]
 - Result: Found at index 10
 
 ---
@@ -31,7 +31,7 @@ The LPS array stores the length of the longest proper prefix which is also a suf
 **Steps:**
 1. Initialize `lps[0] = 0` and `length = 0`
 2. For each position `i` from 1 to m-1:
-   - If `pattern[i] == pattern[length]`: increment both
+   - If `pattern[i] == pattern[length]`: increment `length`, set `lps[i] = length`, increment i
    - Else: if `length != 0`, set `length = lps[length - 1]` and don't increment i
    - Else: set `lps[i] = 0` and increment i
 
@@ -62,7 +62,7 @@ Where:
 
 **Advantages over Naive:**
 - No backtracking in text
-- Each character in text is examined at most once
+- At most 2n character comparisons in total: a text character can be compared again after a `j = lps[j - 1]` fallback, but the text pointer never moves back
 - Optimal for patterns with repeated substrings
 
 ---
@@ -106,7 +106,7 @@ print(occurrences)  # [10]
 
 # Build LPS array
 lps = build_lps(pattern)
-print(lps)  # [0, 0, 1, 2, 0, 1, 2, 3]
+print(lps)  # [0, 0, 1, 2, 0, 1, 2, 0]
 
 # Count occurrences
 count = kmp_search_count(text, pattern)
@@ -144,7 +144,7 @@ print(count)  # 1
 ## When to Use
 
 - Large texts or patterns
-- Multiple pattern searches
+- Many searches for the same pattern (build the LPS table once); for many different patterns at once, use Aho-Corasick
 - Patterns with repeated substrings
 - When guaranteed linear time is needed
 

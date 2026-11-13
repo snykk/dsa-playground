@@ -33,6 +33,12 @@ vector<int> compute_lps(const string &pattern){
 vector<int> kmp_search(const string &text, const string &pattern){
     vector<int> indices;
     int n=text.size(), m=pattern.size();
+    // The empty pattern occurs at every position 0..n, as in naive_search;
+    // without this guard j == m == 0 would read lps[-1].
+    if(m==0){
+        for(int i=0;i<=n;i++) indices.push_back(i);
+        return indices;
+    }
     vector<int> lps = compute_lps(pattern);
     int i=0,j=0;
     while(i<n){

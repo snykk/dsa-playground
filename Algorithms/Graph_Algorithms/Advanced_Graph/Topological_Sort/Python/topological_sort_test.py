@@ -123,6 +123,47 @@ class TestTopologicalSort(unittest.TestCase):
         # Longest path: 0 -> 2 -> 3 = 3 + 4 = 7
         self.assertEqual(distances[3], 7)
 
+    def test_topological_sort_dfs_long_chain(self):
+        # Regression: the recursive DFS raised RecursionError on a 1500-vertex chain
+        chain = {i: [i + 1] for i in range(5000)}
+        self.assertEqual(topological_sort_dfs(chain), list(range(5001)))
+        chain[5000] = [0]  # close the chain into one big cycle
+        self.assertIsNone(topological_sort_dfs(chain))
+
+    def test_topological_sort_dfs_matches_recursive_order(self):
+        # The iterative DFS must finish vertices in the same order as recursion
+        graph = {5: [2, 0], 4: [0, 1], 2: [3], 3: [1]}
+        self.assertEqual(topological_sort_dfs(graph), [4, 5, 0, 2, 3, 1])
+
+    def test_all_orders_keeps_neighbor_only_vertices(self):
+        # Regression: vertices that are not keys vanished from every ordering
+        self.assertEqual(topological_sort_all_orders({0: [1]}), [[0, 1]])
+        orders = topological_sort_all_orders({1: [2, 4], 2: [3]})
+        self.assertEqual(sorted(orders), [[1, 2, 3, 4], [1, 2, 4, 3], [1, 4, 2, 3]])
+        self.assertEqual(topological_sort_all_orders({1: [2], 2: [1]}), [])
+
+    def test_all_orders_counts_every_ordering(self):
+        self.assertEqual(len(topological_sort_all_orders(self.graph1)), 3)
+
+    def test_longest_path_dag_empty_graph(self):
+        # Regression: {} raised IndexError
+        self.assertEqual(longest_path_dag({}, {}), {})
+
+    def test_longest_path_dag_neighbor_only_vertex(self):
+        # Regression: a vertex that is not a key raised KeyError
+        self.assertEqual(longest_path_dag({0: [1]}, {}), {0: 0, 1: 1})
+
+    def test_longest_path_dag_every_source_starts_a_path(self):
+        # Regression: only the first source counted, so 3 got 1 instead of 10
+        graph = {1: [3], 2: [3], 3: []}
+        weights = {(2, 3): 10}
+        self.assertEqual(longest_path_dag(graph, weights), {1: 0, 2: 0, 3: 10})
+        from_one = longest_path_dag(graph, weights, source=1)
+        self.assertEqual(from_one, {1: 0, 2: float('-inf'), 3: 1})
+        with self.assertRaises(ValueError):
+            longest_path_dag(graph, weights, source=9)
+        self.assertEqual(longest_path_dag(self.graph3, {}), {})  # cycle
+
 
 if __name__ == '__main__':
     unittest.main()

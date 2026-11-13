@@ -20,7 +20,7 @@ void testDijkstraBasic() {
         {4, {}}
     };
     
-    unordered_map<int, int> distances = dijkstra(graph, 1);
+    unordered_map<int, long long> distances = dijkstra(graph, 1);
     
     assert(distances[1] == 0);
     assert(distances[2] == 4);
@@ -28,7 +28,7 @@ void testDijkstraBasic() {
     assert(distances[4] == 3);  // 1 -> 3 -> 4 = 2 + 1 = 3
     assert(distances.size() == 4);
     
-    cout << "✓ testDijkstraBasic passed" << endl;
+    cout << "[ok] testDijkstraBasic passed" << endl;
 }
 
 void testDijkstraMultiplePaths() {
@@ -40,11 +40,11 @@ void testDijkstraMultiplePaths() {
         {4, {}}
     };
     
-    unordered_map<int, int> distances = dijkstra(graph, 1);
+    unordered_map<int, long long> distances = dijkstra(graph, 1);
     assert(distances[3] == 3);  // 1 -> 2 -> 3 = 1 + 2 = 3 (better than 1 -> 3 = 4)
     assert(distances[4] == 4);  // 1 -> 2 -> 3 -> 4 = 1 + 2 + 1 = 4
     
-    cout << "✓ testDijkstraMultiplePaths passed" << endl;
+    cout << "[ok] testDijkstraMultiplePaths passed" << endl;
 }
 
 void testDijkstraWithPath() {
@@ -63,7 +63,7 @@ void testDijkstraWithPath() {
     assert(path[0] == 1);
     assert(path.back() == 4);
     
-    cout << "✓ testDijkstraWithPath passed" << endl;
+    cout << "[ok] testDijkstraWithPath passed" << endl;
 }
 
 void testDijkstraWithPathSameVertex() {
@@ -80,7 +80,7 @@ void testDijkstraWithPathSameVertex() {
     assert(path.size() == 1);
     assert(path[0] == 1);
     
-    cout << "✓ testDijkstraWithPathSameVertex passed" << endl;
+    cout << "[ok] testDijkstraWithPathSameVertex passed" << endl;
 }
 
 void testDijkstraNoPath() {
@@ -91,12 +91,12 @@ void testDijkstraNoPath() {
         {3, {}}
     };
     
-    unordered_map<int, int> distances = dijkstra(graph, 1);
+    unordered_map<int, long long> distances = dijkstra(graph, 1);
     assert(distances[1] == 0);
     assert(distances[2] == 1);
-    assert(distances[3] == INT_MAX);
+    assert(distances[3] == LLONG_MAX);  // unreachable
     
-    cout << "✓ testDijkstraNoPath passed" << endl;
+    cout << "[ok] testDijkstraNoPath passed" << endl;
 }
 
 void testDijkstraNoPathWithPath() {
@@ -111,26 +111,85 @@ void testDijkstraNoPathWithPath() {
     assert(distance == -1);
     assert(path.empty());
     
-    cout << "✓ testDijkstraNoPathWithPath passed" << endl;
+    cout << "[ok] testDijkstraNoPathWithPath passed" << endl;
 }
 
 void testDijkstraSingleVertex() {
     /**Test Dijkstra's on graph with single vertex.*/
     unordered_map<int, vector<pair<int, int>>> graph = {{1, {}}};
-    unordered_map<int, int> distances = dijkstra(graph, 1);
+    unordered_map<int, long long> distances = dijkstra(graph, 1);
     assert(distances[1] == 0);
     assert(distances.size() == 1);
     
-    cout << "✓ testDijkstraSingleVertex passed" << endl;
+    cout << "[ok] testDijkstraSingleVertex passed" << endl;
 }
 
 void testDijkstraEmptyGraph() {
     /**Test Dijkstra's on empty graph.*/
     unordered_map<int, vector<pair<int, int>>> graph;
-    unordered_map<int, int> distances = dijkstra(graph, 1);
+    unordered_map<int, long long> distances = dijkstra(graph, 1);
     assert(distances.empty());
     
-    cout << "✓ testDijkstraEmptyGraph passed" << endl;
+    cout << "[ok] testDijkstraEmptyGraph passed" << endl;
+}
+
+void testDijkstraNeighborOnlyVertex() {
+    /**A vertex that appears only as a neighbor (not a map key) still gets its distance.*/
+    unordered_map<int, vector<pair<int, int>>> graph = {{0, {{1, 5}}}};
+
+    unordered_map<int, long long> distances = dijkstra(graph, 0);
+    assert(distances.size() == 2);
+    assert(distances[0] == 0);
+    assert(distances[1] == 5);
+
+    auto [distance, path] = dijkstraWithPath(graph, 0, 1);
+    assert(distance == 5);
+    assert((path == vector<int>{0, 1}));
+
+    // Unreachable neighbor-only vertices are reported as LLONG_MAX, like key vertices.
+    unordered_map<int, vector<pair<int, int>>> split = {{0, {}}, {2, {{3, 1}}}};
+    unordered_map<int, long long> splitDistances = dijkstra(split, 0);
+    assert(splitDistances.size() == 3);
+    assert(splitDistances[3] == LLONG_MAX);
+
+    cout << "[ok] testDijkstraNeighborOnlyVertex passed" << endl;
+}
+
+void testDijkstraWithPathStartNotInGraph() {
+    /**start == target outside the graph returns (0, [start]) instead of looping forever.*/
+    unordered_map<int, vector<pair<int, int>>> empty;
+    auto [distance, path] = dijkstraWithPath(empty, 5, 5);
+    assert(distance == 0);
+    assert((path == vector<int>{5}));
+
+    unordered_map<int, vector<pair<int, int>>> graph = {{0, {}}};
+    auto [distance2, path2] = dijkstraWithPath(graph, 5, 5);
+    assert(distance2 == 0);
+    assert((path2 == vector<int>{5}));
+
+    auto [distance3, path3] = dijkstraWithPath(graph, 5, 0);
+    assert(distance3 == -1);
+    assert(path3.empty());
+
+    cout << "[ok] testDijkstraWithPathStartNotInGraph passed" << endl;
+}
+
+void testDijkstraLargeWeightsNoOverflow() {
+    /**Distances above INT_MAX are exact (long long), not wrapped to negative values.*/
+    unordered_map<int, vector<pair<int, int>>> graph = {
+        {0, {{1, 2000000000}}},
+        {1, {{2, 2000000000}}},
+        {2, {}}
+    };
+
+    unordered_map<int, long long> distances = dijkstra(graph, 0);
+    assert(distances[2] == 4000000000LL);
+
+    auto [distance, path] = dijkstraWithPath(graph, 0, 2);
+    assert(distance == 4000000000LL);
+    assert((path == vector<int>{0, 1, 2}));
+
+    cout << "[ok] testDijkstraLargeWeightsNoOverflow passed" << endl;
 }
 
 int main() {
@@ -142,6 +201,9 @@ int main() {
     testDijkstraNoPathWithPath();
     testDijkstraSingleVertex();
     testDijkstraEmptyGraph();
+    testDijkstraNeighborOnlyVertex();
+    testDijkstraWithPathStartNotInGraph();
+    testDijkstraLargeWeightsNoOverflow();
     
     cout << "\nAll tests passed!" << endl;
     return 0;

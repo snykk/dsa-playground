@@ -1,0 +1,16 @@
+/* Legend molecule: one swatch + label per role. */
+.viz-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 8px;
+  padding: 0;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.viz-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

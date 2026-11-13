@@ -6,9 +6,11 @@
 
 ## Implementations
 
-- **Python** (`Python/`) - Complete
-- **C++** (`C++/`) - Basic
-- **Go** (`Go/`) - Basic
+All three implement the same bottom-up interval DP and return only the minimum cost (not the parenthesization):
+
+- **Python** (`Python/`) - `matrix_chain_multiplication(dims)`
+- **C++** (`C++/`) - `matrixChainMultiplication(dims)` (64-bit costs)
+- **Go** (`Go/`) - `MatrixChainMultiplication(dims)`
 
 ---
 

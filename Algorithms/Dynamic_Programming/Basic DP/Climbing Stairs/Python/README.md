@@ -17,6 +17,7 @@ This problem is essentially the Fibonacci sequence! The number of ways to reach 
 ## Algorithm
 
 1. **Base Cases**: 
+   - Ways(0) = 1 (one way: the empty climb, take no step)
    - Ways(1) = 1 (only one way: take 1 step)
    - Ways(2) = 2 (two ways: 1+1 or 2)
 2. **Recurrence Relation**: 
@@ -113,10 +114,10 @@ print(ways)  # Output: 89
 
 ## Important Notes
 
-1. **Fibonacci Connection**: This is exactly the Fibonacci sequence starting from F(1)=1, F(2)=2
+1. **Fibonacci Connection**: Ways(n) = F(n+1), the Fibonacci numbers shifted by one: Ways(0..5) = 1, 1, 2, 3, 5, 8 = F(1..6)
 2. **Integer Overflow**: For very large n, use big integers or modulo arithmetic
 3. **Space Optimization**: Use optimized version when space is constrained
-4. **Base Cases**: Always handle n=1 and n=2 correctly
+4. **Base Cases**: Always handle n=0 (1 way), n=1 and n=2 correctly; every function raises `ValueError` for n < 0
 5. **Variable Steps**: Generalization allows any step sizes, not just 1 and 2
 
 ---

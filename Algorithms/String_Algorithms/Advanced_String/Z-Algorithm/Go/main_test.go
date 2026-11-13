@@ -20,6 +20,11 @@ func TestZAlgorithmSearch(t *testing.T) {
 		{"single char pattern", "banana", "a", []int{1, 3, 5}},
 		{"whole text matches", "abc", "abc", []int{0}},
 		{"repeating pattern", "abababab", "ab", []int{0, 2, 4, 6}},
+		// Regression: with '$' in the input, z[i] can run past the separator
+		// (z[i] > m); the old z[i] == m test dropped these matches.
+		{"separator in text", "a$a", "a", []int{0, 2}},
+		{"separator as pattern", "$$", "$", []int{0, 1}},
+		{"match followed by separator", "ab$ab", "ab", []int{0, 3}},
 	}
 
 	for _, tt := range tests {

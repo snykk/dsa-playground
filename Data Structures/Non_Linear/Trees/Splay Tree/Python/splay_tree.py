@@ -102,12 +102,19 @@ class SplayTree:
     def search(self, key):
         """
         Search for a key and splay it to root
-        
+
+        Returns the stored value or None if the key is absent.
+        _search_node returns the closest visited node on a miss, so we
+        splay that closest node to the root (a classic splay-tree
+        optimization that improves locality) but still report None.
+
         Time Complexity: O(log n) amortized
         """
         node = self._search_node(key)
-        if node is not None:
-            self._splay(node)
+        if node is None:
+            return None
+        self._splay(node)
+        if node.key == key:
             return node.value
         return None
     
@@ -167,47 +174,51 @@ class SplayTree:
     
     def delete(self, key):
         """
-        Delete a key and splay parent to root
-        
+        Delete a key via the classic split-merge approach.
+
+        Splay the target to root, detach the two subtrees, then re-merge
+        by splaying the max of the left subtree (which becomes the new
+        root with an empty right child) and attaching the right subtree.
+
         Time Complexity: O(log n) amortized
         """
         node = self._search_node(key)
         if node is None or node.key != key:
             return False
-        
-        # Splay the node to root
+
+        # Step 1: Splay the doomed node to the root.
         self._splay(node)
-        
-        # If node has no children
-        if node.left is None and node.right is None:
-            self.root = None
-        # If node has only right child
-        elif node.left is None:
-            self.root = node.right
-            self.root.parent = None
-        # If node has only left child
-        elif node.right is None:
-            self.root = node.left
-            self.root.parent = None
-        # If node has both children
+
+        # Step 2: Detach the two subtrees. Clearing parent pointers is
+        # critical — leaving them dangling causes search/splay to traverse
+        # back into the deleted node and corrupt the tree.
+        left_subtree = node.left
+        right_subtree = node.right
+        if left_subtree is not None:
+            left_subtree.parent = None
+        if right_subtree is not None:
+            right_subtree.parent = None
+
+        if left_subtree is None:
+            self.root = right_subtree
+        elif right_subtree is None:
+            self.root = left_subtree
         else:
-            # Find maximum in left subtree
-            max_left = node.left
+            # Step 3: Splay the maximum of the left subtree to its root.
+            # _splay reads/writes self.root, so we temporarily promote the
+            # left subtree to root before splaying inside it.
+            self.root = left_subtree
+            max_left = left_subtree
             while max_left.right is not None:
                 max_left = max_left.right
-            
-            # Splay max_left to root of left subtree
-            if max_left.parent != node:
-                self._splay(max_left)
-                max_left.parent = None
-            
-            # Attach right subtree to max_left
-            max_left.right = node.right
-            if node.right is not None:
-                node.right.parent = max_left
-            
+            self._splay(max_left)
+            # After splay, max_left is root of left subtree and has no
+            # right child (because it was the maximum). Attach the right
+            # subtree as its right child.
+            max_left.right = right_subtree
+            right_subtree.parent = max_left
             self.root = max_left
-        
+
         return True
     
     def find_min(self):
