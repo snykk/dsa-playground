@@ -1,10 +1,11 @@
 /**
- * Checker for the hand-written MDX pages: topic articles (src/content/articles) and category
- * overviews (src/content/categories). Every page must compile, match its frontmatter schema,
- * point at real repository folders and visualizations, use only the registered components,
- * follow the house rules (ASCII source, no horizontal rules, no h1) and be named after its
- * folder. A topic article also needs an Implementation section with the code tabs; a category
- * overview lists each of its sub-folders exactly once.
+ * Checker for the hand-written MDX pages: topic articles (src/content/articles), category
+ * overviews (src/content/categories) and root-document pages (src/content/pages). Every page
+ * must compile, match its frontmatter schema, point at real repository folders and
+ * visualizations, use only the registered components, follow the house rules (ASCII source,
+ * no horizontal rules, no h1) and be named after its folder or document. A topic article also
+ * needs an Implementation section with the code tabs; a category overview lists each of its
+ * sub-folders exactly once; the study guide lists every topic exactly once.
  *
  * Run one page: npx vitest run src/content/articles.test.ts -t quick-sort
  */
@@ -17,6 +18,7 @@ import { parse as parseYaml } from 'yaml';
 import { MDX_COMPONENT_NAMES } from '../components/mdxNames';
 import { articleSchema } from '../lib/article';
 import { categorySchema } from '../lib/category';
+import { pageSchema, topicListFolders } from '../lib/page';
 import { getContent } from '../lib/repo';
 import { slugifySegment } from '../lib/slug';
 import { VIZ_CATALOG } from '../viz/catalog';
@@ -24,12 +26,14 @@ import { VIZ_CATALOG } from '../viz/catalog';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DIR = path.join(HERE, 'articles');
 const CATEGORY_DIR = path.join(HERE, 'categories');
+const PAGE_DIR = path.join(HERE, 'pages');
 const mdxFiles = (dir: string) =>
   readdirSync(dir)
     .filter((f) => f.endsWith('.mdx'))
     .sort();
 const files = mdxFiles(DIR);
 const categoryFiles = mdxFiles(CATEGORY_DIR);
+const pageFiles = mdxFiles(PAGE_DIR);
 const content = getContent();
 const vizIds = new Set(VIZ_CATALOG.map((v) => v.id));
 const known = new Set<string>(MDX_COMPONENT_NAMES);
@@ -62,6 +66,12 @@ function loadCategory(file: string) {
   return { source, body, data: categorySchema.parse(parseYaml(frontmatter)) };
 }
 
+function loadPage(file: string) {
+  const source = readFileSync(path.join(PAGE_DIR, file), 'utf8');
+  const { frontmatter, body } = split(source);
+  return { source, body, data: pageSchema.parse(parseYaml(frontmatter)) };
+}
+
 async function expectValidMdx(body: string) {
   await compile(body);
   // A brace in prose starts a JavaScript expression: "{A, C}" throws at render time and
@@ -89,6 +99,7 @@ function expectKnownEmbeds(body: string) {
     }
   }
   for (const folder of topicCodeFolders(body)) expect(content.byRel.has(folder), folder).toBe(true);
+  for (const folder of topicListFolders(body)) expect(content.byRel.get(folder)?.kind, `topic list: ${folder}`).toBe('topic');
 }
 
 /** Checks the rules every page follows and returns its section (h2) titles. */
@@ -164,6 +175,51 @@ describe.each(categoryFiles)('categories/%s', (file) => {
     const { source, body } = loadCategory(file);
     expect(expectHouseRules(source, body).length, 'at least 4 sections').toBeGreaterThanOrEqual(4);
   });
+});
+
+describe.each(pageFiles)('pages/%s', (file) => {
+  it('has valid frontmatter naming a root document and real folders', () => {
+    const { data } = loadPage(file);
+    expect(content.standalone.map((d) => d.slug), `page ${data.page}`).toContain(data.page);
+    expect(file, 'a page is named after its document').toBe(`${data.page}.mdx`);
+    for (const rel of data.related) expect(content.byRel.has(rel), rel).toBe(true);
+    expect(data.lead.length, 'lead: one or two sentences').toBeLessThanOrEqual(360);
+  });
+
+  it('lists every top-level area exactly once, when it lists them', () => {
+    const { data } = loadPage(file);
+    if (data.contents.length === 0) return;
+    const areas = content.root.children.map((c) => c.name);
+    expect(data.contents.map((e) => e.folder).sort(), 'contents: each top-level folder once, nothing else').toEqual([...areas].sort());
+  });
+
+  it('compiles as MDX and only uses registered components', async () => {
+    await expectValidMdx(loadPage(file).body);
+  });
+
+  it('embeds only existing visualizations and topic folders', () => {
+    expectKnownEmbeds(loadPage(file).body);
+  });
+
+  it('follows the house rules', () => {
+    const { source, body } = loadPage(file);
+    expect(expectHouseRules(source, body).length, 'at least 4 sections').toBeGreaterThanOrEqual(4);
+  });
+});
+
+it('the study guide places every topic exactly once', () => {
+  const listed = topicListFolders(loadPage('study-guide.mdx').body);
+  const twice = listed.filter((rel, i) => listed.indexOf(rel) !== i);
+  expect(twice, 'topics listed more than once').toEqual([]);
+  const topics = content.nodes.filter((n) => n.kind === 'topic').map((n) => n.rel);
+  expect(topics.filter((rel) => !listed.includes(rel)), 'topics missing from the study guide').toEqual([]);
+});
+
+it('the study guide page and STUDY_GUIDE.md list the topics in the same order', () => {
+  const markdown = content.standalone.find((d) => d.slug === 'study-guide')?.source ?? '';
+  const topics = new Set(content.nodes.filter((n) => n.kind === 'topic').map((n) => n.rel));
+  const inMarkdown = [...markdown.matchAll(/\]\(([^)#]+?)\/?\)/g)].map((m) => m[1]).filter((rel) => topics.has(rel));
+  expect(topicListFolders(loadPage('study-guide.mdx').body)).toEqual(inMarkdown);
 });
 
 const pages = (dir: string, list: string[], key: 'topic' | 'category') =>

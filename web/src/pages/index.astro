@@ -16,7 +16,7 @@ const implementations = topics.reduce((sum, t) => sum + t.languages.length, 0);
 const featured = VIZ_GROUP_ORDER.map((g) => VIZ_CATALOG.find((v) => v.group === g)).filter((v) => v !== undefined);
 const DOT = String.fromCodePoint(0xb7);
 const steps = [
-  { title: `1 ${DOT} Read the intuition`, text: 'Each page starts from the README: the idea, a picture, and why it works.' },
+  { title: `1 ${DOT} Read the intuition`, text: 'Each topic starts with an article: the idea, a worked example, and why it works.' },
   { title: `2 ${DOT} Step through it`, text: 'Run the visualization on your own input. Pause, rewind, and read the caption for every step.' },
   { title: `3 ${DOT} Compare the code`, text: 'Open the Python, C++ and Go tabs to see the same algorithm in three languages, with tests.' },
 ];

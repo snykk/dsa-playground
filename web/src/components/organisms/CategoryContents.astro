@@ -14,9 +14,12 @@ import LevelMeter from '../atoms/LevelMeter.astro';
 interface Props {
   node: DocNode;
   contents: ContentsEntry[];
+  /** Section title, and its anchor for the page's table of contents. */
+  heading?: string;
+  id?: string;
 }
 
-const { node, contents } = Astro.props;
+const { node, contents, heading = 'In this section', id = 'in-this-section' } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const articles = new Map((await getCollection('articles')).map((a) => [a.data.topic, a.data]));
 const overviews = new Map((await getCollection('categories')).map((c) => [c.data.category, c.data]));
@@ -39,8 +42,8 @@ const rows = contents.map((entry) => {
 });
 ---
 
-<section class="contents" aria-labelledby="in-this-section">
-  <h2 id="in-this-section">In this section</h2>
+<section class="contents" aria-labelledby={id}>
+  <h2 id={id}>{heading}</h2>
   <ol>
     {
       rows.map((r, i) => (

@@ -1,7 +1,7 @@
 ---
 import { GITHUB_REPO } from '../../lib/repo';
 
-/** Copyright (matching LICENSE, which starts in 2025) and where the content comes from. */
+/** Copyright (matching LICENSE, which starts in 2025) and where the site comes from. */
 const FIRST_YEAR = 2025;
 const buildYear = new Date().getFullYear();
 const years = buildYear > FIRST_YEAR ? `${FIRST_YEAR}${String.fromCodePoint(0x2013)}${buildYear}` : `${FIRST_YEAR}`;
@@ -10,7 +10,7 @@ const years = buildYear > FIRST_YEAR ? `${FIRST_YEAR}${String.fromCodePoint(0x20
 <footer class="site-footer">
   <p class="copyright">&copy; {years} Najib Fikri &#xb7; MIT License</p>
   <p>
-    Content comes straight from the <a href={GITHUB_REPO} target="_blank" rel="noopener noreferrer">dsa-playground</a> READMEs
+    Built from the <a href={GITHUB_REPO} target="_blank" rel="noopener noreferrer">dsa-playground</a> repository: its code, its tests and its documents
   </p>
 </footer>
 

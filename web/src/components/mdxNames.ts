@@ -20,6 +20,7 @@ export const MDX_COMPONENT_NAMES = [
   'Step',
   'Steps',
   'TopicCode',
+  'TopicList',
   'TreeDiagram',
 ] as const;
 

@@ -36,7 +36,7 @@ Handy URL parameters on any page with a visualization: `?step=40` opens the run 
 - [`src/lib/repo.ts`](src/lib/repo.ts) walks the repository at build time. A folder with `Python/`, `C++/` or `Go/` subfolders is a **topic**; any other folder with a README (or with topics below it) is a **category**. Root `README.md`, `STUDY_GUIDE.md` and `CONTRIBUTING.md` become `/overview/`, `/study-guide/` and `/contributing/`.
 - Folder names become URL slugs (`Dijkstras_Algorithm` → `dijkstras-algorithm`, `B_Plus_Tree` → `b-plus-tree`); the build fails on a slug collision.
 - [`src/lib/markdown.ts`](src/lib/markdown.ts) renders READMEs with Astro's Markdown pipeline (GFM, Shiki, GitHub-compatible heading ids) and rewrites links: README → page, `Python/` → that language tab, other repo files → GitHub, missing targets → a dashed red "broken link" plus a build warning.
-- A topic page shows its README unless the topic has a hand-written **article**, and a category page shows its README unless the category has a hand-written **overview** (next sections).
+- A topic page shows its README unless the topic has a hand-written **article**, a category page shows its README unless the category has a hand-written **overview**, and the overview and study guide are hand-written **root pages** (next sections).
 
 ## Topic articles
 
@@ -50,13 +50,22 @@ A topic can have an article in [`src/content/articles/`](src/content/articles/) 
 - **Text in component props** is plain ASCII and goes through [`src/lib/inline.ts`](src/lib/inline.ts): `` `code` ``, `**bold**`, `n^2`, `log2(n)` and `<=` / `>=` / `!=` / `->` are typeset for you. In prose, use HTML entities (`&le;`) or `<sub>` / `<sup>`.
 - Every claim must match the repository code (which partition scheme, which pivot, what the tests cover); the article is a guide to that code, not a generic text.
 
-## Category overviews (pilot: Pattern Matching)
+## Category overviews
 
 A category can have an overview in [`src/content/categories/`](src/content/categories/) (MDX). It replaces the README on the category's page with the same look as an article: header, key facts, an "In this section" list of the category's topics in reading order, then a body that compares the topics instead of repeating them.
 
 - **Frontmatter** (schema in [`src/lib/category.ts`](src/lib/category.ts)): `category` (repository folder), `title`, `lead`, `updated`, `facts` (0-6), `contents` (every sub-folder exactly once, in reading order, each with an optional one-line `note`; without one the topic's own lead is shown), `prerequisites` and `related`.
 - **Checks**: `src/content/articles.test.ts` covers overviews too: the schema, a category folder, `contents` naming every sub-folder once, existing visualizations, registered components, ASCII, no horizontal rules, at least four sections, and a file named after the folder (`pattern-matching.mdx`).
 - **Section order**: the problem the topics share, an at-a-glance comparison, the topics side by side (`ArticleViz` with several ids shows them as tabs), a worked example that sets them against each other, complexity, choosing one, applications, common mistakes, FAQ.
+
+## Root pages
+
+`/overview/` and `/study-guide/` are hand-written pages in [`src/content/pages/`](src/content/pages/) (MDX) that replace the rendering of `README.md` and `STUDY_GUIDE.md`, with the same look as a category overview. `/contributing/` still renders `CONTRIBUTING.md`.
+
+- **Frontmatter** (schema in [`src/lib/page.ts`](src/lib/page.ts)): `page` (the document's page slug, also the file name: `overview.mdx`), `title`, `lead`, `updated`, `facts` (0-6), `contents` (the overview's list of top-level areas: every top-level folder once, in reading order) and `related`.
+- **`TopicList`** lists topics in reading order, each with its area, level and whether it is visualized: `<TopicList title="Hashing" note="..." topics={['Data_Structures/Hashing/Hash_Table', ...]} />`. Every entry must be a topic folder.
+- **Checks**: `src/content/articles.test.ts` covers these pages too, and fails when the study guide misses a topic or lists one twice.
+- `README.md` and `STUDY_GUIDE.md` are what GitHub shows: keep them in step with the pages.
 
 ---
 
@@ -70,15 +79,16 @@ src/
                        article blocks: Callout, Steps/Step, DataTable, ComplexityTable, Equation,
                        ArrayDiagram, ProsCons, Faq/FaqItem, FactTile
     organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, TopicCards, Implementations, VizSection,
-                       ArticleHeader, KeyFacts, ArticleViz, TopicCode, RelatedTopics, CategoryContents
+                       ArticleHeader, KeyFacts, ArticleViz, TopicCode, RelatedTopics, CategoryContents, TopicList
     templates/         BaseLayout (page shell), DocPage (README page), ArticlePage (hand-written article),
-                       CategoryPage (hand-written category overview)
+                       CategoryPage (hand-written category overview), RootPage (hand-written overview or study guide)
     mdx.ts             the components an article can use without importing them
   content/articles/    hand-written topic articles (MDX)
   content/categories/  hand-written category overviews (MDX)
+  content/pages/       hand-written root pages: the overview and the study guide (MDX)
   pages/               routes only: load data, pick a template
   styles/              global CSS only: tokens, base elements, page grid, README prose, article prose
-  lib/                 build-time logic: repository scan, slugs, Markdown rendering, article and category schemas, inline text
+  lib/                 build-time logic: repository scan, slugs, Markdown rendering, article, category and page schemas, inline text
   viz/
     ui/                React design system for visualizations
       atoms/           Cell, Token, Swatch, IconButton, NodeGlyph

@@ -1,20 +1,23 @@
 ---
 import { ancestors, joinBase, type DocNode } from '../../lib/repo';
 
+/** Home, then the folders above the page, then the page itself (a folder, or a root document's title). */
 interface Props {
-  node: DocNode;
+  node?: DocNode;
+  /** Title of a page that is not a folder, e.g. a root document. */
+  title?: string;
 }
 
-const { node } = Astro.props;
+const { node, title } = Astro.props;
 const base = import.meta.env.BASE_URL;
-const trail = ancestors(node);
+const trail = node ? ancestors(node) : [];
 ---
 
 <nav class="breadcrumbs" aria-label="Breadcrumb">
   <ol>
     <li><a href={joinBase(base, '')}>Home</a></li>
     {trail.map((n) => <li><a href={joinBase(base, n.slug)}>{n.title}</a></li>)}
-    <li aria-current="page">{node.title}</li>
+    <li aria-current="page">{node?.title ?? title}</li>
   </ol>
 </nav>
 

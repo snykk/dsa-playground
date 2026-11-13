@@ -4,13 +4,15 @@ import { MDX_COMPONENTS } from '../components/mdx';
 import ArticlePage from '../components/templates/ArticlePage.astro';
 import CategoryPage from '../components/templates/CategoryPage.astro';
 import DocPage from '../components/templates/DocPage.astro';
+import RootPage from '../components/templates/RootPage.astro';
 import { renderMarkdown } from '../lib/markdown';
 import { getContent } from '../lib/repo';
 
 /**
  * One page per repository folder with a README, plus the root documents. A topic with a
  * hand-written article (src/content/articles) renders that, a category with a hand-written
- * overview (src/content/categories) renders that; any other page renders its README.
+ * overview (src/content/categories) renders that, a root document with a hand-written page
+ * (src/content/pages) renders that; any other page renders its README or document.
  */
 export async function getStaticPaths() {
   const content = getContent();
@@ -28,6 +30,13 @@ export async function getStaticPaths() {
     }
     if (seen.has(category)) throw new Error(`Two overviews claim the category "${category}"`);
     seen.add(category);
+  }
+  const pageSlugs = new Set<string>();
+  for (const page of await getCollection('pages')) {
+    const slug = page.data.page;
+    if (!content.standalone.some((d) => d.slug === slug)) throw new Error(`Page ${page.id}: "${slug}" is not a root document`);
+    if (pageSlugs.has(slug)) throw new Error(`Two pages claim the root document "${slug}"`);
+    pageSlugs.add(slug);
   }
   return [
     ...content.nodes.map((n) => ({ params: { slug: n.slug }, props: { kind: 'node' as const, rel: n.rel } })),
@@ -48,7 +57,9 @@ if (!node && !doc) throw new Error(`Unknown page ${kind}:${rel}`);
 
 const article = node?.kind === 'topic' ? (await getCollection('articles')).find((a) => a.data.topic === node.rel) : undefined;
 const overview = node?.kind === 'category' ? (await getCollection('categories')).find((c) => c.data.category === node.rel) : undefined;
-const view = article ? await render(article) : overview ? await render(overview) : undefined;
+const page = doc ? (await getCollection('pages')).find((p) => p.data.page === doc.slug) : undefined;
+const entry = article ?? overview ?? page;
+const view = entry ? await render(entry) : undefined;
 const Content = view?.Content;
 
 const source = node?.readme ?? (doc ? { rel: doc.rel, source: doc.source } : undefined);
@@ -64,6 +75,10 @@ const rendered = !view && source ? await renderMarkdown(source.source, source.re
     <CategoryPage node={node} category={overview.data} headings={view.headings} hasViz={/<ArticleViz\b/.test(overview.body ?? '')}>
       <Content components={MDX_COMPONENTS} />
     </CategoryPage>
+  ) : doc && page && view && Content ? (
+    <RootPage doc={doc} page={page.data} headings={view.headings} hasViz={/<ArticleViz\b/.test(page.body ?? '')}>
+      <Content components={MDX_COMPONENTS} />
+    </RootPage>
   ) : (
     <DocPage node={node} doc={doc} rendered={rendered} />
   )

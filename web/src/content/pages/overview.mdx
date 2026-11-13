@@ -1,0 +1,114 @@
+---
+page: overview
+title: Data Structures and Algorithms
+lead: "A study repository and its companion site. Every topic has an article, an implementation in Python, C++ and Go with unit tests, and for many of them a visualization you can run on your own input and step through."
+updated: 2026-11-13
+facts:
+  - label: Languages
+    value: Python, C++, Go
+    hint: each with its own unit tests
+  - label: Reference implementation
+    value: Python
+    hint: C++ and Go cover each topic's core operations
+  - label: Visualizations
+    value: step by step
+    hint: checked against the Python code
+contents:
+  - folder: Complexity_Analysis
+    note: "Big-O, Big-Omega and Big-Theta, space complexity and amortized analysis: the language every other page uses to say what an operation costs."
+  - folder: Data_Structures
+    note: Arrays, lists, stacks and queues, strings, hashing, trees, heaps, graph representations, caches and disjoint sets.
+  - folder: Algorithms
+    note: Sorting, searching, divide and conquer, greedy, dynamic programming, graphs, strings, math, coding theory, geometry, randomized algorithms and backtracking.
+  - folder: Problem_Patterns
+    note: Two pointers, sliding window, prefix sums, monotonic stacks and queues, binary search on the answer and other patterns that recur in problems.
+  - folder: Utilities
+    note: Optimization techniques, problem types, and contest templates in all three languages.
+---
+
+## What a topic page gives you
+
+Each topic is one folder in the repository and one page on this site. A page has four parts.
+
+- **The article.** How the structure or algorithm works, a worked example, pseudocode, the complexity with the reason behind it, variants, common mistakes and questions. Every claim matches the code in the repository: which partition scheme, which tie-break, what the tests check.
+- **The visualization**, for the topics that have one. Type your own input or pick an example, then play it or step forwards and backwards. A caption under every step says why the step happens, and the pseudocode line that runs is highlighted.
+- **The code.** The Python, C++ and Go sources as tabs, each with its unit tests and a README for that implementation.
+- **Where to go next.** The topics to read first, and related topics after.
+
+## Where to start
+
+<Steps>
+  <Step title="Follow a path">
+    The [study guide](../study-guide/) puts every topic into one of five phases, from complexity analysis and arrays to advanced graphs and competitive programming, each with a goal and a milestone.
+  </Step>
+  <Step title="Watch something run">
+    The [visualizations](../visualizations/) page lists every visualization by area. Running one on a small input of your own is the fastest way to see what an algorithm does.
+  </Step>
+  <Step title="Browse an area">
+    Open an area above. Its overview compares its topics and lists them in reading order.
+  </Step>
+</Steps>
+
+## Inside a topic folder
+
+Every topic folder has the same layout, for example `Algorithms/Sorting/Quick_Sort/`:
+
+```text
+Quick_Sort/
+  README.md         intuition, a step-by-step trace, complexity, pitfalls, practice problems
+  Python/           quick_sort.py, quick_sort_test.py and a README for this implementation
+  C++/              quick_sort.cpp, quick_sort_test.cpp and a README
+  Go/               main.go, main_test.go, go.mod and a README
+```
+
+Python is the reference implementation of every topic. The C++ and Go versions cover each topic's core operations; the few C++ and Go folders that are still placeholders say so in their README.
+
+## Running the code and the tests
+
+Clone the repository and run the suites from its root:
+
+```text
+make test          # every Python, Go and C++ test
+make test-python   # one language at a time
+make test-go
+make test-cpp
+make test-web      # this site: unit tests, type check and build (needs Node)
+make web-dev       # this site locally, at http://localhost:4321/dsa-playground/
+```
+
+You need Python 3, Go 1.24, a C++17 compiler, and Node 22 for the site. CI runs the same suites on every pull request, plus the C++ tests under AddressSanitizer and UndefinedBehaviorSanitizer and a check of every README.
+
+## How this site is built
+
+The site is a static [Astro](https://astro.build) site generated from the repository, in its `web/` folder.
+
+- **Articles** are hand-written pages, one per topic and one per area. A test compiles every one of them and checks that it points at real folders and visualizations.
+- **Visualizations** re-implement each algorithm in TypeScript. Each port is tested against a brute-force or reference version on random inputs, and many are pinned to the Python implementation with golden files that the Python code generates. CI regenerates those files and fails if the two ever disagree.
+- **Code tabs** show the repository's own source files, so the code on a page is the code that the tests run.
+
+The [web README](https://github.com/snykk/dsa-playground/blob/master/web/README.md) explains the structure in detail.
+
+## Contributing
+
+- The [contributing guide](../contributing/) has the README templates, the coding standards and the test requirements.
+- [RELEASING.md](https://github.com/snykk/dsa-playground/blob/master/RELEASING.md) describes how a change reaches `master`: through a release branch and a reviewed pull request.
+- [CHANGELOG.md](https://github.com/snykk/dsa-playground/blob/master/CHANGELOG.md) lists what each release contains.
+
+The repository is released under the [MIT license](https://github.com/snykk/dsa-playground/blob/master/LICENSE).
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which language should I read?">
+    Pick one and stay with it. Python is the reference and the shortest to read, and C++ is the usual choice for contests. The C++ and Go versions cover the core operations of the Python one, each with its own tests.
+  </FaqItem>
+  <FaqItem question="Do the visualizations run the same algorithm as the code?">
+    They run a TypeScript port of it, written to follow the Python implementation step by step: the same variant, the same tie-breaking, the same resize rules. Tests compare the port with a reference on random inputs, and golden files generated by the Python code pin many of them exactly.
+  </FaqItem>
+  <FaqItem question="Why does a topic have no visualization yet?">
+    They are added area by area with each release. The overview of an area shows how many of its topics are visualized, and the visualizations page lists them all.
+  </FaqItem>
+  <FaqItem question="How do I run the tests of one topic?">
+    From its language folder. For Quick Sort: `python3 -m unittest quick_sort_test` in `Python/`, `go test ./...` in `Go/`, and `g++ -std=c++17 -DIS_TEST_BUILD quick_sort_test.cpp -o quick_sort_test && ./quick_sort_test` in `C++/`. `make test` runs every topic.
+  </FaqItem>
+</Faq>
