@@ -9,12 +9,12 @@ interface Props {
   error: string | null;
   examples: Example[];
   onChange: (value: string) => void;
-  /** Run with the given text (examples and Random pass their own text). */
+  /** Apply the given text (examples and Random pass their own text). */
   onRun: (value: string) => void;
   onRandom: () => void;
 }
 
-/** Text input with Run / Random buttons, example chips, help text and a friendly error. */
+/** Text input with Apply / Random buttons, example chips, help text and a friendly error. */
 export function InputPanel({ id, label, help, value, error, examples, onChange, onRun, onRandom }: Props) {
   const helpId = `${id}-help`;
   return (
@@ -36,8 +36,8 @@ export function InputPanel({ id, label, help, value, error, examples, onChange, 
           aria-describedby={helpId}
           aria-invalid={error ? true : undefined}
         />
-        <button type="submit" className="viz-btn primary">
-          Run
+        <button type="submit" className="viz-btn primary" title="Visualize this input from the first step (Enter)">
+          Apply
         </button>
         <button type="button" className="viz-btn" onClick={onRandom}>
           Random

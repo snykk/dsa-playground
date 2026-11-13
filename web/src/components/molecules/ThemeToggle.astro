@@ -1,21 +1,53 @@
 ---
-import Icon from '../atoms/Icon.astro';
 import IconButton from '../atoms/IconButton.astro';
 
-/** Light/dark switch. The saved choice is applied before paint by BaseLayout's head script. */
+/**
+ * Light/dark switch. The icon shows the theme in use, a sun in light mode and a moon in dark
+ * mode, and morphs between the two: the rays fold away while the disc grows and a shadow
+ * slides over it to leave a crescent; going back, the shadow slides off and the rays spring
+ * out again. CSS picks the shape with the same selectors as the theme tokens (a saved choice,
+ * else the OS setting), so the first paint is already right: BaseLayout's head script applies
+ * a saved choice before paint. Only transforms and opacity animate, and nothing does under
+ * prefers-reduced-motion.
+ */
 ---
 
-<IconButton label="Toggle dark mode" data-theme-toggle>
-  <Icon name="moon" />
+<IconButton label="Dark mode" aria-pressed="false" data-theme-toggle>
+  <svg class="theme-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+    <mask id="theme-icon-shadow">
+      <rect width="24" height="24" fill="#fff" />
+      <circle class="shadow" cx="16.2" cy="7.8" r="6.2" fill="#000" />
+    </mask>
+    <g mask="url(#theme-icon-shadow)">
+      <circle class="disc" cx="12" cy="12" r="8" fill="currentColor" />
+    </g>
+    <path
+      class="rays"
+      d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+    />
+  </svg>
 </IconButton>
 
 <script>
   const root = document.documentElement;
-  const effectiveTheme = () => root.dataset.theme ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  for (const button of document.querySelectorAll('[data-theme-toggle]')) {
+  const osDark = matchMedia('(prefers-color-scheme: dark)');
+  const buttons = document.querySelectorAll('[data-theme-toggle]');
+  const isDark = () => (root.dataset.theme ?? (osDark.matches ? 'dark' : 'light')) === 'dark';
+  // CSS draws the icon for the theme in use; aria-pressed tells assistive technology the same.
+  const sync = () => {
+    for (const button of buttons) button.setAttribute('aria-pressed', String(isDark()));
+  };
+  sync();
+  osDark.addEventListener('change', sync);
+  for (const button of buttons) {
     button.addEventListener('click', () => {
-      const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+      const next = isDark() ? 'light' : 'dark';
       root.dataset.theme = next;
+      sync();
       try {
         localStorage.setItem('dsa-theme', next);
       } catch {
@@ -24,3 +56,79 @@ import IconButton from '../atoms/IconButton.astro';
     });
   }
 </script>
+
+<style>
+  .theme-icon {
+    display: block;
+    flex: none;
+    transition: transform 0.15s ease;
+  }
+  :global(.icon-button:active) > .theme-icon {
+    transform: scale(0.86);
+  }
+  .disc,
+  .rays {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* Light: the sun. Coming from the moon, the shadow slides off first, then the disc shrinks
+     and the rays spring back out with a small overshoot. */
+  .shadow {
+    transform: translate(6px, -6px);
+    transition: transform 0.3s cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  .disc {
+    transform: scale(0.5625);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.06s;
+  }
+  .rays {
+    transition:
+      transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) 0.16s,
+      opacity 0.2s ease-out 0.16s;
+  }
+
+  /* Dark: the moon. The rays fold away, the disc grows and the shadow slides in over it.
+     Written twice, like the dark tokens: for a saved choice and for the OS setting. */
+  :global(:root[data-theme='dark']) .shadow {
+    transform: none;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+  }
+  :global(:root[data-theme='dark']) .disc {
+    transform: none;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(:root[data-theme='dark']) .rays {
+    opacity: 0;
+    transform: rotate(-60deg) scale(0.5);
+    transition:
+      transform 0.3s cubic-bezier(0.55, 0, 1, 0.45),
+      opacity 0.2s ease-in 0.08s;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .shadow {
+      transform: none;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+    }
+    :global(:root:not([data-theme='light'])) .disc {
+      transform: none;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    :global(:root:not([data-theme='light'])) .rays {
+      opacity: 0;
+      transform: rotate(-60deg) scale(0.5);
+      transition:
+        transform 0.3s cubic-bezier(0.55, 0, 1, 0.45),
+        opacity 0.2s ease-in 0.08s;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-icon,
+    .shadow,
+    .disc,
+    .rays {
+      transition: none !important;
+    }
+  }
+</style>
