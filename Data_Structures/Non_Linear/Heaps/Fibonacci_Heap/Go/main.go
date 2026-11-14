@@ -67,6 +67,10 @@ func (h *FibonacciHeap) consolidate() {
 	}
 
 	degreeTable := make(map[int]*FibonacciHeapNode)
+	// The degrees in the insertion order of Python's dict degree_table: a degree
+	// that is deleted and stored again moves to the end. The new minimum is chosen
+	// in this order, because ranging over a Go map has no fixed order.
+	degreeOrder := []int{}
 	nodesToProcess := []*FibonacciHeapNode{}
 
 	current := h.minNode
@@ -87,20 +91,33 @@ func (h *FibonacciHeap) consolidate() {
 				}
 				h.link(other, node)
 				delete(degreeTable, degree)
+				degreeOrder = removeDegree(degreeOrder, degree)
 				degree++
 			} else {
 				break
 			}
 		}
 		degreeTable[degree] = node
+		degreeOrder = append(degreeOrder, degree)
 	}
 
 	h.minNode = nil
-	for _, node := range degreeTable {
+	for _, degree := range degreeOrder {
+		node := degreeTable[degree]
 		if h.minNode == nil || node.key < h.minNode.key {
 			h.minNode = node
 		}
 	}
+}
+
+// removeDegree drops degree from order, keeping the others in place.
+func removeDegree(order []int, degree int) []int {
+	for i, d := range order {
+		if d == degree {
+			return append(order[:i], order[i+1:]...)
+		}
+	}
+	return order
 }
 
 func (h *FibonacciHeap) Insert(key int) {

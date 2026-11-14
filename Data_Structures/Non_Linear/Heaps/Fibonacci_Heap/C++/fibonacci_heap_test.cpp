@@ -3,7 +3,14 @@
 #include <cassert>
 #include <type_traits>
 #include <algorithm>
+#include <map>
+#include <stdexcept>
+
+// White-box access: the tie regression test reads min_node, which only a
+// private member can tell (equal keys look the same through peek()).
+#define private public
 #include "fibonacci_heap.cpp"
+#undef private
 using namespace std;
 
 void test_insert_and_peek() {
@@ -106,8 +113,28 @@ void test_consolidation_at_scale() {
     cout << "Consolidation at scale test passed!" << endl;
 }
 
+void test_consolidate_tie_follows_python_order() {
+    // Regression: after consolidation the new minimum is the first smallest root
+    // in Python's degree_table insertion order, where a degree that is deleted
+    // and stored again moves to the end. Here degree 0 holds 3, is deleted when
+    // 3 is linked under the second 2 (degree 1 is stored), then holds the first 2
+    // again: the order is {1, 0}, so Python picks the 2 of degree 1. Scanning the
+    // std::map in degree order picked the other 2.
+    FibonacciHeap heap;
+    for (int k : {1, 2, 2, 3}) heap.insert(k);
+    assert(heap.extract_min() == 1);
+    // Python: root list from min_node is [(2, degree 1, child 3), (2, degree 0)]
+    FibonacciHeapNode* m = heap.min_node;
+    assert(m->key == 2 && m->degree == 1);
+    assert(m->child != nullptr && m->child->key == 3);
+    assert(m->right->key == 2 && m->right->degree == 0);
+    assert(m->right->right == m);
+    cout << "Consolidate tie follows Python order test passed!" << endl;
+}
+
 int main() {
     test_not_copyable();
+    test_consolidate_tie_follows_python_order();
     test_consolidation_at_scale();
     test_insert_and_peek();
     test_extract_min();
