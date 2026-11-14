@@ -6,8 +6,14 @@
 #include <cassert>
 #include <chrono>
 #include <random>
+#include <type_traits>
 #include <utility>
 #include "interval_tree.cpp"
+
+// Regression: the tree owns raw nodes, and the implicit copy freed them twice
+// (ASan heap-use-after-free on `{ IntervalTree b = a; }`). Copying must not compile.
+static_assert(!std::is_copy_constructible<IntervalTree>::value, "IntervalTree must not be copyable");
+static_assert(!std::is_copy_assignable<IntervalTree>::value, "IntervalTree must not be copy-assignable");
 
 typedef std::vector<std::pair<int, int>> Pairs;
 

@@ -146,14 +146,17 @@ class RedBlackTree:
         return result
 
     def _height_recursive(self, node):
-        """Calculate height of subtree."""
+        """Height of the subtree in nodes (the NIL sentinel counts 0)."""
         if node == self.NIL:
             return 0
         return 1 + max(self._height_recursive(node.left),
                       self._height_recursive(node.right))
 
     def height(self):
-        """Calculate the height of the tree."""
+        """Height of the tree counted in NODES: 0 for an empty tree, 1 for a single node.
+
+        (Binary_Tree and Binary_Search_Tree count edges instead: -1 and 0.)
+        """
         return self._height_recursive(self.root)
 
     def _size_recursive(self, node):
