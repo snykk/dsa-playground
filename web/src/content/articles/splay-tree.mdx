@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/Splay_Tree
 title: Splay Tree
 lead: A splay tree is a binary search tree with no balance information. Every access rotates the touched node to the root, which makes every operation O(log n) amortized and makes recently used keys cheap to reach again.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Search, insert, delete
     value: O(log n)
@@ -47,6 +47,12 @@ The price: a single operation can take O(n) (a splay tree built from sorted inse
   legend={{ f: 'root: the most recently accessed key' }}
   caption="A splay tree after inserting 50, 30, 70, 20, 40. The last insert, 40, was splayed to the root."
 />
+
+## See it in action
+
+Run **Zig-zig on a path**: five sorted inserts build a path, and one search for the deepest key folds it roughly in half, each step named zig, zig-zig or zig-zag. **A miss splays too** shows a failed search splaying the last node it reached, and **Delete: split and join** draws the two halves side by side before joining them.
+
+<ArticleViz ids={['splay-tree']} />
 
 ## Operations
 
@@ -96,13 +102,13 @@ Inserting 1, 2, 3 in order gives a left path, because each insert splays the new
 
 ### Worked example: zig-zag
 
-Insert 3, 1, 2. Inserting 2 puts it as the right child of 1, which is the left child of 3, so it is a zig-zag:
+Insert 3, 1, 2. Inserting 1 splays it to the root, so 3 becomes its right child. Then 2 goes right at 1 and left at 3: it is the left child of a right child, so it is a zig-zag:
 
 <TreeDiagram
-  levelOrder={[3, 1, null, null, 2]}
-  tones="rl..p"
+  levelOrder={[1, null, 3, null, null, 2]}
+  tones="r.l..p"
   legend={{ r: 'g', l: 'p', p: 'x, the new node' }}
-  caption="2 has just been attached under 1. Rotating left at 1, then right at 3, lifts it."
+  caption="2 has just been attached under 3. Rotating right at 3, then left at 1, lifts it."
 />
 
 <TreeDiagram

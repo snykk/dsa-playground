@@ -18,6 +18,7 @@ struct FibonacciHeapNode {
 };
 
 class FibonacciHeap {
+private:
     FibonacciHeapNode* min_node;
     int count;
 
@@ -58,6 +59,10 @@ class FibonacciHeap {
         if (min_node == nullptr) return;
         
         map<int, FibonacciHeapNode*> degree_table;
+        // The degrees in the insertion order of Python's dict degree_table: a degree
+        // that is erased and stored again moves to the end. The new minimum is chosen
+        // in this order, so equal keys resolve to the same node as in Python.
+        vector<int> degree_order;
         vector<FibonacciHeapNode*> nodes_to_process;
         
         FibonacciHeapNode* current = min_node;
@@ -75,14 +80,16 @@ class FibonacciHeap {
                 }
                 link(other, node);
                 degree_table.erase(degree);
+                degree_order.erase(find(degree_order.begin(), degree_order.end(), degree));
                 degree++;
             }
             degree_table[degree] = node;
+            degree_order.push_back(degree);
         }
         
         min_node = nullptr;
-        for (auto& pair : degree_table) {
-            FibonacciHeapNode* node = pair.second;
+        for (int degree : degree_order) {
+            FibonacciHeapNode* node = degree_table[degree];
             if (min_node == nullptr || node->key < min_node->key) {
                 min_node = node;
             }

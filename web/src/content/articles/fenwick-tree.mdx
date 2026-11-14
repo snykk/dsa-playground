@@ -67,6 +67,12 @@ There are no pointers: the "tree" is implicit in the index arithmetic. Cell `i` 
 In two's complement, `-i` flips every bit of `i` above the lowest set bit and keeps that bit, so `i & -i` isolates it. Subtracting it from `i` clears the lowest set bit; adding it carries upward and produces the next index whose range covers `i`. Both walks take at most one step per bit of `i`, so O(log n).
 </Callout>
 
+## See it in action
+
+Run **Prefix sum and update (README)**: the pointer `i` descends from cell 5 to cell 4 for `prefix_sum(4)`, then climbs from cell 3 to cell 4 for `update(2, 5)`, and the binary labels under the columns underline the lowest set bit that each step removes or adds. **Index -1 (used to hang)** shows the `IndexError` that replaced the endless loop.
+
+<ArticleViz ids={['fenwick-tree']} />
+
 ## Operations
 
 <DataTable

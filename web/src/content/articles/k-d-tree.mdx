@@ -91,6 +91,12 @@ The same points on a grid (rows are y, columns are x). The root's split is the c
 At a node splitting on axis `a`, points in the left subtree have an `a`-coordinate at most the node's, and points in the right subtree have one at least the node's. (Repeated inserts send equal coordinates right; the median builder can leave an equal coordinate on the left.) The searches below only rely on this split value, so they are correct either way.
 </Callout>
 
+## See it in action
+
+Run **Nearest to (1,3) (README)**: the build draws each split line inside its parent's region, then the search shrinks the best-so-far circle from the root to `(2,3)` and skips every far side whose split line lies outside the circle (hatched). **Sorted inserts: a chain** builds a tree of height 6 that the explicit-stack search still handles.
+
+<ArticleViz ids={['k-d-tree']} />
+
 ## Operations
 
 <DataTable

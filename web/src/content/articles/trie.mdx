@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/Trie
 title: Trie
 lead: A trie (prefix tree) stores strings one character per edge, so words with a common prefix share a path. Insert, search and prefix search cost O(L) for a word of length L, independent of how many words are stored.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Insert
     value: O(L)
@@ -68,6 +68,12 @@ The word marker is essential. `app` is a prefix of `apple`, and only the flag te
 <Callout title="The path is the key">
 There is no key stored in a node. The key is the sequence of edges leading to it, so equal prefixes cost nothing extra and a prefix lookup is just a walk down the tree.
 </Callout>
+
+## See it in action
+
+Run **Shared prefixes** to build the trie above one character at a time and query it, then **Delete prunes upward** to watch the deletes of the table below remove nodes until a word or a branch stops them. Children appear in insertion order, the order Python's dict keeps them in.
+
+<ArticleViz ids={['trie']} />
 
 ## Operations
 

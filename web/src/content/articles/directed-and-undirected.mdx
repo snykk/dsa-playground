@@ -68,6 +68,12 @@ The same five edges as an undirected graph and as a directed one:
 Any undirected graph is a directed graph in which every edge appears in both directions. Many algorithms (BFS, DFS, Dijkstra) are written once for digraphs and work unchanged on undirected graphs stored this way.
 </Callout>
 
+## See it in action
+
+Run **Undirected: stored twice**, then **Directed: stored once**. The same three edges fill both endpoint lists or only the tail's, and on the directed graph `get_degree(1)` has to read every list to count the edges that enter vertex 1.
+
+<ArticleViz ids={['directed-undirected']} />
+
 ## Operations
 
 <DataTable

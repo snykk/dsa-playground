@@ -64,6 +64,12 @@ Four undirected edges give eight stored entries, and `get_edge_count()` reports 
 Because there is no lookup structure, every question that is not "give me all edges" has to read the list. That is the price of the minimal size, and the reason BFS and DFS convert to an adjacency list first or scan repeatedly.
 </Callout>
 
+## See it in action
+
+Run **Counting a self-loop**: every `add_edge` first reads the whole list through `remove_edge`, an undirected edge is appended twice and a self-loop once, and `get_edge_count` counts both correctly. **A repeated edge is replaced** moves the re-added pair to the end of the list.
+
+<ArticleViz ids={['edge-list']} />
+
 ## Operations
 
 <DataTable

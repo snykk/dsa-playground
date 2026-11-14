@@ -85,6 +85,19 @@ void testNegativeValues() {
     cout << "testNegativeValues passed" << endl;
 }
 
+// Regression: on an empty tree the root's segment [0, -1] counted as fully
+// covered by any range with left <= -1 <= right, so tree[1] was read and
+// written out of bounds.
+void testEmptyArrayAnyRange() {
+    LazySegmentTree st(vector<int>{});
+    int ranges[][2] = {{0, 0}, {-1, 0}, {-3, 5}, {-1, -1}, {2, 1}};
+    for (auto& r : ranges) {
+        st.updateRange(r[0], r[1], 5);
+        assert(st.query(r[0], r[1]) == 0);
+    }
+    cout << "testEmptyArrayAnyRange passed" << endl;
+}
+
 void testRandomAgainstBruteForce() {
     mt19937 rng(5);
     for (int n = 1; n <= 40; n++) {
@@ -117,6 +130,7 @@ int main() {
     testFullRangeUpdate();
     testSingleElementArray();
     testNegativeValues();
+    testEmptyArrayAnyRange();
     testRandomAgainstBruteForce();
     cout << "\nAll tests passed!" << endl;
     return 0;

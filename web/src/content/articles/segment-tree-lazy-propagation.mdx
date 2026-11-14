@@ -39,6 +39,12 @@ This repository's tree is **recursive**: node 1 is the root and covers `[0, n - 
 A tag on a node means "everything below me still owes this much per element". The node's own sum already includes it. Before any operation looks into a node's children, the tag is **pushed down** (applied to both children and cleared), so a child's sum can be trusted whenever its parent has no tag.
 </Callout>
 
+## See it in action
+
+Run **Tags park, then push (README)**: `update_range(1, 4, 3)` stops at the three fully covered nodes and leaves a `+3` pill on each, while the leaves under `[3-4]` keep their old sums; `query(3, 3)` then splits that pill and drops one copy on each child. The **a[i] now** row under the tree shows the true values that the stale nodes still owe.
+
+<ArticleViz ids={['segment-tree-lazy']} />
+
 ## Operations
 
 <DataTable
@@ -50,7 +56,7 @@ A tag on a node means "everything below me still owes this much per element". Th
   ]}
 />
 
-The method names are `update_range` and `query` in Python, `updateRange` and `query` in C++, `UpdateRange` and `Query` in Go. The Go and C++ versions take the update value as a 64-bit integer and return 64-bit sums, and Python integers are unbounded. Ranges are 0-based and inclusive. There is no point-assignment and no index validation: a range outside the array is simply clipped by the recursion.
+The method names are `update_range` and `query` in Python, `updateRange` and `query` in C++, `UpdateRange` and `Query` in Go. The Go and C++ versions take the update value as a 64-bit integer and return 64-bit sums, and Python integers are unbounded. Ranges are 0-based and inclusive. There is no point-assignment and no index validation: a range outside the array is simply clipped by the recursion. On an empty array both methods return at once (`query` gives 0).
 
 ### Range update
 
@@ -132,7 +138,7 @@ Running the repository code on this input confirms the numbers: `query(3, 3)` re
 
 ## Implementation
 
-The three versions are the same: a recursive `build`, a `push_down` that applies a tag to both children (scaling by each child's length) and clears it, and recursive update and query functions with the three cases above. The tests cover the examples here, single-element arrays, negative values, repeated overlapping updates and a random differential test against brute force.
+The three versions are the same: a recursive `build`, a `push_down` that applies a tag to both children (scaling by each child's length) and clears it, and recursive update and query functions with the three cases above. The tests cover the examples here, single-element arrays, negative values, repeated overlapping updates, an empty array with ranges that stick out of it, and a random differential test against brute force.
 
 <TopicCode topic="Data_Structures/Non_Linear/Trees/Segment_Tree_Lazy_Propagation" />
 

@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/Interval_Tree
 title: Interval Tree
 lead: An interval tree stores intervals in a binary search tree ordered by their left end, and keeps in every node the largest right end found below it. That one extra number lets an overlap query skip whole subtrees that cannot contain a match.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Insert
     value: O(h)
@@ -68,6 +68,12 @@ Inserting `[15, 20]`, `[10, 30]`, `[17, 19]`, `[5, 20]`, `[12, 15]`, `[30, 40]` 
 <Callout title="max is what makes pruning possible">
 If a subtree's `max` is smaller than the query's `low`, no interval in it reaches the query, so the whole subtree is skipped. Keeping `max` correct is the only extra work an update has to do.
 </Callout>
+
+## See it in action
+
+Run **Prune by max (article)** to insert the six intervals (max rises along each insert path) and query `[22, 26]`: the subtree under `[5, 20]` is greyed out because its max, 20, is below 22. **Delete with two children** copies the successor up, and **Touching ends, ValueError** shows closed intervals and a rejected one.
+
+<ArticleViz ids={['interval-tree']} />
 
 ## Operations
 

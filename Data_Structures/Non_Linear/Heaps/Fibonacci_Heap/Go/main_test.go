@@ -143,3 +143,29 @@ func TestEmptyHeapPanics(t *testing.T) {
 		}()
 	}
 }
+
+// Regression: after consolidation the new minimum is the first smallest root in
+// Python's degree_table insertion order, where a degree that is deleted and stored
+// again moves to the end. Here degree 0 holds 3, is deleted when 3 is linked under
+// the second 2 (degree 1 is stored), then holds the first 2 again: the order is
+// {1, 0}, so Python picks the 2 of degree 1. Ranging over the Go map picked either
+// 2 at random, so the test repeats the run.
+func TestConsolidateTieFollowsPythonOrder(t *testing.T) {
+	for run := 0; run < 200; run++ {
+		heap := NewFibonacciHeap()
+		for _, k := range []int{1, 2, 2, 3} {
+			heap.Insert(k)
+		}
+		if got := heap.ExtractMin(); got != 1 {
+			t.Fatalf("run %d: expected 1, got %d", run, got)
+		}
+		// Python: root list from min_node is [(2, degree 1, child 3), (2, degree 0)]
+		m := heap.minNode
+		if m.key != 2 || m.degree != 1 || m.child == nil || m.child.key != 3 {
+			t.Fatalf("run %d: min_node should be the 2 of degree 1 with child 3, got key %d degree %d", run, m.key, m.degree)
+		}
+		if r := m.right; r.key != 2 || r.degree != 0 || r.right != m {
+			t.Fatalf("run %d: the next root should be the 2 of degree 0, got key %d degree %d", run, r.key, r.degree)
+		}
+	}
+}

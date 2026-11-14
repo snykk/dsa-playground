@@ -54,6 +54,12 @@ Position 0 is unused. The padding zeros do not disturb sums because 0 is the ide
 The tree has `log2(size)` levels. A range query takes at most two nodes per level, one on each boundary of the range, so it touches O(log n) nodes. An update changes one leaf and the one ancestor on each level above it.
 </Callout>
 
+## See it in action
+
+Run **Query and update (README)**: the pointers `l` and `r` start on leaves 9 and 12, add the two leaves whose parents stick out of the range, climb one level and stop on node 5, then `update(2, 10)` recomputes one block per level up to the root. **Bad indices (IndexError)** shows the checks that keep `get(-1)` from reading an internal node.
+
+<ArticleViz ids={['segment-tree']} />
+
 ## Operations
 
 <DataTable

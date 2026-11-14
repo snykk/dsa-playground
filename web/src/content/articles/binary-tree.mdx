@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/Binary_Tree
 title: Binary Tree
 lead: A binary tree is a hierarchy in which every node has at most two children, a left one and a right one. It is the shape underneath heaps, search trees, expression trees and many divide-and-conquer structures, and its four traversals are the basic vocabulary of tree algorithms.
 level: Beginner
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Insert (level order)
     value: O(n)
@@ -47,6 +47,12 @@ Unlike a binary search tree, a plain binary tree places no ordering rule on its 
 <Callout title="The shape this code builds">
 `insert` places each new value in the first free slot found in level order, left to right. The result is always a **complete** tree: every level is full except possibly the last, which fills from the left. That is why the height stays at floor(log<sub>2</sub> n) and why a heap can store the same shape in an array.
 </Callout>
+
+## See it in action
+
+Run **Seven nodes, every order** to build the tree above and walk it in all four orders: the call stack (or, for level order, the queue) and the result grow one node at a time. **Level-order insert** shows the queue finding the first free slot, and **Height (edges) and size** shows each subtree's value coming back up the recursion.
+
+<ArticleViz ids={['binary-tree-traversals']} />
 
 ## Operations
 

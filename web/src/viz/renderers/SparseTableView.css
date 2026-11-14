@@ -1,0 +1,13 @@
+/* SparseTableView organism: the array, two sliding window rows and the table levels. */
+.sparse-view {
+  overflow-x: auto;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.sparse-note {
+  margin: 0.4rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
