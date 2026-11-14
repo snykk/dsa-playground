@@ -1,52 +1,91 @@
 # Changelog
 
-Every release of this repository, newest first. When a version's tag is pushed, the release workflow publishes that version's section as its GitHub Release notes; RELEASING.md describes the flow.
+All notable changes to this repository, newest first. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/): each release groups its changes under Added, Changed, Removed and Fixed, in that order. Versions follow [Semantic Versioning](https://semver.org/) with a `v` prefix.
+
+Each version is an annotated git tag on `master`. When it is pushed, the release workflow publishes that version's section below as its GitHub Release notes; RELEASING.md describes the flow.
+
+## Versioning guide
+
+Before v1.0.0:
+
+- **MINOR** (`v0.3.0`): new topics, visualizations or site features.
+- **PATCH** (`v0.3.1`): fixes only, in the code, the tests, the documents or the site.
+
+## Unreleased
+
+Changes on `master` that are not in a release yet.
 
 ## [v0.3.0] - 2026-11-14
 
 Visualizations for every linear structure, hashing topic and cache, and the overview and study guide as articles.
 
-- Web site:
-  - 25 new visualizations for 21 topics, now 78 covering 73 topics:
-    - the dynamic array, the singly, doubly and circular linked lists, and the skip list
-    - the three stacks and the four queues, with the priority queue drawn as a heap
-    - string basics, string manipulation and the rope
-    - hash tables and sets, collision handling with chaining, linear and quadratic probing, the Bloom filter, and the LRU and LFU caches
-  - new renderers for them: linked nodes with their pointers, a ring buffer, a heap as a tree and an array, a rope, an open-addressing table and a Bloom filter's bit array
-  - the overview and the study guide are hand-written pages; the study guide lists every topic by phase, and a test keeps it in step with STUDY_GUIDE.md
-  - every page that embeds a visualization is marked as visualized, and a test keeps the catalog and the pages in agreement
-  - wide array diagrams and long key facts fit a phone screen
-- Repository:
-  - golden fixtures pin each new TypeScript port to the Python implementation
-  - the C++ stack and circular queue tests check that those classes cannot be copied
+### Added
+
+- **25 visualizations for 21 topics**, bringing the site to 78 visualizations covering 73 of the 153 topics:
+  - the dynamic array, the singly, doubly and circular linked lists, and the skip list;
+  - the static, dynamic and linked-list stacks, the simple and circular queues, the deque, and the priority queue drawn as a heap;
+  - string basics, string manipulation and the rope;
+  - the hash table and hash set, collision handling with chaining, linear and quadratic probing, the Bloom filter, and the LRU and LFU caches.
+- **Renderers for them**: linked nodes with their pointers and named references, a ring buffer, a heap drawn as a tree and an array at once, a rope, an open-addressing table and a Bloom filter's bit array.
+- **Golden fixtures for the new visualizations**: four generators run the Python implementations, and the TypeScript ports must reproduce every result.
+- **The overview and the study guide as hand-written pages**, at `/overview/` and `/study-guide/`. The study guide lists every topic by phase, with its level and whether it is visualized.
+- **Tests that keep the pages honest**: the study guide must list every topic once, in the order of `STUDY_GUIDE.md`, and the visualization catalog must register exactly the pages that embed each visualization.
+- **Copy checks for the C++ stacks and circular queue**: their tests assert at compile time that these classes, which own raw memory, cannot be copied.
+
+### Changed
+
+- **Area overviews are marked as visualized**: twelve overviews that embed visualizations were not registered for them, so the navigation marked Sorting but not Searching. All are registered now.
+- **The README** counts the 73 topics the site animates.
+- **The dynamic array stack's README** says that CPython's list shrinks on pop, unlike the C++ and Go versions.
+
+### Fixed
+
+- **Pages fit a phone screen**: at a width of 390px, more than twenty pages scrolled sideways, because wide array diagrams and long key facts were wider than the page.
+- **The home page and the footer**: the home page no longer says that every topic has a visualization, and the footer no longer says that the content comes from the READMEs.
 
 ## [v0.2.0] - 2026-11-13
 
 A web site for the repository, an article for every topic and area, and one name and one home for every topic.
 
-- Web site (`web/`, Astro), deployed to GitHub Pages once the repository is public:
-  - a hand-written article for each of the 153 topics and an overview for each of the 50 areas that group topics
-  - the Python, C++ and Go sources of every topic as tabs
-  - 53 interactive visualizations covering 52 topics; their TypeScript ports are checked against the Python code with golden fixtures
-- Repository:
-  - every content folder named in one convention, ASCII `Title_Case_With_Underscores`
-  - Suffix Array, Pattern Matching, Union-Find and Hash Map merged into one topic each; folders that only pointed elsewhere removed
-  - every topic, language and category README rewritten to a template, without emoji
-  - bugs fixed in all three languages across the topics, for example in the B-Tree, splay tree, network flow, FFT and convex hull implementations
-- Tooling:
-  - CI on release branches and pull requests, with a time limit on every job, C++ under AddressSanitizer and UndefinedBehaviorSanitizer, and README and broken-link checks
-  - RELEASING.md, CHANGELOG.md and a workflow that publishes a GitHub Release for each version tag
+### Added
+
+- **The web site** (`web/`, Astro), deployed to GitHub Pages once the repository is public:
+  - a hand-written article for each of the 153 topics, and an overview for each of the 50 areas that group topics;
+  - the Python, C++ and Go sources of every topic as tabs;
+  - 53 interactive visualizations covering 52 topics, whose TypeScript ports are checked against the Python code with golden fixtures.
+- **Galois Field and erasure decoding**: a GF(2^8) arithmetic topic, and Reed-Solomon decoders that take erasures and a first consecutive root, in all three languages.
+- **Release tooling**: RELEASING.md, this changelog, and a workflow that publishes a GitHub Release for each version tag.
+- **CI on release branches and pull requests**, with a time limit on every job, the C++ tests under AddressSanitizer and UndefinedBehaviorSanitizer, a check of every README, and a build that fails on a broken link.
+
+### Changed
+
+- **One naming convention**: every content folder is named in ASCII `Title_Case_With_Underscores`.
+- **One home per topic**: Suffix Array, Pattern Matching, Union-Find and Hash Map are one topic each, MST lives under Graph Algorithms and Closest Pair under Geometry.
+- **READMEs rewritten to templates**: every topic, language and category README, without emoji; the root README, the study guide and CONTRIBUTING describe the repository as it is.
+- **The complexity topics** teach O, Omega and Theta as bounds, not as best, average and worst cases.
+
+### Removed
+
+- **Folders that only pointed at a topic elsewhere**, and the duplicates merged above. With those merges and the new Galois Field topic, the repository has 153 topics, where v0.1.0 had 155.
+
+### Fixed
+
+- **Bugs in all three languages across the topics**, among them the B-Tree, splay and treap deletes, network flow capacities, FFT, extended gcd and 64-bit modular products, convex hulls and segment intersection, Bloom filter sizing, open addressing, and lists deleting their only node.
+- **The Python tests no longer hang**: a splay tree search miss looped forever. Every Python and C++ test now runs under a time limit, and the test runners report a timeout as a timeout.
+- **C++ geometry on GCC**: each cross-product term is rounded on its own, so a fused multiply-add cannot break a collinear test.
 
 ## [v0.1.0] - 2026-11-12
 
 Data structures and algorithms implemented in Python, C++ and Go.
 
-- 155 topics, each with a README and an implementation plus unit tests in all three languages:
-  - Data structures (50): linear, trees, heaps, graphs, hashing, advanced structures
-  - Algorithms (80): sorting, searching, dynamic programming, graphs, strings, math, greedy, geometry, divide and conquer, randomized, backtracking, specialized techniques
-  - Problem patterns (13), complexity analysis (5), competitive programming utilities (7)
-- `make test` runs the Python, C++ and Go suites; GitHub Actions CI runs them on every push
-- STUDY_GUIDE.md: a structured learning path
+### Added
+
+- **155 topics**, each with a README and an implementation plus unit tests in all three languages:
+  - data structures (50): linear, trees, heaps, graphs, hashing, advanced structures;
+  - algorithms (80): sorting, searching, dynamic programming, graphs, strings, math, greedy, geometry, divide and conquer, randomized, backtracking, specialized techniques;
+  - problem patterns (13), complexity analysis (5), competitive programming utilities (7).
+- **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
+- **STUDY_GUIDE.md**: a structured learning path.
 
 [v0.3.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.3.0
 [v0.2.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.2.0

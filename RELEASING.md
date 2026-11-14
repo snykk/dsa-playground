@@ -21,7 +21,22 @@ Every change reaches `master` through a release branch and a pull request that t
 
 3. Close the release on its branch:
    - if the release changes something README.md states, update README.md;
-   - add the commit `docs: record vX.Y.Z in the changelog`. It puts a section `## [vX.Y.Z] - YYYY-MM-DD` at the top of CHANGELOG.md, saying what the release contains, and adds the footer link `[vX.Y.Z]: https://github.com/snykk/dsa-playground/releases/tag/vX.Y.Z`.
+   - add the commit `docs: record vX.Y.Z in the changelog`. It adds a section `## [vX.Y.Z] - YYYY-MM-DD` under `## Unreleased` in CHANGELOG.md, moving into it anything listed under Unreleased, and the footer link `[vX.Y.Z]: https://github.com/snykk/dsa-playground/releases/tag/vX.Y.Z`. The section follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/):
+
+     ```text
+     ## [vX.Y.Z] - YYYY-MM-DD
+
+     One sentence: what the release is about.
+
+     ### Added
+     - **What is new**: one line a reader can act on, then the detail.
+
+     ### Changed
+     ### Removed
+     ### Fixed
+     ```
+
+     Use only the headings the release needs, in Keep a Changelog's order: Added, Changed, Deprecated, Removed, Fixed, Security. Write each entry for someone using the repository or the site, not as a list of commits.
 
 4. Check everything locally:
 
@@ -61,6 +76,8 @@ Versions follow SemVer with a `v` prefix. Before v1.0.0:
 ## If a release goes out wrong
 
 A published tag is never moved or deleted, because others may already have fetched it. A wrong release is fixed by a patch release with its own changelog section.
+
+Release notes are not part of the tag. To correct a published version's notes, fix its CHANGELOG section on `master` through a pull request, then run `gh workflow run release.yml -f tag=vX.Y.Z`: a dispatch reads the CHANGELOG on `master` and replaces that release's notes, and the tag stays where it is.
 
 ## Repository settings
 
