@@ -1,0 +1,148 @@
+/* GraphRepresentationView organism: the drawn graph next to its stored form. */
+.grep-wrap {
+  overflow-x: auto;
+}
+.grep-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  justify-content: center;
+  align-items: flex-start;
+}
+.grep-panel {
+  margin: 0;
+  min-width: 0;
+}
+.grep-graph {
+  flex: 0 1 280px;
+}
+.grep-store {
+  flex: 1 1 340px;
+  max-width: 100%;
+}
+.grep-title {
+  margin: 0 0 4px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.gr-graph {
+  display: block;
+  margin: 0 auto;
+  max-width: 300px;
+}
+.gr-graph text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.gr-graph .gr-edge path {
+  stroke: var(--axis);
+  stroke-width: 2;
+  fill: none;
+  transition:
+    stroke 0.25s ease,
+    stroke-width 0.25s ease;
+}
+.gr-graph .gr-edge:not(.role-idle):not(.role-muted) path {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.gr-graph .gr-edge.role-compare path {
+  stroke-dasharray: 8 5;
+  animation: viz-march 0.8s linear infinite;
+}
+.gr-graph .gr-edge.role-muted path {
+  stroke-dasharray: 5 4;
+  opacity: 0.6;
+}
+.gr-graph .gr-weight {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+}
+.gr-graph .gr-edge:not(.role-idle):not(.role-muted) .gr-weight {
+  fill: var(--role);
+}
+
+/* The edge list: one cell per tuple, over a frame per index. */
+.gr-cells {
+  display: block;
+  margin: 0 auto;
+}
+.gr-cells text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.gr-cells .gr-frame {
+  fill: none;
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.gr-cells .gr-index {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.gr-cells .gr-cell rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 2;
+  transition: fill 0.2s ease;
+}
+.gr-cells .gr-cell.role-idle rect,
+.gr-cells .gr-cell.role-muted rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+}
+.gr-cells .gr-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 16%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.gr-cells .gr-cell.role-muted rect {
+  stroke-dasharray: 4 3;
+}
+.gr-cells .gr-cell.ghost {
+  opacity: 0.35;
+}
+.gr-cells .gr-cell-label {
+  fill: var(--viz-ink-on-fill);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.gr-cells .gr-cell.role-idle .gr-cell-label,
+.gr-cells .gr-cell.role-muted .gr-cell-label,
+.gr-cells .gr-cell.role-compare .gr-cell-label {
+  fill: var(--text);
+}
+.gr-cells .gr-cell.role-muted .gr-cell-label {
+  fill: var(--text-3);
+}
+.gr-cells .gr-cell-glyph {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: end;
+  dominant-baseline: hanging;
+}
+.gr-cells .gr-cell.role-active rect,
+.gr-cells .gr-cell.role-good rect,
+.gr-cells .gr-cell.role-bad rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.4s ease;
+}
+.gr-cells .gr-empty {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-anchor: start;
+}

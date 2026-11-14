@@ -52,6 +52,12 @@ A binary heap is one tree stored in an array and kept tidy after every operation
 Insert does no comparisons with the rest of the heap and no tree merging. It just splices a one-node tree into the root list. The cost of the mess is paid later by extract-min, which cleans up all the trees in one sweep.
 </Callout>
 
+## See it in action
+
+Run **Seven inserts, then consolidate**, the example of the next sections: the inserts only splice nodes into the root list next to `min_node`, and the first `extract_min` fills `degree_table` slot by slot, linking trees of equal degree. **Binomial trees from 1 to 9** builds trees of degree 3. There is no decrease-key to try, because the class has none.
+
+<ArticleViz ids={['fibonacci-heap']} />
+
 ## Operations
 
 <DataTable

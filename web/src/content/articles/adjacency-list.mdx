@@ -63,6 +63,12 @@ Eight list entries describe four edges. A directed edge `u -> v` would appear on
 The lists hold exactly the edges that exist, so the total length is E for a directed graph and 2E for an undirected one. A sparse graph with a million vertices and a few million edges fits easily, where a V &times; V table would not.
 </Callout>
 
+## See it in action
+
+Run **One graph, three layouts** to see every undirected edge appended to both lists, and **Directed and weighted** to see `add_edge(0, 1, 7)` remove the entry `(1, 4)` before it appends `(1, 7)`, so the edge is replaced rather than stored twice. The same scripts run on the Adjacency Matrix and Edge List pages, so you can compare the three layouts.
+
+<ArticleViz ids={['adjacency-list']} />
+
 ## Operations
 
 <DataTable

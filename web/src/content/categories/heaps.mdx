@@ -64,6 +64,12 @@ A heap is not a search structure. Finding an arbitrary value costs O(n), and ite
 
 The Fibonacci heap in this repository is the lazy core only: `insert`, `extract_min`, `peek`, `size`, `is_empty` and `clear`. It has no `decrease_key`, `delete` or `merge`, which are the operations that make a full Fibonacci heap worth its weight.
 
+## See them side by side
+
+The three tabs share their script, so paste `insert 9, insert 4, insert 7, insert 1, insert 8, insert 2, insert 6, extract, extract`, the keys of the next section, and switch tabs: the binary heaps swap along one root-to-leaf path per operation, while the Fibonacci heap only splices nodes into its root list until the first `extract_min` consolidates them.
+
+<ArticleViz ids={['min-heap', 'max-heap', 'fibonacci-heap']} />
+
 ## The same keys through all three
 
 Insert the keys `9 4 7 1 8 2 6` into each heap, then read the root and extract everything. The results come from running the Python classes.
