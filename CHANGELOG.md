@@ -15,6 +15,38 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+## [v0.4.0] - 2026-11-14
+
+Visualizations for every tree, heap and graph representation in the repository.
+
+### Added
+
+- **23 visualizations for 23 topics**, bringing the site to 101 visualizations covering 96 of the 153 topics:
+  - binary and balanced trees: the binary tree's traversals, the red-black tree, the splay tree, the treap, the Cartesian tree and the interval tree;
+  - multiway and string trees: the B-tree, the B+ tree, the trie and the suffix tree;
+  - range queries and space: the segment tree, the lazy segment tree, the Fenwick tree, the sparse table and the K-D tree;
+  - heaps: the min heap, the max heap and the Fibonacci heap;
+  - graph representations: the adjacency list, the adjacency matrix, the edge list, directed and undirected graphs, and weighted and unweighted graphs.
+- **Renderers for them**: nodes that hold several keys, with labelled edges; segment trees drawn over their ranges; a sparse table; a K-D tree beside its 2D plane; a Fibonacci heap's root ring and degree table; and a graph beside how a class stores it. The binary tree renderer gains labels, colours and trees side by side, and draws the BST and AVL tree exactly as before.
+- **Side-by-side tabs on the overviews**: six search trees on the Trees overview, and every heap and graph representation on the Heaps and Graph overviews.
+- **Golden fixtures for the new visualizations**: four generators run the Python implementations, and the TypeScript ports must reproduce every result.
+- **A copy check for the C++ interval tree**: its test asserts at compile time that the class, which owns raw memory, cannot be copied.
+
+### Changed
+
+- **The red-black tree's README and docstring** say that `height()` counts nodes, as the code does.
+- **The README** counts the 96 topics the site animates.
+
+### Removed
+
+- **The dot in the sidebar** next to every visualized topic, which cluttered the navigation.
+
+### Fixed
+
+- **A lazy segment tree over an empty array**: a range such as `[-1, 0]` read node 1 of an empty tree, raising IndexError in Python, writing out of bounds in C++ and panicking in Go. It now returns at once in all three languages.
+- **Fibonacci heap ties**: with equal keys, the C++ and Go heaps could pick a different minimum from Python, and Go a different one on every run. Both now follow Python's order.
+- **Three article statements**: the splay tree's zig-zag example, the weighted graph's total weight, which is the float `22.0`, and a self-loop, which is stored once.
+
 ## [v0.3.0] - 2026-11-14
 
 Visualizations for every linear structure, hashing topic and cache, and the overview and study guide as articles.
@@ -87,6 +119,7 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
+[v0.4.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.4.0
 [v0.3.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.3.0
 [v0.2.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.1.0
