@@ -1,0 +1,98 @@
+/* FibonacciHeapView organism: the root list, tree edges, references and the degree table. */
+.fib-wrap {
+  overflow-x: auto;
+}
+.fib-view {
+  display: block;
+  margin: 0 auto;
+}
+.fib-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+.fib-view .fh-ring,
+.fib-view .fh-wrap {
+  stroke: var(--axis);
+  stroke-width: 1.5;
+  fill: none;
+}
+.fib-view .fh-wrap {
+  stroke-dasharray: 5 4;
+}
+
+.fib-view .fh-edge {
+  stroke: var(--axis);
+  stroke-width: 2;
+  transition: stroke 0.25s ease;
+}
+.fib-view .fh-edge.role-compare,
+.fib-view .fh-edge.role-active,
+.fib-view .fh-edge.role-done {
+  stroke: var(--role);
+  stroke-width: 3;
+}
+
+.fib-view .fh-tag {
+  fill: var(--text-2);
+  font-size: 11px;
+  font-weight: 600;
+}
+.fib-view .fh-ptr {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.fib-view .fh-ptr:not(.role-idle) {
+  fill: var(--role);
+}
+
+/* degree_table: one cell per degree, filled with the root stored there. */
+.fib-view .fh-table-label {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-anchor: start;
+}
+.fib-view .fh-cell rect {
+  fill: none;
+  stroke: var(--grid);
+  stroke-width: 1.5;
+}
+.fib-view .fh-cell.filled rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+}
+.fib-view .fh-cell:not(.role-idle) rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.fib-view .fh-cell.role-muted rect {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 4 3;
+}
+.fib-view .fh-cell-label {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.fib-view .fh-cell:not(.role-idle):not(.role-muted) .fh-cell-label {
+  fill: var(--viz-ink-on-fill);
+}
+.fib-view .fh-index {
+  fill: var(--text-3);
+  font-size: 11px;
+}
+
+.fib-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}

@@ -60,6 +60,12 @@ Number the vertices `0..V-1` and keep a V &times; V table. Row `i`, column `j` d
 Reading row `i` lists the neighbors of `i`. Reading column `j` lists the vertices with an edge into `j`. For an undirected graph the two agree, so you only ever need one of them.
 </Callout>
 
+## See it in action
+
+Run **Self-loop and zero weight**: `add_edge(0, 1, 0)` stores the weight 0, and the filled cells (where `present` is True) keep it apart from "no edge". `get_neighbors` reads a whole row, and **Out of range: ValueError** shows that the matrix cannot grow past its `n`.
+
+<ArticleViz ids={['adjacency-matrix']} />
+
 ## Operations
 
 <DataTable

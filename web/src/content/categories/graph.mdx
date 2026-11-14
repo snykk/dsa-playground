@@ -65,7 +65,13 @@ Each representation answers one of these in constant or near-constant time and p
   ]}
 />
 
-An undirected edge is stored once per direction in all three: two list entries, two mirrored matrix cells, two edge-list entries. The edge list counts it once in `get_edge_count()`.
+An undirected edge is stored once per direction in all three: two list entries, two mirrored matrix cells, two edge-list entries. A self-loop is stored once. The edge list counts it once in `get_edge_count()`.
+
+## See them side by side
+
+The first three tabs share their script, so paste `weighted; n 4; add 0 1 4, add 0 2 1, add 1 2 2, add 2 3 5, neighbors 2, has 3 0, weight 1 2`, the graph of the next section, and switch tabs to watch the same calls write list entries, matrix cells or edge tuples. The last two tabs run the `Graph` class (switch the first word between `directed` and `undirected`) and `WeightedGraph`.
+
+<ArticleViz ids={['adjacency-list', 'adjacency-matrix', 'edge-list', 'directed-undirected', 'weighted-unweighted']} />
 
 ## One graph, three layouts
 

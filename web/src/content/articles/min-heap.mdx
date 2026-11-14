@@ -55,6 +55,12 @@ The order rule says nothing about siblings or cousins. A heap is only *partially
 A heap does not keep everything sorted: in the example, 9 comes before 8 and 7 in the array even though it is larger. It only promises that every path from the root down is non-decreasing. Repairing that promise after a change touches one root-to-leaf path, which has length about log<sub>2</sub>(n).
 </Callout>
 
+## See it in action
+
+Run **Build bottom-up (heapify)** to watch the constructor sift down indices 2, 1 and 0 of `[9, 5, 7, 1, 3, 8, 2]`, the example worked below, and **Extract: sift down** to see the last element jump to the root and sink. The tree and the array are the same list, so every swap moves in both, and **Ties and duplicates** shows that equal keys never swap.
+
+<ArticleViz ids={['min-heap']} />
+
 ## Operations
 
 <DataTable

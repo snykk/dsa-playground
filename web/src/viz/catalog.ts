@@ -12,6 +12,7 @@ import * as graphStructure from './registry/graphStructure';
 import * as graphTraversal from './registry/graphTraversal';
 import * as greedy from './registry/greedy';
 import * as hashing from './registry/hashing';
+import * as heaps from './registry/heaps';
 import * as linear from './registry/linear';
 import * as multiwayTrees from './registry/multiwayTrees';
 import * as patterns from './registry/patterns';
@@ -73,6 +74,7 @@ export const REGISTRIES = [
   searching,
   linear,
   hashing,
+  heaps,
   graphTraversal,
   shortestPaths,
   graphStructure,

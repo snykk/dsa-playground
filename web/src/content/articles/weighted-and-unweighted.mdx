@@ -61,6 +61,12 @@ Its adjacency list, with each undirected edge stored in both endpoints:
 In an unweighted graph the shortest path has the fewest edges. In a weighted graph it has the smallest total weight, and those two paths can be different.
 </Callout>
 
+## See it in action
+
+Run **Weights and the 1.0 default**: `add_edge(0, 2)` without a weight stores `(2, 1.0)`, so an unweighted edge is one with weight 1.0. **Zero, negative and 0.1 + 0.2** shows that 0 and negative weights are ordinary edges and that `get_total_weight` adds Python floats.
+
+<ArticleViz ids={['weighted-unweighted']} />
+
 ## Operations
 
 <DataTable
@@ -81,7 +87,7 @@ Python also has `get_edges`, `get_vertices`, `dfs`, `dfs_recursive` and `is_conn
 
 ### Total weight
 
-For the graph above, the undirected edges once each weigh 4 + 1 + 2 + 5 + 10 = 22, which is what `get_total_weight()` returns. The method deduplicates the mirror entries; on a directed graph it just sums all entries.
+For the graph above, the undirected edges once each weigh 4 + 1 + 2 + 5 + 10 = 22, and `get_total_weight()` returns it as the float `22.0`, because the sum starts at `0.0`. The method deduplicates the mirror entries; on a directed graph it just sums all entries.
 
 ### Zero and negative weights
 
