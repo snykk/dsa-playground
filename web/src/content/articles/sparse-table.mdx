@@ -54,6 +54,12 @@ The problem: a fixed array and many queries "what is the minimum of `a[l..r]`?" 
 For minimum, counting an element twice changes nothing: `min(x, x) = x`. Operations with this property are called **idempotent** (min, max, gcd, bitwise AND and OR). That is why two overlapping windows suffice. For a sum the overlapped part would be counted twice, so a sparse table cannot answer sums in O(1).
 </Callout>
 
+## See it in action
+
+Run **Min of a[2..8] (README)**: the build slides two half-windows along each level, then the query reads `table[2][2]` and `table[5][2]`, two windows of four that overlap on `a[5]`. **Sum is rejected (ValueError)** shows why the constructor accepts only `min` and `max`.
+
+<ArticleViz ids={['sparse-table']} />
+
 ## Operations
 
 <DataTable

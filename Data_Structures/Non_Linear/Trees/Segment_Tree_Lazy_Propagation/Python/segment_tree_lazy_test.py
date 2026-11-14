@@ -111,6 +111,15 @@ class TestLazySegmentTree(unittest.TestCase):
         st.update_range(0, 0, 5)
         self.assertEqual(st.query(0, 0), 0)
 
+    def test_empty_array_any_range(self):
+        # Regression: on an empty tree the root's segment [0, -1] counted as
+        # fully covered by any range with left <= -1 <= right, so tree[1]
+        # was read from an empty list (IndexError).
+        st = LazySegmentTree([])
+        for left, right in ((-1, 0), (-3, 5), (-1, -1), (2, 1)):
+            st.update_range(left, right, 5)
+            self.assertEqual(st.query(left, right), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

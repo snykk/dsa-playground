@@ -158,3 +158,16 @@ func TestRandomAgainstBruteForce(t *testing.T) {
 		}
 	}
 }
+
+// Regression: on an empty tree the root's segment [0, -1] counted as fully
+// covered by any range with left <= -1 <= right, so tree[1] was indexed in an
+// empty slice (panic).
+func TestEmptyArrayAnyRange(t *testing.T) {
+	st := NewLazySegmentTree([]int{})
+	for _, r := range [][2]int{{0, 0}, {-1, 0}, {-3, 5}, {-1, -1}, {2, 1}} {
+		st.UpdateRange(r[0], r[1], 5)
+		if got := st.Query(r[0], r[1]); got != 0 {
+			t.Errorf("query(%d, %d) = %d on an empty tree, want 0", r[0], r[1], got)
+		}
+	}
+}

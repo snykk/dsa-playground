@@ -1,0 +1,151 @@
+/* SegmentTreeView organism: blocks over array columns, the query band, pointer and tag pills. */
+.seg-wrap {
+  overflow-x: auto;
+}
+.seg-view {
+  display: block;
+  margin: 0 auto;
+}
+.seg-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The query range: a light band behind every row. */
+.seg-view .seg-band rect {
+  fill: color-mix(in srgb, var(--role) 12%, transparent);
+  stroke: color-mix(in srgb, var(--role) 55%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+}
+.seg-view .seg-band text {
+  fill: var(--role);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* One node: a block spanning its columns. */
+.seg-view .seg-block rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease;
+}
+.seg-view .seg-block.role-idle rect,
+.seg-view .seg-block.role-muted rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+}
+.seg-view .seg-block.role-muted {
+  opacity: 0.4;
+}
+.seg-view .seg-block.pad rect {
+  stroke-dasharray: 4 3;
+}
+.seg-view .seg-block .seg-value {
+  fill: var(--viz-ink-on-fill);
+  font-size: 12px;
+  font-weight: 700;
+}
+.seg-view .seg-block.role-idle .seg-value,
+.seg-view .seg-block.role-muted .seg-value {
+  fill: var(--text);
+}
+.seg-view .seg-block.pad .seg-value {
+  fill: var(--text-3);
+  font-weight: 400;
+}
+.seg-view .seg-block.role-active rect,
+.seg-view .seg-block.role-good rect,
+.seg-view .seg-block.role-bad rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.35s ease;
+}
+.seg-view .seg-badge {
+  text-anchor: start;
+  fill: var(--text-3);
+  font-size: 9.5px;
+}
+.seg-view .seg-glyph {
+  text-anchor: end;
+  fill: var(--role);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Pills: lazy tags (resting and in flight) and named pointers. */
+.seg-view .seg-pill rect {
+  fill: var(--viz-surface);
+  stroke: var(--text-2);
+  stroke-width: 1.2;
+}
+.seg-view .seg-pill text {
+  fill: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+}
+.seg-view .seg-pill.tag rect {
+  stroke-dasharray: 3 2;
+}
+.seg-view .seg-pill.fly rect,
+.seg-view .seg-pill.marker rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+}
+.seg-view .seg-pill.fly text,
+.seg-view .seg-pill.marker text {
+  fill: var(--viz-ink-on-fill);
+}
+
+/* Column numbers, binary forms and row labels. */
+.seg-view .seg-rowlabel {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.seg-view .seg-colnum {
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.seg-view .seg-bits {
+  fill: var(--text-3);
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+}
+.seg-view .seg-bits .strong {
+  fill: var(--text);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* Value rows under the columns. */
+.seg-view .seg-cell rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.seg-view .seg-cell.role-idle rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+}
+.seg-view .seg-cell text {
+  fill: var(--viz-ink-on-fill);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.seg-view .seg-cell.role-idle text {
+  fill: var(--text);
+  font-weight: 400;
+}
+.seg-view .seg-cell.role-muted {
+  opacity: 0.4;
+}
+
+.seg-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
