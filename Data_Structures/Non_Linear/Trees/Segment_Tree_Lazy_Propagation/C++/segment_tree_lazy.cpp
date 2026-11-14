@@ -69,15 +69,18 @@ public:
 
     /**
      * Add val to all elements in range [left, right] (inclusive, 0-indexed).
+     * An empty tree has no node 1, so there is nothing to update.
      */
     void updateRange(int left, int right, long long val) {
+        if (n == 0) return;
         updateRange(1, 0, n - 1, left, right, val);
     }
 
     /**
-     * Query sum in range [left, right] (inclusive, 0-indexed).
+     * Query sum in range [left, right] (inclusive, 0-indexed); 0 for an empty tree.
      */
     long long query(int left, int right) {
+        if (n == 0) return 0;
         return query(1, 0, n - 1, left, right);
     }
 };

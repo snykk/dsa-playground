@@ -66,7 +66,11 @@ class LazySegmentTree:
             left: Left index (0-indexed)
             right: Right index (0-indexed, inclusive)
             val: Value to add to each element in range
+
+        An empty tree has no node 1, so there is nothing to update.
         """
+        if self.n == 0:
+            return
         self._update_range(1, 0, self.n - 1, left, right, val)
 
     def _update_range(self, node, start, end, left, right, val):
@@ -100,8 +104,10 @@ class LazySegmentTree:
             right: Right index (0-indexed, inclusive)
 
         Returns:
-            Sum of elements in range [left, right]
+            Sum of elements in range [left, right] (0 for an empty tree)
         """
+        if self.n == 0:
+            return 0
         return self._query(1, 0, self.n - 1, left, right)
 
     def _query(self, node, start, end, left, right):

@@ -79,12 +79,20 @@ func (st *LazySegmentTree) queryHelper(node, start, end, left, right int) int64 
 }
 
 // UpdateRange adds val to all elements in range [left, right] (inclusive, 0-indexed).
+// An empty tree has no node 1, so there is nothing to update.
 func (st *LazySegmentTree) UpdateRange(left, right int, val int64) {
+	if st.n == 0 {
+		return
+	}
 	st.updateRangeHelper(1, 0, st.n-1, left, right, val)
 }
 
-// Query returns the sum of elements in range [left, right] (inclusive, 0-indexed).
+// Query returns the sum of elements in range [left, right] (inclusive, 0-indexed),
+// or 0 for an empty tree.
 func (st *LazySegmentTree) Query(left, right int) int64 {
+	if st.n == 0 {
+		return 0
+	}
 	return st.queryHelper(1, 0, st.n-1, left, right)
 }
 
