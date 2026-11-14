@@ -121,9 +121,9 @@ The sparse table sits in this folder although it is not really a tree; it is a t
 
 ## See them side by side
 
-Two of the trees have visualizations. Each tab takes a list of operations: a number inserts, `-n` deletes and `?n` searches. Paste the same input into both. The plain BST's **Sorted input (degenerates)** example, `10 20 30 40 50 60`, builds a chain. The AVL tab's **Sorted input stays balanced** example, `10 20 30 40 50 60 70`, rotates after the inserts that would unbalance it. Try the AVL tab's **Left-Right** example, `30 10 20`, to see a double rotation.
+Six of the search trees as tabs, in reading order. The plain BST, AVL and B-tree tabs read a list of keys, where `-n` deletes and `?n` searches; the red-black, splay and treap tabs read `insert`, `delete` and `search` scripts. Run each tab's sorted-input example to see what keeps a tree shallow: the plain BST's **Sorted input (degenerates)** builds a chain, the AVL and red-black trees rotate after the inserts that would unbalance them, the treap's **Sorted keys stay shallow** relies on random priorities, and the B-tree's **Splits on the way down (t = 2)** grows only at the root. The splay tree is different: **Zig-zig on a path** shows it moving the key it touches to the root instead of keeping the tree balanced.
 
-<ArticleViz ids={['bst', 'avl']} />
+<ArticleViz ids={['bst', 'avl', 'red-black-tree', 'splay-tree', 'treap', 'b-tree']} />
 
 ## One input, four search trees
 

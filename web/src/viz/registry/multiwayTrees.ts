@@ -10,7 +10,7 @@ export const entries: VizInfo[] = [
     title: 'B-Tree',
     group: 'Trees',
     blurb: 'Nodes of t - 1 to 2t - 1 keys: full nodes split on the way down, and delete borrows or merges before it descends.',
-    topics: [`${T}/B_Tree`],
+    topics: [`${T}/B_Tree`, T],
   },
   {
     id: 'b-plus-tree',
