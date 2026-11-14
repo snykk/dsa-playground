@@ -1,7 +1,6 @@
 ---
 /** Recursive folder tree; styled by Sidebar. Categories on the current path start open. */
 import { joinBase, type DocNode } from '../../lib/repo';
-import { hasViz } from '../../viz/catalog';
 
 interface Props {
   nodes: DocNode[];
@@ -19,7 +18,6 @@ const isOnPath = (n: DocNode) =>
   {
     nodes.map((n) => {
       const current = currentSlug === n.slug ? 'page' : undefined;
-      const viz = hasViz(n.rel) && <span class="viz-dot" title="Has an interactive visualization">&#x25cf;</span>;
       return (
         <li data-nav-text={n.title.toLowerCase()}>
           {n.children.length > 0 ? (
@@ -27,7 +25,6 @@ const isOnPath = (n: DocNode) =>
               <summary>
                 <a href={joinBase(base, n.slug)} aria-current={current}>
                   {n.title}
-                  {viz}
                 </a>
               </summary>
               <Astro.self nodes={n.children} currentSlug={currentSlug} />
@@ -35,7 +32,6 @@ const isOnPath = (n: DocNode) =>
           ) : (
             <a class="leaf" href={joinBase(base, n.slug)} aria-current={current}>
               {n.title}
-              {viz}
             </a>
           )}
         </li>
