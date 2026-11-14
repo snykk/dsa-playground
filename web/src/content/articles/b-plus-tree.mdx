@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/B_Plus_Tree
 title: B+ Tree
 lead: A B+ tree is a B-tree variant that keeps every key and value in the leaves and links the leaves into a sorted list. Point lookups cost O(log n), and a range query is one descent plus a walk along the leaf chain, which is why it is the usual shape of a database index.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Search
     value: O(log n)
@@ -60,6 +60,12 @@ Keeping values out of internal nodes lets an internal node hold more separators 
   tones="......."
   caption="The same leaves as a chain: `next` pointers run left to right. A scan never has to go back up the tree."
 />
+
+## See it in action
+
+Run **Leaf split copies up**: when the full leaf splits, 3 hovers over the new leaf and then joins the root, while the leaf keeps its own 3 and its value. **Internal split pushes up** builds the nine-key tree below and ends with `range_search(25, 65)` walking the leaf chain.
+
+<ArticleViz ids={['b-plus-tree']} />
 
 ## Operations
 

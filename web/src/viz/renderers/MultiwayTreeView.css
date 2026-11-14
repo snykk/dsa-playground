@@ -1,0 +1,248 @@
+/* MultiwayTreeView organism: key-cell nodes and their frames, dot nodes, labelled edges, the leaf chain and the text row. */
+.mw-wrap {
+  overflow-x: auto;
+}
+.mw-view {
+  display: block;
+  margin: 0 auto;
+}
+.mw-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- tree edges ---------- */
+.mw-view .mw-edge {
+  fill: none;
+  stroke: var(--axis);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  transition:
+    stroke 0.25s ease,
+    stroke-width 0.25s ease;
+}
+.mw-view .mw-edge.role-compare,
+.mw-view .mw-edge.role-active,
+.mw-view .mw-edge.role-done,
+.mw-view .mw-edge.role-good,
+.mw-view .mw-edge.role-bad {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.mw-view .mw-edge.role-compare {
+  stroke-dasharray: 8 5;
+  animation: viz-march 0.8s linear infinite;
+}
+.mw-view .mw-edge.role-muted {
+  opacity: 0.3;
+}
+
+/* ---------- key nodes: a frame around a row of cells ---------- */
+.mw-view .mw-frame rect {
+  fill: var(--surface-2);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    stroke 0.2s ease,
+    stroke-width 0.2s ease;
+}
+.mw-view .mw-frame:not(.role-idle):not(.role-muted) rect {
+  stroke: var(--role);
+  stroke-width: 2.5;
+}
+.mw-view .mw-frame.role-compare rect {
+  stroke-dasharray: 6 3;
+}
+.mw-view .mw-frame.empty rect {
+  stroke-dasharray: 4 3;
+  stroke: var(--viz-neutral);
+}
+.mw-view .mw-frame.role-muted,
+.mw-view .mw-frame.ghost {
+  opacity: 0.45;
+}
+.mw-view .mw-empty {
+  fill: var(--text-3);
+  font-size: 13px;
+}
+
+.mw-view .mw-cell rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease;
+}
+.mw-view .mw-cell.role-idle rect,
+.mw-view .mw-cell.role-muted rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+}
+.mw-view .mw-cell.role-muted {
+  opacity: 0.45;
+}
+.mw-view .mw-cell.ghost rect {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 3 3;
+}
+.mw-view .mw-cell.role-active rect,
+.mw-view .mw-cell.role-good rect,
+.mw-view .mw-cell.role-bad rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.35s ease;
+}
+.mw-view .mw-key {
+  fill: var(--viz-ink-on-fill);
+  font-size: 13px;
+  font-weight: 700;
+}
+.mw-view .mw-sub {
+  fill: var(--viz-ink-on-fill);
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+.mw-view .mw-cell.role-idle .mw-key,
+.mw-view .mw-cell.role-muted .mw-key,
+.mw-view .mw-cell.role-idle .mw-sub,
+.mw-view .mw-cell.role-muted .mw-sub {
+  fill: var(--text);
+}
+.mw-view .mw-cell.role-idle .mw-sub {
+  fill: var(--text-2);
+}
+.mw-view .mw-glyph {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: start;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.mw-view .mw-tag,
+.mw-view .mw-ftag {
+  fill: var(--text-2);
+  font-size: 10.5px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.mw-view .mw-ftag {
+  text-anchor: start;
+}
+
+/* ---------- B+ tree leaf chain ---------- */
+.mw-view .mw-link line {
+  stroke: var(--axis);
+  stroke-width: 1.8;
+}
+.mw-view .mw-link path {
+  fill: var(--axis);
+}
+.mw-view .mw-link:not(.role-idle):not(.role-muted) line {
+  stroke: var(--role);
+  stroke-width: 3;
+}
+.mw-view .mw-link:not(.role-idle):not(.role-muted) path {
+  fill: var(--role);
+}
+.mw-view .mw-link.role-muted {
+  opacity: 0.35;
+}
+
+/* ---------- dot nodes (trie, suffix tree) ---------- */
+.mw-view .mw-ring {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.8;
+}
+.mw-view .mw-ring:not(.role-idle):not(.role-muted) {
+  stroke: var(--role);
+}
+.mw-view .mw-dot.ghost {
+  opacity: 0.35;
+}
+.mw-view .mw-dot .node text.node-label {
+  font-size: 11px;
+}
+
+/* ---------- edge labels ---------- */
+.mw-view .mw-etext,
+.mw-view .mw-esub {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+}
+.mw-view .mw-esub {
+  fill: var(--text-3);
+  font-size: 10px;
+  font-weight: 500;
+}
+.mw-view .mw-etext .mark {
+  fill: var(--role);
+  font-weight: 800;
+}
+.mw-view .mw-etext .mark.role-bad {
+  text-decoration: underline;
+}
+.mw-view .mw-elabel:not(.role-idle):not(.role-muted) .mw-etext {
+  fill: var(--role);
+  font-weight: 800;
+}
+.mw-view .mw-elabel.role-muted {
+  opacity: 0.4;
+}
+
+/* ---------- text row ---------- */
+.mw-view .mw-text-label {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  text-anchor: start;
+}
+.mw-view .mw-tcell rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1;
+}
+.mw-view .mw-tcell.role-idle rect,
+.mw-view .mw-tcell.role-muted rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+}
+.mw-view .mw-tcell.role-muted {
+  opacity: 0.45;
+}
+.mw-view .mw-tchar {
+  fill: var(--viz-ink-on-fill);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.mw-view .mw-tcell.role-idle .mw-tchar,
+.mw-view .mw-tcell.role-muted .mw-tchar {
+  fill: var(--text);
+}
+.mw-view .mw-tindex {
+  fill: var(--text-3);
+  font-size: 9.5px;
+}
+.mw-view .mw-note-svg {
+  fill: var(--text-3);
+  font-size: 12px;
+}
+
+.mw-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}

@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/B_Tree
 title: B-Tree
 lead: A B-tree is a balanced search tree whose nodes hold many sorted keys, so the tree stays very shallow. Search, insert and delete cost O(log n) comparisons but only O(log<sub>t</sub> n) node visits, which is what matters when each node is a disk page.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Search
     value: O(log n)
@@ -58,6 +58,12 @@ Because the tree only grows at the root (a root split) and shrinks at the root (
 <Callout title="Height is logarithmic in the node size">
 A tree whose leaves are at depth `h` (root at depth 0) holds at least `2 t^h - 1` keys: the root has 2 children and every other internal node at least `t`. Solving for `h` gives `h <= log_t((n + 1) / 2)`. With `t = 100` a billion keys fit in a tree about five levels deep. Each level is one node read, which is why B-trees dominate on disks.
 </Callout>
+
+## See it in action
+
+Run **Borrow and merge (article)**: it builds the tree of the delete walkthrough below, then deletes 40, 10, 30 and 20, so you see a predecessor replace an internal key, two borrows through the root and a merge. **Splits on the way down** shows full nodes splitting before the insert enters them. Without a `t` the tree uses the Python default `t = 3`; type `t 2` in front of your keys for the 2-3-4 tree.
+
+<ArticleViz ids={['b-tree']} />
 
 ## Operations
 
