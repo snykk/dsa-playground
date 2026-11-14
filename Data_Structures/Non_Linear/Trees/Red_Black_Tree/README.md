@@ -48,7 +48,7 @@ A left rotation on x (A, B, C are subtrees; their order is preserved):
 | `search(x)` | walk down by comparisons | O(log n) |
 | inorder traversal | sorted keys | O(n) |
 | `size()`, `is_empty()` | count nodes, or test for the sentinel root | O(n), O(1) |
-| `height()`, `find_min()`, `find_max()` | Python only | O(n), O(log n), O(log n) |
+| `height()`, `find_min()`, `find_max()` | Python only; `height()` counts nodes (empty tree 0, one node 1) | O(n), O(log n), O(log n) |
 
 ### Insert fix-up
 

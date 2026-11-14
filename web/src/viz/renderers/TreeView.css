@@ -8,3 +8,185 @@
   fill: var(--text-3);
   font-size: 12px;
 }
+
+/* ---------- optional extras (stabilized runs: binary tree, red-black, splay, treap, Cartesian, interval) ---------- */
+
+.tree-wrap {
+  min-width: 0;
+}
+.tree-scroll {
+  overflow-x: auto;
+}
+.tree-view .t-edge {
+  transition:
+    stroke 0.25s ease,
+    stroke-width 0.25s ease,
+    opacity 0.25s ease;
+}
+.tree-view .t-edge.role-compare,
+.tree-view .t-edge.role-active,
+.tree-view .t-edge.role-done,
+.tree-view .t-edge.role-good {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.tree-view .t-edge.role-compare {
+  stroke-dasharray: 8 5;
+  animation: viz-march 0.8s linear infinite;
+}
+.tree-view .t-edge.role-muted {
+  stroke-dasharray: 3 4;
+  opacity: 0.55;
+}
+.tree-view .node.role-muted {
+  opacity: 0.55;
+}
+.tree-view .t-sub,
+.tree-view .t-tag,
+.tree-view .t-forest,
+.tree-view .t-mark {
+  text-anchor: middle;
+  dominant-baseline: central;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.tree-view .t-sub {
+  fill: var(--text-2);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+.tree-view .t-tag {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  font-style: italic;
+}
+.tree-view .t-forest {
+  fill: var(--text-2);
+  font-size: 11px;
+  font-weight: 600;
+}
+.tree-view .t-mark {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Pill nodes for long labels (intervals): the same role colours as NodeGlyph. */
+.tree-view .t-pill rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 2;
+  transition: fill 0.2s ease;
+}
+.tree-view .t-pill.role-idle rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 2.5;
+}
+.tree-view .t-pill.role-muted {
+  opacity: 0.55;
+}
+.tree-view .t-pill.outlined rect {
+  stroke: var(--text);
+  stroke-dasharray: 4 3;
+}
+.tree-view .t-pill-label {
+  fill: var(--viz-ink-on-fill);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.tree-view .t-pill.role-idle .t-pill-label {
+  fill: var(--text);
+}
+
+/* Red-black nodes: the colour is structure, not a role. Black = dark disc, red = light disc in a thick
+ * red ring, and a B / R letter on every node, so the colour reads without colour vision too.
+ * The role is drawn as a halo around the node. */
+.tree-view .t-rb-body {
+  stroke-width: 2;
+  transition:
+    fill 0.25s ease,
+    stroke 0.25s ease;
+}
+.tree-view .t-rb-black .t-rb-body {
+  fill: #262624;
+  stroke: var(--text-3);
+}
+.tree-view .t-rb-red .t-rb-body {
+  fill: var(--viz-surface);
+  stroke: var(--viz-bad);
+  stroke-width: 4;
+}
+.tree-view .t-rb-label {
+  font-size: 14px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.tree-view .t-rb-black .t-rb-label {
+  fill: var(--viz-ink-on-fill);
+}
+.tree-view .t-rb-red .t-rb-label {
+  fill: var(--text);
+}
+.tree-view .t-rb-mark {
+  font-size: 10px;
+  font-weight: 800;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--text);
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.tree-view .t-rb-halo {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 4;
+}
+.tree-view .t-rb.role-compare .t-rb-halo {
+  stroke-dasharray: 6 4;
+}
+.tree-view .t-rb.role-muted {
+  opacity: 0.55;
+}
+
+/* The row under the tree (an array, one cell per column). */
+.tree-view .t-cell rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease;
+}
+.tree-view .t-cell.role-idle rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+}
+.tree-view .t-cell.role-muted rect {
+  fill: var(--surface-3);
+  stroke: var(--grid);
+}
+.tree-view .t-cell-label {
+  fill: var(--viz-ink-on-fill);
+  font-size: 12px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.tree-view .t-cell.role-idle .t-cell-label,
+.tree-view .t-cell.role-muted .t-cell-label {
+  fill: var(--text);
+}
+.tree-view .t-cell-sub {
+  fill: var(--text-3);
+  font-size: 11px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}

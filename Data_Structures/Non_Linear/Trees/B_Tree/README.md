@@ -12,7 +12,7 @@ Invariants for minimum degree `t >= 2`:
 - Every node except the root has between `t - 1` and `2t - 1` keys; the root has 1 to `2t - 1` (0 when empty).
 - All leaves are at the same depth.
 
-Every node stores real keys, internal nodes included. (A B+ tree keeps data only in the leaves; see `../B+ Tree`.) The default here is `t = 3`: 2 to 5 keys per node. Height is at most log<sub>t</sub>((n + 1) / 2).
+Every node stores real keys, internal nodes included. (A B+ tree keeps data only in the leaves; see [B+ Tree](../B_Plus_Tree/README.md).) The default here is `t = 3`: 2 to 5 keys per node. Height is at most log<sub>t</sub>((n + 1) / 2).
 
 ## Visual
 

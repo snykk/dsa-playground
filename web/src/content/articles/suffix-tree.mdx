@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/Suffix_Tree
 title: Suffix Tree
 lead: A suffix tree is a compressed trie of every suffix of a string. After one build you can find all occurrences of any pattern of length m in O(m + occ) time, independent of the text length, which makes it a classic index for substring queries.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Search
     value: O(m + occ)
@@ -68,6 +68,12 @@ Inside the code an edge does not store its label. It stores two indices `[start,
 <Callout title="A substring is a path prefix">
 `p` occurs in `s` exactly when the path spelling `p` exists from the root. All occurrences of `p` are the leaves below the point where the path ends, and each leaf stores its suffix start, which is the match position.
 </Callout>
+
+## See it in action
+
+Run **banana** to watch the seven suffixes go in one at a time, with the edge splits of suffixes 3, 4 and 5, and then the searches. Each edge shows its substring and its `[start, end]` indices into the text; children appear in the order the code's dict keeps them, so the root's branches read b, a, n, $ rather than in sorted order.
+
+<ArticleViz ids={['suffix-tree']} />
 
 ## Operations
 

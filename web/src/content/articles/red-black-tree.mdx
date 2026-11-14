@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/Red_Black_Tree
 title: Red-Black Tree
 lead: A red-black tree is a binary search tree whose nodes carry a color bit. Five color rules keep the longest root-to-leaf path at most twice the shortest, so search and insert stay O(log n) with at most two rotations per insert.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Search
     value: O(log n)
@@ -56,6 +56,12 @@ Rule 5 makes every path from a node to a leaf cross the same number of black nod
 <Equation label="Height bound" expr="n >= 2^{h/2} - 1" result="h <= 2 log2(n + 1)" />
 
 The shortest path is all black and the longest alternates red and black, so no path is more than twice as long as another. This is looser than an AVL tree (height about 1.44 log<sub>2</sub> n) but cheaper to maintain.
+
+## See it in action
+
+Run **Textbook: 10 20 30 40 50 25** to watch each key go in as a red leaf and the fix-up name its case: a red uncle only recolors, a black uncle rotates. Black nodes are dark discs marked B, red nodes have a red ring and are marked R. **Triangle: case 2, then 3** shows the double rotation, and **Sorted input stays balanced** shows why the rules matter.
+
+<ArticleViz ids={['red-black-tree']} />
 
 ## Operations
 

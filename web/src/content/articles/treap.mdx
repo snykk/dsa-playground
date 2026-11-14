@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/Treap
 title: Treap
 lead: A treap is a binary search tree on keys that is also a max-heap on random priorities. The random priorities give it the shape of a BST built from shuffled input, so every operation is O(log n) in expectation, with very short code built on split and merge.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Search, insert, delete
     value: O(log n)
@@ -47,6 +47,12 @@ For a given set of keys and priorities there is exactly one such tree: the highe
   legend={{ f: 'root: the highest priority (badge = priority)' }}
   caption="A treap on keys 2, 5, 6, 8. Read the keys left to right for BST order. The badges decrease going down: 0.9, then 0.6 and 0.7, then 0.4."
 />
+
+## See it in action
+
+The code draws priorities at random; here they come from a seeded generator you can set (`seed 7`), or you can fix one (`insert 6@0.7`), so every run is repeatable. Run **Fixed priorities (article)** for the worked example below: the split cuts the treap into the keys left and right of the new one, and two merges put it back together. The number under each node is its priority.
+
+<ArticleViz ids={['treap']} />
 
 ## Operations
 

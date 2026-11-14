@@ -3,7 +3,7 @@ topic: Data_Structures/Non_Linear/Trees/Cartesian_Tree
 title: Cartesian Tree
 lead: A Cartesian tree turns an array into a binary tree that is a min heap by value and reads back as the original array in in-order. It is built in O(n) with a stack, and the minimum of any range is the lowest common ancestor of its two ends.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-14
 facts:
   - label: Build
     value: O(n)
@@ -58,6 +58,12 @@ The two properties fix the tree. The root must be the minimum (leftmost if there
 <Callout title="A treap is a Cartesian tree">
 A treap stores pairs (key, priority) and is the Cartesian tree of the keys in sorted order, with the priorities as the values. Random priorities make a random Cartesian tree, whose expected height is O(log n). See the Treap topic.
 </Callout>
+
+## See it in action
+
+Run **Article array** to build the tree above: each new value pops the larger values off the stack (the right spine), and the array row under the tree shows that every node sits above its own index, so in-order is the array. The queries then walk from the root to the answer. **Sorted: a chain** shows the worst case.
+
+<ArticleViz ids={['cartesian-tree']} />
 
 ## Operations
 
