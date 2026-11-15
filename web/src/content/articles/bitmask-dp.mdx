@@ -3,7 +3,7 @@ topic: Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
 title: Bitmask DP
 lead: Bitmask DP stores a subset of n items as the bits of one integer and uses that integer as a DP state. It turns searches over all n! orderings into a table of 2^n subsets, which is what makes the Traveling Salesman Problem solvable for around 20 cities.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: States
     value: 2^n * n
@@ -78,6 +78,12 @@ A transition always turns one 0 bit into a 1 bit, so `new_mask` is strictly larg
   ]}
 />
 
+## See it in action
+
+The table has one row for each mask that contains A and one column for each last city. Every step extends one path by one city and writes the cheaper cost into a larger mask, with the city chips above showing the bits of the mask. Start with **Four cities (tests)**, the matrix of the worked example below, then try **No tour exists** to see the answer stay at infinity.
+
+<ArticleViz ids={['bitmask-dp-tsp']} />
+
 ## A worked example
 
 Four cities A, B, C, D (bits 0 to 3) with these distances:
@@ -144,7 +150,7 @@ tsp(dist):
 
 ## Implementation
 
-The Python version is the complete solver and returns `float('inf')` when no tour exists, for example when a city has no usable edge. The C++ and Go folders are placeholders: they contain a stub file and a test that only prints a message. They do not implement bitmask DP yet.
+The Python version returns `float('inf')` when no tour exists, for example when a city has no usable edge. The C++ (`travelingSalesmanDp`) and Go (`TravelingSalesmanDP`) ports take a matrix of doubles, mark a missing edge with infinity (`kInfinity` in C++, `math.Inf(1)` in Go) and return infinity in the same case. All three give the same cost.
 
 <TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP" />
 

@@ -1,0 +1,166 @@
+/* HuffmanForest organism: the heap list, the forest in heap order, then the text, the codes and the bits. */
+.hf-wrap {
+  min-width: 0;
+}
+.hf-scroll {
+  overflow-x: auto;
+}
+.huffman-forest {
+  display: block;
+  margin: 0 auto;
+}
+.huffman-forest text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.huffman-forest .hf-row-label {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 12px;
+}
+.huffman-forest .hf-note {
+  fill: var(--text-3);
+  font-size: 12px;
+}
+.huffman-forest .hf-index {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+
+/* Heap cells: idle is outlined, a role fills the cell (status roles also carry a glyph). */
+.huffman-forest .hf-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.huffman-forest .hf-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+.huffman-forest .hf-cell:not(.role-idle):not(.role-muted) rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.huffman-forest .hf-cell:not(.role-idle):not(.role-muted) text {
+  fill: var(--viz-ink-on-fill);
+}
+.huffman-forest .hf-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 22%, var(--viz-surface));
+}
+.huffman-forest .hf-cell.role-compare text {
+  fill: var(--text);
+}
+
+/* Edges carry their bit: 0 to the left child, 1 to the right one. */
+.huffman-forest .hf-edge line {
+  stroke: var(--axis);
+  stroke-width: 2;
+  transition:
+    stroke 0.25s ease,
+    stroke-width 0.25s ease;
+}
+.huffman-forest .hf-edge text {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.huffman-forest .hf-edge.role-active line,
+.huffman-forest .hf-edge.role-done line,
+.huffman-forest .hf-edge.role-compare line {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.huffman-forest .hf-edge.role-active text,
+.huffman-forest .hf-edge.role-done text,
+.huffman-forest .hf-edge.role-compare text {
+  fill: var(--role);
+  font-size: 12px;
+}
+.huffman-forest .hf-freq {
+  fill: var(--text-3);
+  font-size: 10px;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.huffman-forest .hf-code {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.huffman-forest .hf-tag {
+  fill: var(--text-2);
+  font-size: 10px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.huffman-forest .hf-tag.loose {
+  fill: var(--text);
+  font-style: italic;
+  font-size: 11px;
+}
+.huffman-forest .hf-divider {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+/* Text, codes and bits under the picture. */
+.hf-rows .viz-strip {
+  margin-top: 8px;
+}
+.hf-text,
+.hf-bits {
+  gap: 3px;
+}
+.hf-char {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  min-width: 16px;
+  padding: 1px 3px;
+  text-align: center;
+  border-radius: 4px;
+  border: 1px solid var(--grid);
+  background: var(--viz-surface);
+  color: var(--text);
+}
+.hf-char.role-compare,
+.hf-char.role-active,
+.hf-char.role-done {
+  background: var(--role);
+  border-color: var(--role);
+  color: var(--viz-ink-on-fill);
+}
+.hf-chunk {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 0 2px;
+  border-radius: 3px;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+.hf-chunk.role-active {
+  background: var(--role);
+  color: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.hf-empty {
+  color: var(--text-3);
+  font-style: italic;
+}

@@ -1,0 +1,131 @@
+/* AhoCorasickView organism: the trie, its failure (dashed) and output (dotted) links, and a text row. */
+.ac-wrap {
+  overflow-x: auto;
+}
+.ac-view {
+  display: block;
+  margin: 0 auto;
+}
+.ac-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- trie edges ---------- */
+.ac-view .ac-edge {
+  stroke: var(--axis);
+  stroke-width: 2;
+  transition: stroke 0.25s ease;
+}
+.ac-view .ac-edge:not(.role-idle):not(.role-muted) {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.ac-view .ac-edge.role-muted {
+  opacity: 0.35;
+}
+
+/* ---------- failure and output links ---------- */
+.ac-view .ac-fail,
+.ac-view .ac-output {
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1.6;
+  transition: stroke 0.25s ease;
+}
+.ac-view .ac-fail {
+  stroke-dasharray: 6 4;
+}
+.ac-view .ac-output {
+  stroke-width: 2.6;
+  stroke-dasharray: 0.5 5;
+  stroke-linecap: round;
+}
+.ac-view .ac-fail:not(.role-idle):not(.role-muted),
+.ac-view .ac-output:not(.role-idle):not(.role-muted) {
+  stroke: var(--role);
+  stroke-width: 3;
+}
+.ac-view .ac-output:not(.role-idle):not(.role-muted) {
+  stroke-width: 3.6;
+}
+.ac-view .ac-fail.role-compare {
+  animation: viz-march 0.8s linear infinite;
+}
+.ac-view .ac-fail.role-muted,
+.ac-view .ac-output.role-muted {
+  opacity: 0.35;
+}
+.ac-view .ac-head {
+  fill: var(--role);
+}
+.ac-view marker.role-idle .ac-head,
+.ac-view marker.role-muted .ac-head {
+  fill: var(--text-3);
+}
+
+/* ---------- nodes ---------- */
+.ac-view .ac-ring {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.8;
+}
+.ac-view .ac-ring:not(.role-idle):not(.role-muted) {
+  stroke: var(--role);
+}
+.ac-view .ac-node .node text.node-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.ac-view .ac-name {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+
+/* ---------- text row ---------- */
+.ac-view .ac-text-label {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  text-anchor: start;
+}
+.ac-view .ac-tcell rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1;
+}
+.ac-view .ac-tcell.role-idle rect,
+.ac-view .ac-tcell.role-muted rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+}
+.ac-view .ac-tcell.role-muted {
+  opacity: 0.45;
+}
+.ac-view .ac-tchar {
+  fill: var(--viz-ink-on-fill);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.ac-view .ac-tcell.role-idle .ac-tchar,
+.ac-view .ac-tcell.role-muted .ac-tchar {
+  fill: var(--text);
+}
+.ac-view .ac-tindex {
+  fill: var(--text-3);
+  font-size: 9.5px;
+}
+
+.ac-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}

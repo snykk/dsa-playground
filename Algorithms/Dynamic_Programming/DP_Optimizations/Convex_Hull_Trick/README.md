@@ -92,7 +92,7 @@ Each line is pushed once and popped at most once, so n operations on the deque c
 
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
-| Python | [Python](Python/) | `cht.py` | Deque-based CHT and Li Chao tree; 12 tests |
+| Python | [Python](Python/) | `cht.py` | Deque-based CHT and Li Chao tree; 13 tests |
 | C++ | [C++](C++/) | `cht.h` | Header-only; `__int128` in the redundancy test; 5 tests |
 | Go | [Go](Go/) | `main.go` | Slice-based CHT, `big.Int` in the redundancy test; 5 tests |
 

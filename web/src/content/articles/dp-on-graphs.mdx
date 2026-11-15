@@ -3,7 +3,7 @@ topic: Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs
 title: DP on Graphs
 lead: On a directed acyclic graph (DAG) every node's best value depends only on its successors, so a memoized DFS or a topological sweep solves longest-path, path-counting and similar problems in O(V + E). A cycle breaks that order, which is why detecting cycles matters.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: DAG longest path
     value: O(V + E)
@@ -63,6 +63,12 @@ Define `dp[v]` as the answer for paths **starting at** `v`. A path from `v` is o
 When a call for `v` returns, every node reachable from `v` has a finished memo entry. The three states (not started, in progress, finished) are the same colours as a DFS cycle check; in a DAG the in-progress state is never met twice.
 </Callout>
 
+## See it in action
+
+The memoized DFS runs on the DAG drawn left to right. A badge shows `dp[v]` once a node finishes, a call that reaches a finished node returns at once, and an edge back into a node that is still on the stack raises `ValueError`. Start with **Seven nodes (article)**, the graph of the worked example below, then try **Cycle: ValueError**.
+
+<ArticleViz ids={['dag-longest-path']} />
+
 ## A worked example
 
 A DAG with 7 nodes. Each badge is `dp[v]`: the number of edges on the longest path that starts at that node.
@@ -116,7 +122,7 @@ longestPath(graph, start):
 
 ## Implementation
 
-The Python version has one function, `dag_longest_path(graph, start)`. The graph is a dictionary from a node to a list of successor ids; a node missing from the dictionary has no successors. The C++ and Go folders are placeholders: a stub and a test that asserts nothing.
+The Python version has one function, `dag_longest_path(graph, start)`. The graph is a dictionary from a node to a list of successor ids; a node missing from the dictionary has no successors. C++ has `dagLongestPath` over an `std::unordered_map<int, std::vector<int>>` and throws `std::invalid_argument` on a reachable cycle; Go has `DAGLongestPath` over a `map[int][]int` and returns the error `ErrCycle`.
 
 <TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs" />
 

@@ -1,6 +1,6 @@
 # Huffman Coding
 
-Huffman coding assigns each symbol a binary code whose length depends on how often it occurs: frequent symbols get short codes, rare ones long codes. Repeatedly merging the two least frequent nodes builds the shortest possible prefix-free code in O(k log k) time for k distinct symbols. Only the Python version is implemented; the C++ and Go files are placeholders.
+Huffman coding assigns each symbol a binary code whose length depends on how often it occurs: frequent symbols get short codes, rare ones long codes. Repeatedly merging the two least frequent nodes builds the shortest possible prefix-free code in O(k log k) time for k distinct symbols. Python, C++ and Go give the same code table for the same ASCII text.
 
 ## Intuition
 
@@ -34,7 +34,7 @@ a=0  c=100  b=101  f=1100  e=1101  d=111
 4. The last node is the root. Walk the tree to read the codes: `0` for left, `1` for right.
 5. Encode by concatenating the code of each character. Decode by following bits from the root; at a leaf, output its symbol and restart at the root.
 
-A text with one distinct symbol gives a single leaf; its code would be empty, so the Python code uses `"0"`.
+A text with one distinct symbol gives a single leaf; its code would be empty, so the code uses `"0"` in all three languages.
 
 ## Step-by-Step Trace
 
@@ -83,15 +83,15 @@ Use it to compress data whose symbols have skewed frequencies, or as the last st
 - **A single distinct symbol.** The code is `"0"`, one bit per character, so there is no gain.
 - **Not packed bits.** `huffman_encode` returns a string of `0` and `1` characters (one character per bit). It shows the code but is not a compressed byte stream.
 - **The ratio helper.** `calculate_compression_ratio` assumes 8 bits per character, does not count the cost of storing the tree, and ignores its `codes` argument.
-- **Treating the C++ and Go files as implementations.** They are placeholders.
+- **Bytes are not characters.** The C++ version codes the bytes of a `std::string`, so a UTF-8 character such as U+00E9 is two symbols there; Python and Go code characters (code points). ASCII text gets the same table in all three.
 
 ## Implementations
 
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
-| Python | [Python/](Python/) | `huffman_coding.py` | complete: tree, codes, encode, decode, ratio |
-| C++ | [C++/](C++/) | `huffman_coding.cpp` | placeholder: `huffmanEncode` returns an empty map |
-| Go | [Go/](Go/) | `main.go` | placeholder: `HuffmanEncode` returns an empty map |
+| Python | [Python/](Python/) | `huffman_coding.py` | tree, codes, encode, decode, ratio; the reference |
+| C++ | [C++/](C++/) | `huffman_coding.cpp` | the same functions; a copy of `heapq` gives Python's code tables; symbols are bytes; `std::unique_ptr` tree |
+| Go | [Go/](Go/) | `main.go` | the same functions; a copy of `heapq` gives Python's code tables; symbols are runes |
 
 ## Practice Problems
 

@@ -75,11 +75,12 @@ A category can have an overview in [`src/content/categories/`](src/content/categ
 src/
   components/          Astro (server-rendered) site UI
     atoms/             Button, Chip, Icon, IconButton, SectionTitle, BigO, LevelMeter
-    molecules/         Breadcrumbs, Card, CardGrid, StatTile, TableOfContents, ThemeToggle,
+    molecules/         Breadcrumbs, TableOfContents, ThemeToggle,
                        article blocks: Callout, Steps/Step, DataTable, ComplexityTable, Equation,
                        ArrayDiagram, ProsCons, Faq/FaqItem, FactTile
-    organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, TopicCards, Implementations, VizSection,
-                       ArticleHeader, KeyFacts, ArticleViz, TopicCode, RelatedTopics, CategoryContents, TopicList
+    organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, VizIndex, AreaList, ChildTopics,
+                       Implementations, VizSection, ArticleHeader, KeyFacts, ArticleViz, TopicCode,
+                       RelatedTopics, CategoryContents, TopicList
     templates/         BaseLayout (page shell), DocPage (README page), ArticlePage (hand-written article),
                        CategoryPage (hand-written category overview), RootPage (hand-written overview or study guide)
     mdx.ts             the components an article can use without importing them
@@ -125,10 +126,10 @@ input text ──parse──▶ input ──trace──▶ Frame[] ──▶ Pla
   - arrays: `ArrayBars` (sorting), `SearchBars`, `ArrayScene`, `BucketScene`, `DynamicArrayView` (a block that doubles and shrinks), `ArrayTrack` (stacks and queues on a Python list), `QuickselectBars` (a three-way partition), `ReservoirView` (a stream and its reservoir);
   - linked structures: `ChainView` (nodes, pointers and named references: the linked lists, the linked stack, skip-list levels, hash buckets and their chains, the LRU and LFU lists), `RingBuffer` (the circular queue), `HeapView` (a binary heap as a tree and an array at once: the priority queue, the min heap and the max heap), `FibonacciHeapView` (the root ring and the degree table);
   - hashing: `OpenAddressingTable` (slots, tombstones and a marker that slides along the probe sequence), `BloomBitArray` (the bit array and the k positions of an item);
-  - trees: `TreeView` (BST, AVL, red-black, splay, treap, Cartesian and interval trees, with rotations that glide), `MultiwayTreeView` (B-tree, B+ tree, trie, suffix tree), `SegmentTreeView` (both segment trees and the Fenwick tree), `SparseTableView`, `KdTreeView` (a 2D plane beside its tree), `ForestView` (union-find), `RopeView`;
-  - graphs: `GraphView` (BFS / DFS / Dijkstra), `GraphRepresentationView` (a graph beside how a class stores it);
-  - search and geometry: `BoardView` (a board beside the call stack: N-Queens, Sudoku, a maze), `PlaneView` (points, segments, lines, polygons and circles on a plane), `RootedTreeView` (a general rooted tree with chains: heavy-light and centroid decomposition), `MosView` (Mo's sorted queries and window);
-  - tables and text: `Grid` (DP tables), `StrassenView` (the quadrants and the seven products), `GridMap`, `IntervalTimeline`, `KnapsackFill`, `StringMatch` (KMP), `StringScan`, `StringOpsView` (string operations), `ByteRows` (Reed-Solomon).
+  - trees: `TreeView` (BST, AVL, red-black, splay, treap, Cartesian and interval trees, with rotations that glide), `MultiwayTreeView` (B-tree, B+ tree, trie, suffix tree), `SegmentTreeView` (both segment trees and the Fenwick tree), `SparseTableView`, `KdTreeView` (a 2D plane beside its tree), `ForestView` (union-find), `RopeView`, `TreeDpView` (DP on trees: each node's pair of values, filled in post-order), `HuffmanForest` (Huffman's heap above the trees it merges);
+  - graphs: `GraphView` (BFS / DFS / Dijkstra, the longest path in a DAG), `GraphRepresentationView` (a graph beside how a class stores it), `FlowNetworkView` (pipes that fill with flow, residual edges and the minimum cut), `ImplicationGraphView` (2-SAT: each literal over its negation, the components and the clauses);
+  - search and geometry: `BoardView` (a board beside the call stack: N-Queens, Sudoku, a maze), `PlaneView` (points, segments, lines, polygons and circles on a plane), `RootedTreeView` (a general rooted tree with chains: heavy-light and centroid decomposition), `MosView` (Mo's sorted queries and window), `LineEnvelopeView` (the convex hull trick's lines and lower envelope);
+  - tables and text: `Grid` (DP tables), `DpTableView` (bitmask and digit DP tables), `StrassenView` (the quadrants and the seven products), `GridMap`, `IntervalTimeline`, `JobSlots` (jobs dropped into deadline slots), `KnapsackFill`, `StringMatch` (KMP), `StringScan`, `StringOpsView` (string operations), `AhoCorasickView` (a trie with failure and output links over the text), `SuffixArrayView` (the sorted suffixes and the binary searches), `ByteRows` (Reed-Solomon), `FieldBits` (GF(2^8) bytes as bits beside the ring of powers of 3).
 - [`src/viz/registry/`](src/viz/registry/) holds one file per area with its catalog entries (which repository folders show which visualization) and its loaders (code-split, so a page only downloads what it shows). [`catalog.ts`](src/viz/catalog.ts) and [`loaders.ts`](src/viz/loaders.ts) merge them.
 
 ### Adding a visualization

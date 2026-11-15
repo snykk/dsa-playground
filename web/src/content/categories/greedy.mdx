@@ -2,7 +2,7 @@
 category: Algorithms/Greedy
 title: Greedy Algorithms
 lead: A greedy algorithm builds an answer one step at a time and always takes the choice that looks best right now, without looking back. The four topics here show where that works, and each one pairs a rule with the reason it is correct. They also show where it breaks, because the same rule fails on the 0/1 knapsack and on weighted activities.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: Sort, then scan
     value: O(n log n)
@@ -58,15 +58,15 @@ Each topic in this section states its rule and why those two properties hold. Th
   ]}
 />
 
-Job Scheduling holds three rules: the profit rule above for unit-time jobs with deadlines, earliest deadline first to minimize the maximum lateness, and weight to processing-time ratio to minimize the weighted completion time. C++ and Go do not cover all three. Huffman Coding is implemented in Python only; its C++ and Go files are placeholders.
+Job Scheduling holds three rules: the profit rule above for unit-time jobs with deadlines, earliest deadline first to minimize the maximum lateness, and weight to processing-time ratio to minimize the weighted completion time. C++ and Go do not cover all three. Huffman Coding is implemented in all three languages, and for ASCII text they give the same code table.
 
 ## See them side by side
 
 Each tab runs one greedy algorithm step by step. Two examples show the limits of the rule. In Activity Selection, **Earliest-start trap** shows why the rule is finish time and not start time. In Fractional Knapsack, **Greedy fails for 0/1** shows the same ratio rule on items that cannot be cut.
 
-<ArticleViz ids={['activity-selection', 'fractional-knapsack']} />
+<ArticleViz ids={['activity-selection', 'fractional-knapsack', 'huffman-coding', 'job-scheduling']} />
 
-Huffman Coding and Job Scheduling have no visualization. The Minimum Spanning Tree category holds two more greedy algorithms, Kruskal's and Prim's, with their own visualizations.
+In Huffman Coding, **Equal frequencies** shows how Python's heap breaks ties, and in Job Scheduling, **Job past every slot** shows a job skipped because every slot up to its deadline is taken (the Job Scheduling page also runs its other two rules). The Minimum Spanning Tree category holds two more greedy algorithms, Kruskal's and Prim's, with their own visualizations.
 
 ## One rule, right and wrong
 

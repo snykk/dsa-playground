@@ -2,6 +2,8 @@
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
+const ADV = 'Algorithms/Dynamic_Programming/Advanced_DP';
+
 export const entries: VizInfo[] = [
   {
     id: 'lcs',
@@ -73,6 +75,48 @@ export const entries: VizInfo[] = [
     blurb: "Fill the interval table by chain length, trying every split, then recover the best bracketing.",
     topics: ['Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication', 'Algorithms/Dynamic_Programming/2D_DP'],
   },
+  {
+    id: 'tree-dp-independent-set',
+    title: 'Tree DP: maximum independent set',
+    group: 'Dynamic Programming',
+    blurb: 'Solve the children first: every node returns its best sum taken and skipped, and its parent combines the pairs.',
+    topics: [`${ADV}/DP_on_Trees`, ADV],
+  },
+  {
+    id: 'tree-dp-max-path-sum',
+    title: 'Tree DP: maximum path sum',
+    group: 'Dynamic Programming',
+    blurb: 'Each node keeps its two best positive child chains: their sum is the best path through it, one chain goes up.',
+    topics: [`${ADV}/DP_on_Trees`],
+  },
+  {
+    id: 'dag-longest-path',
+    title: 'DP on a DAG: longest path',
+    group: 'Dynamic Programming',
+    blurb: 'A memoized DFS finishes successors first, reuses finished nodes and raises on an edge back into the stack.',
+    topics: [`${ADV}/DP_on_Graphs`, ADV],
+  },
+  {
+    id: 'bitmask-dp-tsp',
+    title: 'Bitmask DP: Traveling Salesman',
+    group: 'Dynamic Programming',
+    blurb: 'A table of visited-city masks by last city, filled in mask order by adding one city at a time, then closed back to the start.',
+    topics: [`${ADV}/Bitmask_DP`, ADV],
+  },
+  {
+    id: 'digit-dp',
+    title: 'Digit DP: count by digit sum',
+    group: 'Dynamic Programming',
+    blurb: 'Build numbers digit by digit with a tight flag; the memo on (pos, tight, sum) turns thousands of prefixes into a few states.',
+    topics: [`${ADV}/Digit_DP`, ADV],
+  },
+  {
+    id: 'convex-hull-trick',
+    title: 'Convex Hull Trick',
+    group: 'Dynamic Programming',
+    blurb: 'Lines enter a deque by decreasing slope; the back pops lines the new one makes useless, queries pop the front.',
+    topics: ['Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick'],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -86,4 +130,10 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   kadane: () => import('../specs/dpLinear').then((m) => m.kadane),
   'edit-distance': () => import('../specs/dpGrid').then((m) => m.editDistance),
   'matrix-chain': () => import('../specs/dpGrid').then((m) => m.matrixChain),
+  'tree-dp-independent-set': () => import('../specs/advancedDp').then((m) => m.treeMisSpec),
+  'tree-dp-max-path-sum': () => import('../specs/advancedDp').then((m) => m.treePathSpec),
+  'dag-longest-path': () => import('../specs/advancedDp').then((m) => m.dagLongestPathSpec),
+  'bitmask-dp-tsp': () => import('../specs/advancedDp').then((m) => m.bitmaskTspSpec),
+  'digit-dp': () => import('../specs/advancedDp').then((m) => m.digitDpSpec),
+  'convex-hull-trick': () => import('../specs/advancedDp').then((m) => m.convexHullTrickSpec),
 };

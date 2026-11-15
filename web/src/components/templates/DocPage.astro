@@ -6,7 +6,7 @@ import Chip from '../atoms/Chip.astro';
 import SectionTitle from '../atoms/SectionTitle.astro';
 import Breadcrumbs from '../molecules/Breadcrumbs.astro';
 import Implementations from '../organisms/Implementations.astro';
-import TopicCards from '../organisms/TopicCards.astro';
+import ChildTopics from '../organisms/ChildTopics.astro';
 import VizSection from '../organisms/VizSection.astro';
 import BaseLayout from './BaseLayout.astro';
 
@@ -45,7 +45,7 @@ const sourceLink = node ? githubUrl(node.rel, true) : githubUrl(doc?.rel ?? '', 
 
   <div class="page-meta">
     {node?.kind === 'topic' && node.languages.map((l) => <Chip href={`#impl-${l.id}`}>{l.label}</Chip>)}
-    {node?.kind === 'category' && <Chip>{childTopics} topics</Chip>}
+    {node?.kind === 'category' && childTopics > 0 && <Chip>{childTopics} topics</Chip>}
     {vizzes.length > 0 && <Chip href="#visualize">&#x25cf; {vizzes.length === 1 ? 'Visualization' : `${vizzes.length} visualizations`}</Chip>}
     <Chip href={sourceLink} external>View source on GitHub &#x2197;</Chip>
   </div>
@@ -60,7 +60,7 @@ const sourceLink = node ? githubUrl(node.rel, true) : githubUrl(doc?.rel ?? '', 
     node?.kind === 'category' && node.children.length > 0 && (
       <section aria-labelledby="children-title">
         <SectionTitle id="children-title">In this section</SectionTitle>
-        <TopicCards nodes={node.children} />
+        <ChildTopics nodes={node.children} />
       </section>
     )
   }

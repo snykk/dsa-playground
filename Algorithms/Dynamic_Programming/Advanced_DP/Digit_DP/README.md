@@ -77,8 +77,8 @@ d is the number of digits of `n`. There are d positions, 2 values of `tight` and
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
 | Python | [Python](Python/) | `digit_dp.py` | Complete counter for digit sums; 5 tests |
-| C++ | [C++](C++/) | `digit_dp.cpp` | Placeholder: comment-only stub, test only prints a message |
-| Go | [Go](Go/) | `main.go` | Placeholder: package stub, test asserts nothing |
+| C++ | [C++](C++/) | `digit_dp.cpp` | `countNumbersWithDigitSum`; `long long` bound and count, so `n` up to about 9.2 * 10^18; 7 tests |
+| Go | [Go](Go/) | `main.go` | `CountNumbersWithDigitSum`; `int64` bound and count, so `n` up to about 9.2 * 10^18; 3 tests |
 
 ## Practice Problems
 

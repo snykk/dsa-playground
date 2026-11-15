@@ -15,6 +15,41 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+## [v0.6.0] - 2026-11-15
+
+Visualizations for advanced dynamic programming, advanced strings, network flow, 2-SAT, Huffman coding, job scheduling and the Galois field; C++ and Go ports for the five topics that only had Python; and a new design for the site.
+
+### Added
+
+- **18 visualizations for 15 topics**, bringing the site to 136 visualizations covering 127 of the 153 topics:
+  - advanced DP: bitmask DP (the traveling salesman table), digit DP with its memo and call stack, DP on trees (independent set and path sum), the longest path in a DAG, and the convex hull trick's lower envelope;
+  - advanced strings: Aho-Corasick (the trie, its failure and output links, then the scan), the longest common substring, Manacher's algorithm and the suffix array with its searches;
+  - graphs: Ford-Fulkerson and Edmonds-Karp on the same networks, ending at the minimum cut, and 2-SAT on its implication graph;
+  - greedy and coding theory: Huffman coding move for move with Python's heap, job scheduling by all three of its rules, and arithmetic in the Galois field GF(2^8).
+- **C++ and Go ports** of bitmask DP, DP on graphs, DP on trees, digit DP and Huffman coding, which held only a stub before. Their tests pin outputs computed by the Python code, and Huffman gives the same code table as Python, ties included.
+- **Renderers for them**: a DP table for masks and digits, a tree that carries a pair of values per node, a lower envelope of lines, a trie with failure and output links, sorted suffixes, a flow network whose pipes fill, an implication graph, a Huffman forest under its heap, deadline slots, and bytes as bits beside the ring of powers of 3.
+- **Side-by-side tabs** on the Advanced DP, Advanced String and Network Flow overviews; 2-SAT joins the Advanced Graph tabs, Huffman coding and job scheduling the Greedy tabs, and the Galois field the Coding Theory tabs.
+- **Golden fixtures for the new visualizations**: four generators run the Python implementations, and the TypeScript ports must reproduce every result.
+- **A regression test** for the convex hull trick's constant-time pop from the front of its deque.
+
+### Changed
+
+- **The site's design**: a cool paper palette, Atkinson Hyperlegible Next and JetBrains Mono (self-hosted), visualizations on a graph-paper stage, and text at a reading measure. The home page opens with a short pitch and a running visualization, then the steps to study a topic, the visualizations by area and the repository's areas. Lists of topics, related topics, FAQs, complexity cases and pros and cons read as lists and sheets instead of grids of cards; the code tabs sit on the page; the Visualizations page is an index by area.
+- **Wide displays**: the page spans the window, with the sidebar and the contents list at its edges, instead of floating in a centred box.
+- **The README** counts the 127 topics the site animates.
+
+### Removed
+
+- **The card grid components** (Card, CardGrid, StatTile), which nothing used after the redesign.
+
+### Fixed
+
+- **Opening a FAQ answer** no longer makes the sidebar and the contents list jump at the end of a page: the footer sits in the content column, so the sticky columns are never pushed.
+- **A README-only category with no topics**, such as Templates, no longer says "0 topics".
+- **Documents that called the C++ and Go code of five topics placeholders**, in the articles, the overviews, the READMEs and the overview page.
+- **The Ford-Fulkerson article**: its DFS takes the diamond's cross edge first only when that edge is inserted before `1->3` (4 rounds); otherwise it takes 2.
+- **The Galois field's `pow` documentation** in Python and Go: a negative exponent is reduced modulo 255; the code never calls `inv` first.
+
 ## [v0.5.0] - 2026-11-15
 
 Visualizations for backtracking, computational geometry, the specialized decompositions, Strassen's algorithm and the randomized algorithms.
@@ -145,6 +180,7 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
+[v0.6.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.6.0
 [v0.5.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.5.0
 [v0.4.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.4.0
 [v0.3.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.3.0

@@ -105,8 +105,8 @@ func (g *GF256) Inv(b byte) (byte, error) {
 	return g.expTable[FieldOrder-int(g.logTable[b])], nil
 }
 
-// Pow returns a^n. Negative n is allowed (uses the inverse).
-// Returns an error for 0^0.
+// Pow returns a^n. Negative n is allowed: the exponent is reduced into 0..254,
+// which gives Inv(a)^(-n). Returns an error for 0^0 only; 0^n is 0 for any other n.
 func (g *GF256) Pow(a byte, n int) (byte, error) {
 	if a == 0 {
 		if n == 0 {

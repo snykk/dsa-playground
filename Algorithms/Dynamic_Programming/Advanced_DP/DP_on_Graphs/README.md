@@ -79,8 +79,8 @@ Each reachable node is expanded once and each of its edges is read once. The mem
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
 | Python | [Python](Python/) | `graph_dp.py` | Complete `dag_longest_path` with cycle detection; 7 tests |
-| C++ | [C++](C++/) | `graph_dp.cpp` | Placeholder: comment-only stub, test only prints a message |
-| Go | [Go](Go/) | `main.go` | Placeholder: package stub, test asserts nothing |
+| C++ | [C++](C++/) | `graph_dp.cpp` | `dagLongestPath` on an `unordered_map<int, vector<int>>`; throws `std::invalid_argument` on a cycle; 9 tests |
+| Go | [Go](Go/) | `main.go` | `DAGLongestPath` on a `map[int][]int`; returns `ErrCycle` on a cycle; 3 tests |
 
 ## Practice Problems
 

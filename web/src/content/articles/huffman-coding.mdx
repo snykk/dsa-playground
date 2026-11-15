@@ -3,7 +3,7 @@ topic: Algorithms/Greedy/Huffman_Coding
 title: Huffman Coding
 lead: Huffman coding gives every symbol a binary code whose length depends on how often the symbol occurs, so frequent symbols get short codes and rare ones long codes. It builds the tree by repeatedly merging the two least frequent nodes, and the result is the shortest possible prefix-free code.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Build time
     value: O(k log k)
@@ -15,9 +15,8 @@ facts:
     value: Greedy
     hint: merge the two lightest nodes
   - label: Implemented in
-    value: Python only
-    hint: the C++ and Go files are placeholders
-    tone: warn
+    value: Python, C++, Go
+    hint: the same code table for ASCII text
 properties:
   - { label: Greedy, value: true }
   - { label: Lossless, value: true }
@@ -58,6 +57,12 @@ A text of ASCII characters normally spends 8 bits on every character. Huffman co
 <Callout title="Why merging the two lightest is optimal">
 Two facts prove it. First, in some optimal tree the two least frequent symbols are siblings at the deepest level: if a heavier symbol sat deeper, swapping it with a lighter one cannot make the total longer. Second, merging those two siblings into one symbol with the summed frequency gives a smaller problem, and its optimal cost plus the sum of the two frequencies is the cost of the original. So each greedy merge is safe, and induction on the number of symbols finishes the proof.
 </Callout>
+
+## See it in action
+
+Run **abracadabra**: the row on top is the Python `heapq` list, the trees below stand in that same order, and every `heappush` and `heappop` moves the entries exactly as `heapq` does, so equal frequencies are broken the way the Python code breaks them (**Equal frequencies** has nothing but ties). Then each merge lowers the two lightest trees under a new root, `build_codes` reads every code off its path, and the text is encoded bit by bit; **Textbook 45/13/12/16/9/5** is the worked example below.
+
+<ArticleViz ids={['huffman-coding']} />
 
 ## Worked example
 
@@ -144,8 +149,8 @@ A text with one distinct symbol gives a single leaf, so its code would be empty;
 
 ## Implementation
 
-<Callout tone="warning" title="Only Python is implemented">
-The Python file has the full algorithm: `build_huffman_tree`, `build_codes`, `huffman_encode`, `huffman_decode` and `calculate_compression_ratio`. The C++ and Go files are placeholders. `huffmanEncode` (C++) and `HuffmanEncode` (Go) return an empty map, and their tests only check that the call runs. Ports with a heap, a tree, a code table, encode and decode are still to be written.
+<Callout tone="note" title="Three languages, one code table">
+Python, C++ and Go have the same functions: `build_huffman_tree`, `build_codes`, `huffman_encode`, `huffman_decode` and `calculate_compression_ratio` (`buildHuffmanTree` and so on in C++, `BuildHuffmanTree` and so on in Go). Python breaks ties between equal frequencies by the positions of the nodes in its `heapq` list, and the C++ and Go ports copy that heap exactly, so all three give the same code table for the same text. C++ codes the bytes of a `std::string`, so only ASCII text is guaranteed the same table there.
 </Callout>
 
 <TopicCode topic="Algorithms/Greedy/Huffman_Coding" />
@@ -217,7 +222,7 @@ The tree has k leaves and k - 1 internal nodes, so it needs <BigO of="k" /> memo
 - **A single distinct symbol.** The tree is one leaf, and the path to it is empty. Give it a code like `0`, as the Python code does, or decoding cannot work.
 - **Forgetting that the encoder and decoder need the same tree.** Decoding with a tree built from different frequencies gives garbage.
 - **Counting the ratio wrongly.** Compare bits with bits: the Python helper uses 8 bits per character as the baseline and does not count the cost of storing the tree.
-- **Treating the C++ and Go files as implementations.** They are placeholders.
+- **Bytes are not characters.** The C++ version codes the bytes of a `std::string`, so a UTF-8 character such as U+00E9 is two symbols there; Python and Go code characters (code points).
 </Callout>
 
 ## Frequently asked questions

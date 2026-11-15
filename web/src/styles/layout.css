@@ -1,4 +1,7 @@
 /* Page grid: sidebar | content | table of contents, collapsing on small screens.
+ * The grid spans the window, so the sidebar and the contents list stay at its edges on a
+ * wide display; the content column centres a sheet whose text keeps a reading measure
+ * while visualizations, tables and code use its full width.
  * Responsive rules of individual components live in those components. */
 
 .layout {
@@ -6,11 +9,9 @@
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   width: 100%;
-  max-width: 1480px;
-  margin: 0 auto;
 }
 .layout.has-toc {
-  grid-template-columns: 280px minmax(0, 1fr) 220px;
+  grid-template-columns: 280px minmax(0, 1fr) 240px;
 }
 
 .sidebar {
@@ -23,12 +24,23 @@
   font-size: 14px;
 }
 
+/* The footer sits in the middle column, not under the whole grid, so the grid runs to the
+ * end of the page. Sticky columns are held inside the grid; a full-width footer below it
+ * would push the sidebar and the contents list up at the end of the page, and any change in
+ * the page's height (opening a FAQ answer) would make them jump back. */
+.column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .content {
+  flex: 1;
   min-width: 0;
   padding: 28px clamp(16px, 4vw, 48px) 64px;
 }
 .content-inner {
-  max-width: 880px;
+  max-width: 1120px;
   margin: 0 auto;
 }
 
