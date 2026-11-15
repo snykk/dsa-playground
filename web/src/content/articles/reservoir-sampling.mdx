@@ -3,7 +3,7 @@ topic: Algorithms/Randomized_Algorithms/Reservoir_Sampling
 title: Reservoir Sampling
 lead: Reservoir sampling picks k items uniformly at random from a stream whose length you do not know in advance, in one pass and with only O(k) memory. After n items, every one of them is in the sample with probability exactly k/n.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Time
     value: O(n)
@@ -51,6 +51,12 @@ Keep a **reservoir** of `k` items. Fill it with the first `k` stream items. Afte
 <Callout title="The invariant">
 After `i` items, every one of them is in the reservoir with probability exactly `k / i`. Step `i + 1` keeps the invariant: the new item enters with probability `k / (i + 1)`, and an old item stays with probability `i / (i + 1)`, so it remains with `(k / i) * (i / (i + 1)) = k / (i + 1)`.
 </Callout>
+
+## See it in action
+
+Run **Article example (seed 8)**: `seed 8` makes `rng = random.Random(8)`, so the draws are the ones of the worked example below. Each draw is a row of `i` cells whose first `k` are slots; the item glides into the slot it wins and pushes the old item out. The last step repeats the call a thousand times and counts how often each item was kept, and **6000 runs** reproduces the counts in the Randomized Algorithms overview.
+
+<ArticleViz ids={['reservoir-sampling']} />
 
 ## Why every item has probability k / n
 

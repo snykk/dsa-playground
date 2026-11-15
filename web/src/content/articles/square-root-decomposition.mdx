@@ -3,7 +3,7 @@ topic: Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decompo
 title: Square Root Decomposition
 lead: Square root decomposition splits an array into blocks of about sqrt(n) elements and keeps one precomputed summary per block. A range query then scans two partial blocks and combines whole-block summaries, so it costs O(sqrt n) while a point update stays O(1).
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Build
     value: O(n)
@@ -79,6 +79,12 @@ If `l` and `r` are in the same block, just add the elements.
     `blocks[i // B] += value - arr[i]`, then `arr[i] = value`. That is O(1).
   </Step>
 </Steps>
+
+## See it in action
+
+**Query, update, query (Python demo)** runs the worked example below: the block sums are built one element at a time, `query(2, 7)` adds two partial blocks cell by cell, and `update(5, 20)` sends its change of +14 up to block 1 only. **Whole blocks in the middle** shows a query that reads two block sums instead of eight cells, and **Past the end (IndexError)** shows what the unchecked indices do.
+
+<ArticleViz ids={['sqrt-decomposition']} />
 
 ## Worked example
 

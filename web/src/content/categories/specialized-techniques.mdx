@@ -2,7 +2,7 @@
 category: Algorithms/Advanced_Algorithms/Specialized_Techniques
 title: Specialized Techniques
 lead: Four ways to split a big structure into pieces that are cheap to combine. Square root decomposition and Mo's algorithm answer range queries on an array, heavy-light and centroid decomposition work on trees. They differ in what they answer, whether updates are allowed, and whether queries must be known in advance.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: Square root blocks
     value: O(sqrt n)
@@ -58,6 +58,12 @@ The techniques split along two lines:
     ['Centroid decomposition', 'tree', 'pieces of at most half the size, around the centroid', 'the centroid tree; used for path, distance and nearest-marked-node problems', 'not for edges', 'online, once built'],
   ]}
 />
+
+## See them side by side
+
+One tab per technique, in reading order: the two array techniques open on their topic examples (paste `[1, 2, 1, 3, 2, 1, 4, 2, 3]` with the queries of the next section to compare them on one array), and the **Nine nodes (overview)** example of each tree tab loads the tree used below.
+
+<ArticleViz ids={['sqrt-decomposition', 'mos-algorithm', 'heavy-light-decomposition', 'centroid-decomposition']} />
 
 ## One array and one tree
 

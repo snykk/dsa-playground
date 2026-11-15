@@ -1,6 +1,6 @@
 # Strassen's Matrix Multiplication -- C++ Implementation
 
-Strassen's algorithm for square `int` matrices, with a naive cutoff at n <= 64. See the [topic README](../README.md) for the idea and the trace.
+Strassen's algorithm for square `int` matrices, with a naive cutoff (n <= 64 by default). See the [topic README](../README.md) for the idea and the trace.
 
 ## Files
 
@@ -10,7 +10,7 @@ Strassen's algorithm for square `int` matrices, with a naive cutoff at n <= 64. 
 ## API
 
 - `using Matrix = std::vector<std::vector<int>>`
-- `Matrix strassenMultiply(const Matrix& A, const Matrix& B)` - multiply two n x n matrices. Pads an odd size by one zero row and column.
+- `Matrix strassenMultiply(const Matrix& A, const Matrix& B, int cutoff = 64)` - multiply two n x n matrices. Sizes n <= `cutoff` use the naive loop; a cutoff below 1 throws `std::invalid_argument`. Pads an odd size by one zero row and column.
 - `matrixAdd`, `matrixSubtract` - element-wise helpers.
 - `splitMatrix(matrix, A11, A12, A21, A22)` - fill the four quadrants.
 - `combineMatrices(C11, C12, C21, C22)` - join four quadrants.
@@ -18,7 +18,8 @@ Strassen's algorithm for square `int` matrices, with a naive cutoff at n <= 64. 
 ```cpp
 #include "strassen_matrix.cpp"
 
-Matrix C = strassenMultiply({{1, 2}, {3, 4}}, {{5, 6}, {7, 8}});   // {{19, 22}, {43, 50}}
+Matrix C = strassenMultiply({{1, 2}, {3, 4}}, {{5, 6}, {7, 8}});      // {{19, 22}, {43, 50}}
+Matrix D = strassenMultiply({{1, 2}, {3, 4}}, {{5, 6}, {7, 8}}, 1);   // same, from seven 1 x 1 products
 ```
 
 ## C++-Specific Notes

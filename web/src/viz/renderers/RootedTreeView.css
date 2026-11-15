@@ -1,0 +1,158 @@
+/* RootedTreeView organism: rooted trees (edges, chain tubes, removed vertices, pointer pills) and an array row. */
+.rt-wrap {
+  overflow-x: auto;
+}
+.rt-view {
+  display: block;
+  margin: 0 auto;
+}
+.rt-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.rt-view .rt-title {
+  text-anchor: start;
+  fill: var(--text-3);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Edges: plain, heavy (thick, solid), light (thin, dashed), cut (faint, dotted). */
+.rt-view .rt-edge {
+  stroke: var(--axis);
+  stroke-width: 2;
+  transition:
+    stroke 0.25s ease,
+    stroke-width 0.25s ease,
+    opacity 0.25s ease;
+}
+.rt-view .rt-edge.heavy {
+  stroke: var(--text-2);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+.rt-view .rt-edge.light {
+  stroke: var(--text-3);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.rt-view .rt-edge.cut {
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+  opacity: 0.45;
+}
+.rt-view .rt-edge.role-compare,
+.rt-view .rt-edge.role-active,
+.rt-view .rt-edge.role-done,
+.rt-view .rt-edge.role-good {
+  stroke: var(--role);
+}
+.rt-view .rt-edge.role-compare:not(.heavy),
+.rt-view .rt-edge.role-active:not(.heavy),
+.rt-view .rt-edge.role-done:not(.heavy),
+.rt-view .rt-edge.role-good:not(.heavy) {
+  stroke-width: 3;
+}
+
+/* A chain: a shaded tube behind its vertices (shape, not colour, groups them). */
+.rt-view .rt-chain {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text) 11%, transparent);
+  stroke-width: 24;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Vertices come from NodeGlyph; a removed vertex fades behind its dashed outline. */
+.rt-view .rt-node.removed .node {
+  opacity: 0.5;
+}
+.rt-view .rt-sub {
+  fill: var(--text-2);
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+
+/* Named pointers. */
+.rt-view .rt-pill rect {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1.2;
+}
+.rt-view .rt-pill text {
+  fill: var(--viz-ink-on-fill);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+/* The array row under the trees. */
+.rt-view .rt-rowlabel {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.rt-view .rt-index {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.rt-view .rt-cell rect {
+  fill: var(--role);
+  stroke: var(--role);
+  transition: fill 0.2s ease;
+}
+.rt-view .rt-cell.role-idle rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+}
+.rt-view .rt-cell.empty rect {
+  fill: none;
+  stroke: var(--grid);
+  stroke-dasharray: 4 3;
+}
+.rt-view .rt-cell.role-muted {
+  opacity: 0.4;
+}
+.rt-view .rt-celltext {
+  fill: var(--viz-ink-on-fill);
+  font-size: 12px;
+  font-weight: 700;
+}
+.rt-view .rt-cell.role-idle .rt-celltext,
+.rt-view .rt-cell.role-muted .rt-celltext {
+  fill: var(--text);
+  font-weight: 500;
+}
+.rt-view .rt-cell.role-active rect,
+.rt-view .rt-cell.role-good rect,
+.rt-view .rt-cell.role-bad rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.35s ease;
+}
+.rt-view .rt-glyph {
+  text-anchor: end;
+  fill: var(--role);
+  font-size: 11px;
+  font-weight: 700;
+}
+.rt-view .rt-group path {
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1.2;
+}
+.rt-view .rt-group text {
+  fill: var(--text-2);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.rt-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
