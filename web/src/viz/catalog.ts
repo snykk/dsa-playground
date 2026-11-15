@@ -6,6 +6,7 @@
  * Astro pages import this module at build time; the specs themselves are
  * code-split and only loaded by VizMount in the browser.
  */
+import * as advancedGraph from './registry/advancedGraph';
 import * as backtracking from './registry/backtracking';
 import * as codingTheory from './registry/codingTheory';
 import * as divideAndConquer from './registry/divideAndConquer';
@@ -83,6 +84,7 @@ export const REGISTRIES = [
   graphTraversal,
   shortestPaths,
   graphStructure,
+  advancedGraph,
   trees,
   rangeQueries,
   multiwayTrees,
