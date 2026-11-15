@@ -2,7 +2,7 @@
 category: Algorithms/Randomized_Algorithms
 title: Randomized Algorithms
 lead: A randomized algorithm uses random numbers as part of its logic. The two topics here use them in different ways. Randomized Quickselect picks a random pivot so that no input is bad for it, and Reservoir Sampling draws random numbers because a uniform sample cannot be made without them.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: Quickselect, expected
     value: O(n)
@@ -51,6 +51,12 @@ In both topics the answer has a clear contract. Quickselect always returns the c
 
 Quickselect reorders the array it is given, so copy it first when the order matters. Reservoir Sampling reads each item once and never stores the stream.
 
+## See them side by side
+
+Both tabs draw from Python's own generator: `seed 7` makes `random.Random(7)`, so every run can be replayed in a Python shell. In the Quickselect tab the random draw picks the pivot and only the work changes; in the Reservoir Sampling tab the draw decides the sample, and the closing tally shows each item kept about `k / n` of the time.
+
+<ArticleViz ids={['randomized-quickselect', 'reservoir-sampling']} />
+
 ## One stream, many runs
 
 A single run of a randomized algorithm proves little, so look at many. The repository's Python `reservoir_sample` was run 6000 times with a seeded generator, `random.Random(1)`, to sample `k = 2` letters from the stream `abcdef`. That makes 12000 draws, and a uniform sample should show each letter in a third of the runs, which is 2000 times.
@@ -67,7 +73,7 @@ A single run of a randomized algorithm proves little, so look at many. The repos
   ]}
 />
 
-All six counts are close to 2000. Early letters are not favored over late ones, although `a` and `b` are put in the reservoir first and `f` has to win its place with probability `2/6`. The counts differ with the seed.
+All six counts are close to 2000, and the **6000 runs** example in the Reservoir Sampling tab above reproduces them exactly. Early letters are not favored over late ones, although `a` and `b` are put in the reservoir first and `f` has to win its place with probability `2/6`. The counts differ with the seed.
 
 Quickselect behaves the other way around. Its result is the same on every run, and only the work changes. On `[7, 2, 9, 2, 5, 2, 8]` the 4th smallest, `k = 3`, is always 5.
 

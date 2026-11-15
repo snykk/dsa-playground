@@ -2,7 +2,7 @@
 category: Algorithms/Divide_and_Conquer
 title: Divide and Conquer Algorithms
 lead: Divide and conquer splits a problem into smaller copies of itself, solves them recursively and combines the answers. This folder holds one topic, Strassen's matrix multiplication, and links to the divide-and-conquer algorithms that live in other categories.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: Merge Sort
     value: O(n log n)
@@ -53,6 +53,12 @@ This folder has one topic of its own, Strassen's matrix multiplication. The othe
 />
 
 Merge Sort, Quick Sort and Binary Search live in `Algorithms/Sorting` and `Algorithms/Searching`. Closest Pair of Points is in computational geometry and the Fast Fourier Transform in mathematical algorithms.
+
+## See it in action
+
+With its default cutoff of 64 the repository's code multiplies anything up to 64 x 64 with the naive loop. The cutoff is a parameter, so the visualization passes a smaller one and shows Strassen's three steps on a small matrix: split into quadrants, form seven products recursively, and combine them with additions only. Start with **Textbook 2 x 2 (cutoff 1)**.
+
+<ArticleViz ids={['strassen']} />
 
 ## A worked example: where Strassen's saving comes from
 
