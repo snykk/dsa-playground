@@ -52,6 +52,12 @@ A queen attacks along its row, its column and both diagonals. Two queens in the 
 A partial placement that already contains an attack is never extended. Whole subtrees of the search disappear: for n = 8 the solver makes 15,720 safety checks to list all 92 solutions, while the number of orderings of columns alone is 8! = 40,320.
 </Callout>
 
+## See it in action
+
+Run **4 queens (article)** to replay the worked example below. Every square tested shows the lines `is_safe` scans, the column first and then the two diagonals, and a line turns red at the first queen in the way. The call stack beside the board shows one open call per row, so you can see which row backs up when a row runs out of columns. **4 queens, all solutions** keeps searching after the first board, and **No solution: n = 3** backs out of every branch.
+
+<ArticleViz ids={['n-queens']} />
+
 ## Worked example: n = 4
 
 The first solution is found after a dead end. Queens sit at row 0, column 0 and row 1, column 2 (counting from 0). Orange cells are queens and grey cells are attacked:

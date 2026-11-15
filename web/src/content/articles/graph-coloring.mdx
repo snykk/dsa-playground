@@ -56,6 +56,12 @@ The solver fills the color array one vertex at a time, in index order `0, 1, ...
 At every call for vertex `v`, the colored vertices `0..v-1` form a proper partial coloring. A color is committed only after `is_safe` confirms it, so the invariant holds on entry to every deeper call, and a full assignment is automatically a proper coloring.
 </Callout>
 
+## See it in action
+
+**Article graph, m = 3** colors the worked example below without backtracking. **Same graph, m = 2: none** shows the search exhausting its tree, and **Path 0-2-3-1: backtrack** shows a vertex that has to change its color after a later vertex runs out of colors. Each vertex shows its color as a badge (c1, c2, ...), a tried color carries a question mark, and the strips under the graph show the open calls and the color array.
+
+<ArticleViz ids={['graph-coloring']} />
+
 ## Worked example
 
 The graph has 4 vertices and 5 edges: `0-1, 0-2, 0-3, 1-2, 2-3`. Vertices 0, 1, 2 form a triangle, so at least 3 colors are needed. With `m = 3` the solver never has to backtrack:
