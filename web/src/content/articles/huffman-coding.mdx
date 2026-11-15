@@ -15,9 +15,8 @@ facts:
     value: Greedy
     hint: merge the two lightest nodes
   - label: Implemented in
-    value: Python only
-    hint: the C++ and Go files are placeholders
-    tone: warn
+    value: Python, C++, Go
+    hint: the same code table for ASCII text
 properties:
   - { label: Greedy, value: true }
   - { label: Lossless, value: true }
@@ -144,8 +143,8 @@ A text with one distinct symbol gives a single leaf, so its code would be empty;
 
 ## Implementation
 
-<Callout tone="warning" title="Only Python is implemented">
-The Python file has the full algorithm: `build_huffman_tree`, `build_codes`, `huffman_encode`, `huffman_decode` and `calculate_compression_ratio`. The C++ and Go files are placeholders. `huffmanEncode` (C++) and `HuffmanEncode` (Go) return an empty map, and their tests only check that the call runs. Ports with a heap, a tree, a code table, encode and decode are still to be written.
+<Callout tone="note" title="Three languages, one code table">
+Python, C++ and Go have the same functions: `build_huffman_tree`, `build_codes`, `huffman_encode`, `huffman_decode` and `calculate_compression_ratio` (`buildHuffmanTree` and so on in C++, `BuildHuffmanTree` and so on in Go). Python breaks ties between equal frequencies by the positions of the nodes in its `heapq` list, and the C++ and Go ports copy that heap exactly, so all three give the same code table for the same text. C++ codes the bytes of a `std::string`, so only ASCII text is guaranteed the same table there.
 </Callout>
 
 <TopicCode topic="Algorithms/Greedy/Huffman_Coding" />
@@ -217,7 +216,7 @@ The tree has k leaves and k - 1 internal nodes, so it needs <BigO of="k" /> memo
 - **A single distinct symbol.** The tree is one leaf, and the path to it is empty. Give it a code like `0`, as the Python code does, or decoding cannot work.
 - **Forgetting that the encoder and decoder need the same tree.** Decoding with a tree built from different frequencies gives garbage.
 - **Counting the ratio wrongly.** Compare bits with bits: the Python helper uses 8 bits per character as the baseline and does not count the cost of storing the tree.
-- **Treating the C++ and Go files as implementations.** They are placeholders.
+- **Bytes are not characters.** The C++ version codes the bytes of a `std::string`, so a UTF-8 character such as U+00E9 is two symbols there; Python and Go code characters (code points).
 </Callout>
 
 ## Frequently asked questions

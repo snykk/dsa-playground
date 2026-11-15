@@ -142,7 +142,7 @@ maxPathSum(root):
 
 ## Implementation
 
-The Python version has `TreeNode(val, children)`, `tree_dp_max_independent_set(root)` and `tree_dp_max_path_sum(root)`. The empty tree gives 0 for the independent set and `-inf` for the path sum. The C++ and Go folders are placeholders (a stub and a test that asserts nothing).
+The Python version has `TreeNode(val, children)`, `tree_dp_max_independent_set(root)` and `tree_dp_max_path_sum(root)`. The empty tree gives 0 for the independent set and `-inf` for the path sum. C++ (`treeDpMaxIndependentSet`, `treeDpMaxPathSum`) and Go (`TreeDPMaxIndependentSet`, `TreeDPMaxPathSum`) use 64-bit integer values, so for the empty tree's path sum they return the smallest 64-bit integer (`kEmptyTreePathSum`, `EmptyTreePathSum`) instead of `-inf`.
 
 <TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees" />
 

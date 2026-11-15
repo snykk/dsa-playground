@@ -21,9 +21,8 @@ facts:
     value: 1 or 2 values per node
     hint: for example include and exclude
   - label: Implementations
-    value: Python only
-    hint: C++ and Go are placeholders in all four topics
-    tone: warn
+    value: Python, C++, Go
+    hint: the same results in all three; Python is the reference
 contents:
   - folder: DP_on_Trees
     note: Solve every subtree from the leaves up. Independent set and maximum path sum in one O(n) pass.
@@ -115,7 +114,7 @@ Digit DP is cheap in the size of the bound: `count_numbers_with_digit_sum(10**18
 - **Running graph DP on a cycle.** There is no order in which the successors are solved first. The code detects this and raises `ValueError`.
 - **Using bitmask DP past about 20 items.** The table has `n * 2^n` cells, and in Python the cell objects make the practical limit lower.
 - **Forgetting the tight flag in digit DP.** Without it a number above the bound is counted, because the digits are no longer limited by the bound's digits.
-- **Expecting C++ and Go versions.** The four topics here are implemented in Python only; the other folders are stubs.
+- **Comparing sentinels across languages.** No tour is infinity in all three languages, but the path sum of an empty tree is `-inf` in Python and the smallest 64-bit integer in C++ and Go.
 </Callout>
 
 ## Frequently asked questions

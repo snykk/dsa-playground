@@ -69,15 +69,15 @@ n is the number of nodes and h the height (the recursion stack): O(log n) for a 
 - Calling the recursion twice per child, which makes the time exponential.
 - Returning the through-node sum (`val + best1 + best2`) to the parent instead of the downward chain.
 - If every value is negative, the best path is the largest single value, not 0.
-- Empty tree: independent set returns 0 and path sum returns `-inf`.
+- Empty tree: independent set returns 0 and path sum returns `-inf` in Python, the smallest 64-bit integer in C++ (`kEmptyTreePathSum`) and Go (`EmptyTreePathSum`).
 
 ## Implementations
 
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
 | Python | [Python](Python/) | `tree_dp.py` | Complete: independent set and maximum path sum; 9 tests |
-| C++ | [C++](C++/) | `tree_dp.cpp` | Placeholder: comment-only stub, test only prints a message |
-| Go | [Go](Go/) | `main.go` | Placeholder: package stub, test asserts nothing |
+| C++ | [C++](C++/) | `tree_dp.cpp` | `TreeNode` with children held by value, `long long` sums; empty-tree path sum `kEmptyTreePathSum`; 11 tests |
+| Go | [Go](Go/) | `main.go` | `TreeNode` with child pointers, `int` sums; empty-tree path sum `EmptyTreePathSum`; 3 tests |
 
 ## Practice Problems
 

@@ -74,7 +74,7 @@ Closing the tour from `1111`: B gives 70 + 10 = 80, C gives 65 + 15 = 80, D give
 | TSP (`dp[mask][last]`) | O(n^2 * 2^n) | O(n * 2^n) |
 | Subset DP (`dp[mask]` only) | O(n * 2^n) | O(2^n) |
 
-There are 2^n masks and n values of `last`, and each cell tries up to n next cities. The table is n * 2^n cells: about 21 million for n = 20, which is hundreds of megabytes as Python floats. The practical limit is n of about 15 in Python and 20 to 25 in C++ or Go.
+There are 2^n masks and n values of `last`, and each cell tries up to n next cities. The table is n * 2^n cells: about 21 million for n = 20, which is hundreds of megabytes as Python floats. The practical limit is n of about 15 in Python and about 20 in C++ or Go, where the table is already 168 MB of doubles.
 
 ## When to Use
 
@@ -93,7 +93,7 @@ There are 2^n masks and n values of `last`, and each cell tries up to n next cit
 
 ## Common Pitfalls
 
-- Returning 0 when no tour exists. The final minimum stays infinity in that case, and this implementation returns `float('inf')`.
+- Returning 0 when no tour exists. The final minimum stays infinity in that case, and the code returns infinity: `float('inf')` in Python, `kInfinity` in C++, `math.Inf(1)` in Go.
 - Reading `dp[mask][last]` when bit `last` is not in `mask`.
 - Missing parentheses: write `mask & (1 << i)`.
 - 32-bit overflow of `1 << j` for j >= 31 in C++ and Go; use 64-bit masks.
@@ -104,8 +104,8 @@ There are 2^n masks and n values of `last`, and each cell tries up to n next cit
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
 | Python | [Python](Python/) | `bitmask_dp.py` | Complete `traveling_salesman_dp`; 4 tests |
-| C++ | [C++](C++/) | `bitmask_dp.cpp` | Placeholder: comment-only stub, test only prints a message |
-| Go | [Go](Go/) | `main.go` | Placeholder: package stub, test asserts nothing |
+| C++ | [C++](C++/) | `bitmask_dp.cpp` | `travelingSalesmanDp` on `double` distances; `kInfinity` marks a missing edge and no tour; 6 tests |
+| Go | [Go](Go/) | `main.go` | `TravelingSalesmanDP` on `float64` distances; `math.Inf(1)` marks a missing edge and no tour; 3 tests |
 
 ## Practice Problems
 

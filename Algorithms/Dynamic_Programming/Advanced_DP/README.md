@@ -13,7 +13,7 @@ Read them in this order.
 | 3 | [Bitmask DP](Bitmask_DP/) | Store a set of visited items as the bits of one integer. This turns the O(n!) tour search into 2^n * n states. | Advanced |
 | 4 | [Digit DP](Digit_DP/) | Count numbers in a range by building them digit by digit, with a tight flag and a running value as the state. | Advanced |
 
-Only Python holds implementations. In all four topics the C++ and Go folders are placeholders, so use the Python folder.
+All four topics are implemented in Python, C++ and Go, with the same results; Python is the reference.
 
 ## How They Compare
 
@@ -43,7 +43,7 @@ Digit DP is cheap in the size of the bound: `count_numbers_with_digit_sum(10**18
 - Running graph DP on a cycle: there is no order in which the successors are solved first, and the code raises `ValueError`.
 - Using bitmask DP past about 20 items: the table has `n * 2^n` cells, and in Python the practical limit is lower.
 - Forgetting the tight flag in digit DP: a number above the bound is then counted.
-- Expecting C++ and Go versions: the other folders are stubs.
+- Comparing sentinels across languages: no tour is infinity in all three, but the path sum of an empty tree is `-inf` in Python and the smallest 64-bit integer in C++ and Go.
 
 ## Related
 
