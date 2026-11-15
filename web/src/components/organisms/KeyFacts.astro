@@ -35,12 +35,18 @@ const { facts, properties = [] } = Astro.props;
   .key-facts {
     margin: 0 0 8px;
   }
+  /* One sheet for all the facts: they are read together, not as separate cards. */
   .facts {
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    row-gap: 18px;
+    column-gap: 28px;
     display: grid;
     /* At most as wide as the article, so a phone gets one column and a long complexity such as
        O(1 / (1 - load)), which never wraps, still fits its tile. */
     grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
-    gap: 10px;
   }
   .properties {
     list-style: none;

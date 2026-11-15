@@ -3,20 +3,28 @@ import { joinBase } from '../../lib/repo';
 import VizMount from '../../viz/VizMount';
 import Button from '../atoms/Button.astro';
 
-/** Home page opener: the pitch, calls to action and a live, looping visualization. */
+/**
+ * Home page opener: a short pitch with the repository's own numbers, two calls to action,
+ * and the product itself, a visualization running on the graph-paper stage.
+ */
+interface Props {
+  topics: number;
+  visualized: number;
+}
+
+const { topics, visualized } = Astro.props;
 const base = import.meta.env.BASE_URL;
 ---
 
 <section class="hero">
-  <h1>Learn data structures &amp; algorithms by watching them run.</h1>
-  <p>
-    Every topic pairs a written explanation with tested implementations in Python, C++ and Go, and many come with a
-    step-by-step visualization you can drive yourself.
+  <h1>Step through data structures and algorithms on your own input.</h1>
+  <p class="pitch">
+    {topics} topics, each with an article and tested code in Python, C++ and Go. {visualized} of them run step by
+    step, with a caption that says why each step happens.
   </p>
   <div class="hero-actions">
     <Button href={joinBase(base, 'visualizations')} variant="primary">Browse visualizations</Button>
     <Button href={joinBase(base, 'study-guide')}>Follow the study guide</Button>
-    <Button href={joinBase(base, 'overview')}>Repository overview</Button>
   </div>
   <div class="hero-demo" aria-label="Live demo: quick sort on random input">
     <VizMount client:visible ids={['quick-sort']} autoplay loop compact />
@@ -25,19 +33,23 @@ const base = import.meta.env.BASE_URL;
 
 <style>
   .hero {
-    padding: 32px 0 8px;
+    padding: 40px 0 8px;
   }
   h1 {
-    font-size: clamp(32px, 5vw, 48px);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    margin: 0 0 16px;
+    font-size: clamp(32px, 5.2vw, 48px);
+    line-height: 1.08;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    max-width: 23ch;
+    margin: 0 0 18px;
+    text-wrap: balance;
   }
-  p {
-    font-size: 18px;
+  .pitch {
+    font-size: 19px;
+    line-height: 1.55;
     color: var(--text-2);
-    max-width: 680px;
-    margin: 0 0 24px;
+    max-width: 56ch;
+    margin: 0 0 26px;
   }
   .hero-actions {
     display: flex;
@@ -45,6 +57,6 @@ const base = import.meta.env.BASE_URL;
     gap: 10px;
   }
   .hero-demo {
-    margin-top: 28px;
+    margin-top: 32px;
   }
 </style>

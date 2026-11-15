@@ -3,21 +3,27 @@
  * from spacing and type, never from rules or underlines. */
 
 .article-body {
-  font-size: 16.5px;
-  line-height: 1.75;
+  font-size: 17px;
+  line-height: 1.7;
   overflow-wrap: break-word;
 }
+/* Running text keeps a book's measure; tables, diagrams and the stage use the full width. */
+.article-body > p,
+.article-body > ul,
+.article-body > ol {
+  max-width: 68ch;
+}
 .article-body > h2 {
-  font-size: 26px;
+  font-size: 24px;
   line-height: 1.25;
-  letter-spacing: -0.015em;
+  font-weight: 700;
   margin: 60px 0 14px;
 }
 .article-body > h2:first-child {
   margin-top: 40px;
 }
 .article-body > h3 {
-  font-size: 19px;
+  font-size: 20px;
   line-height: 1.35;
   margin: 34px 0 10px;
 }
@@ -37,7 +43,7 @@
   color: var(--text-3);
 }
 .article-body strong {
-  font-weight: 650;
+  font-weight: 700;
 }
 /* Inline code in the prose; the visualization player and the code tabs style their own. */
 .article-body :not(pre) > code:not(.article-viz code, .topic-code code) {

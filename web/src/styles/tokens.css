@@ -1,38 +1,40 @@
 /* Design tokens: one place for every color, font and size, in light and dark themes.
- * Colors are role tokens: chrome/ink from the dataviz reference palette, viz roles
- * from its first three categorical slots (validated all-pairs, light + dark) plus the
- * fixed status pair, which always ships with a check/cross glyph. */
+ * The site reads like a step-through notebook: a cool paper page, white sheets for the
+ * stage and the code, slate ink, and graph-paper rules; the step blue is the ink of the
+ * controls that move a run forward. The visualization roles keep the validated palette
+ * (its first three categorical slots, checked all-pairs in light and dark, plus the
+ * fixed status pair, which always ships with a check/cross glyph). */
 
 :root {
   color-scheme: light;
-  --bg: #f9f9f7;
-  --surface: #fcfcfb;
-  --surface-2: #f2f1ee;
-  --surface-3: #e9e8e3;
-  --text: #0b0b0b;
-  --text-2: #52514e;
-  --text-3: #6b6a64;
-  --border: rgba(11, 11, 11, 0.1);
-  --border-strong: rgba(11, 11, 11, 0.2);
-  --grid: #e1e0d9;
-  --axis: #c3c2b7;
-  --link: #1c5cab;
-  --accent: #2a78d6;
-  --accent-soft: #cde2fb;
-  --focus: #2a78d6;
-  --shadow: 0 1px 2px rgba(11, 11, 11, 0.06), 0 4px 16px rgba(11, 11, 11, 0.05);
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+  --surface-3: #e3e8ef;
+  --text: #1c2230;
+  --text-2: #4a5468;
+  --text-3: #6b7487;
+  --border: rgba(28, 34, 48, 0.1);
+  --border-strong: rgba(28, 34, 48, 0.2);
+  --grid: #e1e6ed;
+  --axis: #c2cad6;
+  --link: #2457c2;
+  --accent: #2a5fd0;
+  --accent-soft: #dce6fa;
+  --focus: #2a5fd0;
+  --shadow: 0 1px 2px rgba(28, 34, 48, 0.05), 0 8px 24px rgba(28, 34, 48, 0.06);
 
-  --viz-neutral: #898781;
+  --viz-neutral: #8a93a3;
   --viz-compare: #2a78d6;
   --viz-active: #eb6834;
   --viz-done: #1baf7a;
   --viz-good: #0ca30c;
   --viz-bad: #d03b3b;
   --viz-ink-on-fill: #ffffff;
-  --viz-surface: #fcfcfb;
+  --viz-surface: #ffffff;
 
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-sans: 'Atkinson Hyperlegible Next Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --header-h: 56px;
   --radius: 10px;
 }
@@ -40,49 +42,51 @@
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme='light'])) {
     color-scheme: dark;
-    --bg: #0d0d0d;
-    --surface: #1a1a19;
-    --surface-2: #232321;
-    --surface-3: #2c2c2a;
-    --text: #f0efec;
-    --text-2: #c3c2b7;
-    --text-3: #a3a29b;
-    --border: rgba(255, 255, 255, 0.1);
-    --border-strong: rgba(255, 255, 255, 0.2);
-    --grid: #2c2c2a;
-    --axis: #383835;
-    --link: #86b6ef;
-    --accent: #3987e5;
-    --accent-soft: #184f95;
-    --focus: #6da7ec;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+    --bg: #10141b;
+    --surface: #161b24;
+    --surface-2: #1d2430;
+    --surface-3: #252d3b;
+    --text: #e6eaf2;
+    --text-2: #a6b0c3;
+    --text-3: #8a94a8;
+    --border: rgba(230, 234, 242, 0.1);
+    --border-strong: rgba(230, 234, 242, 0.2);
+    --grid: #232b38;
+    --axis: #354052;
+    --link: #8fb0f5;
+    --accent: #4570d8;
+    --accent-soft: #1e3260;
+    --focus: #7aa2f7;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+    --viz-neutral: #7c8597;
     --viz-compare: #3987e5;
     --viz-active: #d95926;
     --viz-done: #199e70;
-    --viz-surface: #1a1a19;
+    --viz-surface: #161b24;
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #0d0d0d;
-  --surface: #1a1a19;
-  --surface-2: #232321;
-  --surface-3: #2c2c2a;
-  --text: #f0efec;
-  --text-2: #c3c2b7;
-  --text-3: #a3a29b;
-  --border: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.2);
-  --grid: #2c2c2a;
-  --axis: #383835;
-  --link: #86b6ef;
-  --accent: #3987e5;
-  --accent-soft: #184f95;
-  --focus: #6da7ec;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+  --bg: #10141b;
+  --surface: #161b24;
+  --surface-2: #1d2430;
+  --surface-3: #252d3b;
+  --text: #e6eaf2;
+  --text-2: #a6b0c3;
+  --text-3: #8a94a8;
+  --border: rgba(230, 234, 242, 0.1);
+  --border-strong: rgba(230, 234, 242, 0.2);
+  --grid: #232b38;
+  --axis: #354052;
+  --link: #8fb0f5;
+  --accent: #4570d8;
+  --accent-soft: #1e3260;
+  --focus: #7aa2f7;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+  --viz-neutral: #7c8597;
   --viz-compare: #3987e5;
   --viz-active: #d95926;
   --viz-done: #199e70;
-  --viz-surface: #1a1a19;
+  --viz-surface: #161b24;
 }

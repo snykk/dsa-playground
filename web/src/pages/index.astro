@@ -1,60 +1,93 @@
 ---
-import SectionTitle from '../components/atoms/SectionTitle.astro';
-import Card from '../components/molecules/Card.astro';
-import CardGrid from '../components/molecules/CardGrid.astro';
-import StatTile from '../components/molecules/StatTile.astro';
+import AreaList from '../components/organisms/AreaList.astro';
 import Hero from '../components/organisms/Hero.astro';
-import TopicCards from '../components/organisms/TopicCards.astro';
+import VizIndex from '../components/organisms/VizIndex.astro';
 import BaseLayout from '../components/templates/BaseLayout.astro';
-import { getContent, joinBase, slugOfRel } from '../lib/repo';
-import { VIZ_CATALOG, VIZ_GROUP_ORDER } from '../viz/catalog';
+import { getContent } from '../lib/repo';
+import { VIZ_CATALOG } from '../viz/catalog';
 
 const content = getContent();
-const base = import.meta.env.BASE_URL;
 const topics = content.nodes.filter((n) => n.kind === 'topic');
-const implementations = topics.reduce((sum, t) => sum + t.languages.length, 0);
-const featured = VIZ_GROUP_ORDER.map((g) => VIZ_CATALOG.find((v) => v.group === g)).filter((v) => v !== undefined);
-const DOT = String.fromCodePoint(0xb7);
+const visualized = topics.filter((t) => VIZ_CATALOG.some((v) => v.topics.includes(t.rel))).length;
 const steps = [
-  { title: `1 ${DOT} Read the intuition`, text: 'Each topic starts with an article: the idea, a worked example, and why it works.' },
-  { title: `2 ${DOT} Step through it`, text: 'Run the visualization on your own input. Pause, rewind, and read the caption for every step.' },
-  { title: `3 ${DOT} Compare the code`, text: 'Open the Python, C++ and Go tabs to see the same algorithm in three languages, with tests.' },
+  { title: 'Read the article', text: 'The idea, a worked example, and why the complexity is what it is.' },
+  { title: 'Step through it', text: 'Run the visualization on your own input. Pause, go back, and read why each step happens.' },
+  { title: 'Compare the code', text: 'The same algorithm in Python, C++ and Go, each with its tests.' },
 ];
 ---
 
 <BaseLayout title="DSA Playground" currentSlug="">
-  <Hero />
+  <Hero topics={topics.length} visualized={visualized} />
 
-  <div class="stats">
-    <StatTile value={topics.length} label="topics" />
-    <StatTile value={implementations} label="implementations" />
-    <StatTile value={3} label="languages: Python, C++, Go" />
-    <StatTile value={VIZ_CATALOG.length} label="interactive visualizations" />
-  </div>
+  <section class="study" aria-labelledby="study-title">
+    <h2 id="study-title">How to study a topic</h2>
+    <ol>
+      {
+        steps.map((s) => (
+          <li>
+            <strong>{s.title}</strong>
+            <span>{s.text}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
 
-  <SectionTitle>How to study a topic</SectionTitle>
-  <CardGrid min={220}>
-    {steps.map((s) => <Card title={s.title} text={s.text} />)}
-  </CardGrid>
+  <VizIndex heading="Visualizations by area" />
 
-  <SectionTitle>Start with a visualization</SectionTitle>
-  <CardGrid>
-    {
-      featured.map((v) => (
-        <Card href={`${joinBase(base, slugOfRel(content, v.topics[0]))}#visualize`} title={v.title} text={v.blurb} meta={[v.group]} />
-      ))
-    }
-  </CardGrid>
-
-  <SectionTitle>Explore the repository</SectionTitle>
-  <TopicCards nodes={content.root.children} />
+  <AreaList heading="The repository" areas={content.root.children} />
 </BaseLayout>
 
 <style>
-  .stats {
+  .study {
+    margin-top: 56px;
+  }
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 18px;
+  }
+  /* The three steps are a real sequence, so they are numbered; counter numerals in step blue. */
+  ol {
+    list-style: none;
+    counter-reset: step;
+    margin: 0;
+    padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin: 32px 0 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+  li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    column-gap: 4px;
+    row-gap: 4px;
+    color: var(--text-2);
+    font-size: 15.5px;
+    line-height: 1.55;
+  }
+  li::before {
+    content: counter(step);
+    grid-row: 1;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--accent);
+  }
+  li > * {
+    grid-column: 2;
+  }
+  strong {
+    color: var(--text);
+    font-size: 17px;
+  }
+  @media (max-width: 720px) {
+    ol {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 18px;
+    }
   }
 </style>
