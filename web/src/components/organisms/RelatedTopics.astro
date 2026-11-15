@@ -1,9 +1,7 @@
 ---
 import { getContent, joinBase } from '../../lib/repo';
-import Card from '../molecules/Card.astro';
-import CardGrid from '../molecules/CardGrid.astro';
 
-/** "Where to go next" cards at the end of an article. */
+/** "Where to go next" at the end of an article: a short list of links, each with its area. */
 interface Props {
   title: string;
   topics: string[];
@@ -24,11 +22,14 @@ const id = `related-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   nodes.length > 0 && (
     <section class="related" aria-labelledby={id}>
       <h2 id={id}>{title}</h2>
-      <CardGrid min={200}>
+      <ul>
         {nodes.map((n) => (
-          <Card href={joinBase(base, n.slug)} title={n.title} meta={n.parent ? [n.parent.title] : []} />
+          <li>
+            <a href={joinBase(base, n.slug)}>{n.title}</a>
+            {n.parent && n.parent.kind !== 'root' && <span>{n.parent.title}</span>}
+          </li>
         ))}
-      </CardGrid>
+      </ul>
     </section>
   )
 }
@@ -38,7 +39,35 @@ const id = `related-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
     margin-top: 56px;
   }
   h2 {
-    font-size: 22px;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.25;
     margin: 0 0 14px;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px 28px;
+  }
+  li {
+    display: grid;
+    gap: 1px;
+  }
+  a {
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  span {
+    font-size: 14px;
+    color: var(--text-3);
   }
 </style>

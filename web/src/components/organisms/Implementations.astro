@@ -67,7 +67,7 @@ const lineCount = (code: string) => code.replace(/\n$/, '').split('\n').length;
               <summary>
                 {f.name}
                 <span>
-                  {f.isTest ? 'tests' : 'implementation'} &#xb7; {lineCount(f.code)} lines
+                  {f.isTest ? 'tests' : 'implementation'}, {lineCount(f.code)} lines
                 </span>
               </summary>
               <div class="code-block">
@@ -120,37 +120,34 @@ const lineCount = (code: string) => code.replace(/\n$/, '').split('\n').length;
 </script>
 
 <style>
-  .impl-tabs {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
-    overflow: hidden;
-  }
+  /* Tabs on the page itself, underlined when selected; the files below keep their frames,
+   * so there is one box per file rather than boxes inside a box. */
   .impl-tablist {
     display: flex;
-    gap: 2px;
-    padding: 6px;
+    gap: 4px;
     border-bottom: 1px solid var(--border);
-    background: var(--surface-2);
   }
   .impl-tablist button {
     font: inherit;
-    font-size: 14px;
-    padding: 6px 14px;
+    font-size: 15px;
+    padding: 8px 14px;
+    margin-bottom: -1px;
     border: 0;
-    border-radius: 8px;
+    border-bottom: 2px solid transparent;
     background: transparent;
     color: var(--text-2);
     cursor: pointer;
   }
-  .impl-tablist button[aria-selected='true'] {
-    background: var(--surface);
+  .impl-tablist button:hover {
     color: var(--text);
-    font-weight: 600;
-    box-shadow: var(--shadow);
+  }
+  .impl-tablist button[aria-selected='true'] {
+    color: var(--text);
+    font-weight: 700;
+    border-bottom-color: var(--accent);
   }
   .impl-panel {
-    padding: 16px 20px 20px;
+    padding: 4px 0 0;
   }
   .impl-panel[hidden] {
     display: none;
