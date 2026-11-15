@@ -62,6 +62,12 @@ The topics differ in how the search stops. N-Queens (with `find_all = False`), G
 
 The maze is the odd one out. It never revisits a cell, so a dead end is explored once, and the search stays polynomial. The other three can reach the same partial state along different routes, so their running time is exponential in the worst case.
 
+## See them side by side
+
+Each tab runs one of the four searches step by step, with its open recursive calls beside the board or under the graph, so you can watch the same choose, check, recurse, undo loop on a maze, a chessboard, a graph and a Sudoku grid.
+
+<ArticleViz ids={['rat-in-a-maze', 'n-queens', 'graph-coloring', 'sudoku-solver']} />
+
 ## One instance of each, with the checks counted
 
 Each row below runs the repository's Python code on one small instance and counts the calls to its constraint check (`is_safe` or `is_valid`). The count is a rough measure of how much work the search did.

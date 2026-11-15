@@ -53,6 +53,12 @@ The maze is an n x n grid: `1` is an open cell and `0` is a wall. The rat starts
 `solution` tracks the current route and is undone on backtracking. `visited` is never undone. Keeping them apart is what limits the search to <BigO of="n^2" /> steps: a cell that could not lead to the goal is never explored again.
 </Callout>
 
+## See it in action
+
+**Dead end first (article)** runs the maze of the worked example below. The rat steps right into the dead end at `(0, 1)`, backs out, and then follows the path down and to the right. Every move it tries is drawn as an arrow, and the call stack shows the open calls with the direction each one is trying. **Goal walled off** shows the visited mark at work: every reachable cell is entered exactly once, and the search gives up without entering any cell twice.
+
+<ArticleViz ids={['rat-in-a-maze']} />
+
 ## Worked example
 
 The maze below has a dead end at its top, `(0, 1)`. Orange cells are the start and the goal, aqua cells are the path that the code returns, and the muted cell is the dead end that was tried first:

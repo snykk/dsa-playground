@@ -52,6 +52,12 @@ The board is a 9 x 9 grid of integers; `0` marks an empty cell. A digit `d` is *
 The search only checks a digit against the cells around it when it places that digit. Givens are never re-checked, so two equal givens in one row would be accepted silently, and a completely filled but invalid board would be reported as solved. That is why `is_valid_puzzle` runs once before the search.
 </Callout>
 
+## See it in action
+
+The full puzzle below needs 4,209 calls, too many to watch, so the examples start from nearly complete grids. **Two rows open: backtracking** is that puzzle with rows 2 to 8 already solved: the first empty cell `(0, 2)` takes 2, and the search has to come back and change it to 4. Each digit tried shows the row, column and box that `is_valid` scans and the digit that rules it out. **Duplicate given (full board)** is a filled board with two 3s in row 0, which is rejected by the validation step before any search.
+
+<ArticleViz ids={['sudoku-solver']} />
+
 ## Worked example
 
 This is the puzzle used by the examples and the tests. It has 30 givens (grey-blue) and 51 empty cells:

@@ -1,0 +1,226 @@
+/* BoardView organism: a board of squares (queens, digits, walls) beside the call stack. */
+.board-wrap {
+  --board-stack-row: 29px;
+  overflow-x: auto;
+}
+.board-panels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px 22px;
+}
+.board-panels svg.board {
+  display: block;
+  flex: 0 1 auto;
+  height: auto;
+}
+.board text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.board .board-index {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+
+/* Squares. */
+.board .board-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition: fill 0.25s ease, stroke 0.25s ease, opacity 0.25s ease;
+}
+.board .board-cell.dark rect {
+  fill: color-mix(in srgb, var(--text) 8%, var(--viz-surface));
+}
+.board .board-cell.given rect {
+  fill: color-mix(in srgb, var(--text) 11%, var(--viz-surface));
+  stroke: var(--axis);
+}
+.board .board-cell.wall rect {
+  fill: color-mix(in srgb, var(--text) 24%, var(--viz-surface));
+  stroke: var(--text-3);
+}
+.board .board-cell rect.board-hatch {
+  stroke: none;
+}
+.board .board-hatch-line {
+  stroke: var(--text);
+  stroke-width: 1.5;
+  opacity: 0.45;
+}
+.board .board-cell.solid rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.board .board-cell.soft rect {
+  fill: color-mix(in srgb, var(--role) 20%, var(--viz-surface));
+  stroke: var(--role);
+}
+.board .board-cell.role-muted rect {
+  fill: color-mix(in srgb, var(--viz-neutral) 22%, var(--viz-surface));
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 3 2;
+}
+.board .board-cell.role-active.solid rect,
+.board .board-cell.role-good.solid rect,
+.board .board-cell.role-bad.solid rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+
+/* Scanned rows, columns and boxes. */
+.board .board-band {
+  fill: color-mix(in srgb, var(--role) 13%, transparent);
+  stroke: var(--role);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+.board .board-block line {
+  stroke: var(--text-2);
+  stroke-width: 2.5;
+}
+
+/* Rays, arrows, the path and the cursor. */
+/* The route runs through the centers of its (aqua) squares as a light line, so its order shows. */
+.board .board-path {
+  fill: none;
+  stroke: var(--viz-ink-on-fill);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+.board .board-ray line,
+.board .board-arrow line {
+  stroke: var(--role);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.board .board-ray line {
+  stroke-dasharray: 7 5;
+  animation: viz-march 0.8s linear infinite;
+}
+.board .board-ray circle,
+.board .board-arrow path {
+  fill: var(--role);
+}
+.board .board-arrow .board-stop {
+  stroke-width: 3.5;
+}
+.board .board-cursor {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+
+/* Text, queens and markers. */
+.board .board-text {
+  fill: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+}
+.board .board-mark.given .board-text {
+  font-weight: 800;
+}
+.board .board-mark.ink .board-text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.board .board-mark.role-muted {
+  opacity: 0.5;
+}
+.board .board-queen path,
+.board .board-queen rect,
+.board .board-queen circle {
+  fill: var(--text);
+}
+.board .board-mark.ink .board-queen path,
+.board .board-mark.ink .board-queen rect,
+.board .board-mark.ink .board-queen circle {
+  fill: var(--viz-ink-on-fill);
+}
+.board .board-mark.role-muted .board-queen path,
+.board .board-mark.role-muted .board-queen rect,
+.board .board-mark.role-muted .board-queen circle {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+.board .board-mark.ink .board-queen {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: board-drop 0.3s ease;
+}
+.board .board-tried {
+  fill: var(--text-3);
+  font-size: 15px;
+}
+.board .board-glyph circle {
+  fill: var(--viz-surface);
+  stroke: var(--role);
+  stroke-width: 1.5;
+}
+.board .board-glyph text {
+  fill: var(--role);
+  font-size: 9px;
+  font-weight: 700;
+}
+@keyframes board-drop {
+  0% {
+    transform: translateY(-8px) scale(1.15);
+    opacity: 0.4;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* The call stack beside the board. */
+.board-stack {
+  flex: 0 1 190px;
+  min-width: 150px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.board-stack strong {
+  display: block;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.board-stack ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.board-stack li {
+  min-height: calc(var(--board-stack-row) - 4px);
+  display: flex;
+  align-items: center;
+}
+.board-stack .viz-token {
+  white-space: nowrap;
+}
+.board-stack .viz-token.role-good,
+.board-stack .viz-token.role-bad {
+  border-color: var(--role);
+  color: var(--role);
+  font-weight: 700;
+}
+.board-stack .viz-token.role-muted {
+  opacity: 0.5;
+  border-style: dashed;
+}
+.board-stack .board-stack-more {
+  color: var(--text-3);
+  font-style: italic;
+}

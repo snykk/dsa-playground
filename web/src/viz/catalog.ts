@@ -6,8 +6,11 @@
  * Astro pages import this module at build time; the specs themselves are
  * code-split and only loaded by VizMount in the browser.
  */
+import * as backtracking from './registry/backtracking';
 import * as codingTheory from './registry/codingTheory';
+import * as divideAndConquer from './registry/divideAndConquer';
 import * as dynamicProgramming from './registry/dynamicProgramming';
+import * as geometry from './registry/geometry';
 import * as graphStructure from './registry/graphStructure';
 import * as graphTraversal from './registry/graphTraversal';
 import * as greedy from './registry/greedy';
@@ -16,10 +19,12 @@ import * as heaps from './registry/heaps';
 import * as linear from './registry/linear';
 import * as multiwayTrees from './registry/multiwayTrees';
 import * as patterns from './registry/patterns';
+import * as randomized from './registry/randomized';
 import * as rangeQueries from './registry/rangeQueries';
 import * as searching from './registry/searching';
 import * as shortestPaths from './registry/shortestPaths';
 import * as sorting from './registry/sorting';
+import * as specializedTechniques from './registry/specializedTechniques';
 import * as strings from './registry/strings';
 import * as trees from './registry/trees';
 
@@ -86,6 +91,11 @@ export const REGISTRIES = [
   greedy,
   patterns,
   codingTheory,
+  backtracking,
+  geometry,
+  specializedTechniques,
+  divideAndConquer,
+  randomized,
 ];
 
 export const VIZ_CATALOG: VizInfo[] = REGISTRIES.flatMap((r) => r.entries);
