@@ -1,0 +1,63 @@
+/* ImplicationGraphView: literal rows, implication edges, variable values and the clause list. */
+.imp-graph .imp-svg {
+  max-width: 100%;
+  margin: 0 auto;
+}
+.imp-svg .imp-row-label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--text-3);
+  dominant-baseline: central;
+}
+.imp-svg .imp-edge {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.6;
+  opacity: 0.85;
+}
+.imp-svg .imp-edge.role-compare,
+.imp-svg .imp-edge.role-active,
+.imp-svg .imp-edge.role-done {
+  stroke: var(--role);
+  stroke-width: 3;
+  opacity: 1;
+}
+.imp-svg .imp-edge.role-compare {
+  stroke-dasharray: 9 6;
+  animation: viz-march 0.8s linear infinite;
+}
+.imp-svg .imp-edge.role-muted {
+  stroke-dasharray: 4 4;
+  opacity: 0.55;
+}
+.imp-svg .imp-cell rect,
+.imp-svg .imp-clause rect {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  transition: fill 0.2s ease;
+}
+.imp-svg .imp-cell text,
+.imp-svg .imp-clause text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  fill: var(--text);
+  dominant-baseline: central;
+}
+.imp-svg .imp-cell text {
+  text-anchor: middle;
+  font-weight: 600;
+}
+.imp-svg .imp-clause .imp-mark {
+  text-anchor: middle;
+  font-weight: 700;
+}
+.imp-svg .imp-cell:not(.role-idle):not(.role-muted) rect,
+.imp-svg .imp-clause:not(.role-idle):not(.role-muted) rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.imp-svg .imp-cell:not(.role-idle):not(.role-muted) text,
+.imp-svg .imp-clause:not(.role-idle):not(.role-muted) text {
+  fill: var(--viz-ink-on-fill);
+}

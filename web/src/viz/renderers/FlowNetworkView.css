@@ -1,0 +1,74 @@
+/* FlowNetworkView: pipes that fill with flow, the arrows on top, residual reverse edges dashed. */
+.flow-net .flow-svg {
+  max-width: 100%;
+  margin: 0 auto;
+}
+.flow-svg .flow-track,
+.flow-svg .flow-fill {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: butt;
+}
+.flow-svg .flow-track {
+  stroke: var(--axis);
+  opacity: 0.4;
+}
+.flow-svg .flow-fill {
+  stroke: var(--viz-done);
+  opacity: 0.7;
+  transition: stroke-dasharray 0.45s ease;
+}
+.flow-svg .flow-edge {
+  transition: opacity 0.3s ease;
+}
+.flow-svg .flow-edge .flow-line {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.6;
+}
+.flow-svg .flow-edge.residual .flow-line {
+  stroke-dasharray: 4 4;
+  stroke-width: 1.4;
+}
+.flow-svg .flow-edge.role-compare .flow-line,
+.flow-svg .flow-edge.role-active .flow-line,
+.flow-svg .flow-edge.role-done .flow-line {
+  stroke: var(--role);
+  stroke-width: 3;
+}
+.flow-svg .flow-edge.role-compare .flow-line {
+  stroke-dasharray: 9 6;
+  animation: viz-march 0.8s linear infinite;
+}
+.flow-svg .flow-edge.role-muted .flow-line {
+  opacity: 0.5;
+}
+.flow-svg .is-hidden {
+  opacity: 0;
+}
+.flow-svg .flow-label {
+  font-size: 12px;
+  fill: var(--text-2);
+  text-anchor: middle;
+  dominant-baseline: central;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.3s ease;
+}
+.flow-svg .flow-label.residual {
+  font-style: italic;
+  fill: var(--text-3);
+}
+.flow-svg .flow-label.em {
+  font-weight: 700;
+  fill: var(--text);
+  text-decoration: underline;
+}
+.flow-svg .flow-tag {
+  font-size: 11px;
+  fill: var(--text-2);
+  text-anchor: middle;
+  dominant-baseline: central;
+}

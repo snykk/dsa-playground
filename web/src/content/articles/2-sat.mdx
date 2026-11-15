@@ -3,7 +3,7 @@ topic: Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT
 title: 2-SAT
 lead: 2-SAT asks whether n boolean variables can be set so that every clause "a or b" holds. Each clause becomes two implications, so the question reduces to strongly connected components of a graph, and a yes-or-no answer plus an assignment come out in linear time.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Time
     value: O(n + m)
@@ -58,6 +58,12 @@ A clause `(a or b)` says that at least one of the two literals is true. Equivale
 <Callout title="Why the later component is the safe choice">
 Truth only ever flows forward along implications, from a true literal to the literals it forces. If a literal is true, everything reachable from it must be true as well. Choosing for each variable the literal that sits later in topological order means that nothing reachable from a chosen literal can be a false one, so no implication is ever broken.
 </Callout>
+
+## See it in action
+
+Load **Textbook (satisfiable)**, the formula of the worked example below. Each clause adds its two mirrored edges, the iterative Tarjan numbers the components as they finish, and then every variable takes the literal whose component has the smaller id, before each clause is checked. **Unsatisfiable** stops at the cycle through x0 and ~x0, and **Tautology and a forced literal** shows the self-loops of `(x0 or ~x0)` and the doubled edge that `force_true` adds.
+
+<ArticleViz ids={['two-sat']} />
 
 ## A worked example
 
