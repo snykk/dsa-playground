@@ -2,7 +2,7 @@
 category: Algorithms/String_Algorithms/Advanced_String
 title: Advanced String Algorithms
 lead: These five topics go beyond finding one pattern in one text. They search many patterns at once, index every suffix of a string, and answer questions about prefixes, palindromes and shared substrings, each with a different structure.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: Z-algorithm
     value: O(n + m)
@@ -69,11 +69,11 @@ Every topic returns exact answers, and every search reports overlapping matches.
 
 The suffix array build is slow here because it sorts copies of the suffixes. Prefix doubling brings it down to O(n log^2 n), but it is not implemented in this repository.
 
-## See it run
+## See them side by side
 
-The Z-algorithm has an interactive visualization. Its input is `text | pattern`. Start with the **Overlapping matches** example, `AAAAAA | AAA`, which has matches at 0, 1, 2 and 3. Then try **Separator inside the input**, `a$a | a`: the separator also occurs in the text, and the search still returns `[0, 2]` because it tests `Z >= m`.
+Each tab runs one topic of this section on its own input. Start with the Z-algorithm's **Separator inside the input**, `a$a | a`, which still finds both matches because the search tests `Z >= m`. Then watch Aho-Corasick report `she` and `he` at the same index of `ushers`, the suffix array find `ana` in `banana` with two binary searches, Manacher copy radii across the center, and the longest common substring table reset to 0 at every mismatch.
 
-<ArticleViz ids={['z-algorithm']} />
+<ArticleViz ids={['z-algorithm', 'aho-corasick', 'suffix-array', 'manacher', 'longest-common-substring']} />
 
 ## One text, five questions
 
