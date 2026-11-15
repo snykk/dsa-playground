@@ -3,7 +3,7 @@ topic: Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP
 title: Bitmask DP
 lead: Bitmask DP stores a subset of n items as the bits of one integer and uses that integer as a DP state. It turns searches over all n! orderings into a table of 2^n subsets, which is what makes the Traveling Salesman Problem solvable for around 20 cities.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: States
     value: 2^n * n
@@ -77,6 +77,12 @@ A transition always turns one 0 bit into a 1 bit, so `new_mask` is strictly larg
     ['Count items', 'popcount of `mask`', '2'],
   ]}
 />
+
+## See it in action
+
+The table has one row for each mask that contains A and one column for each last city. Every step extends one path by one city and writes the cheaper cost into a larger mask, with the city chips above showing the bits of the mask. Start with **Four cities (tests)**, the matrix of the worked example below, then try **No tour exists** to see the answer stay at infinity.
+
+<ArticleViz ids={['bitmask-dp-tsp']} />
 
 ## A worked example
 

@@ -3,7 +3,7 @@ topic: Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick
 title: Convex Hull Trick and Li Chao Tree
 lead: The Convex Hull Trick answers "smallest value of m*x + b over a set of lines" in amortized O(1) when slopes and queries are sorted, and a Li Chao tree does it in O(log V) in any order. It speeds DP transitions of the form dp[i] = min(m<sub>j</sub> * x<sub>i</sub> + b<sub>j</sub>) from O(n) to near-constant per step.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Monotonic CHT
     value: O(1) amortized
@@ -75,6 +75,12 @@ Two conditions make a simple deque enough: lines arrive with **non-increasing sl
 <Callout title="Why the back test uses cross-multiplication">
 With slopes `m1 > m2 > m3`, line `l2` is redundant when `l3` overtakes `l1` no later than `l2` does: the intersection of `l1` and `l3` is at or before that of `l1` and `l2`. Dividing would introduce rounding, so multiply both sides by the (positive) slope differences instead: `(b3 - b1) * (m1 - m2) <= (b2 - b1) * (m1 - m3)`. This is exactly the predicate in the code. It needs strictly decreasing slopes, which is why equal slopes are handled before the test.
 </Callout>
+
+## See it in action
+
+The plot shows the lines, the lower envelope of the lines in the deque as a broad band, and the deque itself underneath; every back test prints both cross products. **Four lines, x = 0..6 (article)** replays the worked example below, **Equal slopes (fixed bug)** the bug described under common mistakes, and **x goes down: wrong answer** what happens when a query breaks the order. The visualization runs `MonotonicCHT`; the Li Chao tree is described further down.
+
+<ArticleViz ids={['convex-hull-trick']} />
 
 ## A worked example
 

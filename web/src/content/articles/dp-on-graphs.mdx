@@ -3,7 +3,7 @@ topic: Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs
 title: DP on Graphs
 lead: On a directed acyclic graph (DAG) every node's best value depends only on its successors, so a memoized DFS or a topological sweep solves longest-path, path-counting and similar problems in O(V + E). A cycle breaks that order, which is why detecting cycles matters.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: DAG longest path
     value: O(V + E)
@@ -62,6 +62,12 @@ Define `dp[v]` as the answer for paths **starting at** `v`. A path from `v` is o
 <Callout title="The invariant">
 When a call for `v` returns, every node reachable from `v` has a finished memo entry. The three states (not started, in progress, finished) are the same colours as a DFS cycle check; in a DAG the in-progress state is never met twice.
 </Callout>
+
+## See it in action
+
+The memoized DFS runs on the DAG drawn left to right. A badge shows `dp[v]` once a node finishes, a call that reaches a finished node returns at once, and an edge back into a node that is still on the stack raises `ValueError`. Start with **Seven nodes (article)**, the graph of the worked example below, then try **Cycle: ValueError**.
+
+<ArticleViz ids={['dag-longest-path']} />
 
 ## A worked example
 

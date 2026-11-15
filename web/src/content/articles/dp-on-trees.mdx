@@ -3,7 +3,7 @@ topic: Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees
 title: DP on Trees
 lead: DP on trees solves a problem for every subtree from the leaves upward, combining the answers of a node's children into the node's own answer. It gives linear-time solutions to independent set, maximum path sum and many other problems that look exponential at first.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Time
     value: O(n)
@@ -62,6 +62,12 @@ Root the tree and process it in post-order (children before their parent). For e
 <Callout title="Each child is visited exactly once">
 The cost is linear only if the DFS loops over the children once and reuses what it got. Calling the recursion a second time for every child doubles the work at each level and makes the algorithm exponential. An earlier version of this repository's path function did exactly that.
 </Callout>
+
+## See it in action
+
+Both functions run on the same tree, one per tab. The cells under each node fill in post-order: (include, exclude) in the first tab, the best downward chain and the best path through the node in the second. Try **Star: two children at most** in the maximum path sum tab to see why a third child chain is dropped.
+
+<ArticleViz ids={['tree-dp-independent-set', 'tree-dp-max-path-sum']} />
 
 ## Example 1: maximum independent set
 
