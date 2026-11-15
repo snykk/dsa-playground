@@ -87,7 +87,12 @@ class GF256:
         return self.exp_table[FIELD_ORDER - self.log_table[b]]
 
     def pow(self, a: int, n: int) -> int:
-        """a^n in GF(2^8). Negative n uses inv(a) first."""
+        """a^n in GF(2^8).
+
+        A negative n works because Python's % keeps (log a * n) % 255 in 0..254,
+        which gives inv(a)^(-n). Only 0^0 raises (ValueError); 0^n is 0 for any
+        other n, even a negative one.
+        """
         if a == 0:
             if n == 0:
                 raise ValueError("0^0 is undefined")

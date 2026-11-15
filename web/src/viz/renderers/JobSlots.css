@@ -1,0 +1,141 @@
+/* JobSlots organism: job cards gliding from the queue into time slots or the skipped tray. */
+.js-wrap {
+  overflow-x: auto;
+}
+.job-slots {
+  display: block;
+  margin: 0 auto;
+}
+.job-slots text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.job-slots .js-row {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.job-slots .js-sub {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.job-slots .js-total {
+  text-anchor: end;
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.job-slots .js-place {
+  fill: none;
+  stroke: var(--grid);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+/* Slots: a dashed frame when idle; a role draws a thick coloured frame (status roles add a glyph). */
+.job-slots .js-slot rect {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  transition: stroke 0.2s ease;
+}
+.job-slots .js-slot:not(.role-idle) rect {
+  stroke: var(--role);
+  stroke-width: 3;
+  stroke-dasharray: none;
+}
+.job-slots .js-num {
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.job-slots .js-slot:not(.role-idle) .js-num {
+  fill: var(--role);
+  font-weight: 700;
+}
+.job-slots .js-slot-glyph {
+  fill: var(--role);
+  font-size: 12px;
+  font-weight: 700;
+}
+.job-slots .js-probe {
+  fill: var(--text);
+}
+.job-slots .js-window path {
+  fill: none;
+  stroke: var(--viz-active);
+  stroke-width: 2;
+}
+.job-slots .js-window text {
+  fill: var(--text-2);
+  font-size: 11px;
+}
+
+/* Cards glide between rows; idle cards are outlined, a role fills them. */
+.job-slots .js-card {
+  transition: transform 0.45s ease;
+}
+.job-slots .js-card rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease,
+    opacity 0.2s ease;
+}
+.job-slots .js-card text {
+  fill: var(--text);
+}
+.job-slots .js-card .js-id {
+  font-size: 13px;
+  font-weight: 700;
+}
+.job-slots .js-card .js-line {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--text-2);
+}
+.job-slots .js-card:not(.role-idle):not(.role-muted) rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.job-slots .js-card:not(.role-idle):not(.role-muted) text {
+  fill: var(--viz-ink-on-fill);
+}
+.job-slots .js-card.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 22%, var(--viz-surface));
+}
+.job-slots .js-card.role-compare text {
+  fill: var(--text);
+}
+.job-slots .js-card.role-muted rect {
+  opacity: 0.45;
+  stroke-dasharray: 3 3;
+}
+.job-slots .js-card.role-muted text {
+  fill: var(--text-3);
+}
+.job-slots .js-card .js-note {
+  fill: var(--text-2);
+  font-size: 10px;
+}
+.job-slots .js-glyph circle {
+  fill: var(--viz-surface);
+  stroke: var(--role);
+  stroke-width: 1.5;
+}
+.job-slots .js-glyph text {
+  fill: var(--role);
+  font-size: 10px;
+  font-weight: 700;
+}
+.job-slots .js-card.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
