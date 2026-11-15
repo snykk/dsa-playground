@@ -15,6 +15,32 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+## [v0.5.0] - 2026-11-15
+
+Visualizations for backtracking, computational geometry, the specialized decompositions, Strassen's algorithm and the randomized algorithms.
+
+### Added
+
+- **17 visualizations for 16 topics**, bringing the site to 118 visualizations covering 112 of the 153 topics:
+  - backtracking: N-Queens, the Sudoku solver, rat in a maze and graph coloring, each board or graph drawn beside the call stack;
+  - geometry: points, lines and circles, segment intersection, the convex hull by Graham's scan and by Jarvis's march, rotating calipers and the closest pair of points;
+  - specialized techniques: square root decomposition, Mo's algorithm, heavy-light decomposition and centroid decomposition;
+  - Strassen's matrix multiplication, randomized quickselect and reservoir sampling.
+- **Reproducible randomness**: the randomized visualizations draw from a port of CPython's `random.Random`, so a seed reproduces Python's choices exactly.
+- **Renderers for them**: a board beside the call stack, a coordinate plane for points, segments, polygons and circles, a general rooted tree with its chains, Mo's sorted queries, Strassen's quadrants and seven products, a three-way partition, and a stream with its reservoir.
+- **A cutoff parameter for Strassen's algorithm** in all three languages, 64 by default, so a small matrix can be split into the seven products.
+- **Side-by-side tabs on the overviews** of Backtracking, Computational Geometry, Basic and Advanced Geometry, Specialized Techniques and Randomized Algorithms.
+- **Golden fixtures for the new visualizations**: four generators run the Python implementations, and the TypeScript ports must reproduce every result.
+
+### Changed
+
+- **The README** counts the 112 topics the site animates.
+
+### Fixed
+
+- **The convex hull's documentation**: a set of fewer than three distinct points comes back sorted, not as it was given, and a test in each language pins the order.
+- **Two descriptions of the code**: the closest pair sorts its points on x alone, and the Python Strassen code multiplies a 2 x 2 with the naive loop unless its cutoff is lowered.
+
 ## [v0.4.0] - 2026-11-14
 
 Visualizations for every tree, heap and graph representation in the repository.
@@ -119,6 +145,7 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
+[v0.5.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.5.0
 [v0.4.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.4.0
 [v0.3.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.3.0
 [v0.2.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.2.0
