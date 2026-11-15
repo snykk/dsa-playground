@@ -3,7 +3,7 @@ topic: Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposit
 title: Centroid Decomposition
 lead: Centroid decomposition repeatedly removes the node that splits a tree into pieces of at most half its size, and records which centroid was removed inside which. The result is a second tree of height O(log n) that lets divide-and-conquer on paths, distances and nearest-marked-node queries run in O(n log n) overall.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Build time
     value: O(n log n)
@@ -82,6 +82,12 @@ A **centroid** of a tree with `n` nodes is a node whose removal leaves every rem
 <Callout title="Why the height is logarithmic">
 Each component handed to the next level has at most half the nodes of the one before. A component of size 1 is the last one, so a node is separated at most floor(log<sub>2</sub> n) + 1 times. Removed centroids become the nodes of the **centroid tree**, and its height is therefore O(log n), however deep or skewed the original tree is.
 </Callout>
+
+## See it in action
+
+**Seven nodes (article)** runs the worked example below: each call measures its piece breadth-first, the pointer walks towards the side with more than half of the nodes, and the centroid it stops at flies over into the centroid tree on the right while the call stack shows the recursion. **Path of 15: a balanced tree** shows the logarithmic height on the worst shape for a plain tree.
+
+<ArticleViz ids={['centroid-decomposition']} />
 
 ## Worked example
 

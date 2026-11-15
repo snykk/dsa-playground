@@ -1,0 +1,130 @@
+/* MosView organism: the array and its blocks, the sliding window, the L / R pointers and the query lanes. */
+.mo-wrap {
+  overflow-x: auto;
+}
+.mo-view {
+  display: block;
+  margin: 0 auto;
+}
+.mo-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The window [current_l, current_r]: a dashed band over the cells and, fainter, down through the lanes. */
+.mo-view .mo-band rect {
+  fill: color-mix(in srgb, var(--viz-compare) 14%, transparent);
+  stroke: var(--viz-compare);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.mo-view .mo-band .mo-band-lanes {
+  fill: color-mix(in srgb, var(--viz-compare) 7%, transparent);
+  stroke: color-mix(in srgb, var(--viz-compare) 45%, transparent);
+}
+
+.mo-view .mo-block path {
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1.2;
+}
+.mo-view .mo-block text {
+  fill: var(--text-3);
+  font-size: 10.5px;
+}
+.mo-view .mo-rowlabel,
+.mo-view .mo-qlabel {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 11px;
+}
+
+/* Array cells. */
+.mo-view .mo-cell rect {
+  fill: var(--role);
+  stroke: var(--role);
+  transition: fill 0.2s ease;
+}
+.mo-view .mo-cell.role-idle rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+}
+.mo-view .mo-cell.role-muted rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 3 3;
+}
+.mo-view .mo-cell.role-muted text:not(.mo-index) {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+.mo-view .mo-cell text {
+  fill: var(--viz-ink-on-fill);
+  font-size: 13px;
+  font-weight: 700;
+}
+.mo-view .mo-cell.role-idle text,
+.mo-view .mo-cell.role-muted text {
+  fill: var(--text);
+  font-weight: 500;
+}
+.mo-view .mo-cell .mo-index,
+.mo-view .mo-cell.role-idle .mo-index,
+.mo-view .mo-cell.role-muted .mo-index {
+  fill: var(--text-3);
+  font-size: 10px;
+  font-weight: 400;
+}
+.mo-view .mo-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+
+/* L and R pointers. */
+.mo-view .mo-pill rect {
+  fill: var(--viz-compare);
+  stroke: var(--viz-surface);
+}
+.mo-view .mo-pill text {
+  fill: var(--viz-ink-on-fill);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.mo-view .mo-pill.empty rect {
+  fill: var(--viz-neutral);
+}
+
+/* Query lanes. */
+.mo-view .mo-bar {
+  fill: var(--role);
+  stroke: var(--role);
+  stroke-width: 1.5;
+}
+.mo-view .mo-lane.role-idle .mo-bar {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+}
+.mo-view .mo-lane.role-muted .mo-bar {
+  opacity: 0.35;
+}
+.mo-view .mo-tag {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+.mo-view .mo-lane.role-active .mo-tag,
+.mo-view .mo-lane.role-active .mo-qlabel,
+.mo-view .mo-lane.role-done .mo-tag {
+  fill: var(--text);
+  font-weight: 700;
+}
+
+.mo-note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}

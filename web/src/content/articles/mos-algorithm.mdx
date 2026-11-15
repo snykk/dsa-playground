@@ -3,7 +3,7 @@ topic: Algorithms/Advanced_Algorithms/Specialized_Techniques/Mos_Algorithm
 title: Mo's Algorithm
 lead: Mo's algorithm answers many offline range queries by reordering them so that a sliding window [L, R] moves as little as possible between consecutive queries. When adding or removing one element is cheap, Q queries on an array of N elements cost O((N + Q) sqrt N) in total.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Total time
     value: O((N + Q) sqrt N)
@@ -64,6 +64,12 @@ Keep a window `[current_l, current_r]` and its answer. To move to the next query
 <Callout title="Why expanding first matters">
 The window starts empty (`current_r = -1`). Expanding before shrinking keeps it from ever becoming invalid for valid queries (`l <= r`), so the frequency of every value stays non-negative and the counted answer is correct at every step.
 </Callout>
+
+## See it in action
+
+**Five queries (article)** is the worked example below: watch the five query bars glide into their sorted order, then the window slide over them one element at a time while the frequency map and the distinct count follow. The last step compares the 17 moves with the 37 of the input order. **Equal keys keep input order** shows the stable sort. The input takes queries with `l <= r` only.
+
+<ArticleViz ids={['mos-algorithm']} />
 
 ## Why it is fast
 
