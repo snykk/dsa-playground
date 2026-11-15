@@ -3,7 +3,7 @@ topic: Algorithms/Computational_Geometry/Basic_Geometry/Line_Intersection
 title: Line Intersection
 lead: Two lines meet in one point unless they are parallel. Two segments may cross, touch at an endpoint, form a T, overlap along a line, or miss each other. This topic finds the intersection point and decides whether segments intersect using exact orientation tests, so every one of those cases is handled correctly.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Time
     value: O(1)
@@ -59,6 +59,12 @@ Segments need a yes or no decision first. Four orientation values decide it:
 <Callout title="Why exact comparisons are safe here">
 The tests only ask whether a number is exactly zero or which sign it has. For integer coordinates these cross products are exact in Python (any size), and in C++ and Go as long as they stay below 2<sup>53</sup>. A tolerance such as 1e-9 would fail: it is an absolute threshold on a quantity measured in length<sup>2</sup>, so at a scale of 1e-5 it calls every pair parallel.
 </Callout>
+
+## See it in action
+
+Both segments are drawn as arrows, because the sign of an orientation depends on their direction, and the four orientation tests appear one by one as triangles filled by their sign. Try **Collinear cases (v0.2.0 fix)**: all four orientations are 0 there, and only the bounding-box checks tell an overlap from a gap.
+
+<ArticleViz ids={['line-intersection']} />
 
 ## Worked example
 

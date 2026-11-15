@@ -1,0 +1,162 @@
+/* ReservoirView organism: the stream, the chance row, the draw row (or the tally) and the reservoir slots. */
+.rv-wrap {
+  overflow-x: auto;
+}
+.reservoir-view {
+  display: block;
+  margin: 0 auto;
+}
+.reservoir-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.reservoir-view .rv-labels text {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 12px;
+}
+
+/* ---------- stream cells: idle unread, active being read, done in the sample, muted dropped ---------- */
+
+.reservoir-view .rv-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    opacity 0.3s ease;
+}
+.reservoir-view .rv-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.reservoir-view .rv-cell.role-active rect,
+.reservoir-view .rv-cell.role-done rect {
+  fill: color-mix(in srgb, var(--role) 22%, var(--viz-surface));
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.reservoir-view .rv-cell.role-muted rect,
+.reservoir-view .rv-cell.role-muted text {
+  opacity: 0.4;
+}
+.reservoir-view .rv-cell.role-muted rect {
+  stroke-dasharray: 3 3;
+}
+.reservoir-view .rv-index {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.reservoir-view .rv-index.is-current {
+  fill: var(--text);
+  font-weight: 700;
+}
+.reservoir-view .rv-chance {
+  fill: var(--text-2);
+  font-size: 11px;
+}
+
+/* ---------- tokens: an item that moves between the stream and the reservoir ---------- */
+
+.reservoir-view .rv-token {
+  transition: transform 0.5s ease;
+}
+.reservoir-view .rv-token rect {
+  fill: var(--role);
+  stroke: var(--role);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease;
+}
+.reservoir-view .rv-token text {
+  fill: var(--viz-ink-on-fill);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.reservoir-view .rv-token.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.reservoir-view .rv-token.evicted {
+  opacity: 0.55;
+}
+.reservoir-view .rv-token.evicted rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 4 3;
+}
+.reservoir-view .rv-token.evicted text {
+  fill: var(--text-2);
+  text-decoration: line-through;
+}
+.reservoir-view .rv-slot rect {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+.reservoir-view .rv-slot text,
+.reservoir-view .rv-out {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+
+/* ---------- the draw j = randrange(i): slot values tinted, the drawn value solid ---------- */
+
+.reservoir-view .rv-draw rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.reservoir-view .rv-draw text {
+  fill: var(--text-2);
+  font-size: 11px;
+}
+.reservoir-view .rv-draw .slot-zone rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+}
+.reservoir-view .rv-draw .hit rect {
+  fill: var(--viz-active);
+  stroke: var(--viz-active);
+  stroke-width: 2;
+}
+.reservoir-view .rv-draw .hit text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.reservoir-view .rv-j {
+  transition: transform 0.35s ease;
+}
+.reservoir-view .rv-j path {
+  fill: var(--text);
+}
+.reservoir-view .rv-j text {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ---------- the tally over many runs ---------- */
+
+.reservoir-view .rv-tally rect {
+  fill: var(--viz-done);
+}
+.reservoir-view .rv-tally text {
+  fill: var(--viz-ink-on-fill);
+  font-size: 10px;
+  font-weight: 700;
+}
+.reservoir-view .rv-tally .rv-expected {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-weight: 600;
+}
+.reservoir-view .rv-tally line {
+  stroke: var(--text);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}

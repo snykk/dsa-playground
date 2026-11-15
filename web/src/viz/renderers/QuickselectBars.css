@@ -1,0 +1,134 @@
+/* QuickselectBars organism: gliding bars, the lo..hi band, the pivot line, partition marks and pointers. */
+.qs-wrap {
+  overflow-x: auto;
+}
+.qs-bars {
+  display: block;
+  margin: 0 auto;
+}
+.qs-bars text {
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.qs-bars .qs-range {
+  transition: transform 0.4s ease;
+}
+.qs-bars .qs-range rect {
+  fill: var(--surface-3);
+}
+.qs-bars .qs-range text,
+.qs-bars .qs-copy {
+  text-anchor: start;
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.qs-bars .qs-copy {
+  text-anchor: end;
+  font-weight: 600;
+  fill: var(--text-2);
+}
+.qs-bars .qs-empty {
+  fill: var(--viz-bad);
+  font-size: 14px;
+  font-weight: 600;
+}
+.qs-bars .qs-baseline {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+
+/* ---------- bars ---------- */
+
+.qs-bars .qs-bar {
+  transition: transform 0.4s ease;
+}
+.qs-bars .qs-bar path {
+  fill: var(--role);
+  transition:
+    fill 0.2s ease,
+    opacity 0.3s ease;
+}
+.qs-bars .qs-bar.pivot path {
+  stroke: var(--text);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.qs-bars .qs-bar.role-compare path,
+.qs-bars .qs-bar.role-good path,
+.qs-bars .qs-bar.role-bad path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: viz-pop 0.35s ease;
+}
+.qs-bars .qs-value {
+  fill: var(--text-2);
+  font-size: 12px;
+}
+.qs-bars .qs-bar.role-compare .qs-value,
+.qs-bars .qs-bar.role-good .qs-value,
+.qs-bars .qs-bar.role-bad .qs-value {
+  fill: var(--text);
+  font-weight: 700;
+}
+/* Discarded for good: faded but readable. */
+.qs-bars .qs-bar.role-muted path {
+  opacity: 0.25;
+}
+.qs-bars .qs-bar.role-muted .qs-value {
+  opacity: 0.45;
+}
+.qs-bars .qs-glyph {
+  fill: var(--role);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ---------- pivot line, index row, marks, pointers ---------- */
+
+.qs-bars .qs-pivot line {
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+.qs-bars .qs-pivot text {
+  text-anchor: end;
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+}
+.qs-bars .qs-index {
+  fill: var(--text-3);
+  font-size: 10px;
+  dominant-baseline: central;
+}
+.qs-bars .qs-index.is-k {
+  fill: var(--text);
+  font-weight: 700;
+}
+.qs-bars .qs-k {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.qs-bars .qs-mark {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  dominant-baseline: central;
+}
+.qs-bars .qs-pointer {
+  transition: transform 0.4s ease;
+}
+.qs-bars .qs-pointer path {
+  fill: var(--text);
+}
+.qs-bars .qs-pointer text {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}

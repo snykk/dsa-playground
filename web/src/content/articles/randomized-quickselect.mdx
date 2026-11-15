@@ -3,7 +3,7 @@ topic: Algorithms/Randomized_Algorithms/Randomized_Quickselect
 title: Randomized Quickselect
 lead: Quickselect finds the k-th smallest element of an unsorted array in O(n) expected time. It partitions around a random pivot like Quick Sort, but follows only the one side that contains rank k, so it is faster than sorting when you need a single order statistic.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Expected time
     value: O(n)
@@ -56,9 +56,15 @@ Quick Sort partitions and then sorts both sides. Quickselect partitions and keep
 The element of rank `k` always lies inside `arr[lo..hi]`. Every partition places keys smaller than the pivot to its left and larger keys to its right, so if `k` is outside the equal band, the discarded side contains no element of rank `k`.
 </Callout>
 
+## See it in action
+
+Each pivot comes from Python's own generator: `seed 1` makes `rng = random.Random(1)`, so **Article example (seed 1)** draws the two pivots of the worked example below. **All equal: one pass** shows the three-way partition settling twelve equal keys in a single round, and **Unlucky fixed pivots** fixes the draws to the worst case, where every round discards only one key.
+
+<ArticleViz ids={['randomized-quickselect']} />
+
 ## Worked example
 
-Find the 4th smallest (`k = 3`, 0-indexed) of `[7, 2, 9, 2, 5, 2, 8]`. Sorted, the array is `[2, 2, 2, 5, 7, 8, 9]`, so the answer is 5. These rows come from running the repository's partition on the array with the pivots shown.
+Find the 4th smallest (`k = 3`, 0-indexed) of `[7, 2, 9, 2, 5, 2, 8]`. Sorted, the array is `[2, 2, 2, 5, 7, 8, 9]`, so the answer is 5. These rows come from running the repository's partition on the array with the pivots shown, which are the first two draws of `random.Random(1)`.
 
 <ArrayDiagram
   legend={{ p: 'pivot value', l: 'band equal to the pivot', m: 'discarded: cannot contain rank k', f: 'answer' }}

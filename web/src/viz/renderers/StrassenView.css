@@ -1,0 +1,111 @@
+/* StrassenView organism: matrices as grids of cells, the quadrant split, row operators and empty product slots. */
+.sv-wrap {
+  overflow-x: auto;
+}
+.strassen-view {
+  display: block;
+  margin: 0 auto;
+}
+.strassen-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A matrix glides when it moves between the call row, the factor row and the product row. */
+.strassen-view .sv-matrix {
+  transition: transform 0.45s ease;
+}
+.strassen-view .sv-label {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.strassen-view .sv-glyph {
+  fill: var(--role);
+  font-weight: 700;
+}
+.strassen-view .sv-frame {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.strassen-view .sv-matrix.role-active .sv-frame {
+  stroke-dasharray: 6 4;
+}
+
+/* Cells: idle is an outlined square; compare a tinted one with a strong border; active / done / good solid. */
+.strassen-view .sv-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.strassen-view .sv-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.strassen-view .sv-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.strassen-view .sv-cell.role-active rect,
+.strassen-view .sv-cell.role-done rect,
+.strassen-view .sv-cell.role-good rect,
+.strassen-view .sv-cell.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.strassen-view .sv-cell.role-active text,
+.strassen-view .sv-cell.role-done text,
+.strassen-view .sv-cell.role-good text,
+.strassen-view .sv-cell.role-bad text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.strassen-view .sv-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.strassen-view .sv-cell.unknown text {
+  fill: var(--text-3);
+}
+/* Zero padding: dashed and faded, so it reads as "not part of the input" without colour. */
+.strassen-view .sv-cell.pad rect {
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 3 3;
+  opacity: 0.6;
+}
+.strassen-view .sv-cell.pad text {
+  opacity: 0.55;
+}
+.strassen-view .sv-cell.role-muted {
+  opacity: 0.4;
+}
+
+.strassen-view .sv-quads line {
+  stroke: var(--text-2);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.strassen-view .sv-ops text {
+  fill: var(--text-2);
+  font-size: 18px;
+  font-weight: 700;
+}
+.strassen-view .sv-slot rect,
+.strassen-view .sv-pending rect {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+.strassen-view .sv-slot .sv-label {
+  fill: var(--text-3);
+}

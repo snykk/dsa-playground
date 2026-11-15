@@ -1,6 +1,6 @@
 # Strassen's Matrix Multiplication -- Go Implementation
 
-Strassen's algorithm for square `[][]int` matrices, with a naive cutoff at n <= 64. See the [topic README](../README.md) for the idea and the trace.
+Strassen's algorithm for square `[][]int` matrices, with a naive cutoff (n <= 64 by default). See the [topic README](../README.md) for the idea and the trace.
 
 ## Files
 
@@ -10,11 +10,13 @@ Strassen's algorithm for square `[][]int` matrices, with a naive cutoff at n <= 
 
 ## API
 
-- `StrassenMultiply(A, B [][]int) [][]int` - multiply two n x n matrices. Pads an odd size by one zero row and column.
-- `naiveMultiply`, `matrixAdd`, `matrixSubtract`, `splitMatrix`, `combineMatrices`, `padMatrix` - unexported helpers.
+- `StrassenMultiply(A, B [][]int) [][]int` - multiply two n x n matrices with the default cutoff, `DefaultCutoff` (64). Pads an odd size by one zero row and column.
+- `StrassenMultiplyWithCutoff(A, B [][]int, cutoff int) [][]int` - the same with sizes n <= `cutoff` on the naive loop; panics if the cutoff is below 1 (Go has no default arguments).
+- `strassen`, `naiveMultiply`, `matrixAdd`, `matrixSubtract`, `splitMatrix`, `combineMatrices`, `padMatrix` - unexported helpers.
 
 ```go
-C := StrassenMultiply([][]int{{1, 2}, {3, 4}}, [][]int{{5, 6}, {7, 8}}) // [[19 22] [43 50]]
+C := StrassenMultiply([][]int{{1, 2}, {3, 4}}, [][]int{{5, 6}, {7, 8}})              // [[19 22] [43 50]]
+D := StrassenMultiplyWithCutoff([][]int{{1, 2}, {3, 4}}, [][]int{{5, 6}, {7, 8}}, 1) // same, from seven 1 x 1 products
 ```
 
 ## Go-Specific Notes

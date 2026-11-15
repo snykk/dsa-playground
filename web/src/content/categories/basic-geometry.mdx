@@ -2,7 +2,7 @@
 category: Algorithms/Computational_Geometry/Basic_Geometry
 title: Basic Geometry
 lead: The two building blocks of 2D geometry code. Point, Line and Circle gives distances, orientation, angles and containment tests. Line Intersection builds on its cross product to decide whether segments meet. Both are exact on integer input and use no epsilon.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: Every operation
     value: O(1)
@@ -50,6 +50,12 @@ What the code actually does:
     ['Line Intersection', 'orientation signs decide first, then the point is computed', '`line_intersection`, `segments_intersect`, `segment_intersection`, `point_on_segment`', 'O(1) per pair'],
   ]}
 />
+
+## See them side by side
+
+Each tab runs one topic's Python code, step by step, on your own points: **Orientation: left, right, straight** and **Collinear cases (v0.2.0 fix)** are good first runs.
+
+<ArticleViz ids={['point-line-circle', 'line-intersection']} />
 
 ## Segment cases through the repository's code
 

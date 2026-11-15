@@ -3,7 +3,7 @@ topic: Algorithms/Computational_Geometry/Advanced_Geometry/Rotating_Calipers
 title: Rotating Calipers
 lead: Rotating calipers sweeps two parallel supporting lines once around a convex polygon. In linear time it finds the diameter (the farthest pair of vertices) and the width (the narrowest strip that contains the polygon). The input is the hull, so the cost comes on top of computing it.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Diameter and width
     value: O(n)
@@ -55,6 +55,12 @@ The implementation does not rotate anything. It walks the edges of the polygon i
 <Callout title="Why the area, and not the distance, drives the pointer">
 The distance from a fixed vertex to the other vertices of a convex polygon is not unimodal, so climbing on it can stop at a local maximum. The height over an edge is unimodal on a strictly convex polygon. A version that climbed on vertex-to-vertex distance returned 104.96 instead of 104.98 on a six-vertex fan-shaped hull; the tests include that polygon.
 </Callout>
+
+## See it in action
+
+Enter a convex polygon in order. One jaw lies along the current edge and the other passes through the far vertex `j`, and both turn as the loop moves on to the next edge. **Pentagon** is the worked example below, **Fan hull** is the polygon on which the old distance hill-climb stopped at a local maximum, and **Repeated and collinear vertices** shows `clean_polygon` at work.
+
+<ArticleViz ids={['rotating-calipers']} />
 
 ## Worked example
 

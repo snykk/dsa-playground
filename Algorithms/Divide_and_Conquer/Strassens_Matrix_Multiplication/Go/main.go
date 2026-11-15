@@ -1,22 +1,41 @@
 package main
 
+// DefaultCutoff is the size at or below which StrassenMultiply switches to the
+// naive triple loop.
+const DefaultCutoff = 64
+
 // StrassenMultiply multiplies two matrices using Strassen's algorithm
+// with the default cutoff of 64.
 // Time Complexity: O(n^log2(7)) ~ O(n^2.81)
 func StrassenMultiply(A, B [][]int) [][]int {
+	return StrassenMultiplyWithCutoff(A, B, DefaultCutoff)
+}
+
+// StrassenMultiplyWithCutoff is StrassenMultiply with the cutoff as a
+// parameter: sizes n <= cutoff use the naive triple loop instead of splitting
+// again. It panics if cutoff is below 1.
+func StrassenMultiplyWithCutoff(A, B [][]int, cutoff int) [][]int {
+	if cutoff < 1 {
+		panic("cutoff must be at least 1")
+	}
+	return strassen(A, B, cutoff)
+}
+
+func strassen(A, B [][]int, cutoff int) [][]int {
 	n := len(A)
 
 	if n == 1 {
 		return [][]int{{A[0][0] * B[0][0]}}
 	}
 
-	if n <= 64 {
+	if n <= cutoff {
 		return naiveMultiply(A, B)
 	}
 
 	// An odd size cannot be split into equal quadrants: pad by one zero row and
 	// column, multiply, and cut the padding off again.
 	if n%2 == 1 {
-		PC := StrassenMultiply(padMatrix(A, n+1), padMatrix(B, n+1))
+		PC := strassen(padMatrix(A, n+1), padMatrix(B, n+1), cutoff)
 		C := make([][]int, n)
 		for i := range C {
 			C[i] = PC[i][:n]
@@ -29,13 +48,13 @@ func StrassenMultiply(A, B [][]int) [][]int {
 	B11, B12, B21, B22 := splitMatrix(B)
 
 	// Calculate 7 products (Strassen's key insight)
-	P1 := StrassenMultiply(A11, matrixSubtract(B12, B22))
-	P2 := StrassenMultiply(matrixAdd(A11, A12), B22)
-	P3 := StrassenMultiply(matrixAdd(A21, A22), B11)
-	P4 := StrassenMultiply(A22, matrixSubtract(B21, B11))
-	P5 := StrassenMultiply(matrixAdd(A11, A22), matrixAdd(B11, B22))
-	P6 := StrassenMultiply(matrixSubtract(A12, A22), matrixAdd(B21, B22))
-	P7 := StrassenMultiply(matrixSubtract(A11, A21), matrixAdd(B11, B12))
+	P1 := strassen(A11, matrixSubtract(B12, B22), cutoff)
+	P2 := strassen(matrixAdd(A11, A12), B22, cutoff)
+	P3 := strassen(matrixAdd(A21, A22), B11, cutoff)
+	P4 := strassen(A22, matrixSubtract(B21, B11), cutoff)
+	P5 := strassen(matrixAdd(A11, A22), matrixAdd(B11, B22), cutoff)
+	P6 := strassen(matrixSubtract(A12, A22), matrixAdd(B21, B22), cutoff)
+	P7 := strassen(matrixSubtract(A11, A21), matrixAdd(B11, B12), cutoff)
 
 	// Calculate result quadrants
 	C11 := matrixAdd(matrixSubtract(matrixAdd(P5, P4), P2), P6)

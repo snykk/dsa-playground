@@ -25,7 +25,7 @@ The invariant is algebraic: each result block equals the schoolbook value, becau
 
 ## How It Works
 
-1. Base cases: a 1 x 1 matrix is one multiplication; for n <= 64 use the naive triple loop (the cutoff in all three implementations).
+1. Base cases: a 1 x 1 matrix is one multiplication; for n <= cutoff use the naive triple loop. The cutoff is a parameter with the default 64 in all three implementations (`cutoff=64` in Python, `int cutoff = 64` in C++, `StrassenMultiplyWithCutoff` in Go); a cutoff below 1 is rejected.
 2. If n is odd, pad both matrices with one zero row and column, multiply, and cut the result back to n x n.
 3. Split A and B into quadrants.
 4. Compute the seven products recursively:
@@ -45,7 +45,7 @@ The invariant is algebraic: each result block equals the schoolbook value, becau
 
 ## Step-by-Step Trace
 
-A = [[1, 2], [3, 4]] and B = [[5, 6], [7, 8]]. Every block is one number, so the products are plain multiplications (values from the Python code):
+A = [[1, 2], [3, 4]] and B = [[5, 6], [7, 8]]. Every block is one number, so the products are plain multiplications. These are the steps `strassen_multiply` takes on a matrix above its cutoff; with the default cutoff of 64 the code multiplies this 2 x 2 with the naive loop (2 <= 64), and the products below are what `strassen_multiply(A, B, cutoff=1)` computes:
 
 | Product | Expression | Value |
 |---------|------------|-------|
@@ -72,7 +72,7 @@ The result is [[19, 22], [43, 50]], the same as the schoolbook product, from 7 m
 | Extra space | O(n^2) | block sums and the seven products at each level |
 | Multiplications after k levels | 7^k (schoolbook: 8^k) | one fewer product per split |
 
-The running time does not depend on the values, so there is no best or worst case. With the cutoff of 64, a 128 x 128 product needs 7 * 64^3 = 1,835,008 multiplications instead of 128^3 = 2,097,152, with 18 block additions on top.
+The running time does not depend on the values, so there is no best or worst case. With the default cutoff of 64, a 128 x 128 product needs 7 * 64^3 = 1,835,008 multiplications instead of 128^3 = 2,097,152, with 18 block additions on top.
 
 ## When to Use
 
@@ -100,9 +100,9 @@ Do not use it for small matrices, sparse matrices, or floating-point work where 
 
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
-| Python | [Python/](Python/) | `strassen_matrix.py` | Arbitrary-size ints; `strassen_multiply_general` also accepts rectangular matrices |
-| C++ | [C++/](C++/) | `strassen_matrix.cpp` | `vector<vector<int>>`, square matrices; the test includes the .cpp file |
-| Go | [Go/](Go/) | `main.go` | `[][]int`, square matrices; library-style `package main` with tests only |
+| Python | [Python/](Python/) | `strassen_matrix.py` | Arbitrary-size ints; `cutoff` keyword (default 64); `strassen_multiply_general` also accepts rectangular matrices |
+| C++ | [C++/](C++/) | `strassen_matrix.cpp` | `vector<vector<int>>`, square matrices; `cutoff` default argument (64); the test includes the .cpp file |
+| Go | [Go/](Go/) | `main.go` | `[][]int`, square matrices; `StrassenMultiplyWithCutoff` takes the cutoff, `StrassenMultiply` uses 64; library-style `package main` with tests only |
 
 ## Practice Problems
 

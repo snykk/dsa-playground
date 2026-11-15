@@ -6,6 +6,7 @@
 #include <vector>
 #include <cassert>
 #include <cstdlib>
+#include <stdexcept>
 #include "strassen_matrix.cpp"
 
 using Matrix = std::vector<std::vector<int>>;
@@ -61,12 +62,51 @@ void testOddSizeAboveCutoff() {
     std::cout << "odd size 65 and 130 tests passed" << std::endl;
 }
 
+// A small cutoff runs the seven-product recursion (and the odd-size padding) on small matrices.
+void testSmallCutoffMatchesNaive() {
+    for (int cutoff : {1, 2}) {
+        for (int n : {4, 3}) {
+            Matrix A = randomMatrix(n, 5 + n), B = randomMatrix(n, 6 + n);
+            assert(strassenMultiply(A, B, cutoff) == naive(A, B));
+        }
+    }
+    std::cout << "small cutoff tests passed" << std::endl;
+}
+
+// Leaving the cutoff out is the same as passing the default, 64.
+void testDefaultCutoffUnchanged() {
+    for (int n : {4, 65}) {
+        Matrix A = randomMatrix(n, 7), B = randomMatrix(n, 8);
+        Matrix C = strassenMultiply(A, B);
+        assert(C == strassenMultiply(A, B, 64));
+        assert(C == naive(A, B));
+    }
+    std::cout << "default cutoff tests passed" << std::endl;
+}
+
+void testBadCutoffThrows() {
+    Matrix A = {{1, 2}, {3, 4}};
+    for (int cutoff : {0, -3}) {
+        bool threw = false;
+        try {
+            strassenMultiply(A, A, cutoff);
+        } catch (const std::invalid_argument&) {
+            threw = true;
+        }
+        assert(threw);
+    }
+    std::cout << "bad cutoff tests passed" << std::endl;
+}
+
 int main() {
     std::cout << "Running Strassen's Matrix Multiplication tests..." << std::endl;
     test1x1();
     test2x2();
     testSevenProductRecursion128();
     testOddSizeAboveCutoff();
+    testSmallCutoffMatchesNaive();
+    testDefaultCutoffUnchanged();
+    testBadCutoffThrows();
     std::cout << "\nAll tests passed!" << std::endl;
     return 0;
 }

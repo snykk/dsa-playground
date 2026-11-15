@@ -23,7 +23,7 @@ y
 
 Graham's scan:
 
-1. Remove duplicate points (exact comparison). With fewer than three distinct points, return them as they are.
+1. Remove duplicate points (exact comparison). With fewer than three distinct points, return them sorted by (y, x) (Jarvis march: by (x, y)).
 2. Pick the pivot: the bottom-most point, leftmost on a tie.
 3. Sort the others by angle around the pivot: `a` before `b` if `cross(pivot, a, b) > 0`; on the same ray, nearer first.
 4. Scan: while the last two stack points and the new point do not make a strict left turn (`cross <= 0`), pop; then push the new point.
@@ -83,7 +83,7 @@ Sorting costs O(n log n) and the scan is O(n), since each point is pushed once a
 - Popping only on right turns keeps collinear boundary points; this code pops on `cross <= 0` and excludes them.
 - Duplicates give zero cross products; they are removed first.
 - Exactness holds for integer coordinates (Python: any size; C++ and Go: cross products below 2^53, so coordinate differences below about 6.7e7). Decimal data can still be misjudged near collinear configurations, and platform rounding (FMA) can change the answer; the code avoids fused multiply-add in the cross product.
-- All points collinear returns the two end points; fewer than three distinct points are returned as they are.
+- All points collinear returns the two end points; fewer than three distinct points are returned in a new list, sorted by (y, x) in Graham's scan and by (x, y) in Jarvis march.
 
 ## Implementations
 

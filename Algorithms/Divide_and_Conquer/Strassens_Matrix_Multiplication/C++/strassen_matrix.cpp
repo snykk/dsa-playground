@@ -70,7 +70,12 @@ Matrix combineMatrices(const Matrix& C11, const Matrix& C12,
     return C;
 }
 
-Matrix strassenMultiply(const Matrix& A, const Matrix& B) {
+// Sizes n <= cutoff use the naive triple loop instead of splitting again.
+// Throws std::invalid_argument if cutoff is below 1.
+Matrix strassenMultiply(const Matrix& A, const Matrix& B, int cutoff = 64) {
+    if (cutoff < 1) {
+        throw std::invalid_argument("cutoff must be at least 1");
+    }
     int n = A.size();
     
     // Base case
@@ -79,7 +84,7 @@ Matrix strassenMultiply(const Matrix& A, const Matrix& B) {
     }
     
     // Threshold for switching to naive
-    if (n <= 64) {
+    if (n <= cutoff) {
         Matrix C(n, std::vector<int>(n, 0));
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
@@ -102,7 +107,7 @@ Matrix strassenMultiply(const Matrix& A, const Matrix& B) {
                 PB[i][j] = B[i][j];
             }
         }
-        Matrix PC = strassenMultiply(PA, PB);
+        Matrix PC = strassenMultiply(PA, PB, cutoff);
         Matrix C(n, std::vector<int>(n));
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
@@ -119,13 +124,13 @@ Matrix strassenMultiply(const Matrix& A, const Matrix& B) {
     splitMatrix(B, B11, B12, B21, B22);
     
     // Calculate 7 products
-    Matrix P1 = strassenMultiply(A11, matrixSubtract(B12, B22));
-    Matrix P2 = strassenMultiply(matrixAdd(A11, A12), B22);
-    Matrix P3 = strassenMultiply(matrixAdd(A21, A22), B11);
-    Matrix P4 = strassenMultiply(A22, matrixSubtract(B21, B11));
-    Matrix P5 = strassenMultiply(matrixAdd(A11, A22), matrixAdd(B11, B22));
-    Matrix P6 = strassenMultiply(matrixSubtract(A12, A22), matrixAdd(B21, B22));
-    Matrix P7 = strassenMultiply(matrixSubtract(A11, A21), matrixAdd(B11, B12));
+    Matrix P1 = strassenMultiply(A11, matrixSubtract(B12, B22), cutoff);
+    Matrix P2 = strassenMultiply(matrixAdd(A11, A12), B22, cutoff);
+    Matrix P3 = strassenMultiply(matrixAdd(A21, A22), B11, cutoff);
+    Matrix P4 = strassenMultiply(A22, matrixSubtract(B21, B11), cutoff);
+    Matrix P5 = strassenMultiply(matrixAdd(A11, A22), matrixAdd(B11, B22), cutoff);
+    Matrix P6 = strassenMultiply(matrixSubtract(A12, A22), matrixAdd(B21, B22), cutoff);
+    Matrix P7 = strassenMultiply(matrixSubtract(A11, A21), matrixAdd(B11, B12), cutoff);
     
     // Calculate result quadrants
     Matrix C11 = matrixAdd(matrixSubtract(matrixAdd(P5, P4), P2), P6);

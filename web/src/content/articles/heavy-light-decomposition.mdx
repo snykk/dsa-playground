@@ -3,7 +3,7 @@ topic: Algorithms/Advanced_Algorithms/Specialized_Techniques/Heavy_Light_Decompo
 title: Heavy-Light Decomposition
 lead: Heavy-light decomposition cuts a tree into vertical chains so that any root-to-node path crosses only O(log n) of them. Laying the chains out as contiguous ranges of an array lets a path between two nodes be answered with O(log n) range operations, or its lowest common ancestor with O(log n) jumps.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Build time
     value: O(n)
@@ -81,6 +81,12 @@ Going from a node up to the root, each light edge leads to a parent whose subtre
 </Steps>
 
 Because the heavy child is visited first, every chain occupies consecutive positions, and each subtree is contiguous too.
+
+## See it in action
+
+**Path from 3 to 6 (article)** builds the decomposition of the tree above: the breadth-first size pass, the heavy children (thick edges), then the explicit stack of `decompose` handing out positions chain by chain. After the build, `lca(3, 6)` and `query_path(3, 6)` climb one chain per jump, with the segments lit on the tree and in `pos` at once. **Equal sizes: first child wins** shows the tie-breaking.
+
+<ArticleViz ids={['heavy-light-decomposition']} />
 
 ## Worked example
 

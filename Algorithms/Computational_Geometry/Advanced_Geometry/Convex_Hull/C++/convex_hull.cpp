@@ -47,7 +47,7 @@ static std::vector<Point> distinctPoints(std::vector<Point> points) {
 
 // Counterclockwise hull starting at the bottom-most point (leftmost on a tie). Points on
 // a hull edge are excluded. Duplicates are removed; fewer than three distinct points are
-// returned as they are. Comparisons are exact, so integer input never goes wrong.
+// returned sorted by (y, x). Comparisons are exact, so integer input never goes wrong.
 std::vector<Point> grahamScan(std::vector<Point> points) {
     std::vector<Point> pts = distinctPoints(points);
     if (pts.size() < 3) {
@@ -93,7 +93,7 @@ std::vector<Point> grahamScan(std::vector<Point> points) {
 
 // Counterclockwise hull starting at the leftmost point (lowest on a tie). Points on a hull
 // edge are excluded. Duplicates are removed; fewer than three distinct points are
-// returned as they are. Comparisons are exact, so integer input never goes wrong.
+// returned sorted by (x, y). Comparisons are exact, so integer input never goes wrong.
 std::vector<Point> jarvisMarch(std::vector<Point> points) {
     std::vector<Point> pts = distinctPoints(points);  // sorted by (x, y)
     if (pts.size() < 3) {

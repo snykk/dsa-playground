@@ -3,6 +3,9 @@ Test cases for Strassen's Matrix Multiplication
 """
 
 import unittest
+from unittest import mock
+
+import strassen_matrix
 from strassen_matrix import (
     strassen_multiply,
     strassen_multiply_general,
@@ -113,6 +116,41 @@ class TestStrassenMatrix(unittest.TestCase):
         A = self._random_matrix(130, 5)
         B = self._random_matrix(130, 6)
         self.assertEqual(strassen_multiply(A, B), matrix_multiply_naive(A, B))
+
+    def test_small_cutoff_recurses_and_matches_naive(self):
+        """cutoff=1 or 2 runs the seven-product recursion (and the odd-size padding) on small matrices"""
+        for cutoff in (1, 2):
+            for n, seed in ((4, 7), (3, 8)):
+                A = self._random_matrix(n, seed)
+                B = self._random_matrix(n, seed + 100)
+                with mock.patch.object(strassen_matrix, "split_matrix", wraps=strassen_matrix.split_matrix) as split:
+                    result = strassen_multiply(A, B, cutoff=cutoff)
+                self.assertEqual(result, matrix_multiply_naive(A, B))
+                self.assertGreater(split.call_count, 0, (n, cutoff))
+        A = [[1, 2, 3], [4, 5, 6]]
+        B = [[1, 2], [3, 4], [5, 6]]
+        self.assertEqual(strassen_multiply_general(A, B, cutoff=1), [[22, 28], [49, 64]])
+
+    def test_default_cutoff_is_64(self):
+        """Without a cutoff, sizes up to 64 use the naive loop and the results are unchanged"""
+        A = self._random_matrix(4, 9)
+        B = self._random_matrix(4, 10)
+        with mock.patch.object(strassen_matrix, "split_matrix", wraps=strassen_matrix.split_matrix) as split:
+            result = strassen_multiply(A, B)
+        self.assertEqual(split.call_count, 0)
+        self.assertEqual(result, matrix_multiply_naive(A, B))
+        A = self._random_matrix(65, 11)
+        B = self._random_matrix(65, 12)
+        self.assertEqual(strassen_multiply(A, B), strassen_multiply(A, B, cutoff=64))
+        self.assertEqual(strassen_multiply(A, B), matrix_multiply_naive(A, B))
+
+    def test_bad_cutoff_raises(self):
+        """A cutoff below 1 is rejected by both functions"""
+        for cutoff in (0, -1):
+            with self.assertRaises(ValueError):
+                strassen_multiply([[1, 2], [3, 4]], [[5, 6], [7, 8]], cutoff=cutoff)
+            with self.assertRaises(ValueError):
+                strassen_multiply_general([[1, 2, 3]], [[1], [2], [3]], cutoff=cutoff)
 
 
 if __name__ == '__main__':

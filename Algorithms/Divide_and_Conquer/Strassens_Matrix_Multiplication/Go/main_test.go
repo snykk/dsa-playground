@@ -60,3 +60,62 @@ func TestStrassenAboveCutoff(t *testing.T) {
 		}
 	}
 }
+
+func sameMatrix(a, b [][]int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if len(a[i]) != len(b[i]) {
+			return false
+		}
+		for j := range a[i] {
+			if a[i][j] != b[i][j] {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// A small cutoff runs the seven-product recursion (and the odd-size padding)
+// on small matrices.
+func TestStrassenSmallCutoff(t *testing.T) {
+	rng := rand.New(rand.NewSource(2))
+	for _, cutoff := range []int{1, 2} {
+		for _, n := range []int{4, 3} {
+			A, B := randomMatrix(n, rng), randomMatrix(n, rng)
+			if got := StrassenMultiplyWithCutoff(A, B, cutoff); !sameMatrix(got, naiveMultiply(A, B)) {
+				t.Fatalf("cutoff=%d n=%d: got %v, want %v", cutoff, n, got, naiveMultiply(A, B))
+			}
+		}
+	}
+}
+
+// StrassenMultiply keeps its behaviour: it is the default cutoff of 64.
+func TestStrassenDefaultCutoffUnchanged(t *testing.T) {
+	if DefaultCutoff != 64 {
+		t.Fatalf("DefaultCutoff = %d, want 64", DefaultCutoff)
+	}
+	rng := rand.New(rand.NewSource(3))
+	for _, n := range []int{4, 65} {
+		A, B := randomMatrix(n, rng), randomMatrix(n, rng)
+		got := StrassenMultiply(A, B)
+		if !sameMatrix(got, StrassenMultiplyWithCutoff(A, B, 64)) || !sameMatrix(got, naiveMultiply(A, B)) {
+			t.Fatalf("n=%d: default cutoff changed the result", n)
+		}
+	}
+}
+
+func TestStrassenBadCutoffPanics(t *testing.T) {
+	for _, cutoff := range []int{0, -3} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Errorf("cutoff=%d: expected a panic", cutoff)
+				}
+			}()
+			StrassenMultiplyWithCutoff([][]int{{1, 2}, {3, 4}}, [][]int{{5, 6}, {7, 8}}, cutoff)
+		}()
+	}
+}
