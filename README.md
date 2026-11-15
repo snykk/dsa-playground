@@ -35,7 +35,7 @@ Quick_Sort/
   Go/                       main.go, main_test.go, go.mod and a README
 ```
 
-Python is the reference implementation of every topic. C++ and Go cover each topic's core operations; the few C++ and Go folders that are still placeholders say so in their README.
+Python is the reference implementation of every topic. C++ and Go implement every topic too, covering each topic's core operations.
 
 ## Running the Tests
 
