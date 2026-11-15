@@ -3,7 +3,7 @@ topic: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp
 title: Edmonds-Karp Algorithm
 lead: Edmonds-Karp computes the maximum flow of a network by repeatedly pushing flow along the shortest augmenting path, found with BFS. Choosing the shortest path is the one change from Ford-Fulkerson that makes the running time polynomial, whatever the capacities are.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Time
     value: O(V E^2)
@@ -54,6 +54,12 @@ Edmonds-Karp keeps a **residual graph**. For an edge `u -> v` with capacity `c` 
 <Callout title="The max-flow min-cut theorem">
 When BFS can no longer reach `t`, let `S` be the vertices it did reach. Every edge from `S` to the rest is saturated, and every edge back into `S` carries no flow, so the flow equals the capacity of the cut `(S, rest)`. No flow can exceed the capacity of any cut, so this flow is maximum and this cut is minimum.
 </Callout>
+
+## See it in action
+
+Load **Classic (CLRS)**, the network of the worked example below. The badges give each vertex's BFS layer, and the search only stops when it dequeues the sink, so vertices queued before it are still expanded. Each shortest path then fills its pipes, dashed reverse edges appear where flow could be cancelled, and the last step shows the minimum cut that the final BFS found. The Ford-Fulkerson visualization takes the same examples, so the two can be compared on one network.
+
+<ArticleViz ids={['edmonds-karp']} />
 
 ## A worked example
 

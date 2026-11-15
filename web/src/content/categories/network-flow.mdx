@@ -2,7 +2,7 @@
 category: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow
 title: Network Flow
 lead: Network flow asks how much can be sent from a source to a sink through edges with capacities. Ford-Fulkerson and Edmonds-Karp both push flow along augmenting paths in a residual graph and stop at the same maximum. The only difference is how the path is chosen, any path or the shortest, and it decides the running time.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: Ford-Fulkerson
     value: O(E f)
@@ -56,6 +56,12 @@ The max-flow min-cut theorem proves that the result is optimal: the maximum flow
   ]}
 />
 
+## See them side by side
+
+Both tabs take the same input, so the network of the next section runs in each: Ford-Fulkerson's DFS needs six augmenting paths, Edmonds-Karp's BFS three, and both end on the cut with source side `{0, 1, 2, 4}`. **Cross edge undone** shows the DFS cancelling a unit through a reverse edge, while BFS never uses the cross edge.
+
+<ArticleViz ids={['ford-fulkerson', 'edmonds-karp']} />
+
 ## One network, two runs
 
 Take the network with source 0 and sink 5 and edges `0->1 16`, `0->2 13`, `1->2 10`, `1->3 12`, `2->1 4`, `2->4 14`, `3->2 9`, `3->5 20`, `4->3 7` and `4->5 4`. Both algorithms return 23. The augmenting paths below were recorded from the repository's Python code.
@@ -95,7 +101,7 @@ The minimum cut agrees. `min_cut` in the Ford-Fulkerson code returns 23 with the
   ]}
 />
 
-On a diamond network with capacities of 1000 and a cross edge of 1, an unlucky Ford-Fulkerson can take 2000 rounds where Edmonds-Karp needs 2. The repository's DFS happens to take 4 rounds on that network, but nothing in the method rules out the bad order.
+On a diamond network with capacities of 1000 and a cross edge of 1, an unlucky Ford-Fulkerson can take 2000 rounds where Edmonds-Karp needs 2. The repository's DFS takes 4 rounds on that network when the cross edge is written before `1->3`, and 2 otherwise, but nothing in the method rules out the bad order.
 
 ## Choosing one
 

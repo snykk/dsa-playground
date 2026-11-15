@@ -2,7 +2,7 @@
 category: Algorithms/Graph_Algorithms/Advanced_Graph
 title: Advanced Graph Algorithms
 lead: These algorithms look for structure inside a graph instead of paths through it. A valid task order, groups of mutually reachable vertices, single points of failure, a yes-or-no answer to a logic formula, and the most flow a network can carry. Most of them are one DFS or BFS with extra bookkeeping.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: Order, SCC, bridges
     value: O(V + E)
@@ -64,9 +64,9 @@ The first four sit close together. Topological sort, strongly connected componen
 
 ## See them side by side
 
-The tabs cover the four topics that have a visualization. Topological sort and the two SCC algorithms take a directed graph, and the bridge finder takes an undirected one. Load **Cycle with a tail** in the topological sort tab to see a cycle block the order, **Two cycles joined** in the SCC tabs, and **Triangle with a tail** in the bridges tab.
+The tabs cover every topic here except network flow, whose two algorithms sit side by side on its own page. Topological sort and the two SCC algorithms take a directed graph, 2-SAT builds one from its clauses and runs Tarjan on it, and the bridge finder takes an undirected graph. Load **Cycle with a tail** in the topological sort tab to see a cycle block the order, **Two cycles joined** in the SCC tabs, **Unsatisfiable** in the 2-SAT tab to see x0 and ~x0 land in one component, and **Triangle with a tail** in the bridges tab.
 
-<ArticleViz ids={['topological-sort', 'kosaraju', 'tarjan-scc', 'bridges-articulation']} />
+<ArticleViz ids={['topological-sort', 'kosaraju', 'tarjan-scc', 'two-sat', 'bridges-articulation']} />
 
 ## A path through the topics
 
