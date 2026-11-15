@@ -1,0 +1,130 @@
+/* TreeDpView organism: a rooted tree with DP value cells under each vertex, filled in post-order. */
+.td-wrap {
+  overflow-x: auto;
+}
+.td-view {
+  display: block;
+  margin: 0 auto;
+}
+.td-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.td-view .td-keylabel {
+  text-anchor: start;
+  fill: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
+}
+.td-view .td-empty {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+/* Edges: plain grey; a role colours and thickens them (the child being read, a chain the path uses). */
+.td-view .td-edge {
+  stroke: var(--axis);
+  stroke-width: 2;
+  transition:
+    stroke 0.25s ease,
+    stroke-width 0.25s ease;
+}
+.td-view .td-edge:not(.role-idle) {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.td-view .td-edge.role-muted {
+  stroke: var(--axis);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 4;
+}
+
+/* Value cells: idle outlined; compare tinted with a strong border; active / done / good / bad solid. */
+.td-view .td-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.td-view .td-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.td-view .td-cell.empty text {
+  fill: var(--text-3);
+}
+.td-view .td-key .td-cell text {
+  fill: var(--text-2);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.td-view .td-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.td-view .td-cell.role-active rect,
+.td-view .td-cell.role-done rect,
+.td-view .td-cell.role-good rect,
+.td-view .td-cell.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.td-view .td-cell.role-active text,
+.td-view .td-cell.role-done text,
+.td-view .td-cell.role-good text,
+.td-view .td-cell.role-bad text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.td-view .td-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.td-view .td-cell.role-muted text {
+  opacity: 0.45;
+}
+.td-view .td-cell.role-muted rect {
+  stroke-dasharray: 3 3;
+}
+.td-view .td-glyph {
+  fill: var(--role);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+
+/* Totals: a pill at the top right (max_sum, the answer). */
+.td-view .td-total rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+}
+.td-view .td-total:not(.role-idle) rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.td-view .td-total text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.td-view .td-total:not(.role-idle) text {
+  fill: var(--viz-ink-on-fill);
+}
+.td-view .td-total.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}

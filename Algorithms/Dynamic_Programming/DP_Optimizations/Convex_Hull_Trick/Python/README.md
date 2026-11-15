@@ -7,7 +7,7 @@ A monotonic deque-based CHT and a Li Chao tree, both for minimum queries over li
 | File | Description |
 |------|-------------|
 | `cht.py` | `MonotonicCHT` and `LiChaoTree` |
-| `cht_test.py` | `unittest` tests (12): classic examples, equal slopes, random stress against a brute-force minimum |
+| `cht_test.py` | `unittest` tests (13): classic examples, equal slopes, a long query sweep on the deque, random stress against a brute-force minimum |
 
 ## API
 

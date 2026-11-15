@@ -3,7 +3,7 @@ topic: Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP
 title: Digit DP
 lead: Digit DP counts the numbers in a range whose digits satisfy a rule, such as a given digit sum, by building each number one digit at a time and memoizing on the position, a tight flag and a small running state. It handles bounds up to 10^18 in a few thousand steps.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Brute force
     value: O(n)
@@ -62,6 +62,12 @@ Write the bound as a digit array, most significant first. Build a candidate numb
 <Callout title="Why memoization collapses the work">
 Once `tight` is false, the remaining digits are completely free. The answer then depends only on `(pos, sum)`, not on which digits led there, so thousands of different prefixes reuse the same memo entry. Only the single chain of tight states is special.
 </Callout>
+
+## See it in action
+
+Every step is one call of `dp(pos, tight, current_sum)`: the call stack sits under the memo table, a memo hit is a step of its own, and a digit that would push the sum past the target is skipped without a call. **Up to 25, sum 5** is the worked example below, and **Memo hits: up to 345, sum 6** shows free states being reused.
+
+<ArticleViz ids={['digit-dp']} />
 
 ## A worked example
 

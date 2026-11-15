@@ -1,6 +1,7 @@
 """Unit tests for Convex Hull Trick (MonotonicCHT, LiChaoTree)."""
 import random
 import unittest
+from collections import deque
 
 from cht import LiChaoTree, MonotonicCHT
 
@@ -82,6 +83,18 @@ class TestMonotonicCHT(unittest.TestCase):
     def test_empty_query_raises(self):
         with self.assertRaises(ValueError):
             MonotonicCHT().query(0)
+
+    def test_query_sweep_pops_the_front_in_constant_time(self):
+        # Regression: the lines lived in a list and query used pop(0), which shifts every
+        # remaining line, so a sweep over n lines took O(n^2). A deque pops its front in O(1).
+        cht = MonotonicCHT()
+        n = 3000
+        for i in range(n):
+            cht.add_line(-i, i * i)   # y = i^2 - i*x, lowest at i = x / 2
+        self.assertIsInstance(cht._lines, deque)
+        for k in range(n):
+            self.assertEqual(cht.query(2 * k), -k * k)
+        self.assertEqual(len(cht._lines), 1)
 
 
 class TestLiChaoTree(unittest.TestCase):

@@ -1,0 +1,158 @@
+/* DpTableView organism: DP tables as SVG cells, with rows of chips (mask bits, digits) above them. */
+.dt-wrap {
+  overflow-x: auto;
+}
+.dt-view {
+  display: block;
+  margin: 0 auto;
+}
+.dt-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.dt-view .dt-title {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.dt-view .dt-corner,
+.dt-view .dt-chiplabel {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
+}
+.dt-view .dt-head,
+.dt-view .dt-rowhead text {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+.dt-view .dt-rowhead text {
+  text-anchor: end;
+}
+/* A highlighted header: the current mask or position reads in bold, on a tinted pill. */
+.dt-view .dt-head:not(.role-idle) {
+  fill: var(--role);
+  font-weight: 700;
+}
+.dt-view .dt-rowhead rect {
+  fill: color-mix(in srgb, var(--role) 16%, transparent);
+  stroke: var(--role);
+  stroke-width: 1.5;
+}
+.dt-view .dt-rowhead:not(.role-idle) text {
+  fill: var(--text);
+  font-weight: 700;
+}
+
+/* Cells: idle outlined; compare tinted with a strong border; active / done / good / bad solid. */
+.dt-view .dt-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.dt-view .dt-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.dt-view .dt-cell.empty text {
+  fill: var(--text-3);
+}
+.dt-view .dt-cell.role-compare rect,
+.dt-view .dt-chip.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.dt-view .dt-cell.role-active rect,
+.dt-view .dt-cell.role-done rect,
+.dt-view .dt-cell.role-good rect,
+.dt-view .dt-cell.role-bad rect,
+.dt-view .dt-chip.role-active rect,
+.dt-view .dt-chip.role-done rect,
+.dt-view .dt-chip.role-good rect,
+.dt-view .dt-chip.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.dt-view .dt-cell.role-active text,
+.dt-view .dt-cell.role-done text,
+.dt-view .dt-cell.role-good text,
+.dt-view .dt-cell.role-bad text,
+.dt-view .dt-chip.role-active text,
+.dt-view .dt-chip.role-done text,
+.dt-view .dt-chip.role-good text,
+.dt-view .dt-chip.role-bad text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.dt-view .dt-cell.role-active rect,
+.dt-view .dt-cell.role-good rect,
+.dt-view .dt-cell.role-bad rect,
+.dt-view .dt-chip.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.dt-view .dt-cell.role-muted text,
+.dt-view .dt-chip.role-muted text {
+  opacity: 0.45;
+}
+.dt-view .dt-cell.role-muted rect {
+  stroke-dasharray: 3 3;
+}
+
+/* Chips: pills; an idle chip is outlined, a muted one dashed and faint (a bit that is 0). */
+.dt-view .dt-chip rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease;
+}
+.dt-view .dt-chip.role-muted rect {
+  stroke-dasharray: 3 3;
+  opacity: 0.6;
+}
+.dt-view .dt-chip text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+.dt-view .dt-chipsub {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+/* Placed after the role rules, with the same weight, so a filled chip keeps a plain caption. */
+.dt-view .dt-chip text.dt-chipsub {
+  fill: var(--text-3);
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+/* Status glyph (check / cross) at a cell's corner: colour never carries the meaning alone. */
+.dt-view .dt-glyph,
+.dt-view .dt-cell text.dt-glyph,
+.dt-view .dt-chip text.dt-glyph {
+  fill: var(--role);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.dt-note {
+  margin: 0.4rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}

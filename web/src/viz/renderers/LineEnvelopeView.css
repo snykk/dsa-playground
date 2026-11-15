@@ -1,0 +1,180 @@
+/* LineEnvelopeView organism: lines y = m x + b, their lower envelope, a query probe and the deque of lines. */
+.env-wrap {
+  overflow-x: auto;
+}
+.env-view {
+  display: block;
+  margin: 0 auto;
+}
+.env-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.env-view .env-frame {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.env-view .env-grid {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.env-view .env-grid.axis {
+  stroke: var(--axis);
+  stroke-width: 1.5;
+}
+.env-view .env-tick {
+  fill: var(--text-3);
+  font-size: 10.5px;
+}
+
+/* The lower envelope: a broad translucent band under the lines, so the lines stay readable on top. */
+.env-view .env-hull {
+  fill: none;
+  stroke: color-mix(in srgb, var(--viz-done) 42%, transparent);
+  stroke-width: 11;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Lines: idle thin grey; a role colours and thickens them; muted ones are dashed and faint. */
+.env-view .env-line {
+  stroke: var(--role);
+  stroke-width: 2.5;
+  animation: env-in 0.35s ease;
+  transition:
+    stroke 0.2s ease,
+    stroke-width 0.2s ease,
+    opacity 0.2s ease;
+}
+.env-view .env-line.role-idle {
+  stroke: var(--text-2);
+  stroke-width: 1.6;
+}
+.env-view .env-line.role-active,
+.env-view .env-line.role-bad {
+  stroke-width: 3.2;
+}
+.env-view .env-line.role-muted {
+  stroke: var(--text-3);
+  stroke-width: 1.3;
+  opacity: 0.6;
+}
+.env-view .env-line.dashed {
+  stroke-dasharray: 6 5;
+}
+@keyframes env-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.env-view .env-label {
+  fill: var(--role);
+  font-size: 11px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+.env-view .env-label.role-idle,
+.env-view .env-label.role-muted {
+  fill: var(--text-2);
+}
+
+/* The query probe: a vertical dashed line and its label under the axis. */
+.env-view .env-probe {
+  stroke: var(--role);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+.env-view .env-probe-label {
+  fill: var(--role);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Dots on the lines, with their values. */
+.env-view .env-mark circle {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 2;
+}
+.env-view .env-mark.role-good circle,
+.env-view .env-mark.role-active circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.35s ease;
+}
+.env-view .env-mark text {
+  fill: var(--role);
+  font-size: 11px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--viz-surface);
+  stroke-width: 3px;
+}
+
+/* The deque under the plot. */
+.env-view .env-dq-label,
+.env-view .env-dq-empty,
+.env-view .env-ends text {
+  fill: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
+}
+.env-view .env-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease;
+}
+.env-view .env-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.env-view .env-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.env-view .env-cell.role-active rect,
+.env-view .env-cell.role-done rect,
+.env-view .env-cell.role-good rect,
+.env-view .env-cell.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.env-view .env-cell.role-active text,
+.env-view .env-cell.role-done text,
+.env-view .env-cell.role-good text,
+.env-view .env-cell.role-bad text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.env-view .env-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.env-view .env-cell.role-muted rect {
+  stroke-dasharray: 3 3;
+  opacity: 0.6;
+}
+.env-view .env-cell.role-muted text {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+.env-view .env-glyph {
+  fill: var(--role);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}

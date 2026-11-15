@@ -2,7 +2,7 @@
 category: Algorithms/Dynamic_Programming/Advanced_DP
 title: Advanced Dynamic Programming
 lead: Advanced DP keeps the same state, transition and order, but the state follows a structure instead of an index. It is a tree node, a node of a DAG, a subset stored in an integer or a digit position, and the cost depends on how many such states exist.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: DP on Trees
     value: O(n)
@@ -71,6 +71,12 @@ In earlier areas the state is one or two numbers. Here it is a shape: a node wit
 />
 
 Digit DP is cheap in the size of the bound: `count_numbers_with_digit_sum(10**18, 9)` returns 3124550 after a few thousand steps, where a loop over every number would never finish.
+
+## See them side by side
+
+One tab per topic, in reading order, each following the repository's Python function step by step: the state is a tree node, a DAG node, a set of visited cities and a digit position.
+
+<ArticleViz ids={['tree-dp-independent-set', 'dag-longest-path', 'bitmask-dp-tsp', 'digit-dp']} />
 
 ## Small runs of the repository code
 
