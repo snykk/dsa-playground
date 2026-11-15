@@ -35,6 +35,13 @@
 .prose li + li {
   margin-top: 4px;
 }
+/* README text keeps a reading measure; its tables and code may use the full width. */
+.prose > p,
+.prose > ul,
+.prose > ol,
+.prose > blockquote {
+  max-width: 72ch;
+}
 .prose blockquote {
   padding: 8px 16px;
   border-left: 4px solid var(--accent);
