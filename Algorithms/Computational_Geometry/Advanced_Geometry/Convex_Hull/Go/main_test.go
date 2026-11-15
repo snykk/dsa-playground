@@ -145,6 +145,18 @@ func TestDuplicatesAndFewPoints(t *testing.T) {
 	}
 }
 
+// Fewer than three distinct points come back sorted: by (Y, X) in grahamScan, by (X, Y) in
+// jarvisMarch, as documented.
+func TestFewerThanThreePointsComeBackSorted(t *testing.T) {
+	two := []Point{{0, 2}, {1, 0}, {0, 2}}
+	if got := grahamScan(two); len(got) != 2 || got[0] != (Point{1, 0}) || got[1] != (Point{0, 2}) {
+		t.Errorf("grahamScan = %v, want [{1 0} {0 2}]", got)
+	}
+	if got := jarvisMarch(two); len(got) != 2 || got[0] != (Point{0, 2}) || got[1] != (Point{1, 0}) {
+		t.Errorf("jarvisMarch = %v, want [{0 2} {1 0}]", got)
+	}
+}
+
 func TestInputSliceIsNotReordered(t *testing.T) {
 	points := []Point{{0, 3}, {2, 2}, {1, 1}, {2, 1}, {3, 0}, {0, 0}, {3, 3}}
 	before := append([]Point(nil), points...)

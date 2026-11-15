@@ -3,7 +3,7 @@ topic: Algorithms/Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Point
 title: Closest Pair of Points
 lead: Given n points in the plane, find the two that are closest together. Checking all pairs takes O(n^2); divide and conquer does it in O(n log n) by splitting the points at a vertical line, solving each half, and then checking only a narrow strip around the split line, where each point needs just a handful of comparisons.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Divide and conquer
     value: O(n log n)
@@ -37,7 +37,7 @@ The idea is the same as in Merge Sort: split, solve both halves, combine. The on
 
 <Steps>
   <Step title="Sort twice, once">
-    Sort the points by x (ties by y) into `points_x`, and by y into `points_y`. Both lists are built a single time; the recursion only splits them.
+    Sort the points by x into `points_x`, and by y into `points_y`. Python's `closest_pair` sorts on that one coordinate with a stable sort, so ties keep the input order; C++ and Go break ties by the other coordinate. Both lists are built a single time; the recursion only splits them.
   </Step>
   <Step title="Divide">
     If there are at most 3 points, compare all pairs and return. Otherwise split `points_x` in the middle: the first `n / 2` points are the left half, the rest the right half. The vertical dividing line passes through the first point of the right half.
@@ -56,6 +56,12 @@ The idea is the same as in Merge Sort: split, solve both halves, combine. The on
 <Callout title="Why the strip scan is cheap">
 Take a point in the strip and look at the box of width 2&middot;delta and height delta above it. The dividing line cuts it into two squares of side delta, one per half. Points of one half are at least delta apart, so a square of side delta holds at most 4 of them. That gives at most 8 points in the box including the point itself, so at most 7 others can be within delta above it, and the scan is O(n) per level. The capped variant `closest_pair_optimized` looks at only the next 6 points; it agreed with brute force in all the tests.
 </Callout>
+
+## See it in action
+
+The dashed lines are the dividing lines of the open calls, which are listed under the plane, and the points outside the current call fade. Step through **Eight points** (the worked example below) to see both halves return 2.83 and the strip find the closer pair across the line. **Many points on the line** puts repeated x values on the dividing line.
+
+<ArticleViz ids={['closest-pair']} />
 
 ## Worked example
 
@@ -93,8 +99,8 @@ Each half has four points, so it is divided again into two pairs, and every pair
 ```text
 closestPair(points):
     if size(points) < 2: error
-    pointsX = points sorted by (x, y)
-    pointsY = points sorted by (y, x)
+    pointsX = points sorted by x      # C++ and Go: by (x, y)
+    pointsY = points sorted by y      # C++ and Go: by (y, x)
     return recurse(pointsX, pointsY)
 
 recurse(pointsX, pointsY):

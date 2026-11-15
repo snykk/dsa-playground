@@ -42,8 +42,8 @@ func distinctPoints(points []Point) []Point {
 
 // grahamScan returns the hull counterclockwise, starting at the bottom-most point (leftmost
 // on a tie). Points on a hull edge are excluded. Duplicates are removed; fewer than three
-// distinct points are returned as they are. Comparisons are exact, so integer input never
-// goes wrong. The input slice is not modified.
+// distinct points are returned sorted by (Y, X). Comparisons are exact, so integer input
+// never goes wrong. The input slice is not modified.
 func grahamScan(points []Point) []Point {
 	pts := distinctPoints(points)
 	if len(pts) < 3 {
@@ -89,8 +89,8 @@ func grahamScan(points []Point) []Point {
 
 // jarvisMarch returns the hull counterclockwise, starting at the leftmost point (lowest on a
 // tie). Points on a hull edge are excluded. Duplicates are removed; fewer than three
-// distinct points are returned as they are. Comparisons are exact, so integer input never
-// goes wrong. The input slice is not modified.
+// distinct points are returned sorted by (X, Y). Comparisons are exact, so integer input
+// never goes wrong. The input slice is not modified.
 func jarvisMarch(points []Point) []Point {
 	pts := distinctPoints(points) // sorted by (X, Y)
 	if len(pts) < 3 {

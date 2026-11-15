@@ -3,7 +3,7 @@ topic: Algorithms/Computational_Geometry/Advanced_Geometry/Convex_Hull
 title: Convex Hull
 lead: The convex hull of a set of points is the smallest convex polygon that contains all of them, like a rubber band stretched around nails. This repository computes it two ways, Graham's scan in O(n log n) and Jarvis march in O(nh), using exact cross-product comparisons.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Graham's scan
     value: O(n log n)
@@ -66,6 +66,12 @@ Everything rests on one test, the **cross product** `cross(o, a, b) = (a.x - o.x
 <Callout title="The invariant">
 In Graham's scan the stack always holds a strictly convex chain from the pivot through the points seen so far. A new point can only cut off the tail of that chain, never the front. In Jarvis march every point added is a hull vertex, because all other points lie on its left.
 </Callout>
+
+## See it in action
+
+The first tab runs `graham_scan`: a fan of rays sorts the points around the pivot, then the stack grows and pops. **Three pops** is the worked example below. The second tab runs `jarvis_march` on the same points, swinging a ray around each hull vertex. **Collinear edges, a duplicate** shows the points both functions leave out.
+
+<ArticleViz ids={['convex-hull', 'jarvis-march']} />
 
 ## Worked example
 

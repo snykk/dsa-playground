@@ -90,6 +90,14 @@ void testDuplicatesAndFewPoints() {
     }
 }
 
+// Fewer than three distinct points come back sorted: by (y, x) in Graham's scan, by (x, y)
+// in Jarvis march, as documented.
+void testFewerThanThreePointsComeBackSorted() {
+    std::vector<Point> two = {{0, 2}, {1, 0}, {0, 2}};
+    assert(toXY(grahamScan(two)) == (std::vector<XY>{{1, 0}, {0, 2}}));
+    assert(toXY(jarvisMarch(two)) == (std::vector<XY>{{0, 2}, {1, 0}}));
+}
+
 void testAllCollinearReturnsTheTwoEnds() {
     std::vector<Point> points;
     for (int i : {3, 0, 1, 2, 5, 4}) points.push_back({(double)i, (double)(2 * i)});
@@ -159,6 +167,7 @@ int main() {
     testJarvisMarch();
     testSquare();
     testDuplicatesAndFewPoints();
+    testFewerThanThreePointsComeBackSorted();
     testAllCollinearReturnsTheTwoEnds();
     testCollinearBoundaryPointsAreExcluded();
     testCounterclockwiseAndStartPoint();

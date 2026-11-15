@@ -2,7 +2,7 @@
 category: Algorithms/Computational_Geometry/Advanced_Geometry
 title: Advanced Geometry
 lead: Three algorithms on point sets, built on the cross product. Convex Hull wraps a polygon around the points, Rotating Calipers measures that polygon in linear time, and Closest Pair finds the two nearest points by divide and conquer.
-updated: 2026-11-13
+updated: 2026-11-15
 facts:
   - label: Convex hull, Graham
     value: O(n log n)
@@ -59,6 +59,12 @@ What the code does with awkward input:
     ['Closest Pair', 'solve both halves, then check a strip around the dividing line', 'any points', 'smallest distance and the pair', 'O(n log n)'],
   ]}
 />
+
+## See them side by side
+
+The two hull tabs share their input, so Graham's scan and Jarvis march run on the same points; the calipers take a hull in order, and Closest Pair takes any points, duplicates included.
+
+<ArticleViz ids={['convex-hull', 'jarvis-march', 'rotating-calipers', 'closest-pair']} />
 
 ## One point set through all three
 

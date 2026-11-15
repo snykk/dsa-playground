@@ -3,7 +3,7 @@ topic: Algorithms/Computational_Geometry/Basic_Geometry/Point_Line_Circle
 title: Point, Line and Circle
 lead: The basic 2D toolkit behind computational geometry. It covers distance between points, the cross product as a signed area that tells left from right, the dot product, the angle between two directions, point-in-triangle and point-in-circle tests. Every test here is exact, so the answers do not depend on the coordinate scale.
 level: Beginner
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Every operation
     value: O(1)
@@ -82,6 +82,12 @@ Take the three cross products of the point against the triangle's edges, `d1 = c
 ### Point in circle
 
 Compare squared distances, so no square root is needed: `contains_point` tests `dist^2 <= r^2`, and `point_on_circle` tests `dist^2 == r^2` exactly.
+
+## See it in action
+
+Each operation draws its own picture, and the points glide from one operation to the next. Start with **Orientation: left, right, straight** to watch the sign of the cross product flip as `r` crosses the line, then try **Degenerate shapes** for the cases that return 0 or False on purpose.
+
+<ArticleViz ids={['point-line-circle']} />
 
 ## Worked example
 

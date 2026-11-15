@@ -87,6 +87,12 @@ class TestConvexHull(unittest.TestCase):
             self.assertEqual(as_tuples(algo([Point(1, 1), Point(1, 1)])), [(1, 1)])
             self.assertEqual(len(algo([Point(1, 1), Point(2, 2), Point(1, 1)])), 2)
 
+    def test_fewer_than_three_points_come_back_sorted(self):
+        # Graham's scan sorts them by (y, x), Jarvis march by (x, y), as documented
+        two = [Point(0, 2), Point(1, 0), Point(0, 2)]
+        self.assertEqual(as_tuples(graham_scan(two)), [(1, 0), (0, 2)])
+        self.assertEqual(as_tuples(jarvis_march(two)), [(0, 2), (1, 0)])
+
     def test_input_list_is_not_returned_or_changed(self):
         points = [Point(2, 2), Point(0, 0)]
         for algo in (graham_scan, jarvis_march):
