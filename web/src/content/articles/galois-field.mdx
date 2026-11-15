@@ -3,7 +3,7 @@ topic: Algorithms/Coding_Theory/Galois_Field
 title: Galois Field GF(2^8)
 lead: GF(2^8) is a field of exactly 256 elements, one for every byte. You can add, subtract, multiply and divide bytes and always get a byte back, with no overflow and with an inverse for every nonzero value. That makes it the arithmetic behind AES, Reed-Solomon codes, QR codes and RAID-6.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Elements
     value: '256'
@@ -73,6 +73,12 @@ Under `0x11B` the element 2 (the polynomial x) is not a generator: its powers re
 <Callout title="Why the exponent is reduced mod 255">
 The nonzero elements form a group of order 255, so &alpha;<sup>255</sup> = &alpha;<sup>0</sup> = 1. Exponents therefore wrap at 255, not 256. `log[0]` does not exist, which is why every operation checks for zero first.
 </Callout>
+
+## See it in action
+
+Run **AES vector 0x53 x 0xCA**: `mul` walks 48 steps and then 207 more around the ring of the powers of 3 and lands on 3<sup>255</sup> = 1, then `_slow_multiply` finds the same byte bit by bit, shifting `a` left and XORing in `0x11B` whenever bit 8 appears. **Exponents wrap at 255** walks backwards for division and negative powers, and **Zero: errors and shortcuts** shows which calls raise and which return 0.
+
+<ArticleViz ids={['galois-field']} />
 
 ## The tables
 

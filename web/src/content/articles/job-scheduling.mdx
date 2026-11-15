@@ -3,7 +3,7 @@ topic: Algorithms/Greedy/Job_Scheduling
 title: Job Scheduling
 lead: Job scheduling asks for the best order for jobs on one machine. The classic form gives every unit-time job a deadline and a profit and wants the most profit. Take jobs by profit and give each the latest free slot before its deadline. Two Python variants cover lateness and weighted completion time.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Deadline version
     value: O(n log n + n * min(D, n))
@@ -55,6 +55,12 @@ The main problem in this folder is **job sequencing with deadlines**. Each job t
 <Callout title="Why this is optimal">
 A set of jobs can all be finished exactly when, for every time `t`, at most `t` of them have a deadline of `t` or earlier. Sets with this property satisfy an exchange rule (they form what is called a matroid), and for such sets, going through the elements by decreasing weight and keeping each one that leaves the set feasible always gives a maximum-weight set. A rejected job is one that could not be added without breaking the rule. The tests also compare the result with brute force over every subset on small random inputs.
 </Callout>
+
+## See it in action
+
+The first tab runs `job_scheduling_deadline`: the jobs leave the queue in profit order and drop into the latest free slot at or before their deadline, or into the skipped tray with the reason. Start with **README example** (the worked example below), then try **Job past every slot**, **Deadline 0 or less** and **Id -1 (the old bug)**; the other two tabs run the Python-only rules, earliest deadline first and Smith's rule, where **Processing time 0** raises `ZeroDivisionError`.
+
+<ArticleViz ids={['job-scheduling', 'job-scheduling-edf', 'job-scheduling-smith']} />
 
 ## Worked example
 
