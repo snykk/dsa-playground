@@ -20,10 +20,8 @@ const { question, open = false } = Astro.props;
 </details>
 
 <style>
-  .faq-item {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--surface);
+  .faq-item + .faq-item {
+    border-top: 1px solid var(--border);
   }
   summary {
     display: flex;
@@ -32,7 +30,7 @@ const { question, open = false } = Astro.props;
     gap: 16px;
     padding: 13px 16px;
     cursor: pointer;
-    font-weight: 650;
+    font-weight: 700;
     list-style: none;
   }
   summary::-webkit-details-marker {

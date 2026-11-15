@@ -2,8 +2,8 @@
 import { formatInline } from '../../lib/inline';
 
 /**
- * Best / average / worst case cards: each case gets a colored tag, its bound in
- * monospace and one sentence on when it happens.
+ * Best / average / worst case rows on one sheet: each case gets a colored tag, its bound
+ * in monospace and one sentence on when it happens.
  */
 interface Row {
   case: string;
@@ -54,8 +54,10 @@ const tone = (label: string) => (/best/i.test(label) ? 'best' : /worst/i.test(la
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
   }
   .case {
     --tone: var(--viz-neutral);
@@ -64,9 +66,9 @@ const tone = (label: string) => (/best/i.test(label) ? 'best' : /worst/i.test(la
     gap: 4px 20px;
     align-items: start;
     padding: 14px 18px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--surface);
+  }
+  .case + .case {
+    border-top: 1px solid var(--border);
   }
   .case.best {
     --tone: var(--viz-done);

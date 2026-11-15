@@ -15,12 +15,18 @@
 }
 /* ---------- stage, legend, caption ---------- */
 
+/* The stage is graph paper: the one place on a page that moves gets the one texture. */
 .viz-stage {
   margin: 16px 0 10px;
   padding: 12px;
   border-radius: 10px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background-color: var(--viz-surface);
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
+  border: 1px solid var(--border-strong);
   overflow-x: auto;
   min-height: 160px;
 }

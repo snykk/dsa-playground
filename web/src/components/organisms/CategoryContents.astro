@@ -93,8 +93,8 @@ const rows = contents.map((entry) => {
     position: relative;
     display: grid;
     grid-template-columns: 30px minmax(0, 1fr);
-    gap: 14px;
-    padding-bottom: 12px;
+    gap: 16px;
+    padding-bottom: 26px;
   }
   li:last-child {
     padding-bottom: 0;
@@ -104,8 +104,8 @@ const rows = contents.map((entry) => {
     content: '';
     position: absolute;
     left: 14px;
-    top: 49px;
-    bottom: -7px;
+    top: 36px;
+    bottom: 6px;
     width: 2px;
     border-radius: 1px;
     background: var(--border-strong);
@@ -115,7 +115,7 @@ const rows = contents.map((entry) => {
     place-items: center;
     width: 30px;
     height: 30px;
-    margin-top: 13px;
+    margin-top: 0;
     border: 1.5px solid var(--accent);
     border-radius: 50%;
     background: var(--surface);
@@ -124,18 +124,18 @@ const rows = contents.map((entry) => {
     font-weight: 650;
     font-variant-numeric: tabular-nums;
   }
+  /* An entry is text on the path, not a card: the title is the link. */
   .entry {
     display: block;
-    padding: 12px 16px 13px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
+    max-width: 760px;
+    padding-top: 2px;
     color: var(--text);
     text-decoration: none;
-    transition: border-color 0.15s ease;
   }
-  .entry:hover {
-    border-color: var(--accent);
+  .entry:hover .title {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .title {
     display: block;

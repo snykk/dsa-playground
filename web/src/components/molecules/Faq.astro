@@ -5,9 +5,12 @@
 <div class="faq"><slot /></div>
 
 <style>
+  /* The questions sit on one sheet, divided by rules, not on a card each. */
   .faq {
-    display: grid;
-    gap: 8px;
     margin: 20px 0 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
   }
 </style>

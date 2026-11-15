@@ -75,11 +75,12 @@ A category can have an overview in [`src/content/categories/`](src/content/categ
 src/
   components/          Astro (server-rendered) site UI
     atoms/             Button, Chip, Icon, IconButton, SectionTitle, BigO, LevelMeter
-    molecules/         Breadcrumbs, Card, CardGrid, StatTile, TableOfContents, ThemeToggle,
+    molecules/         Breadcrumbs, TableOfContents, ThemeToggle,
                        article blocks: Callout, Steps/Step, DataTable, ComplexityTable, Equation,
                        ArrayDiagram, ProsCons, Faq/FaqItem, FactTile
-    organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, TopicCards, Implementations, VizSection,
-                       ArticleHeader, KeyFacts, ArticleViz, TopicCode, RelatedTopics, CategoryContents, TopicList
+    organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, VizIndex, AreaList, ChildTopics,
+                       Implementations, VizSection, ArticleHeader, KeyFacts, ArticleViz, TopicCode,
+                       RelatedTopics, CategoryContents, TopicList
     templates/         BaseLayout (page shell), DocPage (README page), ArticlePage (hand-written article),
                        CategoryPage (hand-written category overview), RootPage (hand-written overview or study guide)
     mdx.ts             the components an article can use without importing them

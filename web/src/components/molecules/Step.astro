@@ -15,32 +15,42 @@ const { title } = Astro.props;
 </li>
 
 <style>
+  /* A sequence reads as a numbered path, the same device as a category's reading order:
+     circles joined by a line, no boxes. */
   .step {
     counter-increment: step;
     position: relative;
-    padding: 14px 18px 14px 62px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--surface);
+    padding-left: 46px;
   }
   .step::before {
     content: counter(step);
     position: absolute;
-    left: 18px;
-    top: 14px;
-    width: 30px;
-    height: 30px;
+    left: 0;
+    top: 0;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: grid;
     place-items: center;
-    background: var(--accent-soft);
-    color: var(--text);
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
+  }
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: 34px;
+    bottom: -14px;
+    width: 2px;
+    border-radius: 1px;
+    background: var(--border-strong);
   }
   .step-title {
-    margin: 3px 0 4px;
-    font-weight: 650;
+    margin: 2px 0 4px;
+    font-weight: 700;
   }
   .step-body {
     color: var(--text-2);
