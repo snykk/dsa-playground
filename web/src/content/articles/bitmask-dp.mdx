@@ -150,7 +150,7 @@ tsp(dist):
 
 ## Implementation
 
-The Python version is the complete solver and returns `float('inf')` when no tour exists, for example when a city has no usable edge. The C++ and Go folders are placeholders: they contain a stub file and a test that only prints a message. They do not implement bitmask DP yet.
+The Python version returns `float('inf')` when no tour exists, for example when a city has no usable edge. The C++ (`travelingSalesmanDp`) and Go (`TravelingSalesmanDP`) ports take a matrix of doubles, mark a missing edge with infinity (`kInfinity` in C++, `math.Inf(1)` in Go) and return infinity in the same case. All three give the same cost.
 
 <TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP" />
 

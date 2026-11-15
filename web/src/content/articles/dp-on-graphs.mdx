@@ -122,7 +122,7 @@ longestPath(graph, start):
 
 ## Implementation
 
-The Python version has one function, `dag_longest_path(graph, start)`. The graph is a dictionary from a node to a list of successor ids; a node missing from the dictionary has no successors. The C++ and Go folders are placeholders: a stub and a test that asserts nothing.
+The Python version has one function, `dag_longest_path(graph, start)`. The graph is a dictionary from a node to a list of successor ids; a node missing from the dictionary has no successors. C++ has `dagLongestPath` over an `std::unordered_map<int, std::vector<int>>` and throws `std::invalid_argument` on a reachable cycle; Go has `DAGLongestPath` over a `map[int][]int` and returns the error `ErrCycle`.
 
 <TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs" />
 
