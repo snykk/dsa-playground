@@ -49,8 +49,8 @@ def graham_scan(points: List[Point]) -> List[Point]:
 
     Returns the hull vertices in counterclockwise order, starting at the bottom-most
     point (leftmost on a tie). Points that lie on a hull edge are not included.
-    Duplicates are removed; fewer than three distinct points are returned as they are
-    (a new list). The comparisons are exact, so integer input never goes wrong.
+    Duplicates are removed; fewer than three distinct points are returned in a new list,
+    sorted by (y, x). The comparisons are exact, so integer input never goes wrong.
     """
     pts = unique_points(points)
     if len(pts) < 3:
@@ -92,8 +92,8 @@ def jarvis_march(points: List[Point]) -> List[Point]:
 
     Returns the hull vertices in counterclockwise order, starting at the leftmost
     point (lowest on a tie). Points that lie on a hull edge are not included.
-    Duplicates are removed; fewer than three distinct points are returned as they are
-    (a new list). The comparisons are exact, so integer input never goes wrong.
+    Duplicates are removed; fewer than three distinct points are returned in a new list,
+    sorted by (x, y). The comparisons are exact, so integer input never goes wrong.
     """
     pts = unique_points(points)
     if len(pts) < 3:

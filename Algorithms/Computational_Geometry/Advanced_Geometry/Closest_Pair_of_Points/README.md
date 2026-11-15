@@ -29,7 +29,7 @@ best crossing pair: D-E, distance 1.41
 
 ## How It Works
 
-1. Sort the points into `points_x` (by x, then y) and `points_y` (by y). This is done once.
+1. Sort the points into `points_x` (by x) and `points_y` (by y). This is done once. Python's `closest_pair` sorts on that one coordinate with a stable sort, so ties keep the input order; C++, Go and `closest_pair_optimized` break ties by the other coordinate.
 2. If there are at most 3 points, compare all pairs and return.
 3. Split `points_x` at `mid = n / 2`. Split `points_y` into the same two halves by membership, keeping the y order.
 4. Recurse into both halves; `delta` is the smaller best distance.
