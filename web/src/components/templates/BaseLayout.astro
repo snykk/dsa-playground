@@ -65,13 +65,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <SiteHeader section={section} />
     <div class:list={['layout', { 'has-toc': showToc }]}>
       <Sidebar currentSlug={currentSlug} />
-      <main id="main" class="content">
-        <div class="content-inner">
-          <slot />
-        </div>
-      </main>
+      <div class="column">
+        <main id="main" class="content">
+          <div class="content-inner">
+            <slot />
+          </div>
+        </main>
+        <SiteFooter />
+      </div>
       {showToc && <TableOfContents headings={tocItems} />}
     </div>
-    <SiteFooter />
   </body>
 </html>
