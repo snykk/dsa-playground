@@ -1,6 +1,8 @@
-/** Visualization registry: String matching. */
+/** Visualization registry: String matching and the advanced string algorithms. */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
+
+const ADV = 'Algorithms/String_Algorithms/Advanced_String';
 
 export const entries: VizInfo[] = [
   {
@@ -36,7 +38,35 @@ export const entries: VizInfo[] = [
     title: 'Z-Algorithm',
     group: 'Strings',
     blurb: 'Build the Z-array of pattern$text, reusing the Z-box so every character is compared O(1) times.',
-    topics: ['Algorithms/String_Algorithms/Advanced_String/Z_Algorithm', 'Algorithms/String_Algorithms/Advanced_String'],
+    topics: [`${ADV}/Z_Algorithm`, ADV],
+  },
+  {
+    id: 'aho-corasick',
+    title: 'Aho-Corasick',
+    group: 'Strings',
+    blurb: 'Insert the patterns into a trie, link every node to its longest suffix in BFS order, then read the text once and report every match.',
+    topics: [`${ADV}/Aho_Corasick`, ADV],
+  },
+  {
+    id: 'suffix-array',
+    title: 'Suffix Array',
+    group: 'Strings',
+    blurb: 'Sort every suffix, then find all occurrences of a pattern as one block of ranks with two binary searches.',
+    topics: [`${ADV}/Suffix_Array`, ADV],
+  },
+  {
+    id: 'manacher',
+    title: "Manacher's Algorithm",
+    group: 'Strings',
+    blurb: 'Radius of the longest palindrome at every center of #a#b#a#, copied from the mirror inside the rightmost palindrome.',
+    topics: [`${ADV}/Longest_Palindromic_Substring_Manachers`, ADV],
+  },
+  {
+    id: 'longest-common-substring',
+    title: 'Longest Common Substring',
+    group: 'Strings',
+    blurb: 'A table of matching-run lengths: equal characters extend the diagonal, a mismatch resets to 0, and the largest cell wins.',
+    topics: [`${ADV}/Longest_Common_Substring`, ADV],
   },
 ];
 
@@ -46,4 +76,8 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'rabin-karp': () => import('../specs/stringSearch').then((m) => m.rabinKarp),
   'boyer-moore': () => import('../specs/stringSearch').then((m) => m.boyerMoore),
   'z-algorithm': () => import('../specs/stringSearch').then((m) => m.zAlgorithm),
+  'aho-corasick': () => import('../specs/advancedStrings').then((m) => m.ahoCorasickSpec),
+  'suffix-array': () => import('../specs/advancedStrings').then((m) => m.suffixArraySpec),
+  manacher: () => import('../specs/advancedStrings').then((m) => m.manacherSpec),
+  'longest-common-substring': () => import('../specs/advancedStrings').then((m) => m.longestCommonSubstringSpec),
 };

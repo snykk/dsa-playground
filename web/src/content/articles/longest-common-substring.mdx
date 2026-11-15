@@ -3,7 +3,7 @@ topic: Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring
 title: Longest Common Substring
 lead: The longest common substring of two strings is the longest block of consecutive characters that appears in both. A dynamic-programming table of matching-run lengths solves it in O(m*n) time; a suffix array can do it in near-linear time.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Time
     value: O(m*n)
@@ -51,6 +51,12 @@ A common substring of `s1` and `s2` is a run of characters that occurs, unbroken
 <Callout title="Why the reset to zero matters">
 This is the one difference from the longest common subsequence. A subsequence may skip characters, so on a mismatch it carries the best value forward with `max`. A substring may not skip, so on a mismatch the run is over and the cell is 0. The answer is the largest cell anywhere in the table, not the bottom-right one.
 </Callout>
+
+## See it in action
+
+Run **Textbook: ABABC, BABCA** to fill the table of the worked example below cell by cell: a match extends the cell up and to the left, a mismatch resets the cell to 0, and the best run lights up each time a strictly longer one appears. **Tie: the earlier run wins** shows that a run of equal length never replaces the best.
+
+<ArticleViz ids={['longest-common-substring']} />
 
 ## Worked example
 

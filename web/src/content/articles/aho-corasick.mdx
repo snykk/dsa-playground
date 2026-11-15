@@ -3,7 +3,7 @@ topic: Algorithms/String_Algorithms/Advanced_String/Aho_Corasick
 title: Aho-Corasick
 lead: Aho-Corasick finds every occurrence of every pattern from a whole dictionary in a single pass over the text. It builds a trie of the patterns, adds KMP-style failure links, and runs in O(n + m + z) time.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-15
 facts:
   - label: Time
     value: O(n + m + z)
@@ -53,6 +53,12 @@ Searching `k` patterns with KMP one after another costs about `k` passes over th
 <Callout title="The invariant">
 After reading `T[0..i]`, the current node is the longest suffix of `T[0..i]` that is a prefix of some pattern. Every pattern that ends at `i` is a suffix of that string, so it is either the node itself or reachable by output links.
 </Callout>
+
+## See it in action
+
+Run **Textbook: ushers** to watch the patterns `he`, `she`, `his` and `hers` grow the trie, the BFS give `she` its failure link to `he` and the output link that makes a match of `she` also report `he`, and the scan fall back from `she` to `he` when it reads the `r`. **Output links chain** (`a aa aaa | aaaa`) reports three patterns at one index by following output links.
+
+<ArticleViz ids={['aho-corasick']} />
 
 ## The trie and its failure links
 
