@@ -122,12 +122,13 @@ input text ──parse──▶ input ──trace──▶ Frame[] ──▶ Pla
 - A **spec** ([`src/viz/core/types.ts`](src/viz/core/types.ts)) bundles a parser, a **tracer** that records every step as a full snapshot (`Frame`), a renderer, the pseudocode and a legend. Because every frame is a snapshot, stepping backwards and scrubbing are just index changes.
 - **Tracers** live in [`src/viz/algorithms/`](src/viz/algorithms/) and are plain TypeScript, so they are unit-tested without a browser.
 - **Renderers** (organisms) are shared across topics and built from `viz/ui` atoms:
-  - arrays: `ArrayBars` (sorting), `SearchBars`, `ArrayScene`, `BucketScene`, `DynamicArrayView` (a block that doubles and shrinks), `ArrayTrack` (stacks and queues on a Python list);
+  - arrays: `ArrayBars` (sorting), `SearchBars`, `ArrayScene`, `BucketScene`, `DynamicArrayView` (a block that doubles and shrinks), `ArrayTrack` (stacks and queues on a Python list), `QuickselectBars` (a three-way partition), `ReservoirView` (a stream and its reservoir);
   - linked structures: `ChainView` (nodes, pointers and named references: the linked lists, the linked stack, skip-list levels, hash buckets and their chains, the LRU and LFU lists), `RingBuffer` (the circular queue), `HeapView` (a binary heap as a tree and an array at once: the priority queue, the min heap and the max heap), `FibonacciHeapView` (the root ring and the degree table);
   - hashing: `OpenAddressingTable` (slots, tombstones and a marker that slides along the probe sequence), `BloomBitArray` (the bit array and the k positions of an item);
   - trees: `TreeView` (BST, AVL, red-black, splay, treap, Cartesian and interval trees, with rotations that glide), `MultiwayTreeView` (B-tree, B+ tree, trie, suffix tree), `SegmentTreeView` (both segment trees and the Fenwick tree), `SparseTableView`, `KdTreeView` (a 2D plane beside its tree), `ForestView` (union-find), `RopeView`;
   - graphs: `GraphView` (BFS / DFS / Dijkstra), `GraphRepresentationView` (a graph beside how a class stores it);
-  - tables and text: `Grid` (DP tables), `GridMap`, `IntervalTimeline`, `KnapsackFill`, `StringMatch` (KMP), `StringScan`, `StringOpsView` (string operations), `ByteRows` (Reed-Solomon).
+  - search and geometry: `BoardView` (a board beside the call stack: N-Queens, Sudoku, a maze), `PlaneView` (points, segments, lines, polygons and circles on a plane), `RootedTreeView` (a general rooted tree with chains: heavy-light and centroid decomposition), `MosView` (Mo's sorted queries and window);
+  - tables and text: `Grid` (DP tables), `StrassenView` (the quadrants and the seven products), `GridMap`, `IntervalTimeline`, `KnapsackFill`, `StringMatch` (KMP), `StringScan`, `StringOpsView` (string operations), `ByteRows` (Reed-Solomon).
 - [`src/viz/registry/`](src/viz/registry/) holds one file per area with its catalog entries (which repository folders show which visualization) and its loaders (code-split, so a page only downloads what it shows). [`catalog.ts`](src/viz/catalog.ts) and [`loaders.ts`](src/viz/loaders.ts) merge them.
 
 ### Adding a visualization
