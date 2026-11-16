@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import type { ContentsEntry } from '../../lib/category';
+import { showVizMarkers } from '../../lib/coverage';
 import { formatInline } from '../../lib/inline';
 import { joinBase, topicsUnder, type DocNode } from '../../lib/repo';
 import { hasViz } from '../../viz/catalog';
@@ -9,7 +10,7 @@ import LevelMeter from '../atoms/LevelMeter.astro';
 /**
  * "In this section" on a category overview: the folder's topics and sub-categories in reading
  * order, numbered and joined by a line, each with a one-line note (or its own lead), its level
- * and whether it has a visualization.
+ * and, while some topics have none, whether it has a visualization.
  */
 interface Props {
   node: DocNode;
@@ -24,6 +25,7 @@ const base = import.meta.env.BASE_URL;
 const articles = new Map((await getCollection('articles')).map((a) => [a.data.topic, a.data]));
 const overviews = new Map((await getCollection('categories')).map((c) => [c.data.category, c.data]));
 const DOT = String.fromCodePoint(0x25cf);
+const markers = showVizMarkers();
 
 const rows = contents.map((entry) => {
   const child = node.children.find((c) => c.name === entry.folder);
@@ -57,7 +59,7 @@ const rows = contents.map((entry) => {
             <span class="facts">
               {r.level && <LevelMeter level={r.level} />}
               {r.topics ? <span>{r.topics === 1 ? '1 topic' : `${r.topics} topics`}</span> : null}
-              {r.visualized > 0 && (
+              {markers && r.visualized > 0 && (
                 <span class="visualized">
                   <span class="dot" aria-hidden="true">
                     {DOT}

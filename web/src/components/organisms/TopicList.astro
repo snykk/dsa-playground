@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { showVizMarkers } from '../../lib/coverage';
 import { formatInline } from '../../lib/inline';
 import { getContent, joinBase } from '../../lib/repo';
 import { hasViz } from '../../viz/catalog';
@@ -8,7 +9,8 @@ import LevelMeter from '../atoms/LevelMeter.astro';
 /**
  * A titled list of topics in reading order, for a study path. MDX:
  *   <TopicList title="Hashing" note="..." topics={['Data_Structures/Hashing/Hash_Table', ...]} />
- * Each row links to the topic and shows its area, its level and whether it has a visualization.
+ * Each row links to the topic and shows its area, its level and, while some topics have none,
+ * whether it has a visualization.
  * Every entry must be a topic folder; the build fails otherwise.
  */
 interface Props {
@@ -23,7 +25,7 @@ const base = import.meta.env.BASE_URL;
 const content = getContent();
 const articles = new Map((await getCollection('articles')).map((a) => [a.data.topic, a.data]));
 const DOT = String.fromCodePoint(0x25cf);
-const MIDDOT = String.fromCodePoint(0xb7);
+const markers = showVizMarkers();
 
 const rows = topics.map((rel) => {
   const node = content.byRel.get(rel);
@@ -40,7 +42,7 @@ const rows = topics.map((rel) => {
   };
 });
 const visualized = rows.filter((r) => r.visualized).length;
-const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${visualized > 0 ? ` ${MIDDOT} ${visualized} visualized` : ''}`;
+const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${markers && visualized > 0 ? `, ${visualized} visualized` : ''}`;
 ---
 
 <section class="topic-list">
@@ -69,7 +71,7 @@ const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${visua
             </span>
             <span class="meta">
               {r.level && <LevelMeter level={r.level} />}
-              {r.visualized && (
+              {markers && r.visualized && (
                 <span class="visualized">
                   <span class="dot" aria-hidden="true">
                     {DOT}

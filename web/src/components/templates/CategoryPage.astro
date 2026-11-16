@@ -2,6 +2,7 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { getCollection } from 'astro:content';
 import { levelRange, type CategoryData } from '../../lib/category';
+import { showVizMarkers } from '../../lib/coverage';
 import { githubUrl, topicsUnder, type DocNode } from '../../lib/repo';
 import '../../styles/article.css';
 import '../../styles/diagrams.css';
@@ -32,7 +33,7 @@ const visualized = topics.filter((t) => topicHasViz(t.rel)).length;
 const stats = [
   `${topics.length} ${topics.length === 1 ? 'topic' : 'topics'}`,
   levelRange(topics.flatMap((t) => levels.get(t.rel) ?? [])),
-  visualized > 0 ? `${visualized} visualized` : undefined,
+  showVizMarkers() && visualized > 0 ? `${visualized} visualized` : undefined,
 ].filter((s): s is string => s !== undefined);
 const toc: MarkdownHeading[] = [{ depth: 2, slug: 'in-this-section', text: 'In this section' }, ...headings];
 ---
