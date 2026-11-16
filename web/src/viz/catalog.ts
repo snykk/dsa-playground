@@ -7,8 +7,10 @@
  * code-split and only loaded by VizMount in the browser.
  */
 import * as advancedGraph from './registry/advancedGraph';
+import * as advancedMath from './registry/advancedMath';
 import * as backtracking from './registry/backtracking';
 import * as codingTheory from './registry/codingTheory';
+import * as complexity from './registry/complexity';
 import * as divideAndConquer from './registry/divideAndConquer';
 import * as dynamicProgramming from './registry/dynamicProgramming';
 import * as geometry from './registry/geometry';
@@ -19,7 +21,10 @@ import * as hashing from './registry/hashing';
 import * as heaps from './registry/heaps';
 import * as linear from './registry/linear';
 import * as multiwayTrees from './registry/multiwayTrees';
+import * as numberTheory from './registry/numberTheory';
+import * as optimizationTechniques from './registry/optimizationTechniques';
 import * as patterns from './registry/patterns';
+import * as problemTypes from './registry/problemTypes';
 import * as randomized from './registry/randomized';
 import * as rangeQueries from './registry/rangeQueries';
 import * as searching from './registry/searching';
@@ -30,6 +35,7 @@ import * as strings from './registry/strings';
 import * as trees from './registry/trees';
 
 export type VizGroup =
+  | 'Complexity'
   | 'Sorting'
   | 'Searching'
   | 'Linear Structures'
@@ -45,7 +51,8 @@ export type VizGroup =
   | 'Geometry'
   | 'Math'
   | 'Problem Patterns'
-  | 'Coding Theory';
+  | 'Coding Theory'
+  | 'Competitive Programming';
 
 export interface VizInfo {
   id: string;
@@ -57,6 +64,7 @@ export interface VizInfo {
 }
 
 export const VIZ_GROUP_ORDER: VizGroup[] = [
+  'Complexity',
   'Sorting',
   'Searching',
   'Linear Structures',
@@ -73,6 +81,7 @@ export const VIZ_GROUP_ORDER: VizGroup[] = [
   'Math',
   'Problem Patterns',
   'Coding Theory',
+  'Competitive Programming',
 ];
 
 export const REGISTRIES = [
@@ -98,6 +107,11 @@ export const REGISTRIES = [
   specializedTechniques,
   divideAndConquer,
   randomized,
+  complexity,
+  numberTheory,
+  advancedMath,
+  problemTypes,
+  optimizationTechniques,
 ];
 
 export const VIZ_CATALOG: VizInfo[] = REGISTRIES.flatMap((r) => r.entries);
