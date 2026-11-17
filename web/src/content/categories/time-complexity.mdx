@@ -53,6 +53,12 @@ So "O is the worst case" and "Omega is the best case" are both wrong. You can sa
   caption="Theta holds exactly when O and Omega both hold. O and Omega are loose by default: n is O(n^2), and n^2 is Omega(n)."
 />
 
+## See them side by side
+
+One tab per bound, each running the repository's own examples: Big-O keeps `f(n)` under `c * g(n)`, Big-Omega over it, and Big-Theta inside a band. In the Big-Theta tab, compare **Binary search, worst case** with **Best case is not Theta(log n)**: one function, two cases, two different tight bounds.
+
+<ArticleViz ids={['big-o-growth', 'big-omega-growth', 'big-theta-growth']} />
+
 ## One algorithm, three cases, three bounds
 
 Binary search returns as soon as it finds the target, and linear search stops at the first match. The repository's `binary_search_example` and `linear_search_best_case` were run on a list of `n = 1,023` elements that counts every comparison.

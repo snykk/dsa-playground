@@ -62,6 +62,12 @@ The stack is the one that is easy to forget. A recursive function with no arrays
   ]}
 />
 
+## See it in action
+
+Three tabs run the repository's examples one step at a time: the call stack of naive Fibonacci and of the halving recursion, merge sort's slices and buffers, and the loop examples. Under the picture, every step adds a bar for the memory alive at that moment, and the peak is drawn across. In **Fibonacci: depth n, not 2^n**, many calls come and go but the stack never holds more than n frames; in the merge sort tab, compare the peak with the cells allocated in all.
+
+<ArticleViz ids={['space-call-stack', 'space-merge-sort', 'space-loops']} />
+
 ## Worked examples
 
 The repository's examples, from least to most memory. Time is listed too, because space and time are separate questions.

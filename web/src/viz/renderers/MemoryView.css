@@ -1,0 +1,227 @@
+/* MemoryView organism: the call stack, the lists its frames reach, and a timeline of the memory in use. */
+.mem-wrap {
+  overflow-x: auto;
+}
+.mem-view {
+  display: block;
+  margin: 0 auto;
+}
+.mem-view text {
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.mem-view .mem-head {
+  fill: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.mem-view .mem-now {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-anchor: end;
+}
+
+/* Frames: the running call is filled; a caller waiting for its callee is outlined in blue. */
+.mem-view .mem-frame {
+  transition: transform 0.3s ease;
+}
+.mem-view .mem-frame rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+}
+.mem-view .mem-frame.role-compare rect {
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.mem-view .mem-frame.role-active rect,
+.mem-view .mem-frame.role-done rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.mem-view .mem-frame.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.mem-view .mem-frame-label {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+.mem-view .mem-frame-note {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+}
+.mem-view .mem-frame.role-active .mem-frame-label,
+.mem-view .mem-frame.role-done .mem-frame-label,
+.mem-view .mem-frame.role-active .mem-frame-note,
+.mem-view .mem-frame.role-done .mem-frame-note {
+  fill: var(--viz-ink-on-fill);
+}
+
+/* Lists: idle cells outlined; a role fills them; the input is dashed and faint (not counted). */
+.mem-view .mem-list {
+  transition: transform 0.45s ease;
+}
+.mem-view .mem-list-name {
+  fill: var(--text-3);
+  font-size: 10px;
+  font-weight: 600;
+}
+.mem-view .mem-list.role-done .mem-list-name {
+  fill: var(--viz-done);
+}
+.mem-view .mem-cell {
+  transition: transform 0.4s ease;
+}
+.mem-view .mem-cell rect,
+.mem-view .mem-empty {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.2;
+}
+.mem-view .mem-empty {
+  stroke-dasharray: 3 3;
+  opacity: 0.6;
+}
+.mem-view .mem-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-anchor: middle;
+}
+.mem-view .mem-list.role-done .mem-cell rect {
+  stroke: var(--viz-done);
+  stroke-width: 2;
+}
+.mem-view .mem-cell.role-compare rect,
+.mem-view .mem-cell.role-active rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.mem-view .mem-cell.role-compare text,
+.mem-view .mem-cell.role-active text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.mem-view .mem-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.mem-view .mem-list.input .mem-cell rect {
+  stroke-dasharray: 3 2;
+}
+.mem-view .mem-list.input .mem-list-name {
+  font-style: italic;
+}
+
+.mem-view .mem-marker {
+  transition: transform 0.35s ease;
+}
+.mem-view .mem-marker path {
+  fill: var(--role);
+}
+.mem-view .mem-marker text {
+  fill: var(--role);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+/* Timeline: one bar per step; the peak so far is a line across it. */
+.mem-view .mem-tl-label {
+  fill: var(--text-2);
+  font-size: 11px;
+  font-weight: 600;
+}
+.mem-view .mem-tl-axis {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+.mem-view .mem-tl-tick {
+  fill: var(--text-3);
+  font-size: 10px;
+  text-anchor: end;
+}
+.mem-view .mem-bar {
+  fill: color-mix(in srgb, var(--viz-neutral) 55%, transparent);
+}
+.mem-view .mem-bar.current {
+  fill: var(--viz-active);
+}
+.mem-view .mem-peak line {
+  stroke: var(--viz-done);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+.mem-view .mem-peak circle {
+  fill: var(--viz-done);
+}
+.mem-view .mem-peak text {
+  fill: var(--viz-done);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: end;
+  paint-order: stroke;
+  stroke: var(--viz-surface);
+  stroke-width: 3px;
+}
+
+/* The call tree: faint until called; the frames on the stack form one path; returned calls are settled. */
+.mem-view .mem-edge {
+  stroke: var(--viz-neutral);
+  stroke-width: 1.2;
+  opacity: 0.8;
+}
+.mem-view .mem-edge.pending {
+  stroke-dasharray: 2 3;
+  opacity: 0.35;
+}
+.mem-view .mem-edge.role-active,
+.mem-view .mem-edge.role-compare {
+  stroke: var(--viz-compare);
+  stroke-width: 2.4;
+  opacity: 1;
+}
+.mem-view .mem-node circle {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.3;
+  transition: fill 0.2s ease;
+}
+.mem-view .mem-node.pending circle {
+  stroke-dasharray: 2 2;
+  opacity: 0.45;
+}
+.mem-view .mem-node.role-active circle,
+.mem-view .mem-node.role-done circle {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.mem-view .mem-node.role-compare circle {
+  stroke: var(--viz-compare);
+  stroke-width: 2.2;
+}
+.mem-view .mem-node text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.mem-view .mem-node.pending text {
+  fill: var(--text-3);
+  font-weight: 500;
+}
+.mem-view .mem-node.role-active text,
+.mem-view .mem-node.role-done text {
+  fill: var(--viz-ink-on-fill);
+}

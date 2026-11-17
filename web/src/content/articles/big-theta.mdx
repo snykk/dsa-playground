@@ -40,6 +40,12 @@ Equivalently, `f` is both `O(g)` and `Omega(g)`:
 
 Unlike Big-O and Big-Omega, which are loose by default (`n` is `O(n^2)`), Theta pins the growth rate down: `n` is not `Theta(n^2)`. Like them, it describes a **function**, and the `=` means "is in the set".
 
+## See it in action
+
+Here `f(n)` must stay inside the band from `c1 * g(n)` (dashed) to `c2 * g(n)`. Run **Binary search, worst case**, then **Best case is not Theta(log n)**: the same function on two cases, and only the worst case stays in the band. **Merge sort in the band** counts the elements every merge writes, which is the same for every input order.
+
+<ArticleViz ids={['big-theta-growth']} />
+
 ## Intuition
 
 Picture `f(n)` between two copies of `g(n)`, one scaled down by `c1` and one scaled up by `c2`. Past `n0` the curve never leaves that band, so `f` grows exactly like `g`.

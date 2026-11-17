@@ -1,0 +1,194 @@
+/* GrowthChart organism: f(n) on a log scale against the bound c * g(n), with n0 and its region. */
+.growth-wrap {
+  overflow-x: auto;
+}
+.growth-wrap .gc-box {
+  max-width: 100%;
+  margin: 0 auto;
+}
+.growth-chart {
+  display: block;
+}
+.growth-chart text {
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Title and key: HTML over the plot, so on a narrow screen they wrap between words. */
+.growth-wrap .gc-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 12px;
+  line-height: 1.35;
+}
+.growth-wrap .gc-title {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+}
+.growth-wrap .gc-scale {
+  margin-left: auto;
+  color: var(--text-3);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.growth-wrap .gc-key {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+  margin: 3px 0 0;
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.growth-wrap .gc-key li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  white-space: nowrap;
+}
+.growth-wrap .gc-swatch.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--role);
+}
+.growth-wrap .gc-swatch.line {
+  width: 22px;
+  border-top: 2.5px solid var(--role);
+}
+.growth-wrap .gc-swatch.line.dashed {
+  border-top-style: dashed;
+}
+.growth-chart .gc-frame {
+  fill: var(--viz-surface);
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+.growth-chart .gc-grid {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.growth-chart .gc-grid.faint {
+  opacity: 0.6;
+}
+.growth-chart .gc-zero {
+  stroke: var(--axis);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.growth-chart .gc-tick {
+  fill: var(--text-3);
+  font-size: 10.5px;
+  text-anchor: middle;
+}
+.growth-chart .gc-tick.y {
+  text-anchor: end;
+}
+.growth-chart .gc-exp {
+  font-size: 8px;
+}
+.growth-chart .gc-axis {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-style: italic;
+  text-anchor: middle;
+}
+
+/* n0: the region where the bound must hold, shaded in the settled colour. */
+.growth-chart .gc-n0-zone {
+  fill: color-mix(in srgb, var(--viz-done) 9%, transparent);
+  transition: x 0.3s ease, width 0.3s ease;
+}
+.growth-chart .gc-n0-zone.final {
+  fill: color-mix(in srgb, var(--viz-done) 16%, transparent);
+}
+.growth-chart .gc-n0 line {
+  stroke: var(--viz-done);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.growth-chart .gc-n0.final line {
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+}
+.growth-chart .gc-n0 text {
+  fill: var(--viz-done);
+  font-size: 11.5px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--viz-surface);
+  stroke-width: 3px;
+}
+
+/* The bound: a curve in the role colour; Big-Theta shades the band between its two curves. */
+.growth-chart .gc-band {
+  fill: color-mix(in srgb, var(--viz-compare) 13%, transparent);
+  stroke: none;
+}
+.growth-chart .gc-curve {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.growth-chart .gc-curve.dashed {
+  stroke-dasharray: 7 5;
+}
+.growth-chart .gc-curve-dot {
+  fill: var(--role);
+}
+
+/* f(n): a thin line through the points, then the points themselves. */
+.growth-chart .gc-fline {
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1.2;
+  opacity: 0.7;
+}
+.growth-chart .gc-probe {
+  stroke: var(--role);
+  stroke-width: 2;
+  stroke-dasharray: 3 3;
+}
+.growth-chart .gc-point {
+  transition: transform 0.45s ease, opacity 0.3s ease;
+}
+.growth-chart .gc-point.hidden {
+  opacity: 0;
+}
+.growth-chart .gc-point circle {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1.5;
+}
+.growth-chart .gc-point.role-active circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.35s ease;
+}
+.growth-chart .gc-cross {
+  stroke: var(--role);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+.growth-chart .gc-glyph {
+  fill: var(--role);
+  font-size: 9px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.growth-chart .gc-point-label {
+  fill: var(--role);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--viz-surface);
+  stroke-width: 3px;
+}
