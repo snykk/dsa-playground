@@ -1,0 +1,176 @@
+/* FftView organism: the recursion levels as rows of complex cells, butterflies and the unit circle. */
+.fv-wrap {
+  min-width: 0;
+}
+.fv-scroll {
+  overflow-x: auto;
+}
+.fft-view {
+  display: block;
+  margin: 0 auto;
+}
+.fft-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.fft-view .fv-title {
+  text-anchor: start;
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.fft-view .fv-label {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-size: 11px;
+}
+
+/* A block of the recursion: outlined; dashed while its call runs, solid once its transform is known. */
+.fft-view .fv-block {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+.fft-view .fv-block.role-done,
+.fft-view .fv-block.role-good {
+  stroke: var(--role);
+  stroke-dasharray: none;
+  stroke-width: 2;
+}
+.fft-view .fv-block.role-muted {
+  opacity: 0.35;
+}
+
+/* Cells: idle outlined, compare tinted with a strong border, active / done / good filled. */
+.fft-view .fv-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.fft-view .fv-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.fft-view .fv-cell .fv-im {
+  fill: var(--text-2);
+}
+.fft-view .fv-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.fft-view .fv-cell.role-active rect,
+.fft-view .fv-cell.role-done rect,
+.fft-view .fv-cell.role-good rect,
+.fft-view .fv-cell.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.fft-view .fv-cell.role-active text,
+.fft-view .fv-cell.role-done text,
+.fft-view .fv-cell.role-good text,
+.fft-view .fv-cell.role-bad text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.fft-view .fv-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.fft-view .fv-cell.role-muted {
+  opacity: 0.4;
+}
+.fft-view .fv-cell.pending rect {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-dasharray: 3 3;
+}
+
+/* The butterfly: even[k] feeds both outputs directly, odd[k] through the twiddle (dashed). */
+.fft-view .fv-butterfly line {
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.fft-view .fv-butterfly line.even {
+  stroke: var(--viz-compare);
+}
+.fft-view .fv-butterfly line.odd {
+  stroke: var(--viz-active);
+  stroke-dasharray: 6 3;
+}
+.fft-view .fv-sign {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* The unit circle with the roots of unity. */
+.fft-view .fv-axis {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+.fft-view .fv-ring {
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1.5;
+}
+.fft-view .fv-dir {
+  fill: none;
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+}
+.fft-view .fv-arrowhead {
+  fill: var(--text-2);
+}
+.fft-view .fv-spoke {
+  stroke: var(--viz-active);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.fft-view .fv-root circle {
+  fill: var(--viz-surface);
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+}
+.fft-view .fv-root.role-active circle {
+  fill: var(--viz-active);
+  stroke: var(--viz-active);
+}
+.fft-view .fv-root text {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.fft-view .fv-root.role-active text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.fft-view .fv-circle-title {
+  fill: var(--text-2);
+  font-size: 11px;
+}
+.fft-view .fv-circle-caption {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+.fft-view .fv-glyph circle {
+  fill: var(--viz-surface);
+  stroke: var(--role);
+  stroke-width: 1.5;
+}
+.fft-view .fv-cell .fv-glyph text {
+  fill: var(--role);
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 700;
+}

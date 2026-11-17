@@ -61,6 +61,12 @@ The statement gives away constructive problems:
 A constructive solution must be both **sound** (whatever it returns satisfies the constraints) and **complete** (it only reports "impossible" when no object exists). Checking soundness is easy with a verifier; completeness needs the necessary condition from step 2 to match what the builder can actually produce.
 </Callout>
 
+## See it in action
+
+Three of the nine builders, one per tab: `construct_permutation` draws the permutation as a chart of value against position, so the zig-zag and its shrinking differences are visible; `construct_graph` runs Havel-Hakimi with its heap; `construct_matrix` fills a matrix by the north-west corner rule. Every tab has an impossible input among its examples: try **[3, 1, 1]: impossible** in the graph tab.
+
+<ArticleViz ids={['constructive-permutation', 'havel-hakimi', 'northwest-corner']} />
+
 ## Template
 
 ```text

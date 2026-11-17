@@ -1,0 +1,125 @@
+/* ZigzagView organism: a permutation as a chart of value against position, and the numbers 1..n. */
+.zz-wrap {
+  min-width: 0;
+}
+.zz-scroll {
+  overflow-x: auto;
+}
+.zigzag-view {
+  display: block;
+  margin: 0 auto;
+}
+.zigzag-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.zigzag-view .zz-axis {
+  stroke: var(--axis);
+  stroke-width: 1.5;
+}
+.zigzag-view .zz-tick,
+.zigzag-view .zz-axis-label {
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.zigzag-view .zz-axis-label {
+  text-anchor: end;
+}
+
+/* Segments: a new difference is drawn solid in its role colour, a repeated one thin and grey. */
+.zigzag-view .zz-seg line {
+  stroke: var(--viz-neutral);
+  stroke-width: 2;
+  transition: stroke 0.2s ease;
+}
+.zigzag-view .zz-seg.fresh line {
+  stroke: var(--role);
+  stroke-width: 3;
+}
+.zigzag-view .zz-seg.role-active line {
+  stroke: var(--viz-active);
+  stroke-width: 3.5;
+}
+.zigzag-view .zz-seg:not(.fresh):not(.role-active) line {
+  stroke-dasharray: 5 4;
+}
+.zigzag-view .zz-diff rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+}
+.zigzag-view .zz-seg.fresh .zz-diff rect,
+.zigzag-view .zz-seg.role-active .zz-diff rect {
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.zigzag-view .zz-diff text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Points: the value at each position. */
+.zigzag-view .zz-point circle {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 2;
+}
+.zigzag-view .zz-point text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+.zigzag-view .zz-point.role-active circle,
+.zigzag-view .zz-point.role-good circle {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.zigzag-view .zz-point.role-active text,
+.zigzag-view .zz-point.role-good text {
+  fill: var(--viz-ink-on-fill);
+}
+.zigzag-view .zz-point.role-active circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.35s ease;
+}
+.zigzag-view .zz-status {
+  text-anchor: end;
+  fill: var(--role);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* The numbers 1..n: the zig-zag range tinted, numbers already placed faded. */
+.zigzag-view .zz-row-label {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.zigzag-view .zz-num rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.zigzag-view .zz-num text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.zigzag-view .zz-num.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.zigzag-view .zz-num.role-muted {
+  opacity: 0.35;
+}
+.zigzag-view .zz-marks text {
+  fill: var(--viz-compare);
+  font-size: 11px;
+  font-weight: 700;
+}
