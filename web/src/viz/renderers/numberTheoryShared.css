@@ -1,0 +1,100 @@
+/* Shared SVG pieces of the number theory renderers: value cells and tables. */
+.nt-svg {
+  display: block;
+  margin: 0 auto;
+  overflow: visible;
+}
+.nt-svg text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.nt-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.nt-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.nt-cell.strong text {
+  font-weight: 700;
+}
+.nt-cell.role-active rect,
+.nt-cell.role-done rect,
+.nt-cell.role-good rect,
+.nt-cell.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.nt-cell.role-active text,
+.nt-cell.role-done text,
+.nt-cell.role-good text,
+.nt-cell.role-bad text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.nt-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 16%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.nt-cell.role-muted {
+  opacity: 0.45;
+}
+.nt-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+/* After the role rules above: the glyph keeps the role colour on its white disc. */
+.nt-svg .nt-cell .nt-glyph circle {
+  fill: var(--viz-surface);
+  stroke: var(--role);
+  stroke-width: 1.5;
+}
+.nt-svg .nt-cell .nt-glyph text {
+  fill: var(--role);
+  font: 700 9px var(--font-sans);
+}
+.nt-blank {
+  fill: none;
+  stroke: var(--grid);
+  stroke-dasharray: 3 3;
+}
+.nt-head {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+.nt-label {
+  fill: var(--text-2);
+  font-size: 12px;
+}
+.nt-note {
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.nt-flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px 20px;
+  min-width: 0;
+}
+.nt-flex > svg {
+  flex: none;
+  max-width: 100%;
+  height: auto;
+}
+/* StableStrips: a flow root keeps the first strip's top margin inside the reserved height. */
+.nt-strips {
+  display: flow-root;
+}

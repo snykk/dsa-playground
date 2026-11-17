@@ -3,7 +3,7 @@ topic: Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_T
 title: Miller-Rabin Primality Test
 lead: Miller-Rabin decides whether a large number is prime by testing a property every prime has and almost every composite lacks. A composite slips past one random witness with probability at most 1/4, and twelve fixed witnesses make the answer exact for every 64-bit integer.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-16
 facts:
   - label: Time per witness
     value: O(log n)
@@ -63,6 +63,12 @@ In the chain for `n = 561` with `a = 2`, the term 67 satisfies `67^2 = 1 (mod 56
     A witness that never reaches `n - 1` proves `n` composite: return false at once. If all witnesses pass, return true.
   </Step>
 </Steps>
+
+## See it in action
+
+Run **Carmichael 561, prime 97**: the factors of 2 come out of `n - 1` one at a time, then every random witness gets a row with its chain of squares. For 561 the first witness, 139, gives the chain 10, 100, 463, 67, which never reaches 560, so the code returns False at once; the next square, `67^2`, would be 1, a square root of 1 that a prime cannot have. In the **Miller-Rabin (12 fixed bases)** tab, **Fools eleven bases** shows bases 2 to 31 passing a composite until 37 catches it, and **Beyond the 12-base bound** shows the first number for which all twelve are fooled.
+
+<ArticleViz ids={['miller-rabin', 'miller-rabin-deterministic']} />
 
 ## Worked example
 

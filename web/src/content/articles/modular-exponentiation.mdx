@@ -3,7 +3,7 @@ topic: Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
 title: Modular Exponentiation
 lead: Modular exponentiation computes base^exponent mod m by square and multiply. It squares the base once per bit of the exponent and multiplies the answer in for every 1 bit, so a power with an exponent near 10^18 takes about 120 multiplications instead of 10^18.
 level: Beginner
-updated: 2026-11-12
+updated: 2026-11-16
 facts:
   - label: Time
     value: O(log e)
@@ -64,6 +64,12 @@ At the top of each loop iteration, `result * base^exponent = b^e (mod m)`. An od
 </Steps>
 
 A negative exponent means the inverse power: `b^(-e) = (b^-1)^e`. The code first looks for the inverse of `b` modulo `m` and returns `None` (Python) or `-1` (C++ and Go) if there is none.
+
+## See it in action
+
+Run **Worked example 5^13 mod 11**: the bits of 13 slide out to the right one at a time while the table grows by one row per bit, the base squaring each round and the result multiplying in only on the 1 bits. The **Recursive mod_pow** tab runs the same call through `mod_pow_recursive`, whose call stack halves even exponents and peels a factor off odd ones. **Huge modulus** shows exact big integers, and **Negative exponent** finds an inverse first.
+
+<ArticleViz ids={['modular-exponentiation', 'modular-exponentiation-recursive']} />
 
 ## Worked example
 

@@ -2,7 +2,7 @@
 category: Algorithms/Mathematical_Algorithms/Number_Theory
 title: Number Theory Algorithms
 lead: Number theory algorithms work on exact integers, using divisors, remainders, powers and primes. They build on each other. The Euclidean algorithm gives gcd and inverses, modular arithmetic and exponentiation use them, and the sieve and Miller-Rabin tell primes apart.
-updated: 2026-11-13
+updated: 2026-11-16
 facts:
   - label: gcd
     value: O(log min(a, b))
@@ -62,6 +62,12 @@ The topics form a chain:
     ['Miller-Rabin', 'test a property every prime has and most composites lack', 'never rejects a prime; exact for n < 2^64 with 12 fixed bases', 'O(log n) per witness'],
   ]}
 />
+
+## See them side by side
+
+Each tab animates one topic on its own example, in reading order: Euclid's squares, the residue clock, the bits of an exponent (as a loop and as recursion), the merged combs of the Chinese remainder theorem, the sieve's grid and the witness chains of Miller-Rabin, with random and with fixed bases.
+
+<ArticleViz ids={['euclidean-algorithm', 'modular-arithmetic', 'modular-exponentiation', 'modular-exponentiation-recursive', 'chinese-remainder-theorem', 'sieve-of-eratosthenes', 'miller-rabin', 'miller-rabin-deterministic']} />
 
 ## One small problem through several topics
 
