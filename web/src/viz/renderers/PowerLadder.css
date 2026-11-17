@@ -1,0 +1,67 @@
+/* PowerLadder organism: the exponent's bits sliding out to the right above the table of powers. */
+.pl-wrap {
+  min-width: 0;
+}
+.pl-scroll {
+  overflow-x: auto;
+}
+.power-ladder .pl-rowlabel {
+  text-anchor: end;
+  font-weight: 600;
+}
+.power-ladder .pl-divider {
+  stroke: var(--axis);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+/* A bit glides when the exponent shifts; a 1 is shaded, a 0 faint, a role fills it. */
+.power-ladder .pl-bit {
+  transition:
+    transform 0.45s ease,
+    opacity 0.45s ease;
+}
+.power-ladder .pl-bit rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+}
+.power-ladder .pl-bit text {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.power-ladder .pl-bit.one rect {
+  fill: var(--surface-3);
+  stroke: var(--viz-neutral);
+}
+.power-ladder .pl-bit.one text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.power-ladder .pl-bit.role-compare rect,
+.power-ladder .pl-bit.role-active rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.power-ladder .pl-bit.role-compare text,
+.power-ladder .pl-bit.role-active text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.power-ladder .pl-bit.gone {
+  opacity: 0.38;
+}
+.power-ladder .pl-bitslabel {
+  text-anchor: start;
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+.power-ladder .pl-dropped {
+  text-anchor: start;
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.power-ladder .pl-more {
+  text-anchor: start;
+}

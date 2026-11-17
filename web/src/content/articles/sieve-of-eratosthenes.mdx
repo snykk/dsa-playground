@@ -3,7 +3,7 @@ topic: Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes
 title: Sieve of Eratosthenes
 lead: The Sieve of Eratosthenes finds every prime up to n by crossing out the multiples of each prime, starting at its square. It runs in O(n log log n) time, close to linear, and leaves a table that answers "is k prime?" in constant time.
 level: Beginner
-updated: 2026-11-12
+updated: 2026-11-16
 facts:
   - label: Time
     value: O(n log log n)
@@ -68,6 +68,12 @@ The picture shows 1 to 50. Each composite is coloured by the first prime that cr
 <Callout title="Invariant">
 When the outer loop reaches `i`, every composite with a prime factor smaller than `i` is already crossed out. So `i` is prime exactly when its flag is still true, and no divisibility test is needed.
 </Callout>
+
+## See it in action
+
+Run **Primes up to 50, with lookups**: 2, 3, 5 and 7 each strike their multiples from their square on, a number struck twice (12 by 2, then by 3) is written again, and the loop ends when 8 * 8 = 64 passes 50. The lookups then read the flags, and `is_prime_sieve(-1)` shows why a negative number must not index the list. **Up to 100: 104 writes** counts every write the inner loop makes.
+
+<ArticleViz ids={['sieve-of-eratosthenes']} />
 
 ## Worked example
 

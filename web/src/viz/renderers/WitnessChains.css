@@ -1,0 +1,60 @@
+/* WitnessChains organism: n - 1 = d * 2^r, then one chain of squares per Miller-Rabin witness. */
+.wc-wrap {
+  min-width: 0;
+}
+.wc-scroll {
+  overflow-x: auto;
+}
+.witness-chains .wc-n {
+  text-anchor: start;
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+}
+.witness-chains .wc-eq {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.witness-chains .wc-two rect {
+  fill: var(--viz-done);
+  animation: viz-pop 0.3s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.witness-chains .wc-two text {
+  fill: var(--viz-ink-on-fill);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+.witness-chains .wc-head {
+  text-anchor: end;
+}
+.witness-chains .wc-vhead {
+  text-anchor: start;
+}
+.witness-chains .wc-label {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.witness-chains .wc-row.role-active .wc-label {
+  fill: var(--text);
+  font-weight: 700;
+}
+.witness-chains .wc-verdict {
+  text-anchor: start;
+  fill: var(--role);
+  font-size: 12px;
+  font-weight: 700;
+}
+.witness-chains .wc-final {
+  text-anchor: start;
+  fill: var(--role);
+  font-size: 14px;
+  font-weight: 700;
+}

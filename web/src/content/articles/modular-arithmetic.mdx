@@ -3,7 +3,7 @@ topic: Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
 title: Modular Arithmetic
 lead: Modular arithmetic keeps only remainders, so numbers wrap around after reaching the modulus, like hours on a clock. It lets you add, subtract, multiply and take powers of huge numbers while holding only small ones, and it replaces division with a modular inverse.
 level: Beginner
-updated: 2026-11-12
+updated: 2026-11-16
 facts:
   - label: Add, subtract, multiply
     value: O(1)
@@ -93,6 +93,12 @@ Everything modulo 11, with the repository's functions:
 <Callout title="Invariant">
 Every function returns a value in `0 .. m-1` (or the no-inverse marker). That is why the `-1` sentinel of C++ and Go is unambiguous: a valid result is never negative.
 </Callout>
+
+## See it in action
+
+Run **Modulo 11 (the demo)**: each operand walks round a clock of 11 residues, a sum or product wraps past 0, and `mod_inverse(3, 11)` fills the extended Euclid table before 4 lands on the clock. **No inverse modulo 12** marks the multiples of `gcd(4, 12) = 4`, which never reach 1, and **Negative operands** walks counterclockwise.
+
+<ArticleViz ids={['modular-arithmetic']} />
 
 ## Pseudocode
 

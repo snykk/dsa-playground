@@ -1,0 +1,98 @@
+/* CongruenceCombs organism: one comb of points per congruence above the merged solution's comb. */
+.cc-wrap {
+  min-width: 0;
+}
+.cc-scroll {
+  overflow-x: auto;
+}
+.congruence-combs .cc-work {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.congruence-combs .cc-work.last {
+  fill: var(--text);
+  font-weight: 700;
+}
+.congruence-combs .cc-label {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.congruence-combs .cc-row.role-active .cc-label,
+.congruence-combs .cc-row.merged .cc-label {
+  fill: var(--text);
+  font-weight: 700;
+}
+.congruence-combs .cc-row.role-done .cc-label {
+  fill: var(--text-2);
+}
+.congruence-combs .cc-track {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.congruence-combs .cc-row.role-active .cc-track {
+  stroke: var(--viz-active);
+  stroke-width: 2;
+  opacity: 0.5;
+}
+.congruence-combs .cc-pt circle {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1.5;
+  transition:
+    r 0.25s ease,
+    fill 0.25s ease;
+}
+.congruence-combs .cc-pt.role-muted circle {
+  opacity: 0.45;
+}
+.congruence-combs .cc-pt.role-good circle {
+  animation: viz-pop 0.3s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.congruence-combs .cc-ptglyph {
+  fill: var(--viz-good);
+  font-size: 11px;
+  font-weight: 700;
+}
+.congruence-combs .cc-tag {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+.congruence-combs .cc-pt.role-good .cc-tag {
+  fill: var(--text);
+  font-weight: 700;
+}
+.congruence-combs .cc-rule {
+  stroke: var(--border-strong);
+  stroke-dasharray: 4 3;
+}
+.congruence-combs .cc-guide {
+  stroke: var(--viz-good);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+.congruence-combs .cc-axis,
+.congruence-combs .cc-tick line {
+  stroke: var(--axis);
+  stroke-width: 1.5;
+}
+.congruence-combs .cc-tick text {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.congruence-combs .cc-window {
+  text-anchor: end;
+}
+.congruence-combs .cc-verdict {
+  text-anchor: start;
+  fill: var(--role);
+  font-size: 14px;
+  font-weight: 700;
+}
