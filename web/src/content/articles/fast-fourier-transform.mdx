@@ -73,6 +73,12 @@ With w = e<sup>-2&pi;i/n</sup> and k from 0 to n/2-1: `X[k] = E[k] + w^k O[k]` a
 Padding a spectrum with zeros does not give the spectrum of a shorter signal, so an inverse of, say, length 3 has no meaningful answer. Python raises `ValueError`, C++ throws `std::invalid_argument` and Go panics. An empty input returns an empty result in all three.
 </Callout>
 
+## See it in action
+
+The first tab runs `fft` and, with `inverse`, `ifft`: one row per level of the recursion, so the split fills the rows downwards until every block holds a single value, and the butterflies fill them back upwards, each with its twiddle factor marked on the unit circle. Try **fft([1, 2, 3, 4])**, the worked example below, then **Inverse: back to 1, 2, 3, 4** to undo it; **Eight values, three levels** shows the full depth. The second tab runs `multiply_polynomials` (which `convolve` calls): two forward transforms, the pointwise product, the inverse transform and the rounding.
+
+<ArticleViz ids={['fft', 'fft-polynomial-multiplication']} />
+
 ## Worked example: fft([1, 2, 3, 4])
 
 With n = 4 the twiddle factors are w<sup>0</sup> = 1 and w<sup>1</sup> = -i.

@@ -1,0 +1,119 @@
+/* GrundyView organism: a row of positions with Grundy numbers, move arcs and the mex scan. */
+.gr-wrap {
+  min-width: 0;
+}
+.gr-scroll {
+  overflow-x: auto;
+}
+.grundy-view {
+  display: block;
+  margin: 0 auto;
+}
+.grundy-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.grundy-view .gr-row-label {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.grundy-view .gr-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.grundy-view .gr-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.grundy-view .gr-cell.unknown text {
+  fill: var(--text-3);
+  font-weight: 400;
+}
+.grundy-view .gr-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.grundy-view .gr-cell.role-active rect,
+.grundy-view .gr-cell.role-done rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.grundy-view .gr-cell.role-active text,
+.grundy-view .gr-cell.role-done text {
+  fill: var(--viz-ink-on-fill);
+}
+.grundy-view .gr-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.grundy-view .gr-cell .gr-index {
+  fill: var(--text-3);
+  font-size: 10px;
+  font-weight: 400;
+}
+/* P (Grundy 0, a loss for the player to move) is boxed so it reads without colour. */
+.grundy-view .gr-cell .gr-pn {
+  fill: var(--text-3);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+}
+.grundy-view .gr-cell .gr-pn.p {
+  fill: var(--text);
+  text-decoration: underline;
+}
+.grundy-view .gr-cell .gr-mex-note {
+  fill: var(--text-2);
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 400;
+}
+
+/* Moves: arcs from the position being computed back to the positions they reach. */
+.grundy-view .gr-arc path {
+  fill: none;
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.grundy-view .gr-arc text {
+  fill: var(--viz-compare);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--viz-surface);
+  stroke-width: 4px;
+}
+.grundy-view .gr-arrowhead {
+  fill: var(--viz-compare);
+}
+.grundy-view .gr-pile path {
+  fill: var(--text-2);
+}
+.grundy-view .gr-pile.role-active path,
+.grundy-view .gr-pile.role-good path,
+.grundy-view .gr-pile.role-bad path,
+.grundy-view .gr-pile.role-done path {
+  fill: var(--role);
+}
+.grundy-view .gr-pile text {
+  text-anchor: middle;
+  fill: var(--text-2);
+  font-size: 10px;
+  font-weight: 600;
+}
+.grundy-view .gr-pile.role-active text,
+.grundy-view .gr-pile.role-good text,
+.grundy-view .gr-pile.role-bad text {
+  fill: var(--role);
+}

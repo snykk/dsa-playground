@@ -1,0 +1,186 @@
+/* JudgeView organism: the solver's picture of the hidden input beside the judge conversation. */
+.jv-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px 14px;
+}
+/* The stage styles every svg as width 100%; these two keep their own widths and wrap instead. */
+.viz-stage .jv-wrap svg.judge-view {
+  display: block;
+  height: auto;
+  flex: 0 1 auto;
+}
+.judge-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.judge-view .jv-title,
+.judge-view .jv-log-head,
+.judge-view .jv-note {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-size: 12px;
+}
+.judge-view .jv-title {
+  fill: var(--text);
+  font-weight: 600;
+}
+.judge-view .jv-note {
+  font-family: var(--font-mono);
+}
+.judge-view .jv-row-label {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-size: 12px;
+}
+.judge-view .jv-index,
+.judge-view .jv-cell-note,
+.judge-view .jv-tick {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.judge-view .jv-tick.strong {
+  fill: var(--viz-compare);
+  font-weight: 700;
+  font-size: 11px;
+}
+
+/* Cells: compare tinted (still possible, being compared), active / done / good filled, muted faded. */
+.judge-view .jv-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease,
+    opacity 0.2s ease;
+}
+.judge-view .jv-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.judge-view .jv-cell .jv-sub {
+  fill: var(--text-2);
+  font-size: 9px;
+  font-weight: 400;
+}
+.judge-view .jv-cell.one rect {
+  fill: var(--surface-3);
+  stroke: var(--viz-neutral);
+}
+.judge-view .jv-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.judge-view .jv-cell.role-active rect,
+.judge-view .jv-cell.role-done rect,
+.judge-view .jv-cell.role-good rect,
+.judge-view .jv-cell.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.judge-view .jv-cell.role-active text,
+.judge-view .jv-cell.role-done text,
+.judge-view .jv-cell.role-good text,
+.judge-view .jv-cell.role-bad text {
+  fill: var(--viz-ink-on-fill);
+}
+.judge-view .jv-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.judge-view .jv-cell.role-muted {
+  opacity: 0.4;
+}
+.judge-view .jv-cell .jv-cell-note,
+.judge-view .jv-cell .jv-index {
+  fill: var(--text-3);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+/* The number line of guess_number. */
+.judge-view .jv-bar {
+  fill: var(--surface-3);
+}
+.judge-view .jv-bar.live {
+  fill: var(--viz-compare);
+  transition:
+    x 0.35s ease,
+    width 0.35s ease;
+}
+.judge-view .jv-mid line {
+  stroke: var(--viz-active);
+  stroke-width: 2.5;
+}
+.judge-view .jv-mid text {
+  fill: var(--viz-active);
+  font-size: 11px;
+  font-weight: 700;
+}
+.judge-view .jv-secret path {
+  fill: var(--text-3);
+}
+.judge-view .jv-secret text {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.judge-view .jv-link {
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+}
+
+/* The budget: one slot per allowed query; a query past the limit is red and hatched. */
+.judge-view .jv-slot {
+  fill: var(--surface-3);
+  stroke: var(--viz-neutral);
+  stroke-width: 1;
+}
+.judge-view .jv-slot.used {
+  fill: var(--viz-active);
+  stroke: var(--viz-active);
+}
+.judge-view .jv-slot.extra {
+  stroke-dasharray: 2 2;
+}
+.judge-view .jv-slot.over {
+  fill: var(--viz-bad);
+  stroke: var(--viz-bad);
+}
+
+/* The conversation: the solver's lines on the left, the judge's indented; the newest outlined. */
+.judge-view .jv-line rect {
+  fill: var(--surface-2);
+  stroke: none;
+}
+.judge-view .jv-line.judge rect {
+  fill: color-mix(in srgb, var(--viz-compare) 12%, var(--viz-surface));
+}
+.judge-view .jv-line.last rect {
+  stroke: var(--viz-active);
+  stroke-width: 1.5;
+}
+.judge-view .jv-line.error rect {
+  fill: color-mix(in srgb, var(--viz-bad) 22%, var(--viz-surface));
+  stroke: var(--viz-bad);
+}
+.judge-view .jv-line text {
+  text-anchor: start;
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.judge-view .jv-status {
+  text-anchor: start;
+  fill: var(--role);
+  font-size: 13px;
+  font-weight: 700;
+}
