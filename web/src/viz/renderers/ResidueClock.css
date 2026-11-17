@@ -1,0 +1,109 @@
+/* ResidueClock organism: residues on a clock face, tokens that walk round it, the work beside it. */
+.rc-wrap {
+  min-width: 0;
+}
+.residue-clock .rc-face {
+  fill: var(--surface-2);
+  stroke: var(--border);
+}
+.residue-clock .rc-ring {
+  fill: none;
+  stroke: var(--axis);
+  stroke-width: 2;
+}
+.residue-clock .rc-lane {
+  fill: none;
+  stroke: var(--grid);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+}
+.residue-clock .rc-tick line {
+  stroke: var(--axis);
+  stroke-width: 1.5;
+}
+.residue-clock .rc-tick text {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.residue-clock .rc-tick circle {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1.5;
+}
+.residue-clock .rc-tick.role-compare text,
+.residue-clock .rc-tick.role-good text,
+.residue-clock .rc-tick.role-bad text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.residue-clock .rc-walk {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+  /* Drawn from its start; without motion (reduced-motion turns animations off) it is simply there. */
+  stroke-dasharray: 4000;
+  stroke-dashoffset: 0;
+  animation: rc-draw 0.7s ease;
+}
+.residue-clock .rc-walk.role-compare {
+  stroke-width: 2;
+}
+@keyframes rc-draw {
+  from {
+    stroke-dashoffset: 4000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.residue-clock .rc-mod {
+  fill: var(--text-3);
+  font-size: 13px;
+  font-weight: 600;
+}
+/* A token rotates round the clock centre while its label counter-rotates, so it stays upright. */
+.residue-clock .rc-token,
+.residue-clock .rc-upright {
+  transition: transform 0.7s ease-in-out;
+}
+.residue-clock .rc-token rect {
+  fill: var(--viz-surface);
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.residue-clock .rc-token text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+.residue-clock .rc-token.role-active rect,
+.residue-clock .rc-token.role-good rect,
+.residue-clock .rc-token.role-bad rect {
+  fill: var(--role);
+}
+.residue-clock .rc-token.role-active text,
+.residue-clock .rc-token.role-good text,
+.residue-clock .rc-token.role-bad text {
+  fill: var(--viz-ink-on-fill);
+}
+.residue-clock .rc-work {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.residue-clock .rc-work.last {
+  fill: var(--text);
+  font-weight: 700;
+}
+.residue-clock .rc-tabletitle {
+  text-anchor: start;
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}

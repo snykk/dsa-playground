@@ -3,7 +3,7 @@ topic: Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
 title: Euclidean Algorithm
 lead: The Euclidean algorithm finds the greatest common divisor of two integers by replacing the pair (a, b) with (b, a mod b) until the second number is zero. It needs only O(log min(a, b)) steps, and its extended form yields the Bezout coefficients behind modular inverses.
 level: Beginner
-updated: 2026-11-12
+updated: 2026-11-16
 facts:
   - label: Time
     value: O(log min(a, b))
@@ -68,6 +68,12 @@ Any number that divides both `a` and `b` also divides `a - k*b`, and any number 
 <Callout title="Why it always stops">
 The remainder `a mod b` is strictly smaller than `b`, so the second number decreases at every step and must reach 0. In fact, after two steps the larger number has at least halved, which gives the logarithmic bound.
 </Callout>
+
+## See it in action
+
+Run **Extended: 240 and 46**: each call of `_extended_gcd_nonneg` cuts the largest squares that fit off the rectangle and the view follows the strip that is left, until a 2 x 2 square tiles it exactly. On the way back up the recursion fills `x` and `y` into the table, row by row, and every row checks `a*x + b*y = 2`. **Zeros** and **Negative input** show the edge cases the code handles.
+
+<ArticleViz ids={['euclidean-algorithm']} />
 
 ## Extended Euclid
 

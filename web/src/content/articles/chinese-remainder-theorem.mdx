@@ -3,7 +3,7 @@ topic: Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theore
 title: Chinese Remainder Theorem
 lead: The Chinese Remainder Theorem (CRT) combines congruences x = r (mod m) with different moduli into a single one. With pairwise coprime moduli the answer always exists and is unique modulo the product, and it is found with one extended Euclid per congruence.
 level: Intermediate
-updated: 2026-11-12
+updated: 2026-11-16
 facts:
   - label: Time
     value: O(n log max m)
@@ -78,6 +78,12 @@ The code merges congruences one at a time. It keeps the current answer `x` and t
 <Callout title="Why it works">
 We need `L*t = r - x (mod m)`. Dividing by `g` gives `(L/g) * t = (r - x)/g (mod m/g)`, and `L/g` is invertible modulo `m/g` with inverse `p`. The new `x = x + L*t` still satisfies the old congruences, because `L*t` is a multiple of `L`, and it satisfies the new one by construction.
 </Callout>
+
+## See it in action
+
+Run **Classic: 2, 3, 2 mod 3, 5, 7**: every congruence is a comb of points on a number line, and the merged comb below them keeps only the points they share, from every integer to 2 (mod 3), 8 (mod 15) and finally 23 (mod 105). Each merge marks the candidates `x + L*t` and the one the extended gcd picks. **Not coprime, solvable** and **Not coprime, no solution** show the gcd check on moduli 4 and 6.
+
+<ArticleViz ids={['chinese-remainder-theorem']} />
 
 ## Worked example
 
