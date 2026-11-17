@@ -71,6 +71,12 @@ All traversals share one loop: take a node from a frontier, mark it visited, add
 BFS removes nodes from the queue in order of non-decreasing distance. The first time a node is reached is therefore by a shortest route, because every shorter route would already have been explored layer by layer.
 </Callout>
 
+## See it in action
+
+**Number of Islands** scans the grid row by row and sinks each island with the explicit stack shown beside it; try **Diagonals do not connect**. The other tabs run `bfs_shortest_path` (the target counts only when it leaves the queue), `get_dfs_traversal` (try **Pushed twice**) and `topological_sort` on an edge list, with a cycle and a `KeyError` among the examples.
+
+<ArticleViz ids={['number-of-islands', 'bfs-shortest-path', 'dfs-explicit-stack', 'topological-sort-edges']} />
+
 ## Template
 
 ```text

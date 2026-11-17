@@ -22,6 +22,16 @@ void testCountDivisible() {
     cout << "testCountDivisible passed" << endl;
 }
 
+// 1..n is empty for n < 1, so the count is 0 (as in Python and Go): every lcm
+// is at least 1 and exceeds n, so every term is skipped.
+void testCountDivisibleEmptyRange() {
+    assert(countDivisible(-10, {3}) == 0);
+    assert(countDivisible(-10, {2, 3}) == 0);
+    assert(countDivisible(-1, {1}) == 0);
+    assert(countDivisible(0, {2, 3}) == 0);
+    cout << "testCountDivisibleEmptyRange passed" << endl;
+}
+
 // Regression: every term used to be intersected with sets[0] as well.
 void testCountUnionSets() {
     assert(countUnionSets({{1, 2, 3}, {2, 3, 4}, {3, 4, 5}}) == 5);
@@ -35,6 +45,7 @@ void testCountUnionSets() {
 int main() {
     testGCD();
     testCountDivisible();
+    testCountDivisibleEmptyRange();
     testCountUnionSets();
     cout << "\nAll tests passed!" << endl;
     return 0;

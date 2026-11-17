@@ -1,0 +1,135 @@
+/* PatternLanes organism: labelled lanes of keyed cells that glide, with arrows and pointer markers. */
+.lanes-wrap {
+  overflow-x: auto;
+}
+.pattern-lanes {
+  display: block;
+  margin: 0 auto;
+}
+.pattern-lanes text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.pattern-lanes .lanes-label {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.pattern-lanes .lanes-sub {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.pattern-lanes .lanes-head {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.pattern-lanes .lanes-head:not(.role-idle):not(.role-muted) {
+  fill: var(--role);
+  font-weight: 700;
+}
+
+/* Cells: a role fills the cell; ghosts fade behind a dashed outline. */
+.pattern-lanes .lanes-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.pattern-lanes .lanes-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.pattern-lanes .lanes-cell:not(.role-idle):not(.role-muted) rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.pattern-lanes .lanes-cell:not(.role-idle):not(.role-muted) text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.pattern-lanes .lanes-cell.role-muted {
+  opacity: 0.45;
+}
+.pattern-lanes .lanes-cell.ghost {
+  opacity: 0.4;
+}
+.pattern-lanes .lanes-cell.ghost rect {
+  stroke-dasharray: 4 3;
+  stroke: var(--text-3);
+}
+.pattern-lanes .lanes-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.pattern-lanes .lanes-glyph circle {
+  fill: var(--viz-surface);
+  stroke: var(--role);
+  stroke-width: 1.5;
+}
+.pattern-lanes .lanes-glyph text {
+  fill: var(--role);
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* Arrows, markers and bands. */
+.pattern-lanes .lanes-arrow path {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.pattern-lanes .lanes-arrow.role-idle path,
+.pattern-lanes .lanes-arrow.role-muted path {
+  stroke: var(--axis);
+  stroke-dasharray: 4 3;
+}
+.pattern-lanes .lanes-arrow.role-compare path {
+  stroke-dasharray: 7 5;
+  animation: viz-march 0.8s linear infinite;
+}
+.pattern-lanes .lanes-arrow text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--viz-surface);
+  stroke-width: 4px;
+}
+.pattern-lanes .lanes-marker {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+.pattern-lanes .lanes-marker:not(.role-idle):not(.role-muted) {
+  fill: var(--role);
+  font-weight: 700;
+}
+.pattern-lanes .lanes-band path {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.pattern-lanes .lanes-band text {
+  fill: var(--role);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Strip tokens: the shared Token fills active, compare and done; here good and bad fill too (a ValueError, a best total). */
+.lanes-wrap .viz-token.role-good,
+.lanes-wrap .viz-token.role-bad {
+  background: var(--role);
+  border-color: var(--role);
+  color: var(--viz-ink-on-fill);
+}
