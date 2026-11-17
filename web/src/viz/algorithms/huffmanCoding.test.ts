@@ -110,24 +110,32 @@ function decode(bits: string, root: HuffNode | null): string {
   return out;
 }
 
-function expectWellFormed(frames: Array<Frame<HuffmanState>>) {
+/**
+ * What is wrong with a run's frames, as readable lines (empty when nothing is). The checks run
+ * in plain code and the test asserts once: an expect per frame made the random test slow.
+ */
+function frameProblems(frames: Array<Frame<HuffmanState>>): string[] {
+  const out: string[] = [];
   for (const f of frames) {
-    expect(f.caption.length).toBeGreaterThan(20);
-    if (f.line !== undefined) {
-      expect(f.line).toBeGreaterThanOrEqual(0);
-      expect(f.line).toBeLessThan(HUFFMAN_CODE.length);
-    }
+    if (f.caption.length <= 20) out.push(`caption too short: "${f.caption}"`);
+    if (f.line !== undefined && (f.line < 0 || f.line >= HUFFMAN_CODE.length)) out.push(`line ${f.line} out of range: ${f.caption}`);
     const ids = f.state.nodes.map((n) => n.id);
-    expect(new Set(ids).size, f.caption).toBe(ids.length);
+    if (new Set(ids).size !== ids.length) out.push(`duplicate node ids: ${f.caption}`);
     const drawn = new Set(ids);
     for (const n of f.state.nodes) {
-      if (n.left !== null) expect(drawn.has(n.left)).toBe(true);
-      if (n.right !== null) expect(drawn.has(n.right)).toBe(true);
+      if (n.left !== null && !drawn.has(n.left)) out.push(`left child ${n.left} of ${n.id} not drawn: ${f.caption}`);
+      if (n.right !== null && !drawn.has(n.right)) out.push(`right child ${n.right} of ${n.id} not drawn: ${f.caption}`);
     }
-    for (const id of [...f.state.heap, ...f.state.loose.map((l) => l.id)]) expect(drawn.has(id), f.caption).toBe(true);
+    const held = [...f.state.heap, ...f.state.loose.map((l) => l.id)];
+    for (const id of held) if (!drawn.has(id)) out.push(`tree ${id} held but not drawn: ${f.caption}`);
     // A tree is either in the heap or loose, never both.
-    expect(new Set([...f.state.heap, ...f.state.loose.map((l) => l.id)]).size).toBe(f.state.heap.length + f.state.loose.length);
+    if (new Set(held).size !== held.length) out.push(`a tree is both in the heap and loose: ${f.caption}`);
   }
+  return out;
+}
+
+function expectWellFormed(frames: Array<Frame<HuffmanState>>) {
+  expect(frameProblems(frames)).toEqual([]);
 }
 
 function randomText(rand: () => number): string {
@@ -161,7 +169,8 @@ describe('huffmanTrace against reference models', () => {
       const run = huffmanTrace({ text });
       expect(run.log, text).toEqual(modelLog(text));
       const words = run.codes.map(([, w]) => w);
-      for (const a of words) for (const b of words) if (a !== b) expect(b.startsWith(a), `${text}: ${a} prefixes ${b}`).toBe(false);
+      const prefixes = words.flatMap((a) => words.filter((b) => a !== b && b.startsWith(a)).map((b) => `${a} prefixes ${b}`));
+      expect(prefixes, text).toEqual([]);
       expect(run.encoded.length, text).toBe(optimalBits(text));
       if (words.length > 1) expect(words.reduce((s, w) => s + 2 ** -w.length, 0)).toBeCloseTo(1, 12);
       expect(decode(run.encoded, run.root)).toBe(text);
