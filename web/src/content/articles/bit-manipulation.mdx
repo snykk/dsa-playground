@@ -74,6 +74,12 @@ Integers are stored in two's complement. Six operators do all the work: `&`, `|`
 `n & (n - 1)` removes the lowest set bit. Subtracting 1 turns the lowest 1 into 0 and every 0 below it into 1, so AND-ing with `n` wipes exactly that bit. Counting how many times you can repeat it before reaching 0 gives the number of set bits (Brian Kernighan's algorithm).
 </Callout>
 
+## See it in action
+
+The **Classic tour** calls one function of each kind on a 16-bit window: the mask's single 1 slides under the bit it touches, shifts glide the bits, and `count 13` drops one set bit per round. **Negative numbers** shows the sign bits that never end (`...1`) and the 64-bit mask that `count_set_bits` applies first. The second tab counts through the masks of `subset_generation`.
+
+<ArticleViz ids={['bit-manipulation', 'bit-subset-generation']} />
+
 ## Template
 
 ```text

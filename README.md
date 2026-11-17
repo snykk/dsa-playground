@@ -3,7 +3,7 @@
 [![CI](https://github.com/snykk/dsa-playground/actions/workflows/ci.yml/badge.svg)](https://github.com/snykk/dsa-playground/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A study repository of data structures and algorithms: 153 topics, each with an explanation and an implementation with unit tests in Python, C++ and Go. A companion web site, [DSA Playground](https://snykk.github.io/dsa-playground/), shows every topic as an article with the code side by side and animates 127 of them step by step.
+A study repository of data structures and algorithms: 153 topics, each with an explanation and an implementation with unit tests in Python, C++ and Go. A companion web site, [DSA Playground](https://snykk.github.io/dsa-playground/), shows every topic as an article with the code side by side and animates every one of them step by step.
 
 ## What Is Here
 

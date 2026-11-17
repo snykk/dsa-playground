@@ -21,7 +21,7 @@ facts:
 properties:
   - { label: Needs a game-tree search, value: false }
   - { label: Both players have the same moves (impartial), value: true }
-  - { label: Handles games with cycles, value: false }
+  - { label: Grundy numbers work on games with cycles, value: false }
 prerequisites:
   - Problem_Patterns/Bit_Manipulation
   - Algorithms/Dynamic_Programming
@@ -73,6 +73,12 @@ For piles `[3, 4, 5]` the XOR is `3 xor 4 xor 5 = 2`, so the first player wins. 
     ['XOR', '010', 'XOR', '000']
   ]}
 />
+
+## See it in action
+
+The three tabs cover six of the fifteen functions: `nim_winner` and `nim_winning_move` on piles you choose, `subtraction_grundy` with `mex` and `combined_grundy` for a subtraction game, and `game_graph_outcomes` labelling a game graph with win, lose or draw. Try **XOR 0: a lost position** in the first tab, and **Two-cycle: a draw** in the third.
+
+<ArticleViz ids={['nim', 'sprague-grundy', 'game-graph']} />
 
 ## Grundy numbers
 

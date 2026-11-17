@@ -65,6 +65,12 @@ Arithmetic modulo m keeps every value in [0, m). Addition, subtraction and multi
 Modular reduction respects addition and multiplication: (a + b) mod m = ((a mod m) + (b mod m)) mod m, and the same holds for products. So the intermediate values never need to be larger than m<sup>2</sup>, however large the true number is. Division is different: the quotient a / b is only defined mod m when b has an inverse.
 </Callout>
 
+## See it in action
+
+**Lucas' theorem** writes n and r in base p and runs `lucas_nCr`: one recursive call of `_lucas` per digit, then one table lookup per digit pair while the calls return. Try **n = 10^18**, then **Wrong table: ValueError**. The second tab builds the `Factorials` table that `lucas_nCr` reads (this file's copy of the class in Precomputation); try **Prime 13** for the table Lucas needs with p = 13. Of the rest of `modular_tricks.py`, only `mul` appears, multiplying the factors as the calls return; `mod`, `add`, `sub`, `power`, the inverses (`mod_inverse`, `ext_gcd`, `mod_inverse_ext_gcd`), `div_mod`, `chinese_remainder`, `matrix_mult`, `matrix_power` and `fibonacci` are not animated here.
+
+<ArticleViz ids={['lucas-theorem', 'factorial-tables']} />
+
 ## Template
 
 ```text

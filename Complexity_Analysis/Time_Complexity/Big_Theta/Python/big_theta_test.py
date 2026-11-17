@@ -62,7 +62,7 @@ class TestBigTheta(unittest.TestCase):
         self.assertEqual(sorted_arr, [1])
     
     def test_binary_search_tight_bound(self):
-        """Test Theta(log n) tight bound for binary search"""
+        """Binary search finds present targets and reports absent ones (worst case Theta(log n))"""
         arr = [1, 3, 5, 7, 9, 11, 13, 15]
         
         # Found cases

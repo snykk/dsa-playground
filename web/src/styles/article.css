@@ -43,10 +43,12 @@
 .article-body > ol {
   padding-left: 22px;
 }
-.article-body li + li {
+/* Only the article's own lists (and lists nested in them): a component's list inside the
+ * body, such as a visualization's legend, keeps its own spacing. */
+.article-body > :is(ul, ol) li + li {
   margin-top: 8px;
 }
-.article-body li::marker {
+.article-body > :is(ul, ol) li::marker {
   color: var(--text-3);
 }
 .article-body strong {

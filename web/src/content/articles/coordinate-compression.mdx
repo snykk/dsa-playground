@@ -63,6 +63,12 @@ If the algorithm needs the actual difference between values (a length, an area, 
 For any two values `a` and `b`, `a < b` exactly when `rank(a) < rank(b)`, and `a == b` exactly when the ranks are equal. Every algorithm that depends only on these comparisons gives the same answer on ranks as on the original values.
 </Callout>
 
+## See it in action
+
+Run **Classic** (`1000, 5, 200, 1000, 5, 50`): the repeats fade, the distinct values slide down into sorted order, each takes its index as its rank, and every original value then looks its rank up. The 2D tab compresses x and y separately, and the points glide from a huge, nearly empty plane onto a small grid of ranks.
+
+<ArticleViz ids={['coordinate-compression', 'coordinate-compression-2d']} />
+
 ## A worked example
 
 Compress `[1000, 5, 200, 1000, 5, 50]`. The distinct values sorted are `5, 50, 200, 1000`, so the mapping is `{5: 0, 50: 1, 200: 2, 1000: 3}` (computed by the repository code).

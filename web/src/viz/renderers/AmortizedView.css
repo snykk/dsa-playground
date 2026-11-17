@@ -1,0 +1,195 @@
+/* AmortizedView organism: the array (or bits) with coins on the cells, and the cost chart under it. */
+.amz-wrap {
+  overflow-x: auto;
+}
+.amz-view {
+  display: block;
+  margin: 0 auto;
+}
+.amz-view text {
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.amz-view .amz-readouts {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.amz-view .amz-readouts .amz-strong {
+  fill: var(--role);
+  font-weight: 700;
+}
+.amz-view .amz-block {
+  transition: transform 0.4s ease;
+}
+.amz-view .amz-label {
+  fill: var(--text);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-anchor: end;
+}
+.amz-view .amz-block.role-active .amz-label {
+  fill: var(--viz-active);
+}
+.amz-view .amz-sub {
+  fill: var(--text-3);
+  font-size: 10.5px;
+  text-anchor: end;
+}
+.amz-view .amz-index {
+  fill: var(--text-3);
+  font-size: 9.5px;
+  text-anchor: middle;
+}
+/* An empty slot: allocated, holding nothing. */
+.amz-view .amz-slot {
+  fill: transparent;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 3;
+}
+
+/* Cells: idle outlined, a role fills them; muted is a stale copy left in the old block. */
+.amz-view .amz-cell {
+  transition: transform 0.45s ease, opacity 0.3s ease;
+}
+.amz-view .amz-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+}
+.amz-view .amz-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+.amz-view .amz-cell.role-active rect,
+.amz-view .amz-cell.role-done rect,
+.amz-view .amz-cell.role-compare rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.amz-view .amz-cell.role-active text,
+.amz-view .amz-cell.role-done text,
+.amz-view .amz-cell.role-compare text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.amz-view .amz-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.amz-view .amz-cell.role-muted {
+  opacity: 0.35;
+}
+
+/* Coins: saved credit in the settled colour, coins that just arrived in the active colour,
+   coins just spent as fading dashed outlines. */
+.amz-view .amz-coin {
+  fill: var(--viz-done);
+  stroke: var(--viz-surface);
+  stroke-width: 1.2;
+}
+.amz-view .amz-coin.fresh {
+  fill: var(--viz-active);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.35s ease;
+}
+.amz-view .amz-coin.spent {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.4;
+  stroke-dasharray: 2 2;
+  animation: amz-spend 0.6s ease forwards;
+}
+@keyframes amz-spend {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0.35;
+    transform: translateY(-6px);
+  }
+}
+.amz-view .amz-coin-more {
+  fill: var(--viz-done);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+/* The chart. */
+.amz-view .amz-chart-title {
+  fill: var(--text);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.amz-view .amz-plot {
+  fill: var(--viz-surface);
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+.amz-view .amz-grid {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.amz-view .amz-grid.zero {
+  stroke: var(--axis);
+  stroke-width: 1.5;
+}
+.amz-view .amz-tick {
+  fill: var(--text-3);
+  font-size: 10px;
+  text-anchor: middle;
+}
+.amz-view .amz-tick.y {
+  text-anchor: end;
+}
+.amz-view .amz-axis {
+  fill: var(--text-2);
+  font-size: 11.5px;
+  font-style: italic;
+  text-anchor: middle;
+}
+.amz-view .amz-bar {
+  fill: color-mix(in srgb, var(--viz-neutral) 60%, transparent);
+  transition: y 0.3s ease, height 0.3s ease;
+}
+.amz-view .amz-bar.role-active {
+  fill: var(--viz-active);
+}
+.amz-view .amz-line polyline {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+.amz-view .amz-line polyline.dashed {
+  stroke-dasharray: 6 4;
+  stroke-width: 1.8;
+}
+.amz-view .amz-line circle {
+  fill: var(--role);
+  stroke: var(--viz-surface);
+  stroke-width: 1;
+}
+.amz-view .amz-key text {
+  fill: var(--text-2);
+  font-size: 11px;
+  font-weight: 600;
+}
+.amz-view .amz-key line {
+  stroke: var(--role);
+  stroke-width: 2.2;
+}
+.amz-view .amz-key line.dashed {
+  stroke-dasharray: 5 4;
+}
+.amz-view .amz-key circle {
+  fill: var(--role);
+}

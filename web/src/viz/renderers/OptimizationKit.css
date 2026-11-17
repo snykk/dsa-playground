@@ -1,0 +1,162 @@
+/* OptimizationKit: boxes, arrows and text lines shared by the optimization-technique renderers. */
+.ok-scroll {
+  overflow-x: auto;
+  min-width: 0;
+}
+.ok-svg {
+  display: block;
+  margin: 0 auto;
+}
+.ok-svg text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A box glides when its position changes; idle is outlined, compare tinted, the rest filled. */
+.ok-svg .ok-box {
+  transition: transform 0.4s ease;
+}
+.ok-svg .ok-box rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.2;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.ok-svg .ok-box .ok-val {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.ok-svg .ok-box .ok-sub {
+  fill: var(--text-3);
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+}
+.ok-svg .ok-box.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.ok-svg .ok-box.role-active rect,
+.ok-svg .ok-box.role-done rect,
+.ok-svg .ok-box.role-good rect,
+.ok-svg .ok-box.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.ok-svg .ok-box.role-active .ok-val,
+.ok-svg .ok-box.role-done .ok-val,
+.ok-svg .ok-box.role-good .ok-val,
+.ok-svg .ok-box.role-bad .ok-val {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.ok-svg .ok-box.role-active .ok-sub,
+.ok-svg .ok-box.role-done .ok-sub,
+.ok-svg .ok-box.role-good .ok-sub,
+.ok-svg .ok-box.role-bad .ok-sub {
+  fill: var(--viz-ink-on-fill);
+}
+.ok-svg .ok-box.role-active rect,
+.ok-svg .ok-box.role-good rect,
+.ok-svg .ok-box.role-bad rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.ok-svg .ok-box.role-muted {
+  opacity: 0.45;
+}
+.ok-svg .ok-box.ghost rect {
+  stroke-dasharray: 3 3;
+  fill: transparent;
+}
+.ok-svg .ok-box.ghost .ok-val {
+  fill: var(--text-3);
+}
+.ok-svg .ok-glyph {
+  fill: var(--role);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+}
+
+/* Arrows: a role-coloured line with a matching head. */
+.ok-svg .ok-arrow path {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.ok-svg .ok-arrow.role-compare path {
+  stroke-dasharray: 5 3;
+}
+.ok-svg .ok-arrow.role-idle path,
+.ok-svg .ok-arrow.role-muted path {
+  stroke: var(--viz-neutral);
+  stroke-width: 1.4;
+}
+.ok-svg .ok-marker path {
+  fill: var(--role);
+}
+.ok-svg .ok-marker.role-idle path,
+.ok-svg .ok-marker.role-muted path {
+  fill: var(--viz-neutral);
+}
+.ok-svg .ok-arrow-label {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--viz-surface);
+  stroke-width: 3px;
+}
+
+/* Text lines (a worked formula, results): mono, the current one bold, status lines coloured. */
+.ok-svg .ok-line {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.ok-svg .ok-line.role-active,
+.ok-svg .ok-line.role-compare {
+  fill: var(--text);
+  font-weight: 700;
+}
+.ok-svg .ok-line.role-good,
+.ok-svg .ok-line.role-bad,
+.ok-svg .ok-line.role-done {
+  fill: var(--text);
+  font-weight: 700;
+}
+.ok-svg .ok-line.role-muted {
+  opacity: 0.55;
+}
+.ok-svg .ok-line-glyph {
+  fill: var(--role);
+}
+.ok-svg .ok-title {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ok-svg .ok-head {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+.ok-svg .ok-head.role-compare,
+.ok-svg .ok-head.role-active {
+  fill: var(--text);
+  font-weight: 700;
+}

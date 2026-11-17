@@ -1,0 +1,11 @@
+/* StableStrips: the live strips sit on an invisible copy of their largest version, so a growing strip never changes the height. */
+.pattern-strips {
+  display: grid;
+}
+.pattern-strips > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.pattern-strips-sizer {
+  visibility: hidden;
+}

@@ -9,6 +9,8 @@ from typing import List
 
 def count_divisible(n: int, divisors: List[int]) -> int:
     """Count numbers from 1 to n divisible by any divisor."""
+    if n < 1:
+        return 0  # 1..n is empty; n // lcm would floor to a negative count
     result = 0
     k = len(divisors)
     

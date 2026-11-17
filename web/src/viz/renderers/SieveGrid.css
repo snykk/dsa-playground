@@ -1,0 +1,106 @@
+/* SieveGrid organism: the flags 0..n as a grid, struck numbers marked with the prime that struck them. */
+.sg-wrap {
+  min-width: 0;
+}
+.sg-scroll {
+  overflow-x: auto;
+}
+.sieve-grid .sg-work {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.sieve-grid .sg-work.first {
+  fill: var(--text);
+  font-weight: 700;
+}
+.sieve-grid .sg-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.25s ease,
+    stroke 0.25s ease;
+}
+.sieve-grid .sg-num {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.sieve-grid .sg-cell.crossed .sg-num {
+  fill: var(--text-3);
+}
+.sieve-grid .sg-cell.crossed rect {
+  fill: var(--surface-2);
+}
+.sieve-grid .sg-strike {
+  stroke: var(--text-3);
+  stroke-width: 1.5;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 0;
+  animation: sg-strike 0.35s ease;
+}
+@keyframes sg-strike {
+  from {
+    stroke-dashoffset: 40;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.sieve-grid .sg-by {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+}
+.sieve-grid .sg-cell.role-active rect,
+.sieve-grid .sg-cell.role-done rect,
+.sieve-grid .sg-cell.role-good rect,
+.sieve-grid .sg-cell.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.sieve-grid .sg-cell.role-active text,
+.sieve-grid .sg-cell.role-done text,
+.sieve-grid .sg-cell.role-good text,
+.sieve-grid .sg-cell.role-bad text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.sieve-grid .sg-cell.role-active .sg-strike,
+.sieve-grid .sg-cell.role-bad .sg-strike {
+  stroke: var(--viz-ink-on-fill);
+}
+.sieve-grid .sg-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 16%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.sieve-grid .sg-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+.sieve-grid .sg-glyph {
+  font-size: 9px;
+  font-weight: 700;
+}
+.sieve-grid .sg-outside rect {
+  fill: color-mix(in srgb, var(--viz-bad) 14%, var(--viz-surface));
+  stroke: var(--viz-bad);
+  stroke-width: 1.5;
+}
+.sieve-grid .sg-outside text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+.sieve-grid.roomy .sg-num {
+  font-size: 13px;
+}
+.sieve-grid.roomy .sg-by {
+  font-size: 9px;
+}

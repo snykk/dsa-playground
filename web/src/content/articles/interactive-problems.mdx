@@ -60,6 +60,12 @@ A problem is interactive when the statement says:
 Standard output is buffered. If you print `? 5` and read the reply without flushing, the judge never receives the query and both programs wait for each other. Most judges report that as an idleness or timeout verdict. Flush after **every** line you write.
 </Callout>
 
+## See it in action
+
+Four of the seven Python strategies, one per tab, play against a simulated judge that holds the hidden input you set: `guess_number`, `find_maximum`, `tournament` and `binary_subset_search`. The conversation with the judge and the query budget are drawn beside the hidden input (below it on a phone). Try **A billion values** in the first tab, then add `; limit 2` to any input: past the limit the judge replies -1 and stops reading. The code never checks for -1 (that is what `check_response` is for), so it takes the -1 as an ordinary reply, and its next read, if there is one, raises `EOFError`.
+
+<ArticleViz ids={['interactive-guess-number', 'interactive-find-maximum', 'interactive-tournament', 'interactive-bit-by-bit']} />
+
 ## Flushing in each language
 
 <DataTable
@@ -114,7 +120,7 @@ The interval has one value left, so the program prints `! 7`. That is 3 queries.
 
 If the judge ever replies `correct`, the function returns at once without printing `! x`, because in this protocol the judge ends the game itself. If your problem wants an explicit answer line, print it.
 
-Why it takes at most floor(log<sub>2</sub> n) + 1 queries: each query leaves at most half of the interval, and the loop stops when one value is left.
+Why it takes at most floor(log<sub>2</sub> n) queries: a query on an interval of s values leaves at most floor(s/2) of them, and the loop stops when one value is left. For n = 10 that is 3, and the secret 10 needs all three.
 
 ## Implementation
 
@@ -133,7 +139,7 @@ All three read the judge's reply after flushing. In the tests each language driv
 <DataTable
   columns={['Strategy', 'Queries', 'Used for']}
   rows={[
-    ['Binary search (`guess_number`)', 'at most floor(log2 n) + 1', 'a monotone yes/no or higher/lower oracle'],
+    ['Binary search (`guess_number`)', 'at most floor(log2 n)', 'a monotone yes/no or higher/lower oracle'],
     ['Find minimum in a rotated array (`findMinimumInteractive`)', 'at most ceil(log2 n) + 1', 'value queries; the value at `hi` is asked once and reused'],
     ['Bit-by-bit search (`binary_subset_search`)', 'bit length of n', 'a hidden number tested by AND masks'],
     ['Linear scan for the maximum (`find_maximum`)', 'n - 1', 'comparisons; n - 1 is also the lower bound'],

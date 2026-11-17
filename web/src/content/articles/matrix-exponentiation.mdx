@@ -54,6 +54,12 @@ Computing A<sup>k</sup> by k multiplications is too slow when k is huge. The sam
 At the start of every round, `result * base^k` equals A<sup>k0</sup>, the power requested at the beginning. When k reaches 0, `result` is the answer. Associativity is what lets the powers be regrouped; commutativity is not needed, because every factor is a power of the same matrix A.
 </Callout>
 
+## See it in action
+
+The first tab runs `matrix_power_iterative`: the bits of k are read from the lowest one up while `base` squares and `result` collects the powers that belong to a 1 bit. The second tab runs the recursive `matrix_power` on the same input, with its call stack, so you can compare the two orders of multiplication; `fib 10` there runs `fibonacci_matrix`. Try **k = 10^18 modulo 10^9 + 7**: 60 rounds are enough.
+
+<ArticleViz ids={['matrix-power', 'matrix-power-recursive']} />
+
 ## Fibonacci as a matrix power
 
 The recurrence F(n+1) = F(n) + F(n-1) is a linear map on the pair (F(n), F(n-1)):
@@ -65,7 +71,7 @@ The recurrence F(n+1) = F(n) + F(n-1) is a linear map on the pair (F(n), F(n-1))
 
 ## Worked example: A^11
 
-Binary 11 is 1011, so A<sup>11</sup> = A<sup>8</sup> &middot; A<sup>2</sup> &middot; A<sup>1</sup>. The squares below are computed by the repository's `matrix_power`:
+Binary 11 is 1011, so A<sup>11</sup> = A<sup>8</sup> &middot; A<sup>2</sup> &middot; A<sup>1</sup>. The squares below are the values `base` takes in the repository's `matrix_power_iterative`:
 
 <DataTable
   columns={['Power', 'Matrix', 'Used? (bit of 11)']}
@@ -77,7 +83,7 @@ Binary 11 is 1011, so A<sup>11</sup> = A<sup>8</sup> &middot; A<sup>2</sup> &mid
   ]}
 />
 
-Multiplying the used powers: A<sup>8</sup> &middot; A<sup>2</sup> = A<sup>10</sup> = [[89, 55], [55, 34]], and A<sup>10</sup> &middot; A<sup>1</sup> = A<sup>11</sup> = [[144, 89], [89, 55]]. The result matches the formula: F(12) = 144 sits at the top left, F(11) = 89 at the top right and bottom left, and F(10) = 55 at the bottom right.
+The loop multiplies the used powers into `result` as their bits come up: `result` = A<sup>1</sup>, then A<sup>1</sup> &middot; A<sup>2</sup> = A<sup>3</sup> = [[3, 2], [2, 1]], then A<sup>3</sup> &middot; A<sup>8</sup> = A<sup>11</sup> = [[144, 89], [89, 55]]. After the last bit it still squares `base` once more, to A<sup>16</sup>, which is never used. The result matches the formula: F(12) = 144 sits at the top left, F(11) = 89 at the top right and bottom left, and F(10) = 55 at the bottom right.
 
 <GridDiagram
   legend={{ f: 'Fibonacci numbers F(12), F(11) and F(10)', p: 'F(11), the top right entry, which is F(n) of A^n' }}

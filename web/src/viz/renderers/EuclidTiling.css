@@ -1,0 +1,75 @@
+/* EuclidTiling organism: a rectangle tiled by Euclid's squares beside the table of remainders. */
+.et-wrap {
+  min-width: 0;
+}
+.euclid-panel .et-frame {
+  fill: var(--surface-2);
+  stroke: var(--border-strong);
+}
+/* Shapes are unit squares placed by a CSS transform, so a change of view glides. */
+.euclid-panel .et-full,
+.euclid-panel .et-sq,
+.euclid-panel .et-focus,
+.euclid-panel .et-sqlabel {
+  transition: transform 0.5s ease;
+}
+.euclid-panel .et-full rect {
+  fill: var(--viz-surface);
+  stroke: var(--axis);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.euclid-panel .et-sq rect {
+  fill: color-mix(in srgb, var(--viz-neutral) 26%, var(--viz-surface));
+  stroke: var(--viz-surface);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  transition: fill 0.25s ease;
+}
+.euclid-panel .et-sq.role-active rect,
+.euclid-panel .et-sq.role-done rect {
+  fill: var(--role);
+}
+.euclid-panel .et-band rect {
+  fill: color-mix(in srgb, var(--role) 45%, var(--viz-surface));
+  stroke: var(--role);
+  stroke-width: 1;
+}
+.euclid-panel .et-band.role-idle rect {
+  fill: color-mix(in srgb, var(--viz-neutral) 26%, var(--viz-surface));
+}
+.euclid-panel .et-band .et-hatchfill {
+  stroke: none;
+}
+.euclid-panel .et-hatch {
+  stroke: var(--text-3);
+  stroke-width: 1;
+}
+.euclid-panel .et-sqlabel {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.euclid-panel .et-sqlabel.role-active,
+.euclid-panel .et-sqlabel.role-done {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.euclid-panel .et-focus rect {
+  fill: color-mix(in srgb, var(--role) 12%, transparent);
+  stroke: var(--role);
+  stroke-width: 2.5;
+  stroke-dasharray: 6 4;
+  vector-effect: non-scaling-stroke;
+}
+.euclid-panel .et-grid {
+  stroke: var(--text);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.55;
+}
+.euclid-panel .et-degenerate {
+  stroke: var(--text-3);
+  stroke-width: 3;
+  stroke-linecap: round;
+}

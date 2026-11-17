@@ -1,0 +1,103 @@
+/* NimView organism: piles as rows of stones beside their sizes in binary, and the XOR row. */
+.nim-scroll {
+  overflow-x: auto;
+}
+.nim-view {
+  display: block;
+  margin: 0 auto;
+}
+.nim-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.nim-view .nim-head {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.nim-view .nim-label {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.nim-view .nim-size {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.nim-view .nim-note,
+.nim-view .nim-verdict {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.nim-view .nim-verdict {
+  fill: var(--role);
+  font-family: var(--font-sans);
+  font-weight: 700;
+}
+
+/* The row being read gets a tinted band; the winning pile a band in its status colour. */
+.nim-view .nim-band {
+  fill: transparent;
+  stroke: none;
+}
+.nim-view .nim-row.role-active .nim-band,
+.nim-view .nim-row.role-compare .nim-band,
+.nim-view .nim-row.role-good .nim-band,
+.nim-view .nim-row.role-bad .nim-band {
+  fill: color-mix(in srgb, var(--role) 14%, transparent);
+  stroke: var(--role);
+  stroke-width: 1.5;
+}
+.nim-view .nim-stone {
+  fill: var(--viz-neutral);
+  stroke: none;
+}
+.nim-view .nim-row.role-active .nim-stone,
+.nim-view .nim-row.role-good .nim-stone {
+  fill: var(--role);
+}
+/* Stones taken by the winning move: hollow and dashed, so the pile visibly shrinks. */
+.nim-view .nim-stone.taken,
+.nim-view .nim-row.role-good .nim-stone.taken {
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1.2;
+  stroke-dasharray: 2 1.5;
+}
+
+/* Bits: a 1 is shaded; an XOR bit in a role is filled. */
+.nim-view .nim-bit rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.nim-view .nim-bit text {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.nim-view .nim-bit.one rect {
+  fill: var(--surface-3);
+  stroke: var(--viz-neutral);
+}
+.nim-view .nim-bit.one text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.nim-view .nim-bit:not(.role-idle):not(.role-muted) rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.nim-view .nim-bit:not(.role-idle):not(.role-muted) text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.nim-view .nim-rule {
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+}

@@ -15,6 +15,38 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+## [v0.7.0] - 2026-11-17
+
+Visualizations for the last 26 topics: complexity analysis, number theory, advanced math, the remaining problem patterns and the competitive programming utilities. Every topic now has one.
+
+### Added
+
+- **55 visualizations for 26 topics**, bringing the site to 191 visualizations; every one of the 153 topics now has at least one:
+  - complexity: Big-O, Big-Omega and Big-Theta as growth charts that count the operations of the repository's own example functions (nothing is timed), space complexity as the call stack and the live cells with their peak, and amortized analysis by the aggregate, accounting and potential methods, with the binary counter;
+  - number theory: Euclid's algorithm as a rectangle tiled by squares with the extended coefficients, modular arithmetic on a clock of residues, modular exponentiation, Miller-Rabin with seeded witnesses drawn as Python draws them, the Chinese remainder theorem as merging combs, and the sieve;
+  - advanced math: matrix exponentiation, iterative and recursive, and the FFT with polynomial multiplication;
+  - problem patterns: meet in the middle, bit manipulation and subset generation, the 0/1 knapsack and LCS on rolling rows, coordinate compression in one and two dimensions, number of islands, BFS shortest path, DFS with an explicit stack, Kahn's topological sort, and inclusion-exclusion on a Venn diagram;
+  - contest techniques: factorial tables, the smallest-prime-factor sieve, 2D prefix sums and LCA by binary lifting; submask enumeration and SOS DP; fast I/O, counting calls into stdin and stdout; Lucas's theorem; a zigzag permutation, Havel-Hakimi and the northwest-corner rule; Nim, Grundy numbers and the win/lose labelling of a game graph; and interactive problems against a simulated judge that counts the queries.
+- **Two groups on the Visualizations page**: Complexity, first, as in the study guide, and Competitive Programming, last.
+- **Renderers for them**: growth charts, memory over time, amortized costs, a residue clock, witness chains, congruence combs, a sieve grid, matrix powers, FFT butterflies, factorial and smallest-prime-factor tables, Lucas's base-p digits, bit and mask rows, a subset lattice, a Venn diagram, a compressed plane, a 2D prefix grid, binary lifting, an input stream with its buffer, Nim piles, Grundy values, a game graph and a judge's transcript.
+- **Side-by-side tabs** on the overviews of Time Complexity, Complexity Analysis, Number Theory, Advanced Math, Optimization Techniques and Problem Types; the Problem Patterns tabs include the new patterns.
+- **Golden fixtures for the new visualizations**: five generators run the Python implementations, and the TypeScript ports must reproduce every result. FFT values are compared rounded, since sine and cosine may differ in the last bit between JavaScript and Python.
+- **Draws of any size** in the port of CPython's random: `randrange(start, stop)` and draws of more than 32 bits, as Miller-Rabin's `randrange(2, n - 1)` needs.
+- **Regression tests** for the amortized analysis demos fixed in v0.2.0.
+
+### Changed
+
+- **Every topic has a visualization**, so the "visualized" markers on the study guide, the category contents, the home page's area list and the overview headers are gone; they come back if a topic without one is added. The home page, the overview and the study guide say that every topic runs step by step.
+- **The README** says the site animates every topic.
+- **Tests** may run for 20 s, so a busy machine or a two-core CI runner does not fail a slow but correct random check; the slowest random checks now assert once per run and take milliseconds.
+
+### Fixed
+
+- **`count_divisible`** in Python returned a negative count for n below 1, -4 for n = -10 and the divisor 3. It returns 0, as C++ and Go already did, and each language has a regression test.
+- **The spacing of an article's lists** no longer reaches the lists of the components inside it: the player's legend and pseudocode, the diagram legends, the complexity cases, pros and cons and the study guide's rows.
+- **The player's panel titles** are set in sentence case like every other label.
+- **Documents that described what the code does not do**: the Matrix Exponentiation README's A^11 trace, the Interactive Problems bound (at most floor(log2 n) queries), the Miller-Rabin article's sequence for 561, two Python test docstrings about the bounds of quick sort and binary search, and what Python raises at the end of input in the Fast I/O article.
+
 ## [v0.6.0] - 2026-11-15
 
 Visualizations for advanced dynamic programming, advanced strings, network flow, 2-SAT, Huffman coding, job scheduling and the Galois field; C++ and Go ports for the five topics that only had Python; and a new design for the site.
@@ -180,6 +212,7 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
+[v0.7.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.0
 [v0.6.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.6.0
 [v0.5.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.5.0
 [v0.4.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.4.0

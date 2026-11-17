@@ -57,6 +57,12 @@ Every call to a standard reading or writing function carries overhead: locking, 
 After `sync_with_stdio(false)`, mixing `cin` or `cout` with `scanf`, `printf` or `getchar` can interleave data in the wrong order. Pick one family per program. The custom `getchar` readers below are an alternative to `cin`, not an addition to it.
 </Callout>
 
+## See it in action
+
+The three tabs run one program on one input, t test cases of a count n and n numbers, printing each sum, and count the calls into `sys.stdin` and `sys.stdout`; nothing is timed. **Line by line** is the file's `main()` with its multi-test lines uncommented around `solve()`, so it reads with `fast_int` and `fast_ints` and writes with `fast_print`. **BufferedInput + BufferedOutput** runs the steps of `demo_buffered_io` in a loop over the t test cases, with one reader and one writer: one read at the start (the `buffer_size` argument is ignored) and one flush at the end. **All at once** is `demo_all_at_once` with `AllInputReader`. Start with **Many small tests**, then try **Numbers wrap to a new line** and **Input ends early**, where the readers part ways. The other helpers of `fast_io.py` (`fast_input`, `fast_floats`, `fast_strings`, `fast_iter_ints`, `fast_print_list`, `fast_print_matrix` and `read_all_ints`) are variations on these and are not animated, and neither are the C++ and Go readers.
+
+<ArticleViz ids={['fast-io-lines', 'fast-io-buffered', 'fast-io-all-at-once']} />
+
 ## Template
 
 ```text
@@ -172,6 +178,6 @@ This repository gives no timing table, because the speed-up depends on the machi
     When the input has millions of numbers and the time limit is tight. For ordinary limits, `sync_with_stdio(false)` is enough and far simpler.
   </FaqItem>
   <FaqItem question="What happens when the readers hit the end of the input?">
-    The C++ readers return 0 (or an empty string), the Go `BufferedInput` returns an empty token or 0 and records an error, and Python raises an exception from `int()`. Check how many values to read from the input header instead of reading until the end.
+    The C++ readers return 0 (or an empty string), and the Go `BufferedInput` returns an empty token or 0 and records an error. Python raises: `fast_int` a `ValueError` from `int('')`, and `BufferedInput.next()` or `AllInputReader.next()` an `IndexError` once the tokens run out (`AllInputReader.next_n` is a slice, so it returns fewer numbers instead). Check how many values to read from the input header instead of reading until the end.
   </FaqItem>
 </Faq>
