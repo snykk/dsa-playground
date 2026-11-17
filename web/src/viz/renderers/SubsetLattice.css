@@ -1,0 +1,30 @@
+/* SubsetLattice organism: masks by number of set bits, joined where they differ in one bit. */
+.ok-svg .sl-edge {
+  stroke: var(--grid);
+  stroke-width: 1.4;
+  transition:
+    stroke 0.2s ease,
+    stroke-width 0.2s ease;
+}
+.ok-svg .sl-edge.role-compare {
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.ok-svg .sl-edge.role-active {
+  stroke: var(--viz-active);
+  stroke-width: 3;
+}
+.ok-svg .sl-mask {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.ok-svg .sl-layer {
+  text-anchor: start;
+  fill: var(--viz-compare);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+}

@@ -1,0 +1,112 @@
+/* MaskRows organism: rows of bits for the intermediate values of a mask loop, and the masks it yields. */
+.ok-svg .mr-label {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.ok-svg .mr-headlabel {
+  text-anchor: end;
+}
+.ok-svg .mr-row.empty .mr-label {
+  opacity: 0.4;
+}
+.ok-svg .mr-row.role-active .mr-label,
+.ok-svg .mr-row.role-done .mr-label,
+.ok-svg .mr-row.role-good .mr-label,
+.ok-svg .mr-row.role-bad .mr-label {
+  fill: var(--text);
+}
+.ok-svg .mr-track {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 2;
+}
+.ok-svg .mr-row.role-active .mr-track,
+.ok-svg .mr-row.role-done .mr-track,
+.ok-svg .mr-row.role-good .mr-track,
+.ok-svg .mr-row.role-bad .mr-track {
+  stroke: var(--role);
+}
+.ok-svg .mr-value {
+  text-anchor: start;
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.ok-svg .mr-row.role-muted .mr-value {
+  opacity: 0.5;
+}
+.ok-svg .mr-glyph {
+  fill: var(--role);
+  font-weight: 700;
+}
+
+/* A bit glides when its row shifts; a 1 is shaded, a 0 faint; a role fills it. */
+.ok-svg .mr-bit {
+  transition:
+    transform 0.45s ease,
+    opacity 0.45s ease;
+}
+.ok-svg .mr-bit rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition: fill 0.2s ease;
+}
+.ok-svg .mr-bit text {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.ok-svg .mr-bit.one rect {
+  fill: var(--surface-3);
+  stroke: var(--viz-neutral);
+}
+.ok-svg .mr-bit.one text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.ok-svg .mr-bit:not(.role-idle):not(.role-muted) rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.ok-svg .mr-bit:not(.role-idle):not(.role-muted) text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.ok-svg .mr-bit.role-muted {
+  opacity: 0.35;
+}
+.ok-svg .mr-bit.role-muted rect {
+  stroke-dasharray: 3 2;
+}
+.ok-svg .mr-bit.fallen {
+  opacity: 0.25;
+}
+.ok-svg .mr-bit.role-active rect,
+.ok-svg .mr-bit.role-bad rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+
+/* The yielded masks. */
+.ok-svg .mr-item rect {
+  fill: var(--surface-2);
+  stroke: var(--grid);
+}
+.ok-svg .mr-item text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.ok-svg .mr-item.role-active rect {
+  fill: var(--viz-active);
+  stroke: var(--viz-active);
+}
+.ok-svg .mr-item.role-active text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}

@@ -58,6 +58,12 @@ It does not help when each value is needed once, or when the data changes betwee
 A sparse table answers a query on [l, r] with two blocks of length 2<sup>k</sup> that may overlap in the middle. The overlap is harmless for min, max and gcd, where combining a value with itself changes nothing (idempotent). For a sum the overlapping part would be counted twice, so use a prefix sum there.
 </Callout>
 
+## See it in action
+
+Each tab builds one table of `precomputation.py` once and then answers queries from it. **Factorial tables** runs `Factorials` with `nCr` and `nPr`: `fact` fills downwards, `power(fact[n], mod - 2, mod)` computes the one inverse, and `inv_fact` fills upwards; try **Table reaches the modulus** to watch a table built past its prime turn into zeros. **Smallest prime factors** runs `compute_spf` and then `factorize`, which hops through the table with one lookup per prime; **2D prefix sums** builds `PrefixSum2D` and answers `rect_sum` from four corners. **LCA by binary lifting** runs `LCA` and its `query`: the DFS, the jump table column by column, then the jumps of each query (try **A path: long jumps**). `sieve`, the 1D `PrefixSum`, `SparseTable` and `POW2` are not animated here.
+
+<ArticleViz ids={['factorial-tables', 'spf-factorize', 'prefix-sum-2d', 'lca-binary-lifting']} />
+
 ## Template
 
 ```text
