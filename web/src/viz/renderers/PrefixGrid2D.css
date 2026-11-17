@@ -1,0 +1,42 @@
+/* PrefixGrid2D organism: the grid, the prefix table and frames over the grid for the blocks a step adds. */
+.ok-svg .ok-box.pg-border.role-idle rect {
+  fill: var(--surface-2);
+}
+.ok-svg .pg-sign {
+  text-anchor: middle;
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--viz-surface);
+  stroke-width: 4px;
+}
+.ok-svg .pg-sign.minus {
+  fill: var(--viz-bad);
+}
+/* A block frame: role-coloured outline over a faint fill; it glides to a new size. */
+.ok-svg .pg-overlay rect {
+  fill: color-mix(in srgb, var(--role) 10%, transparent);
+  stroke: var(--role);
+  stroke-width: 2.5;
+  transition:
+    x 0.35s ease,
+    y 0.35s ease,
+    width 0.35s ease,
+    height 0.35s ease;
+}
+.ok-svg .pg-overlay.role-muted rect {
+  stroke-dasharray: 6 3;
+}
+.ok-svg .pg-overlay.role-done rect {
+  stroke-dasharray: 2 3;
+  stroke-width: 3;
+}
+.ok-svg .pg-overlay-label {
+  text-anchor: start;
+  fill: var(--role);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+}

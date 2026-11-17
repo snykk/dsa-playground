@@ -1,0 +1,65 @@
+/* LucasDigits organism: base-p digit columns, the Factorials(p - 1, p) table and the call stack. */
+.ok-svg .lu-rowlabel {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.ok-svg .lu-result text {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+.ok-svg .lu-result.role-done text,
+.ok-svg .lu-result.role-good text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.ok-svg .lu-result.role-bad text {
+  fill: var(--viz-bad);
+  font-weight: 700;
+}
+.ok-svg .lu-table-title.role-bad {
+  fill: var(--viz-bad);
+}
+.ok-svg .lu-table-title.role-good {
+  fill: var(--text);
+}
+.ok-svg .lu-tlabel {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+.ok-svg .lu-index {
+  font-size: 10px;
+}
+.ok-svg .lu-frame rect {
+  fill: var(--surface-2);
+  stroke: var(--grid);
+}
+.ok-svg .lu-frame text {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.ok-svg .lu-frame.role-active rect,
+.ok-svg .lu-frame.role-done rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.ok-svg .lu-frame.role-active text,
+.ok-svg .lu-frame.role-done text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.ok-svg .lu-none {
+  text-anchor: start;
+  fill: var(--text-3);
+  font-size: 11px;
+}
+.ok-svg .lu-result.narrow text {
+  font-size: 9px;
+}
