@@ -52,7 +52,7 @@ export const entries: VizInfo[] = [
     title: 'Longest Increasing Subsequence (O(n log n) tails)',
     group: 'Dynamic Programming',
     blurb: "Keep the smallest possible tail per length and place each value by binary search.",
-    topics: ['Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence', 'Algorithms/Dynamic_Programming/Linear_DP'],
+    topics: ['Algorithms/Dynamic_Programming/Linear_DP/Longest_Increasing_Subsequence', 'Problem_Patterns/DP_Problem_Patterns', 'Algorithms/Dynamic_Programming/Linear_DP'],
   },
   {
     id: 'kadane',

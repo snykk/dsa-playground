@@ -18,6 +18,14 @@ class TestInclusionExclusion(unittest.TestCase):
         self.assertEqual(count_divisible(100, [2, 3, 5]), 74)
         self.assertEqual(count_divisible(30, [4, 6]), 10)  # 7 + 5 - 2 (lcm 12)
 
+    def test_count_divisible_empty_range(self):
+        # Regression: n // lcm floors, so n < 1 gave negative counts (-4 for
+        # n = -10 and [3]). 1..n is empty there; C++ and Go return 0 as well.
+        self.assertEqual(count_divisible(-10, [3]), 0)
+        self.assertEqual(count_divisible(-10, [2, 3]), 0)
+        self.assertEqual(count_divisible(-1, [1]), 0)
+        self.assertEqual(count_divisible(0, [2, 3]), 0)
+
     def test_count_divisible_many_primes(self):
         primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]
         self.assertEqual(count_divisible(10**9, primes[:11]), 847147843)

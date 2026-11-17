@@ -59,6 +59,12 @@ If `n` is at most about 20, plain subset enumeration is enough. If the sums are 
 Every subset of the whole array is exactly one pair (left subset, right subset), and the total is the sum of the two parts. Enumerating both halves covers every pair, and looking up the partner for each left subset finds the best pair without visiting all 2<sup>n</sup> of them.
 </Callout>
 
+## See it in action
+
+Press play on **Classic** to watch each half's subset sums double one number at a time, the right sums glide into sorted order, and every left sum binary search its partner while the interval shrinks. **Negative number** shows the `ValueError` the code raises before doing any work.
+
+<ArticleViz ids={['meet-in-the-middle']} />
+
 ## Template
 
 ```text
