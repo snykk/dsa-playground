@@ -1,0 +1,151 @@
+/* MatrixPowerView organism: the exponent's bits above a row of matrix slots. */
+.mv-wrap {
+  min-width: 0;
+}
+.mv-scroll {
+  overflow-x: auto;
+}
+.matrix-power-view {
+  display: block;
+  margin: 0 auto;
+}
+.matrix-power-view text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A matrix glides when it moves to another slot (a returned power becoming a factor). */
+.matrix-power-view .mv-matrix {
+  transition: transform 0.45s ease;
+}
+.matrix-power-view .mv-title {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.matrix-power-view .mv-sub {
+  fill: var(--text-2);
+  font-size: 13px;
+}
+.matrix-power-view .mv-exp {
+  font-size: 10px;
+}
+.matrix-power-view .mv-glyph {
+  fill: var(--role);
+  font-weight: 700;
+}
+.matrix-power-view .mv-frame {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.matrix-power-view .mv-matrix.role-muted {
+  opacity: 0.45;
+}
+.matrix-power-view .mv-matrix.role-muted .mv-frame {
+  stroke-dasharray: 4 3;
+}
+.matrix-power-view .mv-bracket {
+  fill: none;
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+}
+
+/* Cells: idle outlined; compare tinted with a strong border; active / done / good filled. */
+.matrix-power-view .mv-cell rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.matrix-power-view .mv-cell text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+.matrix-power-view .mv-cell.role-compare rect {
+  fill: color-mix(in srgb, var(--viz-compare) 18%, var(--viz-surface));
+  stroke: var(--viz-compare);
+  stroke-width: 2;
+}
+.matrix-power-view .mv-cell.role-active rect,
+.matrix-power-view .mv-cell.role-done rect,
+.matrix-power-view .mv-cell.role-good rect,
+.matrix-power-view .mv-cell.role-bad rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.matrix-power-view .mv-cell.role-active text,
+.matrix-power-view .mv-cell.role-done text,
+.matrix-power-view .mv-cell.role-good text,
+.matrix-power-view .mv-cell.role-bad text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.matrix-power-view .mv-cell.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}
+
+/* The exponent: a 1 bit is shaded, a used bit faded, the bit being read filled. */
+.matrix-power-view .mv-bits-label {
+  text-anchor: start;
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.matrix-power-view .mv-bits-note {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-size: 13px;
+}
+.matrix-power-view .mv-bit rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.matrix-power-view .mv-bit text {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.matrix-power-view .mv-bit.small text {
+  font-size: 9px;
+}
+.matrix-power-view .mv-bit.one rect {
+  fill: var(--surface-3);
+  stroke: var(--viz-neutral);
+}
+.matrix-power-view .mv-bit.one text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.matrix-power-view .mv-bit.role-active rect,
+.matrix-power-view .mv-bit.role-compare rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+.matrix-power-view .mv-bit.role-active text,
+.matrix-power-view .mv-bit.role-compare text {
+  fill: var(--viz-ink-on-fill);
+}
+.matrix-power-view .mv-bit.role-muted {
+  opacity: 0.35;
+}
+
+.matrix-power-view .mv-op {
+  fill: var(--text-2);
+  font-size: 18px;
+  font-weight: 700;
+}
+.matrix-power-view .mv-slot {
+  fill: none;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  opacity: 0.6;
+}

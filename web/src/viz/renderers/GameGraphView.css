@@ -1,0 +1,38 @@
+/* GameGraphView organism: a directed game graph with loops and outcome labels. */
+.game-graph text {
+  font-variant-numeric: tabular-nums;
+}
+.game-graph .gg-edge line,
+.game-graph .gg-edge path {
+  stroke: var(--axis);
+  stroke-width: 2;
+  fill: none;
+}
+.game-graph .gg-edge.role-compare line,
+.game-graph .gg-edge.role-active line,
+.game-graph .gg-edge.role-compare path,
+.game-graph .gg-edge.role-active path {
+  stroke: var(--role);
+  stroke-width: 3.5;
+}
+.game-graph .gg-edge.role-compare line,
+.game-graph .gg-edge.role-compare path {
+  stroke-dasharray: 9 6;
+  animation: viz-march 0.8s linear infinite;
+}
+.game-graph .gg-badge {
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--text-2);
+  font-size: 11px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--viz-surface);
+  stroke-width: 4px;
+}
+.game-graph .gg-badge.settled {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}

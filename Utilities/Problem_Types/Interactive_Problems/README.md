@@ -50,7 +50,7 @@ One value is left, so the program prints `! 7`: 3 queries. If the judge ever rep
 
 | Strategy | Queries |
 |----------|---------|
-| `guess_number` / `guessNumber` / `GuessNumber` | at most floor(log2 n) + 1 |
+| `guess_number` / `guessNumber` / `GuessNumber` | at most floor(log2 n) |
 | `findMinimumInteractive` (rotated array) | at most ceil(log2 n) + 1 |
 | `binary_subset_search` | bit length of n |
 | `find_maximum`, `tournament` | n - 1 comparisons |

@@ -1,0 +1,13 @@
+/* StableStrips: a strip and an invisible copy of its longest content share one grid cell, so the
+   cell is as tall as the longest content of the run wraps to. */
+.stable-strip {
+  display: grid;
+  align-items: start;
+}
+.stable-strip > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.stable-strip-ghost {
+  visibility: hidden;
+}

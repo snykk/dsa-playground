@@ -37,12 +37,15 @@ The recursive `matrix_power` / `matrixPower` / `MatrixPower` computes the same r
 
 ## Step-by-Step Trace
 
-`A^11` for `A = [[1, 1], [1, 0]]`, values from the Python implementation:
+`A^11` for `A = [[1, 1], [1, 0]]`: the products `result = result * base` of `matrix_power_iterative`, values from the Python implementation:
 
 | Step | Product | Result |
 |------|---------|--------|
-| `A^8 * A^2` | `[[34,21],[21,13]] * [[2,1],[1,1]]` | `A^10 = [[89, 55], [55, 34]]` |
-| `A^10 * A^1` | `[[89,55],[55,34]] * [[1,1],[1,0]]` | `A^11 = [[144, 89], [89, 55]]` |
+| bit 0 | `I * A^1` | `A^1 = [[1, 1], [1, 0]]` |
+| bit 1 | `[[1,1],[1,0]] * [[2,1],[1,1]]` (`A^1 * A^2`) | `A^3 = [[3, 2], [2, 1]]` |
+| bit 3 | `[[3,2],[2,1]] * [[34,21],[21,13]]` (`A^3 * A^8`) | `A^11 = [[144, 89], [89, 55]]` |
+
+Bit 2 is 0, so `A^4` is squared into `A^8` without touching `result`; after bit 3 the loop squares `base` once more, to `A^16`, which is never used. The recursive `matrix_power` takes another route: `A^11 = A * A^10`, `A^10 = (A^5)^2`, `A^5 = A * A^4`, `A^4 = (A^2)^2`, `A^2 = (A^1)^2`.
 
 For Fibonacci, `fibonacci_matrix(n)` raises `A` to `n - 1` and multiplies by `(F(1), F(0)) = (1, 0)`, so the answer is the top left entry of `A^(n-1)`.
 
