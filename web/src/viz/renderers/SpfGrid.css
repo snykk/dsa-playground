@@ -1,0 +1,7 @@
+/* SpfGrid organism: the numbers 0..n in rows of ten, each with its stored smallest prime factor. */
+.ok-svg .ok-box.spf-marked.role-idle rect {
+  fill: var(--surface-2);
+}
+.ok-svg .ok-box.spf-marked .ok-val {
+  font-weight: 700;
+}

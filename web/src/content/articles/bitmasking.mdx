@@ -62,6 +62,12 @@ Number the items 0 to n-1. A set is the integer whose bit i is 1 exactly when it
 `(sub - 1) & mask` subtracts one, which flips the lowest set bit and sets all the bits below it, then removes every bit that is not in `mask`. The result is the next smaller submask. Starting from `mask` it reaches 0 after 2<sup>popcount(mask)</sup> steps. Summed over all masks this is 3<sup>n</sup>, because each element is either outside the mask, inside the mask but outside the submask, or inside both.
 </Callout>
 
+## See it in action
+
+**Submasks and Gosper's hack** draws one row of bits per intermediate value: `enumerate_subsets` (try **Submasks of 1011**) shows `sub - 1` flipping the low bits and `& mask` clearing the bits outside the mask, and `subsets_of_size_k` (try **2 bits among 4**) shows Gosper's carry, shifts and division. **SOS DP** runs `sos_dp` one pass per bit over the lattice of masks; **Length 6** is a list whose length is not a power of 2. The single-bit helpers (`get_bit` to `clear_lowest_bit`), the power-of-two helpers (`is_power_of_2`, `next_power_of_2`, `log2_floor`, `log2_ceil`), `tsp`, `count_subset_sum` and `meet_in_middle_subset_sum` are not animated here.
+
+<ArticleViz ids={['submask-enumeration', 'sos-dp']} />
+
 ## Template
 
 ```text

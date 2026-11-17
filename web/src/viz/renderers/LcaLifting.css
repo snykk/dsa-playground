@@ -1,0 +1,38 @@
+/* LcaLifting organism: the tree with jump arcs and u / v pills, beside the parent[i][j] table. */
+.ok-svg .lca-edge {
+  stroke: var(--axis);
+  stroke-width: 2;
+  transition: opacity 0.3s ease;
+}
+.ok-svg .lca-edge.hidden {
+  opacity: 0.25;
+  stroke-dasharray: 3 3;
+}
+.ok-svg .lca-ghost {
+  fill: transparent;
+  stroke: var(--viz-neutral);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  opacity: 0.6;
+}
+.ok-svg .lca-pill {
+  transition: transform 0.45s ease;
+}
+.ok-svg .lca-pill rect {
+  fill: var(--role);
+}
+.ok-svg .lca-pill text {
+  fill: var(--viz-ink-on-fill);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+.ok-svg .ok-box.lca-depth.role-idle rect {
+  fill: var(--surface-2);
+}
+.ok-svg .lca-stack {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
