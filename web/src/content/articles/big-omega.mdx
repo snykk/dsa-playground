@@ -39,6 +39,12 @@ It is the reverse of Big-O:
 
 As with Big-O, the `=` means "is in the set": `n^2 = Omega(n)` is true, `Omega(n) = n^2` is not.
 
+## See it in action
+
+The chart runs each example of the repository on its best-case input, where a lower bound is hardest to keep, counts the comparisons and plots them over `c * g(n)`. Try **Quick sort, equal keys: not n log n**: three comparisons per element keep the count at 3n, so from n = 9 on it falls under n log2 n. **Bubble sort, sorted input** shows the Omega(n) floor that the early exit cannot go below.
+
+<ArticleViz ids={['big-omega-growth']} />
+
 ## Intuition
 
 Big-O answers "at most this much"; Big-Omega answers "at least this much". Together they sandwich a function. Big-Omega bounds are as loose as Big-O bounds: `n^2 + 1` is `Omega(n^2)`, and also `Omega(n)` and `Omega(1)`. The statement `Omega(1)` is true of every algorithm and says nothing. Useful lower bounds are the largest ones you can prove.
