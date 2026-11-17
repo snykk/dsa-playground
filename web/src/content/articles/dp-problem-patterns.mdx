@@ -60,6 +60,12 @@ Signals in the statement: "minimum / maximum / how many ways", a sequence, two s
 Top-down writes the recurrence recursively and caches results (memoization). Bottom-up fills the table in dependency order (tabulation). They compute the same states; the repository code is bottom-up, which avoids recursion limits and makes space optimization easy.
 </Callout>
 
+## See it in action
+
+The tabs run the three functions of this topic on the rows they really keep. In the knapsack tab, try **Used once, not twice**: going down from the top capacity, every `dp[w - weight]` an item reads still predates it. The LCS tab holds only `prev` and `curr` and copies each finished row up, and the last tab is the `tails` array of `lis` (its final step also follows stored predecessors to list one longest subsequence, which `lis` itself does not do: it returns only the length).
+
+<ArticleViz ids={['knapsack-01-rolling', 'lcs-two-rows', 'lis-tails']} />
+
 ## Pseudocode template
 
 ```text

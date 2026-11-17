@@ -1,0 +1,127 @@
+/* BitRows organism: integers as rows of bits that glide on shifts, with an operator column. */
+.bitrows-wrap {
+  overflow-x: auto;
+}
+.bit-rows {
+  display: block;
+  margin: 0 auto;
+}
+.bit-rows text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+.bit-rows .bitrows-head {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.bit-rows .bitrows-label {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+.bit-rows .bitrows-op {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+}
+.bit-rows .bitrows-sign {
+  text-anchor: end;
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.bit-rows .bitrows-sign.one {
+  fill: var(--text);
+  font-weight: 700;
+}
+.bit-rows .bitrows-value {
+  text-anchor: start;
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.bit-rows .bitrows-row:not(.role-idle):not(.role-muted) .bitrows-value {
+  fill: var(--role);
+  font-weight: 700;
+}
+.bit-rows .bitrows-glyph {
+  fill: var(--role);
+  font-weight: 700;
+}
+.bit-rows .bitrows-row.muted text,
+.bit-rows .bitrows-row.role-muted text {
+  opacity: 0.5;
+}
+.bit-rows .bitrows-rule {
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+}
+.bit-rows .bitrows-empty {
+  fill: var(--text-3);
+  font-size: 12px;
+}
+.bit-rows .bitrows-band {
+  fill: color-mix(in srgb, var(--role) 14%, transparent);
+  stroke: var(--role);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+
+/* Bits glide when their row shifts; a 1 is shaded and bold, a 0 faint; a role fills the cell. */
+.bit-rows .bitrows-bit {
+  transition: transform 0.4s ease;
+}
+.bit-rows .bitrows-bit rect {
+  fill: var(--viz-surface);
+  stroke: var(--grid);
+  stroke-width: 1;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.bit-rows .bitrows-bit text {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.bit-rows .bitrows-bit.one rect {
+  fill: var(--surface-3);
+  stroke: var(--viz-neutral);
+}
+.bit-rows .bitrows-bit.one text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.bit-rows .bitrows-bit.wide rect {
+  stroke-width: 0.5;
+}
+.bit-rows .bitrows-bit.wide.one rect {
+  fill: var(--text-2);
+  stroke: var(--text-2);
+}
+.bit-rows .bitrows-bit:not(.wide):not(.role-idle):not(.role-muted) rect {
+  fill: var(--role);
+  stroke: var(--role);
+}
+/* A 64-bit cell is too narrow for a digit, so its fill keeps saying 0 or 1 and a role only outlines it. */
+.bit-rows .bitrows-bit.wide:not(.role-idle):not(.role-muted) rect {
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.bit-rows .bitrows-bit:not(.role-idle):not(.role-muted) text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.bit-rows .bitrows-bit.muted,
+.bit-rows .bitrows-bit.role-muted {
+  opacity: 0.45;
+}
+.bit-rows .bitrows-bit.role-active rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: viz-pop 0.3s ease;
+}

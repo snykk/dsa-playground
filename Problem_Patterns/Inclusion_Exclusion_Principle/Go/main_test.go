@@ -19,6 +19,24 @@ func TestCountDivisible(t *testing.T) {
 	}
 }
 
+// 1..n is empty for n < 1, so the count is 0 (as in Python and C++).
+func TestCountDivisibleEmptyRange(t *testing.T) {
+	cases := []struct {
+		n        int
+		divisors []int
+	}{
+		{-10, []int{3}},
+		{-10, []int{2, 3}},
+		{-1, []int{1}},
+		{0, []int{2, 3}},
+	}
+	for _, c := range cases {
+		if got := countDivisible(c.n, c.divisors); got != 0 {
+			t.Errorf("countDivisible(%d, %v) = %d, want 0", c.n, c.divisors, got)
+		}
+	}
+}
+
 // With many divisors the lcm grows past n; such terms must be skipped.
 func TestCountDivisibleManyPrimes(t *testing.T) {
 	primes := []int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}
