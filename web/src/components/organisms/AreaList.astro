@@ -1,11 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
+import { showVizMarkers } from '../../lib/coverage';
 import { joinBase, topicsUnder, type DocNode } from '../../lib/repo';
 import { hasViz } from '../../viz/catalog';
 
 /**
  * The repository's top-level areas as a list: each area's name, the first sentence of its
- * overview, and how many topics it has and how many of them are visualized.
+ * overview, how many topics it has and, while some topics have none, how many are visualized.
  */
 interface Props {
   heading: string;
@@ -15,6 +16,7 @@ interface Props {
 const { heading, areas } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const overviews = new Map((await getCollection('categories')).map((c) => [c.data.category, c.data]));
+const markers = showVizMarkers();
 const firstSentence = (text: string) => {
   const m = text.match(/^.*?[.!?](?=\s|$)/);
   return m ? m[0] : text;
@@ -27,7 +29,7 @@ const rows = areas.map((n) => {
     href: joinBase(base, n.slug),
     title: overview?.title ?? n.title,
     note: firstSentence(overview?.lead ?? n.description),
-    count: `${topics.length} ${topics.length === 1 ? 'topic' : 'topics'}${visualized > 0 ? `, ${visualized} visualized` : ''}`,
+    count: `${topics.length} ${topics.length === 1 ? 'topic' : 'topics'}${markers && visualized > 0 ? `, ${visualized} visualized` : ''}`,
   };
 });
 ---

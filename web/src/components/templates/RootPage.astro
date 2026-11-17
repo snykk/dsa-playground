@@ -2,6 +2,7 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { getCollection } from 'astro:content';
 import { levelRange } from '../../lib/category';
+import { showVizMarkers } from '../../lib/coverage';
 import type { PageData } from '../../lib/page';
 import { getContent, githubUrl, topicsUnder, type StandaloneDoc } from '../../lib/repo';
 import '../../styles/article.css';
@@ -36,7 +37,7 @@ const stats = [
   `${topics.length} topics`,
   levelRange(topics.flatMap((t) => levels.get(t.rel) ?? [])),
   'Python, C++, Go',
-  visualized > 0 ? `${visualized} visualized` : undefined,
+  showVizMarkers() && visualized > 0 ? `${visualized} visualized` : undefined,
 ].filter((s): s is string => s !== undefined);
 const listsAreas = page.contents.length > 0;
 const toc: MarkdownHeading[] = [...(listsAreas ? [{ depth: 2, slug: 'areas', text: 'The areas' }] : []), ...headings];
