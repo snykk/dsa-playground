@@ -65,6 +65,12 @@ Here is the repository's `DynamicArray` with initial capacity 2, appending 0 to 
 
 If the array grows from capacity 1 to 1,024, the resizes copy 1 + 2 + 4 + &hellip; + 512 = 1,023 elements in total, fewer than the 1,024 appends that caused them.
 
+## See it in action
+
+The first three tabs run the same `DynamicArray` and draw one method each; the fourth increments the `BinaryCounter`. In **The accounting demo** (capacity 2, 8 appends), every append is charged 3 coins: watch the spare coins pile up on the cells and pay for the copies of the next resize, while the bank stays at 0 or more. The potential tab draws `2 * size - capacity` under the costs, and the counter tab shows why n increments flip fewer than 2n bits.
+
+<ArticleViz ids={['amortized-aggregate', 'amortized-accounting', 'amortized-potential', 'binary-counter']} />
+
 ## The three methods
 
 All three methods prove the same kind of statement. They differ in how they organise the accounting.

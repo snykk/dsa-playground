@@ -37,6 +37,12 @@ In words: from some point `n0` on, `f` stays below a constant multiple of `g`. T
 `f(n) = O(g(n))` really means "f is in the set O(g)", the set of all functions bounded above by a multiple of `g`. That is why `n = O(n^2)` is true and `O(n^2) = n` is nonsense. Every function in that set is a valid upper bound, so many different `g` work for the same `f`.
 </Callout>
 
+## See it in action
+
+Each step runs one of the repository's example functions on the next n, counts its basic operation and plots the count on a log scale against `c * g(n)`. Start with **Fibonacci calls vs 0.1 * 2^n**: the first twelve points break the bound, and from n0 = 13 on every point stays under it. **n^2 is not O(n)** shows a bound that no n0 can rescue, and **Permutations are not O(n!)** checks the factorial example's label.
+
+<ArticleViz ids={['big-o-growth']} />
+
 ## Intuition
 
 Big-O keeps only the part of a formula that dominates when `n` is large.

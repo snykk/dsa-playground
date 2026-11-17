@@ -40,7 +40,7 @@ class TestBigOmega(unittest.TestCase):
         self.assertEqual(result, [1, 2, 3, 4, 5])
     
     def test_quick_sort_best_case(self):
-        """Test Omega(n log n) best case for quick sort"""
+        """Three-way quick sort sorts distinct keys (its best case is all-equal keys, Theta(n))"""
         arr = [64, 34, 25, 12, 22, 11, 90]
         sorted_arr = quick_sort_best_case(arr)
         self.assertEqual(sorted_arr, [11, 12, 22, 25, 34, 64, 90])

@@ -2,8 +2,11 @@
 Test cases for Amortized Analysis examples
 """
 
+import contextlib
+import io
+import re
 import unittest
-from amortized_analysis import DynamicArray, BinaryCounter
+from amortized_analysis import DynamicArray, BinaryCounter, aggregate_method_example, accounting_method_example
 
 
 class TestAmortizedAnalysis(unittest.TestCase):
@@ -70,6 +73,26 @@ class TestAmortizedAnalysis(unittest.TestCase):
             counter.increment()
         self.assertLessEqual(counter.flips, 2 * n)
         self.assertEqual(counter.get_value(), n)
+
+    def test_accounting_demo_counts_every_write(self):
+        """Regression: the accounting demo dropped the writes of the resize appends and
+        printed an impossible total ("Total cost: 6", "Amortized cost: 0.75")."""
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            accounting_method_example()
+        text = out.getvalue()
+        self.assertIn("Total actual cost: 14 (n writes + 6 copies)", text)
+        self.assertIn("Actual cost per operation: 1.75", text)
+        banks = [int(b) for b in re.findall(r"bank=(-?\d+)", text)]
+        self.assertEqual(banks, [2, 4, 4, 6, 4, 6, 8, 10])
+
+    def test_aggregate_demo_prints_the_operation_count(self):
+        """Regression: a missing f prefix printed a literal "{operations}"."""
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            aggregate_method_example()
+        self.assertIn("total cost O(n) / 10 operations = O(1)", out.getvalue())
+        self.assertNotIn("{operations}", out.getvalue())
 
 
 if __name__ == "__main__":
