@@ -55,7 +55,7 @@ The bucket index `floor(x * n)` never decreases as `x` grows, so a smaller value
 
 ## See it in action
 
-Press play, or step through each phase. Use the Textbook example to see a well-spread input, and the Clustered example to watch one crowded bucket. Blue marks the value being read or the bucket being sorted, orange the value being written, grey the values already handled, and aqua the values in their final place.
+Press play, or step through each phase. Use the Textbook example to see a well-spread input, and the Clustered example to watch one crowded bucket. Blue marks the value being read, the bucket being sorted or a value already copied back, orange the value being written, grey the values already handled, and aqua the values in their final place.
 
 <ArticleViz ids={['bucket-sort']} />
 
@@ -128,7 +128,7 @@ Distributing and concatenating cost <BigO of="n + k" /> for `k` buckets. The sor
 The extra space is the `n` buckets plus the `n` stored values.
 
 <Callout title="The uniformity assumption is the whole point">
-The linear bound is a statement about the input distribution, not about the algorithm. Values such as `[0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.9]` all land in a single bucket except one, and the sort degenerates to the inner sort. Choose bucket boundaries from the data (for example from the minimum and maximum) or a better inner sort if the data is skewed.
+The linear bound is a statement about the input distribution, not about the algorithm. Values such as `[0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.9]` all land in the first two of seven buckets except one, and the sort degenerates to the inner sort. Choose bucket boundaries from the data (for example from the minimum and maximum) or a better inner sort if the data is skewed.
 </Callout>
 
 ## Variants and design choices

@@ -56,7 +56,7 @@ After round k, dist[v] is at most the length of the shortest path to v that uses
 
 ## See it in action
 
-Step through the rounds: each round relaxes the edges in the order of the list, and the distance table updates. Try the example with a negative cycle and watch the extra check round flag it. Type your own edges, using arrows (`A->B -2`) for negative weights, and finish with `; start A`.
+Step through the rounds: each round relaxes the edges in the order of the list, and the distance next to each vertex updates. Try the example with a negative cycle and watch the extra check round flag it. Type your own edges, using arrows (`A->B -2`) for negative weights, and finish with `; start A`.
 
 <ArticleViz ids={['bellman-ford']} />
 

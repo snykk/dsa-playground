@@ -50,7 +50,7 @@ def kruskal_mst(edges, num_vertices):
         Tuple of (mst_edges, total_weight)
         
     Time Complexity: O(E log E) or O(E log V)
-    Space Complexity: O(V)
+    Space Complexity: O(V + E) (the sorted copy of the edges)
     """
     if num_vertices == 0:
         return [], 0

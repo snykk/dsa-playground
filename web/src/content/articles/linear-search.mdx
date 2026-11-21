@@ -96,7 +96,7 @@ allOccurrences(arr, target):
 
 Each language has `linear_search`-style functions for the first match, a recursive form and all occurrences. There is no last-occurrence function: scan from the end, or take the last element of the all-occurrences result.
 
-- **Python:** `linear_search`, `linear_search_recursive(arr, target, index=0)` and `linear_search_all_occurrences`. The recursive form raises `RecursionError` once the list is longer than about a thousand elements (Python's default recursion limit), so treat it as a teaching example.
+- **Python:** `linear_search`, `linear_search_recursive(arr, target, index=0)` and `linear_search_all_occurrences`. The recursive form raises `RecursionError` once it has to scan more than about a thousand elements (Python's default recursion limit), so treat it as a teaching example.
 - **C++:** templates with instances for `int`, `double` and `std::string`. They return `int` indexes.
 - **Go:** `LinearSearch` and `LinearSearchAllOccurrences` for `[]int`, `LinearSearchRecursive(arr, target, index)`, and the generic `LinearSearchGeneric[T comparable]`.
 
@@ -172,7 +172,7 @@ Sorting first only pays off if you search often: `n` linear searches cost `O(n^2
 
 <Callout tone="warning" title="Watch out for these">
 - **Using it on large sorted data.** Binary Search does the same job in O(log n).
-- **Recursing on long inputs.** The Python recursive version fails with `RecursionError` on about a thousand elements.
+- **Recursing on long inputs.** The Python recursive version fails with `RecursionError` once it scans about a thousand elements.
 - **Forgetting that it returns the first match only.** Use the all-occurrences function if you need every position.
 - **Returning a valid index for a miss.** Return -1 (or another value that cannot be an index) and check it.
 - **Comparing floating-point numbers with `==`.** Rounding can make equal values compare unequal; use a tolerance.

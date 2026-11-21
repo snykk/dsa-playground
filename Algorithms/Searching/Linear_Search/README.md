@@ -71,7 +71,7 @@ Variants not implemented here: the sentinel technique (store the target after th
 
 ## Common Pitfalls
 
-- **Recursion on long inputs.** Python's `linear_search_recursive` raises `RecursionError` on about a thousand elements. Prefer the loop.
+- **Recursion on long inputs.** Python's `linear_search_recursive` raises `RecursionError` once it scans about a thousand elements. Prefer the loop.
 - **Expecting the last match.** The search stops at the first match; use the all-occurrences function for every index.
 - **Returning a valid index on a miss.** Return -1 and check for it.
 - **Floating-point equality.** Rounding can make equal values compare unequal; compare with a tolerance.

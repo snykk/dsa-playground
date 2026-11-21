@@ -8,7 +8,7 @@ Linear-time 2-SAT solver using an iterative Tarjan SCC on the implication graph.
 |------|---------|
 | `main.go` | `TwoSAT` type with `AddClause`, `Implies`, `ForceTrue`, `Solve`, plus a small `main` demo |
 | `main_test.go` | 9 test functions: SAT, UNSAT, helpers, chains, the empty formula |
-| `go.mod` | Module definition (`go 1.24`) |
+| `go.mod` | Module definition (`go 1.21`) |
 
 ## API
 

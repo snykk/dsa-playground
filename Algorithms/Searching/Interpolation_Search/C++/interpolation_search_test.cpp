@@ -85,6 +85,18 @@ void testWideValueRange() {
     std::cout << "Wide value range test passed" << std::endl;
 }
 
+// Regression: huge double keys made the probe formula inf or NaN, and the cast
+// to int was undefined (a probe far outside the array)
+void testHugeDoubleKeys() {
+    std::vector<double> arr = {-1e308, 0.0, 1e308, 1.5e308};
+    for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
+        assert(interpolationSearch(arr, arr[i]) == i);
+        assert(interpolationSearchRecursive(arr, arr[i], 0, static_cast<int>(arr.size()) - 1) == i);
+    }
+    assert(interpolationSearch(arr, 5.0) == -1);
+    std::cout << "Huge double keys test passed" << std::endl;
+}
+
 int main() {
     std::cout << "Running Interpolation Search tests..." << std::endl;
 
@@ -97,6 +109,7 @@ int main() {
     testAllEqualValues();
     testDuplicates();
     testWideValueRange();
+    testHugeDoubleKeys();
 
     std::cout << "\nAll tests passed!" << std::endl;
     return 0;

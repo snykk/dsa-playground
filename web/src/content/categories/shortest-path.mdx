@@ -57,7 +57,7 @@ A negative cycle, one whose weights sum below zero, makes the cheapest path unde
 
 ## See them side by side
 
-Each tab animates one algorithm on an input you can edit. Load **Detour wins** in the Dijkstra tab, then **Negative edge** in the Bellman-Ford tab and compare. In the A* tab, **Around a wall** shows how the heuristic steers the search on a grid. Try **Open field** as well: with no walls the straight line is found at once.
+Each tab animates one algorithm on an input you can edit. Load **Detour wins** in the Dijkstra tab, then **Negative edge** in the Bellman-Ford tab and compare. In the A* tab, **Around a wall** shows how the heuristic steers the search on a grid. Try **Open field** as well: with no walls every cell ties at f = 10, so A* still expands 31 of the 32 cells before it reaches the goal.
 
 <ArticleViz ids={['dijkstra', 'bellman-ford', 'floyd-warshall', 'a-star']} />
 

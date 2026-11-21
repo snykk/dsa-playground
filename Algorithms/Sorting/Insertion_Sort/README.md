@@ -74,7 +74,7 @@ Use it for small arrays, for nearly sorted data, for streams where items arrive 
 - Off-by-one: after the loop the key goes to `arr[j + 1]`.
 - Unsigned indices in C++: `j >= 0` is always true for `size_t`, which is why the C++ version tracks the gap and tests `j > 0`.
 - Using `>=`, which makes the sort unstable.
-- `insertion_sort_recursive` (Python) nests one call per element and raises `RecursionError` for lists of a few thousand elements.
+- `insertion_sort_recursive` (Python) nests one call per element and raises `RecursionError` for lists of about 1,000 elements or more.
 
 ## Implementations
 

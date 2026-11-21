@@ -126,7 +126,7 @@ export function activityRun(acts: Activity[]): ActivityRun {
       role.set(a.id, 'done');
       push(
         4,
-        `${a.start} >= ${lf}: ${name(a)} starts after the last selected activity ends. Select it; last_finish = ${a.finish}. Among the activities that still fit, it ends first, so it again leaves the most room.`,
+        `${a.start} >= ${lf}: ${name(a)} starts ${a.start === lf ? 'exactly when' : 'after'} the last selected activity ends. Select it; last_finish = ${a.finish}. Among the activities that still fit, it ends first, so it again leaves the most room.`,
         { focus: a.id, focusRole: 'good' },
         actVars,
       );

@@ -23,7 +23,7 @@ linear_search_all_occurrences([4, 7, 4, 9, 4], 4)  # [0, 2, 4]
 ## Python-Specific Notes
 
 - Works on any list of elements that support `==`; the list need not be sorted.
-- `linear_search_recursive` uses one stack frame per element and raises `RecursionError` on a list of about a thousand elements or more (the default limit). Use the loop version in real code.
+- `linear_search_recursive` uses one stack frame per element and raises `RecursionError` once it has to scan about a thousand elements or more (the default limit). Use the loop version in real code.
 - The built-in `list.index(x)` does the same job (it raises `ValueError` on a miss instead of returning -1).
 
 ## How to Run

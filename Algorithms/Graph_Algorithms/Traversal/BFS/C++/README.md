@@ -28,7 +28,7 @@ vector<int> path = bfsWithPath(graph, 1, 3);     // 1 2 3
 
 ## C++-Specific Notes
 
-- Needs C++17. The test file already includes `bfs.cpp`, so compile the test file alone; passing both files to the compiler gives duplicate-symbol errors.
+- Builds as C++11 or later. The test file already includes `bfs.cpp`, so compile the test file alone; passing both files to the compiler gives duplicate-symbol errors.
 - Neighbors are read only when the vertex is a key of the map, so a vertex that appears only in neighbor lists is handled. The function never inserts into the graph (it is `const`).
 - `bfsWithPath` stores one parent per vertex and rebuilds the path once, so it is O(V + E).
 - "Not found" is an empty vector, which cannot be told apart from an empty result; check `start == target` and key membership if you need to.

@@ -5,7 +5,7 @@ Template interpolation search over `std::vector`. For the idea, the formula and 
 ## Files
 
 - `interpolation_search.cpp` - the templates and their explicit instantiations.
-- `interpolation_search_test.cpp` - 9 assert-based tests (it includes the .cpp file), including duplicates and `INT_MIN` / `INT_MAX`.
+- `interpolation_search_test.cpp` - 10 assert-based tests (it includes the .cpp file), including duplicates, `INT_MIN` / `INT_MAX` and huge doubles.
 
 ## API
 

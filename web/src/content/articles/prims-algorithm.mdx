@@ -139,7 +139,7 @@ primMatrix(matrix, start):                      # O(V^2), no heap
 
 Notes:
 
-- Every version is the lazy variant: stale entries are skipped when popped, so the heap can hold up to E entries.
+- Every heap version is the lazy variant: stale entries are skipped when popped, so the heap can hold up to E entries.
 - The matrix version uses `0` for "no edge", so it cannot represent an edge of weight 0. Negative weights are supported.
 - A vertex that appears only in neighbor lists (not as a key) is handled in the Python and Go dictionary versions. In C++ the graph is a vector, so every vertex has a row.
 - On a graph with no vertices, or a single vertex, every version returns no edges.
@@ -148,7 +148,7 @@ Notes:
 
 <ComplexityTable
   rows={[
-    { case: 'Binary heap (lazy)', time: 'O(E log V)', space: 'O(V + E)', when: 'Each edge is pushed at most twice (once per endpoint), and each push and pop costs O(log E) = O(log V).' },
+    { case: 'Binary heap (lazy)', time: 'O(E log V)', space: 'O(V + E)', when: 'Each edge is pushed at most once, by whichever endpoint joins the tree first, and each push and pop costs O(log E) = O(log V).' },
     { case: 'Array and matrix', time: 'O(V^2)', space: 'O(V)', when: 'V rounds, each scanning V keys for the minimum and V matrix entries to update. Independent of E.' },
     { case: 'Fibonacci heap', time: 'O(E + V log V)', when: 'Decrease-key in O(1) amortized. Mostly of theoretical interest.' },
   ]}

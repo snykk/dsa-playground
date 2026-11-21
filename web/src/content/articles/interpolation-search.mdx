@@ -57,7 +57,7 @@ If the target is in the array, it is inside `a[lo..hi]`, exactly as in Binary Se
 
 ## See it in action
 
-The plot shows each element as a point (index on one axis, value on the other), the straight line from `a[lo]` to `a[hi]`, and the probe where that line meets the target. Press Apply to run your own sorted values and target, or Random for a random input, and step through the probes. Try the evenly spread example first, then the doubling one.
+The plot shows each element as a bar (index along the bottom, value as the height), the straight line from `a[lo]` to `a[hi]`, and the probe where that line meets the target. Press Apply to run your own sorted values and target, or Random for a random input, and step through the probes. Try the evenly spread example first, then the doubling one.
 
 <ArticleViz ids={['interpolation-search']} />
 
@@ -135,7 +135,7 @@ Why log log n: with uniform keys, the estimate is off by about the square root o
 
 <Equation label="Idealized recurrence" expr="T(n) = T(sqrt(n)) + O(1)" result="O(log log n)" />
 
-For comparison, a quick run on 100,000 random distinct integers below ten million averaged about 4 probes per successful search (maximum 10), while Binary Search needs about 16. The advantage appears only for large, evenly spread arrays.
+For comparison, a quick run on 100,000 random distinct integers below ten million averaged about 4 probes per successful search (maximum 10 to 13, depending on the draw), while Binary Search needs about 16. The advantage appears only for large, evenly spread arrays.
 
 ## Variants and design choices
 

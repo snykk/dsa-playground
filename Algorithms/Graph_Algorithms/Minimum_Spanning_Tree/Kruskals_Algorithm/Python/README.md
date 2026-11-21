@@ -17,7 +17,7 @@ Kruskal's algorithm on an edge list of `(u, v, weight)` tuples, with vertices nu
 | `kruskal_mst(edges, num_vertices)` | `(mst_edges, total_weight)`; `([], 0)` for 0 vertices |
 | `kruskal_mst_with_details(edges, num_vertices)` | a dict with `mst_edges`, `total_weight`, `is_connected` and `num_edges_in_mst` |
 
-Time O(E log E), space O(V).
+Time O(E log E), space O(V + E): the union-find arrays plus the sorted copy of the edges.
 
 ```python
 from kruskal import kruskal_mst

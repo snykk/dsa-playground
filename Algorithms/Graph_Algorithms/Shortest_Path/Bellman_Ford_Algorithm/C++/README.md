@@ -24,7 +24,7 @@ unordered_map<int, int> dist = bellmanFord(edges, 5, 0);  // 0:0 1:5 2:3 3:6 4:7
 
 ## C++-Specific Notes
 
-- Needs C++17. The test file includes `bellman_ford.cpp`; compile only the test file, or you get duplicate-symbol errors.
+- Builds as C++11 or later. The test file includes `bellman_ford.cpp`; compile only the test file, or you get duplicate-symbol errors.
 - Edges are validated first, so an out-of-range endpoint cannot be read as a vertex at distance 0.
 - An empty map means a negative cycle (or zero vertices); check `numVertices` if you need to tell them apart.
 - Distances are `int` with `INT_MAX` as infinity. Edges whose tail is `INT_MAX` are skipped, but sums are not checked for overflow, so keep weights small.

@@ -397,7 +397,7 @@ export function astarRun(m: AStarMap): AStarRun {
     });
   };
 
-  snap(0, `Start at S ${rc(m.start)}. g = cost so far, h = straight-line grid distance to G (Manhattan), f = g + h. Put S in the open set with f = ${h(m.start)}.`, [['h(S)', h(m.start)]], { current: undefined });
+  snap(0, `Start at S ${rc(m.start)}. g = cost so far, h = grid distance to G ignoring walls (Manhattan), f = g + h. Put S in the open set with f = ${h(m.start)}.`, [['h(S)', h(m.start)]], { current: undefined });
 
   while (pq.length) {
     pq.sort((a, b) => a.f - b.f || a.g - b.g || a.i - b.i);

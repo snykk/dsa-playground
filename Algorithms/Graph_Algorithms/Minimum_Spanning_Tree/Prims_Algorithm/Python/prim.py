@@ -20,7 +20,7 @@ def prim_mst_adjacency_list(graph, start=0):
         Tuple of (mst_edges, total_weight)
         
     Time Complexity: O(E log V) with binary heap
-    Space Complexity: O(V)
+    Space Complexity: O(V + E) (the lazy heap holds up to E entries)
     """
     if not graph:
         return [], 0

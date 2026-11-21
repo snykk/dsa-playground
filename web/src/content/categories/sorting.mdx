@@ -1,7 +1,7 @@
 ---
 category: Algorithms/Sorting
 title: Sorting Algorithms
-lead: Sorting puts a list in order. The nine algorithms here all return the same result and differ in speed, memory and stability. The simple ones take O(n^2) time, the divide-and-conquer and heap sorts take O(n log n), and the three that never compare two keys go below that bound on suitable data.
+lead: Sorting puts a list in order. The nine algorithms here all return the same result and differ in speed, memory and stability. The simple ones take O(n^2) time, the divide-and-conquer and heap sorts take O(n log n) (Quick Sort on average), and the three that place keys by their value go below that bound on suitable data.
 updated: 2026-11-13
 facts:
   - label: Simple sorts
@@ -60,7 +60,7 @@ The nine algorithms in this section solve this one problem and split into three 
 
 - **Quadratic sorts** (Bubble, Insertion, Selection) compare neighbours or scan for a minimum. They are short and need O(1) extra space.
 - **Comparison sorts that scale** (Merge, Quick, Heap) use a different structure to reach O(n log n): halving, partitioning or a heap.
-- **Sorts that never compare two keys** (Counting, Radix, Bucket) use the value of a key as an index or a bucket number. They beat the `n log n` bound for comparison sorts, but only on integers or numbers in a known range.
+- **Sorts that place keys by value** (Counting, Radix, Bucket) use the value of a key as an index or a bucket number; Bucket Sort compares keys only inside a bucket. They beat the `n log n` bound for comparison sorts, but only on integers or numbers in a known range.
 
 Three properties tell the algorithms apart besides speed:
 
@@ -113,7 +113,7 @@ Read the columns:
 
 - **Sorted:** Bubble and Insertion Sort make `n - 1 = 7` comparisons. Quick Sort makes `n(n - 1)/2 = 28`, the same as Selection Sort, because the last element is always the largest and each partition removes only the pivot.
 - **Reversed:** Bubble, Insertion and Selection Sort all reach 28 comparisons, the n(n - 1)/2 of the quadratic family. Merge Sort stays at 12.
-- **All equal:** the strict comparisons mean that nothing moves. Bubble and Insertion Sort finish in 7 comparisons, and Heap Sort needs only 18, but Quick Sort still makes 28 with this partition.
+- **All equal:** the strict comparisons mean that nothing moves, apart from Heap Sort swapping the root to the end in every round. Bubble and Insertion Sort finish in 7 comparisons, and Heap Sort needs only 18, but Quick Sort still makes 28 with this partition.
 
 Stability shows when keys repeat. Sort these six records by their number only: `3a 1b 3c 2d 1e 3f`.
 
@@ -201,7 +201,7 @@ Bubble Sort has no row of its own. It is a teaching tool: Insertion Sort does th
     Start with Bubble, Insertion and Selection Sort: they teach comparisons, swaps, invariants and stability. Then Merge Sort and Quick Sort, which add recursion and divide and conquer, and Heap Sort, which needs the heap. Last come Counting, Radix and Bucket Sort. Radix Sort uses Counting Sort as its digit sort, so read Counting Sort first.
   </FaqItem>
   <FaqItem question="Why can a comparison sort not beat n log n?">
-    A comparison sort learns about the order only through yes-or-no answers. There are `n!` possible orders, so it needs at least about `log2(n!)` answers, which is about `n log n`. Counting, Radix and Bucket Sort avoid the bound because they read the keys themselves and never compare two of them.
+    A comparison sort learns about the order only through yes-or-no answers. There are `n!` possible orders, so it needs at least about `log2(n!)` answers, which is about `n log n`. Counting, Radix and Bucket Sort avoid the bound because they place each key by reading its value, not by comparing it with other keys; Bucket Sort compares keys only inside its small buckets.
   </FaqItem>
   <FaqItem question="What is a stable sort and why does it matter?">
     A stable sort keeps equal keys in their input order. Sort people by city and then by last name, and a stable second sort keeps each last name's people in city order. It is also what lets Radix Sort chain one digit pass after another.

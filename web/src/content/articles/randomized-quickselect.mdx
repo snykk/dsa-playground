@@ -118,7 +118,7 @@ A partition of a range of `s` elements costs <BigO of="s" />. What matters is ho
 <ComplexityTable
   rows={[
     { case: 'Best case', time: 'O(n)', when: 'The first pivot lands in the equal band that contains k.' },
-    { case: 'Expected case', time: 'O(n)', when: 'Any input, because the pivot is random. About 3.4 n comparisons for the median.' },
+    { case: 'Expected case', time: 'O(n)', when: 'Any input, because the pivot is random. For the median, the partitions examine about 3.4 n elements in all.' },
     { case: 'Worst case', time: 'O(n^2)', when: 'Every random pivot is close to the minimum or maximum, which has probability near zero for large n.' },
   ]}
 />

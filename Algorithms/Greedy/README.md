@@ -29,7 +29,7 @@ The Minimum Spanning Tree algorithms, Kruskal's and Prim's, are also greedy. The
 | Activity Selection | O(n log n) | O(n) | the sort by finish time; the scan is O(n) |
 | Fractional Knapsack | O(n log n) | O(n) | the sort by ratio; the fill is O(n) |
 | Huffman Coding | O(k log k) | O(k) | k heap merges; counting the text is O(N) |
-| Job Scheduling (deadlines) | O(n log n + n * min(D, n)) | O(n + D) | the sort by profit, then a slot search per job |
+| Job Scheduling (deadlines) | O(n log n + n * min(D, n) + D) | O(n + D) | the sort by profit, then a slot search per job; the D + 1 slots cost O(D) to create |
 
 `D` is the largest deadline and `k` the number of distinct symbols. Fractional Knapsack's O(n) extra space is the sorted copy in Python; C++ and Go sort the input in place.
 

@@ -1,7 +1,7 @@
 ---
 topic: Algorithms/Searching/Binary_Search
 title: Binary Search
-lead: Binary Search finds a value in a sorted array by comparing it with the middle element and discarding the half that cannot contain it. Each probe halves the range, so a billion sorted items take at most 30 comparisons.
+lead: Binary Search finds a value in a sorted array by comparing it with the middle element and discarding the half that cannot contain it. Each probe halves the range, so a billion sorted items take at most 30 probes.
 level: Beginner
 updated: 2026-11-12
 facts:
@@ -116,7 +116,7 @@ Each probe halves the window, so after `k` probes at most `n / 2^k` positions re
   rows={[
     { case: 'Best case', time: 'O(1)', when: 'The first middle element is the target.' },
     { case: 'Average case', time: 'O(log n)', when: 'Typically about log2(n) - 1 probes for a present target.' },
-    { case: 'Worst case', time: 'O(log n)', when: 'The target is absent or found on the last probe: floor(log2 n) + 1 comparisons.' },
+    { case: 'Worst case', time: 'O(log n)', when: 'The target is absent or found on the last probe: floor(log2 n) + 1 probes.' },
     { case: 'Space', time: 'O(1)', when: 'Iterative. The recursive version uses O(log n) stack frames.' },
   ]}
 />
@@ -213,6 +213,6 @@ With duplicates, the exact-match version returns an arbitrary one of them: on `[
     Not usefully. Reaching the middle node takes O(n), so the total cost is no better than a linear scan.
   </FaqItem>
   <FaqItem question="What does it return when the target is missing?">
-    -1 in every function here. If you need the position where the value would be inserted, use a lower-bound search (such as Python `bisect_left`) instead.
+    -1 in every function here except Python's `binary_search_closest`, which returns the index of the nearest element. If you need the position where the value would be inserted, use a lower-bound search (such as Python `bisect_left`) instead.
   </FaqItem>
 </Faq>

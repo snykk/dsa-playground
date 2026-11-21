@@ -28,7 +28,7 @@ export const bellmanFord: VizSpec<Graph, GraphState> = {
     'Edges like "A->B 4" or "A->C -2", separated by commas; finish with "; start A". Up to 8 nodes. A negative undirected edge "A-B -2" is itself a negative cycle (walk back and forth), so use arrows for negative weights.',
   examples: [
     { label: 'Negative edge', value: 'A->B 4, A->C 5, B->C -3, C->D 4, B->D 5; start A' },
-    { label: 'Needs later rounds', value: 'A->B 1, B->C 1, C->D 1, A->D 10, D->E -5, A->E 9; start A' },
+    { label: 'Needs later rounds', value: 'D->E -5, C->D 1, B->C 1, A->B 1, A->D 10, A->E 9; start A' },
     { label: 'Negative cycle', value: 'A->B 1, B->C -3, C->B 1, C->D 2; start A' },
     { label: 'Unreachable', value: 'A->B 2, B->C -1, D->E 3; start A' },
   ],

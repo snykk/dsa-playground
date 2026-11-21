@@ -106,6 +106,15 @@ class TestInterpolationSearch(unittest.TestCase):
                     self.assertEqual(arr[search(arr, target)], target)
             self.assertEqual(search(arr, 5), -1)
 
+    def test_huge_float_keys(self):
+        """Regression: huge float keys made the probe formula inf or NaN, and int() raised"""
+        arr = [-1e308, 0.0, 1e308, 1.5e308]
+        for search in (interpolation_search, interpolation_search_recursive):
+            for i, target in enumerate(arr):
+                with self.subTest(search=search.__name__, target=target):
+                    self.assertEqual(search(arr, target), i)
+            self.assertEqual(search(arr, 5.0), -1)
+
 
 if __name__ == '__main__':
     unittest.main()

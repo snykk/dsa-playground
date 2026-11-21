@@ -75,7 +75,7 @@ Use it to learn sorting, for tiny inputs, or when simplicity matters more than s
 - Inner loop bound: it must stop at `n - i - 2`, so that `arr[j + 1]` exists.
 - Resetting `swapped` once instead of at the start of every pass.
 - Using `>=`, which swaps equal elements and breaks stability.
-- Python `bubble_sort_recursive` uses one stack frame per pass and raises `RecursionError` for lists of a few thousand elements. It exists for teaching.
+- Python `bubble_sort_recursive` uses one stack frame per pass and raises `RecursionError` for lists of about 1,000 elements or more. It exists for teaching.
 - `bubble_sort_optimized` is the same code as `bubble_sort` (the early exit is already built in).
 
 ## Implementations

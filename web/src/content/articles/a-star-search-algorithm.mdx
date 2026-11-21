@@ -57,7 +57,7 @@ If h never overestimates, then f(v) = g(v) + h(v) is a lower bound on the cost o
 
 ## See it in action
 
-The visualization runs A* on a grid map with walls and rough terrain. Type your own map (`.` floor, `#` wall, digits for costly cells, `S` start, `G` goal), or press Random. Watch the cell being expanded, the open set with its f values, the closed cells that were already expanded, and the final path. Try the open field and compare how few cells get expanded against a map where a wall forces a detour.
+The visualization runs A* on a grid map with walls and rough terrain. Type your own map (`.` floor, `#` wall, digits for costly cells, `S` start, `G` goal), or press Random. Watch the cell being expanded, the open set with its f values, the closed cells that were already expanded, and the final path. Try the open field: every cell there lies on a cheapest path, so all share f = 10 and A*, breaking ties by the smaller g, expands 31 of the 32 cells. On the rough terrain map the costly cells raise f, and it expands only 13.
 
 <ArticleViz ids={['a-star']} />
 

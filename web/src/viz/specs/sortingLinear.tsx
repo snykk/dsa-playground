@@ -20,6 +20,11 @@ const LEGEND: Array<{ role: Role; label: string }> = [
   { role: 'muted', label: 'already handled' },
   { role: 'done', label: 'in its final position' },
 ];
+// Radix sort's collect phase keeps the values gathered so far in this pass in the read colour.
+const RADIX_LEGEND: Array<{ role: Role; label: string }> = [
+  { role: 'compare', label: 'being read, or collected earlier in this pass' },
+  ...LEGEND.slice(1),
+];
 
 export const countingSort: VizSpec<number[], BucketSceneState> = {
   id: 'counting-sort',
@@ -77,7 +82,7 @@ export const radixSort: VizSpec<number[], BucketSceneState> = {
     '  a = buckets[0] + buckets[1] + ... + buckets[9]',
     'return a',
   ],
-  legend: LEGEND,
+  legend: RADIX_LEGEND,
   complexity: { time: 'O(d * (n + b)), d digits in base b = 10', space: 'O(n + b)' },
 };
 
@@ -109,7 +114,7 @@ export const bucketSort: VizSpec<number[], BucketSceneState> = {
     'return the concatenation',
   ],
   legend: [
-    { role: 'compare', label: 'being read / bucket being sorted' },
+    { role: 'compare', label: 'being read, bucket being sorted, or collected so far' },
     { role: 'active', label: 'being written' },
     { role: 'muted', label: 'already handled' },
     { role: 'done', label: 'in its final position' },
