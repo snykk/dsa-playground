@@ -161,7 +161,7 @@ class HashTable:
         Returns:
             List of all keys
             
-        Time Complexity: O(n)
+        Time Complexity: O(capacity + n), every bucket is visited
         """
         result = []
         for bucket in self.buckets:
@@ -176,7 +176,7 @@ class HashTable:
         Returns:
             List of all values
             
-        Time Complexity: O(n)
+        Time Complexity: O(capacity + n), every bucket is visited
         """
         result = []
         for bucket in self.buckets:
@@ -191,7 +191,7 @@ class HashTable:
         Returns:
             List of (key, value) tuples
             
-        Time Complexity: O(n)
+        Time Complexity: O(capacity + n), every bucket is visited
         """
         result = []
         for bucket in self.buckets:

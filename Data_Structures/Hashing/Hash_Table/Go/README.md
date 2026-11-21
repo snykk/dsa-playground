@@ -17,12 +17,13 @@ A chaining hash table over `interface{}` keys, with a doubling resize. See the [
 | `Get(key) (value, found)` | lookup | O(1) average |
 | `Remove(key) bool` | true if removed | O(1) average |
 | `Contains(key) bool` | presence | O(1) average |
-| `Size()`, `IsEmpty()`, `Clear()` | bookkeeping | O(1) |
+| `Size()`, `IsEmpty()` | bookkeeping | O(1) |
+| `Clear()` | allocates a new empty bucket slice | O(capacity) |
 | `GetOrDefault(key, default)` | value or default | O(1) average |
 | `PutIfAbsent(key, value) bool` | true if inserted | O(1) average |
 | `Update(other)` | put every pair of another `*HashTable` | O(m) |
 | `Items() []KeyValue` | every pair in bucket order | O(capacity + n) |
-| `Copy()` | independent table | O(m) |
+| `Copy()` | independent table | O(capacity + m) |
 
 ## Go-Specific Notes
 

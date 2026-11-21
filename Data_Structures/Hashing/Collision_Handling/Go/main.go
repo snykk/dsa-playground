@@ -3,8 +3,9 @@ package main
 import "fmt"
 
 // hashKey maps a key to a bucket index in [0, capacity). Negative ints are
-// folded into range, and every other key type is hashed through its printed
-// form (type name plus value), so int64, float64, bool and friends work too.
+// folded into range, strings are hashed directly, and every other key type is
+// hashed through its printed form (type name plus value), so int64, float64,
+// bool and friends work too.
 func hashKey(key interface{}, capacity int) int {
 	switch k := key.(type) {
 	case int:

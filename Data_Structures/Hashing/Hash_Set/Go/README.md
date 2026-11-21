@@ -16,14 +16,15 @@ A hand-written chaining hash set of `interface{}` elements that doubles its buck
 | `Add(key) bool` | true if new; resizes when load exceeds 0.75 | O(1) amortized |
 | `Remove(key) bool` | true if removed | O(1) average |
 | `Contains(key) bool` | membership | O(1) average |
-| `Size()`, `IsEmpty()`, `Clear()` | bookkeeping | O(1) |
+| `Size()`, `IsEmpty()` | bookkeeping | O(1) |
+| `Clear()` | allocates a new empty bucket slice | O(capacity) |
 
 No iteration.
 
 ## Go-Specific Notes
 
 - This is not built on Go's `map`; it is hand-rolled `[][]interface{}` buckets. In real code use `map[T]struct{}`.
-- Negative ints are folded into range; any other key type is hashed through `fmt.Sprintf("%T:%v")`, so `int64(7)` and `int(7)` are different elements.
+- Negative ints are folded into range, strings are hashed directly, and any other key type is hashed through `fmt.Sprintf("%T:%v")`, so `int64(7)` and `int(7)` are different elements.
 - Elements are compared with `==`, so a non-comparable element panics.
 
 ## How to Run

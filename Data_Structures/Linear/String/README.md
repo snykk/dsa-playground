@@ -22,7 +22,7 @@ Three things make strings differ from an array of numbers. Python and Go strings
 | String manipulation | one pass over the characters, often from both ends | O(1) | every operation O(n) | O(n); palindrome O(1) in C++ |
 | Rope | a balanced binary tree whose leaves hold short fragments | O(log n) | concat, split, insert, delete O(log n), plus the size of inserted text | O(n) |
 
-A substring is O(k) in Python and C++, which copy it, and O(1) in Go, which slices. The palindrome check uses O(1) extra space in C++, while Python and Go build a reversed copy. Reading a whole rope back into a string is O(n).
+A substring is O(k) in Python and C++, which copy it, and O(1) in Go, which slices. The palindrome check uses O(1) extra space in C++, while Python builds a reversed copy and Go a rune slice. Reading a whole rope back into a string is O(n).
 
 ## Choosing One
 

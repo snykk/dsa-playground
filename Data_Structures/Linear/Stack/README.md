@@ -12,7 +12,7 @@ Read them in this order.
 | 2 | [Dynamic Size Array Stack](Dynamic_Array_Stack/) | A growable array with no capacity limit. Push is O(1) amortized because the array grows by a constant factor. | Beginner |
 | 3 | [Linked List Stack](Linked_List_Stack/) | One node per item and a pointer to the top. Push and pop are O(1) in the worst case and nothing is ever copied. | Beginner |
 
-All three offer the same operations in Python, C++ and Go: `push(x)`, `pop()`, `peek()`, `is_empty()` and `size()`. `pop` and `peek` on an empty stack fail with an error (`IndexError` in Python).
+All three offer the same operations in Python, C++ and Go: `push(x)`, `pop()`, `peek()`, `is_empty()` and `size()` (Go capitalises them, and the C++ static and linked list stacks spell `isEmpty()`). `pop` and `peek` on an empty stack fail with an error (`IndexError` in Python).
 
 ## How They Compare
 

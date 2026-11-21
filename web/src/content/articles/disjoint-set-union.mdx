@@ -185,7 +185,7 @@ Each language ships helpers that run a DSU over an edge list: `connected_compone
 
 - **Connected components:** union every edge, then group vertices by root.
 - **Cycle detection:** the first edge whose `union` returns false closes a cycle. A self-loop or a repeated edge counts as one.
-- **Kruskal's MST:** sort the edges by weight and keep an edge only when `union` merges two sets. It stops after n - 1 edges.
+- **Kruskal's MST:** sort the edges by weight and keep an edge only when `union` merges two sets. The Python version stops after n - 1 edges; C++ and Go scan every edge.
 
 For problem patterns see the Union-Find Applications topic (linked above). More uses:
 

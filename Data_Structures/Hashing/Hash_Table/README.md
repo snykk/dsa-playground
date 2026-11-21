@@ -27,14 +27,15 @@ capacity 4, keys 5, 9, 13 (all give key mod 4 = 1)
 | `get(key)` | walk the key's bucket | O(1) average |
 | `remove(key)` | unlink from the bucket | O(1) average |
 | `contains(key)` | presence test | O(1) average |
-| size, is empty, clear | bookkeeping | O(1) |
+| size, is empty | bookkeeping | O(1) |
+| clear | empty every bucket | O(capacity) |
 | `get_or_default(key, default)` | value, or the default if the key is absent | O(1) average |
 | `put_if_absent(key, value)` | store only if the key is new; returns whether it stored | O(1) average |
 | `update(other)` | put every pair of another table (or dict in Python) | O(m) |
-| `copy()` | independent table with the same pairs (Python, Go) | O(m) |
+| `copy()` | independent table with the same pairs (Python, Go) | O(capacity + m) |
 | iteration | every `(key, value)` pair (Python `for`, Go `Items`) | O(capacity + n) |
 
-Per language: Python has `put`, `get(key, default)`, `remove`, `contains`, `keys`, `values`, `items`, `clear`, `is_empty`, and dict-style `in`, `len`, `[]`, `del`. C++ has `put`, `get` (pointer or `nullptr`), `remove`, `contains`, `getSize`, `isEmpty`, `clear`. Go has the same without iteration, using `interface{}` keys. Iteration is a Python (`for`, `items()`) and Go (`Items()`) feature; C++ has none.
+Per language: Python has `put`, `get(key, default)`, `remove`, `contains`, `keys`, `values`, `items`, `clear`, `is_empty`, and dict-style `in`, `len`, `[]`, `del`. C++ has `put`, `get` (pointer or `nullptr`), `remove`, `contains`, `getSize`, `isEmpty`, `clear`. Go has the same, using `interface{}` keys. Iteration is a Python (`for`, `items()`) and Go (`Items()`) feature; C++ has none.
 
 Map helpers by language: Python `get_or_default`, `put_if_absent`, `update(dict or HashTable)`, `copy`, `__iter__`; C++ `getOrDefault`, `putIfAbsent`, `update(std::map or unordered_map)`; Go `GetOrDefault`, `PutIfAbsent`, `Update`, `Copy`, `Items`. "Absent" means the key is missing: a key stored with None (or a zero value) is present, so `put_if_absent` does not overwrite it. Iteration follows the buckets, so its order is neither insertion nor sorted order and changes after a resize. Python iteration yields `(key, value)` tuples, not keys.
 
@@ -62,9 +63,9 @@ Counting words with the helpers: `count[w] = get_or_default(w, 0) + 1` gives `to
 | put | O(1) amortized | O(n) | a resize costs O(n) |
 | iterate | O(capacity + n) | same | visits every bucket |
 | get_or_default, put_if_absent | O(1) | O(n) | one lookup, plus one put |
-| update, copy (m pairs) | O(m) | O(m n) | one put per pair |
+| update, copy (m pairs) | O(m) puts | O(m n) | one put per pair; copy also allocates `capacity` buckets |
 
-Why O(1): with an even hash, a chain has `n / capacity` pairs on average, and resizing keeps that at most 0.75. Why amortized: resizes happen when the size doubles, so their cost over n inserts is n/2 + n/4 + ... < n. Space is O(n + capacity).
+Why O(1): with an even hash, a chain has `n / capacity` pairs on average, and resizing keeps that at most 0.75. Why amortized: resizes happen when the size doubles, so their cost over n inserts is at most n + n/2 + n/4 + ... < 2n. Space is O(n + capacity).
 
 ## When to Use
 

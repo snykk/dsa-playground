@@ -18,11 +18,12 @@ A chaining hash table with a doubling resize and dict-style access. See the [top
 | `remove(key)` / `del table[key]` | True if removed (`del` raises `KeyError`) | O(1) average |
 | `contains(key)` / `key in table` | presence, even when the stored value is None | O(1) average |
 | `keys()`, `values()`, `items()` | lists in bucket order | O(capacity + n) |
-| `clear()`, `is_empty()`, `len(table)` | bookkeeping | O(1) |
+| `is_empty()`, `len(table)` | bookkeeping | O(1) |
+| `clear()` | a fresh empty list per bucket | O(capacity) |
 | `get_or_default(key, default)` | value or default (a stored None is returned as None) | O(1) average |
 | `put_if_absent(key, value)` | True if inserted, False if the key exists (even with None) | O(1) average |
 | `update(other)` | put every pair of a `dict` or `HashTable` | O(m) |
-| `copy()` | independent table, same capacity | O(m) |
+| `copy()` | independent table, same capacity | O(capacity + m) |
 | `for k, v in table`, `repr(table)` | iterate `(key, value)` pairs in bucket order | O(capacity + n) |
 
 ## Python-Specific Notes

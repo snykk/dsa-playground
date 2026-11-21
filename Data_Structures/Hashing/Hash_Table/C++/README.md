@@ -16,7 +16,8 @@ A template chaining hash table with a doubling resize. See the [topic README](..
 | `V* get(key)` | pointer to the value or `nullptr` | O(1) average |
 | `bool remove(key)` | true if removed | O(1) average |
 | `bool contains(key)` | presence | O(1) average |
-| `getSize()`, `isEmpty()`, `clear()` | bookkeeping | O(1) |
+| `getSize()`, `isEmpty()` | bookkeeping | O(1) |
+| `clear()` | clears every bucket list | O(cap) |
 | `V getOrDefault(key, default)` | value or default | O(1) average |
 | `bool putIfAbsent(key, value)` | true if inserted | O(1) average |
 | `update(map)` | put every pair of a `std::map` or `std::unordered_map` | O(m) |

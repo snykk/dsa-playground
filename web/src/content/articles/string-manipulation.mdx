@@ -48,7 +48,7 @@ The repository implements seven operations in each language. They are thin and i
   ]}
 />
 
-All seven take O(n) time, where n is the string length (or the total length for join). Strings are immutable in Python and Go, so each operation returns a new string. C++ takes its arguments by value or by reference and returns a new string as well.
+All seven take O(n) time, where n is the string length (or the total length for join). Strings are immutable in Python and Go, so each operation that produces text returns a new string. C++ takes its arguments by value or by reference and returns a new string as well.
 
 ## See it in action
 
@@ -119,7 +119,7 @@ Python's `str.split()` with no argument behaves differently: it splits on runs o
 
 ## Replace, case and vowels
 
-- **Replace:** the three languages mean different things by `replace_char`. Python replaces every occurrence of a **substring** (`replace_char("hello", "ll", "L")` is `heLo`); an empty `old` inserts the new text between every character (`"-a-b-c-"` for `abc` and `-`). C++ replaces one **byte**. Go replaces one **rune**.
+- **Replace:** the three languages mean different things by `replace_char`. Python replaces every occurrence of a **substring** (`replace_char("hello", "ll", "L")` is `heLo`); an empty `old` inserts the new text between every character (`"-a-b-c-"` for `abc` and `-`). C++ replaces every occurrence of one **byte**. Go replaces every occurrence of one **rune**.
 - **Case:** `to_upper` and `to_lower` map each character. In C++ the cast to `unsigned char` before `toupper` is required, because a plain `char` with the high bit set is negative, which is undefined behaviour for the C library function. The C++ version leaves bytes above 127 (UTF-8 continuation bytes) alone, so only ASCII letters change. Python and Go apply Unicode case rules.
 - **Vowels:** a pass that tests each character against `aeiouAEIOU`. Vowels with accents are not counted.
 
