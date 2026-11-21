@@ -127,7 +127,7 @@ For explicit sets the same recipe applies. With `A = {1, 2, 3}`, `B = {2, 3, 4}`
 - Divisors must be at least 1. In C++ and Go the lcm is built step by step and a subset is skipped as soon as its lcm exceeds `n` (its term would be 0 anyway). That also prevents integer overflow with many divisors.
 - For `n` below 1 the range 1..n is empty and all three return 0. (The Python version used to floor `n // lcm` to a negative count there: -4 for `n = -10` and the divisor 3.)
 - Each subset's intersection starts from the first set that is in the subset. (An earlier version started from `sets[0]` every time and returned 3 instead of 5 for the example above.)
-- Both functions loop over `1 << k` masks, so they are meant for small k (the C++ and Go versions use 32-bit shifts on `int`, so k must stay below 31).
+- Both functions loop over `1 << k` masks, so they are meant for small k (the C++ version shifts a 32-bit `int`, so k must stay below 31; Go's `int` is 64 bits on common platforms).
 
 <TopicCode topic="Problem_Patterns/Inclusion_Exclusion_Principle" />
 

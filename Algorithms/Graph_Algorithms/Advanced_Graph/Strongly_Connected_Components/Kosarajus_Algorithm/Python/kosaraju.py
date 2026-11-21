@@ -25,7 +25,7 @@ def kosaraju_scc(graph: Dict[int, List[int]]) -> List[List[int]]:
         List of strongly connected components, each as a list of vertices
         
     Time Complexity: O(V + E)
-    Space Complexity: O(V)
+    Space Complexity: O(V + E)
     """
     if not graph:
         return []
@@ -102,7 +102,7 @@ def kosaraju_scc_count(graph: Dict[int, List[int]]) -> int:
         Number of strongly connected components
         
     Time Complexity: O(V + E)
-    Space Complexity: O(V)
+    Space Complexity: O(V + E)
     """
     sccs = kosaraju_scc(graph)
     return len(sccs)
@@ -119,7 +119,7 @@ def is_strongly_connected(graph: Dict[int, List[int]]) -> bool:
         True if graph is strongly connected, False otherwise
         
     Time Complexity: O(V + E)
-    Space Complexity: O(V)
+    Space Complexity: O(V + E)
     """
     sccs = kosaraju_scc(graph)
     return len(sccs) == 1
@@ -137,7 +137,7 @@ def kosaraju_condensation_graph(graph: Dict[int, List[int]]) -> Dict[int, List[i
         Maps SCC index to list of SCC indices it connects to
         
     Time Complexity: O(V + E)
-    Space Complexity: O(V)
+    Space Complexity: O(V + E)
     """
     sccs = kosaraju_scc(graph)
     

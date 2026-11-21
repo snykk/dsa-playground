@@ -130,6 +130,9 @@ func MultiplyPolynomials(p, q []int) []int {
 
 	// Round to integers (for integer coefficients)
 	resultSize := len(p) + len(q) - 1
+	if resultSize < 0 {
+		resultSize = 0 // two empty polynomials: an empty product
+	}
 	result := make([]int, resultSize)
 	for i := 0; i < resultSize; i++ {
 		result[i] = int(math.Round(real(product[i])))

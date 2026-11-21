@@ -44,7 +44,7 @@ Computing each `Z[i]` from scratch would be quadratic. The algorithm keeps the *
     If `i <= r`, then `s[i..r]` is a copy of `s[i-l..r-l]` near the start of the string. So `Z[i]` starts at `min(r - i + 1, Z[i - l])`: the value of the mirror, but clipped so it does not claim anything beyond `r`.
   </Step>
   <Step title="Extend by comparing">
-    While `i + Z[i] < n` and `s[Z[i]] == s[i + Z[i]]`, increase `Z[i]`. Only characters beyond the box are really compared.
+    While `i + Z[i] < n` and `s[Z[i]] == s[i + Z[i]]`, increase `Z[i]`. Only characters beyond the box can extend the match; a comparison inside it fails at once.
   </Step>
   <Step title="Move the box">
     If `i + Z[i] - 1 > r`, the new match reaches further right: set `l = i` and `r = i + Z[i] - 1`.
@@ -52,7 +52,7 @@ Computing each `Z[i]` from scratch would be quadratic. The algorithm keeps the *
 </Steps>
 
 <Callout title="Why it is linear">
-`r` never moves left, and every successful comparison in step 3 moves it right by one. When the mirror value is smaller than `r - i + 1`, nothing is compared at all, and when it is larger it is clipped to the box. So the total number of successful comparisons is at most `n`, and each position adds at most one failed comparison.
+`r` never moves left, and every successful comparison in step 3 moves it right by one. When the mirror value is smaller than `r - i + 1`, it is already final and the one comparison made fails, and when it is larger it is clipped to the box. So the total number of successful comparisons is at most `n`, and each position adds at most one failed comparison.
 </Callout>
 
 ## See it in action
@@ -66,7 +66,7 @@ Enter a text and a pattern and step through the search. The Z-algorithm runs on 
 For `s = aabxaabxaab` the code computes `Z = [0, 1, 0, 0, 7, 1, 0, 0, 3, 1, 0]`.
 
 <ArrayDiagram
-  legend={{ l: 'the Z-box [4, 10]: s[4..10] equals the prefix s[0..6]', f: 'a position whose value came from the box without comparisons' }}
+  legend={{ l: 'the Z-box [4, 10]: s[4..10] equals the prefix s[0..6]', f: 'a position whose value came from the box, with no successful comparison' }}
   rows={[
     { label: 's', values: ['a', 'a', 'b', 'x', 'a', 'a', 'b', 'x', 'a', 'a', 'b'], tones: '....lllllll' },
     { label: 'Z', values: [0, 1, 0, 0, 7, 1, 0, 0, 3, 1, 0], tones: '....lffffff', marks: { 4: 'box starts' } },
@@ -82,16 +82,16 @@ What happens, step by step:
     ['2', '[1, 1]', '0', '`b` vs `a` fails', '0', '[1, 1]'],
     ['3', '[1, 1]', '0', '`x` vs `a` fails', '0', 'empty (the code sets [3, 2])'],
     ['4', 'empty ([3, 2])', '0', 'seven matches, then the string ends', '7', '[4, 10]'],
-    ['5', '[4, 10]', '`min(6, Z[1]) = 1`', 'none needed', '1', '[4, 10]'],
-    ['6', '[4, 10]', '`min(5, Z[2]) = 0`', 'none needed', '0', '[4, 10]'],
-    ['7', '[4, 10]', '`min(4, Z[3]) = 0`', 'none needed', '0', '[4, 10]'],
-    ['8', '[4, 10]', '`min(3, Z[4]) = 3`', 'none needed', '3', '[4, 10]'],
-    ['9', '[4, 10]', '`min(2, Z[5]) = 1`', 'none needed', '1', '[4, 10]'],
-    ['10', '[4, 10]', '`min(1, Z[6]) = 0`', 'none needed', '0', '[4, 10]'],
+    ['5', '[4, 10]', '`min(6, Z[1]) = 1`', '`b` vs `a` fails', '1', '[4, 10]'],
+    ['6', '[4, 10]', '`min(5, Z[2]) = 0`', '`b` vs `a` fails', '0', '[4, 10]'],
+    ['7', '[4, 10]', '`min(4, Z[3]) = 0`', '`x` vs `a` fails', '0', '[4, 10]'],
+    ['8', '[4, 10]', '`min(3, Z[4]) = 3`', 'none: the string ends', '3', '[4, 10]'],
+    ['9', '[4, 10]', '`min(2, Z[5]) = 1`', '`b` vs `a` fails', '1', '[4, 10]'],
+    ['10', '[4, 10]', '`min(1, Z[6]) = 0`', '`b` vs `a` fails', '0', '[4, 10]'],
   ]}
 />
 
-Positions 5 to 10 cost no comparisons: the box already told us the answer.
+Positions 5 to 10 make no successful comparison: the box already told us the answer, so each of them makes one comparison that fails (8 makes none, because the string ends).
 
 ## Pattern search
 

@@ -203,10 +203,10 @@ The order in which vertices are visited matters a lot. Coloring the vertex with 
 
 <Faq>
   <FaqItem question="Why does chromatic_number try m = 1, 2, 3, ... instead of binary search?">
-    Binary search would also be correct, because the answer is monotone in m. Linear order is simpler, and the calls with a small m have a small search tree (m<sup>V</sup>), so they are cheap to fail. The expensive call is the one just below the answer either way.
+    Binary search would also be correct, because the answer is monotone in m. Linear order is simpler, and the calls with a small m have a small search tree (m<sup>V</sup>), so they are cheap to fail. The most expensive failed call is the one just below the answer, and binary search has to make it too.
   </FaqItem>
   <FaqItem question="What is the chromatic number of common graphs?">
-    A graph with no edges needs 1, an even cycle or any tree needs 2, an odd cycle needs 3, and the complete graph on n vertices needs n. The tests in this repository check these cases.
+    A graph with no edges needs 1, an even cycle or any tree with at least one edge needs 2, an odd cycle needs 3, and the complete graph on n vertices needs n. The tests in this repository check all of these cases except the tree.
   </FaqItem>
   <FaqItem question="Is there a fast algorithm?">
     Not for the general problem unless P = NP. Two colors can be tested in <BigO of="V + E" /> by checking whether the graph is bipartite. For three or more colors the problem is NP-complete, so practical solvers use better vertex ordering and pruning, or heuristics such as DSatur.

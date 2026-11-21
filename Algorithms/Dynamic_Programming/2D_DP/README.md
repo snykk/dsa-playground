@@ -9,11 +9,11 @@ Read them in this order.
 | # | Topic | What it adds | Level |
 |---|-------|--------------|-------|
 | 1 | [Longest Common Subsequence](Longest_Common_Subsequence/) | The base table. `dp[i][j]` is the LCS of two prefixes. Match and take the diagonal, else take the better neighbor. | Intermediate |
-| 2 | [Edit Distance](Edit_Distance/) | The same table shape over prefixes, with a minimum over replace, delete and insert, and a first row and column of 0..n. | Intermediate |
+| 2 | [Edit Distance](Edit_Distance/) | The same table shape over prefixes, with a minimum over replace, delete and insert, and a first row of 0..n and a first column of 0..m. | Intermediate |
 | 3 | [0/1 Knapsack](0_1_Knapsack/) | Items against a capacity. Each cell chooses to skip an item or take it, and the table needs O(n*W) cells. | Intermediate |
 | 4 | [Matrix Chain Multiplication](Matrix_Chain_Multiplication/) | Interval DP. Fill the table by chain length and try every split point. The hardest of the four, at O(n^3). | Advanced |
 
-The first three fill row by row, and each cell reads only its neighbors above and to the left. Matrix Chain fills by chain length, because a cell reads shorter intervals of its own chain.
+The first three fill row by row, and each cell reads only cells above and to the left. Matrix Chain fills by chain length, because a cell reads shorter intervals of its own chain.
 
 ## How They Compare
 
@@ -24,7 +24,7 @@ The first three fill row by row, and each cell reads only its neighbors above an
 | 0/1 Knapsack | best value using the first `i` items with capacity `j` | O(n*W) | O(n*W), or O(W) with one row |
 | Matrix Chain | fewest scalar multiplications for matrices `i` to `j` | O(n^3) | O(n^2) |
 
-All four have the same best, average and worst time, because the loops do not depend on the data. `m` and `n` are string lengths (for Matrix Chain, `n` is the number of matrices) and `W` is the capacity.
+All four have the same best, average and worst time, because the loops do not depend on the data. `m` and `n` are string lengths (for Knapsack, `n` is the number of items; for Matrix Chain, the number of matrices) and `W` is the capacity.
 
 ## Choosing One
 

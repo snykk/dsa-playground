@@ -52,7 +52,7 @@ After partitioning, everything to the left of the pivot is `<=` it and everythin
 
 ## See it in action
 
-Press play, or step through one comparison at a time. Blue bars are being compared, orange bars are moving, and aqua bars have reached their final position. The caption under the chart explains every step, and you can type your own array.
+Press play, or step through one comparison at a time. Blue bars are being compared, orange bars are the pivot or are moving, and aqua bars have reached their final position. The caption under the chart explains every step, and you can type your own array.
 
 <ArticleViz ids={['quick-sort']} />
 
@@ -121,7 +121,7 @@ The ranges on one level of the recursion do not overlap, so partitioning a whole
 <ComplexityTable
   rows={[
     { case: 'Best case', time: 'O(n log n)', when: 'Every pivot lands in the middle, so each level halves the ranges: log2(n) levels of O(n) work.' },
-    { case: 'Average case', time: 'O(n log n)', when: 'On random input the splits are uneven but balanced on average. Quick Sort makes about 1.39 n log2(n) comparisons.' },
+    { case: 'Average case', time: 'O(n log n)', when: 'On random input the splits are uneven but balanced on average. Quick Sort makes about 1.39 n log2(n) - 2.85 n comparisons.' },
     { case: 'Worst case', time: 'O(n^2)', when: 'Every pivot is the smallest or largest element, so one side is empty and there are n levels. With a last-element pivot this happens on sorted, reverse-sorted and all-equal input.' },
   ]}
 />

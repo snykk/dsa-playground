@@ -75,7 +75,7 @@ Do not use it when:
 ## Common Pitfalls
 
 1. Confusing the dimension list with the matrix list: `n` matrices need `n + 1` numbers.
-2. 32-bit overflow: costs grow like the product of three dimensions, so `[2000, 2000, 2000]` (8 * 10^9) needs 64-bit costs. C++ uses `long long`, Go's `int` is 64-bit, Python is unbounded.
+2. 32-bit overflow: costs grow like the product of three dimensions, so `[2000, 2000, 2000]` (8 * 10^9) needs 64-bit costs. C++ uses `long long`, Go's `int` is 64-bit on 64-bit platforms, Python is unbounded.
 3. Looping over `i` first instead of chain length, which reads cells that are not computed yet.
 4. Wrong join cost: it is `dims[i-1] * dims[k] * dims[j]`.
 5. Reading the answer from the wrong cell: it is `dp[1][n]`.

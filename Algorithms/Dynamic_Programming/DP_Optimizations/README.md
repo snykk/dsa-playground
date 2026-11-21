@@ -36,7 +36,7 @@ Used in a DP, the monotonic version turns O(n^2) into O(n) when slopes and queri
 - Breaking the order: `MonotonicCHT` gives wrong answers unless slopes are non-increasing and queries non-decreasing.
 - Querying outside the range: `LiChaoTree.query` raises `ValueError` when `x` is outside the constructor's range.
 - Overflow: the values `m*x + b` must fit the integer type. C++ and Go use wide arithmetic in the line comparison, but not in the values.
-- Querying an empty structure: Python raises `ValueError`, C++ has undefined behavior and Go panics.
+- Querying an empty `MonotonicCHT`: Python raises `ValueError`, C++ has undefined behavior and Go panics.
 - Both structures answer minimum queries, not maximum.
 
 ## Related

@@ -13,7 +13,7 @@ Read them in this order.
 | 3 | [Huffman Coding](Huffman_Coding/) | Merge the two lightest nodes again and again. Frequent symbols get short codes in the best prefix-free code. | Intermediate |
 | 4 | [Job Scheduling](Job_Scheduling/) | Highest profit first, into the latest free slot before its deadline. Two more rules cover lateness and weighted completion time. | Intermediate |
 
-The Minimum Spanning Tree algorithms, Kruskal's and Prim's, are also greedy. They live in [Minimum Spanning Tree](../Graph_Algorithms/Minimum_Spanning_Tree/), not here. Job Scheduling holds three rules, and C++ and Go do not cover all three. Huffman Coding is implemented in all three languages, and for ASCII text they give the same code table.
+The Minimum Spanning Tree algorithms, Kruskal's and Prim's, are also greedy. They live in [Minimum Spanning Tree](../Graph_Algorithms/Minimum_Spanning_Tree/), not here. Job Scheduling holds three rules, and Python, C++ and Go implement all three. Huffman Coding is implemented in all three languages too, and for ASCII text they give the same code table.
 
 ## How They Compare
 
@@ -29,7 +29,7 @@ The Minimum Spanning Tree algorithms, Kruskal's and Prim's, are also greedy. The
 | Activity Selection | O(n log n) | O(n) | the sort by finish time; the scan is O(n) |
 | Fractional Knapsack | O(n log n) | O(n) | the sort by ratio; the fill is O(n) |
 | Huffman Coding | O(k log k) | O(k) | k heap merges; counting the text is O(N) |
-| Job Scheduling (deadlines) | O(n log n + n * min(D, n)) | O(n + D) | the sort by profit, then a slot search per job |
+| Job Scheduling (deadlines) | O(n log n + n * min(D, n) + D) | O(n + D) | the sort by profit, then a slot search per job; the D + 1 slots cost O(D) to create |
 
 `D` is the largest deadline and `k` the number of distinct symbols. Fractional Knapsack's O(n) extra space is the sorted copy in Python; C++ and Go sort the input in place.
 

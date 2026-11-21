@@ -85,7 +85,7 @@ Do not use it when:
 1. Off-by-one: the table is one larger than the strings, so cell `dp[i][j]` compares `s1[i-1]` and `s2[j-1]`.
 2. Wrong borders: `dp[0][j]` is `j`, not 0.
 3. Counting a replace as two edits.
-4. Bytes versus characters: the C++ and Go versions compare bytes, so a character that takes two bytes in UTF-8 costs two edits. Python compares code points.
+4. Bytes versus characters: the C++ and Go versions compare bytes, so a character that takes two bytes in UTF-8 can cost two edits. Python compares code points.
 5. Expecting a swap of adjacent letters to cost 1 (that is Damerau-Levenshtein).
 
 ## Implementations

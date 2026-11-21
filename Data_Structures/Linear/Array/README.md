@@ -72,7 +72,7 @@ Total copies for 9 appends: 1 + 2 + 4 + 8 = 15. Then popping 90, 80, 70, 60, 50 
 | insert / remove at `i` | O(n) | O(n) |
 | space | O(n) | O(n), up to a constant factor of unused slots |
 
-Why append is amortized O(1): with doubling, the resizes copy 1, 2, 4, ..., n/2 elements, a sum below n. Over n appends the extra copying is below n, so each append costs a constant on average. For example, 1000 appends from capacity 1 perform 1023 element copies in resizes. One single append can still cost O(n).
+Why append is amortized O(1): with doubling, the resizes copy 1, 2, 4, ... elements, each copy smaller than n, a sum below 2n. Over n appends the extra copying is below 2n, so each append costs a constant on average. For example, 1000 appends from capacity 1 perform 1023 element copies in resizes. One single append can still cost O(n).
 
 ## When to Use
 

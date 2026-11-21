@@ -88,7 +88,7 @@ function matPowSpec(mode: MatPowMode): VizSpec<MatPowInput, MatPowState> {
         ],
     complexity: iterative
       ? { time: 'O(n^3 log k): about log2(k) squarings and up to as many products', space: 'O(n^2)' }
-      : { time: 'O(n^3 log k): at most 2 log2(k) calls, one product each', space: 'O(n^2) per open call, O(log k) calls deep' },
+      : { time: 'O(n^3 log k): floor(log2 k) + popcount(k) calls (at most 2 log2(k) + 1), one product at most each', space: 'O(n^2) per open call, O(log k) calls deep' },
   };
 }
 

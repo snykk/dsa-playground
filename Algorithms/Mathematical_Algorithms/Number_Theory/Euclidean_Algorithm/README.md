@@ -23,11 +23,11 @@ Tiling a 48 x 18 rectangle with the largest possible squares mirrors the algorit
 1. If `b = 0`, the answer is `|a|`.
 2. Otherwise replace `(a, b)` by `(b, a mod b)` and repeat.
 
-Extended version: run the same steps on `|a|` and `|b|`, tracking coefficients so that every remainder is a combination `a*x + b*y`. For negative inputs, negate `x` when `a < 0` and `y` when `b < 0`. LCM follows from `lcm(a, b) = |a| / gcd(a, b) * |b|`.
+Extended version: run the same steps on `|a|` and `|b|` recursively; the last call returns `(g, 1, 0)`, and each call on the way back turns the `(x1, y1)` it got into `(y1, x1 - (a / b) * y1)`. For negative inputs, negate `x` when `a < 0` and `y` when `b < 0`. LCM follows from `lcm(a, b) = |a| / gcd(a, b) * |b|`.
 
 ## Step-by-Step Trace
 
-`gcd(240, 46)` with the extended coefficients; each remainder `r` equals `240*x + 46*y`:
+`gcd(240, 46)` with the extended coefficients; each remainder `r` equals `240*x + 46*y` (the code back-substitutes instead of keeping this table, and reaches the same final pair):
 
 | `r` | quotient | `x` | `y` |
 |-----|----------|-----|-----|
@@ -47,7 +47,7 @@ So `gcd(240, 46) = 2` and `240*(-9) + 46*47 = 2`. `extended_gcd(-240, 46)` retur
 |-----------|------|-------|
 | `gcd` (recursive) | O(log min(a, b)) | O(log min(a, b)) stack |
 | `gcd_iterative` | O(log min(a, b)) | O(1) |
-| `lcm` | O(log min(a, b)) | O(1) |
+| `lcm` | O(log min(a, b)) | O(log min(a, b)) stack (it calls the recursive `gcd`) |
 | `extended_gcd` | O(log min(a, b)) | O(log min(a, b)) stack |
 
 Why logarithmic: after two steps the larger number is less than half of what it was (`a mod b < a / 2` whenever `a >= b`). Lame's theorem sharpens this: the number of steps never exceeds five times the number of decimal digits of the smaller input. The worst case is two consecutive Fibonacci numbers: `gcd(89, 55)` needs 9 division steps.
@@ -81,7 +81,7 @@ Why logarithmic: after two steps the larger number is less than half of what it 
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
 | Python | [Python](Python/) | `euclidean_algorithm.py` | big integers; `gcd`, `gcd_iterative`, `lcm`, `extended_gcd` |
-| C++ | [C++](C++/) | `euclidean_algorithm.cpp` | `long long`; lcm result must fit in 64 bits |
+| C++ | [C++](C++/) | `euclidean_algorithm.cpp` | `long long`; lcm result must fit in `long long` |
 | Go | [Go](Go/) | `main.go` | `int64`; integer-only absolute value |
 
 ## Practice Problems

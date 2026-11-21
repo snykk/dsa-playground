@@ -57,7 +57,7 @@ Kahn on `{0:[1,2], 1:[3], 2:[3], 3:[4], 5:[4]}`. Vertex 4 only appears as a neig
 |-----------|------|-------|
 | Kahn | O(V + E) | O(V) |
 | DFS finish order | O(V + E) | O(V) |
-| All orders (Python, backtracking) | O(V! * E) | O(V) |
+| All orders (Python, backtracking) | O(V! * (V^2 + E)) | O(V) |
 | Longest path in a DAG (Python) | O(V + E) | O(V) |
 
 Each vertex is queued or finished once and each edge is looked at once. The order is unique exactly when the queue holds one vertex at every step of Kahn (consecutive vertices are linked by edges).

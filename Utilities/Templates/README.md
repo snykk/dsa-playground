@@ -16,7 +16,7 @@ All three have the modulus constants `MOD` (10^9 + 7) and `MOD2` (998244353), a 
 
 | Template | Input | Entry point | Run the tests |
 |----------|-------|-------------|---------------|
-| C++ | `fastIO()` setup with `cin` | `solve()` called from `main` | compile `cpp_boilerplate_test.cpp` |
+| C++ | `fastIO()` setup with `cin` | `solve()` called from `main` | compile `cpp_boilerplate_test.cpp` (it tests its own copies of the helpers, not the template file) |
 | Go | buffered reader and writer | `solve()` called from `main`, with `defer writer.Flush()` | `go test` |
 | Python | `sys.stdin.readline` helpers | `solve()` called from `main` | run `python_boilerplate_test.py` |
 

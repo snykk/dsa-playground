@@ -22,7 +22,7 @@ facts:
     hint: a table of matching-run lengths
   - label: Suffix array search
     value: O(m log n)
-    hint: two binary searches
+    hint: two binary searches; sorting k matches adds O(k log k)
 contents:
   - folder: Z_Algorithm
     note: For every position, how long a prefix match starts there. One array in O(n) that also finds a pattern.
@@ -61,7 +61,7 @@ Every topic returns exact answers, and every search reports overlapping matches.
   rows={[
     ['Z-algorithm', 'a Z-box of known matches lets later positions reuse earlier work', 'needs no failure table; searches on `pattern + $ + text`', 'O(n + m)'],
     ['Aho-Corasick', 'a trie of the patterns with KMP-style failure links', 'reads the text once and reports every pattern', 'O(n + m + z)'],
-    ['Suffix array', 'sort all suffixes, keep their start indices', 'all occurrences of a pattern form one block', 'build O(n^2 log n), search O(m log n)'],
+    ['Suffix array', 'sort all suffixes, keep their start indices', 'all occurrences of a pattern form one block', 'build O(n^2 log n), search O(m log n + k log k)'],
     ['Manacher', 'a palindrome radius per center, mirrored inside the right boundary', 'handles even and odd palindromes together', 'O(n)'],
     ['Longest common substring', 'a table of the longest common run ending at each pair of positions', 'returns one longest substring', 'O(m*n)'],
   ]}
@@ -99,13 +99,13 @@ The first two rows agree, as they must. Aho-Corasick reports where each match en
   rows={[
     ['Z-algorithm', 'O(k) for a string of length k', 'O(n + m)', 'O(n + m)'],
     ['Aho-Corasick', 'O(m)', 'O(n + z)', 'O(m)'],
-    ['Suffix array', 'O(n^2 log n) here', 'O(m log n)', 'O(n^2) in Python and C++ here, O(n) ideal'],
+    ['Suffix array', 'O(n^2 log n) here', 'O(m log n + k log k)', 'O(n^2) in Python and C++ here, O(n) ideal'],
     ['Manacher', 'none', 'O(n)', 'O(n)'],
     ['Longest common substring', 'none', 'O(m*n)', 'O(m*n) here, two rows would be enough'],
   ]}
 />
 
-Here `n` is the text length, `m` is the pattern length (the total pattern length for Aho-Corasick), and `z` is the number of reported matches, which can exceed `n` when patterns overlap.
+Here `n` is the text length, `m` is the pattern length (the total pattern length for Aho-Corasick), and `z` is the number of reported matches, which can exceed `n` when patterns overlap. `k` is the number of occurrences a suffix-array search sorts before returning them.
 
 ## Choosing one
 
@@ -114,7 +114,7 @@ Here `n` is the text length, `m` is the pattern length (the total pattern length
   rows={[
     ['One pattern, linear time, a simple array', 'Z-algorithm', 'one array in O(n) and no failure table'],
     ['A dictionary of patterns of any lengths', 'Aho-Corasick', 'one pass over the text finds every pattern'],
-    ['Many different queries against one fixed text', 'Suffix array', 'pay for the build once, then each query is O(m log n)'],
+    ['Many different queries against one fixed text', 'Suffix array', 'pay for the build once, then each query finds its block in O(m log n)'],
     ['Longest palindromic substring', 'Manacher', 'O(n), against O(n^2) for expanding around every center'],
     ['Longest block shared by two strings', 'Longest common substring', 'a clear table; a suffix array can do it in near-linear time'],
     ['The text changes between queries', 'Aho-Corasick or a plain search', 'a suffix array is static and must be rebuilt on every change'],

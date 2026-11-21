@@ -25,7 +25,7 @@ SA = [5, 3, 1, 0, 4, 2]       search("ana") -> ranks 1..2 -> [1, 3]
 | Operation | Description | Time |
 |-----------|-------------|------|
 | Build | sort all suffixes, keep their start indices | O(n^2 log n) in this code |
-| `search(pattern)` | all start indices of the pattern, in increasing order | O(m log n) |
+| `search(pattern)` | all start indices of the pattern, in increasing order | O(m log n + k log k) for k matches |
 | `get_suffixes()` | the suffixes in sorted order | O(n^2) |
 | `longest_common_prefix(i, j)` | common prefix length of the suffixes at `i` and `j` | O(n) |
 
@@ -72,7 +72,7 @@ Ranks 1 and 2 hold `SA = 3` and `SA = 1`; sorted: `[1, 3]`.
 |------|-----------------|----------|
 | Build time | O(n^2 log n) worst case | O(n log n) doubling with radix sort; O(n) SA-IS |
 | Build memory | O(n^2) in Python and C++ (suffixes are copied); O(n) in Go | O(n) |
-| Search | O(m log n) | O(m log n) |
+| Search | O(m log n), plus O(k log k) to sort the k matches | O(m log n) |
 | LCP of two suffixes | O(n) | O(1) with an LCP array and range minimum |
 | LCP array | not implemented | O(n) with Kasai |
 

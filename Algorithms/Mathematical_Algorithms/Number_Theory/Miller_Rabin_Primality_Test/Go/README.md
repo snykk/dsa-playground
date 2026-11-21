@@ -3,7 +3,7 @@
 ## Files
 
 - `main.go`: all functions plus a demo in `main`.
-- `main_test.go`: tests (small primes and composites, edge cases, primes and composites near 2^32, 2^61 and 2^63, 2^64 - 59, strong pseudoprimes, Carmichael numbers, negative input, `ModPow` with a 60-bit modulus, agreement with trial division for 0..5000).
+- `main_test.go`: tests (small primes and composites, edge cases, primes and composites near 2^32, 2^61 and 2^63, 2^64 - 59, strong pseudoprimes, Carmichael numbers, negative input, `ModPow` with a 60-bit modulus, agreement with trial division for 0..4999).
 - `go.mod`: module file (Go 1.21).
 
 ## API

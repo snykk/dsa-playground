@@ -29,7 +29,7 @@ class TwoSAT {
     // Force literal `a` to be true via (a or a).
     void forceTrue(int a) { addClause(a, a); }
 
-    // Returns (true, assignment) on SAT, or (false, std::nullopt) on UNSAT.
+    // Returns the assignment on SAT, or std::nullopt on UNSAT.
     std::optional<std::vector<bool>> solve() {
         runTarjan();
         std::vector<bool> assignment(n_, false);

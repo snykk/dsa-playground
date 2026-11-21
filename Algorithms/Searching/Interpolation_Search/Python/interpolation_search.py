@@ -38,7 +38,10 @@ def interpolation_search(arr, target):
         
         # Calculate position using interpolation formula
         # pos = left + ((target - arr[left]) * (right - left)) // (arr[right] - arr[left])
-        pos = left + int(((target - arr[left]) * (right - left)) // (arr[right] - arr[left]))
+        offset = ((target - arr[left]) * (right - left)) // (arr[right] - arr[left])
+        if not offset < right - left:  # also inf or NaN, for floats too large for the formula
+            offset = right - left
+        pos = left + int(offset)
         
         # Check if target is at calculated position
         if arr[pos] == target:
@@ -87,7 +90,10 @@ def interpolation_search_recursive(arr, target, left=0, right=None):
         return -1
 
     # Calculate position using interpolation formula
-    pos = left + int(((target - arr[left]) * (right - left)) // (arr[right] - arr[left]))
+    offset = ((target - arr[left]) * (right - left)) // (arr[right] - arr[left])
+    if not offset < right - left:  # also inf or NaN, for floats too large for the formula
+        offset = right - left
+    pos = left + int(offset)
 
     # Check if target is at calculated position
     if arr[pos] == target:

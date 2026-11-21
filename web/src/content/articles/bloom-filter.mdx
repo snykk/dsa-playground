@@ -87,7 +87,7 @@ On the filter above:
   ]}
 />
 
-`aoo` hits bit 17 (from `dog`) and bits 2 and 20 (from `cat`), each set by a different item.
+`aoo` hits bit 17 (from `dog`) and bits 2 and 20 (from `cat`), each set by an item other than `aoo`.
 
 ## Choosing m and k
 
@@ -101,7 +101,7 @@ The false positive rate of a filter holding `n` items is approximately `(1 - e^(
 
 Measured with the repository code on 1000 items at `p = 1%` (`m = 9586`, `k = 7`), probing 20000 strings that were never added: Python 1.05%, C++ 0.98%, Go 1.14%. About half the bits are set (4987 of 9586 in Python).
 
-Sizing is validated: a capacity of 0 or less, or an error rate outside (0, 1), raises `ValueError` in Python, throws `std::invalid_argument` in C++ and panics in Go. The bit count is rounded up and `k` is at least 1. An earlier version truncated both and `BloomFilter(2, 0.5)` got `k = 0`, so `contains` was true for everything.
+Sizing is validated: a capacity of 0 or less, or an error rate outside (0, 1), raises `ValueError` in Python and panics in Go. C++ takes the capacity as a `size_t`, so it throws `std::invalid_argument` for a capacity of 0 or a bad error rate. The bit count is rounded up and `k` is at least 1. An earlier version truncated both and `BloomFilter(2, 0.5)` got `k = 0`, so `contains` was true for everything.
 
 ## Complexity
 
@@ -170,7 +170,7 @@ Each operation also costs the hash time, which grows with the item length. The P
 <Callout tone="warning" title="Watch out for these">
 - **Treating "yes" as certain.** Verify against the real store when correctness matters.
 - **Truncating m and k.** `int(...)` can give `k = 0` for small filters, and then every query returns true. Round `m` up and use at least one hash.
-- **Correlated hashes.** Appending the index byte to the item before one 32-bit hash made the k positions follow a single arithmetic progression. The measured error rate was 10-19% at a configured 1%. Use two independent hashes and combine them as `h1 + i * h2`.
+- **Correlated hashes.** This repository's Go version once appended the index byte to the item before one 32-bit hash, which made the k positions follow a single arithmetic progression; it measured a 10-19% error rate at a configured 1%. Use two independent hashes and combine them as `h1 + i * h2`.
 - **Overfilling.** Adding far more than `capacity` items sets most bits, and nearly every query then answers "maybe".
 - **Expecting delete.** Clearing bits corrupts other items; use a counting filter instead.
 </Callout>

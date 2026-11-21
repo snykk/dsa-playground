@@ -116,7 +116,7 @@ The shared loop is `binary_search_answer` (`binarySearchAnswer` in C++ and Go). 
 
 <TopicCode topic="Problem_Patterns/Binary_Search_on_Answer" />
 
-Behaviour worth knowing: Python and C++ sort the caller's list in the k-th distance function, Go sorts a copy. Empty input is not handled the same way: Python raises, C++ is undefined behaviour and Go returns 0, so validate input first.
+Behaviour worth knowing: Python and C++ sort the caller's list in the k-th distance function, Go sorts a copy. Empty input is not handled the same way: Python raises, C++ is undefined behaviour, and Go returns 0 from `findMinCapacity` but panics in the k-th distance function, so validate input first.
 
 ## Complexity
 
@@ -160,7 +160,7 @@ Space is <BigO of="1" /> besides the check's own storage. The range size matters
 <Callout tone="warning" title="Watch out for these">
 - **A non-monotone check.** If feasibility is not a clean False-then-True, the search silently returns garbage. Test the property on small cases first.
 - **Bad bounds.** A `left` above the true answer or a `right` below it skips the answer. For capacity problems start `left` at the largest single item (anything smaller can never ship it) and `right` at the total.
-- **Off-by-one and endless loops.** With `left < right` and `mid = (left + right) / 2` you must use `right = mid` (not `mid - 1`). Mixing the two styles loops forever.
+- **Off-by-one and endless loops.** With `left < right` and `mid = (left + right) / 2` you must use `right = mid` (not `mid - 1`, which can skip the answer). Mixing the styles the other way, `right = mid` with `left <= right`, loops forever.
 - **Forgetting the infeasible case.** Return a sentinel such as `-1` instead of an end of the range, otherwise "no answer" looks like a valid answer.
 - **Overflow.** Sums of up to 10<sup>5</sup> values of 10<sup>9</sup> overflow 32-bit `int`. Use 64-bit types for bounds in C++ and Go.
 </Callout>

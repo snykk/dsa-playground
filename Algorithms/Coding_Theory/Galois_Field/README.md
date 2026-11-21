@@ -58,7 +58,7 @@ Step 2: reduce modulo 0x11B, clearing the top bit each time
 | `pow(a, n)` | `exp[(log[a] * n) mod 255]`; error only for `0^0` | O(1) |
 | polynomial helpers | add, scale, multiply, Horner evaluation (Python also has divmod) | O(d), O(d^2) |
 
-**Log/antilog tables** are the speed trick. Pick a generator `alpha` (here `0x03`), store `exp[i] = alpha^i` and `log[alpha^i] = i`. Then `a * b = exp[log[a] + log[b]]`: one addition and two lookups instead of a polynomial multiplication. The exp table is stored twice over (`exp[i + 255] = exp[i]`) so the index never needs `mod 255`.
+**Log/antilog tables** are the speed trick. Pick a generator `alpha` (here `0x03`), store `exp[i] = alpha^i` and `log[alpha^i] = i`. Then `a * b = exp[log[a] + log[b]]`: one addition and three lookups (two in `log`, one in `exp`) instead of a polynomial multiplication. The exp table is stored twice over (`exp[i + 255] = exp[i]`) so the index never needs `mod 255`.
 
 Building the tables:
 
@@ -81,7 +81,7 @@ The first powers of 3 under `0x11B` (from the repository's table):
 |---|---|---|---|---|---|---|---|---|---|---|----|----|
 | `exp[i]` | 1 | 3 | 5 | 15 | 17 | 51 | 85 | 255 | 26 | 46 | 114 | 150 |
 
-`exp[8]` is the first overflow: `255 * 3 = 0x1FE` has bit 8 set, so XOR with `0x11B` gives `0x1A` = 26.
+`exp[8]` is the first overflow: in `255 * 3`, the step `255 * x = 0x1FE` has bit 8 set, so XOR with `0x11B` gives `0xE5`, and adding `255 * 1` gives `0xE5 ^ 0xFF = 0x1A` = 26.
 
 Multiply `0x53 * 0xCA` with tables: `log[0x53] = 48`, `log[0xCA] = 207`, the sum is 255, and `exp[255] = exp[0] = 1`. Also `0x53 + 0xCA = 0x99`, and `inv(0x53) = 0xCA`.
 
@@ -95,7 +95,7 @@ Multiply `0x53 * 0xCA` with tables: `log[0x53] = 48`, `log[0xCA] = 207`, the sum
 | polynomial multiply (degrees d, e) | O(d * e) |
 | polynomial evaluation (Horner) | O(d) |
 
-Memory: about 510 to 512 bytes of exp table plus 256 of log table.
+Memory: 510 (C++, Go) or 512 (Python) exp table entries plus 256 log table entries; one byte each in C++ and Go.
 
 ## When to Use
 

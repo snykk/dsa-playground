@@ -78,7 +78,7 @@ Do not use it when:
 1. Starting `best` at 0: wrong for all-negative arrays, where the answer is the largest element. `[-3, -1, -2]` gives `-1`.
 2. Resetting `cur` to 0 instead of `arr[i]`: this silently allows an empty subarray.
 3. Empty input: all three implementations return 0 by convention (Python's `kadane_with_indices` returns `(0, -1, -1)`), although for non-empty input the subarray is never empty.
-4. Overflow: the C++ version sums in `int`. Python is unbounded and Go's `int` is 64-bit.
+4. Overflow: the C++ version sums in `int`. Python is unbounded and Go's `int` is 64-bit on 64-bit platforms.
 5. Window indices: copy the start when `best` improves, not when `cur` restarts.
 
 ## Implementations

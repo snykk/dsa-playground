@@ -10,7 +10,7 @@ facts:
     hint: with few hash collisions
   - label: Worst time
     value: O(n*m)
-    hint: every window collides, or matches almost fully
+    hint: every window collides or really matches
     tone: warn
   - label: Extra space
     value: O(1)
@@ -129,7 +129,7 @@ Python takes `base` and `mod` as parameters (defaults 256 and 101) and also has 
 The default modulus here is 101, which is small on purpose so the code reads easily: about 1 window in 101 shares the pattern hash by chance. Results stay correct because hits are verified, but a large prime (around 10<sup>9</sup> or more) makes spurious hits rare.
 
 <Callout title="Mind the arithmetic when you raise the modulus">
-In C++ and Go the hash is a machine integer. `base * (hash - lead * h)` is about `256 * mod * mod` in magnitude, so with a modulus near 10<sup>9</sup> it overflows 32 bits and needs 64-bit arithmetic (and care with negative values). Python integers have no such limit.
+In C++ and Go the hash is a machine integer. `base * (hash - lead * h)` reaches about `256 * 255 * mod` in magnitude, so with a modulus near 10<sup>9</sup> it overflows 32 bits and needs 64-bit arithmetic (and care with negative values). Python integers have no such limit.
 </Callout>
 
 ## Choosing a variant

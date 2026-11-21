@@ -90,7 +90,7 @@ Run on this puzzle, the opening of the search looks like this. After `(0, 7) = 9
     ['5', '(0, 7)', '9', 'placed; (0, 8) then has no legal digit'],
     ['6', '(0, 7)', '-', 'undone, no other digit fits'],
     ['7', '(0, 6)', '-', 'undone, 8 failed'],
-    ['8', '(0, 6)', '9', 'placed, but the next cells fail, so it is undone again'],
+    ['8', '(0, 6)', '9', 'placed, but (0, 7) then has no legal digit, so it is undone again'],
     ['9', '(0, 5)', '6', 'the 4 is undone too, then 6 is placed'],
   ]}
   caption="The first events of the search. In total the solver is called 4,209 times and undoes 4,157 placements before the 51 empty cells are filled."

@@ -365,14 +365,16 @@ export function treeDpTrace(input: TreeInput, mode: TreeDpMode): TreeRun {
     for (const c of n.children) {
       const gain = dfs(c);
       let how: string;
+      // An old best2 above 0 belongs to a child (c2); a new larger gain pushes it out.
+      const dropped = b.c2 >= 0 ? `${tagOf(b.c2)}'s chain ${b.b2} is dropped: a third chain cannot be on the same path` : '';
       if (gain > b.b1) {
-        how = `${gain} > best1 ${b.b1}: best1, best2 = ${gain}, ${b.b1} (the old best moves down to second place).`;
+        how = `${gain} > best1 ${b.b1}: best1, best2 = ${gain}, ${b.b1} (the old best moves down to second place${dropped ? `, and ${dropped}` : ''}).`;
         b.b2 = b.b1;
         b.c2 = b.c1;
         b.b1 = gain;
         b.c1 = c;
       } else if (gain > b.b2) {
-        how = `${gain} is not above best1 ${b.b1} but is above best2 ${b.b2}: best2 = ${gain}.`;
+        how = `${gain} is not above best1 ${b.b1} but is above best2 ${b.b2}: best2 = ${gain}${dropped ? ` (${dropped})` : ''}.`;
         b.b2 = gain;
         b.c2 = c;
       } else {
@@ -451,10 +453,16 @@ export function treeDpTrace(input: TreeInput, mode: TreeDpMode): TreeRun {
   }
   const roles: Record<number, Role> = {};
   for (const n of nodes) roles[n.id] = onPath.has(n.id) ? 'good' : 'muted';
-  const order = [...onPath].sort((a, b) => a - b);
+  // The path in walking order: up the second chain, through the highest node, down the first.
+  const chainFrom = (c: number) => {
+    const out: number[] = [];
+    for (let v = c; v >= 0; v = best[v].c1) out.push(v);
+    return out;
+  };
+  const order = [...chainFrom(best[bestAt].c2).reverse(), bestAt, ...chainFrom(best[bestAt].c1)];
   snap(
     undefined,
-    `The path itself, read back from the stored chains (the code returns only its sum): highest node ${tagOf(bestAt)}, then down its best chains: ` +
+    `The path itself, read back from the stored chains (the code returns only its sum): highest node ${tagOf(bestAt)}, joined to its best chains: ` +
       `${order.map(tagOf).join(', ')}, sum ${maxSum}.`,
     { nodes: roles, edges: edgesOn, total: 'done' },
     [['result', maxSum]],

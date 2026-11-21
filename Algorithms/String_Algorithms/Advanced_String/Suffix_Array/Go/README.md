@@ -22,7 +22,7 @@ Suffix array construction by sorting, with binary-search pattern lookup.
 ## Go-Specific Notes
 
 - Suffixes are slices (`s[i:]`) that share the string's memory, so the list takes O(n) memory. The sort still compares long shared prefixes: O(n^2 log n) worst-case time.
-- Search uses `strings.HasPrefix` on a slice, with no copying: O(m log n).
+- Search uses `strings.HasPrefix` on a slice, with no copying: O(m log n), plus O(k log k) to sort the `k` matches.
 - Indices are byte offsets.
 
 ## How to Run

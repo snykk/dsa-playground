@@ -20,7 +20,7 @@ print(insertion_sort([64, 34, 25, 12, 22, 11, 90]))  # [11, 12, 22, 25, 34, 64, 
 
 - Works on any items that support `>`.
 - Stable: only a strict `>` shifts an element.
-- `insertion_sort_recursive` has recursion depth `n`; with Python's default limit of about 1,000 frames it raises `RecursionError` for lists of a few thousand elements. It is for teaching.
+- `insertion_sort_recursive` has recursion depth `n`; with Python's default limit of about 1,000 frames it raises `RecursionError` for lists of about 1,000 elements or more. It is for teaching.
 - Python 3.9 and later.
 
 ## How to Run

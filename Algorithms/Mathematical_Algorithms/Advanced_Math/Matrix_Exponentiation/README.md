@@ -76,7 +76,7 @@ Use it for linear recurrences with constant coefficients and a huge index, count
 
 ## Common Pitfalls
 
-1. **Overflow without a modulus.** `F(93)` does not fit in 64 bits. C++ `fibonacciMatrix` and Go `FibonacciMatrix` reject `n > 92` without a modulus (exception / panic); `matrixPower` itself does not check. Python integers do not overflow.
+1. **Overflow without a modulus.** `F(93)` does not fit in a signed 64-bit integer. C++ `fibonacciMatrix` and Go `FibonacciMatrix` reject `n > 92` without a modulus (exception / panic); `matrixPower` itself does not check. Python integers do not overflow.
 2. **Negative entries.** Normalised into `[0, mod)` in all three languages (the C++ and Go versions used to leave them negative).
 3. **Large moduli.** C++ uses a 128-bit intermediate and Go uses `math/bits`, so any modulus up to 2^63 - 1 is exact.
 4. **Wrong exponent.** `fibonacci_matrix` uses `A^(n-1)`; `A^n` gives `F(n+1)`.

@@ -65,7 +65,7 @@ export const GAP: ScanRow = { kind: 'gap' };
 /** A character as it appears in a caption. */
 export const quote = (ch: string) => (ch === ' ' ? "' ' (space)" : `'${ch}'`);
 export const listOf = (xs: number[]) => (xs.length ? xs.join(', ') : 'none');
-const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
+const plural = (count: number, word: string, many = `${word}s`) => `${count} ${count === 1 ? word : many}`;
 
 export function matchStrip(matches: number[], label = 'Matches'): StripData {
   return {
@@ -187,7 +187,7 @@ export function naiveTrace({ text, pattern }: SearchInput, log?: number[]): Arra
   const worst = windows * m;
   snap(
     undefined,
-    `Done: ${matches.length ? `${plural(matches.length, 'match')} at ${listOf(matches)}` : 'no match'}. ${plural(comparisons, 'comparison')} over ${plural(windows, 'alignment')}; the worst case is (n - m + 1) ${SYM.times} m = ${worst}.${comparisons === worst && windows > 1 && m > 1 ? ' This input hits it: every alignment compared all m characters.' : ''}`,
+    `Done: ${matches.length ? `${plural(matches.length, 'match', 'matches')} at ${listOf(matches)}` : 'no match'}. ${plural(comparisons, 'comparison')} over ${plural(windows, 'alignment')}; the worst case is (n - m + 1) ${SYM.times} m = ${worst}.${comparisons === worst && windows > 1 && m > 1 ? ' This input hits it: every alignment compared all m characters.' : ''}`,
     {},
     [['matches', listOf(matches)]],
   );
@@ -346,7 +346,7 @@ export function rabinKarpTrace({ text, pattern, mod: q }: SearchInput, log?: num
   const hint = spurious.length === 0 && q > 13 ? ` Add "| mod 7" to the input to see spurious hits.` : '';
   snap(
     undefined,
-    `Done: ${matches.length ? `${plural(matches.length, 'match')} at ${listOf(matches)}` : 'no match'}. ${plural(hits, 'hash hit')}, ${spurious.length ? `${spurious.length} of them spurious (windows ${listOf(spurious)})` : 'none spurious'}; ${plural(comparisons, 'character comparison')} against ${naive} for naive search.${hint}`,
+    `Done: ${matches.length ? `${plural(matches.length, 'match', 'matches')} at ${listOf(matches)}` : 'no match'}. ${plural(hits, 'hash hit')}, ${spurious.length ? `${spurious.length} of them spurious (windows ${listOf(spurious)})` : 'none spurious'}; ${plural(comparisons, 'character comparison')} against ${naive} for naive search.${hint}`,
     {},
     [['matches', listOf(matches)]],
   );
@@ -518,7 +518,7 @@ export function boyerMooreTrace({ text, pattern }: SearchInput, log?: number[]):
   const worst = comparisons === windows * m && windows > 1 && m > 1;
   snap(
     undefined,
-    `Done: ${matches.length ? `${plural(matches.length, 'match')} at ${listOf(matches)}` : 'no match'}. ${plural(alignments, 'alignment')} (naive search tries all ${windows}) and ${plural(comparisons, 'comparison')}; ${n - read.size} of ${n} text characters were never read.${
+    `Done: ${matches.length ? `${plural(matches.length, 'match', 'matches')} at ${listOf(matches)}` : 'no match'}. ${plural(alignments, 'alignment')} (naive search tries all ${windows}) and ${plural(comparisons, 'comparison')}; ${n - read.size} of ${n} text characters were never read.${
       worst ? ' This input is the worst case for the bad-character rule: every shift is 1 and every alignment compares all m characters, O(nm).' : ''
     }`,
     {},

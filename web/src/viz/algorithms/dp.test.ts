@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { InputError } from '../core/types';
 import { knapsackTrace, lcsTrace, parseKnapsack, parseLcs } from './dp';
@@ -39,6 +40,19 @@ describe('LCS', () => {
       expect(isSubsequence(lcs, a) && isSubsequence(lcs, b)).toBe(true);
       expect(last.cells[a.length][b.length]).toBe(lcs.length);
     }
+  });
+  it('traces back to the same LCS as lcs_sequence, ties included (golden fixture)', () => {
+    const fixtures = JSON.parse(readFileSync(new URL('./__fixtures__/dynamicProgramming.json', import.meta.url), 'utf8'));
+    const cases = fixtures.lcs as Array<{ a: string; b: string; lcs: string }>;
+    expect(cases.length).toBeGreaterThanOrEqual(60);
+    const wrong: string[] = [];
+    for (const c of cases) {
+      const frames = lcsTrace(parseLcs(`${c.a} | ${c.b}`));
+      const last = frames[frames.length - 1].state;
+      const traced = (last.strips?.[0].items ?? []).map((i) => i.text).join('').replace('(not traced yet)', '');
+      if (traced !== c.lcs) wrong.push(`${c.a} | ${c.b}: traced ${traced}, lcs_sequence ${c.lcs}`);
+    }
+    expect(wrong).toEqual([]);
   });
   it('rejects malformed input', () => {
     for (const bad of ['ABC', 'A | B | C', ' | B', `${'A'.repeat(13)} | B`]) expect(() => parseLcs(bad)).toThrow(InputError);

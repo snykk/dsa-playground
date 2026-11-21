@@ -27,7 +27,7 @@ The function returns only the value. The fractions taken are available in Python
 ## Go-Specific Notes
 
 - `items` is **sorted in place** with `sort.Slice`: the caller's slice changes order. Copy it first if you need the original order.
-- A zero-weight item gets `math.Inf(1)` as its ratio and is taken whole; before the fix, `0 * (0/0)` produced NaN.
+- A zero-weight item gets `math.Inf(1)` as its ratio and is taken whole; before the fix, `Value * (0/0)` produced NaN.
 - All numbers are `float64`; compare totals with a tolerance.
 - The package has no `func main`, so `go run .` does not work; use the tests.
 

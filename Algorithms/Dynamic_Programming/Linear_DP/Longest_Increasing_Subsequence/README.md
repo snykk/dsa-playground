@@ -46,7 +46,7 @@ Tails (`lis_binary_search`, Python only):
 3. If `pos` is the end, append `x`; otherwise set `tails[pos] = x`.
 4. The answer is `len(tails)`.
 
-`bisect_left` makes the result strictly increasing: equal values replace each other. The tails array is not itself a subsequence of the input; only its length is meaningful.
+`bisect_left` makes the result strictly increasing: equal values replace each other. The tails array need not be a subsequence of the input (for `[3, 4, 1]` it ends as `[1, 4]`); only its length is meaningful.
 
 ## Step-by-Step Trace
 

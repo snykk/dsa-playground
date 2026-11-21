@@ -47,7 +47,7 @@ The queue keeps two indices:
   ]}
 />
 
-The queue is not stored in index order: it is the slots from `front` up to `rear`, going forward and wrapping at the end. Both indices only ever move forward, by one slot per operation.
+The queue is not stored in index order: it is the slots from `front` up to `rear`, going forward and wrapping at the end. Both indices only ever move forward, by one slot per operation, except that Python and C++ reset them to -1 when the last item leaves.
 
 <Callout title="One formula does all the wrapping">
 `next(i) = (i + 1) % capacity`. Dequeue advances `front` with it, enqueue advances `rear` with it, and nothing else ever moves. That is why both operations are O(1).

@@ -19,7 +19,7 @@ The Z-array and a linear-time pattern search built on it.
 
 - Strings are indexed by byte, so indices are byte offsets.
 - The search keeps positions with `z[i] >= m`; `>=` is required because a `$` inside the input can make `z[i]` exceed `m`.
-- A match returns `nil` (not an empty slice) when the loop finds nothing for non-empty valid input; the early exits return `[]int{}`.
+- The search returns `nil` (not an empty slice) when the loop finds nothing for non-empty valid input; the early exits return `[]int{}`.
 
 ## How to Run
 

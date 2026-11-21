@@ -39,9 +39,10 @@ class ReedSolomon:
       k     -- message length (k < n)
       alpha -- primitive element of GF(2^8) (default 3, the true primitive
                under the Rijndael polynomial 0x11B). The element 2 is NOT
-               primitive in this field; using it silently breaks decoding past
-               ~3 errors. If you need to match a standard that uses 2, you
-               must also change the underlying GF polynomial (e.g., to 0x11D).
+               primitive in this field (order 51); using it breaks decoding of
+               codewords longer than 51 bytes, even with a single error. If you
+               need to match a standard that uses 2, you must also change the
+               underlying GF polynomial (e.g., to 0x11D).
       fcr   -- first consecutive root (default 0). The generator's roots are
                alpha^fcr, alpha^(fcr+1), ..., alpha^(fcr+n-k-1); encoder and
                decoder must agree on it. Real-world examples:

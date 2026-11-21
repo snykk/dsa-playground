@@ -22,7 +22,7 @@ print(bubble_sort([64, 34, 25, 12, 22, 11, 90]))  # [11, 12, 22, 25, 34, 64, 90]
 - Works for any items that support `>`: ints, floats, strings, or objects defining `__gt__`.
 - Sorting is in place; copy first (`arr.copy()`) if you need the original.
 - Stable: only a strict `>` triggers a swap.
-- `bubble_sort_recursive` uses one stack frame per pass. Python's default recursion limit is about 1,000 frames, so it raises `RecursionError` for lists of a few thousand elements. Use it only to study recursion.
+- `bubble_sort_recursive` uses one stack frame per pass. Python's default recursion limit is about 1,000 frames, so it raises `RecursionError` for lists of about 1,000 elements or more. Use it only to study recursion.
 - Python 3.9 and later.
 
 ## How to Run

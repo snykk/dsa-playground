@@ -547,7 +547,7 @@ export function matPowTrace(input: MatPowInput, mode: MatPowMode, draw = true, m
     }
     if (nF === 1n) {
       const v = hasMod(mod) ? pmod(1n, mod) : 1n;
-      snap(11, `fibonacci_matrix(1): n = 1, so it returns F(1) = ${hasMod(mod) ? `1 % ${mod} = ${v}` : '1'} at once.`, { top: 'good' });
+      snap(11, `fibonacci_matrix(1): n = 1, so it returns F(1) ${hasMod(mod) ? `mod ${mod} = 1 % ${mod} = ${v}` : '= 1'} at once.`, { top: 'good' });
       return { frames, mults, calls, returns, result: v, error: null };
     }
     slots = [aPanel({ role: 'compare' }), null, null];
@@ -564,7 +564,7 @@ export function matPowTrace(input: MatPowInput, mode: MatPowMode, draw = true, m
       { ...panel('fib', 'result', out, { sub: `(F(${nF}), F(${nF - 1n}))`, role: 'good' }), roles: { '0,0': 'good' } },
     ];
     ops = [SYM.times, '='];
-    snap(13, `matrix_multiply(T^${nF - 1n}, [[1], [0]]) = [[${out[0][0]}], [${out[1][0]}]]${modText}: the first column of T^${nF - 1n}. fibonacci_matrix returns result[0][0] = F(${nF}) = ${out[0][0]}.`, { top: 'good' });
+    snap(13, `matrix_multiply(T^${nF - 1n}, [[1], [0]]) = [[${out[0][0]}], [${out[1][0]}]]${modText}: the first column of T^${nF - 1n}. fibonacci_matrix returns result[0][0] = F(${nF})${hasMod(mod) ? ` mod ${mod}` : ''} = ${out[0][0]}.`, { top: 'good' });
     return { frames, mults, calls, returns, result: out[0][0], error: null };
   }
 }

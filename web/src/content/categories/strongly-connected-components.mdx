@@ -34,7 +34,7 @@ related:
 
 In a directed graph, vertex `u` can reach `v` along edges without `v` being able to reach `u`. A **strongly connected component** (SCC) is a maximal set of vertices in which every vertex can reach every other. Every vertex belongs to exactly one SCC, and a vertex on no cycle is a component of its own.
 
-If you shrink each component to one vertex, the result, called the condensation, has no cycles. That makes SCCs the standard way to turn a directed graph with cycles into a DAG, and the list of components comes out in a topological order of that DAG.
+If you shrink each component to one vertex, the result, called the condensation, has no cycles. That makes SCCs the standard way to turn a directed graph with cycles into a DAG, and the list of components comes out in a topological order of that DAG (Kosaraju) or in its reverse (Tarjan).
 
 Both algorithms find the components with DFS and return the same sets of vertices. They differ in how they know where one component ends.
 

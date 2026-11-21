@@ -131,7 +131,7 @@ All of them accept vertices that appear only as neighbours.
   rows={[
     { case: 'Kahn', time: 'O(V + E)', space: 'O(V)', when: 'Every vertex is queued once and every edge is relaxed once.' },
     { case: 'DFS', time: 'O(V + E)', space: 'O(V)', when: 'Every vertex and edge is visited once; the repository keeps the stack explicit.' },
-    { case: 'All orders', time: 'O(V! E)', space: 'O(V)', when: 'Backtracking over every permutation consistent with the edges; only for tiny graphs.' },
+    { case: 'All orders', time: 'O(V! (V^2 + E))', space: 'O(V)', when: 'Backtracking over every permutation consistent with the edges; only for tiny graphs.' },
     { case: 'Longest path in a DAG', time: 'O(V + E)', space: 'O(V)', when: 'One pass over the vertices in topological order.' },
   ]}
 />

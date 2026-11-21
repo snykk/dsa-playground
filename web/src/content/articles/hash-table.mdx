@@ -76,7 +76,7 @@ Run **Resize: chains move**: the fourth key pushes the load to 4/4, the table do
     ['get with default', 'value, or the default if absent', 'O(1) average'],
     ['insert if absent', 'store only if the key is new; report whether it did', 'O(1) average'],
     ['update from another map', 'put every pair of the other map', 'O(m) for m pairs'],
-    ['copy', 'an independent table with the same pairs', 'O(m)'],
+    ['copy', 'an independent table with the same pairs', 'O(capacity + m)'],
   ]}
 />
 
@@ -128,7 +128,7 @@ Insert keys 5, 9, 13, 2 into a table of capacity 4 (run on the repository code).
 
 With a decent hash, each key is equally likely to land in any bucket. If `n` pairs sit in `c` buckets, an average chain has `n / c` pairs, the load factor. Resizing keeps it at most 0.75, so a lookup compares a constant number of keys on average.
 
-Resizing costs O(n), but it only happens when the size doubles: the cost of all resizes while inserting `n` keys is `n/2 + n/4 + ... < n`, so each insert pays O(1) amortized.
+Resizing costs O(n), but it only happens when the size doubles: the cost of all resizes while inserting `n` keys is at most `n + n/2 + n/4 + ... < 2n`, so each insert pays O(1) amortized.
 
 <Equation label="Amortized insert cost" expr="n + n/2 + n/4 + ... = 2n" result="O(1) per put" />
 
@@ -147,7 +147,7 @@ Resizing costs O(n), but it only happens when the size doubles: the cost of all 
 Space is O(n + capacity): one entry per pair plus the bucket array.
 
 <Callout tone="warning" title="A bad hash function ruins O(1)">
-The string hash used here is `h = h * 31 + c`, reduced at each step modulo the capacity. Because 31 is congruent to -1 modulo 32, strings such as `abcd` and `cdab` collide at every capacity up to 64. Over all 4096 four-letter words on the letters a to h, capacity 32 uses only 29 of its 32 buckets and its longest chain is 344 (the ideal is 128). Capacity 128 has a longest chain of 88 against an ideal of 32. Integer keys hashed as `key mod capacity` are just as bad when keys share a factor with the capacity (for example all multiples of 16).
+The string hash used here is `h = h * 31 + c`, reduced at each step modulo the capacity. Because 31 is congruent to -1 modulo 32, strings such as `abcd` and `cdab` collide at every power-of-two capacity up to 64. Over all 4096 four-letter words on the letters a to h, capacity 32 uses only 29 of its 32 buckets and its longest chain is 344 (the ideal is 128). Capacity 128 has a longest chain of 88 against an ideal of 32. Integer keys hashed as `key mod capacity` are just as bad when keys share a factor with the capacity (for example all multiples of 16).
 </Callout>
 
 ## Variants

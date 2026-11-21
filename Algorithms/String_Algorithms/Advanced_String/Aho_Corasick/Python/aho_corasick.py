@@ -5,8 +5,8 @@ Phases:
   2. Compute BFS-order failure links + output links.
   3. Scan the text: O(n + z) where z is total matches.
 
-The automaton returned by `search` is a list of (end_index, pattern) pairs
-for every occurrence of every pattern.
+`search` returns a list of (end_index, pattern) pairs, one for every
+occurrence of every pattern.
 """
 
 from collections import deque

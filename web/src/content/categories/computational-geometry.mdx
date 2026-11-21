@@ -18,7 +18,7 @@ facts:
     hint: convex hull and closest pair
 contents:
   - folder: Basic_Geometry
-    note: The primitives. Distance, cross product, orientation, angles, containment and segment intersection, all exact.
+    note: The primitives. Distance, cross product, orientation, angles, containment and segment intersection, with exact tests and no epsilon.
   - folder: Advanced_Geometry
     note: Algorithms on point sets. Convex hull, rotating calipers for diameter and width, and the closest pair.
 prerequisites:
@@ -33,7 +33,7 @@ related:
 Geometry code is short, but it fails on edge cases: collinear points, duplicates, zero-length segments. The two sub-areas are built to handle those cases.
 
 - **Basic Geometry** covers single objects and pairs. It holds the cross product, which says whether a path turns left, right or goes straight, and the tests built on it.
-- **Advanced Geometry** covers a whole set of points. It finds the outline, the extent and the closest pair, and it calls the same cross product in the inner loop.
+- **Advanced Geometry** covers a whole set of points. It finds the outline, the extent and the closest pair, and the hull and calipers call the same cross product in their inner loops.
 
 One rule runs through both. Comparisons are exact: the code tests signs and equalities directly and uses no epsilon. With integer coordinates this is exact in Python, and in C++ and Go while the products stay below 2^53.
 
@@ -80,7 +80,7 @@ One visualization per topic, in reading order: the orientation test that everyth
     A geometry algorithm makes many yes or no decisions, and one wrong decision can break the result: a hull that is not convex, or a segment test that misses a touching endpoint. A tolerance such as 1e-9 depends on the scale of the input, so it can be wrong for very small or very large shapes. Comparing exactly avoids this on integer input.
   </FaqItem>
   <FaqItem question="Do I need Basic Geometry before Advanced Geometry?">
-    Yes, at least Point, Line and Circle. The hull, calipers and closest-pair code all use its distance and cross product.
+    Yes, at least Point, Line and Circle. The hull and calipers code use its cross product and squared distance, and the closest-pair code uses its distance.
   </FaqItem>
   <FaqItem question="What if I need many segment intersections at once?">
     Checking all pairs of n segments takes O(n^2). A sweep-line method such as Bentley-Ottmann reports them faster, but it is not part of this repository.

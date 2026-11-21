@@ -13,17 +13,18 @@ function rng(seed: number) {
   };
 }
 
-function expectWellFormed(run: DigitRun) {
+/** What is wrong with the frames of a run, one readable line per problem. */
+function frameProblems(run: DigitRun): string[] {
+  const out: string[] = [];
   const shape = (i: number) => JSON.stringify(run.frames[i].state.tables.map((t) => [t.rowHeaders, t.colHeaders]));
+  const first = shape(0);
   for (let i = 0; i < run.frames.length; i++) {
     const f = run.frames[i];
-    expect(f.caption.length).toBeGreaterThan(20);
-    if (f.line !== undefined) {
-      expect(f.line).toBeGreaterThanOrEqual(0);
-      expect(f.line).toBeLessThan(DIGIT_CODE.length);
-    }
-    expect(shape(i), 'the memo table keeps one size').toBe(shape(0));
+    if (f.caption.length <= 20) out.push(`caption too short: "${f.caption}"`);
+    if (f.line !== undefined && (f.line < 0 || f.line >= DIGIT_CODE.length)) out.push(`line ${f.line} out of range: ${f.caption}`);
+    if (shape(i) !== first) out.push(`the memo table changed size at frame ${i}: ${f.caption}`);
   }
+  return out;
 }
 
 /** Brute force: how many k-digit strings (leading zeros allowed) have each digit sum. */
@@ -38,6 +39,10 @@ for (let k = 0; k <= 5; k++) {
   strings.push(counts);
 }
 
+/** The digit sum of every x in 0..99999 (the largest n the parser takes), built once: digitSum(x) = digitSum(x / 10) + x % 10. */
+const DIGIT_SUM = new Uint8Array(100_000);
+for (let x = 1; x < DIGIT_SUM.length; x++) DIGIT_SUM[x] = DIGIT_SUM[Math.floor(x / 10)] + (x % 10);
+
 /** What memo[(pos, tight, sum)] must hold: completions of the remaining positions that reach the target. */
 function memoBrute(n: number, target: number, pos: number, tight: boolean, sum: number): number {
   const digits = String(n);
@@ -47,11 +52,7 @@ function memoBrute(n: number, target: number, pos: number, tight: boolean, sum: 
   if (!tight) return strings[rest][need] ?? 0;
   const bound = Number(digits.slice(pos));
   let c = 0;
-  for (let x = 0; x <= bound; x++) {
-    let s = 0;
-    for (const ch of String(x)) s += Number(ch);
-    if (s === need) c++;
-  }
+  for (let x = 0; x <= bound; x++) if (DIGIT_SUM[x] === need) c++;
   return c;
 }
 
@@ -89,10 +90,16 @@ describe('digitTrace against brute force', () => {
       const target = Math.floor(rand() * 21);
       if (digitFrameCount({ n, target }) > 2000) continue;
       const run = digitTrace({ n, target });
-      expect(run.count, `n ${n}, target ${target}`).toBe(n < 0 ? 0 : digitBrute(n, target));
-      for (const [pos, tight, sum, value] of run.memo) expect(value, `memo (${pos}, ${tight}, ${sum})`).toBe(memoBrute(n, target, pos, tight, sum));
-      expect(run.frames.length).toBe(digitFrameCount({ n, target }));
-      expectWellFormed(run);
+      const problems = frameProblems(run);
+      const count = n < 0 ? 0 : digitBrute(n, target);
+      if (!Object.is(run.count, count)) problems.push(`count ${run.count}, brute force ${count}`);
+      for (const [pos, tight, sum, value] of run.memo) {
+        const want = memoBrute(n, target, pos, tight, sum);
+        if (!Object.is(value, want)) problems.push(`memo (${pos}, ${tight}, ${sum}) = ${value}, brute force ${want}`);
+      }
+      const frameCount = digitFrameCount({ n, target });
+      if (run.frames.length !== frameCount) problems.push(`${run.frames.length} frames, digitFrameCount says ${frameCount}`);
+      expect(problems, `n ${n}, target ${target}`).toEqual([]);
     }
   });
 

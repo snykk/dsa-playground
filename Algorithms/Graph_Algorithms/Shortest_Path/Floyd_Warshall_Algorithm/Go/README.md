@@ -23,7 +23,7 @@ Time O(V^3), space O(V^2). There is no path reconstruction in Go. Missing map ke
 - Infinity is `math.MaxInt`; cells at infinity are skipped, so they are never added.
 - The negative-cycle check runs after every round, so values cannot shrink without bound.
 - Edge initialization keeps the cheapest of parallel edges; a positive self-loop leaves the diagonal at 0.
-- An edge endpoint outside `0..numVertices-1` causes an index-out-of-range panic.
+- A target endpoint outside `0..numVertices-1` causes an index-out-of-range panic; edges listed under a key outside that range are ignored.
 - The package has no `func main`, so `go run .` does not work; use the tests.
 
 ## How to Run

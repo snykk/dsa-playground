@@ -7,7 +7,7 @@ updated: 2026-11-12
 facts:
   - label: Time
     value: O(n^3)
-    hint: n matrices; n(n+1)/2 intervals, up to n splits each
+    hint: n matrices; n(n+1)/2 intervals, up to n - 1 splits each
   - label: Space
     value: O(n^2)
     hint: the interval table
@@ -112,7 +112,7 @@ matrixChain(dims):
 
 ## Implementation
 
-All three languages implement this single bottom-up function and return only the minimum cost. With fewer than two matrices (`len(dims) < 3`) they return 0. The cost is 64-bit in C++ (`long long`) and in Go (`int`, with `math.MaxInt` as the starting value), and arbitrary precision in Python, so a chain such as `[2000, 2000, 2000]` correctly gives 8,000,000,000. The dimensions are `int` in C++. The tests include these regressions.
+All three languages implement this single bottom-up function and return only the minimum cost. With fewer than two matrices (`len(dims) < 3`) they return 0. The cost is 64-bit in C++ (`long long`) and in Go on 64-bit platforms (`int`, with `math.MaxInt` as the starting value), and arbitrary precision in Python, so a chain such as `[2000, 2000, 2000]` correctly gives 8,000,000,000. The dimensions are `int` in C++. The tests include these regressions.
 
 <TopicCode topic="Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication" />
 

@@ -5,7 +5,7 @@ Iterative and recursive interpolation search on a sorted list. For the idea, the
 ## Files
 
 - `interpolation_search.py` - the two search functions.
-- `interpolation_search_test.py` - 15 unit tests: found and missing, ends, empty and single-element lists, uniform and skewed data, out-of-range targets, all-equal and duplicate values.
+- `interpolation_search_test.py` - 16 unit tests: found and missing, ends, empty and single-element lists, uniform and skewed data, out-of-range targets, all-equal and duplicate values, huge floats.
 
 ## API
 

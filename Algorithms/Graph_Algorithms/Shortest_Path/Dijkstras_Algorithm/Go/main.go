@@ -61,7 +61,7 @@ func unreachedDistances(graph map[int][]struct {
 }
 
 // Dijkstra finds shortest distances from start to all vertices
-// Time Complexity: O((V + E) log V), Space Complexity: O(V)
+// Time Complexity: O((V + E) log V), Space Complexity: O(V + E) (the heap can hold one entry per edge)
 func Dijkstra(graph map[int][]struct {
 	Neighbor int
 	Weight   int
@@ -110,7 +110,7 @@ func Dijkstra(graph map[int][]struct {
 
 // DijkstraWithPath finds shortest path from start to target
 // Returns (distance, path) or (-1, nil) if no path exists
-// Time Complexity: O((V + E) log V), Space Complexity: O(V)
+// Time Complexity: O((V + E) log V), Space Complexity: O(V + E)
 func DijkstraWithPath(graph map[int][]struct {
 	Neighbor int
 	Weight   int

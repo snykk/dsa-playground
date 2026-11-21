@@ -34,7 +34,7 @@ print(lis_with_sequence(arr))    # (4, [2, 5, 7, 101])
 - `lis_binary_search` uses the standard `bisect` module; `bisect_left` is what makes equal values non-increasing.
 - `lis_naive` has no memoization and also recurses `n` deep, so keep it to small inputs.
 - `lis_with_sequence` starts from the first index with the maximum `dp`, so on ties it follows the earliest end.
-- Integers are unbounded; values only need to be comparable.
+- Integers are unbounded; values only need to be comparable with each other, except in `lis_naive`, which also compares them with `float('-inf')` (strings raise `TypeError` there).
 
 ## How to Run
 
@@ -47,5 +47,5 @@ python3 -m unittest lis_test
 ## Key Takeaways
 
 - The answer is the maximum over all `dp[i]`.
-- The tails array gives the length but is not a subsequence of the input.
+- The tails array gives the length but need not be a subsequence of the input.
 - Strictness comes from `<` and `bisect_left`.

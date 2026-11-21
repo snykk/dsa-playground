@@ -16,7 +16,7 @@ facts:
     hint: a 2 x 2 matrix, so the cost per multiplication is constant
   - label: Overflow
     value: F(93)
-    hint: the first Fibonacci number that does not fit in 64 bits; pass a modulus
+    hint: the first Fibonacci number that does not fit in a signed 64-bit integer; pass a modulus
     tone: warn
 properties:
   - { label: Needs a square matrix, value: true }
@@ -127,7 +127,7 @@ The Python version has `matrix_multiply`, `matrix_identity`, a recursive `matrix
 - With a positive modulus every result is in [0, mod), including for negative entries. C++ multiplies with a 128-bit intermediate and Go with `math/bits`, so moduli above 2<sup>32</sup> are exact (Python integers are unbounded).
 - A negative exponent is rejected: `ValueError` in Python, `std::invalid_argument` in C++, a panic in Go.
 - With modulus 1 everything is 0, including A<sup>0</sup>.
-- Without a modulus `fibonacci_matrix` accepts n up to 92 in C++ and Go (F(92) is the largest value that fits in 64 bits) and throws or panics beyond that; Python returns the exact big integer.
+- Without a modulus `fibonacciMatrix` (C++) and `FibonacciMatrix` (Go) accept n up to 92 (F(92) is the largest value that fits in a signed 64-bit integer) and throw or panic beyond that; Python returns the exact big integer.
 
 <TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation" />
 
@@ -198,7 +198,7 @@ For the triangle graph (three vertices, all joined), the repository gives A<sup>
 ## Common mistakes
 
 <Callout tone="warning" title="Watch out for these">
-- **Overflow without a modulus.** F(93) does not fit in 64 bits. The C++ and Go `fibonacci_matrix` refuse n above 92 without a modulus; `matrix_power` itself does not check, so choose a modulus or a big-integer type.
+- **Overflow without a modulus.** F(93) does not fit in a signed 64-bit integer. The C++ `fibonacciMatrix` and Go `FibonacciMatrix` refuse n above 92 without a modulus; the matrix power itself does not check, so choose a modulus or a big-integer type.
 - **Forgetting to reduce negative entries.** A recurrence with a negative coefficient needs entries in [0, mod). The code now normalises them; hand-written code often does not.
 - **Wrong initial vector or exponent.** `fibonacci_matrix` uses A<sup>n-1</sup> applied to (F(1), F(0)). Using A<sup>n</sup> gives F(n+1).
 - **Negative exponents.** A matrix inverse is not computed; `k < 0` is an error.

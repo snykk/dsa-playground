@@ -28,6 +28,7 @@ export function lcsTrace({ a, b }: LcsInput): Array<Frame<GridState>> {
   );
   const frames: Array<Frame<GridState>> = [];
   const result: string[] = [];
+  let traced = false;
   const push = (line: number | undefined, caption: string, roles: Record<string, Role> = {}, vars: Array<[string, string | number]> = []) => {
     frames.push({
       line,
@@ -39,7 +40,7 @@ export function lcsTrace({ a, b }: LcsInput): Array<Frame<GridState>> {
         colHeaders: ['\u2205', ...b],
         cells: dp.map((row) => [...row]),
         roles,
-        strips: [{ label: 'LCS', items: result.length ? [...result].reverse().map((c) => ({ text: c, role: 'done' as Role })) : [{ text: '(not traced yet)' }] }],
+        strips: [{ label: 'LCS', items: result.length ? [...result].reverse().map((c) => ({ text: c, role: 'done' as Role })) : traced ? [] : [{ text: '(not traced yet)' }] }],
       },
     });
   };
@@ -72,6 +73,7 @@ export function lcsTrace({ a, b }: LcsInput): Array<Frame<GridState>> {
   let i = m;
   let j = n;
   push(5, `The table is full: the LCS has length dp[${m}][${n}] = ${dp[m][n]}. Trace back from the corner to recover one LCS.`, { [`${m},${n}`]: 'done' });
+  traced = true;
   while (i > 0 && j > 0) {
     path[`${i},${j}`] = 'done';
     if (a[i - 1] === b[j - 1]) {
@@ -79,11 +81,12 @@ export function lcsTrace({ a, b }: LcsInput): Array<Frame<GridState>> {
       push(5, `'${a[i - 1]}' matches at (${i}, ${j}): it is part of the LCS; move diagonally.`, { ...path }, [['i', i], ['j', j]]);
       i--;
       j--;
-    } else if (dp[i - 1][j]! >= dp[i][j - 1]!) {
-      push(6, `No match at (${i}, ${j}); up (${dp[i - 1][j]}) >= left (${dp[i][j - 1]}): move up.`, { ...path }, [['i', i], ['j', j]]);
+    } else if (dp[i - 1][j]! > dp[i][j - 1]!) {
+      // lcs_sequence moves up only when up is strictly larger; a tie moves left.
+      push(6, `No match at (${i}, ${j}); up (${dp[i - 1][j]}) > left (${dp[i][j - 1]}): move up.`, { ...path }, [['i', i], ['j', j]]);
       i--;
     } else {
-      push(6, `No match at (${i}, ${j}); left (${dp[i][j - 1]}) > up (${dp[i - 1][j]}): move left.`, { ...path }, [['i', i], ['j', j]]);
+      push(6, `No match at (${i}, ${j}); left (${dp[i][j - 1]}) >= up (${dp[i - 1][j]}): move left.`, { ...path }, [['i', i], ['j', j]]);
       j--;
     }
   }
@@ -124,6 +127,7 @@ export function knapsackTrace({ capacity: W, items }: KnapsackInput): Array<Fram
   const dp: Array<Array<number | null>> = Array.from({ length: k + 1 }, (_, i) => Array.from({ length: W + 1 }, () => (i === 0 ? 0 : null)));
   const frames: Array<Frame<GridState>> = [];
   const chosen: number[] = [];
+  let traced = false;
   const label = (i: number) => `#${i} (w${items[i - 1].weight}, v${items[i - 1].value})`;
   const push = (line: number | undefined, caption: string, roles: Record<string, Role> = {}, vars: Array<[string, string | number]> = []) => {
     frames.push({
@@ -136,7 +140,7 @@ export function knapsackTrace({ capacity: W, items }: KnapsackInput): Array<Fram
         colHeaders: Array.from({ length: W + 1 }, (_, w) => String(w)),
         cells: dp.map((row) => [...row]),
         roles,
-        strips: [{ label: 'Packed', items: chosen.length ? chosen.map((i) => ({ text: `#${i}`, role: 'done' as Role })) : [{ text: '(not traced yet)' }] }],
+        strips: [{ label: 'Packed', items: chosen.length ? chosen.map((i) => ({ text: `#${i}`, role: 'done' as Role })) : [{ text: traced ? '(none)' : '(not traced yet)' }] }],
       },
     });
   };
@@ -167,6 +171,7 @@ export function knapsackTrace({ capacity: W, items }: KnapsackInput): Array<Fram
   const path: Record<string, Role> = {};
   let w = W;
   push(5, `The best total value is dp[${k}][${W}] = ${dp[k][W]}. Trace back to see which items were packed.`, { [`${k},${W}`]: 'done' });
+  traced = true;
   for (let i = k; i >= 1; i--) {
     path[`${i},${w}`] = 'done';
     if (dp[i][w] !== dp[i - 1][w]) {

@@ -59,7 +59,7 @@ Use it for offline range queries where the window answer can be updated by addin
 
 | Approach | Query time | Needs | Online |
 |----------|-----------|-------|--------|
-| Mo's algorithm | about O(sqrt N) amortized | O(1) add and remove | No |
+| Mo's algorithm | O(sqrt N) amortized when Q >= N | O(1) add and remove | No |
 | Segment tree | O(log N) | an associative merge | Yes |
 | Prefix sums | O(1) | an invertible operation | Yes |
 | Brute force | O(N) | nothing | Yes |

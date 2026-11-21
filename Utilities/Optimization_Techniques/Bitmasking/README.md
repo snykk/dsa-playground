@@ -89,7 +89,7 @@ Use it when n is at most about 20 to 25 and the state is "which items are in the
 
 ## Common Pitfalls
 
-1. **`1 << 31` overflow** in C++ and Go `int`: use `1LL << i` or `uint64_t` once bit positions reach 31.
+1. **`1 << 31` overflow** in C++ `int`: use `1LL << i` or `uint64_t` once bit positions reach 31 (Go's `int` is 64 bits on common platforms).
 2. **Shift by the width or more** is undefined in C++.
 3. **`sub > 0` in the submask loop** skips the empty set; use the explicit break.
 4. **Operator precedence** in C and C++: `mask & bit == 0` means `mask & (bit == 0)`; write `(mask & bit) == 0`.

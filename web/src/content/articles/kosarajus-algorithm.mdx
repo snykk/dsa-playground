@@ -108,7 +108,7 @@ kosaraju(graph):
 
 ## Implementation
 
-Python and C++ run both passes with an explicit stack of (vertex, next neighbour) pairs, so a path or cycle of a million vertices does not overflow the call stack (Python's recursion limit is only about 1000). Go uses recursive closures, which is fine because goroutine stacks grow on demand.
+Python and C++ run both passes with an explicit stack, of neighbour iterators in Python and of (vertex, next neighbour index) pairs in C++, so a path or cycle of a million vertices does not overflow the call stack (Python's recursion limit is only about 1000). Go uses recursive closures, which is fine because goroutine stacks grow on demand.
 
 Graphs are maps from a vertex to its neighbour list. A vertex that only appears as a neighbour is handled in all three languages and ends up as its own component if nothing leads back. Vertex ids can be any integer in every language. An empty graph returns no components, and `is_strongly_connected` of an empty graph is false in all three.
 

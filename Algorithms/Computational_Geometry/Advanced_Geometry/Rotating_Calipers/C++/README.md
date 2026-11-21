@@ -17,7 +17,7 @@
 ## C++-Specific Notes
 
 - Coordinates are `double`; integer coordinates are exact while cross products stay below 2^53.
-- `crossProduct` computes its two products in separate statements so a compiler cannot fuse them into an FMA.
+- `crossProduct` stores each product in a `volatile double` so a compiler cannot fuse them into an FMA (two plain statements are not enough: with `-ffp-contract=fast` a compiler still fuses them).
 - The test file includes the `.cpp` directly; define `IS_TEST_BUILD` to drop the demo `main`.
 
 ## How to Run

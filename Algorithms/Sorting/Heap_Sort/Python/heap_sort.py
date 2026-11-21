@@ -18,7 +18,7 @@ def heap_sort(arr):
         The sorted array (same reference as input)
         
     Time Complexity: O(n log n)
-    Space Complexity: O(1)
+    Space Complexity: O(log n) for the recursion stack of heapify
     """
     n = len(arr)
     

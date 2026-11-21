@@ -79,10 +79,10 @@ Use it when the answer is a number in a known range, a candidate is cheap to ver
 
 - A non-monotone check gives silently wrong answers; verify the property on small cases.
 - `left` above or `right` below the true answer skips it.
-- Mixing `right = mid - 1` with `left < right` (or `right = mid` with `left <= right`) loops forever.
+- Mixing the two loop styles: `right = mid` with `left <= right` loops forever, and `right = mid - 1` with `left < right` can skip the answer.
 - Returning an end of the range when nothing is feasible; the code here returns `-1`.
 - 32-bit overflow when summing weights; use 64-bit bounds when sums are large.
-- `find_kth_smallest_distance` sorts the caller's list in Python and C++ (Go sorts a copy). Empty input raises in Python, is undefined in C++ and returns 0 in Go.
+- `find_kth_smallest_distance` sorts the caller's list in Python and C++ (Go sorts a copy). Empty input raises in Python, is undefined in C++ and panics in Go.
 
 ## Implementations
 

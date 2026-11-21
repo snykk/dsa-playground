@@ -9,7 +9,7 @@ For the concept, see the topic README: [../README.md](../README.md).
 | File | Purpose |
 |------|---------|
 | `main.go` | `FFT`, `IFFT`, `MultiplyPolynomials`, `Convolve` and a demo `main` |
-| `main_test.go` | 11 tests: lengths, round trip, identity, known values, comparison with a direct DFT, empty input, panic on a bad inverse length, large coefficients |
+| `main_test.go` | 12 tests: lengths, round trip, identity, known values, comparison with a direct DFT, empty input, panic on a bad inverse length, large coefficients, empty polynomials |
 | `go.mod` | module definition |
 
 ## API

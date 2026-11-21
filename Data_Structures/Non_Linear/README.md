@@ -19,7 +19,7 @@ A linear structure puts its elements in one sequence, so most questions end in a
 | Sub-area | Shape | What it is for | Typical cost |
 |----------|-------|----------------|--------------|
 | Trees | hierarchy, one parent per node | ordered search, range queries, prefix and substring lookup | O(log n) when balanced |
-| Heaps | complete binary tree in an array | the minimum or the maximum, priority queues, heap sort | peek O(1), insert and extract O(log n) |
+| Heaps | complete binary tree in an array (the Fibonacci heap is a linked forest) | the minimum or the maximum, priority queues, heap sort | peek O(1), insert and extract O(log n) (Fibonacci insert O(1)) |
 | Graph | vertices and edges, cycles allowed | networks and relations; the base of the graph algorithms | depends on the layout: O(V + E) space for a list |
 
 ## Where to Start

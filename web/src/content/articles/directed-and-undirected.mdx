@@ -126,7 +126,7 @@ For a directed graph the code's `get_degree` returns in plus out. Computing the 
 
 ### Traversal and reachability
 
-On the undirected graph, BFS from 1 visits `[1, 2, 4, 3, 5]` and so does every other start: the graph is connected. On the directed graph the answer depends on where you start:
+On the undirected graph, BFS from 1 visits `[1, 2, 4, 3, 5]`, and every other start also reaches all five vertices (from 3 the order is `[3, 2, 4, 5, 1]`): the graph is connected. On the directed graph the answer depends on where you start:
 
 <DataTable
   columns={['Start', 'Directed BFS result']}

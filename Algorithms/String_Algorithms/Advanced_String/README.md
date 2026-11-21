@@ -22,11 +22,11 @@ Every topic returns exact answers, and every search reports overlapping matches.
 |-------|-------|-----------------|-------|
 | Z-algorithm | O(k) for a string of length k | O(n + m) | O(n + m) |
 | Aho-Corasick | O(m) | O(n + z) | O(m) |
-| Suffix array | O(n^2 log n) here | O(m log n) | O(n^2) in Python and C++ here, O(n) ideal |
+| Suffix array | O(n^2 log n) here | O(m log n + k log k) | O(n^2) in Python and C++ here, O(n) ideal |
 | Manacher | none | O(n) | O(n) |
 | Longest common substring | none | O(m*n) | O(m*n) here, two rows would be enough |
 
-`n` is the text length, `m` the pattern length (the total pattern length for Aho-Corasick) and `z` the number of reported matches, which can exceed `n` when patterns overlap. The suffix array build is slow here because it sorts copies of the suffixes. Prefix doubling brings it to O(n log^2 n), but it is not implemented in this repository.
+`n` is the text length, `m` the pattern length (the total pattern length for Aho-Corasick) and `z` the number of reported matches, which can exceed `n` when patterns overlap; `k` is the number of occurrences a suffix-array search sorts before returning them. The suffix array build is slow here because it sorts copies of the suffixes. Prefix doubling brings it to O(n log^2 n), but it is not implemented in this repository.
 
 ## Choosing One
 
@@ -34,7 +34,7 @@ Every topic returns exact answers, and every search reports overlapping matches.
 |-----------|-----|-----|
 | One pattern, linear time, a simple array | Z-algorithm | one array in O(n) and no failure table |
 | A dictionary of patterns of any lengths | Aho-Corasick | one pass over the text finds every pattern |
-| Many different queries against one fixed text | Suffix array | pay for the build once, then each query is O(m log n) |
+| Many different queries against one fixed text | Suffix array | pay for the build once, then each query finds its block in O(m log n) |
 | Longest palindromic substring | Manacher | O(n), against O(n^2) for expanding around every center |
 | Longest block shared by two strings | Longest common substring | a clear table; a suffix array can do it in near-linear time |
 | The text changes between queries | Aho-Corasick or a plain search | a suffix array is static and must be rebuilt on every change |

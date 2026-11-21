@@ -115,7 +115,7 @@ def topological_sort_all_orders(graph: Dict[int, List[int]]) -> List[List[int]]:
     Returns:
         List of all possible topological orderings
         
-    Time Complexity: O(V! * E) in worst case
+    Time Complexity: O(V! * (V^2 + E)) in worst case
     Space Complexity: O(V)
     """
     if not graph:

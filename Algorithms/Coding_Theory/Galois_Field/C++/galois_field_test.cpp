@@ -88,6 +88,15 @@ void testPolynomialEvalHorner() {
     assert(gf.polyEval(p, x) == expected);
 }
 
+void testPowLargeExponent() {
+    const auto& gf = shared();
+    // log(0x53) * n overflowed int for large n; the reference values come
+    // from the Python version (exponents reduced mod 255).
+    assert(gf.pow(0x53, 100000000) == 29);
+    assert(gf.pow(0x53, 2147483647) == 140);
+    assert(gf.pow(0x53, -2147483647) == gf.inv(140));
+}
+
 int main() {
     testAddIsXor();
     testMulByZeroAndOne();
@@ -99,6 +108,7 @@ int main() {
     testDistributiveLaw();
     testPolynomialMul();
     testPolynomialEvalHorner();
-    std::cout << "All 10 tests passed!" << std::endl;
+    testPowLargeExponent();
+    std::cout << "All 11 tests passed!" << std::endl;
     return 0;
 }

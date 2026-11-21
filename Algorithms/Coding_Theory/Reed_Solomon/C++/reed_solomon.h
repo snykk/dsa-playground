@@ -140,7 +140,8 @@ class ReedSolomon {
     std::vector<uint8_t> generator_;
 
     // Reduce an exponent mod 255. Every element's order divides 255, so
-    // alpha^x depends only on x mod 255; reducing keeps products small.
+    // alpha^x depends only on x mod 255; reducing keeps products small. fcr is
+    // reduced before anything is added to it, so even INT_MAX cannot overflow.
     static int expMod(int x) {
         return ((x % gf256::FIELD_ORDER) + gf256::FIELD_ORDER) % gf256::FIELD_ORDER;
     }
@@ -150,7 +151,7 @@ class ReedSolomon {
         std::vector<uint8_t> g = {1};
         for (int i = 0; i < n_ - k_; ++i) {
             // (x - alpha^(fcr+i)) = (alpha^(fcr+i) + x) in characteristic 2.
-            std::vector<uint8_t> factor = {gf.pow(alpha_, expMod(fcr_ + i)), 1};
+            std::vector<uint8_t> factor = {gf.pow(alpha_, expMod(expMod(fcr_) + i)), 1};
             g = gf.polyMul(g, factor);
         }
         return g;
@@ -161,7 +162,7 @@ class ReedSolomon {
         std::vector<uint8_t> out;
         out.reserve(n_ - k_);
         for (int i = 0; i < n_ - k_; ++i) {
-            out.push_back(gf.polyEval(r, gf.pow(alpha_, expMod(fcr_ + i))));
+            out.push_back(gf.polyEval(r, gf.pow(alpha_, expMod(expMod(fcr_) + i))));
         }
         return out;
     }
@@ -237,7 +238,7 @@ class ReedSolomon {
         for (size_t i = 1; i < locator.size(); ++i) {
             lam_prime.push_back((i % 2 == 1) ? locator[i] : 0);
         }
-        const int fcr_term = expMod(1 - fcr_);
+        const int fcr_term = expMod(1 - expMod(fcr_));
         std::vector<uint8_t> mags;
         mags.reserve(positions.size());
         for (int pos : positions) {

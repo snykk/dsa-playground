@@ -94,7 +94,7 @@ On the array `10, 9, 2, 5, 3, 7, 101, 18`, `lis_dp` and `lis_binary_search` both
   rows={[
     ['Coin Change', 'O(n*A)', 'O(A)', 'the same for the min, ways and 0/1 versions'],
     ['LIS, table', 'O(n^2)', 'O(n)', '`lis_with_sequence` adds a parent array to recover the run'],
-    ['LIS, tails', 'O(n log n)', 'O(n)', 'returns the length only; the tails array is not itself an LIS'],
+    ['LIS, tails', 'O(n log n)', 'O(n)', 'returns the length only; the tails array need not be an LIS'],
     ['Kadane', 'O(n)', 'O(1)', '`kadane_dp` keeps an O(n) table instead'],
   ]}
 />
@@ -141,7 +141,7 @@ Coin Change is pseudo-polynomial: A is a value, not a count of digits, so a huge
   <FaqItem question="Is Kadane's algorithm really dynamic programming?">
     Yes. The state is the best sum of a run that ends at `i`, and the transition is `max(arr[i], previous + arr[i])`. Because it reads one earlier value, two variables replace the table.
   </FaqItem>
-  <FaqItem question="Why is the LIS tails method correct if tails is not an LIS?">
+  <FaqItem question="Why is the LIS tails method correct if tails need not be an LIS?">
     Only the length of `tails` is used. Its entry `k` is the smallest last value of any increasing run of length `k+1`, and that array stays sorted, so binary search finds where each value goes.
   </FaqItem>
   <FaqItem question="How does this differ from 2D DP?">

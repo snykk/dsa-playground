@@ -24,7 +24,7 @@ print(mod_power(2, -1, 11))  # 6
 
 - `%` already returns a non-negative result for a positive modulus, and integers never overflow.
 - `pow(a, e, m)` and `pow(a, -1, m)` (3.8+) are the built-in equivalents of `mod_power` and `mod_inverse`.
-- The modulus must be positive; `m = 0` raises `ZeroDivisionError`.
+- The modulus must be positive and is not checked: `m = 0` makes `mod_add(1, 2, 0)` raise `ZeroDivisionError`, but `mod_inverse(3, 0)` returns `None`.
 - Python 3.9 and later.
 
 ## How to Run

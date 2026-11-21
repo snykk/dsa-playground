@@ -23,8 +23,9 @@ func NewHashSet(capacity int) *HashSet {
 	}
 }
 
-// hash computes the bucket index. Negative ints are folded into range, and
-// every other key type is hashed through its printed form (type name plus value).
+// hash computes the bucket index. Negative ints are folded into range, strings
+// are hashed directly, and every other key type is hashed through its printed
+// form (type name plus value).
 func (hs *HashSet) hash(key interface{}) int {
 	switch k := key.(type) {
 	case int:

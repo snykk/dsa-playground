@@ -11,7 +11,7 @@ facts:
     value: O(k log k)
     hint: k distinct symbols, with a min-heap
   - label: Deadline jobs
-    value: O(n log n + n * min(D, n))
+    value: O(n log n + n * min(D, n) + D)
     hint: D is the largest deadline
   - label: Weighted version
     value: Greedy fails
@@ -58,7 +58,7 @@ Each topic in this section states its rule and why those two properties hold. Th
   ]}
 />
 
-Job Scheduling holds three rules: the profit rule above for unit-time jobs with deadlines, earliest deadline first to minimize the maximum lateness, and weight to processing-time ratio to minimize the weighted completion time. C++ and Go do not cover all three. Huffman Coding is implemented in all three languages, and for ASCII text they give the same code table.
+Job Scheduling holds three rules: the profit rule above for unit-time jobs with deadlines, earliest deadline first to minimize the maximum lateness, and weight to processing-time ratio to minimize the weighted completion time. Python, C++ and Go implement all three. Huffman Coding is implemented in all three languages too, and for ASCII text they give the same code table.
 
 ## See them side by side
 
@@ -88,11 +88,11 @@ The numbers below come from running the repository's Python code.
     ['Activity Selection', 'O(n log n)', 'O(n)', 'the sort by finish time; the scan is O(n)'],
     ['Fractional Knapsack', 'O(n log n)', 'O(n)', 'the sort by ratio; the fill is O(n)'],
     ['Huffman Coding', 'O(k log k)', 'O(k)', 'k heap merges; counting the text is O(N)'],
-    ['Job Scheduling (deadlines)', 'O(n log n + n * min(D, n))', 'O(n + D)', 'the sort by profit, then a slot search per job'],
+    ['Job Scheduling (deadlines)', 'O(n log n + n * min(D, n) + D)', 'O(n + D)', 'the sort by profit, then a slot search per job; the D + 1 slots cost O(D) to create'],
   ]}
 />
 
-None of these has a best, average or worst input in the usual sense: the work depends on the size of the input, not on its order. Fractional Knapsack's O(n) extra space is for the sorted copy in Python. C++ and Go sort the input in place. Each greedy rule needs a sort or a heap, which is where the log factor comes from.
+These bounds hold for every input, and some inputs finish sooner: Python's and Go's sorts take O(n) on input that is already sorted, and a Job Scheduling job stops at the first free slot. Fractional Knapsack's O(n) extra space is for the sorted copy in Python. C++ and Go sort the input in place. Each greedy rule needs a sort or a heap, which is where the log factor comes from.
 
 ## Choosing a method
 

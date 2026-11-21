@@ -29,7 +29,7 @@ defaults:
 jobs:
   release:
     name: Publish ${{ inputs.tag || github.ref_name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04  # pinned to the image CI uses (see ci.yml): ubuntu-latest moves to new Ubuntu releases
     timeout-minutes: 10
     env:
       TAG: ${{ inputs.tag || github.ref_name }}

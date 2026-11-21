@@ -68,7 +68,7 @@ def lcm(a, b):
         LCM of a and b
         
     Time Complexity: O(log min(a, b))
-    Space Complexity: O(1)
+    Space Complexity: O(log min(a, b)) for the recursive gcd it calls
     """
     if a == 0 or b == 0:
         return 0

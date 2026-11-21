@@ -58,7 +58,7 @@ The graph above with A to G numbered 0 to 6:
 | Quantity | Cost | Why |
 |----------|------|-----|
 | Time | O(E log E) | sorting dominates; the E union-find operations cost O(E alpha(V)) |
-| Space | O(V) | union-find arrays, plus the sorted edge list |
+| Space | O(V + E) | union-find arrays, plus Python's sorted copy of the edges (C++ and Go sort in place: O(V)) |
 
 Since E is at most V^2, log E is at most 2 log V, so O(E log E) equals O(E log V).
 

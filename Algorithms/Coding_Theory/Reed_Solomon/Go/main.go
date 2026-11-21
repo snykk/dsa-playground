@@ -4,7 +4,8 @@
 // with combined error + erasure decoding (e + 2v <= n - k) and a configurable
 // first consecutive root (fcr). Uses primitive element alpha = 3 (true
 // primitive of GF(2^8) under 0x11B); alpha = 2 has multiplicative order 51,
-// not 255, and silently fails past a few errors.
+// not 255, and fails to decode codewords longer than 51 bytes, even with a
+// single error.
 //
 // For brevity, a minimal GF(2^8) lives in this file. The sibling
 // ../Galois_Field/Go package implements the same operations and agrees
@@ -223,7 +224,8 @@ func (rs *ReedSolomon) FCR() int { return rs.fcr }
 func (rs *ReedSolomon) Alpha() byte { return rs.alpha }
 
 // expMod reduces an exponent mod 255. Every element's order divides 255, so
-// alpha^x depends only on x mod 255; reducing keeps products small.
+// alpha^x depends only on x mod 255; reducing keeps products small. fcr is
+// reduced before anything is added to it, so even math.MaxInt64 cannot wrap.
 func expMod(x int) int {
 	return ((x % fieldOrder) + fieldOrder) % fieldOrder
 }
@@ -232,7 +234,7 @@ func (rs *ReedSolomon) buildGenerator() []byte {
 	g := []byte{1}
 	for i := 0; i < rs.n-rs.k; i++ {
 		// (x - alpha^(fcr+i)) = (alpha^(fcr+i) + x) in characteristic 2.
-		g = polyMul(g, []byte{gfPow(rs.alpha, expMod(rs.fcr+i)), 1})
+		g = polyMul(g, []byte{gfPow(rs.alpha, expMod(expMod(rs.fcr)+i)), 1})
 	}
 	return g
 }
@@ -345,7 +347,7 @@ func (rs *ReedSolomon) DecodeWithErasures(received []byte, erasures []int) ([]by
 func (rs *ReedSolomon) computeSyndromes(r []byte) []byte {
 	out := make([]byte, rs.n-rs.k)
 	for i := 0; i < rs.n-rs.k; i++ {
-		out[i] = polyEval(r, gfPow(rs.alpha, expMod(rs.fcr+i)))
+		out[i] = polyEval(r, gfPow(rs.alpha, expMod(expMod(rs.fcr)+i)))
 	}
 	return out
 }
@@ -431,7 +433,7 @@ func (rs *ReedSolomon) forney(syndromes, locator []byte, positions []int) ([]byt
 			lamPrime[i-1] = locator[i]
 		}
 	}
-	fcrTerm := expMod(1 - rs.fcr)
+	fcrTerm := expMod(1 - expMod(rs.fcr))
 	mags := make([]byte, len(positions))
 	for i, pos := range positions {
 		xInv := gfPow(rs.alpha, fieldOrder-pos)

@@ -30,7 +30,7 @@ def dijkstra(graph: Dict[int, List[Tuple[int, int]]], start: int) -> Dict[int, i
         Dictionary mapping vertex to shortest distance from start
         
     Time Complexity: O((V + E) log V) with binary heap
-    Space Complexity: O(V)
+    Space Complexity: O(V + E) (the heap can hold one entry per edge)
     """
     distances = {v: float('inf') for v in _vertices(graph)}
     distances[start] = 0
@@ -74,7 +74,7 @@ def dijkstra_with_path(graph: Dict[int, List[Tuple[int, int]]],
         Tuple of (distance, path) or None if no path exists
         
     Time Complexity: O((V + E) log V)
-    Space Complexity: O(V)
+    Space Complexity: O(V + E)
     """
     distances = {v: float('inf') for v in _vertices(graph)}
     distances[start] = 0

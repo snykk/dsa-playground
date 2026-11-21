@@ -298,12 +298,16 @@ export function tspTrace({ dist }: TspInput): TspRun {
     }
   }
   const ties = Object.keys(winners).length;
+  const symmetric = dist.every((row, i) => row.every((v, j) => v === dist[j][i]));
   snap(
     14,
     result === Infinity
       ? `Every closing candidate is inf: no tour visits all ${n} cities and returns to A without a missing edge. The function returns float('inf'), not 0, so "no tour" cannot be mistaken for a free one.`
       : `return ${result}: the cheapest tour that starts at A, visits every city once and comes back.` +
-          (ties > 1 ? ` ${ties} last cities tie, because a tour and its reverse cost the same when the matrix is symmetric.` : ''),
+          (ties > 1
+            ? ` ${ties} last cities tie: each closes a cheapest tour` +
+              (symmetric ? ' (in a symmetric matrix a tour and its reverse cost the same and close from different cities).' : '.')
+            : ''),
     {
       mask: full,
       cells: result === Infinity ? Object.fromEntries(closing.map((c) => [`${full},${c.last}`, 'bad' as Role])) : winners,

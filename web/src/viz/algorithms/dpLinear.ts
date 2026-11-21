@@ -1,7 +1,9 @@
 /**
  * One-dimensional DP tracers: Fibonacci, Climbing Stairs, Coin Change (min coins),
  * Longest Increasing Subsequence (O(n^2) table and O(n log n) tails) and Kadane.
- * Each mirrors the repository's Python implementation of the same topic.
+ * Each mirrors the repository's Python implementation of the same topic, except that
+ * the Coin Change tracer fills the table amount by amount (coins inner), while the
+ * Python code loops over coins outside; both orders give the same table.
  */
 import { InputError, parseIntList, type Frame, type Role } from '../core/types';
 import type { ArraySceneState, SceneCell } from '../renderers/ArrayScene';
@@ -68,7 +70,7 @@ export function fibonacciTrace(n: number): Array<Frame<ArraySceneState>> {
         {
           pointers,
           rows: [{ label: 'F(i)', cells: dp.map((v, i) => ({ value: v, role: roles[i] ?? (v === null ? undefined : 'done') })) }],
-          strips: [{ label: 'Naive recursion would make', items: [token(`${naiveCalls} calls`, 'muted')] }],
+          strips: [{ label: 'Naive recursion would make', items: [token(`${naiveCalls} call${naiveCalls === 1 ? '' : 's'}`, 'muted')] }],
         },
       ),
     });
@@ -93,7 +95,7 @@ export function fibonacciTrace(n: number): Array<Frame<ArraySceneState>> {
       { [i]: 'i' },
     );
   }
-  push(4, `Done: F(${n}) = ${dp[n]}. The table took ${n - 1} additions; naive recursion would have made ${naiveCalls} calls.`, { [n]: 'done' }, [['n', n], ['answer', dp[n]!]]);
+  push(4, `Done: F(${n}) = ${dp[n]}. The table took ${n - 1} addition${n - 1 === 1 ? '' : 's'}; naive recursion would have made ${naiveCalls} call${naiveCalls === 1 ? '' : 's'}.`, { [n]: 'done' }, [['n', n], ['answer', dp[n]!]]);
   return frames;
 }
 
@@ -250,7 +252,7 @@ export function coinChangeTrace({ amount, coins }: CoinInput): Array<Frame<Array
     push(5, `dp[${a}] = ${dp[a]} = dp[${a - c}] + 1, so one coin of ${c} is used; continue from ${a - c}.`, { ...path }, [['a', a], ['coin', c]]);
     a -= c;
   }
-  push(undefined, `Done: ${dp[amount]} coin${dp[amount] === 1 ? '' : 's'} (${used.join(' + ')}) make ${amount}.`, { ...path }, [['answer', dp[amount]]]);
+  push(undefined, `Done: ${dp[amount]} coin${dp[amount] === 1 ? '' : 's'}${used.length ? ` (${used.join(' + ')})` : ''} make${dp[amount] === 1 ? 's' : ''} ${amount}.`, { ...path }, [['answer', dp[amount]]]);
   return frames;
 }
 
@@ -384,7 +386,7 @@ export function lisTailsTrace(arr: number[]): Array<Frame<ArraySceneState>> {
       const old = tails[pos];
       tails[pos] = x;
       tailIdx[pos] = i;
-      push(5, `Search ends at position ${pos}: replace tails[${pos}] = ${old} with ${x}. The length stays ${tails.length}, but a smaller tail leaves more room to grow later.`, rolesFor(i), { [pos]: 'active' }, [['x', x], ['pos', pos], ['length', tails.length]], { [i]: 'x' });
+      push(5, `Search ends at position ${pos}: replace tails[${pos}] = ${old} with ${x}. The length stays ${tails.length}, ${old === x ? 'and an equal value cannot extend a strictly increasing run, so it only takes the same slot.' : 'but a smaller tail leaves more room to grow later.'}`, rolesFor(i), { [pos]: 'active' }, [['x', x], ['pos', pos], ['length', tails.length]], { [i]: 'x' });
     }
   }
   const chain: number[] = [];
@@ -392,7 +394,7 @@ export function lisTailsTrace(arr: number[]): Array<Frame<ArraySceneState>> {
   const done = arr.map((_, k): Role => (chain.includes(k) ? 'done' : 'muted'));
   const cellRoles: Record<number, Role> = {};
   tails.forEach((_, k) => (cellRoles[k] = 'done'));
-  push(undefined, `Done: the longest increasing subsequence has length ${tails.length}. The tails array is NOT the subsequence itself; following the stored predecessors gives ${chain.map((k) => arr[k]).join(', ')}.`, done, cellRoles, [['answer', tails.length]], {}, [
+  push(undefined, `Done: the longest increasing subsequence has length ${tails.length}. The tails array need not be a subsequence itself; following the stored predecessors gives ${chain.map((k) => arr[k]).join(', ')}.`, done, cellRoles, [['answer', tails.length]], {}, [
     { label: 'LIS (via predecessors)', items: chain.map((k) => token(String(arr[k]), 'done')) },
   ]);
   return frames;

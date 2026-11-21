@@ -22,7 +22,7 @@ There is no remove, no size and no quadratic probing.
 
 ## Go-Specific Notes
 
-- `hashKey` folds negative ints into range and hashes any other key through `fmt.Sprintf("%T:%v")`, so `int64(7)` and `int(7)` are different keys.
+- `hashKey` folds negative ints into range, hashes strings directly and hashes any other key through `fmt.Sprintf("%T:%v")`, so `int64(7)` and `int(7)` are different keys.
 - Keys are compared with `==`, so a key type that is not comparable (a slice, for example) panics at runtime.
 - Go's built-in `map` is not implemented with these schemes (Go 1.24 and later use a Swiss-table design).
 

@@ -52,7 +52,7 @@ The answer is 23, unique modulo 105. For a non-coprime system, `x = 1 (mod 4)` a
 
 - Time: each merge runs one extended Euclid on `(L, m_i)`, which costs `O(log m_i)` because the first step reduces `L` modulo `m_i`. In total `O(n + log M)`, which is within `O(n log max(m))`.
 - Space: `O(1)` besides the input.
-- The Python version uses big integers, so the lcm can be any size. C++ and Go keep every residue product in 128 bits and return `-1` if the combined modulus does not fit in 64 bits.
+- The Python version uses big integers, so the lcm can be any size. C++ and Go keep every residue product in 128 bits and return `-1` if the combined modulus does not fit in a signed 64-bit integer (above `2^63 - 1`).
 
 ## When to Use
 

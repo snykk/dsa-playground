@@ -40,21 +40,27 @@ function longestByEnumeration(s1: string[], s2: string[]): number {
   return best;
 }
 
-function expectWellFormed(run: LcsubRun, m: number, n: number) {
+/** What is wrong with the frames of a run, one readable line per problem. */
+function frameProblems(run: LcsubRun, m: number, n: number): string[] {
+  const out: string[] = [];
   for (const f of run.frames) {
-    expect(f.caption.length).toBeGreaterThan(20);
-    if (f.line !== undefined) {
-      expect(f.line).toBeGreaterThanOrEqual(0);
-      expect(f.line).toBeLessThan(LCSUB_CODE.length);
-    }
-    expect(f.state.cells.length).toBe(m + 1);
-    for (const row of f.state.cells) expect(row.length).toBe(n + 1);
+    if (f.caption.length <= 20) out.push(`caption too short: "${f.caption}"`);
+    if (f.line !== undefined && (f.line < 0 || f.line >= LCSUB_CODE.length)) out.push(`line ${f.line} out of range: ${f.caption}`);
+    if (f.state.cells.length !== m + 1) out.push(`${f.state.cells.length} table rows, want ${m + 1}: ${f.caption}`);
+    f.state.cells.forEach((row, r) => {
+      if (row.length !== n + 1) out.push(`table row ${r} has ${row.length} cells, want ${n + 1}: ${f.caption}`);
+    });
     for (const key of Object.keys(f.state.roles)) {
       const [r, c] = key.split(',').map(Number);
-      expect(r >= 0 && r <= m && c >= 0 && c <= n, key).toBe(true);
+      if (!(r >= 0 && r <= m && c >= 0 && c <= n)) out.push(`a role for cell ${key}, outside the table: ${f.caption}`);
     }
   }
+  return out;
 }
+
+/** Element by element with Object.is, as toEqual compares numbers and strings. */
+const same = (a: readonly unknown[], b: readonly unknown[]) => a.length === b.length && a.every((x, i) => Object.is(x, b[i]));
+const sameGrid = (a: number[][], b: number[][]) => a.length === b.length && a.every((row, i) => same(row, b[i]));
 
 describe('lcsubTrace matches the Python longest_common_substring (golden fixtures)', () => {
   const cases = fixtures.lcs as Array<{ s1: string; s2: string; dp: number[][]; result: LcsubResult }>;
@@ -77,14 +83,18 @@ describe('lcsubTrace against brute force', () => {
       const s2 = word(rand, alphabet, 0, LCSUB_MAX);
       const run = lcsubTrace({ s1, s2 });
       const want = brute(s1, s2);
-      expect(run.dp).toEqual(want.dp);
-      expect(run.result).toEqual(want.result);
-      expect(run.result[1]).toBe(longestByEnumeration(s1, s2));
+      const problems = frameProblems(run, s1.length, s2.length);
+      if (!sameGrid(run.dp, want.dp)) problems.push(`dp ${JSON.stringify(run.dp)}, brute force ${JSON.stringify(want.dp)}`);
+      if (!same(run.result, want.result)) problems.push(`result ${JSON.stringify(run.result)}, brute force ${JSON.stringify(want.result)}`);
+      const longest = longestByEnumeration(s1, s2);
+      if (!Object.is(run.result[1], longest)) problems.push(`length ${run.result[1]}, the longest common substring has ${longest}`);
       if (run.result[1] > 0) {
-        expect(s1.slice(run.result[2], run.result[2] + run.result[1]).join('')).toBe(run.result[0]);
-        expect(s2.slice(run.result[3], run.result[3] + run.result[1]).join('')).toBe(run.result[0]);
+        const in1 = s1.slice(run.result[2], run.result[2] + run.result[1]).join('');
+        const in2 = s2.slice(run.result[3], run.result[3] + run.result[1]).join('');
+        if (in1 !== run.result[0]) problems.push(`s1 at ${run.result[2]} reads "${in1}", not "${run.result[0]}"`);
+        if (in2 !== run.result[0]) problems.push(`s2 at ${run.result[3]} reads "${in2}", not "${run.result[0]}"`);
       }
-      expectWellFormed(run, s1.length, s2.length);
+      expect(problems, `${s1.join('')} | ${s2.join('')}`).toEqual([]);
     }
   });
 

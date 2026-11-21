@@ -105,7 +105,7 @@ def kmp_search_count(text: str, pattern: str) -> int:
         Number of occurrences
         
     Time Complexity: O(n + m)
-    Space Complexity: O(m)
+    Space Complexity: O(m + k): the LPS table and the list of the k occurrences
     """
     return len(kmp_search(text, pattern))
 
@@ -122,7 +122,7 @@ def kmp_search_first(text: str, pattern: str) -> int:
         Index of first occurrence, or -1 if not found
         
     Time Complexity: O(n + m)
-    Space Complexity: O(m)
+    Space Complexity: O(m + k): the LPS table and the list of the k occurrences
     """
     occurrences = kmp_search(text, pattern)
     return occurrences[0] if occurrences else -1

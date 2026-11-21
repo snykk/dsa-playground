@@ -32,8 +32,8 @@ Each pattern has Python, C++ and Go code with tests.
 | Sliding window | O(n) | O(1) to O(k) | a running sum, or a frequency map for variable windows |
 | Prefix sum, difference array | O(n) build, O(1) per operation | O(n) | one pass; an updated array costs one more pass |
 | Binary search on answer | O(C log R) | O(1) | C is the cost of one check, R the size of the answer range |
-| Monotonic stack | O(n) | O(n) | each index is pushed once and popped once |
-| Monotonic queue | O(n) | O(k) | each index enters and leaves the deque once |
+| Monotonic stack | O(n) | O(n) | each index is pushed once and popped at most once |
+| Monotonic queue | O(n) | O(k) | each index enters the deque once and leaves it at most once |
 | Union-find | O(alpha(n)) amortized | O(n) | with union by rank and path compression |
 | Graph traversal | O(V + E) | O(V) | each vertex and edge once; a grid is O(R * C) |
 | Bit manipulation | O(1) per operation | O(1) | all subsets is O(n * 2^n) |

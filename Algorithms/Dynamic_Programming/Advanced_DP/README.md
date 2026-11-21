@@ -24,7 +24,7 @@ All four topics are implemented in Python, C++ and Go, with the same results; Py
 | Bitmask DP | `dp[mask][last]`: cheapest way to visit the cities in `mask`, ending at `last` | the mask without `last` | O(n^2 * 2^n) | O(n * 2^n) | about 20 items |
 | Digit DP | `(pos, tight, current_sum)` | the next digit position | O(d*S*10) | O(d*S) | needs a small running state |
 
-Digit DP is cheap in the size of the bound: `count_numbers_with_digit_sum(10**18, 9)` returns 3124550 after a few thousand steps.
+Digit DP is cheap in the size of the bound: `count_numbers_with_digit_sum(10**18, 9)` returns 3124550 after fewer than a thousand recursive calls.
 
 ## Choosing One
 

@@ -44,7 +44,7 @@ Search for 5 in `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`:
 | 1 | 0 | 9 | 3 | 6 | 4, 7 | 4 < 5 < 7: `left = 4`, `right = 5` |
 | 2 | 4 | 5 | 4 | 5 | 5, 6 | `arr[4] = 5`: found, return 4 |
 
-For the target 9 it takes 3 rounds (6 probes); Binary Search needs 3 probes.
+For the target 9 it takes 3 rounds (5 probes); Binary Search needs 3 probes.
 
 Peak of `f(x) = -(x - 7)^2 + 3` on `[0, 20]`: the window shrinks `[0, 20]`, `[0, 14]`, `[0, 10]`, `[3, 10]`, `[5, 10]`, `[5, 9]`, `[5, 8]`, `[6, 8]`; scanning 6, 7, 8 returns 7.
 
@@ -55,7 +55,7 @@ Peak of `f(x) = -(x - 7)^2 + 3` on `[0, 20]`: the window shrinks `[0, 20]`, `[0,
 | Best | O(1) | O(1) |
 | Average and worst | O(log n) | O(1) |
 
-T(n) = T(n/3) + O(1) gives about log3(n) rounds. The recursive version uses O(log n) stack. Worst-case probes for a present target in `0 .. n - 1`:
+T(n) = T(n/3) + O(1) gives about log3(n) rounds. The recursive version uses O(log n) stack. Worst-case probes on the array `0 .. n - 1`, over every present and missing target:
 
 | n | Ternary probes | Binary probes |
 |---|----------------|---------------|

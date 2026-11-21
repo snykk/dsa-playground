@@ -45,7 +45,7 @@ What the code does with awkward input:
 - **Exact arithmetic.** The hull and the calipers compare cross products with exact zero. They use no tolerance, so integer input is handled exactly. The C++ and Go versions are exact while the cross products stay below 2^53.
 - **Collinear points.** Both hull functions pop on `cross <= 0`, so points lying on a hull edge are not in the output. If all points are collinear, the result is the two end points.
 - **Duplicates.** The hull removes equal points first. Closest Pair accepts duplicates and returns distance 0 for them.
-- **Few points.** Fewer than three distinct points are returned as they are by the hull. Closest Pair raises `ValueError` for fewer than two points.
+- **Few points.** Fewer than three distinct points are returned by the hull in a new list, sorted by (y, x) in Graham's scan and by (x, y) in Jarvis march. Closest Pair raises `ValueError` for fewer than two points.
 - **Orientation of the polygon.** The hull is counterclockwise. Graham's scan starts at the bottom-most point and Jarvis march at the leftmost point. Rotating calipers accepts either orientation.
 
 ## At a glance

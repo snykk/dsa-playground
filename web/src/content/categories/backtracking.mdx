@@ -54,13 +54,13 @@ The topics differ in how the search stops. N-Queens (with `find_all = False`), G
   columns={['Problem', 'State', 'Choice at each step', 'Constraint check', { label: 'Worst case', kind: 'mono' }]}
   rows={[
     ['Rat in a Maze', 'n x n solution matrix and a visited matrix', 'a direction: right, down, left, up', 'inside the grid, open cell, not entered before', 'O(n^2)'],
-    ['N-Queens', 'n x n board', 'a column for the current row', 'no queen above in the column or on either diagonal', 'O(n!)'],
+    ['N-Queens', 'n x n board', 'a column for the current row', 'no queen above in the column or on either diagonal', 'O(n^2 * n!)'],
     ['Graph Coloring', 'color array, 0 means uncolored', 'a color from 1 to m for the next vertex', 'no neighbor already has that color', 'O(V * m^V)'],
     ['Sudoku', '9 x 9 board, 0 means empty', 'a digit from 1 to 9 for the first empty cell', 'no repeat in the row, column or 3 x 3 box', 'O(9^k)'],
   ]}
 />
 
-The maze is the odd one out. It never revisits a cell, so a dead end is explored once, and the search stays polynomial. The other three can reach the same partial state along different routes, so their running time is exponential in the worst case.
+The maze is the odd one out. It never revisits a cell, so a dead end is explored once, and the search stays polynomial. In the other three a failure belongs to a whole partial board or coloring, not to one cell, and there are exponentially many of those, so their running time is exponential in the worst case.
 
 ## See them side by side
 
@@ -93,8 +93,8 @@ The maze is `[[1,0,0,0],[1,1,0,1],[0,1,0,0],[1,1,1,1]]`, and the graph has the e
 <DataTable
   columns={['Problem', { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Why']}
   rows={[
-    ['Rat in a Maze', 'O(n)', 'O(n^2)', 'O(n^2)', 'each cell is entered once; the matrices and the recursion take n^2'],
-    ['N-Queens', 'less than n!', 'O(n * n!)', 'O(n^2)', 'about n! partial placements, each with an O(n) check; the board is n^2'],
+    ['Rat in a Maze', 'O(n^2)', 'O(n^2)', 'O(n^2)', 'each cell is entered once; the matrices and the recursion take n^2'],
+    ['N-Queens', 'less than n!', 'O(n^2 * n!)', 'O(n^2)', 'about n! partial placements, each trying n columns with an O(n) check; the board is n^2'],
     ['Graph Coloring', 'O(V^2)', 'O(V * m^V)', 'O(V)', 'm^V leaves, each node scans a row of V cells'],
     ['Sudoku', 'O(k)', 'O(9^k)', 'O(k)', 'nine digits per empty cell at most; the bound is loose'],
   ]}
@@ -147,6 +147,6 @@ Space is for one search, not for a stored list of solutions. N-Queens with `find
     Prune earlier and make the check cheaper. N-Queens can keep the used columns and diagonals in sets so the check is O(1). Graph Coloring benefits from coloring high-degree vertices first. Sudoku solvers pick the empty cell with the fewest legal digits. This repository uses the plain order everywhere.
   </FaqItem>
   <FaqItem question="Why is the maze polynomial and the others are not?">
-    A cell that failed once fails again, so the visited mark is never cleared and every cell is entered at most once. In the other three problems the same partial board or coloring can be reached by different sets of earlier choices, and the search has no memory of failures.
+    A cell that failed once fails again, so the visited mark is never cleared and every cell is entered at most once. In the other three problems a failure belongs to a whole partial board or coloring, not to one cell. There are exponentially many of those, and the search keeps no memory of failures.
   </FaqItem>
 </Faq>

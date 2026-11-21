@@ -34,4 +34,4 @@ go test ./...
 
 - Take the maximum over all entries of `dp`.
 - Strict comparison excludes duplicates.
-- Quadratic time limits it to a few thousand elements.
+- Quadratic time limits it to a few tens of thousands of elements.

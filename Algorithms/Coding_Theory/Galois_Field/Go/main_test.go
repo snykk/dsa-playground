@@ -129,3 +129,20 @@ func TestPolyEvalHorner(t *testing.T) {
 		t.Errorf("PolyEval = %d; want %d", got, expected)
 	}
 }
+
+func TestPowLargeExponent(t *testing.T) {
+	gf := Shared()
+	// log(0x53) * n overflowed int for huge n; the reference values come from
+	// the Python version (exponents reduced mod 255).
+	cases := []struct {
+		n    int
+		want byte
+	}{{100000000, 29}, {1 << 62, 161}, {-(1 << 62), 0}}
+	inv161, _ := gf.Inv(161)
+	cases[2].want = inv161
+	for _, c := range cases {
+		if got, err := gf.Pow(0x53, c.n); err != nil || got != c.want {
+			t.Errorf("Pow(0x53, %d) = %d, %v; want %d", c.n, got, err, c.want)
+		}
+	}
+}

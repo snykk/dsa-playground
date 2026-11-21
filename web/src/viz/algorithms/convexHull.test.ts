@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { InputError } from '../core/types';
 import { GRAHAM_CODE, grahamTrace, JARVIS_CODE, jarvisTrace, parseHullPoints, uniquePoints } from './convexHull';
-import { expectWellFormedPlane, rng } from './geometryTestKit';
+import { planeFrameProblems, rng } from './geometryTestKit';
 import { cross, lexLess, type XY } from './pointLineCircle';
 
 const fixtures = JSON.parse(readFileSync(new URL('./__fixtures__/geometry.json', import.meta.url), 'utf8'));
@@ -39,17 +39,32 @@ function randomPoints(rand: () => number): XY[] {
   return pts;
 }
 
-function expectHull(hull: XY[], points: XY[], start: (pts: XY[]) => XY) {
+const sameKeys = (a: XY[], b: XY[]) => {
+  const x = new Set(a.map(key));
+  const y = new Set(b.map(key));
+  return x.size === y.size && [...x].every((k) => y.has(k));
+};
+
+/** What is wrong with a hull, one readable line per problem. */
+function hullProblems(hull: XY[], points: XY[], start: (pts: XY[]) => XY): string[] {
+  const out: string[] = [];
   const want = strictVertices(points);
   const pts = uniquePoints(points).map((u) => u.p);
   if (pts.length < 3) {
-    expect(hull.length).toBe(pts.length);
-    return;
+    if (hull.length !== pts.length) out.push(`${hull.length} hull points for ${pts.length} distinct points`);
+    return out;
   }
-  expect(new Set(hull.map(key))).toEqual(new Set(want.map(key)));
-  expect(hull.length).toBe(want.length);
-  expect(hull[0]).toEqual(start(pts));
-  if (hull.length >= 3) for (let k = 0; k < hull.length; k++) expect(cross(hull[k], hull[(k + 1) % hull.length], hull[(k + 2) % hull.length])).toBeGreaterThan(0);
+  if (!sameKeys(hull, want)) out.push(`hull ${JSON.stringify(hull)}, brute-force strict vertices ${JSON.stringify(want)}`);
+  if (hull.length !== want.length) out.push(`${hull.length} hull points, ${want.length} strict vertices`);
+  const first = start(pts);
+  if (!(hull[0] !== undefined && hull[0].length === 2 && Object.is(hull[0][0], first[0]) && Object.is(hull[0][1], first[1]))) out.push(`the hull starts at ${JSON.stringify(hull[0])}, want ${JSON.stringify(first)}`);
+  if (hull.length >= 3) {
+    for (let k = 0; k < hull.length; k++) {
+      const turn = cross(hull[k], hull[(k + 1) % hull.length], hull[(k + 2) % hull.length]);
+      if (!(turn > 0)) out.push(`no left turn at ${JSON.stringify(hull[(k + 1) % hull.length])} (cross ${turn})`);
+    }
+  }
+  return out;
 }
 
 const lowest = (pts: XY[]) => pts.reduce((a, b) => (b[1] < a[1] || (b[1] === a[1] && b[0] < a[0]) ? b : a));
@@ -78,11 +93,12 @@ describe('grahamTrace', () => {
       const points = randomPoints(rand);
       if (points.length === 0) continue;
       const { frames, result } = grahamTrace(points);
-      expectHull(result.hull, points, lowest);
-      expectWellFormedPlane(frames, GRAHAM_CODE.length);
+      const problems = [...hullProblems(result.hull, points, lowest), ...planeFrameProblems(frames, GRAHAM_CODE.length)];
       // Every point is pushed once and popped at most once.
       const pops = result.tests.filter((x) => x[3] <= 0).length;
-      expect(pops).toBeLessThanOrEqual(uniquePoints(points).length - result.hull.length);
+      const most = uniquePoints(points).length - result.hull.length;
+      if (!(pops <= most)) problems.push(`${pops} pops, more than the ${most} points that are not on the hull`);
+      expect(problems, JSON.stringify(points)).toEqual([]);
     }
   });
 
@@ -141,11 +157,11 @@ describe('jarvisTrace', () => {
       const points = randomPoints(rand);
       if (points.length === 0) continue;
       const { frames, result } = jarvisTrace(points);
-      expectHull(result.hull, points, leftmost);
-      expectWellFormedPlane(frames, JARVIS_CODE.length);
-      expect(frames.length).toBeLessThan(2000);
+      const problems = [...hullProblems(result.hull, points, leftmost), ...planeFrameProblems(frames, JARVIS_CODE.length)];
+      if (frames.length >= 2000) problems.push(`${frames.length} frames, want fewer than 2000`);
       const g = grahamTrace(points).result.hull;
-      expect(new Set(result.hull.map(key))).toEqual(new Set(g.map(key)));
+      if (!sameKeys(result.hull, g)) problems.push(`hull ${JSON.stringify(result.hull)}, Graham's scan ${JSON.stringify(g)}`);
+      expect(problems, JSON.stringify(points)).toEqual([]);
     }
   });
 

@@ -18,7 +18,7 @@
 
 - `Point` is a comparable struct, so exact equality is `p == q`.
 - `crossProduct` wraps each product in `float64(...)`, which forbids fused multiply-add.
-- Everything is in `package main` and unexported.
+- Everything is in `package main`; the functions are unexported (the types `Point` and `DiameterResult` are exported).
 
 ## How to Run
 

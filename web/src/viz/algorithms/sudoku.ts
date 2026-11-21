@@ -237,6 +237,8 @@ export function sudokuTrace(input: SudokuInput, counter?: StepCounter): SudokuRu
         : `_search again: find_empty scans from (0, 0), and the first empty cell is now ${at}.`,
       { cursor: { r: row, c: col, role: 'active' }, cells: { [`${row},${col}`]: { role: 'active' } }, vars: [['cell', at]] },
     );
+    // Whether some digit passed is_valid here (and failed later), for the closing caption.
+    let placed = false;
     for (let num = 1; num <= 9; num++) {
       call.num = num;
       const { hit, where } = isValid(row, col, num);
@@ -257,6 +259,7 @@ export function sudokuTrace(input: SudokuInput, counter?: StepCounter): SudokuRu
         continue;
       }
       board[row][col] = num;
+      placed = true;
       events.push(['set', row, col, num]);
       snap(
         L.place,
@@ -280,8 +283,8 @@ export function sudokuTrace(input: SudokuInput, counter?: StepCounter): SudokuRu
     snap(
       L.fail,
       calls.length === 1
-        ? `No digit from 1 to 9 fits ${at}, the first empty cell: the first _search returns False, so the puzzle has no solution.`
-        : `No digit from 1 to 9 fits ${at}: this _search returns False, so the cell before it, (${calls[calls.length - 2].r}, ${calls[calls.length - 2].c}), must change its digit.`,
+        ? `${placed ? `Every digit that fits ${at}, the first empty cell, led to a dead end` : `No digit from 1 to 9 fits ${at}, the first empty cell`}: the first _search returns False, so the puzzle has no solution.`
+        : `${placed ? `Every digit that fits ${at} led to a dead end` : `No digit from 1 to 9 fits ${at}`}: this _search returns False, so the cell before it, (${calls[calls.length - 2].r}, ${calls[calls.length - 2].c}), must change its digit.`,
       { cursor: { r: row, c: col, role: 'bad' }, cells: { [`${row},${col}`]: { role: 'bad' } }, top: 'bad', vars: [['cell', at]] },
     );
     calls.pop();

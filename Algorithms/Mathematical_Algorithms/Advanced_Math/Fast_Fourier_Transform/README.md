@@ -79,7 +79,7 @@ Use the FFT for multiplying long polynomials or big numbers, convolutions, corre
 3. **Inverse of a non-power-of-two length** is rejected (`ValueError`, `std::invalid_argument`, panic).
 4. **Precision.** Large integer outputs are silently wrong; see the bound above.
 5. **`int` overflow in C++.** `multiplyPolynomials` returns `long long` because a product of two `int` values can overflow `int`.
-6. **Empty input** returns an empty result.
+6. **Empty input** returns an empty result; multiplying by one empty polynomial gives `[0]`.
 
 ## Implementations
 

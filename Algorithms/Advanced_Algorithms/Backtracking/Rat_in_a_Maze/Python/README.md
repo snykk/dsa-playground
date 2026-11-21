@@ -3,7 +3,7 @@
 ## Files
 
 - `rat_in_maze.py`: `is_safe`, `solve_maze_util`, `solve_maze`, `print_solution`.
-- `rat_in_maze_test.py`: unit tests (example maze, no path, `is_safe`, a path that needs up and left moves, path validity, a 30 x 30 maze with the goal walled off, 1 x 1 and empty mazes, non-square rejection).
+- `rat_in_maze_test.py`: unit tests (example maze, no path, `is_safe`, a path that needs upward moves, path validity, a 30 x 30 maze with the goal walled off, 1 x 1 and empty mazes, non-square rejection).
 
 ## API
 

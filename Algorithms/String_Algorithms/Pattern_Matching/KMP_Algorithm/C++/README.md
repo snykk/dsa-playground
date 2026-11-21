@@ -19,7 +19,7 @@ Knuth-Morris-Pratt search with an LPS table.
 ## C++-Specific Notes
 
 - Indices are byte offsets.
-- The table is a `std::vector<int>`; `int` sizes are fine for any text that fits comfortably in memory.
+- The table is a `std::vector<int>`, and the lengths and indices are `int`, so a text of 2^31 bytes or more overflows them and the result is wrong.
 - `std::string::find` and `std::boyer_moore_searcher` are the standard-library alternatives.
 
 ## How to Run

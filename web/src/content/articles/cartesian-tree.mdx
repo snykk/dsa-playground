@@ -153,7 +153,7 @@ The three languages build the tree the same way and keep the original array for 
 - `get_min_index` walks from the root (an earlier version searched the whole tree, O(n) per query).
 - Traversals, height, size and destruction are iterative in Python and C++, so a chain from sorted input (n = 10<sup>6</sup> in the C++ tests) does not overflow the stack. Go uses recursion, which is safe because goroutine stacks grow.
 - C++ `buildFromArray` frees the previous tree, and the class is not copyable.
-- `GetRootValue` exists in C++ (`INT_MIN` when empty) and Go (`-1` when empty); Python has no such method, use `tree.root.value`.
+- C++ has `getRootValue` (`INT_MIN` when empty) and Go `GetRootValue` (`-1` when empty); Python has no such method, use `tree.root.value`.
 - The Go package has a small `main`, so `go run .` works.
 
 <TopicCode topic="Data_Structures/Non_Linear/Trees/Cartesian_Tree" />

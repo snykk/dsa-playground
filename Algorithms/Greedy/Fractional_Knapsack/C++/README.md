@@ -25,7 +25,7 @@ The function returns only the value. The fractions taken are available in Python
 ## C++-Specific Notes
 
 - `items` is a non-const reference and is **sorted in place**: the caller's order changes. Pass a copy if you need the original order.
-- A zero-weight item gets an infinite ratio (`std::numeric_limits<double>::infinity()`) and is taken whole; before the fix, `0 * (0 / 0)` produced NaN.
+- A zero-weight item gets an infinite ratio (`std::numeric_limits<double>::infinity()`) and is taken whole; before the fix, `value * (0 / 0)` produced NaN.
 - The sort uses a generic lambda, which needs C++14 or newer: compile with `-std=c++17`.
 - Values and weights are `double`; compare totals with a tolerance.
 

@@ -88,7 +88,7 @@ For the minimum cost to reach the top use a `min` recurrence instead; for combin
 2. Off-by-one against Fibonacci: `ways(n) = F(n + 1)`.
 3. Overflow: exact in C++ and Go only up to `n = 91`. Python is unbounded.
 4. Loop order: stairs outside counts sequences, steps outside counts combinations.
-5. Steps of 0 or less are not meaningful and are not rejected.
+5. Steps of 0 or less are not meaningful and are not checked: a 0 step can inflate the count, and a negative step raises `IndexError`.
 
 ## Implementations
 

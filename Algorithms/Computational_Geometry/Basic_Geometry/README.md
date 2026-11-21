@@ -20,7 +20,7 @@ Both rest on one function, `cross(o, a, b) = (a.x - o.x)(b.y - o.y) - (a.y - o.y
 | Point, Line and Circle | signed area and dot product as the basic tests | `cross_product`, `dot_product`, `orientation`, `angle_between_points`, `point_in_triangle`, `Circle.contains_point` | O(1) | O(1) |
 | Line Intersection | orientation signs decide first, then the point is computed | `line_intersection`, `segments_intersect`, `segment_intersection`, `point_on_segment` | O(1) per pair | O(1) |
 
-Every test compares a cross or dot product with exact zero, so a result does not depend on the scale of the coordinates. In C++ and Go the tests are exact while the products stay below 2^53. Checking all pairs of n segments takes O(n^2); a sweep line such as Bentley-Ottmann is not in this repository.
+Every test is an exact comparison (the sign of a cross product, or squared distances and coordinates compared directly), so a result does not depend on the scale of the coordinates. In C++ and Go the tests are exact while the products stay below 2^53. Checking all pairs of n segments takes O(n^2); a sweep line such as Bentley-Ottmann is not in this repository.
 
 ## Choosing One
 

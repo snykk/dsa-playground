@@ -51,7 +51,7 @@ The first roll: `(256 * (79 - 88 * 54) + 85) mod 101 = 41`.
 | Best / expected | O(n + m) | few collisions: O(m) setup, O(1) per window, O(m) per real match |
 | Worst | O(n*m) | every window has the pattern's hash, or the text is full of real matches (`AAAAA` with `AAA`) |
 
-Extra space is O(1). The default modulus 101 is small, so about 1 window in 101 shares the pattern hash by chance; results stay correct because hits are verified, but a large prime is better for real inputs. With a large modulus the C++ and Go `int` arithmetic needs 64-bit products (`base * (hash - lead * h)` is about `256 * mod * mod`).
+Extra space is O(1). The default modulus 101 is small, so about 1 window in 101 shares the pattern hash by chance; results stay correct because hits are verified, but a large prime is better for real inputs. With a large modulus the products need 64-bit integers (`base * (hash - lead * h)` reaches about `256 * 255 * mod`): the C++ code uses a 32-bit `int`, while Go's `int` is 64 bits on 64-bit platforms.
 
 ## When to Use
 

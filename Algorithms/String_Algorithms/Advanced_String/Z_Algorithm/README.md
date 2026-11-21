@@ -4,7 +4,7 @@ The Z-algorithm computes, for every position of a string `s`, the length of the 
 
 ## Intuition
 
-`Z[i]` answers "how much of the string's beginning starts again at `i`?" (with `Z[0] = 0` by convention here). Computing each value from scratch is quadratic. The trick is the **Z-box** `[l, r]`: the prefix match that reaches furthest right so far, so `s[l..r]` equals `s[0..r-l]`. A position `i` inside the box sees a copy of the start of the string, so `Z[i]` can begin at the already known `Z[i - l]`, clipped at the edge of the box. Only characters beyond `r` are really compared, and `r` never moves left.
+`Z[i]` answers "how much of the string's beginning starts again at `i`?" (with `Z[0] = 0` by convention here). Computing each value from scratch is quadratic. The trick is the **Z-box** `[l, r]`: the prefix match that reaches furthest right so far, so `s[l..r]` equals `s[0..r-l]`. A position `i` inside the box sees a copy of the start of the string, so `Z[i]` can begin at the already known `Z[i - l]`, clipped at the edge of the box. Only characters beyond `r` can extend a match (a comparison inside the box fails at once), and `r` never moves left.
 
 ## Visual
 
@@ -38,12 +38,12 @@ An empty pattern, an empty text, or a pattern longer than the text returns `[]`.
 | 2 | 0 | `b` vs `a` fails | 0 | [1, 1] |
 | 3 | 0 | `x` vs `a` fails | 0 | empty |
 | 4 | 0 | seven matches, then the end | 7 | [4, 10] |
-| 5 | `min(6, Z[1])` = 1 | none | 1 | [4, 10] |
-| 6 | `min(5, Z[2])` = 0 | none | 0 | [4, 10] |
-| 7 | `min(4, Z[3])` = 0 | none | 0 | [4, 10] |
-| 8 | `min(3, Z[4])` = 3 | none | 3 | [4, 10] |
-| 9 | `min(2, Z[5])` = 1 | none | 1 | [4, 10] |
-| 10 | `min(1, Z[6])` = 0 | none | 0 | [4, 10] |
+| 5 | `min(6, Z[1])` = 1 | `b` vs `a` fails | 1 | [4, 10] |
+| 6 | `min(5, Z[2])` = 0 | `b` vs `a` fails | 0 | [4, 10] |
+| 7 | `min(4, Z[3])` = 0 | `x` vs `a` fails | 0 | [4, 10] |
+| 8 | `min(3, Z[4])` = 3 | none: the end | 3 | [4, 10] |
+| 9 | `min(2, Z[5])` = 1 | `b` vs `a` fails | 1 | [4, 10] |
+| 10 | `min(1, Z[6])` = 0 | `b` vs `a` fails | 0 | [4, 10] |
 
 Search `aab` in `aabxaabaab`: the combined string `aab$aabxaabaab` has `Z = [0, 1, 0, 0, 3, 1, 0, 0, 3, 1, 0, 3, 1, 0]`. The values `>= 3` are at combined indices 4, 8 and 11, so the matches are at text indices `[0, 4, 7]`.
 

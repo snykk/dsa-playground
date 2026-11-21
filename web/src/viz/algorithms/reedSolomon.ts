@@ -125,6 +125,8 @@ export function parseRs(text: string, { maxN = 24 } = {}): RsInput {
   const n = int('n');
   const k = int('k');
   const fcr = int('fcr', 0);
+  // fcr only matters modulo 255 (the order of alpha); a bound keeps fcr + i an exact integer.
+  if (fcr > 1_000_000_000) throw new InputError('Keep fcr <= 1000000000: only fcr mod 255 matters.');
   if (n > maxN) throw new InputError(`Keep n <= ${maxN} so every step fits on screen.`);
   if (!(k >= 1 && k < n)) throw new InputError('Need 1 <= k < n.');
   const message = parseList(fields.get('msg') ?? '').map((s) => {

@@ -115,7 +115,7 @@ The inner loop runs once per element that is larger than the key and sits to its
 />
 
 <Callout title="The recursive version needs O(n) stack">
-`insertion_sort_recursive` makes one nested call per element, so its depth is `n`. Python's default recursion limit (about 1,000 frames) makes it raise `RecursionError` for lists of a few thousand elements. Use the iterative version for real work.
+`insertion_sort_recursive` makes one nested call per element, so its depth is `n`. Python's default recursion limit (about 1,000 frames) makes it raise `RecursionError` for lists of about 1,000 elements or more. Use the iterative version for real work.
 </Callout>
 
 ## Variants
@@ -156,7 +156,7 @@ The inner loop runs once per element that is larger than the key and sits to its
     'O(n^2) comparisons and shifts on random or reversed input.',
     'Shifting moves one element per step, so one far-away element costs many moves.',
     'Not suited to large arrays.',
-    'The Python recursive variant overflows the stack on a few thousand elements.',
+    'The Python recursive variant overflows the stack on about 1,000 elements.',
   ]}
 />
 

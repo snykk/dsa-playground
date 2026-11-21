@@ -46,17 +46,20 @@ function refPow(b: bigint, e: bigint, m: bigint): bigint | null {
   return e === 0n ? 1n : r;
 }
 
-function expectWellFormed(frames: Array<Frame<PowState>>, lines: number) {
+/** What is wrong with the frames of a run, one readable line per problem. */
+function frameProblems(frames: Array<Frame<PowState>>, lines: number): string[] {
+  const out: string[] = [];
   for (const f of frames) {
-    expect(f.caption.length).toBeGreaterThan(10);
-    if (f.line !== undefined) {
-      expect(f.line).toBeGreaterThanOrEqual(0);
-      expect(f.line).toBeLessThan(lines);
-    }
+    if (f.caption.length <= 10) out.push(`caption too short: "${f.caption}"`);
+    if (f.line !== undefined && (f.line < 0 || f.line >= lines)) out.push(`line ${f.line} out of range: ${f.caption}`);
     const ids = f.state.bits.map((b) => b.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    for (const row of f.state.table.rows) expect(row.length).toBe(f.state.table.columns.length);
+    if (new Set(ids).size !== ids.length) out.push(`repeated bit ids [${ids}]: ${f.caption}`);
+    const width = f.state.table.columns.length;
+    f.state.table.rows.forEach((row, r) => {
+      if (row.length !== width) out.push(`table row ${r} has ${row.length} cells for ${width} columns: ${f.caption}`);
+    });
   }
+  return out;
 }
 
 function randomCall(rand: () => number): PowCall {
@@ -80,12 +83,13 @@ describe.each([
     for (let t = 0; t < 150; t++) {
       const calls = Array.from({ length: 1 + Math.floor(rand() * 3) }, () => randomCall(rand));
       const run = trace({ calls });
+      const problems = frameProblems(run.frames, lines);
       calls.forEach((c, i) => {
         const want = refPow(c.base, c.exponent, c.modulus);
-        expect(run.steps[i].result, `${c.base}^${c.exponent} mod ${c.modulus}`).toBe(want);
+        if (run.steps[i].result !== want) problems.push(`${c.base}^${c.exponent} mod ${c.modulus}: got ${run.steps[i].result}, the reference says ${want}`);
       });
-      expectWellFormed(run.frames, lines);
-      expect(run.frames.length).toBeLessThan(2000);
+      if (run.frames.length >= 2000) problems.push(`${run.frames.length} frames, want fewer than 2000`);
+      expect(problems, `run ${t}`).toEqual([]);
     }
   });
 
