@@ -34,7 +34,7 @@ concurrency:
 jobs:
   build:
     name: Build site
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04  # pinned to the image CI uses (see ci.yml): ubuntu-latest moves to new Ubuntu releases
     timeout-minutes: 20
     defaults:
       run:
@@ -64,7 +64,7 @@ jobs:
     name: Deploy to GitHub Pages
     needs: build
     if: ${{ !github.event.repository.private }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04  # pinned to the image CI uses (see ci.yml): ubuntu-latest moves to new Ubuntu releases
     timeout-minutes: 10
     environment:
       name: github-pages
