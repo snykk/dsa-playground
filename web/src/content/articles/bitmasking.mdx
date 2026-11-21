@@ -196,7 +196,7 @@ The Python, C++ and Go files share the basic operations, subset enumeration, a T
 ## Common mistakes
 
 <Callout tone="warning" title="Watch out for these">
-- **Shift by the width or more.** In C++ and Go, `1 << 31` overflows a 32-bit `int`, and shifting by 32 or more is undefined in C++. Use `1LL << i` or `uint64_t`.
+- **Shift by the width or more.** In C++, `1 << 31` overflows a 32-bit `int` (Go's `int` is 64 bits on common platforms), and shifting by 32 or more is undefined in C++. Use `1LL << i` or `uint64_t`.
 - **Precedence.** In C and C++, `mask & bit == 0` parses as `mask & (bit == 0)`. Write `(mask & bit) == 0`; Python and Go bind the other way, but the parentheses are always safe.
 - **Loop condition `sub > 0`.** It skips the empty submask. Use the explicit break shown in the template if the empty set matters.
 - **Wrong range.** All subsets are `0` to `(1 << n) - 1`, not `1 << n`.

@@ -62,7 +62,7 @@ n is 0, so the answer is 3. For the Hamming distance of 7 and 10: `0111 ^ 1010 =
 | Operation | Time | Space |
 |-----------|------|-------|
 | Single bit operation | O(1) | O(1) |
-| Kernighan popcount | O(k), at most 64 rounds | O(1) |
+| Kernighan popcount | O(k), at most 64 rounds for a 64-bit value | O(1) |
 | `highest_set_bit`, `next_power_of_two` | O(log n) | O(1) |
 | `subset_generation(n)` | O(n * 2^n) | O(n * 2^n) output |
 

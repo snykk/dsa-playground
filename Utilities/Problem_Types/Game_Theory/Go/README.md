@@ -19,7 +19,7 @@
 | `CombinedGrundy(states []int, grundyTables [][]int) int` | XOR of Grundy numbers |
 | `MisereNimWinner(piles []int) bool` | misere Nim; empty piles are not counted |
 
-Staircase Nim, Wythoff, Fibonacci Nim, Zeckendorf and game-graph analysis are Python/C++ only.
+Staircase Nim, Wythoff and Zeckendorf are Python/C++ only; Fibonacci Nim and game-graph analysis are Python only.
 
 ## Go-Specific Notes
 

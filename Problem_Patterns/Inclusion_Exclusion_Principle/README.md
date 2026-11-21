@@ -77,7 +77,7 @@ Use it when conditions overlap, intersections are easy to count and k is small (
 - Integer overflow while building the lcm; C++ and Go here skip a subset once the lcm exceeds `n`.
 - Wrong sign: the union adds odd subsets; the complement count has the opposite sign and starts from the total.
 - Divisors must be at least 1; zero divides by zero.
-- `1 << k` on a 32-bit int in C++ and Go limits k to below 31.
+- `1 << k` on a 32-bit int in C++ limits k to below 31; Go's `int` is 64 bits on common platforms.
 
 ## Implementations
 

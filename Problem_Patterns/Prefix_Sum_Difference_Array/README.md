@@ -82,7 +82,7 @@ Use prefix sums for many queries on an array that does not change, and a differe
 - A difference array needs `size + 1` cells because `r + 1` can equal `size`.
 - Updating then querying without rebuilding: the prefix array is stale after a change.
 - Overflow: sums of many large values need 64-bit integers; the C++ and Go code use `int`.
-- No index validation anywhere: out-of-range indices raise in Python, are undefined in C++ and panic in Go (a negative Python index wraps silently).
+- No index validation anywhere: out-of-range indices raise in Python, are undefined in C++ and panic in Go (a negative Python index wraps silently, and a `right` past the end in `update` is ignored in all three).
 - `range_sum_queries` and `range_updates` exist only in Python; C++ and Go have just the two classes.
 
 ## Implementations

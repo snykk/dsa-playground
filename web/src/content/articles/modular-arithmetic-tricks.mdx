@@ -67,7 +67,7 @@ Modular reduction respects addition and multiplication: (a + b) mod m = ((a mod 
 
 ## See it in action
 
-**Lucas' theorem** writes n and r in base p and runs `lucas_nCr`: one recursive call of `_lucas` per digit, then one table lookup per digit pair while the calls return. Try **n = 10^18**, then **Wrong table: ValueError**. The second tab builds the `Factorials` table that `lucas_nCr` reads (this file's copy of the class in Precomputation); try **Prime 13** for the table Lucas needs with p = 13. Of the rest of `modular_tricks.py`, only `mul` appears, multiplying the factors as the calls return; `mod`, `add`, `sub`, `power`, the inverses (`mod_inverse`, `ext_gcd`, `mod_inverse_ext_gcd`), `div_mod`, `chinese_remainder`, `matrix_mult`, `matrix_power` and `fibonacci` are not animated here.
+**Lucas' theorem** writes n and r in base p and runs `lucas_nCr`: one recursive call of `_lucas` per digit until r runs out of digits, then one table lookup per digit pair while the calls return. Try **n = 10^18**, then **Wrong table: ValueError**. The second tab builds the `Factorials` table that `lucas_nCr` reads (this file's copy of the class in Precomputation); try **Prime 13** for the table Lucas needs with p = 13. Of the rest of `modular_tricks.py`, only `mul` appears, multiplying the factors as the calls return; `mod`, `add`, `sub`, `power`, the inverses (`mod_inverse`, `ext_gcd`, `mod_inverse_ext_gcd`), `div_mod`, `chinese_remainder`, `matrix_mult`, `matrix_power` and `fibonacci` are not animated here.
 
 <ArticleViz ids={['lucas-theorem', 'factorial-tables']} />
 

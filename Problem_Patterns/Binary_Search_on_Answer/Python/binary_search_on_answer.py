@@ -79,14 +79,14 @@ def find_kth_smallest_distance(nums: List[int], k: int) -> int:
     Find k-th smallest distance between pairs of numbers.
     
     Args:
-        nums: Sorted array of numbers
+        nums: Array of numbers (sorted in place)
         k: k-th smallest distance
         
     Returns:
         k-th smallest distance, or -1 if there are fewer than k pairs
         (same as the C++ and Go versions)
 
-    Time Complexity: O(n log(max_distance))
+    Time Complexity: O(n log n + n log(max_distance))
     Space Complexity: O(1)
     """
     def count_pairs_with_distance(distance: int) -> int:
