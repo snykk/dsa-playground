@@ -1,7 +1,7 @@
 """Generate golden fixtures for the dynamic-programming visualizations.
 
 The web visualizer re-implements Fibonacci, Climbing Stairs, Coin Change, LIS, Kadane,
-Edit Distance and Matrix Chain Multiplication in TypeScript. These fixtures pin each port
+Edit Distance, Matrix Chain Multiplication and the LCS traceback in TypeScript. These fixtures pin each port
 to the repository's Python implementation (tie-breaking included). Run from anywhere:
 
     python3 web/scripts/gen_dynamicProgramming_fixtures.py
@@ -25,6 +25,7 @@ for folder in (
     "Linear_DP/Maximum_Subarray_Kadanes_Algorithm",
     "2D_DP/Edit_Distance",
     "2D_DP/Matrix_Chain_Multiplication",
+    "2D_DP/Longest_Common_Subsequence",
 ):
     sys.path.insert(0, str(DP / folder / "Python"))
 
@@ -33,6 +34,7 @@ from coin_change import coin_change_min_coins  # noqa: E402
 from edit_distance import edit_distance  # noqa: E402
 from fibonacci import fibonacci_tabulation  # noqa: E402
 from kadane import kadane_with_indices  # noqa: E402
+from lcs import lcs_sequence  # noqa: E402
 from lis import lis_binary_search, lis_with_sequence  # noqa: E402
 from matrix_chain import matrix_chain_multiplication  # noqa: E402
 
@@ -79,6 +81,15 @@ def make_sections():
         dims = [rng.randint(1, 40) for _ in range(rng.randint(2, 9))]
         mcm.append({"dims": dims, "cost": matrix_chain_multiplication(dims)})
 
+    # Its own generator, so the sections above keep their values. Ties in the traceback are
+    # where an implementation can drift: lcs_sequence moves up only on a strictly larger cell.
+    lcs_rng = random.Random(20261121)
+    lcs = [{"a": a, "b": b, "lcs": lcs_sequence(a, b)} for a, b in [("ABCBDAB", "BDCABA"), ("AGGTAB", "GXTXAYB"), ("ABC", "ACB"), ("AB", "BA"), ("AAA", "A"), ("A", "B")]]
+    for _ in range(60):
+        a = "".join(lcs_rng.choice("ABC") for _ in range(lcs_rng.randint(1, 12)))
+        b = "".join(lcs_rng.choice("ABC") for _ in range(lcs_rng.randint(1, 12)))
+        lcs.append({"a": a, "b": b, "lcs": lcs_sequence(a, b)})
+
     return [
         ("fibonacci", fib),
         ("climbing", stairs),
@@ -87,6 +98,7 @@ def make_sections():
         ("kadane", kadane),
         ("edit", edit),
         ("mcm", mcm),
+        ("lcs", lcs),
     ]
 
 
@@ -94,7 +106,7 @@ def main():
     sections = make_sections()
     header = {
         "generator": "web/scripts/gen_dynamicProgramming_fixtures.py",
-        "reference": "Algorithms/Dynamic_Programming (fibonacci, climbing_stairs, coin_change, lis, kadane, edit_distance, matrix_chain)",
+        "reference": "Algorithms/Dynamic_Programming (fibonacci, climbing_stairs, coin_change, lis, kadane, edit_distance, matrix_chain, lcs)",
     }
     parts = [json.dumps(header)[:-1]]
     for name, cases in sections:

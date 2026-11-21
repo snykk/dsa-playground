@@ -81,11 +81,12 @@ export function lcsTrace({ a, b }: LcsInput): Array<Frame<GridState>> {
       push(5, `'${a[i - 1]}' matches at (${i}, ${j}): it is part of the LCS; move diagonally.`, { ...path }, [['i', i], ['j', j]]);
       i--;
       j--;
-    } else if (dp[i - 1][j]! >= dp[i][j - 1]!) {
-      push(6, `No match at (${i}, ${j}); up (${dp[i - 1][j]}) >= left (${dp[i][j - 1]}): move up.`, { ...path }, [['i', i], ['j', j]]);
+    } else if (dp[i - 1][j]! > dp[i][j - 1]!) {
+      // lcs_sequence moves up only when up is strictly larger; a tie moves left.
+      push(6, `No match at (${i}, ${j}); up (${dp[i - 1][j]}) > left (${dp[i][j - 1]}): move up.`, { ...path }, [['i', i], ['j', j]]);
       i--;
     } else {
-      push(6, `No match at (${i}, ${j}); left (${dp[i][j - 1]}) > up (${dp[i - 1][j]}): move left.`, { ...path }, [['i', i], ['j', j]]);
+      push(6, `No match at (${i}, ${j}); left (${dp[i][j - 1]}) >= up (${dp[i - 1][j]}): move left.`, { ...path }, [['i', i], ['j', j]]);
       j--;
     }
   }

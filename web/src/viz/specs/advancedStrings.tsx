@@ -161,5 +161,5 @@ export const suffixArraySpec: VizSpec<SaInput, SaState> = {
     { role: 'done', label: 'suffix array, block of matches' },
     { role: 'muted', label: 'ranks the binary search ruled out' },
   ],
-  complexity: { time: 'build O(n^2 log n) here; search O(m log n)', space: 'O(n^2) while building (copied suffixes), O(n) after' },
+  complexity: { time: 'build O(n^2 log n) here; search O(m log n + k log k) for k matches', space: 'O(n^2) while building (copied suffixes), O(n) after' },
 };

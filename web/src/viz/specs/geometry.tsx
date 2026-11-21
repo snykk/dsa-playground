@@ -226,7 +226,7 @@ export const closestPairSpec: VizSpec<XY[], PlaneState> = {
   inputHelp: 'Points as (x, y), separated by spaces, with whole numbers from -9999 to 9999; 2 to 16 points (one point shows the ValueError). Duplicates and repeated x values are fine.',
   examples: [
     { label: 'Eight points (article example)', value: '(0,0) (1,6) (2,2) (4,5) (5,6) (7,1) (8,8) (9,3)' },
-    { label: 'README example', value: '(2,3) (12,30) (40,50) (5,1) (12,10) (3,4)' },
+    { label: 'Six scattered points', value: '(2,3) (12,30) (40,50) (5,1) (12,10) (3,4)' },
     { label: 'Many points on the line', value: '(5,1) (5,9) (5,4) (6,6) (5,2) (4,8) (5,7) (6,0)' },
     { label: 'A duplicate: distance 0', value: '(1,1) (6,2) (1,1) (9,9) (3,7)' },
     { label: 'Sixteen points', value: '(2,14) (5,3) (8,11) (11,6) (14,15) (17,2) (20,9) (3,8) (13,10) (9,1) (16,12) (6,17) (19,5) (1,1) (12,4) (18,16)' },
