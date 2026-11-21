@@ -19,7 +19,7 @@ Prefix sums for range queries and difference arrays for range updates. See the [
 ## Python-Specific Notes
 
 - Integers never overflow.
-- Indices are not validated: `right >= len(arr)` raises `IndexError`, and a negative `right` wraps around silently.
+- Indices are not validated: `right >= len(arr)` raises `IndexError` in `query` (in `update` the end mark is just skipped), and a negative `right` wraps around silently.
 - The helpers are Python-only; C++ and Go expose just the two classes.
 
 ## How to Run

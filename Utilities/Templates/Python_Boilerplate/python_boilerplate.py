@@ -31,7 +31,7 @@ def insr():
     return sys.stdin.readline().strip()
 
 def invr():
-    """Read space-separated integers as list."""
+    """Read space-separated integers as an iterator (a map object)."""
     return map(int, sys.stdin.readline().split())
 
 def out(x):

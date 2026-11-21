@@ -112,7 +112,7 @@ Build a permutation of `1..n` whose adjacent differences `|p[i+1] - p[i]|` conta
 Why it works: alternating between the smallest and the largest unused number of `1..k+1` produces differences `k, k-1, ..., 1`, each once. The first tail element `k + 2` differs from the last zig-zag value by between 1 and `k`, and later steps are 1. No new value appears, so there are exactly `k`.
 
 <Callout tone="warning" title="This was a bug in the repository">
-The earlier code only reversed a suffix of `1..n`, which gives 2 distinct differences whatever `k` is: for `(5, 3)` it returned `[1, 5, 4, 3, 2]`. The zig-zag version is checked against every `(n, k)` with `n` up to 12 in all three languages' tests.
+The earlier code only reversed a suffix of `1..n`, which gives at most 2 distinct differences whatever `k` is: for `(5, 3)` it returned `[1, 5, 4, 3, 2]`. The zig-zag version is checked against every `(n, k)` with `n` up to 12 in all three languages' tests.
 </Callout>
 
 ## Worked example: a graph from degrees
