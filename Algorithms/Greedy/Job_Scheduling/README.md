@@ -1,6 +1,6 @@
 # Job Scheduling
 
-Job scheduling orders jobs on one machine. The main problem here is job sequencing with deadlines: every job takes one unit of time, has a deadline and a profit, and the goal is the largest total profit. Taking jobs by decreasing profit and giving each the latest free slot before its deadline is optimal, in O(n log n + n * min(D, n)) time, where D is the largest deadline. Python also has two sorting-based variants (earliest deadline first, and weighted completion time).
+Job scheduling orders jobs on one machine. The main problem here is job sequencing with deadlines: every job takes one unit of time, has a deadline and a profit, and the goal is the largest total profit. Taking jobs by decreasing profit and giving each the latest free slot before its deadline is optimal, in O(n log n + n * min(D, n) + D) time, where D is the largest deadline. Two sorting-based variants (earliest deadline first, and weighted completion time) are implemented too, in all three languages.
 
 ## Intuition
 
@@ -34,7 +34,7 @@ Deadline version (`job_scheduling_deadline`):
 3. For each job, scan from its deadline down to slot 1 and put the job in the first empty slot. If none is free, skip the job.
 4. Return the total profit and the ids of the placed jobs.
 
-The other two Python variants are one sort each:
+The other two variants are one sort each (same names in camelCase in C++ and Go):
 
 - `job_scheduling_earliest_deadline` sorts by deadline (earliest deadline first, EDF) and returns the order of ids. It ignores `processing_time` and does not compute lateness.
 - `job_scheduling_weighted_completion_time` sorts by `weight / processing_time`, highest first (Smith's rule), and returns the order and the sum of `weight * completion_time`.
@@ -64,7 +64,7 @@ Smith's rule on `(id, processing_time, weight)` = `(J1, 3, 1)`, `(J2, 1, 2)`, `(
 
 | Variant | Time | Space | Why |
 |---------|------|-------|-----|
-| Deadline, profit | O(n log n + n * min(D, n)) | O(n + D) | sort, then each job scans at most min(D, n) slots; worst case O(n^2) |
+| Deadline, profit | O(n log n + n * min(D, n) + D) | O(n + D) | sort, then each job scans at most min(D, n) slots; the D + 1 slots cost O(D) to create; worst case O(n^2) when D is about n |
 | Earliest deadline first | O(n log n) | O(n) | one sort |
 | Weighted completion time | O(n log n) | O(n) | one sort |
 
@@ -81,7 +81,7 @@ Use the deadline version when every task takes one time unit, has a hard deadlin
 | Job timing | any free slot up to the deadline | fixed start and finish |
 | Goal | maximum total profit | maximum number of activities |
 | Sort key | profit, descending | finish time, ascending |
-| Time | O(n log n + n * min(D, n)) | O(n log n) |
+| Time | O(n log n + n * min(D, n) + D) | O(n log n) |
 
 ## Common Pitfalls
 
@@ -90,17 +90,17 @@ Use the deadline version when every task takes one time unit, has a hard deadlin
 - **Huge deadlines** allocate that many slots.
 - **Deadline of 0 or less:** the job is never scheduled.
 - **Negative profits** are not skipped: a job with a negative profit is still placed when a slot is free, which lowers the total.
-- **Ties in profit.** Python's sort is stable (input order wins); C++ and Go sort is unstable, so which tied job is chosen is unspecified.
-- **Input order.** C++ and Go sort the vector or slice you pass in.
-- **Smith's rule with `processing_time` 0** raises `ZeroDivisionError`.
+- **Ties in profit.** Python's sort is stable (input order wins); the C++ and Go deadline functions use an unstable sort, so which tied job is chosen is unspecified. EDF and Smith's rule sort stably in all three languages, so equal keys keep input order.
+- **Input order.** The C++ and Go deadline functions sort the vector or slice you pass in; the other two sort a copy.
+- **Smith's rule with `processing_time` 0** raises `ZeroDivisionError` in Python; C++ throws `std::domain_error` and Go returns `ErrZeroProcessingTime`.
 
 ## Implementations
 
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
 | Python | [Python/](Python/) | `job_scheduling.py` | all three variants; sorts copies |
-| C++ | [C++/](C++/) | `job_scheduling.cpp` | `jobSchedulingDeadline` and `jobSchedulingDeadlineProfitOnly` only; sorts the input in place |
-| Go | [Go/](Go/) | `main.go` | `JobSchedulingDeadline` only (`[][]int` rows `{id, deadline, profit}`); sorts the input in place |
+| C++ | [C++/](C++/) | `job_scheduling.cpp` | all three variants (`jobSchedulingDeadline` with `jobSchedulingDeadlineProfitOnly`, `jobSchedulingEarliestDeadline`, `jobSchedulingWeightedCompletionTime`); the deadline function sorts the input in place |
+| Go | [Go/](Go/) | `main.go` | all three variants (`JobSchedulingDeadline`, `JobSchedulingEarliestDeadline`, `JobSchedulingWeightedCompletionTime`) on `[][]int` rows; the deadline function sorts the input in place |
 
 ## Practice Problems
 

@@ -33,7 +33,7 @@ job_scheduling_weighted_completion_time([("J1", 3, 1), ("J2", 1, 2), ("J3", 2, 3
 - The slot list has `max_deadline + 1` entries: a huge deadline means a huge list.
 - A job with a negative profit is still scheduled when a slot is free.
 - `job_scheduling_weighted_completion_time` raises `ZeroDivisionError` when a `processing_time` is 0.
-- The C++ and Go versions have only the deadline function.
+- The C++ and Go versions have all three functions; their tests compare EDF and Smith's rule with outputs of this file, ties included.
 
 ## How to Run
 
@@ -44,6 +44,6 @@ python3 -m unittest job_scheduling_test
 
 ## Key Takeaways
 
-- Profit first, latest free slot: O(n log n + n * min(D, n)).
+- Profit first, latest free slot: O(n log n + n * min(D, n) + D).
 - The two other variants are plain sorts with the right key.
 - The returned id list is not a timetable.
