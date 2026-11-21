@@ -45,7 +45,7 @@ Go names: `ReverseString`, `IsPalindrome`, `CountVowels`, `ReplaceChar`, `ToUppe
 | | Python | C++ | Go |
 | --- | --- | --- | --- |
 | unit | code points | bytes | runes |
-| `replace_char` | replaces every occurrence of a substring (empty `old` inserts between all characters) | replaces one `char` | replaces one rune |
+| `replace_char` | replaces every occurrence of a substring (empty `old` inserts between all characters) | replaces every occurrence of one `char` | replaces every occurrence of one rune |
 | palindrome | `s == s[::-1]`: O(n) extra space | two pointers on bytes: O(1) extra space | two pointers on a `[]rune`: O(n) space |
 | case | Unicode rules | ASCII letters only; bytes >= 0x80 unchanged | Unicode rules |
 | split default | `" "` | `' '` | separator required |

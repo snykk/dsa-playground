@@ -117,7 +117,7 @@ When inserting, the code must first walk the **whole** probe sequence, rememberi
 
 ### Quadratic probing and the capacity trap
 
-Quadratic probing breaks up clusters by jumping further each time. Plain `i * i` steps are not safe: modulo 16 the squares are only 0, 1, 4 and 9, so the sixth colliding key finds no free slot even though 12 of 16 slots are empty. This code uses **triangular numbers** `i (i + 1) / 2` (0, 1, 3, 6, 10, ...), which visit every slot when the capacity is a power of two. The default capacity 16 is one, so a table can be filled completely.
+Quadratic probing breaks up clusters by jumping further each time. Plain `i * i` steps are not safe: modulo 16 the squares are only 0, 1, 4 and 9, so the fifth colliding key finds no free slot even though 12 of 16 slots are empty. This code uses **triangular numbers** `i (i + 1) / 2` (0, 1, 3, 6, 10, ...), which visit every slot when the capacity is a power of two. The default capacity 16 is one, so a table can be filled completely.
 
 Keys that share a home slot still follow the same probe sequence, which is called **secondary clustering**. Double hashing (step size from a second hash) avoids it, but is not implemented here.
 
@@ -202,7 +202,7 @@ Of these, this repository implements chaining, linear and quadratic probing.
 
 ## Implementation
 
-Python shares one base class between linear and quadratic probing and differs only in the step function. C++ stores open-addressing slots as optional key-value pairs held by value (`std::optional` of `std::pair`), so the table frees itself and copies deeply (an earlier version leaked every pair). Go keeps pointers to key-value structs and hashes any key type through its printed form.
+Python shares one base class between linear and quadratic probing and differs only in the step function. C++ stores open-addressing slots as optional key-value pairs held by value (`std::optional` of `std::pair`), so the table frees itself and copies deeply (an earlier version leaked every pair). Go keeps pointers to key-value structs, hashes ints and strings directly, and hashes any other key type through its printed form.
 
 <TopicCode topic="Data_Structures/Hashing/Collision_Handling" />
 

@@ -1,7 +1,8 @@
 class Deque:
     """Double-Ended Queue (Deque) implementation using list.
     
-    A deque allows insertion and deletion from both ends efficiently.
+    A deque allows insertion and deletion at both ends. This list-backed
+    version is O(1) at the back but O(n) at the front, where items shift.
     """
 
     def __init__(self):

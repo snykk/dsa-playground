@@ -37,7 +37,7 @@ related:
 
 A data structure is a way to arrange data so that the operations you need are cheap. No structure makes every operation cheap, so each area here is a different trade.
 
-- **Linear** structures keep elements in a sequence. An array reads any index in O(1) and pays O(n) to insert in the middle. A linked list inserts after a known node in O(1) and pays O(n) to reach an index. Stacks and queues restrict access to the ends, which keeps push and pop at O(1). The priority queue is the exception, at O(log n), because it is built on a heap.
+- **Linear** structures keep elements in a sequence. An array reads any index in O(1) and pays O(n) to insert in the middle. A linked list inserts after a known node in O(1) and pays O(n) to reach an index. Stacks and queues restrict access to the ends, which keeps push and pop at O(1) in most versions; the array-backed simple queue and deque pay O(n) to remove from the front. The priority queue costs O(log n), because it is built on a heap.
 - **Hashing** trades order for speed. A hash table finds a key in O(1) on average, and it keeps no sorted order. The Bloom filter answers membership with a small, approximate structure.
 - **Non-Linear** structures branch. Trees keep keys ordered, so a search costs O(log n) when the tree is balanced. Heaps expose the smallest or largest element. Graphs describe arbitrary relations, and the algorithms in the Algorithms folder run on them.
 - **Advanced** structures combine the others. The LRU cache pairs a hash map with a doubly linked list so that `get` and `put` are both O(1). Disjoint set union tracks merging groups.
@@ -64,7 +64,7 @@ The repository's study guide takes them in this order:
 3. **Trees.** Binary tree, binary search tree, AVL tree and trie, then heaps. The priority queue in Linear is a heap in disguise, so read Heaps beside it.
 4. **Graphs.** Adjacency list and matrix, which BFS and DFS in the Algorithms folder then use.
 5. **Advanced trees.** Segment tree, Fenwick tree, lazy propagation and treap, for range queries.
-6. **Advanced structures.** Disjoint set union, and the LRU and LFU caches.
+6. **Advanced structures.** The LRU and LFU caches. Disjoint set union comes earlier, with the group and graph problems of the problem-patterns phase.
 
 ## Common mistakes
 

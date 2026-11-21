@@ -6,7 +6,7 @@ A **circular queue** (ring buffer) is a bounded FIFO queue stored in a fixed arr
 
 A plain array queue wastes the slots freed at the front. A circular queue treats the array as a ring: when an index passes the last slot, `% capacity` sends it back to slot 0, so freed slots are reused.
 
-Two indices describe the queue: `front` (oldest item, next to dequeue) and `rear` (newest item). The queue is the run of slots from `front` to `rear`, wrapping at the end. Both indices only move forward by one slot, using `(i + 1) % capacity`.
+Two indices describe the queue: `front` (oldest item, next to dequeue) and `rear` (newest item). The queue is the run of slots from `front` to `rear`, wrapping at the end. Both indices only move forward by one slot, using `(i + 1) % capacity`, except that Python and C++ reset them to -1 when the last item leaves.
 
 ## Visual
 

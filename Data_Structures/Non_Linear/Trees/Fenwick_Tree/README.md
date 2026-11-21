@@ -80,7 +80,7 @@ The new tree is `[_, 1, 4, 10, 21, 9, 20]`, and the prefix sum of 1-based 5 is n
 | Structure | Update | Range sum | Space | Notes |
 | --------- | ------ | --------- | ----- | ----- |
 | Fenwick tree | O(log n) | O(log n) | n | shortest code, needs an invertible operation |
-| Segment Tree | O(log n) | O(log n) | about 2n | min, max, gcd too |
+| Segment Tree | O(log n) | O(log n) | 2n to 4n | min, max, gcd too |
 | Prefix-sum array | O(n) | O(1) | n | static data |
 | Plain array | O(1) | O(n) | n | rare queries |
 

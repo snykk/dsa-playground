@@ -89,7 +89,7 @@ Python also has `get_edges`, `get_vertices`, `dfs`, `dfs_recursive`, `is_connect
 
 ### Add an edge
 
-`add_edge` is not an O(1) append here. It first removes any existing entry for the same pair, which is what lets a repeated call update the weight instead of creating a parallel edge, and that removal is a full scan. In Python, 2000, 4000 and 8000 calls measured 0.14, 0.54 and 1.99 seconds, which is quadratic. A bare append to a list is O(1) if you can accept duplicates.
+`add_edge` is not an O(1) append here. It first removes any existing entry for the same pair, which is what lets a repeated call update the weight instead of creating a parallel edge, and that removal is a full scan. In Python, each doubling of the number of calls takes about four times as long (2000, 4000 and 8000 calls measured 0.14, 0.54 and 1.99 seconds on one machine), which is quadratic. A bare append to a list is O(1) if you can accept duplicates.
 
 ### Remove an edge
 

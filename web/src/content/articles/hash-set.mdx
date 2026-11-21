@@ -61,7 +61,8 @@ Run **Add and resize**: 10, 14 and 18 share bucket 2, adding 3 pushes the load p
     ['`add(x)`', 'insert if absent; returns whether it was new; resize if load > 0.75', 'O(1) average'],
     ['`remove(x)`', 'delete if present; returns whether it was there', 'O(1) average'],
     ['`contains(x)`', 'membership test', 'O(1) average'],
-    ['`size`, `is_empty`, `clear`', 'bookkeeping', 'O(1)'],
+    ['`size`, `is_empty`', 'bookkeeping', 'O(1)'],
+    ['`clear`', 'empty every bucket; the bucket count stays', 'O(capacity + n)'],
     ['`to_list`, iteration (Python)', 'every element, bucket by bucket', 'O(capacity + n)'],
   ]}
 />

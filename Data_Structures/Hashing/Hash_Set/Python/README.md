@@ -15,7 +15,8 @@ A chaining hash set that doubles its buckets at load 0.75. See the [topic README
 | `add(x)` | True if new, False if already present | O(1) amortized |
 | `remove(x)` | True if removed | O(1) average |
 | `contains(x)` / `x in s` | membership | O(1) average |
-| `clear()`, `is_empty()`, `len(s)` | bookkeeping | O(1) |
+| `is_empty()`, `len(s)` | bookkeeping | O(1) |
+| `clear()` | a fresh empty list per bucket | O(capacity) |
 | `to_list()`, `for x in s`, `repr(s)` | elements in bucket order | O(capacity + n) |
 
 ## Python-Specific Notes

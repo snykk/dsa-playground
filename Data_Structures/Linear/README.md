@@ -9,7 +9,7 @@ Read them in this order.
 | # | Section | What it adds | Level |
 |---|---------|--------------|-------|
 | 1 | [Array](Array/) | The base layout. Items sit in one block of memory, so index access is O(1) and a middle insert is O(n). | Beginner |
-| 2 | [Linked List](Linked_List/) | Items in nodes joined by links. Singly, doubly, circular and skip list kinds, with O(1) head insert and O(n) access. | 4 topics |
+| 2 | [Linked List](Linked_List/) | Items in nodes joined by links. Singly, doubly, circular and skip list kinds, with O(1) head insert (O(n) in the circular list here) and O(n) access. | 4 topics |
 | 3 | [Stack Data Structure](Stack/) | Last in, first out. Static array, dynamic array and linked-list versions, all with O(1) push and pop. | 3 topics |
 | 4 | [Queue](Queue/) | First in, first out, plus the deque and the priority queue. Differs in who leaves next and what the front costs. | 4 topics |
 | 5 | [String Data Structures](String/) | Characters in sequence, with traps for bytes and immutability. Basics, everyday manipulation and the rope. | 3 topics |
@@ -21,7 +21,7 @@ Python, C++ and Go versions of every topic live in each topic folder.
 | Area | Stored as | Interface | Access | Insert or remove |
 |------|-----------|-----------|--------|------------------|
 | Array | one contiguous block | read or write any index | O(1) | O(n) in the middle; O(1) amortized at the end of a dynamic array |
-| Linked list | nodes joined by links | walk from the head | O(n) | O(1) at the head; O(n) at the tail here, since only a head pointer is kept |
+| Linked list | nodes joined by links | walk from the head | O(n) | O(1) at the head (O(n) for the circular list); O(n) at the tail here, since only a head pointer is kept |
 | Stack | array or linked list | push, pop and peek at the top | top only, O(1) | O(1) |
 | Queue | array, ring or heap | enqueue at the back, dequeue at the front | front only, O(1) | O(1) with a ring, O(n) with a plain array in Python and C++, O(log n) with a heap |
 | String | contiguous characters, or a tree for the rope | read, concatenate, slice, edit | O(1) flat, O(log n) rope | O(n) flat, O(log n) rope |

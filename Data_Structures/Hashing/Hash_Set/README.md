@@ -30,7 +30,8 @@ elements 10, 14, 18, 3, 7 in 8 buckets (element mod 8):
 | `add(x)` | insert if absent; returns whether it was new; resize at load > 0.75 | O(1) average, amortized |
 | `remove(x)` | delete if present; returns whether it was there | O(1) average |
 | `contains(x)` | membership test | O(1) average |
-| size, is empty, clear | bookkeeping | O(1) |
+| size, is empty | bookkeeping | O(1) |
+| clear | empty every bucket; the bucket count stays | O(capacity + n) |
 | `to_list`, iteration (Python) | all elements, bucket by bucket | O(capacity + n) |
 
 Per language: Python has `add`, `remove`, `contains`, `clear`, `is_empty`, `to_list`, `in`, `len`, iteration, `repr`. C++ has `add`, `remove`, `contains`, `getSize`, `bucketCount`, `isEmpty`, `clear`. Go has `Add`, `Remove`, `Contains`, `Size`, `IsEmpty`, `Clear`. Only Python iterates; none of them has union, intersection or difference.

@@ -15,7 +15,8 @@ A template chaining hash set that doubles its buckets at load 0.75. See the [top
 | `bool add(key)` | true if new; resizes when load exceeds 0.75 | O(1) amortized |
 | `bool remove(key)` | true if removed | O(1) average |
 | `bool contains(key)` | membership | O(1) average |
-| `getSize()`, `bucketCount()`, `isEmpty()`, `clear()` | bookkeeping | O(1) |
+| `getSize()`, `bucketCount()`, `isEmpty()` | bookkeeping | O(1) |
+| `clear()` | clears every bucket list | O(cap + n) |
 
 No iteration. Elements use `std::hash<K>` and `==`.
 

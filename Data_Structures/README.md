@@ -33,7 +33,7 @@ The [study guide](../STUDY_GUIDE.md) takes them in this order:
 3. **Trees.** Binary tree, binary search tree, AVL tree and trie, then heaps. The priority queue in Linear is a heap in disguise, so read Heaps beside it.
 4. **Graphs.** Adjacency list and matrix, which BFS and DFS in [Algorithms](../Algorithms/) then use.
 5. **Advanced trees.** Segment tree, Fenwick tree, lazy propagation and treap, for range queries.
-6. **Advanced structures.** Disjoint set union, and the LRU and LFU caches.
+6. **Advanced structures.** The LRU and LFU caches. Disjoint set union comes earlier, with the group and graph problems of the problem-patterns phase.
 
 ## Common Pitfalls
 

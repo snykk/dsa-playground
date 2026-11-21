@@ -27,7 +27,7 @@ type LFUCache struct {
 	freqLists  map[int]*list.List
 }
 
-// NewLFUCache constructs a cache with the given positive capacity.
+// NewLFUCache constructs a cache with the given capacity (a negative one is treated as 0).
 // Capacity 0 is allowed and turns Get/Put into no-ops.
 func NewLFUCache(capacity int) *LFUCache {
 	if capacity < 0 {

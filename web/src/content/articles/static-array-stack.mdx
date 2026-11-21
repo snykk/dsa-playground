@@ -116,7 +116,7 @@ Python keeps the same scheme on a preallocated list `[None] * capacity` and sets
     ['push', 'O(1)', 'one bounds check and one write, never a copy'],
     ['pop, peek', 'O(1)', 'read slot `top`'],
     ['is_empty, size', 'O(1)', 'arithmetic on `top`'],
-    ['create', 'O(capacity)', 'the array is allocated (and filled with `None` or zero values) once'],
+    ['create', 'O(capacity)', 'the array is allocated once (Python fills it with `None` and Go with zeros)'],
   ]}
 />
 

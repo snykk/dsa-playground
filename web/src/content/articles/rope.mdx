@@ -53,7 +53,7 @@ Each **internal node** stores a `weight`: the number of characters in its left s
   caption="The rope for `Hello, World! Nice to meet you!` (31 characters, `_` stands for a space), as the constructor builds it. Leaves hold at most 10 characters."
 />
 
-The constructor splits the text in halves until a piece has at most 10 characters. Every operation then returns a **new** rope that shares most nodes with the old one: ropes are persistent, and the code never modifies a node after creating it.
+The constructor splits the text in halves until a piece has at most 10 characters. `concat` and `split` then return **new** ropes that share most nodes with the old one, and `insert` and `delete` give the rope they are called on such a new tree. The code never modifies a node after creating it, so a rope that shares nodes with another is never changed by the other's edits.
 
 <Callout title="The tree must stay balanced">
 Everything above is O(log n) only while the tree height is O(log n). A rope that just joins ropes under a new root grows one level per append, and after a few thousand appends it is a linked list: index becomes O(n) and a recursive walk overflows the stack. This implementation therefore keeps sibling heights within 1 with an AVL-style join (below).

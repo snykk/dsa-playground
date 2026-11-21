@@ -41,7 +41,7 @@ m = ceil( -n * ln(p) / (ln 2)^2 )      about 9.6 n bits for p = 1%
 k = max(1, round( (m / n) * ln 2 ))    7 for p = 1%
 ```
 
-Invalid sizes are rejected: capacity 0 or less, or an error rate outside (0, 1), raises `ValueError` (Python), throws `std::invalid_argument` (C++) or panics (Go).
+Invalid sizes are rejected: capacity 0 or less, or an error rate outside (0, 1), raises `ValueError` (Python) or panics (Go). C++ takes a `size_t` capacity and throws `std::invalid_argument` for 0 or a bad error rate.
 
 ## Step-by-Step Trace
 

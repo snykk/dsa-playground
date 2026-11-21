@@ -214,7 +214,7 @@ The repository tries store children in hash maps keyed by character, so a node c
 - **Returning the wrong value from delete.** The result must say whether the word was stored, not whether the parent may remove the node.
 - **Mixing bytes and characters.** Python walks code points, Go walks runes, and C++ walks bytes, so a multi-byte UTF-8 character is several nodes in C++. Use one view for insert, search and delete (Go once indexed bytes in delete and broke on non-ASCII words).
 - **Forgetting the empty word.** `insert("")` flags the root, so `is_empty` must look at the root flag too.
-- **Recursing per character** on very long words. The implementations here use loops and explicit stacks.
+- **Recursing per character** on very long words. The Python and C++ versions use loops and explicit stacks; Go's `GetAllWords` and `CountWords` recurse, which its growable stacks handle.
 - **Sharing a trie by copying it in C++.** Nodes are owned through raw pointers, so the class deletes copying.
 </Callout>
 

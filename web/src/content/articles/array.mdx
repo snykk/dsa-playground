@@ -154,7 +154,7 @@ The **Nine appends, seven pops** example replays the traces above on the Python 
 
 ## See it in the code
 
-The Python folder has three files: `static_array.py`, `multi_dimensional_array.py` (both demonstrations built on `array.array` and nested lists) and `dynamic_array.py`, the only reusable type. In C++ and Go all three files are small demonstration programs over `std::vector`, C arrays and slices, because those languages already ship a dynamic array. Their tests therefore exercise the language built-ins, not repository code. Only `dynamic_array_test.py` tests repository code.
+The Python folder has three source files: `static_array.py`, `multi_dimensional_array.py` (both demonstrations built on `array.array` and nested lists) and `dynamic_array.py`, the only reusable type. In C++ and Go all three files are small demonstration programs over `std::vector`, C arrays and slices, because those languages already ship a dynamic array. Their tests therefore exercise the language built-ins, not repository code. Only `dynamic_array_test.py` tests repository code.
 
 ## Implementation
 
@@ -173,7 +173,7 @@ The Python folder has three files: `static_array.py`, `multi_dimensional_array.p
   ]}
 />
 
-**Why append is amortized O(1).** With doubling, the resizes copy 1, 2, 4, ..., n/2 elements, which sums to less than n. Over n appends that is fewer than n extra copies, so the total is under 2n writes and the average per append is a constant. For example, 1000 appends from capacity 1 perform 1023 element copies in resizes (the last resize at append 513 copies 512 elements), about one per append. A single append can still cost O(n), so this is an average over a sequence, not a bound on each call.
+**Why append is amortized O(1).** With doubling, the resizes copy 1, 2, 4, ... elements, each copy smaller than n, which sums to less than 2n. Over n appends that is fewer than 2n extra copies, so the total is under 3n writes and the average per append is a constant. For example, 1000 appends from capacity 1 perform 1023 element copies in resizes (the last resize at append 513 copies 512 elements), about one per append. A single append can still cost O(n), so this is an average over a sequence, not a bound on each call.
 
 <Equation label="Total copy work for n = 2^k appends" expr="1 + 2 + 4 + ... + 2^{k-1}" result="2^k - 1 < n" />
 
@@ -234,7 +234,7 @@ The growth factor only needs to be greater than 1 for the amortized argument to 
     No. A Python `list` is a dynamic array of references. `lst[i]` is O(1), `lst.append` is amortized O(1), and `lst.insert(0, x)` is O(n).
   </FaqItem>
   <FaqItem question="Why is append O(1) if resizing copies everything?">
-    Resizes are rare and their cost is spread out. With doubling, the copies of all resizes up to n elements add up to less than n, so the average per append is constant. This is amortized analysis, not a per-call guarantee.
+    Resizes are rare and their cost is spread out. With doubling, the copies of all resizes up to n elements add up to less than 2n, so the average per append is constant. This is amortized analysis, not a per-call guarantee.
   </FaqItem>
   <FaqItem question="Why do arrays start at index 0?">
     The index is an offset from the base address: `base + i * w`. The first element is zero slots away from the start.

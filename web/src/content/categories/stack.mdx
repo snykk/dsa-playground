@@ -37,7 +37,7 @@ related:
 
 A stack allows two changes, push and pop, and both happen at the same end, called the top. The item you pushed last is the first one you get back (last in, first out).
 
-All three versions offer the same operations in Python, C++ and Go:
+All three versions offer the same operations in Python, C++ and Go (Python names shown; Go capitalises them, and the C++ static and linked list stacks spell `isEmpty()`):
 
 - `push(x)` adds an item on top.
 - `pop()` removes and returns the top item.
@@ -131,7 +131,7 @@ The static stack pays for its whole capacity up front, even when it is empty. Th
     Start with the static array stack: it shows the idea with the least machinery. Then read the dynamic array stack to see how the capacity limit is removed, and the linked list stack to see how pointers remove it without any copying.
   </FaqItem>
   <FaqItem question="Do the three versions behave differently?">
-    Not on valid use. The order of pops is the same, and so are the names of the operations. They differ only when the stack is full, which only the static stack can be, and in how much memory each item takes.
+    Not on valid use. The order of pops is the same, and so are the names of the operations, except in C++, where the dynamic array stack spells `is_empty()` and the other two `isEmpty()`. They differ only when the stack is full, which only the static stack can be, and in how much memory each item takes.
   </FaqItem>
   <FaqItem question="Why is push O(1) amortized in the dynamic stack?">
     The array grows by a constant factor, so copies are rare. Spread over many pushes, the copying adds only a constant amount of work to each one.
