@@ -34,4 +34,4 @@ g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD lis_test.cpp -o lis_test
 
 - Take the maximum over all entries of `dp`.
 - Strict comparison `arr[j] < arr[i]` is what excludes duplicates.
-- Quadratic time limits it to a few thousand elements.
+- Quadratic time limits it to a few tens of thousands of elements.

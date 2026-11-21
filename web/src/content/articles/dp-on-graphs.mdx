@@ -65,7 +65,7 @@ When a call for `v` returns, every node reachable from `v` has a finished memo e
 
 ## See it in action
 
-The memoized DFS runs on the DAG drawn left to right. A badge shows `dp[v]` once a node finishes, a call that reaches a finished node returns at once, and an edge back into a node that is still on the stack raises `ValueError`. Start with **Seven nodes (article)**, the graph of the worked example below, then try **Cycle: ValueError**.
+The memoized DFS runs on the DAG drawn left to right. A badge shows the code's `dp[v]` once a node finishes (the number of nodes on the longest path from `v`, one more than the edge counts of the worked example), a call that reaches a finished node returns at once, and an edge back into a node that is still on the stack raises `ValueError`. Start with **Seven nodes (article)**, the graph of the worked example below, then try **Cycle: ValueError**.
 
 <ArticleViz ids={['dag-longest-path']} />
 
@@ -126,7 +126,7 @@ The Python version has one function, `dag_longest_path(graph, start)`. The graph
 
 <TopicCode topic="Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs" />
 
-The recursion depth is the length of the longest path, so a path graph of more than about 1,000 nodes reaches Python's default recursion limit.
+The recursion depth is at most the number of nodes on the longest path (exactly that on a path graph), so a path graph of more than about 1,000 nodes reaches Python's default recursion limit.
 
 ## Complexity analysis
 
@@ -190,7 +190,7 @@ Only the first row is implemented in the repository; the others use the same ske
   ]}
   cons={[
     'Only valid for acyclic graphs: longest path is NP-hard in general.',
-    'Recursion depth equals the longest path, which can hit language limits.',
+    'Recursion depth can reach the length of the longest path, which can hit language limits.',
     'The repository version supports unweighted edges only.',
   ]}
 />

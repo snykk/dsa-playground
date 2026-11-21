@@ -9,7 +9,7 @@ For the concept, see the topic README: [../README.md](../README.md).
 | File | Purpose |
 |------|---------|
 | `main.go` | `GF256` type, `NewGF256`, `Shared()`, polynomial helpers and a small demo `main` |
-| `main_test.go` | 11 tests: AES vectors, field laws, polynomial multiply and evaluation |
+| `main_test.go` | 12 tests: AES vectors, field laws, polynomial multiply and evaluation, `Pow` with a huge exponent |
 | `go.mod` | module definition |
 
 ## API

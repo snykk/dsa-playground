@@ -3,7 +3,7 @@
 ## Files
 
 - `main.go`: `Point`, `Result`, `distance`, `bruteForceClosestPair`, `closestPairRecursive`, `ClosestPair`. It has no `main` function.
-- `main_test.go`: tests (two points, square, lines, closest pair across the divide, duplicates, negative and shared x, too few points, the y-list invariant, and random sets against brute force).
+- `main_test.go`: tests (two points, square, a horizontal line, duplicates, negative and shared x, too few points, the input order, and random sets against brute force).
 
 ## API
 

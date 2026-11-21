@@ -130,7 +130,7 @@ All three languages implement exactly one query type: **the number of distinct v
 
 - **Python:** `MoSAlgorithm(arr).process_queries(queries)` with `(l, r)` tuples, plus `count_distinct_in_ranges(arr, queries)`.
 - **C++:** the same class, and `countDistinctInRanges(arr, queries)` with a `vector<pair<int, int>>`.
-- **Go:** `NewMoSAlgorithm`, `processQueries` and `countDistinctInRanges` with `[][]int` queries (the package is `main`, so these are not exported).
+- **Go:** `NewMoSAlgorithm`, `processQueries` and `countDistinctInRanges` with `[][]int` queries (the package is `main`, and only `NewMoSAlgorithm` is exported).
 
 The frequency map is a hash map in every language. Queries are 0-indexed and inclusive.
 
@@ -163,7 +163,7 @@ The frequency map is a hash map in every language. Queries are 0-indexed and inc
   columns={['Approach', 'Query time', 'Needs', 'Online']}
   highlight={0}
   rows={[
-    ['Mo\'s algorithm', 'O(sqrt N) amortized', 'O(1) add and remove', 'No'],
+    ['Mo\'s algorithm', 'O(sqrt N) amortized when Q >= N', 'O(1) add and remove', 'No'],
     ['Segment tree', 'O(log N)', 'an associative merge', 'Yes'],
     ['Prefix sums', 'O(1)', 'an invertible operation', 'Yes'],
     ['Persistent segment tree', 'O(log N)', 'more code; works for distinct counts', 'Yes'],

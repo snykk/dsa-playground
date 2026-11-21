@@ -22,7 +22,7 @@ The first two work on an array and the last two on a tree. The two tree techniqu
 | Square root decomposition | O(n) | O(sqrt n) | O(1) for a point | O(sqrt n) plus a copy of the array | online |
 | Mo's algorithm | O(Q log Q) to sort the queries | O((N + Q) sqrt N) for all of them | not supported | O(N + Q) | offline |
 | Heavy-light decomposition | O(n) | O(log n) for LCA or the path segments | not in the code | O(n) | online |
-| Centroid decomposition | O(n log n) | O(log n) per centroid ancestor in a typical use | not supported | O(n) | online, once built |
+| Centroid decomposition | O(n log n) | O(log n), one step per centroid ancestor, in a typical use | not supported | O(n) | online, once built |
 
 A heavy-light path query that also asks for a sum, with a segment tree over the positions, costs O(log^2 n). That segment tree is not part of this repository. Mo's algorithm needs an add or remove step of O(1); a slower step multiplies the total.
 

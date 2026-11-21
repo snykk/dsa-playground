@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"math"
 	"math/rand"
 	"testing"
 )
@@ -384,5 +385,22 @@ func TestEncoderAndDecoderMustAgreeOnFCR(t *testing.T) {
 	cw, _ := mustNewRSWithFCR(t, 15, 11, 1).Encode(rangeBytes(11, 0))
 	if _, err := mustNewRSWithFCR(t, 15, 11, 0).Decode(cw); !errors.Is(err, ErrDecode) {
 		t.Errorf("got %v, want ErrDecode", err)
+	}
+}
+
+func TestExtremeFCRDoesNotOverflow(t *testing.T) {
+	// fcr + i and 1 - fcr used to wrap around near math.MaxInt64 / math.MinInt64.
+	for _, fcr := range []int{math.MaxInt64, math.MaxInt64 - 1, math.MinInt64, math.MinInt64 + 1} {
+		rs, err := NewReedSolomonWithFCR(15, 11, 3, fcr)
+		if err != nil {
+			t.Fatalf("fcr=%d: %v", fcr, err)
+		}
+		msg := []byte("Hello DSA!!")
+		cw, _ := rs.Encode(msg)
+		cw[2] ^= 5
+		cw[9] ^= 77
+		if got, err := rs.Decode(cw); err != nil || !bytes.Equal(got, msg) {
+			t.Errorf("fcr=%d: Decode = %v, %v; want %v", fcr, got, err, msg)
+		}
 	}
 }

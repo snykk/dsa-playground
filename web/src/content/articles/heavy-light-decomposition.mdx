@@ -232,7 +232,7 @@ What each language really provides:
 ## Common mistakes
 
 <Callout tone="warning" title="Watch out for these">
-- **Skipping the size pass.** `decompose` needs `heavy` first. Calling it on a fresh object gives a broken decomposition.
+- **Skipping the size pass.** `decompose` needs `parent` and `heavy` first. Called on a fresh Python object, where every `parent` is still -1, it walks back up every edge and never returns.
 - **Wrong swap rule.** Always climb from the node whose chain **head** is deeper, not the node that is deeper.
 - **Off-by-one in the last segment.** When both nodes share a chain, the segment runs from the shallower to the deeper `pos`, inclusive.
 - **Forgetting that `pos` is not node id.** Segment tree indices are `pos[u]`, not `u`.

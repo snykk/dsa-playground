@@ -25,7 +25,7 @@ int length = dagLongestPath(graph, 0);  // 2  (0 -> 1 -> 3 or 0 -> 2 -> 3)
 
 - Python's `ValueError` becomes `std::invalid_argument`, with the same message.
 - Node ids are `int` and need not be contiguous or non-negative; the memo and the in-progress set are an `std::unordered_map` and an `std::unordered_set`, like Python's dict and set.
-- The DFS is recursive, so its depth is the length of the longest path. The default 8 MB stack holds paths of many thousands of nodes, but not millions.
+- The DFS is recursive, so its depth is at most the number of nodes on the longest path. The default 8 MB stack holds paths of many thousands of nodes, but not millions.
 - Only the part of the graph reachable from `start` is examined; an unreachable cycle is not reported. Edge weights are not supported.
 
 ## How to Run

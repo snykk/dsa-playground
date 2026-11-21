@@ -3,7 +3,7 @@
 ## Files
 
 - `convex_hull.cpp`: `Point`, `crossProduct`, `distanceSquared`, `grahamScan`, `jarvisMarch`; `main` is compiled out with `-DIS_TEST_BUILD`.
-- `convex_hull_test.cpp`: assert-based tests (square, simple cases, duplicates and fewer than three points, input not modified or returned, all collinear, collinear boundary points, counterclockwise order and start point, tiny scale, the nearly collinear wedge, and 400 random integer sets checked against a brute-force reference).
+- `convex_hull_test.cpp`: assert-based tests (square, simple cases, duplicates and fewer than three points, all collinear, collinear boundary points, counterclockwise order and start point, tiny scale, the nearly collinear wedge, and 400 random integer sets checked against a brute-force reference).
 
 ## API
 
@@ -14,7 +14,7 @@
 ## C++-Specific Notes
 
 - Coordinates are `double`; integer coordinates are exact while cross products stay below 2^53 (differences below about 6.7e7).
-- `crossProduct` computes the two products in separate statements so that a compiler cannot fuse them into an FMA.
+- `crossProduct` stores each product in a `volatile double` so that a compiler cannot fuse them into an FMA (two plain statements are not enough: with `-ffp-contract=fast` a compiler still fuses them).
 - `Point::operator==` uses a tolerance of 1e-9, but the algorithms compare exactly.
 - The code is plain C++11; the commands below use C++17 like the rest of the repository.
 

@@ -18,7 +18,7 @@ Pattern Matching is the foundation. KMP's failure idea reappears in the Z-array 
 | Sub-area | Topics | Question it answers | Typical cost |
 |----------|--------|---------------------|--------------|
 | Pattern Matching | Naive, Rabin-Karp, KMP, Boyer-Moore | where does one pattern occur in one text? | O(n + m) to O(n*m) |
-| Advanced String | Z-algorithm, Aho-Corasick, Suffix Array, Manacher, Longest Common Substring | many patterns, an index of all suffixes, palindromes, shared substrings | O(n) to O(m*n) |
+| Advanced String | Z-algorithm, Aho-Corasick, Suffix Array, Manacher, Longest Common Substring | many patterns, an index of all suffixes, palindromes, shared substrings | O(n) to O(n^2 log n) |
 
 `n` is the text length and `m` the pattern length. Costs depend on the topic; each sub-area README has a full table.
 

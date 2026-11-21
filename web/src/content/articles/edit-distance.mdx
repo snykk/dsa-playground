@@ -55,7 +55,7 @@ Look at the last characters of the two strings. Either they are equal and cost n
 
 ## See it in action
 
-Press play to fill the table cell by cell. Each cell shows the three candidates it chooses from, and the traceback at the end draws the path from the corner back to the start. Type your own two strings to compare.
+Press play to fill the table cell by cell. Each mismatched cell shows the three candidates it chooses from (a match just copies the diagonal), and the traceback at the end draws the path from the corner back to the start. Type your own two strings to compare.
 
 <ArticleViz ids={['edit-distance']} />
 
@@ -116,7 +116,7 @@ editDistance(s1, s2):
 
 ## Implementation
 
-All three languages have the same single function over a 2D table, returning only the distance. Python compares Unicode code points. C++ and Go compare **bytes**, so a non-ASCII character that takes several bytes in UTF-8 costs several edits. An accented e takes two bytes, so comparing it with a plain e costs 1 edit in Python but 2 in C++ and Go. Normalize or convert to code points first if that matters.
+All three languages have the same single function over a 2D table, returning only the distance. Python compares Unicode code points. C++ and Go compare **bytes**, so a non-ASCII character that takes several bytes in UTF-8 can cost several edits. An accented e takes two bytes, so comparing it with a plain e costs 1 edit in Python but 2 in C++ and Go. Normalize or convert to code points first if that matters.
 
 <TopicCode topic="Algorithms/Dynamic_Programming/2D_DP/Edit_Distance" />
 
@@ -192,7 +192,7 @@ Memoization makes each of the (m + 1)(n + 1) pairs of prefixes cost O(1), which 
 - **Off-by-one on indices.** The table is one larger than the strings: use `s1[i-1]` and `s2[j-1]` for the cell `dp[i][j]`.
 - **Wrong borders.** `dp[0][j] = j`, not 0: building a string of `j` characters from nothing takes `j` inserts.
 - **Counting a replace as two edits.** A replace is a single operation.
-- **Mixing up bytes and characters.** In C++ and Go a multi-byte character counts as several edits.
+- **Mixing up bytes and characters.** In C++ and Go a multi-byte character can count as several edits.
 - **Expecting a swap to cost 1.** Levenshtein charges 2 for `ab` to `ba`; use Damerau-Levenshtein for 1.
 </Callout>
 

@@ -29,7 +29,7 @@ export interface MrInput {
   seed: number;
 }
 
-export const MR_LIMITS = { maxN: 10n ** 24n, maxNumbers: 4, maxK: 16, maxFrames: 2000 };
+export const MR_LIMITS = { maxN: 10n ** 24n - 1n, maxNumbers: 4, maxK: 16, maxFrames: 2000 };
 export const MR_BASES = [2n, 3n, 5n, 7n, 11n, 13n, 17n, 19n, 23n, 29n, 31n, 37n];
 /** Below this bound no composite passes all twelve bases (the docstring's limit). */
 export const MR_BOUND = 318665857834031151167461n;

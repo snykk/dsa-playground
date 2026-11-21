@@ -128,7 +128,7 @@ Python has `miller_rabin` (random witnesses), `is_prime_miller_rabin` and `mille
 <ComplexityTable
   rows={[
     { case: 'Random, k witnesses', time: 'O(k log n) mulmods', space: 'O(1)', when: 'Each witness is one modular exponentiation plus at most r - 1 squarings. With schoolbook big-number multiplication that is O(k log^3 n) bit operations.' },
-    { case: 'Deterministic, 12 witnesses', time: 'O(log n) mulmods', space: 'O(1)', when: 'A constant number of witnesses; about 12 * 64 multiplications for a 64-bit input.' },
+    { case: 'Deterministic, 12 witnesses', time: 'O(log n) mulmods', space: 'O(1)', when: 'A constant number of witnesses; for a 64-bit input each costs about 64 squarings plus one product per 1 bit of d, at most about 12 * 128 multiplications.' },
   ]}
 />
 

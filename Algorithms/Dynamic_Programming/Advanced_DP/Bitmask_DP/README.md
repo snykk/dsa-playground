@@ -96,7 +96,7 @@ There are 2^n masks and n values of `last`, and each cell tries up to n next cit
 - Returning 0 when no tour exists. The final minimum stays infinity in that case, and the code returns infinity: `float('inf')` in Python, `kInfinity` in C++, `math.Inf(1)` in Go.
 - Reading `dp[mask][last]` when bit `last` is not in `mask`.
 - Missing parentheses: write `mask & (1 << i)`.
-- 32-bit overflow of `1 << j` for j >= 31 in C++ and Go; use 64-bit masks.
+- 32-bit overflow of `1 << j` for j >= 31 with an `int` mask in C++ or an `int32` mask in Go; use 64-bit masks (Go's `int` is already 64 bits on the usual platforms).
 - Forgetting the edge back to city 0, which turns the cycle into a path.
 
 ## Implementations

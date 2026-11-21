@@ -54,7 +54,7 @@ export const nQueensSpec: VizSpec<QueensInput, BoardState> = {
     { role: 'bad', label: `queen that attacks the square, or a row with no safe column (${SYM.cross})` },
     { role: 'muted', label: `queen being lifted (outline); ${SYM.times} marks a column already tried in that row` },
   ],
-  complexity: { time: 'O(n * n!) worst case: about n! placements, O(n) per is_safe', space: 'O(n^2) board, recursion n deep' },
+  complexity: { time: 'O(n^2 * n!) worst case: up to n * n! column tries, O(n) per is_safe', space: 'O(n^2) board, recursion n deep' },
 };
 
 /* ---------- Sudoku ---------- */
@@ -147,7 +147,7 @@ export const ratInMazeSpec: VizSpec<MazeInput, BoardState> = {
     'solve_maze only accepts square mazes and returns None for any other shape.',
   examples: [
     { label: 'Dead end first (article)', value: '11000/10011/11110/00011/00001' },
-    { label: 'Needs up and left moves', value: '10111/10101/10101/11101/00001' },
+    { label: 'Needs up moves', value: '10111/10101/10101/11101/00001' },
     { label: 'Goal walled off', value: '11111/11111/11111/11110/11101' },
     { label: 'Python example', value: '1000/1101/0100/1111' },
     { label: 'Not square', value: '111/111' },

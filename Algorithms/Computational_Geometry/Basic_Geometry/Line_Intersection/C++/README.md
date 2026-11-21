@@ -11,13 +11,13 @@
 - `segmentIntersection(l1, l2)`: `std::optional<Point>`, a common point.
 - `segmentsIntersect(l1, l2)`: `bool`; exact.
 - `pointOnSegment(p, line)`: `bool`; exact.
-- Collinear overlap: `segment_intersection` returns the first shared point in (x, y) order.
-- `line_intersection` works on the infinite lines through the endpoints and returns nothing for parallel, coincident or zero-length lines.
+- Collinear overlap: `segmentIntersection` returns the first shared point in (x, y) order.
+- `lineIntersection` works on the infinite lines through the endpoints and returns nothing for parallel, coincident or zero-length lines.
 
 ## C++-Specific Notes
 
 - Needs C++17 for `std::optional`; the commands below use C++17.
-- `crossProduct` computes its two products in separate statements so a compiler cannot fuse them into an FMA.
+- `crossProduct` stores each product in a `volatile double` so a compiler cannot fuse them into an FMA (two plain statements are not enough: with `-ffp-contract=fast` a compiler still fuses them).
 - Integer coordinates are exact while cross products stay below 2^53.
 
 ## How to Run

@@ -11,14 +11,14 @@
 - `segmentIntersection(l1, l2 Line) *Point`: a common point, or `nil`.
 - `segmentsIntersect(l1, l2 Line) bool`: exact.
 - `pointOnSegment(p Point, line Line) bool`: exact.
-- Collinear overlap: `segment_intersection` returns the first shared point in (x, y) order.
-- `line_intersection` works on the infinite lines through the endpoints and returns nothing for parallel, coincident or zero-length lines.
+- Collinear overlap: `segmentIntersection` returns the first shared point in (x, y) order.
+- `lineIntersection` works on the infinite lines through the endpoints and returns nothing for parallel, coincident or zero-length lines.
 
 ## Go-Specific Notes
 
 - Pointer results: always check for `nil` before reading `X` and `Y` (the tests use `t.Fatalf` so a failure cannot dereference `nil`).
 - `crossProduct` wraps each product in `float64(...)`, which forbids fused multiply-add.
-- Everything is in `package main` and unexported.
+- Everything is in `package main`; the functions are unexported (the types `Point` and `Line` are exported).
 
 ## How to Run
 

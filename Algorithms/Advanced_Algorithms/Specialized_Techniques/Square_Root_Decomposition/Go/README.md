@@ -20,7 +20,7 @@
 
 - The slice is copied, so `Update` never changes the caller's slice.
 - Sums are `int` (64-bit on most platforms).
-- Indices are not validated; a bad index panics.
+- Indices are not validated; an access past either end panics.
 
 ## How to Run
 

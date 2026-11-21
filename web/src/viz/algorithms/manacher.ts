@@ -192,7 +192,7 @@ export function manacherTrace({ s }: ManacherInput): ManacherRun {
         5,
         `p[${i}] = min(right - i, p[mirror]) = min(${right - i}, ${p[mirror]}) = ${radius}, copied across the center without a comparison.` +
           (p[mirror] > right - i
-            ? ` Only ${right - i} of the mirror's radius ${p[mirror]} is known to hold at i: beyond right = ${right} nothing has been compared yet.`
+            ? ` Only ${right - i} of the mirror's radius ${p[mirror]} is known to hold at i: beyond right = ${right} no comparison has matched yet.`
             : p[mirror] < right - i
               ? ' The mirror\'s palindrome ends strictly inside the boundary, so this is already the exact radius.'
               : ' It reaches the boundary exactly, so the next comparison goes past right.'),
@@ -247,7 +247,7 @@ export function manacherTrace({ s }: ManacherInput): ManacherRun {
       snap(
         7,
         `transformed[${hi}] = ${q(t[hi])} equals transformed[${lo}] = ${q(t[lo])}: the palindrome around ${i} grows to radius ${p[i]}.` +
-          (hi > right ? ` Index ${hi} was never compared before: this is new ground past right = ${right}.` : ''),
+          (hi > right ? ` Index ${hi} lies past right = ${right}, outside every palindrome found so far: this match is new ground.` : ''),
         { i, cmp: { lo, hi, equal }, copy: keep },
         base(),
       );

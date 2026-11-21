@@ -41,7 +41,7 @@ The first group is the foundation. KMP's failure idea reappears in the Z-array a
   columns={['Sub-area', 'Topics', 'Question it answers', { label: 'Typical cost', kind: 'mono' }]}
   rows={[
     ['Pattern Matching', 'Naive, Rabin-Karp, KMP, Boyer-Moore', 'where does one pattern occur in one text?', 'O(n + m) to O(n*m)'],
-    ['Advanced String', 'Z-algorithm, Aho-Corasick, Suffix Array, Manacher, Longest Common Substring', 'many patterns, an index of all suffixes, palindromes, shared substrings', 'O(n) to O(m*n)'],
+    ['Advanced String', 'Z-algorithm, Aho-Corasick, Suffix Array, Manacher, Longest Common Substring', 'many patterns, an index of all suffixes, palindromes, shared substrings', 'O(n) to O(n^2 log n)'],
   ]}
 />
 
@@ -96,7 +96,7 @@ Costs depend on the topic. Both overviews give a full table for their own topics
     Use Aho-Corasick for patterns of different lengths. For patterns of one length, Rabin-Karp can hash them all and look each window up in a set.
   </FaqItem>
   <FaqItem question="What does a suffix array give me that a search does not?">
-    A reusable index. Building it costs more than one search, but every later query for the same text takes O(m log n) by binary search.
+    A reusable index. Building it costs more than one search, but every later query for the same text finds its block of matches in O(m log n) by binary search, plus O(k log k) to sort the k positions it returns.
   </FaqItem>
   <FaqItem question="Do I need to read Pattern Matching before Advanced String?">
     Yes, at least KMP. The Z-array, the failure links of Aho-Corasick and the suffix array all assume you know what a prefix match and a border are.

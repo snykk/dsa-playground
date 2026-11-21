@@ -33,7 +33,7 @@ Every function except `fibonacci_sequence` raises `ValueError` for a negative `n
 
 - Integers are unbounded, so there is no overflow: `fibonacci_optimized(100)` is 354224848179261915075.
 - `fibonacci_memoization` creates its dictionary inside the call (`memo=None`), avoiding the shared mutable default argument trap, but it recurses `n` deep and fails with `RecursionError` at about `n = 1000`.
-- `fibonacci_matrix` is recursive too, but its depth is only about `log n`.
+- `fibonacci_matrix` is recursive too, but its depth is at most about `2 log2 n`.
 
 ## How to Run
 

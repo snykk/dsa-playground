@@ -78,7 +78,7 @@ Find an LCS of `ABCBDAB` and `BDCAB`. The numbers below come from running `lcs_l
     [0, 1, 2, 2, 3, 3],
     [0, 1, 2, 2, 3, 4],
   ]}
-  tones={['......', '......', '......', 'l.....', '.f....', '..fl..', '....f.', '.....f']}
+  tones={['......', '......', '......', '......', '.f....', '..fl..', '....f.', '.....f']}
   legend={{ f: 'a match: this character is in the LCS', l: 'a skip step on the traceback' }}
 />
 
@@ -131,7 +131,7 @@ Python has three functions: `lcs_length`, `lcs_sequence` (with traceback) and `l
 
 <ComplexityTable
   rows={[
-    { case: 'Time', time: 'O(m n)', when: 'Each of the (m + 1)(n + 1) cells is computed once from two or three neighbors. The traceback adds O(m + n).' },
+    { case: 'Time', time: 'O(m n)', when: 'Each of the (m + 1)(n + 1) cells is computed once from one or two neighbors. The traceback adds O(m + n).' },
     { case: 'Space (table)', time: 'O(m n)', space: 'O(m n)', when: 'Needed to recover the sequence in this code.' },
     { case: 'Space (two rows)', time: 'O(m n)', space: 'O(min(m, n))', when: 'Row i depends only on row i-1; lcs_optimized keeps two rows of the shorter length. It gives the length only.' },
   ]}

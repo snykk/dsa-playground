@@ -86,7 +86,7 @@ Now search the text `ABABDABACDABABCABC`:
   ]}
 />
 
-The text characters `D` (index 4) and `C` (index 8) are each compared three times, so "each text character is examined once" is not literally true. What is true is that `i` never moves left, and the total number of comparisons is at most `2n`.
+The text characters `D` (index 4) and `C` (index 8) are each compared with three pattern positions, so "each text character is examined once" is not literally true. What is true is that `i` never moves left, and at most `2n` distinct `(i, j)` pairs are compared: 22 here, with `n = 18`. The code's `elif` repeats many of these tests, so its raw count of `==` and `!=` tests is at most twice that (39 here).
 
 ## Pseudocode
 
@@ -118,7 +118,7 @@ kmp_search(text, pattern):
 
 ## Implementation
 
-All three languages are the same algorithm. Python exposes `build_lps`, `kmp_search`, `kmp_search_count` and `kmp_search_first`; C++ has `buildLPS`, `kmpSearch`, `kmpSearchCount` and `kmpSearchFirst`; Go has `BuildLPS`, `KMPSearch`, `KMPSearchCount` and `KMPSearchFirst`. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`** here, unlike the overview functions in the Pattern Matching topic, where an empty pattern matches at every position. The `First` helpers compute all matches before returning the first. Python indexes code points; C++ and Go index bytes.
+All three languages are the same algorithm. Python exposes `build_lps`, `kmp_search`, `kmp_search_count` and `kmp_search_first`; C++ has `buildLPS`, `kmpSearch`, `kmpSearchCount` and `kmpSearchFirst`; Go has `BuildLPS`, `KMPSearch`, `KMPSearchCount` and `KMPSearchFirst`. An **empty pattern, an empty text, or a pattern longer than the text returns `[]`** here, as in the other three searches of this section. The `First` helpers compute all matches before returning the first. Python indexes code points; C++ and Go index bytes.
 
 <TopicCode topic="Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm" />
 
@@ -168,7 +168,7 @@ All three languages are the same algorithm. Python exposes `build_lps`, `kmp_sea
 ## Applications
 
 - **Single-pattern search** in editors, log scanners and streams.
-- **Smallest period of a string.** If `p = m - lps[m-1]` divides `m`, the string is a repetition of its first `p` characters (this solves LeetCode 459).
+- **Smallest period of a string.** If `p = m - lps[m-1]` is less than `m` and divides `m`, the string is a repetition of its first `p` characters (this solves LeetCode 459).
 - **Longest happy prefix** (LeetCode 1392): the longest border is `lps[m-1]`.
 - **Building block** for Aho-Corasick, which generalises the table to a trie of patterns.
 

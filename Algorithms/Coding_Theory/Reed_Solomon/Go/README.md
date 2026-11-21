@@ -9,7 +9,7 @@ For the conceptual overview, see the parent README: [../README.md](../README.md)
 | File | Purpose |
 |------|---------|
 | `main.go` | `ReedSolomon` type, GF(2^8) primitives, `Encode` / `Decode` / `DecodeWithErasures` |
-| `main_test.go` | 25 tests: errors only (1, 2, QR-like, Voyager RS(255, 223)), erasures only, mixed errors + erasures, several `fcr` values, beyond-budget detection, input validation, and the shared RS(7, 5) known-codeword fixture |
+| `main_test.go` | 26 tests: errors only (1, 2, QR-like, Voyager RS(255, 223)), erasures only, mixed errors + erasures, several `fcr` values (including `math.MaxInt64` and `math.MinInt64`), beyond-budget detection, input validation, and the shared RS(7, 5) known-codeword fixture |
 | `go.mod` | Module definition |
 
 ## Usage

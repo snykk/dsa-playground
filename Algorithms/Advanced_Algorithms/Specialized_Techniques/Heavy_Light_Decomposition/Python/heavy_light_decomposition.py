@@ -79,7 +79,7 @@ class HLD:
         
         return u
     
-    def query_path(self, u: int, v: int) -> List[int]:
+    def query_path(self, u: int, v: int) -> List[Tuple[int, int]]:
         """Get path from u to v as list of segments."""
         path = []
         

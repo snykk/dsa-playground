@@ -43,7 +43,7 @@ An empty pattern, an empty text, or a pattern longer than the text returns `[]` 
 | 13-14 | 8, 9 | 0 | `C` vs `A`, `D` vs `A`, `j == 0` | i = 10 |
 | 15-22 | 10..17 | 0..7 | eight matches, `j == m` | report 10 |
 
-The text characters `D` and `C` are each compared three times, so "each text character is examined once" is not literally true; `i` never moves left and the comparisons total at most `2n`.
+The text characters `D` and `C` are each compared with three pattern positions, so "each text character is examined once" is not literally true; `i` never moves left and at most `2n` distinct `(i, j)` pairs are compared (22 here, with `n = 18`). The code's `elif` repeats many of these tests, so its raw count of `==` and `!=` tests is at most twice that (39 here).
 
 ## Complexity
 

@@ -68,7 +68,7 @@ Use it for many online queries or updates on tree paths or subtrees, on a static
 
 ## Common Pitfalls
 
-- Calling `decompose` without `dfs_size` first (no heavy children, broken chains); use `build`.
+- Calling `decompose` without `dfs_size` first: every `parent` is still `-1`, so Python's `decompose` walks back up every edge and never returns; use `build`.
 - Climbing from the deeper node instead of the node whose chain head is deeper.
 - Off-by-one in the last segment: it is inclusive on both ends.
 - Indexing the segment tree by node id instead of `pos[u]`.

@@ -101,7 +101,7 @@ For `i = 5` (value 7) the earlier smaller elements are 2 (`dp = 1`), 5 (`dp = 2`
   ]}
 />
 
-The final `tails` is `[2, 3, 7, 18]`, which happens to be increasing but is **not** guaranteed to be a real subsequence of the input (3 comes after 5 in the array, but 5 was replaced). Only its length is the answer.
+The final `tails` is `[2, 3, 7, 18]`, which here happens to be a real subsequence of the input (indices 2, 4, 5, 7), but that is **not** guaranteed: for `[3, 4, 1]` the tails end as `[1, 4]`, and 1 comes after 4 in the array. Only its length is the answer.
 
 ## Pseudocode
 
@@ -152,7 +152,7 @@ The tails array stays sorted, which is why binary search is valid: replacing the
 
 ## Why the tails trick works
 
-The invariant is that `tails[k]` is the smallest last value over all increasing subsequences of length `k + 1` seen so far. A smaller tail is always at least as good: anything that can extend a larger tail can extend a smaller one as well. A new `x` either beats every tail (a longer subsequence exists) or improves the first tail that is `>= x`. The tails are increasing in `k`, because the last value of a run of length `k + 1` is larger than the last value of a run of length `k` inside it. Recovering the actual sequence in O(n log n) is possible by also storing, for each element, the index of the previous tail, but this repository does not do that.
+The invariant is that `tails[k]` is the smallest last value over all increasing subsequences of length `k + 1` seen so far. A smaller tail is always at least as good: anything that can extend a larger tail can extend a smaller one as well. A new `x` either beats every tail (a longer subsequence exists) or improves the first tail that is `>= x`. The tails are increasing in `k`, because the last value of a run of length `k + 1` is larger than the last value of a run of length `k` inside it. Recovering the actual sequence in O(n log n) is possible by also storing, for each element, the index of the previous tail; the repository's functions do not do that, but the tails visualization above does.
 
 ## Variants and relatives
 
@@ -191,7 +191,7 @@ The invariant is that `tails[k]` is the smallest last value over all increasing 
   ]}
   cons={[
     'The quadratic version is too slow beyond about 10^4 elements.',
-    'The tails array alone is not a valid subsequence.',
+    'The tails array alone is not always a valid subsequence.',
     'Strict versus non-strict is easy to get wrong.',
     'C++ and Go here have only the quadratic length.',
   ]}
@@ -216,7 +216,7 @@ The invariant is that `tails[k]` is the smallest last value over all increasing 
 ## Frequently asked questions
 
 <Faq>
-  <FaqItem question="Why does the tails array have the right length but the wrong contents?">
+  <FaqItem question="Why can the tails array have the right length but the wrong contents?">
     Each replacement lowers a tail to keep future options open, even when the replaced value is no longer part of any single run. The count of lengths stays correct, but the entries may come from different subsequences.
   </FaqItem>
   <FaqItem question="Can O(n log n) also give the sequence?">

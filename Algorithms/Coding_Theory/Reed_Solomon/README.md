@@ -160,7 +160,7 @@ Get either wrong and decoding fails: a perfectly clean `fcr = 1` RS(15, 11) code
 |-------|------|-----|
 | Generator construction | O((n - k)²) | Multiply `n - k` linear factors, once per code |
 | Encode | O(k · (n - k)) | Polynomial division by `g(x)` |
-| Syndrome computation | O((n - k) · n) | `n - k` evaluations of a degree-`n` polynomial |
+| Syndrome computation | O((n - k) · n) | `n - k` evaluations of a degree-`(n - 1)` polynomial |
 | Erasure locator `Gamma(x)` | O(e²) | Multiply `e` linear factors |
 | Berlekamp-Massey | O((n - k)²) | `n - k - e` iterations, each O(n - k) |
 | Chien search | O(n · (n - k)) | Evaluate a locator of degree ≤ `n - k` at all `n` positions |

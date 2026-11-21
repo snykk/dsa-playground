@@ -12,7 +12,7 @@ Invariant: in Graham's scan the stack always holds a strictly convex chain from 
 
 ```text
 y
-3  G . . . F        points: A(0,0) B(3,0) C(2,1) D(1,1) E(2,2) F(3,3) G(0,3)
+3  G . . F .        points: A(0,0) B(3,0) C(2,1) D(1,1) E(2,2) F(3,3) G(0,3)
 2  . . E . .        hull (counterclockwise from the pivot A): A B F G
 1  . D C . .        C, D, E are inside (D, E, F share the ray from A)
 0  A . . B .

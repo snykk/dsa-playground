@@ -66,7 +66,7 @@ Enter a text and a pattern. The pattern is compared from its right end, the bad 
 Search `EXAMPLE` in `HERE IS A SIMPLE EXAMPLE`. The table is `E:6, X:1, A:2, M:3, P:4, L:5`. The text has 24 characters and the pattern 7, so 18 alignments are possible; Boyer-Moore tries 5 of them.
 
 <ArrayDiagram
-  legend={{ c: 'the pattern window', f: 'the match', m: 'characters never examined at this alignment' }}
+  legend={{ c: 'the pattern window', f: 'the match' }}
   rows={[
     { label: 's = 0', values: ['H', 'E', 'R', 'E', ' ', 'I', 'S', ' ', 'A', ' ', 'S', 'I', 'M', 'P', 'L', 'E', ' ', 'E', 'X', 'A', 'M', 'P', 'L', 'E'], tones: 'ccccccc.................', marks: { 6: 'S' }, note: '`S` (text) vs `E` (pattern end) mismatches at `j = 6`. `S` is not in the pattern: shift `6 - (-1) = 7`.' },
     { label: 's = 7', values: ['H', 'E', 'R', 'E', ' ', 'I', 'S', ' ', 'A', ' ', 'S', 'I', 'M', 'P', 'L', 'E', ' ', 'E', 'X', 'A', 'M', 'P', 'L', 'E'], tones: '.......ccccccc..........', marks: { 13: 'P' }, note: '`P` vs `E` at `j = 6`. `last[P] = 4`: shift `6 - 4 = 2`.' },
@@ -110,7 +110,7 @@ All three languages follow the pseudocode. An **empty pattern, an empty text, or
 
 <ComplexityTable
   rows={[
-    { case: 'Best case', time: 'O(n/m)', when: 'The last character of every window is absent from the pattern, so the pattern jumps by m + 1 and most of the text is never read.' },
+    { case: 'Best case', time: 'O(n/m)', when: 'The last character of every window is absent from the pattern, so the pattern jumps by m and most of the text is never read.' },
     { case: 'Average case', time: 'O(n)', when: 'On natural text over a large alphabet shifts are long; the cost grows as the alphabet shrinks or the pattern gets short.' },
     { case: 'Worst case', time: 'O(n*m)', when: 'The pattern mismatches at the far left every time and the shift is 1. With only the bad-character rule: pattern `baaa` in `aaaa...a`.' },
   ]}
@@ -118,7 +118,7 @@ All three languages follow the pseudocode. An **empty pattern, an empty text, or
 
 <Equation label="Preprocessing" expr="one pass over the pattern, one table entry per distinct character" result="O(m) time, O(sigma) space" />
 
-The full Boyer-Moore algorithm adds the **good-suffix rule**, which uses the part of the pattern that already matched to decide the shift, and with Galil's refinement it runs in O(n + m) in the worst case. That rule is not implemented here, so this code is the bad-character (Horspool-style) variant and keeps the O(n*m) worst case.
+The full Boyer-Moore algorithm adds the **good-suffix rule**, which uses the part of the pattern that already matched to decide the shift, and with Galil's refinement it runs in O(n + m) in the worst case. That rule is not implemented here, so this code is the bad-character-only variant and keeps the O(n*m) worst case.
 
 ## Choosing a variant
 

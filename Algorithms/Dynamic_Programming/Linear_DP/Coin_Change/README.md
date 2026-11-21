@@ -31,12 +31,12 @@ Variants in the Python file:
 
 ## Step-by-Step Trace
 
-`dp[11]` for coins `{1, 2, 5}`:
+`dp[11]` for coins `{1, 2, 5}`, in the order the coin-outer loop updates it. When coin 1 is processed, `dp[10]` is still 10 (1-coins only); when coin 2 is processed, `dp[9]` is 5:
 
 | Coin | Candidate | Value |
 |------|-----------|-------|
-| 1 | `dp[10] + 1` | 3 |
-| 2 | `dp[9] + 1` | 4 |
+| 1 | `dp[10] + 1` | 11 |
+| 2 | `dp[9] + 1` | 6 |
 | 5 | `dp[6] + 1` | 3 |
 
 The minimum is 3. For the counting version with amount 5, the table after each coin is `1,0,0,0,0,0` then `1,1,1,1,1,1` (coin 1), `1,1,2,2,3,3` (coin 2) and `1,1,2,2,3,4` (coin 5): there are 4 ways (5; 2+2+1; 2+1+1+1; 1+1+1+1+1).

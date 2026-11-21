@@ -3,7 +3,8 @@ Boyer-Moore Algorithm Implementation
 
 Boyer-Moore compares the pattern right to left and uses the bad character
 rule to skip alignments. The good suffix rule of the full algorithm is not
-implemented here (this is a Horspool-style variant).
+implemented here (bad character rule only; not Horspool's variant, which
+always shifts by the text character under the last pattern position).
 """
 
 from typing import List, Dict

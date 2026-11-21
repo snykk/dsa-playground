@@ -164,7 +164,7 @@ Memory differs by language: a Python list holds a pointer (8 bytes) per number, 
     'Easy to extend: smallest prime factors, divisor counts, prime counts.',
   ]}
   cons={[
-    'Needs O(n) memory, which limits n to a few hundred million.',
+    'Needs O(n) memory, which limits n to a few billion (the C++ test sieves up to 2^31 - 1 in 256 MB).',
     'Useless for testing a single very large number.',
     'A plain sieve cannot start from a large lower bound without a segmented version.',
   ]}
@@ -200,6 +200,6 @@ Memory differs by language: a Python list holds a pointer (8 bytes) per number, 
     Yes. Trial division costs about `sqrt(k)` per number `k`, so `O(n sqrt n)` overall, against `O(n log log n)` for the sieve.
   </FaqItem>
   <FaqItem question="What if I only need one large number?">
-    Use Miller-Rabin instead. The sieve builds a table for every number up to `n`, which is wasteful and impossible beyond a few hundred million.
+    Use Miller-Rabin instead. The sieve builds a table for every number up to `n`, which is wasteful and impossible beyond a few billion.
   </FaqItem>
 </Faq>

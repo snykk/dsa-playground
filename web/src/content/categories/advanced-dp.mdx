@@ -69,7 +69,7 @@ In earlier areas the state is one or two numbers. Here it is a shape: a node wit
   ]}
 />
 
-Digit DP is cheap in the size of the bound: `count_numbers_with_digit_sum(10**18, 9)` returns 3124550 after a few thousand steps, where a loop over every number would never finish.
+Digit DP is cheap in the size of the bound: `count_numbers_with_digit_sum(10**18, 9)` returns 3124550 after fewer than a thousand recursive calls, where a loop over every number would never finish.
 
 ## See them side by side
 
@@ -110,7 +110,7 @@ One tab per topic, in reading order, each following the repository's Python func
 
 - **Hierarchies.** Choosing non-adjacent nodes, for example employees for a task with no manager and report together.
 - **Dependency graphs.** Longest chain of build steps in a DAG.
-- **Routing and scheduling.** Exact Traveling Salesman tours for a few dozen stops at most.
+- **Routing and scheduling.** Exact Traveling Salesman tours for about 20 stops at most.
 - **Number problems.** Counting integers with a digit sum or another digit rule.
 
 ## Common mistakes

@@ -39,5 +39,5 @@ python3 galois_field.py        # demo: 0x53 * 0xCA = 0x01
 ## Key Takeaways
 
 1. XOR is the `+`; every algebraic law still holds.
-2. Tables turn polynomial multiplication into two lookups and an addition.
+2. Tables turn polynomial multiplication into three lookups and an addition.
 3. `pow(a, n)` becomes `exp[(log[a] * n) % 255]`, O(1).

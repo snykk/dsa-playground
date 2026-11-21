@@ -3,7 +3,7 @@
 ## Files
 
 - `rat_in_maze.cpp`: `isSafe`, `solveMazeUtil`, `solveMaze`, `printSolution`; `main` is compiled out with `-DIS_TEST_BUILD`.
-- `rat_in_maze_test.cpp`: assert-based tests (example maze, no path, `is_safe`, a path that needs up and left moves, path validity, a 30 x 30 maze with the goal walled off, 1 x 1 and empty mazes, non-square rejection).
+- `rat_in_maze_test.cpp`: assert-based tests (example maze, no path, `is_safe`, a path that needs upward moves, path validity, a 30 x 30 maze with the goal walled off, 1 x 1 and empty mazes, non-square rejection).
 
 ## API
 

@@ -114,7 +114,8 @@ func (g *GF256) Pow(a byte, n int) (byte, error) {
 		}
 		return 0, nil
 	}
-	e := (int(g.logTable[a]) * n) % FieldOrder
+	// Reduce n first: logTable[a] * n would overflow int for huge n.
+	e := (int(g.logTable[a]) * (n % FieldOrder)) % FieldOrder
 	if e < 0 {
 		e += FieldOrder
 	}

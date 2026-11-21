@@ -3,7 +3,7 @@
 ## Files
 
 - `closest_pair.cpp`: `Point`, `Result`, `distance`, `bruteForceClosestPair`, `closestPairRecursive`, `closestPair`. It has no `main`.
-- `closest_pair_test.cpp`: assert-based tests (two points, square, lines, closest pair across the divide, duplicates, negative and shared x, too few points, the y-list invariant, and random sets against brute force).
+- `closest_pair_test.cpp`: assert-based tests (two points, square, a horizontal line, duplicates, negative and shared x, too few points, and random sets against brute force).
 
 ## API
 

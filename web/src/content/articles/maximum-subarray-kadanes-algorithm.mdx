@@ -117,7 +117,7 @@ The two forms are equivalent: `max(arr[i], cur + arr[i])` restarts exactly when 
 
 ## Implementation
 
-Python has three functions: `kadane_algorithm` (the sum), `kadane_with_indices` (sum and window) and `kadane_dp` (the same with an explicit O(n) table). C++ and Go implement only the sum. Every version treats an empty array as sum 0 (an empty-sum convention) while a non-empty array always yields a non-empty subarray, so an all-negative array returns its largest element. The C++ version sums in `int`, so a large input can overflow; Python integers are unbounded and Go's `int` is 64-bit.
+Python has three functions: `kadane_algorithm` (the sum), `kadane_with_indices` (sum and window) and `kadane_dp` (the same with an explicit O(n) table). C++ and Go implement only the sum. Every version treats an empty array as sum 0 (an empty-sum convention) while a non-empty array always yields a non-empty subarray, so an all-negative array returns its largest element. The C++ version sums in `int`, so a large input can overflow; Python integers are unbounded and Go's `int` is 64-bit on 64-bit platforms.
 
 <TopicCode topic="Algorithms/Dynamic_Programming/Linear_DP/Maximum_Subarray_Kadanes_Algorithm" />
 
@@ -205,7 +205,7 @@ Kadane is both simpler and faster.
     There is no subarray, so the repository picks 0 as a convention. `kadane_with_indices` returns `(0, -1, -1)`, with -1 meaning no window.
   </FaqItem>
   <FaqItem question="Is Kadane's algorithm dynamic programming?">
-    Yes. `cur[i] = max(arr[i], cur[i-1] + arr[i])` is a one-dimensional recurrence. Only the previous value is needed, so the table collapses to one variable, which is what `kadane_dp` shows explicitly.
+    Yes. `cur[i] = max(arr[i], cur[i-1] + arr[i])` is a one-dimensional recurrence. Only the previous value is needed, so the table collapses to one variable; `kadane_dp` keeps the full table to show the recurrence explicitly.
   </FaqItem>
   <FaqItem question="How do I get the subarray itself?">
     Use `kadane_with_indices` in Python: it returns the sum, the start index and the end index. Slice with `arr[start:end + 1]`. The C++ and Go versions return only the sum.

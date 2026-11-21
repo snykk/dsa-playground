@@ -145,6 +145,6 @@ Extra space excludes the list of results, and Boyer-Moore here uses the bad-char
     If they share a length, hash them all and check each window's rolling hash against the set, as Rabin-Karp does for one pattern. Otherwise build an Aho-Corasick automaton: it extends the KMP failure links to a trie of the patterns and finds every occurrence of every pattern in one pass.
   </FaqItem>
   <FaqItem question="Is there another linear-time method?">
-    The Z-algorithm also runs in O(n + m): it computes the Z-array of the pattern, a separator and the text, and reports the positions where the Z-value equals `m`. Suffix arrays take the opposite trade, a slower build in exchange for fast queries against one fixed text.
+    The Z-algorithm also runs in O(n + m): it computes the Z-array of the pattern, a separator and the text, and reports the positions where the Z-value is at least `m`. Suffix arrays take the opposite trade, a slower build in exchange for fast queries against one fixed text.
   </FaqItem>
 </Faq>

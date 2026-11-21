@@ -108,7 +108,7 @@ export function kmpTrace({ text, pattern }: KmpInput): Array<Frame<StringMatchSt
     } else if (j > 0) {
       const old = j;
       j = lps[j - 1]!;
-      push(9, `Mismatch after ${old} matched characters: the first lps[${old - 1}] = ${j} of them are already known to match, so shift the pattern to j = ${j} without moving i.`, {
+      push(9, `Mismatch after ${old} matched character${old === 1 ? '' : 's'}: the first lps[${old - 1}] = ${j} of them are already known to match, so shift the pattern to j = ${j} without moving i.`, {
         phase: 'search',
         shift: i - j,
         i,

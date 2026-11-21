@@ -18,7 +18,7 @@ Rabin-Karp search with a rolling hash and verified hits.
 
 - Strings are indexed by `byte`, which is unsigned, so no sign problem arises; indices are byte offsets.
 - Go's `%` can return a negative number, so the rolled hash is normalised by adding `mod`.
-- `base = 256` and `mod = 101` are constants. A larger modulus needs `uint64` arithmetic or `math/bits`.
+- `base = 256` and `mod = 101` are constants. `int` is 64 bits on 64-bit platforms, so a modulus near 10^9 still fits (the products reach about `256 * 255 * mod`); only a far larger one needs `math/bits`.
 
 ## How to Run
 

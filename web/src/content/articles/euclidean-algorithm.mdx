@@ -178,7 +178,7 @@ Two steps at least halve the larger number, so there are at most about `2 log2(m
 ## Common mistakes
 
 <Callout tone="warning" title="Watch out for these">
-- **Multiplying before dividing in lcm.** `a * b / gcd` overflows when `a * b` does not fit, even if the lcm does: `lcm(4000000000, 4000000000)` is 4000000000, but the product 1.6e19 does not fit in 64 bits. Write `a / gcd * b`.
+- **Multiplying before dividing in lcm.** `a * b / gcd` overflows when `a * b` does not fit, even if the lcm does: `lcm(4000000000, 4000000000)` is 4000000000, but the product 1.6e19 does not fit in a signed 64-bit integer. Write `a / gcd * b`.
 - **Dropping signs in the extended form.** Apply the sign corrections to `x` and `y`, or `a*x + b*y` is not the gcd for negative `a` or `b`.
 - **Using floating point for the absolute value.** `float64` rounds integers above 2^53: `GCD(2^53 + 1, 3)` must be 3, not 1.
 - **Forgetting zero.** `gcd(0, 0)` is 0, and `lcm` with a zero argument is defined as 0, so dividing by the gcd without checking would divide by zero.

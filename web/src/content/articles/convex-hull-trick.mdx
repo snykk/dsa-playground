@@ -21,7 +21,7 @@ facts:
 properties:
   - { label: Exact (integer arithmetic), value: true }
   - { label: Needs sorted slopes, value: false }
-  - { label: Online (any order), value: false }
+  - { label: Online (any order), value: true }
 prerequisites:
   - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
   - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
@@ -166,7 +166,7 @@ LiChao.insert(node, lo, hi, line):
 
 ## Implementation
 
-All three languages have `MonotonicCHT` and `LiChaoTree` for the **minimum**. The monotonic version uses a deque in Python and C++ and a slice in Go. The C++ cross-multiplication uses `__int128` and the Go version uses `big.Int`, so the back test does not overflow; the line values `m * x + b` themselves must still fit in 64 bits. Querying an empty structure raises `ValueError` in Python and is a precondition violation in C++ (undefined behaviour) and Go (a panic).
+All three languages have `MonotonicCHT` and `LiChaoTree` for the **minimum**. The monotonic version uses a deque in Python and C++ and a slice in Go. The C++ cross-multiplication uses `__int128` and the Go version uses `big.Int`, so the back test does not overflow; the line values `m * x + b` themselves must still fit in 64 bits. Querying an empty `MonotonicCHT` raises `ValueError` in Python and is a precondition violation in C++ (undefined behaviour) and Go (a panic); an empty `LiChaoTree` returns `inf`, `LLONG_MAX` or `math.MaxInt64`.
 
 <TopicCode topic="Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick" />
 
@@ -241,7 +241,7 @@ In the monotonic version every line is pushed once and popped at most once, so a
 - **Min versus max.** The predicate flips for the upper envelope. Write the maximum version separately.
 - **Floating point.** Comparing intersection points with division loses exactness; cross-multiply.
 - **Overflow.** Products of coordinates need 128-bit integers in C++ or `big.Int` in Go, and the query value must fit in 64 bits.
-- **Empty queries.** Query an empty structure and C++ has undefined behaviour while Go panics; check first.
+- **Empty queries.** Query an empty `MonotonicCHT` and C++ has undefined behaviour while Go panics; check first.
 </Callout>
 
 ## Frequently asked questions

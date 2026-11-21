@@ -80,7 +80,7 @@ A transition always turns one 0 bit into a 1 bit, so `new_mask` is strictly larg
 
 ## See it in action
 
-The table has one row for each mask that contains A and one column for each last city. Every step extends one path by one city and writes the cheaper cost into a larger mask, with the city chips above showing the bits of the mask. Start with **Four cities (tests)**, the matrix of the worked example below, then try **No tour exists** to see the answer stay at infinity.
+The table has one row for each mask that contains A and one column for each last city. Each transition step extends one path by one city and writes the cheaper cost into a larger mask, with the city chips above showing the bits of the mask. Start with **Four cities (tests)**, the matrix of the worked example below, then try **No tour exists** to see the answer stay at infinity.
 
 <ArticleViz ids={['bitmask-dp-tsp']} />
 

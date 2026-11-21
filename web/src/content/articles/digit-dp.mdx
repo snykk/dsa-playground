@@ -1,7 +1,7 @@
 ---
 topic: Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP
 title: Digit DP
-lead: Digit DP counts the numbers in a range whose digits satisfy a rule, such as a given digit sum, by building each number one digit at a time and memoizing on the position, a tight flag and a small running state. It handles bounds up to 10^18 in a few thousand steps.
+lead: Digit DP counts the numbers in a range whose digits satisfy a rule, such as a given digit sum, by building each number one digit at a time and memoizing on the position, a tight flag and a small running state. It handles bounds up to 10^18 in at most about 14,000 steps for a digit sum.
 level: Advanced
 updated: 2026-11-15
 facts:
@@ -65,7 +65,7 @@ Once `tight` is false, the remaining digits are completely free. The answer then
 
 ## See it in action
 
-Every step is one call of `dp(pos, tight, current_sum)`: the call stack sits under the memo table, a memo hit is a step of its own, and a digit that would push the sum past the target is skipped without a call. **Up to 25, sum 5** is the worked example below, and **Memo hits: up to 345, sum 6** shows free states being reused.
+Every call of `dp(pos, tight, current_sum)` is a step, and so is every return that stores a memo entry: the call stack sits under the memo table, a memo hit is a step of its own, and the digits that would push the sum past the target are skipped without a call. **Up to 25, sum 5 (article)** is the worked example below, and **Memo hits: up to 345, sum 6** shows free states being reused.
 
 <ArticleViz ids={['digit-dp']} />
 
@@ -193,7 +193,7 @@ The state is the only part that changes between problems.
 
 <Callout tone="warning" title="Watch out for these">
 - **Dropping the tight flag from the memo key.** A tight state and a free state at the same position have different answers.
-- **Forgetting that `L - 1` can be negative.** For `L = 0` the prefix count of `-1` must be 0. `int(str(-1))` style digit conversion would otherwise raise `ValueError`; this implementation returns 0 for `n < 0`.
+- **Forgetting that `L - 1` can be negative.** For `L = 0` the prefix count of `-1` must be 0. `list(map(int, str(-1)))` would otherwise raise `ValueError` on the minus sign; this implementation returns 0 for `n < 0`.
 - **Leading zeros.** With the digit-sum rule, leading zeros add nothing, so they are harmless. For rules about adjacent digits or the digit 0 you need a `started` flag.
 - **Memoizing on `tight` incorrectly.** Share memo entries between calls only when the bound is the same; a new `n` needs a new memo.
 - **Counting the bound twice.** With the range formula use `count(R) - count(L - 1)`, not `count(L)`.
@@ -209,7 +209,7 @@ The state is the only part that changes between problems.
     Replace the digit array with the digits in that base and the loop limit `9` with `base - 1`. The tight-flag logic is unchanged.
   </FaqItem>
   <FaqItem question="Is it top-down or bottom-up?">
-    The repository version is top-down with a dictionary memo. A bottom-up version fills a table by position, and it is faster in compiled languages, but the logic is the same.
+    The repository versions are top-down, with a dictionary memo in Python and a table indexed by `[pos][tight][sum]` in C++ and Go. A bottom-up version fills a table by position, and it is faster in compiled languages, but the logic is the same.
   </FaqItem>
   <FaqItem question="How do I count numbers with the digit sum in a range of sums?">
     Run the counter for every target in the range and add the results, or change the base case to accept any sum within the range and prune with the upper limit.

@@ -50,7 +50,7 @@ The result is 4. For `{0: [1], 1: [2], 2: [0]}` the chain 0, 1, 2 meets 0 again 
 |---|------|-------|
 | `dag_longest_path` | O(V + E) | O(V) |
 
-Each reachable node is expanded once and each of its edges is read once. The memo, the in-progress set and the recursion stack hold at most one entry per reachable node. The recursion depth is the length of the longest path, so paths of more than about 1,000 nodes reach Python's default recursion limit. Without the memo, the time is proportional to the number of paths, which can be exponential.
+Each reachable node is expanded once and each of its edges is read once. The memo, the in-progress set and the recursion stack hold at most one entry per reachable node. The recursion depth is at most the number of nodes on the longest path (exactly that on a chain), so a chain of more than about 1,000 nodes reaches Python's default recursion limit. Without the memo, the time is proportional to the number of paths, which can be exponential.
 
 ## When to Use
 

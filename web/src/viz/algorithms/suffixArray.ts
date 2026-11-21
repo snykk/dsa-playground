@@ -506,7 +506,7 @@ export function saTrace({ text, ops }: SaInput): SaRun {
 
   current = ops.length;
   if (ops.length) {
-    snap(undefined, `Done: ${ops.length} operation${ops.length === 1 ? '' : 's'} on the suffix array [${sa.join(', ')}]. Each search costs two binary searches of O(m) comparisons per probe: O(m log n).`, {});
+    snap(undefined, `Done: ${ops.length} operation${ops.length === 1 ? '' : 's'} on the suffix array [${sa.join(', ')}]. Each search costs two binary searches of O(m) comparisons per probe, O(m log n), plus O(k log k) to sort its k matches.`, {});
   }
   return { frames, sa, searches, lcp: lcps };
 }

@@ -50,9 +50,9 @@ Finding the first 4-queens solution (26 calls to `is_safe`):
 | Case | Time | Space |
 |------|------|-------|
 | First solution | far below n! in practice (876 safety checks for n = 8) | O(n^2) board |
-| All solutions | O(n * n!) upper bound (15,720 safety checks for n = 8) | O(n^2) plus S boards stored |
+| All solutions | O(n^2 * n!) upper bound (15,720 safety checks for n = 8) | O(n^2) plus S boards stored |
 
-At depth k the queens use k different columns, so there are at most n!/(n-k)! partial placements and about e * n! nodes overall. Each node costs an O(n) safety scan. Keeping every board costs n^2 memory per solution (S = number of solutions: 92 for n = 8).
+At depth k the queens use k different columns, so there are at most n!/(n-k)! partial placements and about e * n! nodes overall. Each node tries all n squares of the next row with an O(n) safety scan each. Keeping every board costs n^2 memory per solution (S = number of solutions: 92 for n = 8).
 
 ## When to Use
 
