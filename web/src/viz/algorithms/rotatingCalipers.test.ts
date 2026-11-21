@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { InputError } from '../core/types';
 import { grahamTrace } from './convexHull';
-import { expectWellFormedPlane, rng } from './geometryTestKit';
+import { closeTo, planeFrameProblems, rng } from './geometryTestKit';
 import { cross, dist2, type XY } from './pointLineCircle';
 import { CALIPER_CODE, calipersTrace, cleanPolygon, isConvexPolygon, parseCalipers } from './rotatingCalipers';
 
@@ -63,14 +63,14 @@ describe('calipersTrace', () => {
     for (let t = 0; t < 200; t++) {
       const polygon = randomPolygon(rand);
       const run = calipersTrace({ polygon, ops: ['diameter', 'width'] });
-      expectWellFormedPlane(run.frames, CALIPER_CODE.length);
+      const problems = planeFrameProblems(run.frames, CALIPER_CODE.length);
       const pts = cleanPolygon(polygon).pts.map((q) => q.p);
-      expect(isConvexPolygon(pts)).toBe(true);
+      if (!isConvexPolygon(pts)) problems.push(`the cleaned polygon ${JSON.stringify(pts)} is not convex`);
       let far = 0;
       for (const a of polygon) for (const b of polygon) far = Math.max(far, dist2(a, b));
       const [d, a, b] = run.steps[0].result as [number, XY, XY];
-      expect(d).toBe(Math.sqrt(far));
-      expect(dist2(a, b)).toBe(far);
+      if (!Object.is(d, Math.sqrt(far))) problems.push(`diameter ${d}, brute force ${Math.sqrt(far)}`);
+      if (!Object.is(dist2(a, b), far)) problems.push(`the diameter pair (${a}) (${b}) is ${dist2(a, b)} apart squared, brute force ${far}`);
       // Width of a convex polygon: over every edge, the farthest vertex from its line; the least of those.
       let width = Infinity;
       for (let i = 0; i < pts.length; i++) {
@@ -79,10 +79,11 @@ describe('calipersTrace', () => {
         const h = Math.max(...pts.map((v) => Math.abs(cross(p, q, v)))) / Math.sqrt(dist2(p, q));
         width = Math.min(width, h);
       }
-      expect(run.steps[1].result as number).toBeCloseTo(width, 9);
+      if (!closeTo(run.steps[1].result as number, width, 9)) problems.push(`width ${run.steps[1].result}, brute force ${width}`);
       // The far pointer goes around at most twice.
       const moves = run.frames[run.frames.length - 2].vars?.find((v) => v[0] === 'j moves')?.[1] as number;
-      expect(moves).toBeLessThanOrEqual(2 * pts.length);
+      if (!(moves <= 2 * pts.length)) problems.push(`j moved ${moves} times, more than twice around ${pts.length} vertices`);
+      expect(problems, JSON.stringify(polygon)).toEqual([]);
     }
   });
 

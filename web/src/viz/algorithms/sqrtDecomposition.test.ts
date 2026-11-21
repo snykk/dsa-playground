@@ -14,23 +14,26 @@ function rng(seed: number) {
   };
 }
 
-function expectWellFormed(frames: Array<Frame<SegmentTreeState>>) {
+/** What is wrong with the frames of a run, one readable line per problem. */
+function frameProblems(frames: Array<Frame<SegmentTreeState>>): string[] {
+  const out: string[] = [];
   for (const f of frames) {
-    expect(f.caption.length).toBeGreaterThan(10);
-    if (f.line !== undefined) {
-      expect(f.line).toBeGreaterThanOrEqual(0);
-      expect(f.line).toBeLessThan(SQRT_CODE.length);
-    }
+    if (f.caption.length <= 10) out.push(`caption too short: "${f.caption}"`);
+    if (f.line !== undefined && (f.line < 0 || f.line >= SQRT_CODE.length)) out.push(`line ${f.line} out of range: ${f.caption}`);
     const ids = f.state.blocks.map((b) => b.id);
-    expect(new Set(ids).size, f.caption).toBe(ids.length);
+    if (new Set(ids).size !== ids.length) out.push(`repeated block ids [${ids}]: ${f.caption}`);
     for (const b of f.state.blocks) {
-      expect(b.row).toBeLessThan(f.state.rows);
-      expect(b.lo).toBeLessThanOrEqual(b.hi);
-      expect(b.hi).toBeLessThan(f.state.columns);
+      if (!(b.row < f.state.rows)) out.push(`block ${b.id} on row ${b.row} of ${f.state.rows}: ${f.caption}`);
+      if (!(b.lo <= b.hi)) out.push(`block ${b.id} spans ${b.lo}..${b.hi}, reversed: ${f.caption}`);
+      if (!(b.hi < f.state.columns)) out.push(`block ${b.id} ends at column ${b.hi} of ${f.state.columns}: ${f.caption}`);
     }
-    for (const m of f.state.markers ?? []) expect(m.row).toBeLessThan(f.state.rows);
+    for (const m of f.state.markers ?? []) if (!(m.row < f.state.rows)) out.push(`a marker on row ${m.row} of ${f.state.rows}: ${f.caption}`);
   }
+  return out;
 }
+
+/** Element by element with Object.is, as toEqual compares numbers. */
+const sameNumbers = (a: readonly number[] | undefined, b: readonly number[]) => a !== undefined && a.length === b.length && a.every((x, i) => Object.is(x, b[i]));
 
 const toOp = (op: [string, number, number]): SqrtOp => (op[0] === 'query' ? { kind: 'query', left: op[1], right: op[2] } : { kind: 'update', index: op[1], value: op[2] });
 
@@ -88,33 +91,39 @@ describe('sqrtTrace against a plain array', () => {
       const run = sqrtTrace({ arr, ops });
       const model = [...arr];
       const B = Math.max(1, Math.ceil(Math.sqrt(n)));
+      const problems = frameProblems(run.frames);
       ops.forEach((op, i) => {
         const step = run.steps[i];
+        const at = `op ${i} ${JSON.stringify(op)}`;
         if (op.kind === 'update') {
-          if (op.index >= n) expect(step.error).toBe('IndexError');
-          else {
+          if (op.index >= n) {
+            if (step.error !== 'IndexError') problems.push(`${at}: error ${step.error}, want IndexError`);
+          } else {
             model[op.index] = op.value;
-            expect(step.result).toBeNull();
+            if (step.result !== null) problems.push(`${at}: returned ${step.result}, want None`);
           }
         } else if (op.right >= n) {
-          expect(step.error).toBe('IndexError');
+          if (step.error !== 'IndexError') problems.push(`${at}: error ${step.error}, want IndexError`);
         } else {
-          expect(step.result).toBe(model.slice(op.left, op.right + 1).reduce((s, v) => s + v, 0));
+          const sum = model.slice(op.left, op.right + 1).reduce((s, v) => s + v, 0);
+          if (!Object.is(step.result, sum)) problems.push(`${at}: returned ${step.result}, the plain array sums to ${sum}`);
           // The reads cover [left, right] exactly once: cells one by one, blocks whole.
           const covered: number[] = [];
           for (const [kind, x] of step.reads!) {
             if (kind === 'a') covered.push(x);
             else for (let j = x * B; j < Math.min(n, (x + 1) * B); j++) covered.push(j);
           }
-          expect(covered).toEqual(Array.from({ length: op.right - op.left + 1 }, (_, j) => op.left + j));
+          const range = Array.from({ length: op.right - op.left + 1 }, (_, j) => op.left + j);
+          if (!sameNumbers(covered, range)) problems.push(`${at}: the reads cover [${covered}], want [${range}]`);
           // At most two partial blocks of fewer than B cells each, plus the whole blocks.
           const cells = step.reads!.filter((r) => r[0] === 'a').length;
-          if (Math.floor(op.left / B) !== Math.floor(op.right / B)) expect(cells).toBeLessThanOrEqual(2 * B);
+          if (Math.floor(op.left / B) !== Math.floor(op.right / B) && !(cells <= 2 * B)) problems.push(`${at}: ${cells} single-cell reads, more than 2B = ${2 * B}`);
         }
-        expect(step.arr).toEqual(model);
-        expect(step.blocks).toEqual(Array.from({ length: Math.ceil(n / B) }, (_, b) => model.slice(b * B, (b + 1) * B).reduce((s, v) => s + v, 0)));
+        if (!sameNumbers(step.arr, model)) problems.push(`${at}: arr is [${step.arr}], the plain array is [${model}]`);
+        const sums = Array.from({ length: Math.ceil(n / B) }, (_, b) => model.slice(b * B, (b + 1) * B).reduce((s, v) => s + v, 0));
+        if (!sameNumbers(step.blocks, sums)) problems.push(`${at}: blocks are [${step.blocks}], want [${sums}]`);
       });
-      expectWellFormed(run.frames);
+      expect(problems, `arr [${arr}]`).toEqual([]);
     }
   });
 

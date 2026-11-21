@@ -22,28 +22,34 @@ export function randomTree(rand: () => number, n: number): Array<[number, number
   return edges;
 }
 
-/** Every frame: a caption, a line in range, unique vertices, children and pills that exist, a full row. */
-export function expectTreeFramesWellFormed(frames: Array<Frame<RootedTreeState>>, codeLines: number) {
+/**
+ * Every frame: a caption, a line in range, unique vertices, children and pills that exist, a full
+ * row. Returns one readable line per problem, so a test asserts once per run instead of once per node.
+ */
+export function treeFrameProblems(frames: Array<Frame<RootedTreeState>>, codeLines: number): string[] {
+  const out: string[] = [];
   for (const f of frames) {
-    expect(f.caption.length).toBeGreaterThan(10);
-    if (f.line !== undefined) {
-      expect(f.line).toBeGreaterThanOrEqual(0);
-      expect(f.line).toBeLessThan(codeLines);
-    }
+    if (f.caption.length <= 10) out.push(`caption too short: "${f.caption}"`);
+    if (f.line !== undefined && (f.line < 0 || f.line >= codeLines)) out.push(`line ${f.line} outside 0..${codeLines - 1}: ${f.caption}`);
     const keys = new Set<string>();
     for (const t of f.state.trees) {
       const ids = t.nodes.map((n) => n.id);
-      expect(new Set(ids).size, f.caption).toBe(ids.length);
+      if (new Set(ids).size !== ids.length) out.push(`tree ${t.id} repeats node ids [${ids}]: ${f.caption}`);
       const has = new Set(ids);
-      if (t.root !== null) expect(has.has(t.root)).toBe(true);
+      if (t.root !== null && !has.has(t.root)) out.push(`tree ${t.id}: root ${t.root} is not drawn: ${f.caption}`);
       for (const n of t.nodes) {
         keys.add(`${t.id}/${n.id}`);
-        for (const c of n.children) expect(has.has(c), f.caption).toBe(true);
+        for (const c of n.children) if (!has.has(c)) out.push(`tree ${t.id}: child ${c} of ${n.id} is not drawn: ${f.caption}`);
       }
-      for (const id of Object.keys(t.edges ?? {})) expect(has.has(id)).toBe(true);
-      for (const c of t.chains ?? []) for (const id of c.nodes) expect(has.has(id)).toBe(true);
+      for (const id of Object.keys(t.edges ?? {})) if (!has.has(id)) out.push(`tree ${t.id}: an edge style for ${id}, which is not drawn: ${f.caption}`);
+      for (const c of t.chains ?? []) for (const id of c.nodes) if (!has.has(id)) out.push(`tree ${t.id}: chain node ${id} is not drawn: ${f.caption}`);
     }
-    for (const t of f.state.trees) for (const n of t.nodes) if (n.from) expect(keys.has(n.from)).toBe(true);
-    for (const p of f.state.pills ?? []) expect(keys.has(p.at), f.caption).toBe(true);
+    for (const t of f.state.trees) for (const n of t.nodes) if (n.from && !keys.has(n.from)) out.push(`tree ${t.id}: ${n.id} flies in from ${n.from}, which is not drawn: ${f.caption}`);
+    for (const p of f.state.pills ?? []) if (!keys.has(p.at)) out.push(`a pill at ${p.at}, which is not drawn: ${f.caption}`);
   }
+  return out;
+}
+
+export function expectTreeFramesWellFormed(frames: Array<Frame<RootedTreeState>>, codeLines: number) {
+  expect(treeFrameProblems(frames, codeLines)).toEqual([]);
 }

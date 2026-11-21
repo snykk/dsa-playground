@@ -47,48 +47,52 @@ export function expectFixture(section: string, examples: GrowthExample[]) {
   }
 }
 
-/** Captions, lines, one point per n inside the range, curves no longer than the points, one scale per run. */
-export function expectWellFormed(frames: Array<Frame<GrowthState>>, codeLines: number) {
+const samePair = (a: readonly number[], b: readonly number[]) => a.length === b.length && a.every((x, i) => Object.is(x, b[i]));
+
+/**
+ * Captions, lines, one point per n inside the range, curves no longer than the points, one scale
+ * per run. Returns one readable line per problem, so a run is asserted once instead of per point.
+ */
+export function growthFrameProblems(frames: Array<Frame<GrowthState>>, codeLines: number): string[] {
+  const out: string[] = [];
   const first = frames[0].state;
   for (const f of frames) {
-    expect(f.caption.length).toBeGreaterThan(20);
-    if (f.line !== undefined) {
-      expect(f.line).toBeGreaterThanOrEqual(0);
-      expect(f.line).toBeLessThan(codeLines);
-    }
+    if (f.caption.length <= 20) out.push(`caption too short: "${f.caption}"`);
+    if (f.line !== undefined && (f.line < 0 || f.line >= codeLines)) out.push(`line ${f.line} outside 0..${codeLines - 1}: ${f.caption}`);
     const s = f.state;
-    expect(s.x).toEqual(first.x);
-    expect(s.decades).toEqual(first.decades);
+    if (!samePair(s.x, first.x)) out.push(`the n range changed from [${first.x}] to [${s.x}]: ${f.caption}`);
+    if (!samePair(s.decades, first.decades)) out.push(`the y scale changed from [${first.decades}] to [${s.decades}]: ${f.caption}`);
     const ns = s.points.map((p) => p.n);
-    expect(new Set(ns).size, f.caption).toBe(ns.length);
+    if (new Set(ns).size !== ns.length) out.push(`two points share an n in [${ns}]: ${f.caption}`);
     for (const p of s.points) {
-      expect(p.n).toBeGreaterThanOrEqual(s.x[0]);
-      expect(p.n).toBeLessThanOrEqual(s.x[1]);
-      expect(p.value).toBeGreaterThanOrEqual(0);
+      if (!(p.n >= s.x[0] && p.n <= s.x[1])) out.push(`point n = ${p.n} outside [${s.x}]: ${f.caption}`);
+      if (!(p.value >= 0)) out.push(`point n = ${p.n} has the negative value ${p.value}: ${f.caption}`);
     }
-    expect(s.points.filter((p) => p.hidden).length).toBeLessThanOrEqual(1);
-    for (const c of s.curves) expect(c.points.length).toBeLessThanOrEqual(s.points.filter((p) => !p.hidden).length);
-    if (s.n0) {
-      expect(s.n0.n).toBeGreaterThanOrEqual(s.x[0]);
-      expect(s.n0.n).toBeLessThanOrEqual(s.x[1]);
-    }
+    const hidden = s.points.filter((p) => p.hidden).length;
+    if (!(hidden <= 1)) out.push(`${hidden} hidden points, at most 1: ${f.caption}`);
+    const shown = s.points.filter((p) => !p.hidden).length;
+    for (const c of s.curves) if (!(c.points.length <= shown)) out.push(`curve ${c.id} has ${c.points.length} points, more than the ${shown} shown: ${f.caption}`);
+    if (s.n0 && !(s.n0.n >= s.x[0] && s.n0.n <= s.x[1])) out.push(`n0 = ${s.n0.n} outside [${s.x}]: ${f.caption}`);
   }
+  return out;
 }
 
-/** Trace one input and check it against the definitions. */
+/** Trace one input and check it against the definitions; one assertion for the whole run. */
 export function checkGrowth(input: GrowthInput, ex: GrowthExample, code: GrowthCode, codeLines: number) {
   const run = traceGrowth(input, ex, code);
-  expectWellFormed(run.frames, codeLines);
+  const problems = growthFrameProblems(run.frames, codeLines);
   const ns = Array.from({ length: input.to - input.from + 1 }, (_, k) => input.from + k);
-  expect(run.steps.map((s) => s.n)).toEqual(ns);
-  expect(run.frames.length).toBe(2 * ns.length + 2);
+  const stepNs = run.steps.map((s) => s.n);
+  if (!samePair(stepNs, ns)) problems.push(`steps at n = [${stepNs}], want [${ns}]`);
+  if (run.frames.length !== 2 * ns.length + 2) problems.push(`${run.frames.length} frames, want ${2 * ns.length + 2}`);
   for (const s of run.steps) {
-    expect(s.ops).toBe(ex.run(s.n, input.kase).ops);
+    const ops = ex.run(s.n, input.kase).ops;
+    if (!Object.is(s.ops, ops)) problems.push(`n = ${s.n}: ${s.ops} operations, the example counts ${ops}`);
     const g = BOUNDS[input.g].value(s.n);
     const lo = input.c[0] * g;
     const hi = (input.c[1] ?? input.c[0]) * g;
     const want = input.kind === 'O' ? s.ops <= lo : input.kind === 'Omega' ? lo <= s.ops : lo <= s.ops && s.ops <= hi;
-    expect(s.holds, `n = ${s.n}`).toBe(want);
+    if (s.holds !== want) problems.push(`n = ${s.n}: holds is ${s.holds}, the definition says ${want}`);
   }
   // n0: the smallest n from which every plotted point holds (brute force).
   let brute: number | null = null;
@@ -98,13 +102,16 @@ export function checkGrowth(input: GrowthInput, ex: GrowthExample, code: GrowthC
       break;
     }
   }
-  expect(run.n0).toBe(brute);
+  if (!Object.is(run.n0, brute)) problems.push(`n0 = ${run.n0}, brute force ${brute}`);
   const last = run.frames[run.frames.length - 1];
-  expect(last.state.n0?.n ?? null).toBe(brute);
-  if (brute !== null) expect(last.caption).toContain(`n0 = ${brute}`);
-  else expect(last.caption).toContain('no n0');
+  if (!Object.is(last.state.n0?.n ?? null, brute)) problems.push(`the last frame marks n0 = ${last.state.n0?.n ?? null}, brute force ${brute}`);
+  const verdict = brute !== null ? `n0 = ${brute}` : 'no n0';
+  if (!last.caption.includes(verdict)) problems.push(`the last caption does not say "${verdict}": ${last.caption}`);
   // Every point of the last frame is measured and keeps its verdict's role.
-  expect(last.state.points.map((p) => p.role)).toEqual(run.steps.map((s) => (s.holds ? 'good' : 'bad')));
+  const roles = last.state.points.map((p) => p.role);
+  const wantRoles = run.steps.map((s) => (s.holds ? 'good' : 'bad'));
+  if (!(roles.length === wantRoles.length && roles.every((r, i) => r === wantRoles[i]))) problems.push(`last frame roles [${roles}], want [${wantRoles}]`);
+  expect(problems, JSON.stringify(input)).toEqual([]);
   return run;
 }
 
