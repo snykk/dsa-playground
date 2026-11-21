@@ -15,6 +15,33 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+## [v0.7.1] - 2026-11-21
+
+An accuracy audit of every topic, the Job Scheduling rules C++ and Go were missing, and maintenance.
+
+### Added
+
+- **Job Scheduling's earliest-deadline-first and Smith's rules in C++ and Go**, which had only the deadline rule. They keep Python's order for equal keys and its handling of a zero processing time, and their tests pin outputs computed by the Python code.
+- **A golden fixture for the LCS traceback**, pinning the visualization's subsequence to `lcs_sequence` on 66 pairs.
+
+### Changed
+
+- **CI runs on `ubuntu-26.04`**, the image of the last green run, instead of the moving `ubuntu-latest`; six graph Go modules that asked for Go 1.25 ask for 1.24, the version CI installs.
+- **Fourteen slow tests** check the same conditions in plain code and assert once per run; most take tens of milliseconds instead of more than a second.
+- **GraphView places weights, badges and marks** clear of edges, arrowheads and other labels, checked by a new test.
+
+### Fixed
+
+- **About 400 statements in the articles, overviews, READMEs and docstrings** that the code contradicted. An audit ran the code behind 3,654 claims across all 153 topics: worked examples and traces, behaviour, complexity, API names, cross-language claims and the visualization sections. Among them: probe counts in the searches, Quick Sort's comparison count, the Bellman-Ford trace, the space of Dijkstra, Kosaraju, Kruskal and Prim, the order of strongly connected components, resize copies under 2n, `clear` costing O(capacity), the cost of the suffix array and of the FFT, backtracking's worst cases, and Go's 64-bit `int`.
+- **Code bugs**, each with a regression test that fails before the fix:
+  - Interpolation Search crashed on very large float keys in Python and C++;
+  - the Go FFT's `MultiplyPolynomials` panicked on empty input;
+  - GF(2^8) `pow` and Reed-Solomon's first consecutive root overflowed `int` in C++ and Go;
+  - the Miller-Rabin visualization accepted 25 digits where its help says 24.
+- **The LCS visualization** broke ties the other way from `lcs_sequence`, so on ABCBDAB and BDCABA it showed BCAB while the code returns BDAB.
+- **Visualization details**: Bellman-Ford's "Needs later rounds" example settled in one round, the radix and bucket sort legends left out a use of blue, two example labels named things that do not exist, and the complexity notes of N-Queens, the suffix array and the recursive matrix power were wrong.
+- **Job Scheduling's time bound** gains "+ D": creating the D + 1 slots costs O(D).
+
 ## [v0.7.0] - 2026-11-17
 
 Visualizations for the last 26 topics: complexity analysis, number theory, advanced math, the remaining problem patterns and the competitive programming utilities. Every topic now has one.
@@ -212,6 +239,7 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
+[v0.7.1]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.1
 [v0.7.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.0
 [v0.6.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.6.0
 [v0.5.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.5.0
