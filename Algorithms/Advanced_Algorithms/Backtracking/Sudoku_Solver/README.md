@@ -44,7 +44,7 @@ Start of the search on the puzzle above:
 | 5 | (0,7) | 9 | placed; (0,8) then has no legal digit |
 | 6 | (0,7) | - | undone, no other digit fits |
 | 7 | (0,6) | - | undone, 8 failed |
-| 8 | (0,6) | 9 | placed, the next cells fail, undone again |
+| 8 | (0,6) | 9 | placed; (0,7) then has no legal digit, undone again |
 | 9 | (0,5) | 6 | the 4 is undone too, then 6 is placed |
 
 In total this puzzle (51 blanks) takes 4,209 calls of the recursive search and 4,157 undone placements.

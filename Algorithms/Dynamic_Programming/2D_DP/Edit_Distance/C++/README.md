@@ -19,7 +19,7 @@ It returns only the distance, with no traceback and no two-row version.
 
 ## C++-Specific Notes
 
-- `std::string` holds bytes. A UTF-8 character that takes two bytes counts as two edits, unlike the Python version.
+- `std::string` holds bytes. A UTF-8 character that takes two bytes can count as two edits, unlike the Python version.
 - The recurrence uses `std::min` with an initializer list for the three-way minimum.
 - The test file includes the `.cpp`, so compile only the test file.
 

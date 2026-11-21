@@ -1,7 +1,7 @@
 """Convex Hull Trick (min variant) and Li Chao Tree.
 
 MonotonicCHT: O(1) amortized per insert and query.
-    Requires slopes added in decreasing order AND queries in non-decreasing order.
+    Requires slopes added in non-increasing order AND queries in non-decreasing order.
 
 LiChaoTree: O(log V) per insert and query over a fixed query range.
     No monotonicity assumptions.
@@ -31,7 +31,7 @@ class MonotonicCHT:
 
         Using integer cross-multiplication to avoid floating-point error.
         For lines l1, l2, l3 with slopes m1 >= m2 >= m3:
-            intersection(l1, l3).x >= intersection(l1, l2).x
+            intersection(l1, l3).x <= intersection(l1, l2).x
         """
         (m1, b1), (m2, b2), (m3, b3) = l1, l2, l3
         # (b3 - b1) / (m1 - m3) <= (b2 - b1) / (m1 - m2)

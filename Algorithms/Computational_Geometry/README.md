@@ -8,7 +8,7 @@ Read them in this order.
 
 | # | Section | What it covers | Level |
 |---|---------|----------------|-------|
-| 1 | [Basic Geometry](Basic_Geometry/) | The primitives. Distance, cross product, orientation, angles, containment and segment intersection, all exact. | 2 topics |
+| 1 | [Basic Geometry](Basic_Geometry/) | The primitives. Distance, cross product, orientation, angles, containment and segment intersection, with exact tests and no epsilon. | 2 topics |
 | 2 | [Advanced Geometry](Advanced_Geometry/) | Algorithms on point sets. Convex hull, rotating calipers for diameter and width, and the closest pair. | 3 topics |
 
 One rule runs through both: comparisons are exact. The code tests signs and equalities directly and uses no epsilon. With integer coordinates this is exact in Python, and in C++ and Go while the products stay below 2^53.

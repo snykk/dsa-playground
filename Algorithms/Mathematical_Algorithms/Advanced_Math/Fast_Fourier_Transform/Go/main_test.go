@@ -146,3 +146,14 @@ func TestMultiplyPolynomialsLargeCoefficients(t *testing.T) {
 		}
 	}
 }
+
+func TestMultiplyPolynomialsEmpty(t *testing.T) {
+	// Two empty polynomials give an empty product, as in Python and C++.
+	if got := MultiplyPolynomials([]int{}, []int{}); len(got) != 0 {
+		t.Errorf("MultiplyPolynomials([], []) = %v, expected []", got)
+	}
+	// One empty polynomial (zero) gives [0] in all three languages.
+	if got := MultiplyPolynomials([]int{}, []int{1, 2}); len(got) != 1 || got[0] != 0 {
+		t.Errorf("MultiplyPolynomials([], [1 2]) = %v, expected [0]", got)
+	}
+}

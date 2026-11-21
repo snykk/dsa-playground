@@ -14,7 +14,7 @@ facts:
     hint: or O(n log n) with radix sort; not implemented here
   - label: Search
     value: O(m log n)
-    hint: two binary searches, no suffix copies
+    hint: two binary searches, no suffix copies; sorting k matches adds O(k log k)
   - label: Space
     value: O(n) ideal
     hint: O(n^2) in Python and C++ here (the build copies suffixes)
@@ -39,7 +39,7 @@ The suffix array `SA` of a string `s` lists the start indices of its suffixes in
   columns={['Operation', 'What it does', 'Time']}
   rows={[
     ['Build', 'sort all suffixes, keep their indices', 'O(n^2 log n) here'],
-    ['`search(pattern)`', 'all start indices of the pattern, in increasing order', 'O(m log n)'],
+    ['`search(pattern)`', 'all start indices of the pattern, in increasing order', 'O(m log n + k log k) for k matches'],
     ['`get_suffixes()`', 'the suffixes in sorted order', 'O(n^2)'],
     ['`longest_common_prefix(i, j)`', 'common prefix length of the suffixes starting at `i` and `j`', 'O(n)'],
   ]}
@@ -135,7 +135,7 @@ search_pattern(SA, text, pattern):
 
 ## Implementation
 
-Each language has free functions for build, search, sorted suffixes and the LCP of two suffixes (`build_suffix_array`, `search_pattern`, `get_suffixes`, `longest_common_prefix` in Python; camelCase in C++; `BuildSuffixArray`, `SearchPattern`, `GetSuffixes`, `LongestCommonPrefix` in Go). A `SuffixArray` class (`NewSuffixArray` in Go) wraps the text and its array and exposes the same operations as methods. Search compares at most `m` characters per probe without copying the suffix, so it is O(m log n). The build still copies every suffix. Indices are code points in Python and bytes in C++ and Go.
+Each language has free functions for build, search, sorted suffixes and the LCP of two suffixes (`build_suffix_array`, `search_pattern`, `get_suffixes`, `longest_common_prefix` in Python; camelCase in C++; `BuildSuffixArray`, `SearchPattern`, `GetSuffixes`, `LongestCommonPrefix` in Go). A `SuffixArray` class (`NewSuffixArray` in Go) wraps the text and its array and exposes the same operations as methods. Search compares at most `m` characters per probe without copying the suffix, so its two binary searches are O(m log n); sorting the `k` matches adds O(k log k). The build still copies every suffix. Indices are code points in Python and bytes in C++ and Go.
 
 <TopicCode topic="Algorithms/String_Algorithms/Advanced_String/Suffix_Array" />
 
@@ -146,7 +146,7 @@ Each language has free functions for build, search, sorted suffixes and the LCP 
   rows={[
     ['Build time', 'O(n^2 log n) worst case', 'O(n log n) doubling with radix sort; O(n) SA-IS'],
     ['Build memory', 'O(n^2) in Python and C++; O(n) in Go', 'O(n)'],
-    ['Search', 'O(m log n)', 'O(m log n)'],
+    ['Search', 'O(m log n + k log k) for k matches', 'O(m log n)'],
     ['LCP of two suffixes', 'O(n) by comparing characters', 'O(1) after an LCP array and a range-minimum structure'],
     ['LCP array', 'not implemented', 'O(n) with Kasai'],
   ]}
@@ -154,7 +154,7 @@ Each language has free functions for build, search, sorted suffixes and the LCP 
 
 The worst case for the sort is a string like `aaaa...a`: every suffix is a prefix of the next longer one, so every comparison runs to the end of the shorter suffix.
 
-<Equation label="Search" expr="2 binary searches x log2(n) probes x O(m) per comparison" result="O(m log n)" />
+<Equation label="Binary searches" expr="2 binary searches x log2(n) probes x O(m) per comparison" result="O(m log n)" />
 
 ## What the LCP array adds
 
@@ -187,7 +187,7 @@ Define `LCP[k]` as the common prefix length of the suffixes at ranks `k-1` and `
 
 <ProsCons
   pros={[
-    'Index the text once, then every pattern costs O(m log n), whatever the pattern.',
+    'Index the text once, then the block of every pattern is found in O(m log n), whatever the pattern.',
     'Memory is n integers (plus the text) in a good implementation.',
     'With an LCP array it answers repeat and distinct-substring questions.',
     'Binary search is simple and cache-friendly.',

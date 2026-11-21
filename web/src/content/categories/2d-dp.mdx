@@ -13,7 +13,7 @@ facts:
     tone: warn
   - label: Matrix Chain
     value: O(n^3)
-    hint: n^2 intervals, up to n splits each
+    hint: about n^2/2 intervals, up to n - 1 splits each
   - label: Space
     value: O(m*n)
     hint: one row suffices if no traceback is needed
@@ -21,7 +21,7 @@ contents:
   - folder: Longest_Common_Subsequence
     note: The base table. dp[i][j] is the LCS of two prefixes. Match and take the diagonal, else take the better neighbor.
   - folder: Edit_Distance
-    note: The same table shape over prefixes, with a minimum over replace, delete and insert, and a first row and column of 0..n.
+    note: The same table shape over prefixes, with a minimum over replace, delete and insert, and a first row of 0..n and a first column of 0..m.
   - folder: 0_1_Knapsack
     note: Items against a capacity. Each cell chooses to skip an item or take it, and the table needs O(n*W) cells.
   - folder: Matrix_Chain_Multiplication
@@ -50,7 +50,7 @@ One index is not enough to name the subproblem, so the table has two axes. What 
   ]}
 />
 
-The first three fill row by row, and each cell reads only its neighbors above and to the left. Matrix Chain fills by chain length, because a cell reads shorter intervals of its own chain.
+The first three fill row by row, and each cell reads only cells above and to the left. Matrix Chain fills by chain length, because a cell reads shorter intervals of its own chain.
 
 ## At a glance
 
@@ -92,7 +92,7 @@ Edit Distance allows replacement, so for `kitten` and `sitting` it is 3, less th
     ['LCS', 'O(m*n)', 'O(m*n)', 'string lengths; `lcs_optimized` keeps two rows'],
     ['Edit Distance', 'O(m*n)', 'O(m*n)', 'string lengths; two rows give O(min(m, n)) if only the distance is needed'],
     ['0/1 Knapsack', 'O(n*W)', 'O(n*W)', 'the value of the capacity, not its digit count'],
-    ['Matrix Chain', 'O(n^3)', 'O(n^2)', 'chain length: n^2 intervals, up to n splits each'],
+    ['Matrix Chain', 'O(n^3)', 'O(n^2)', 'chain length: about n^2/2 intervals, up to n - 1 splits each'],
   ]}
 />
 

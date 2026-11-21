@@ -288,6 +288,18 @@ void testEncoderAndDecoderMustAgreeOnFcr() {
     assert(threw);
 }
 
+void testExtremeFcrDoesNotOverflow() {
+    // fcr + i and 1 - fcr used to overflow int near INT_MAX / INT_MIN.
+    for (int fcr : {2147483647, 2147483646, -2147483647 - 1, -2147483647}) {
+        ReedSolomon rs(15, 11, 3, fcr);
+        auto msg = rangeBytes(11);
+        auto r = rs.encode(msg);
+        r[2] ^= 5;
+        r[9] ^= 77;
+        assert(rs.decode(r) == msg);
+    }
+}
+
 int main() {
     testEncodeLength();
     testSystematicLayout();
@@ -311,6 +323,7 @@ int main() {
     testCodewordVanishesAtGeneratorRoots();
     testRoundTripWithErrorsAndErasuresForEachFcr();
     testEncoderAndDecoderMustAgreeOnFcr();
-    std::cout << "All 22 tests passed!" << std::endl;
+    testExtremeFcrDoesNotOverflow();
+    std::cout << "All 23 tests passed!" << std::endl;
     return 0;
 }

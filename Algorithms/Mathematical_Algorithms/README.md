@@ -1,6 +1,6 @@
 # Mathematical Algorithms
 
-Mathematical algorithms compute with exact integers and structured numbers. Number Theory covers divisors, remainders, powers and primes. Advanced Math covers matrix powers and the Fast Fourier Transform, which cut a slow computation to a logarithmic one.
+Mathematical algorithms compute with exact integers and structured numbers. Number Theory covers divisors, remainders, powers and primes. Advanced Math covers matrix powers and the Fast Fourier Transform, which cut a slow computation down to O(log k) or O(n log n) steps.
 
 ## Topics
 

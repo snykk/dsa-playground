@@ -145,7 +145,7 @@ When segments overlap along a line there are infinitely many common points. `seg
 
 <ComplexityTable
   rows={[
-    { case: 'One pair of lines or segments', time: 'O(1)', space: 'O(1)', when: 'Four to eight multiplications and a few comparisons, whatever the coordinates.' },
+    { case: 'One pair of lines or segments', time: 'O(1)', space: 'O(1)', when: 'From 2 multiplications (point_on_segment) to 24 (segment_intersection on a proper crossing), and a few comparisons, whatever the coordinates.' },
     { case: 'Testing n segments pairwise', time: 'O(n^2)', space: 'O(1)', when: 'All n(n-1)/2 pairs are checked.' },
   ]}
 />
@@ -183,7 +183,7 @@ For many segments, a sweep-line algorithm such as Bentley-Ottmann reports all in
   pros={[
     'Constant time and no iteration or allocation.',
     'Handles degenerate input (collinear, touching, zero-length) that parametric formulas reject.',
-    'The result does not depend on the order of the endpoints.',
+    'The yes or no answer does not depend on the order of the endpoints.',
     'No tolerance to tune, and the same answer at any coordinate scale.',
   ]}
   cons={[

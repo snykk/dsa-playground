@@ -127,12 +127,12 @@ Go has the same search, but `solveNQueens(n, true)` returns only the first board
 
 ## Complexity analysis
 
-At depth k the queens occupy k different columns, so there are at most n!/(n-k)! partial placements. Summing over k gives about e &middot; n! nodes, which is <BigO of="n!" />. Every node runs an <BigO of="n" /> safety check, so the code costs at most <BigO of="n * n!" /> in the worst case. Pruning keeps real runs far below that bound.
+At depth k the queens occupy k different columns, so there are at most n!/(n-k)! partial placements. Summing over k gives about e &middot; n! nodes, which is <BigO of="n!" />. Every node tries all n squares of the next row with an <BigO of="n" /> safety check each, so the code costs at most <BigO of="n^2 * n!" /> in the worst case. Pruning keeps real runs far below that bound.
 
 <ComplexityTable
   rows={[
     { case: 'First solution', time: 'much less than n!', space: 'O(n^2)', when: 'The search stops at the first complete board. For n = 8 it needs 876 safety checks.' },
-    { case: 'All solutions', time: 'O(n * n!) bound', space: 'O(n^2 * S)', when: 'Visits every safe partial placement. S is the number of solutions, and each copy is an n x n board; for n = 8 it needs 15,720 checks and stores 92 boards.' },
+    { case: 'All solutions', time: 'O(n^2 * n!) bound', space: 'O(n^2 * S)', when: 'Visits every safe partial placement. S is the number of solutions, and each copy is an n x n board; for n = 8 it needs 15,720 checks and stores 92 boards.' },
   ]}
 />
 

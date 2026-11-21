@@ -16,7 +16,7 @@ i = 0:   A B A B C            ABAB matches, D vs C       5 comparisons
 i = 1:     A                  B vs A                     1
 i = 2:       A B A            AB matches, D vs A         3
  ...
-i = 10:                  A B A B C A B C    all 8 match -> report 10
+i = 10:                      A B A B C A B C    all 8 match -> report 10
 ```
 
 ## How It Works

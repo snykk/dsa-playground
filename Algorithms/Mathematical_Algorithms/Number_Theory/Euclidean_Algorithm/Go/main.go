@@ -44,7 +44,7 @@ func GCDIterative(a, b int64) int64 {
 // Dividing before multiplying keeps the intermediate value as small as the
 // result. The result itself must still fit in an int64.
 // Time Complexity: O(log min(a, b))
-// Space Complexity: O(1)
+// Space Complexity: O(log min(a, b)) for the recursive GCD it calls
 func LCM(a, b int64) int64 {
 	if a == 0 || b == 0 {
 		return 0

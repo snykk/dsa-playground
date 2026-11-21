@@ -57,7 +57,7 @@ def naive_pattern_search_count(text: str, pattern: str) -> int:
         Number of occurrences
         
     Time Complexity: O(n * m)
-    Space Complexity: O(1)
+    Space Complexity: O(k) for the list of the k occurrences it builds
     """
     return len(naive_pattern_search(text, pattern))
 
@@ -74,7 +74,7 @@ def naive_pattern_search_first(text: str, pattern: str) -> int:
         Index of first occurrence, or -1 if not found
         
     Time Complexity: O(n * m)
-    Space Complexity: O(1)
+    Space Complexity: O(k) for the list of the k occurrences it builds
     """
     occurrences = naive_pattern_search(text, pattern)
     return occurrences[0] if occurrences else -1

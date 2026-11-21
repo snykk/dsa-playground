@@ -25,7 +25,7 @@ For the concept, see the topic README: [../README.md](../README.md).
 - A modulus is applied when `mod > 0`; `-1` (the default), 0 and negative values mean no modulus.
 - With a modulus, entries are normalised into `[0, mod)` and products are accumulated in `__int128` (a GCC/Clang extension), so any modulus up to 2^63 - 1 is exact.
 - Without a modulus the arithmetic is plain `long long`; overflow in `matrixPower` is not detected.
-- `matrixPower` is recursive; the depth is about `2 log k`.
+- `matrixPower` is recursive; the depth is at most about `2 log2 k`.
 
 ## How to Run
 

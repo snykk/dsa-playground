@@ -618,7 +618,7 @@ export function plcTrace(ops: PlcOp[]): PlcRun {
   const last = frames[frames.length - 1].state;
   snap(
     undefined,
-    `Done: ${ops.length} operation${ops.length === 1 ? '' : 's'}. Every yes or no answer came from a sign or an exact comparison; only distances, slopes, angles and the circle's area are rounded.`,
+    `Done: ${ops.length} operation${ops.length === 1 ? '' : 's'}. Every yes or no answer came from a sign or an exact comparison; only distances, slopes, angles and the circle's area and circumference are rounded.`,
     { points: last.points.map((p) => ({ ...p, role: undefined })), segments: last.segments, polygons: last.polygons, circles: last.circles, arcs: last.arcs },
   );
   return { frames, steps };

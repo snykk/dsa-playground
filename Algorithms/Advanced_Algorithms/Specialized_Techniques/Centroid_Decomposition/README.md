@@ -92,7 +92,7 @@ Do not use it when the tree changes shape (edges are added or removed), or when 
 
 | Language | Folder | Main file | Notes |
 |----------|--------|-----------|-------|
-| Python | [Python/](Python/) | `centroid_decomposition.py` | iterative size DFS and centroid walk; also `get_centroid_tree()` |
+| Python | [Python/](Python/) | `centroid_decomposition.py` | iterative breadth-first size pass and centroid walk; also `get_centroid_tree()` |
 | C++ | [C++/](C++/) | `centroid_decomposition.cpp` | recursive size DFS; `getParent()` |
 | Go | [Go/](Go/) | `main.go` | recursive size DFS; `GetParent()` |
 

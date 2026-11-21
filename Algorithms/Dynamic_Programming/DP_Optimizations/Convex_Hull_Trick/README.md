@@ -85,7 +85,7 @@ Each line is pushed once and popped at most once, so n operations on the deque c
 - Min versus max: the envelope and comparisons flip for the maximum, so write it separately.
 - Floating point: compare intersections by cross-multiplication, not division.
 - Overflow: the C++ version widens to `__int128` and Go uses `big.Int` in the redundancy test, but `m * x + b` must still fit in 64 bits.
-- Empty structure: Python raises `ValueError`, C++ has undefined behaviour and Go panics.
+- Empty monotonic CHT: Python raises `ValueError`, C++ has undefined behaviour and Go panics.
 - Li Chao tree outside its range: Python raises `ValueError` and Go panics; C++ does not check. An empty tree returns `inf` (Python), `LLONG_MAX` (C++) or `MaxInt64` (Go).
 
 ## Implementations

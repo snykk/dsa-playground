@@ -1,6 +1,6 @@
 # Advanced Mathematical Algorithms
 
-Both topics turn a slow linear or quadratic computation into a logarithmic one by halving the problem. Matrix exponentiation squares a matrix to jump to the k-th term of a recurrence, and the Fast Fourier Transform multiplies polynomials through their values.
+Both topics cut a slow linear or quadratic computation down to O(log k) or O(n log n) steps by halving the problem. Matrix exponentiation squares a matrix to jump to the k-th term of a recurrence, and the Fast Fourier Transform multiplies polynomials through their values.
 
 ## Topics
 
@@ -18,7 +18,7 @@ The first is exact integer arithmetic and the second is floating point, and that
 | Topic | Time | Space | Limit |
 |-------|------|-------|-------|
 | Matrix exponentiation | O(n^3 log k) | O(n^2) | without a modulus the entries overflow |
-| Fibonacci by matrix | O(log k) | O(log k) | F(93) is the first Fibonacci number that does not fit in 64 bits |
+| Fibonacci by matrix | O(log k) | O(log k) | F(93) is the first Fibonacci number that does not fit in a signed 64-bit integer |
 | Fast Fourier Transform | O(n log n) | O(n) | exact only while output coefficients stay below about 2^53 |
 
 `n` is the matrix size or the number of points, and `k` the exponent. The recursive versions add an O(log k) stack.
@@ -35,7 +35,7 @@ The first is exact integer arithmetic and the second is floating point, and that
 
 ## Common Pitfalls
 
-- Without a modulus, matrix entries and Fibonacci numbers overflow 64 bits quickly. The C++ and Go `fibonacci_matrix` refuse n above 92 without a modulus, but `matrix_power` itself does not check.
+- Without a modulus, matrix entries and Fibonacci numbers overflow 64 bits quickly. The C++ `fibonacciMatrix` and Go `FibonacciMatrix` refuse n above 92 without a modulus, but the matrix power itself does not check.
 - The power is only defined for a square matrix.
 - The FFT rounds from doubles, so past coefficients of about 2^53 it is wrong.
 - The forward transform pads with zeros to the next power of two. The inverse refuses other lengths: Python raises `ValueError`.

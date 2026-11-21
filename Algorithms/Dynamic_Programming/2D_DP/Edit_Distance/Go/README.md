@@ -20,7 +20,7 @@ It returns only the distance, with no traceback and no two-row version.
 
 ## Go-Specific Notes
 
-- Strings are indexed by byte, so a UTF-8 character that takes two bytes counts as two edits. Convert to `[]rune` first for character semantics.
+- Strings are indexed by byte, so a UTF-8 character that takes two bytes can count as two edits. Convert to `[]rune` first for character semantics.
 - The three-way minimum is written with explicit comparisons and a local named `best`, which avoids shadowing the `min` builtin of Go 1.21.
 
 ## How to Run

@@ -53,7 +53,7 @@ long long gcdIterative(long long a, long long b) {
  * result. The result itself must still fit in a long long.
  *
  * Time Complexity: O(log min(a, b))
- * Space Complexity: O(1)
+ * Space Complexity: O(log min(a, b)) for the recursive gcd it calls
  */
 long long lcm(long long a, long long b) {
     if (a == 0 || b == 0) {

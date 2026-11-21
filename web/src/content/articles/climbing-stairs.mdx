@@ -176,7 +176,7 @@ The repository counts **ordered** sequences: the outer loop is over stairs. If y
     'The count overflows 64-bit integers quickly.',
     'The table version needs O(n) memory.',
     'It counts ordered paths; the unordered count is a different loop order.',
-    'The step set must contain positive sizes: a step of 0 or less is meaningless and gives wrong counts.',
+    'The step set must contain positive sizes: a step of 0 or less is meaningless and is not checked: it can give a wrong count or an IndexError.',
   ]}
 />
 

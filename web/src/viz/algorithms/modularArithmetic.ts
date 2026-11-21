@@ -428,7 +428,7 @@ export function modTrace(input: ModInput): ModRun {
       const { inv, egcd } = inverse(b, [tok('b', 'b', pyMod(b, m), 'compare', 1)], `${b}`);
       step.egcd = egcd;
       if (inv === null) {
-        snap(L.divNone, `inv is None: ${b} has no inverse modulo ${m}, so mod_divide returns None. There is no number q with q * ${b} = ${op.a} (mod ${m}) to divide out uniquely.`, {
+        snap(L.divNone, `inv is None: ${b} has no inverse modulo ${m}, so mod_divide returns None. There is no unique q with q * ${b} = ${op.a} (mod ${m}) to divide out.`, {
           tokens: [tok('b', 'b', pyMod(b, m), 'bad', 1)],
           work: ['no inverse', 'returns None'],
           vars: [['returns', 'None']],

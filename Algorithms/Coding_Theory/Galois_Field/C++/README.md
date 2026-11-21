@@ -9,7 +9,7 @@ For the concept, see the topic README: [../README.md](../README.md).
 | File | Purpose |
 |------|---------|
 | `galois_field.h` | `gf256::GF256` class, `gf256::slowMultiply` and the `gf256::shared()` accessor |
-| `galois_field_test.cpp` | 10 tests: AES vectors, inverses, distributive law, polynomial multiply and evaluation |
+| `galois_field_test.cpp` | 11 tests: AES vectors, inverses, distributive law, polynomial multiply and evaluation, `pow` with a large exponent |
 
 ## API
 

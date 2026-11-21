@@ -174,7 +174,7 @@ export function grahamTrace(points: XY[]): { frames: Array<Frame<PlaneState>>; r
     const c = prev ? cross(bottom.p, prev.p, u.p) : 0;
     let why: string;
     if (!prev) {
-      why = `${nameOf(u.i)} comes first: every other point is counterclockwise of it as seen from the pivot.`;
+      why = `${nameOf(u.i)} comes first: every other point is counterclockwise of it, or farther along the same ray, as seen from the pivot.`;
     } else if (c > 0) {
       why = `${nameOf(u.i)} is next: cross(${names[bottom.i]}, ${names[prev.i]}, ${names[u.i]}) = ${c} > 0, so it lies counterclockwise of ${names[prev.i]}.`;
     } else {
@@ -237,7 +237,7 @@ export function grahamTrace(points: XY[]): { frames: Array<Frame<PlaneState>>; r
           (c > 0
             ? `Positive: ${names[a.i]} -> ${names[b.i]} -> ${names[u.i]} turns left, so ${names[b.i]} can stay.`
             : c < 0
-              ? `Negative: the walk would turn right at ${names[b.i]}, so ${names[b.i]} is inside the hull.`
+              ? `Negative: the walk would turn right at ${names[b.i]}, so ${names[b.i]} lies inside the hull or on an edge.`
               : `Zero: ${names[a.i]}, ${names[b.i]} and ${names[u.i]} are collinear, so ${names[b.i]} would sit on an edge; <= 0 pops it too.`),
         { roles: scanRoles(k, { [a.i]: 'compare', [b.i]: 'compare' }), tags, segments: [...fan, ...chain(), edge('probe', b.p, u.p, 'active', false)], polygons: [turn], strips: [orderStrip(k), stackStrip()] },
         [...scanVars(k), ['cross', c]],
@@ -264,7 +264,7 @@ export function grahamTrace(points: XY[]): { frames: Array<Frame<PlaneState>>; r
       hull.length === 1
         ? `Push the pivot ${nameOf(u.i)}: the stack holds fewer than two points, so there is no turn to test yet.`
         : hull.length === 2
-          ? `Push ${nameOf(u.i)}: with one point on the stack there is no turn to test, and the first point in angular order is always a hull vertex.`
+          ? `Push ${nameOf(u.i)}: with one point on the stack there is no turn to test yet; only a farther point on the same ray from the pivot can pop it.`
           : `Push ${nameOf(u.i)}. The stack ${hull.map((h) => names[h.i]).join(' ')} is a chain that turns left at every point.`,
       { roles: scanRoles(k, { [u.i]: 'done' }), tags, segments: [...fan, ...chain()], strips: [orderStrip(k), stackStrip()] },
       scanVars(k),
@@ -360,7 +360,7 @@ export function jarvisTrace(points: XY[]): { frames: Array<Frame<PlaneState>>; r
     let next: { p: XY; i: number } | null = null;
     snap(
       J.round,
-      `From ${nameOf(current.i)}: scan every point and keep the most clockwise one as next_point. Every point it beats is then on the left of the line ${names[current.i]} -> next_point.`,
+      `From ${nameOf(current.i)}: scan every point and keep the most clockwise one as next_point. Every point it beats then lies on the left of the line ${names[current.i]} -> next_point, or on it.`,
       { roles: { ...baseRoles(), [current.i]: 'active' }, segments: chain(), strips: [hullStrip()] },
       [['current', names[current.i]], ['hull size', hull.length]],
     );
@@ -388,7 +388,7 @@ export function jarvisTrace(points: XY[]): { frames: Array<Frame<PlaneState>>; r
           : c > 0
             ? `positive: ${names[u.i]} is on the left of ${names[current.i]} -> ${names[before.i]}, as it should be. Keep ${names[before.i]}.`
             : farther
-              ? `zero: same ray, and ${names[u.i]} is farther (squared distance ${dist2(current.p, u.p)} > ${dist2(current.p, before.p)}), so it takes over and ${names[before.i]} ends up on an edge.`
+              ? `zero: same ray, and ${names[u.i]} is farther (squared distance ${dist2(current.p, u.p)} > ${dist2(current.p, before.p)}), so it takes over: ${names[before.i]} lies between ${names[current.i]} and ${names[u.i]}.`
               : `zero: same ray, but ${names[u.i]} is not farther, so keep ${names[before.i]}.`;
       if (take) next = u;
       snap(
@@ -415,7 +415,7 @@ export function jarvisTrace(points: XY[]): { frames: Array<Frame<PlaneState>>; r
     hull.push(next!);
     snap(
       J.append,
-      `${nameOf(next!.i)} has every other point on its left or farther along the same ray: append it. It is the next hull vertex counterclockwise.`,
+      `${nameOf(next!.i)} has every other point on its left, or nearer on the same ray: append it. It is the next hull vertex counterclockwise.`,
       { roles: { ...baseRoles(), [next!.i]: 'done' }, segments: chain(), strips: [hullStrip()] },
       [['hull size', hull.length], ['cross products', tests]],
     );

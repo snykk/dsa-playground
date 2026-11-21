@@ -37,7 +37,7 @@ Both topics rest on one function, the cross product `cross(o, a, b) = (a.x - o.x
 
 What the code actually does:
 
-- Every test compares a cross or dot product with zero. There is no epsilon, so a result does not depend on the scale of the coordinates.
+- Every test is an exact comparison: the sign of a cross product, or squared distances and coordinates compared directly. There is no epsilon, so a result does not depend on the scale of the coordinates.
 - With integer coordinates the tests are exact in Python. In C++ and Go they are exact while the products stay below 2^53.
 - Collinear and degenerate input is handled on purpose. A zero-area triangle contains no point, and a zero-length segment is treated as a point.
 
@@ -83,7 +83,7 @@ The last row shows why the two functions are separate. `line_intersection` alway
   rows={[
     ['Any single primitive', 'O(1)', 'O(1)', 'a few multiplications; at most one square root or atan2'],
     ['k points against a triangle or circle', 'O(k)', 'O(1)', 'each point is independent'],
-    ['One pair of lines or segments', 'O(1)', 'O(1)', 'four to eight multiplications and some comparisons'],
+    ['One pair of lines or segments', 'O(1)', 'O(1)', 'from 2 to 24 multiplications and some comparisons'],
     ['n segments, all pairs', 'O(n^2)', 'O(1)', 'a sweep line such as Bentley-Ottmann is not in this repository'],
   ]}
 />

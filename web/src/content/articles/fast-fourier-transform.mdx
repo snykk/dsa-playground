@@ -141,7 +141,7 @@ multiply(p, q):
 
 ## Implementation
 
-All three versions are recursive and compute each twiddle factor directly with a complex exponential. The public functions are `fft`, `ifft`, `multiply_polynomials` and `convolve` (`FFT`, `IFFT`, `MultiplyPolynomials`, `Convolve` in Go). They differ in a few ways:
+All three versions are recursive and compute each twiddle factor directly with a complex exponential. The public functions are `fft`, `ifft`, `multiply_polynomials` and `convolve` (`multiplyPolynomials` in C++; `FFT`, `IFFT`, `MultiplyPolynomials`, `Convolve` in Go). They differ in a few ways:
 
 - Python and Go return integer lists from `multiply_polynomials`; Python integers are unbounded and Go `int` is 64 bits. The C++ version returns `std::vector<long long>`, because a product of two `int` values can overflow `int`.
 - The C++ version divides by 2 at each level of the inverse recursion, which adds up to a division by n; Python and Go divide once at the top.

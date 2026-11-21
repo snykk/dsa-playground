@@ -15,7 +15,7 @@
 ## C++-Specific Notes
 
 - Needs `<limits>` (included) for infinity and NaN; no EPS constant is used any more.
-- `crossProduct` computes its two products in separate statements so a compiler cannot fuse them into an FMA.
+- `crossProduct` stores each product in a `volatile double` so a compiler cannot fuse them into an FMA (two plain statements are not enough: with `-ffp-contract=fast` a compiler still fuses them).
 - Integer coordinates are exact while the products stay below 2^53.
 - The test file includes the `.cpp` directly; define `IS_TEST_BUILD` to drop the demo `main`.
 

@@ -72,7 +72,8 @@ class GF256 {
             if (n == 0) throw std::domain_error("0^0 is undefined");
             return 0;
         }
-        int e = (static_cast<int>(logTable_[a]) * n) % FIELD_ORDER;
+        // Reduce n first: log[a] * n would overflow int for large n.
+        int e = (static_cast<int>(logTable_[a]) * (n % FIELD_ORDER)) % FIELD_ORDER;
         if (e < 0) e += FIELD_ORDER;
         return expTable_[e];
     }

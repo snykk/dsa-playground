@@ -95,7 +95,7 @@ The inverse of 3 modulo 11 is found two ways, by the extended Euclid inside modu
     ['Euclidean algorithm', 'O(log min(a, b))', 'O(1)', 'O(log n) for the recursive version; Lame\'s theorem bounds the steps'],
     ['Modular arithmetic', 'O(1); inverse O(log m)', 'O(1)', 'the inverse uses the extended Euclid'],
     ['Modular exponentiation', 'O(log e)', 'O(1)', 'O(log e) for the recursive Python version; the naive loop is O(e)'],
-    ['Chinese Remainder Theorem', 'O(n log max m)', 'O(1)', 'the lcm must fit in 64 bits in C++ and Go'],
+    ['Chinese Remainder Theorem', 'O(n log max m)', 'O(1)', 'the lcm must be below 2^63 in C++ and Go'],
     ['Sieve of Eratosthenes', 'O(n log log n)', 'O(n)', 'one flag per number'],
     ['Miller-Rabin', 'O(k log n) multiplications for k witnesses', 'O(1)', 'a composite passes one random witness with probability at most 1/4'],
   ]}
@@ -129,7 +129,7 @@ The inverse of 3 modulo 11 is found two ways, by the extended Euclid inside modu
 - **Assuming an inverse always exists.** It needs `gcd(a, m) = 1`. Python's `mod_inverse` returns `None` otherwise.
 - **Trusting a remainder of a negative number.** The results here always land in `0 .. m-1`, but some languages return a negative remainder for a negative operand.
 - **Overflowing 64-bit products.** Modular multiplication of two values near `m` needs 128-bit intermediates once `m` is above about 3.04e9, in both exponentiation and Miller-Rabin.
-- **Using a sieve for one big number.** It needs O(n) memory and is only practical for n up to a few hundred million. Use Miller-Rabin instead.
+- **Using a sieve for one big number.** It needs O(n) memory and is only practical for n up to a few billion. Use Miller-Rabin instead.
 - **Forgetting that Fermat's test is fooled.** Carmichael numbers such as 561 pass it for every coprime base, which is why Miller-Rabin tests more than `a^(n-1) = 1`.
 </Callout>
 
@@ -137,7 +137,7 @@ The inverse of 3 modulo 11 is found two ways, by the extended Euclid inside modu
 
 <Faq>
   <FaqItem question="In what order should I read these?">
-    Euclidean algorithm, modular arithmetic, modular exponentiation, the Chinese Remainder Theorem, the sieve, then Miller-Rabin. Each of the first four leans on the one before it, and Miller-Rabin needs modular exponentiation.
+    Euclidean algorithm, modular arithmetic, modular exponentiation, the Chinese Remainder Theorem, the sieve, then Miller-Rabin. Modular arithmetic needs the extended Euclid, modular exponentiation needs modular arithmetic, the Chinese Remainder Theorem needs the extended Euclid, and Miller-Rabin needs modular exponentiation.
   </FaqItem>
   <FaqItem question="Do the moduli have to be coprime for the Chinese Remainder Theorem?">
     No. The implementation merges congruences one at a time and reports no solution when two of them contradict each other. With coprime moduli a solution always exists and is unique modulo the product.
@@ -146,6 +146,6 @@ The inverse of 3 modulo 11 is found two ways, by the extended Euclid inside modu
     With random witnesses it is probabilistic, and a composite number slips past one witness with probability at most 1/4. The deterministic version with 12 fixed bases is exact for every 64-bit integer. A prime is never rejected.
   </FaqItem>
   <FaqItem question="Why does modular exponentiation need so few multiplications?">
-    It squares the base once per bit of the exponent and multiplies the answer in only for the 1 bits, so a power with an exponent near 10^18 takes about 120 multiplications.
+    It squares the base once per bit of the exponent and multiplies the answer in only for the 1 bits, so a power with an exponent near 10^18 takes at most about 120 multiplications.
   </FaqItem>
 </Faq>

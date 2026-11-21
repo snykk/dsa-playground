@@ -125,7 +125,7 @@ Each version returns an n x n matrix with 1 on the cells of one path, or nothing
 
 <ComplexityTable
   rows={[
-    { case: 'Best case', time: 'O(n)', space: 'O(n^2)', when: 'The goal lies on the first route tried, for example an open corridor of 2n - 1 cells.' },
+    { case: 'Best case', time: 'O(n^2)', space: 'O(n^2)', when: 'The goal lies on the first route tried, for example an open corridor of 2n - 1 cells: the search takes O(n) steps, but creating the two n x n matrices already costs O(n^2).' },
     { case: 'Worst case', time: 'O(n^2)', space: 'O(n^2)', when: 'Every open cell is entered once and each does O(1) work for four neighbors.' },
   ]}
 />

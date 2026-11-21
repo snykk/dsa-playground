@@ -150,7 +150,7 @@ query(v):     answer = min over centroid ancestors c of v of  dist(v, c) + best[
 
 ## Implementation
 
-All three languages follow the same recursive design: `dfs_size`, `find_centroid`, `decompose` and a public `build(root)`. `build` resets the `removed` and `parent` state first, so calling it twice gives the same result.
+All three languages follow the same design: a size pass (`dfs_size`, `dfsSize` in C++ and Go), a walk to the centroid (`find_centroid` / `findCentroid`), a recursive `decompose` and a public `build(root)` (`Build` in Go). `build` resets the `removed` and `parent` state first, so calling it twice gives the same result.
 
 - **Python** computes subtree sizes and walks to the centroid with loops instead of recursion, so a path of 5,000 nodes works. It also has `get_centroid_tree()`, which returns the centroid tree as an adjacency list.
 - **C++ and Go** return the parent array (`getParent()` / `GetParent()`). Their size DFS is still recursive, so a path of many hundreds of thousands of nodes can overflow the C++ call stack; Go grows its stack on demand.
@@ -218,7 +218,7 @@ The recursion depth of `decompose` is only O(log n), so the Python recursion lim
 - **Using stale sizes.** Recompute `size` for each new component. Sizes from the previous level are wrong once the centroid is gone.
 - **Taking the root of the DFS as the centroid.** The DFS root is arbitrary; only the walk towards oversized children finds the centroid.
 - **Counting pairs inside one child.** When combining at a centroid, pairs whose paths do not actually pass through it are counted wrongly unless you subtract or process children one by one.
-- **Deep recursion.** Use an iterative size DFS (as Python does) when the tree can be a long path and the language has a small stack.
+- **Deep recursion.** Use an iterative size pass (Python's is breadth-first) when the tree can be a long path and the language has a small stack.
 </Callout>
 
 ## Frequently asked questions

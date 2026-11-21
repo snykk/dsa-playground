@@ -151,7 +151,7 @@ Python has all the approaches (`fibonacci_naive`, `fibonacci_memoization`, `fibo
     ['Memoization', 'O(n)', 'O(n)', 'recursion depth n: Python raises RecursionError at about n = 1000'],
     ['Tabulation', 'O(n)', 'O(n)', 'no recursion'],
     ['Two variables', 'O(n)', 'O(1)', 'the usual choice'],
-    ['Matrix power', 'O(log n) multiplications', 'O(log n) stack in this code', 'the recursive power in Python uses a stack of depth about log n'],
+    ['Matrix power', 'O(log n) multiplications', 'O(log n) stack in this code', 'the recursive power in Python uses a stack of depth at most about 2 log2 n'],
   ]}
 />
 
@@ -211,14 +211,14 @@ Exponentiation by squaring uses O(log n) matrix products. `fibonacci_matrix(100)
 - **Recursion depth.** `fibonacci_memoization(3000)` raises `RecursionError` in Python. Use the loop for large `n`.
 - **Wrong base case.** `F(0) = 0` and `F(1) = 1`; starting both at 1 shifts every index by one.
 - **Negative n.** The repository functions reject it (an error or panic), they do not extend the sequence to negative indices.
-- **Naive recursion in a test.** It works for `n = 30`, and then takes minutes for `n = 50`.
+- **Naive recursion in a test.** It works for `n = 30`, and then makes about 40 billion calls, close to an hour, for `n = 50`.
 </Callout>
 
 ## Frequently asked questions
 
 <Faq>
   <FaqItem question="Why is the naive recursion exponential?">
-    Each call makes two more calls and the arguments shrink by only 1 or 2, so the number of calls obeys the same recurrence as the numbers themselves. It grows like 1.618<sup>n</sup>.
+    Each call makes two more calls and the arguments shrink by only 1 or 2, so the number of calls obeys the same recurrence as the numbers themselves, plus one for the call itself. It grows like 1.618<sup>n</sup>.
   </FaqItem>
   <FaqItem question="Memoization or tabulation?">
     Both do O(n) work. Memoization keeps the recursive shape and computes only what is needed; tabulation avoids recursion and its depth limit. For Fibonacci, the two-variable loop beats both.

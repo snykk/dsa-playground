@@ -62,7 +62,7 @@ Error: a composite survives one random witness with probability at most 1/4, so 
 
 | Method | Time | Notes |
 |--------|------|-------|
-| Trial division | O(sqrt n) | exact; hopeless above about 10^12 |
+| Trial division | O(sqrt n) | exact; about 3 * 10^9 divisions at n = 10^19 |
 | Fermat test | O(log n) per base | fooled by Carmichael numbers such as 561 for every coprime base |
 | Miller-Rabin | O(log n) per base | at most 1/4 liars; exact with the fixed bases below 2^64 |
 | Sieve of Eratosthenes | O(n log log n) | all primes up to `n`, not one number |

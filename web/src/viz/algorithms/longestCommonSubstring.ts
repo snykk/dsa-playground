@@ -162,7 +162,7 @@ export function lcsubTrace({ s1, s2 }: LcsubInput): LcsubRun {
     push(
       8,
       m === 0 || n === 0
-        ? `${m === 0 ? 's1' : 's2'} is empty, so the loops never run: max_len is 0 and the function returns ('', 0, 0, 0).`
+        ? `${m === 0 ? 's1' : 's2'} is empty, so the loops fill no cell: max_len is 0 and the function returns ('', 0, 0, 0).`
         : 'No character of s1 occurs in s2, so every cell is 0: max_len is 0 and the function returns (\'\', 0, 0, 0).',
       {},
     );

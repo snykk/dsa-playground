@@ -15,7 +15,7 @@ Read them in this order.
 | 5 | [Sieve of Eratosthenes](Sieve_of_Eratosthenes/) | Cross out multiples of each prime to list every prime up to n and answer "is k prime?" in O(1). | Beginner |
 | 6 | [Miller-Rabin Primality Test](Miller_Rabin_Primality_Test/) | Decide whether one huge number is prime with a few modular exponentiations. | Advanced |
 
-All results are exact integer arithmetic. The first four each lean on the one before, and Miller-Rabin needs modular exponentiation.
+All results are exact integer arithmetic. Modular arithmetic and modular exponentiation each lean on the topic before them, the Chinese Remainder Theorem needs the extended Euclid, and Miller-Rabin needs modular exponentiation.
 
 ## How They Compare
 
@@ -24,7 +24,7 @@ All results are exact integer arithmetic. The first four each lean on the one be
 | Euclidean algorithm | O(log min(a, b)) | O(1) | O(log n) for the recursive version |
 | Modular arithmetic | O(1); inverse O(log m) | O(1) | the inverse uses the extended Euclid |
 | Modular exponentiation | O(log e) | O(1) | the naive loop is O(e) |
-| Chinese Remainder Theorem | O(n log max m) | O(1) | the lcm must fit in 64 bits in C++ and Go |
+| Chinese Remainder Theorem | O(n log max m) | O(1) | the lcm must be below 2^63 in C++ and Go |
 | Sieve of Eratosthenes | O(n log log n) | O(n) | one flag per number |
 | Miller-Rabin | O(k log n) multiplications for k witnesses | O(1) | a composite passes one random witness with probability at most 1/4 |
 

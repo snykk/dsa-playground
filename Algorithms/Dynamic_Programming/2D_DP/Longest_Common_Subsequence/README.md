@@ -85,7 +85,7 @@ Do not use it when:
 2. Off-by-one: cell `dp[i][j]` compares `s1[i-1]` and `s2[j-1]`.
 3. Trying to recover the sequence from the two-row version: it keeps no table to walk back through.
 4. Expecting a unique answer: the tie rule decides which LCS is returned.
-5. Byte versus character semantics: C++ and Go compare bytes, Python compares Unicode code points, so an accented letter that takes two bytes in UTF-8 gives different results across languages.
+5. Byte versus character semantics: C++ and Go compare bytes, Python compares Unicode code points, so an accented letter that takes two bytes in UTF-8 can give different results across languages.
 
 ## Implementations
 

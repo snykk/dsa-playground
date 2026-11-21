@@ -4,7 +4,7 @@ Square root decomposition splits an array into blocks of about sqrt(N) elements 
 
 ## Intuition
 
-A query range is made of a partial block on the left, some complete blocks, and a partial block on the right. Complete blocks are answered from stored sums. Only the partial blocks are scanned, and each has fewer than one block's worth of elements.
+A query range is made of a partial block on the left, some complete blocks, and a partial block on the right. Complete blocks are answered from stored sums. Only the partial blocks are scanned, and each has at most one block's worth of elements.
 
 Invariant: `blocks[b]` always equals the sum of the elements of block `b`. A point update changes one element, so it adjusts exactly one block sum, by `new - old`.
 
@@ -38,7 +38,7 @@ Only point updates and range-sum queries exist; there are no range updates and n
 | `query(2, 7)` | left partial indices 2-3 (3 + 4), right partial indices 4-7 (5 + 6 + 7 + 8), no middle blocks | 33 |
 | `update(5, 20)` | block 1 sum changes by 14, block sums become `[10, 40, 19]` | `arr[5] = 20` |
 | `query(2, 7)` | same cells, new value at index 5 | 47 |
-| `query(1, 9)` | 9 (left) + 26 (middle block 1) + 19 (right) | 54 |
+| `query(1, 9)` | 9 (left) + 40 (middle block 1, after the update) + 19 (right) | 68 |
 
 ## Complexity
 
@@ -48,7 +48,7 @@ Only point updates and range-sum queries exist; there are no range updates and n
 | `query` | O(sqrt N) | O(1) |
 | `update` | O(1) | O(1) |
 
-Why: a query handles at most `B - 1` elements on each side and at most `N / B` block sums, so the cost is about `2B + N / B`, which is smallest for `B` near sqrt N.
+Why: a query handles at most `B` elements on each side and at most `N / B` block sums, so the cost is about `2B + N / B`, which is smallest for `B` near sqrt N.
 
 ## When to Use
 

@@ -26,7 +26,7 @@ search_pattern(sa, "banana", "ana")    # [1, 3]
 ## Python-Specific Notes
 
 - Construction slices every suffix (`s[i:]`) and sorts the pairs, so memory is O(n^2) and the time is not O(n log n).
-- Search uses `text.startswith(pattern, idx)` and a slice of at most `m` characters, so a query is O(m log n).
+- Search uses `text.startswith(pattern, idx)` and a slice of at most `m` characters, so the two binary searches are O(m log n); sorting the `k` matches adds O(k log k).
 - Indices are code points; C++ and Go count bytes.
 - There is no LCP array and no prefix-doubling build.
 

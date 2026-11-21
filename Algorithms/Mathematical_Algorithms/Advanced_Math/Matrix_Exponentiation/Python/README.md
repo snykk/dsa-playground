@@ -24,7 +24,7 @@ For the concept, see the topic README: [../README.md](../README.md).
 - A modulus is applied only when it is a positive integer; `None`, 0 and negative values mean no modulus.
 - Python's `%` is always non-negative for a positive modulus, so negative entries reduce into `[0, mod)`.
 - Integers are unbounded: no overflow, no 128-bit tricks needed. Without a modulus the numbers still grow exponentially.
-- `matrix_power` is recursive (depth about `2 log k`), so `fibonacci_matrix` uses O(log n) space, not O(1).
+- `matrix_power` is recursive (depth at most about `2 log2 k`), so `fibonacci_matrix` uses O(log n) space, not O(1).
 
 ## How to Run
 

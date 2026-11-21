@@ -14,7 +14,7 @@ facts:
     value: unique mod lcm
     hint: the product when the moduli are coprime
   - label: Overflow
-    value: lcm must fit in 64 bits
+    value: lcm must be below 2^63
     hint: C++ and Go return -1 otherwise
     tone: warn
 properties:
@@ -161,7 +161,7 @@ In Python the numbers grow with `M`, so each operation on them costs more than a
     'Linear in the number of congruences, with logarithmic work per merge.',
   ]}
   cons={[
-    'C++ and Go give up (-1) when the lcm exceeds 64 bits; use big integers beyond that.',
+    'C++ and Go give up (-1) when the lcm exceeds 2^63 - 1; use big integers beyond that.',
     'The answer is only defined modulo the lcm, so a different representative may be needed.',
     'The closed form needs coprime moduli; the merge form is sequential.',
   ]}

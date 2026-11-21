@@ -12,9 +12,9 @@ Invariant: `segments_intersect` is true exactly when the segments share at least
 
 ```text
 proper        T-junction     shared end      collinear overlap
- \  /            |            |                 ------
+ \  /             |           |                 ------
   \/        ------+------     +------           --------
-  /\             |           (touching)
+  /\                         (touching)
  /  \
 ```
 

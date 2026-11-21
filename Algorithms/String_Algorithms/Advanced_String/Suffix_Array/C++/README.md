@@ -21,7 +21,7 @@ Suffix array construction by sorting, with binary-search pattern lookup.
 ## C++-Specific Notes
 
 - Construction stores `std::pair<std::string, int>` for every suffix (`substr`): O(n^2) memory, O(n^2 log n) worst-case time.
-- Search uses `text.compare(idx, m, pattern)`, which looks at most `m` characters and copies nothing: O(m log n) per query.
+- Search uses `text.compare(idx, m, pattern)`, which looks at most `m` characters and copies nothing: O(m log n) per query, plus O(k log k) to sort the `k` matches.
 - Indices are byte offsets.
 - `int` indices limit the text to about 2 billion bytes, far above what the quadratic build can handle.
 

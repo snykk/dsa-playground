@@ -22,7 +22,7 @@ print(dag_longest_path(graph, 0))   # 2  (0 -> 1 -> 3 or 0 -> 2 -> 3)
 
 ## Python-Specific Notes
 
-- The recursion depth equals the length of the longest path, so graphs with paths of more than about 1,000 nodes need `sys.setrecursionlimit` or an iterative rewrite.
+- The recursion depth is at most the number of nodes on the longest path (exactly that on a chain), so a chain of more than about 1,000 nodes needs `sys.setrecursionlimit` or an iterative rewrite.
 - Nodes may be any hashable value, not only integers.
 - Edge weights are not supported: successors must be plain node ids.
 - Only the part of the graph reachable from `start` is examined.

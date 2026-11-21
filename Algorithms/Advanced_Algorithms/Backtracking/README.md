@@ -19,12 +19,12 @@ All four follow one template: a state (the partial solution), a choice, a constr
 
 | Problem | Choice at each step | Best | Worst | Extra space |
 |---------|---------------------|------|-------|-------------|
-| Rat in a Maze | a direction: right, down, left, up | O(n) | O(n^2) | O(n^2) |
-| N-Queens | a column for the current row | less than n! | O(n * n!) | O(n^2) |
+| Rat in a Maze | a direction: right, down, left, up | O(n^2) | O(n^2) | O(n^2) |
+| N-Queens | a column for the current row | less than n! | O(n^2 * n!) | O(n^2) |
 | Graph Coloring | a color from 1 to m for the next vertex | O(V^2) | O(V * m^V) | O(V) |
 | Sudoku | a digit from 1 to 9 for the first empty cell | O(k) | O(9^k) | O(k) |
 
-`n` is the maze or board side, `V` the number of vertices, `m` the number of colors and `k` the number of empty cells. The maze never revisits a cell, so a dead end is explored once and the search stays polynomial. The other three can reach the same partial state by different routes, so they are exponential in the worst case. Space is for one search; N-Queens with `find_all = True` also keeps every board it finds. These are the bounds for the plain code here, which scans the board or matrix on each check.
+`n` is the maze or board side, `V` the number of vertices, `m` the number of colors and `k` the number of empty cells. The maze never revisits a cell, so a dead end is explored once and the search stays polynomial. In the other three a failure belongs to a whole partial assignment, not to one cell, and there are exponentially many of those, so they are exponential in the worst case. Space is for one search; N-Queens with `find_all = True` also keeps every board it finds. These are the bounds for the plain code here, which scans the board or matrix on each check.
 
 ## Choosing One
 

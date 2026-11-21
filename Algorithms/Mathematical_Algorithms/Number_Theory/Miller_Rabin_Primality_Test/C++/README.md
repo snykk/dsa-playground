@@ -3,7 +3,7 @@
 ## Files
 
 - `miller_rabin.cpp`: all functions (no `main`; the test file includes it).
-- `miller_rabin_test.cpp`: assert-based tests (small primes and composites, edge cases, primes and composites near 2^32, 2^61 and 2^63, 2^64 - 59, strong pseudoprimes, Carmichael numbers, negative input, `modPow` with a 60-bit modulus, agreement with trial division for 0..5000).
+- `miller_rabin_test.cpp`: assert-based tests (small primes and composites, edge cases, primes and composites near 2^32, 2^61 and 2^63, 2^64 - 59, strong pseudoprimes, Carmichael numbers, negative input, `modPow` with a 60-bit modulus, agreement with trial division for 0..4999).
 
 ## API
 

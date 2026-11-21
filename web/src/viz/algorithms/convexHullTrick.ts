@@ -282,9 +282,12 @@ export function chtTrace({ ops }: ChtInput): ChtRun {
             const x12 = (l2.b - l1.b) / (l1.m - l2.m);
             marks.push({ id: 'x13', x: x13, y: val(l1, x13), label: `${name(nl)} meets ${name(l1)}`, role: 'active' });
             marks.push({ id: 'x12', x: x12, y: val(l1, x12), label: `${name(l2)} meets ${name(l1)}`, role: 'compare' });
-            geo = bad
-              ? ` ${name(nl)} takes over from ${name(l1)} at x = ${show(x13)}, no later than ${name(l2)} does (x = ${show(x12)}), so ${name(l2)} is never strictly the lowest.`
-              : ` ${name(nl)} takes over from ${name(l1)} only at x = ${show(x13)}, after ${name(l2)} does (x = ${show(x12)}), so ${name(l2)} is the minimum in between.`;
+            // "Takes over" reads the slopes as decreasing; out of order it would not be true.
+            if (l1.m > l2.m && l2.m > nl.m) {
+              geo = bad
+                ? ` ${name(nl)} takes over from ${name(l1)} at x = ${show(x13)}, no later than ${name(l2)} does (x = ${show(x12)}), so ${name(l2)} is never strictly the lowest.`
+                : ` ${name(nl)} takes over from ${name(l1)} only at x = ${show(x13)}, after ${name(l2)} does (x = ${show(x12)}), so ${name(l2)} is the minimum in between.`;
+            }
           }
           snap(
             8,
@@ -360,12 +363,19 @@ export function chtTrace({ ops }: ChtInput): ChtRun {
       const v1 = val(l1, x);
       const v2 = val(l2, x);
       const pop = v1 >= v2;
+      // Only slopes added out of order can leave a front line that is not the steeper one.
+      const steeper = l1.m > l2.m;
+      const disorder = `(Its slope ${l1.m} is not above ${l2.m}: slopes were added out of order, so the deque may be wrong.)`;
       snap(
         12,
         `query(${x}): the first two lines give ${name(l1)} = ${l1.m} * ${x} + ${l1.b} = ${v1} and ${name(l2)} = ${l2.m} * ${x} + ${l2.b} = ${v2}. ` +
           (pop
-            ? `${v1} >= ${v2}: ${name(l1)} is no better here, and being steeper it only gets worse as x grows, so it can never win a later query: popleft.`
-            : `${v1} < ${v2}: ${name(l1)} is still the lowest, and the lines behind it have smaller slopes, so stop.`),
+            ? steeper
+              ? `${v1} >= ${v2}: ${name(l1)} is no better here, and being steeper it only gets worse as x grows, so it can never win a later query: popleft.`
+              : `${v1} >= ${v2}: ${name(l1)} is no better here, so popleft. ${disorder}`
+            : steeper
+              ? `${v1} < ${v2}: ${name(l1)} is still the lowest, and the lines behind it have smaller slopes, so stop.`
+              : `${v1} < ${v2}: ${name(l1)} beats ${name(l2)} here, so stop. ${disorder}`),
         {
           probe: { x },
           lines: { [l1.id]: pop ? 'bad' : 'good', [l2.id]: 'compare' },

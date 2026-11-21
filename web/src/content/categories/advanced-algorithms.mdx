@@ -12,11 +12,11 @@ facts:
     hint: four in each sub-area
   - label: Backtracking
     value: Exponential
-    hint: O(n!), O(m^V) or O(9^k) in the worst case
+    hint: O(n^2 * n!), O(V * m^V) or O(9^k) in the worst case
     tone: warn
   - label: Decompositions
     value: O(sqrt n) to O(log n)
-    hint: per query, after a linear or n log n build
+    hint: per query (amortized for Mo's, when Q >= N), after a linear or n log n build
 contents:
   - folder: Backtracking
     note: Choose, check, recurse, undo. Maze, N-Queens, Graph Coloring and Sudoku, with pruning that removes dead branches.
@@ -35,9 +35,9 @@ related:
 The two sub-areas answer different questions and have almost nothing in common in code.
 
 - **Backtracking** looks for a configuration that obeys a set of rules: queens that do not attack each other, a coloring with no clash on an edge, a filled Sudoku, a route through a maze. The cost is exponential in the worst case, and the work is in pruning.
-- **Specialized techniques** answer a stream of queries on one fixed structure. They spend time once to split it and then answer each query by touching only a few pieces. The cost per query is O(sqrt n) or O(log n).
+- **Specialized techniques** answer a stream of queries on one fixed structure. They spend time once to split it and then answer each query by touching only a few pieces. The cost per query is O(sqrt n) or O(log n), for Mo's algorithm amortized when there are at least as many queries as elements.
 
-The only shared background is a depth-first search and some recursion. The tree techniques in the second area use DFS to compute sizes, and the maze in the first is a DFS on a grid.
+The only shared background is a depth-first search and some recursion. The tree techniques in the second area walk the tree to compute subtree sizes (a recursive DFS in C++ and Go, a breadth-first pass in Python), and the maze in the first is a DFS on a grid.
 
 ## At a glance
 

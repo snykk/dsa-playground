@@ -68,7 +68,8 @@ export function fmtNum(x: number): string {
   const ax = Math.abs(x);
   if (ax < 0.005) return '0';
   const d = ax >= 1000 ? 0 : ax >= 100 ? 1 : 2;
-  const s = x.toFixed(d).replace(/\.?0+$/, '');
+  // Strip trailing zeros only after a decimal point: 6930 must stay 6930, not 693.
+  const s = d > 0 ? x.toFixed(d).replace(/\.?0+$/, '') : x.toFixed(d);
   return s === '-0' ? '0' : s;
 }
 
