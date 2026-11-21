@@ -25,7 +25,7 @@ strassen_multiply_general([[1, 2, 3], [4, 5, 6]], [[1, 2], [3, 4], [5, 6]])  # [
 ## Python-Specific Notes
 
 - Python integers do not overflow, so the results are exact for any entry size.
-- The recursion depth is only log2(n), far below the interpreter limit.
+- The recursion depth grows like log2(n): one call per halving, plus one padding call for each odd size. That is far below the interpreter limit.
 - Pure Python is slow: the default cutoff of 64 means the naive loop does most of the work, and the crossover versus a tuned library (NumPy) is far out of reach.
 - Rows must be lists of equal length; the functions do not validate shapes except the inner dimension check in `strassen_multiply_general`.
 

@@ -53,7 +53,7 @@ Traversal comes first because the other three lean on it. BFS is the idea behind
     ['Traversal', 'what is reachable, and in what order', 'BFS with a queue, DFS with a stack or recursion', 'O(V + E)', 'ignored'],
     ['Shortest path', 'cheapest route from a source, or between all pairs', 'Dijkstra, Bellman-Ford, Floyd-Warshall, A*', 'O((V + E) log V) to O(V^3)', 'the point of the area'],
     ['Minimum spanning tree', 'cheapest set of edges that connects everything', 'Kruskal with union-find, Prim with a heap', 'O(E log E) or O(E log V)', 'the point of the area'],
-    ['Advanced graph', 'order, components, bridges, satisfiability, flow', 'Kahn, Kosaraju, Tarjan, 2-SAT, Ford-Fulkerson, Edmonds-Karp', 'O(V + E) to O(V E^2)', 'only for flow capacities'],
+    ['Advanced graph', 'order, components, bridges, satisfiability, flow', 'Kahn, Kosaraju, Tarjan, 2-SAT, Ford-Fulkerson, Edmonds-Karp', 'O(V + E) to O(E f) or O(V E^2)', 'only for flow capacities'],
   ]}
 />
 
@@ -82,11 +82,11 @@ Traversal comes first because the other three lean on it. BFS is the idea behind
 <DataTable
   columns={['Area', 'Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }]}
   rows={[
-    ['Traversal', 'BFS, DFS', 'O(V + E)', 'O(V)'],
+    ['Traversal', 'BFS, DFS', 'O(V + E)', 'O(V) to O(V + E)'],
     ['Shortest path', 'Dijkstra', 'O((V + E) log V)', 'O(V + E)'],
     ['Shortest path', 'Bellman-Ford', 'O(V * E)', 'O(V)'],
     ['Shortest path', 'Floyd-Warshall', 'O(V^3)', 'O(V^2)'],
-    ['Minimum spanning tree', 'Kruskal', 'O(E log E)', 'O(V)'],
+    ['Minimum spanning tree', 'Kruskal', 'O(E log E)', 'O(V + E)'],
     ['Minimum spanning tree', 'Prim with a heap', 'O(E log V)', 'O(V + E)'],
     ['Advanced graph', 'Topological sort, SCC, bridges', 'O(V + E)', 'O(V) to O(V + E)'],
     ['Advanced graph', 'Edmonds-Karp', 'O(V E^2)', 'O(V + E)'],

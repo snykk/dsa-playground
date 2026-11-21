@@ -202,7 +202,7 @@ In a directed graph, DFS sorts every edge into one of four classes by comparing 
 
 <Callout tone="warning" title="Watch out for these">
 - **Marking on push.** It changes the visit order and is not a DFS. Mark when you pop (or enter the recursive call).
-- **Unbounded recursion.** A path graph with 100,000 vertices overflows the stack in Python and in C++. Use an explicit stack.
+- **Unbounded recursion.** A path graph with 100,000 vertices raises `RecursionError` in Python and overflows the call stack of an unoptimized C++ build. Use an explicit stack.
 - **Mixing up the two cycle rules.** In an undirected graph the edge back to the parent is not a cycle; in a directed graph a visited neighbor is a cycle only if it is still on the current path. A vertex that is merely finished is not.
 - **Using a sentinel as the parent.** A parent value such as -1 breaks when -1 is a real vertex. Keep a separate "has parent" flag.
 - **Expecting shortest paths.** DFS returns the first path it finds. Use BFS for fewest edges.

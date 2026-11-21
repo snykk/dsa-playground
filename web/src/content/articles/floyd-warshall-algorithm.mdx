@@ -56,7 +56,7 @@ After the round for k, `dist[i][j]` is the length of the shortest path from i to
 
 ## See it in action
 
-The visualization shows the distance matrix next to the graph. Step through the rounds and watch the cells that improve when the current vertex k is allowed as a stop. Type your own edges with arrows (`A->B 3, B->C -2`) and finish with `; start A`.
+The visualization shows the distance matrix, one row and one column per vertex. Step through the rounds and watch the cells that improve when the current vertex k is allowed as a stop. Type your own edges with arrows (`A->B 3, B->C -2`) and finish with `; start A`.
 
 <ArticleViz ids={['floyd-warshall']} />
 
@@ -148,7 +148,7 @@ Input is an adjacency list (`graph[u]` is a list of `(v, weight)` pairs) and the
     ['Negative cycle', '`None`', 'empty matrix', '`nil`'],
     ['Cycle check', 'once, after all rounds', 'after every round', 'after every round'],
     ['Path reconstruction', '`floyd_warshall_path` and `reconstruct_path`', 'none', 'none'],
-    ['Bad edge endpoint', '`IndexError`', 'throws `out_of_range`', 'index panic'],
+    ['Bad edge endpoint', '`IndexError` if too large; a negative one wraps around', 'throws `out_of_range` for a bad target; rows past `numVertices` are ignored', 'index panic for a bad target; keys outside the range are ignored'],
   ]}
 />
 

@@ -80,7 +80,7 @@ Do not use it when you need the fewest edges between two vertices (use BFS) or l
 ## Common Pitfalls
 
 - **Marking on push.** It changes the order. Mark on pop.
-- **Deep recursion.** A path of 100,000 vertices overflows the stack in Python and C++. The Python and C++ code here uses an explicit stack; Go grows stacks on demand.
+- **Deep recursion.** A path of 100,000 vertices raises `RecursionError` in Python and overflows the call stack of an unoptimized C++ build. The Python and C++ code here uses an explicit stack; Go grows stacks on demand.
 - **Two different cycle rules.** Undirected: a visited neighbor that is not the parent. Directed: a neighbor that is still on the current path (a finished vertex is not a cycle).
 - **Sentinel parent.** A parent value such as -1 breaks when -1 is a real vertex; the code keeps a separate "has parent" flag.
 - **Expecting shortest paths.** `dfs_with_path` returns the first path in DFS order.

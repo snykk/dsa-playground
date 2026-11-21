@@ -54,7 +54,7 @@ Partition of `[10, 80, 30, 90, 40, 50, 70]` around the pivot 70:
 | Case | Time | Space | When |
 |------|------|-------|------|
 | Best | O(n log n) | O(log n) | every pivot lands in the middle |
-| Average | O(n log n) | O(log n) | about 1.39 n log2(n) comparisons on random input |
+| Average | O(n log n) | O(log n) | about 1.39 n log2(n) - 2.85 n comparisons on random input |
 | Worst | O(n^2) | O(log n) Python, O(n) C++ and Go | every pivot is the smallest or largest element |
 
 One partition of `n` elements costs O(n). Balanced splits give T(n) = 2 T(n/2) + O(n) = O(n log n); a lopsided split gives T(n) = T(n - 1) + O(n) = O(n^2). With the last element as the pivot, the worst case happens on sorted, reverse-sorted and all-equal input (because of `<=`, all equal keys go to the left part).

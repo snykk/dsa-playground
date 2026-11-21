@@ -55,7 +55,7 @@ The graph above with A to G numbered 0 to 6, using `prim_mst_adjacency_list`. He
 
 | Version | Time | Space | Why |
 |---------|------|-------|-----|
-| Binary heap (lazy) | O(E log V) | O(V + E) | each edge is pushed at most twice; each push and pop is O(log V) |
+| Binary heap (lazy) | O(E log V) | O(V + E) | each edge is pushed at most once; each push and pop is O(log V) |
 | Array + matrix | O(V^2) | O(V) | V rounds, each scanning V keys and V matrix entries |
 | Fibonacci heap | O(E + V log V) | O(V) | mostly theoretical |
 

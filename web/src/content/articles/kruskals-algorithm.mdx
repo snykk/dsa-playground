@@ -9,8 +9,8 @@ facts:
     value: O(E log E)
     hint: the sort; union-find adds O(E alpha(V))
   - label: Extra space
-    value: O(V)
-    hint: union-find arrays, plus the sorted edge list
+    value: O(V + E)
+    hint: union-find arrays, plus Python's sorted copy of the edges
   - label: Approach
     value: Greedy
     hint: lightest safe edge first
@@ -142,7 +142,7 @@ With equal weights there can be several minimum spanning trees. All of them have
 
 <ComplexityTable
   rows={[
-    { case: 'All cases', time: 'O(E log E)', space: 'O(V)', when: 'Sorting E edges costs O(E log E); the E union-find operations cost O(E alpha(V)), which is smaller.' },
+    { case: 'All cases', time: 'O(E log E)', space: 'O(V + E)', when: 'Sorting E edges costs O(E log E); the E union-find operations cost O(E alpha(V)), which is smaller. The space is the union-find arrays plus the sorted copy Python makes; C++ and Go sort in place and need O(V).' },
   ]}
 />
 

@@ -93,7 +93,7 @@ When several edges share a weight, different valid choices can give different tr
 <DataTable
   columns={['Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Notes']}
   rows={[
-    ['Kruskal', 'O(E log E)', 'O(V)', 'the sort dominates; union-find adds O(E alpha(V)); the sorted edge list is extra'],
+    ['Kruskal', 'O(E log E)', 'O(V + E)', 'the sort dominates; union-find adds O(E alpha(V)); the E is the sorted copy of the edges in Python (C++ and Go sort in place)'],
     ['Prim, binary heap', 'O(E log V)', 'O(V + E)', 'lazy version: the heap holds up to E entries'],
     ['Prim, adjacency matrix', 'O(V^2)', 'O(V)', 'a scan of an array finds the minimum key each round'],
   ]}

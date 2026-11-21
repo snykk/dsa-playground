@@ -41,8 +41,8 @@ The graph above (A to E are vertices 0 to 4). The edges are listed from the end 
 | Round | Relaxations that succeed | dist (A B C D E) |
 |-------|--------------------------|------------------|
 | 1 | A->C gives C = 4, A->B gives B = 5 | 0 5 4 - - |
-| 2 | B->C gives C = 3, C->D gives D = 7 | 0 5 3 7 - |
-| 3 | C->D gives D = 6, D->E gives E = 8 | 0 5 3 6 8 |
+| 2 | C->D gives D = 7, B->C gives C = 3 | 0 5 3 7 - |
+| 3 | D->E gives E = 8, C->D gives D = 6 | 0 5 3 6 8 |
 | 4 | D->E gives E = 7 | 0 5 3 6 7 |
 
 Result: `{0: 0, 1: 5, 2: 3, 3: 6, 4: 7}`; `bellman_ford_with_path(edges, 5, 0, 4)` returns `(7, [0, 1, 2, 3, 4])`. Adding the edge E->B with weight -3 makes the cycle B, C, D, E weigh -1, so both functions return `None`.

@@ -120,7 +120,7 @@ Pass `i` makes `n - i - 1` comparisons, so a full run without early exit makes:
 A large value near the front travels the whole way to the right in one pass (a rabbit). A small value near the end moves only one place to the left per pass (a turtle). Input such as `[2, 3, 4, 5, 1]` therefore needs a full 4 passes even though it is almost sorted, and the early exit does not help.
 </Callout>
 
-The recursive Python version adds one stack frame per pass, so its space is <BigO of="n" /> and it raises `RecursionError` at a few thousand elements. Treat it as a teaching variant.
+The recursive Python version adds one stack frame per pass, so its space is <BigO of="n" /> and it raises `RecursionError` at about 1,000 elements. Treat it as a teaching variant.
 
 ## Variants
 
@@ -180,7 +180,7 @@ Bubble Sort and Insertion Sort do the same number of element moves (one per inve
 - **Missing `swapped` reset.** The flag must be set to false at the start of every pass, not once before the loops.
 - **Using `>=` for the comparison.** It swaps equal elements and silently makes the sort unstable.
 - **Unsigned loop bounds in C++.** With `size_t`, `n - i - 1` wraps around when `n` is 0 if written carelessly. The repository version is safe because the outer loop never runs for an empty vector.
-- **Recursing in Python.** `bubble_sort_recursive` nests one call per pass and fails for lists of a few thousand elements.
+- **Recursing in Python.** `bubble_sort_recursive` nests one call per pass and fails for lists of about 1,000 elements or more.
 </Callout>
 
 ## Frequently asked questions

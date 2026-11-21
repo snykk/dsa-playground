@@ -27,7 +27,11 @@ int interpolationSearch(const std::vector<T>& arr, const T& target) {
         // taken in double because in T they can overflow (INT_MAX - INT_MIN)
         double num = static_cast<double>(target) - static_cast<double>(arr[left]);
         double den = static_cast<double>(arr[right]) - static_cast<double>(arr[left]);
-        int pos = left + static_cast<int>(num * (right - left) / den);
+        double offset = num * (right - left) / den;
+        if (!(offset < right - left)) {  // also inf or NaN, for doubles too large for the formula
+            offset = right - left;
+        }
+        int pos = left + static_cast<int>(offset);
         
         // Check if target is at calculated position
         if (arr[pos] == target) {
@@ -70,7 +74,11 @@ int interpolationSearchRecursive(const std::vector<T>& arr, const T& target,
     // taken in double because in T they can overflow (INT_MAX - INT_MIN)
     double num = static_cast<double>(target) - static_cast<double>(arr[left]);
     double den = static_cast<double>(arr[right]) - static_cast<double>(arr[left]);
-    int pos = left + static_cast<int>(num * (right - left) / den);
+    double offset = num * (right - left) / den;
+    if (!(offset < right - left)) {  // also inf or NaN, for doubles too large for the formula
+        offset = right - left;
+    }
+    int pos = left + static_cast<int>(offset);
     
     // Check if target is at calculated position
     if (arr[pos] == target) {

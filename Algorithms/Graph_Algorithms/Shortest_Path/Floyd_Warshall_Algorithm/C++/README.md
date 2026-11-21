@@ -26,7 +26,7 @@ auto dist = floydWarshall(g, 4);   // dist[1] = {1, 0, -2, -1}
 
 - Needs C++17. The test file includes `floyd_warshall.cpp`; compile only the test file, or you get duplicate-symbol errors.
 - Distances are `long long`; the negative-cycle check runs after every round, so values cannot shrink without bound.
-- An edge endpoint outside `0..numVertices-1` throws `std::out_of_range` (`dist[u].at(v)`).
+- A target endpoint outside `0..numVertices-1` throws `std::out_of_range` (`dist[u].at(v)`); rows at or past `numVertices` are ignored.
 - An empty matrix means a negative cycle (or zero vertices).
 
 ## How to Run

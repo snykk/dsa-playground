@@ -48,7 +48,7 @@ Graph `{0:[1], 1:[2], 2:[0,3], 3:[4], 4:[3,5], 5:[]}`:
 | edge 2 -> 0 (0 on stack) | low[2] = 0 | 0 1 2 | |
 | visit 3, 4 | 3/3, 4/4 | 0 1 2 3 4 | |
 | edge 4 -> 3 (3 on stack) | low[4] = 3 | 0 1 2 3 4 | |
-| visit 5, low = disc | 5/5 | 0 1 2 3 4 5 | [5] |
+| visit 5, low = disc | 5/5 | 0 1 2 3 4 | [5] |
 | 4 finishes, low 3 != disc 4 | low[4] = 3 | 0 1 2 3 4 | |
 | 3 finishes, low = disc, pop to 3 | low[3] = 3 | 0 1 2 | [4, 3] |
 | 2 and 1 finish | low = 0 | 0 1 2 | |

@@ -75,7 +75,7 @@ Take `(x0 or x1) and (~x0 or x1) and (~x0 or ~x1)`. Nodes: `x0 = 0`, `~x0 = 1`, 
   tones={{ x1: 'f', nx0: 'f', x0: 'l', nx1: 'l' }}
   badges={{ x0: 'comp 1', nx1: 'comp 1', x1: 'comp 0', nx0: 'comp 0' }}
   legend={{ l: 'SCC {x0, ~x1}: comp 1, finished last', f: 'SCC {x1, ~x0}: comp 0, a sink, finished first' }}
-  caption="Nodes are written `nx0` for ~x0 and `nx1` for ~x1. The edge x0 -> x1 is the only edge between the two components."
+  caption="Nodes are written `nx0` for ~x0 and `nx1` for ~x1. The edges x0 -> x1 and ~x1 -> ~x0 are the only edges between the two components."
   label="Implication graph with two strongly connected components"
 />
 

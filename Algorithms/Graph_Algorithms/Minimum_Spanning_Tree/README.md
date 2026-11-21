@@ -22,7 +22,7 @@ Both rely on the cut property: for any split of the vertices into two groups, th
 | Needs | sorted edges and union-find | a priority queue, or an array for the matrix version |
 | Natural input | edge list | adjacency list or adjacency matrix |
 | Time | O(E log E) | O(E log V) with a heap, O(V^2) with a matrix |
-| Extra space | O(V) | O(V + E) with a heap, O(V) with a matrix |
+| Extra space | O(V + E) (Python sorts a copy of the edges) | O(V + E) with a heap, O(V) with a matrix |
 | Disconnected graph | spanning forest, fewer than V - 1 edges | only the start vertex component |
 | Negative weights | allowed | allowed |
 

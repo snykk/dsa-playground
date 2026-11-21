@@ -74,7 +74,7 @@ Search for 5 in `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]` (indexes 0 to 9). These rounds
   ]}
 />
 
-Two rounds and four probes, while Binary Search happens to hit 5 on its first probe. For the target 9, ternary search takes 3 rounds and 6 probes, against 3 probes for binary.
+Two rounds and three probes (round 2 stops at `mid1`), while Binary Search happens to hit 5 on its first probe. For the target 9, ternary search takes 3 rounds and 5 probes, against 3 probes for binary.
 
 ## Pseudocode
 
@@ -129,7 +129,7 @@ Whichever third is kept, the window shrinks to about a third of its size, so the
   ]}
 />
 
-The constant is what matters. Binary Search needs `log2(n)` probes; ternary search needs `2 log3(n)`, which is `1.26 log2(n)`, so it is **worse**. Probes in the worst case, measured for a present target in `0 .. n - 1`:
+The constant is what matters. Binary Search needs `log2(n)` probes; ternary search needs `2 log3(n)`, which is `1.26 log2(n)`, so it is **worse**. Probes in the worst case on the array `0 .. n - 1`, measured over every present and missing target:
 
 <DataTable
   columns={['n', { label: 'Ternary probes', kind: 'mono' }, { label: 'Binary probes', kind: 'mono' }]}

@@ -191,7 +191,7 @@ export function edmondsKarpTrace(input: FlowInput): FlowRun {
     r.badges.clear();
     r.snap(
       11,
-      `max_flow = ${before} + ${b} = ${maxFlow}. The next BFS runs on the updated residual graph; its shortest path can only get longer, never shorter.`,
+      `max_flow = ${before} + ${b} = ${maxFlow}. The next BFS runs on the updated residual graph; its shortest path is at least as long as this one, never shorter.`,
       vars(['min_capacity', b]),
       [strip('Queue', [], '(empty)'), pathStrip()],
     );
