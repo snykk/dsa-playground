@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { InputError } from '../core/types';
 import { MAX_FRAMES } from './backtracking';
-import { expectBoardFrames, fixtures } from './backtrackingTestKit';
+import { boardFrameProblems, fixtures } from './backtrackingTestKit';
 import { QUEENS_CODE, parseQueens, queensTrace, type QueensEvent } from './nQueens';
 
 /** Every placement of one queen per row with distinct columns and no shared diagonal, in column order. */
@@ -56,18 +56,19 @@ describe('queensTrace', () => {
     for (let n = 1; n <= 7; n++) {
       for (const findAll of [false, true]) {
         const { frames } = queensTrace({ n, findAll });
-        expectBoardFrames(frames, QUEENS_CODE.length);
+        const problems = boardFrameProblems(frames, QUEENS_CODE.length);
         for (const f of frames) {
           const queens = f.state.cells.flatMap((row, r) => row.flatMap((cell, c) => (cell.queen && cell.role !== 'muted' ? [[r, c]] : [])));
           for (const [r1, c1] of queens) {
             for (const [r2, c2] of queens) {
               if (r1 === r2 && c1 === c2) continue;
-              expect(r1 !== r2 && c1 !== c2 && Math.abs(r1 - r2) !== Math.abs(c1 - c2), f.caption).toBe(true);
+              if (!(r1 !== r2 && c1 !== c2 && Math.abs(r1 - r2) !== Math.abs(c1 - c2))) problems.push(`queens (${r1}, ${c1}) and (${r2}, ${c2}) attack each other: ${f.caption}`);
             }
           }
           // One open call per row that holds a queen, plus the row being searched.
-          expect(f.state.stack.length).toBeLessThanOrEqual(n + 1);
+          if (f.state.stack.length > n + 1) problems.push(`${f.state.stack.length} open calls, more than n + 1 = ${n + 1}: ${f.caption}`);
         }
+        expect(problems, `n ${n}, ${findAll ? 'all' : 'first'}`).toEqual([]);
       }
     }
   });

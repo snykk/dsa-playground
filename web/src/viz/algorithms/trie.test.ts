@@ -1,17 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { InputError } from '../core/types';
-import { expectWellFormed, rng } from './multiwayTreesTestKit';
+import { rng, wellFormedProblems } from './multiwayTreesTestKit';
 import { parseTrie, TRIE_CODE, trieTrace, type TrieDump, type TrieOp } from './trie';
 
 const fixtures = JSON.parse(readFileSync(new URL('./__fixtures__/multiwayTrees.json', import.meta.url), 'utf8'));
 
-/** The words of a dumped trie in get_all_words order, and the check that no node is a dead end. */
-function wordsOf(trie: TrieDump): string[] {
+/** The words of a dumped trie in get_all_words order; a dead end is reported in problems. */
+function wordsOf(trie: TrieDump, problems: string[]): string[] {
   const out: string[] = [];
   const walk = ([end, children]: TrieDump, prefix: string, isRoot: boolean) => {
     // After delete's pruning, a non-root node either ends a word or leads to one.
-    if (!isRoot) expect(end || children.length > 0).toBe(true);
+    if (!isRoot && !(end || children.length > 0)) problems.push(`the node for "${prefix}" is a dead end`);
     if (end) out.push(prefix);
     for (const [ch, c] of children) walk(c, prefix + ch, false);
   };
@@ -47,25 +47,32 @@ describe('trieTrace against a set of words', () => {
       const ops = randomOps(rand, 1 + Math.floor(rand() * 20));
       const run = trieTrace(ops);
       const model: string[] = [];
+      const problems: string[] = [];
+      const sameWords = (a: string[], b: string[]) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
       ops.forEach((op, i) => {
         const step = run.steps[i];
+        const at = `op ${i} (${op.kind}${'word' in op ? ` "${op.word}"` : ''})`;
+        const answer = (want: unknown) => {
+          if (step.result !== want) problems.push(`${at}: returned ${JSON.stringify(step.result)}, the set says ${JSON.stringify(want)}`);
+        };
         if (op.kind === 'insert') {
           if (!model.includes(op.word)) model.push(op.word);
-          expect(step.result).toBeNull();
-        } else if (op.kind === 'search') expect(step.result).toBe(model.includes(op.word));
+          answer(null);
+        } else if (op.kind === 'search') answer(model.includes(op.word));
         // The root always exists, so starts_with('') is True even for an empty trie.
-        else if (op.kind === 'prefix') expect(step.result).toBe(op.word === '' || model.some((w) => w.startsWith(op.word)));
+        else if (op.kind === 'prefix') answer(op.word === '' || model.some((w) => w.startsWith(op.word)));
         else if (op.kind === 'delete') {
-          expect(step.result).toBe(model.includes(op.word));
+          answer(model.includes(op.word));
           if (model.includes(op.word)) model.splice(model.indexOf(op.word), 1);
-        } else expect([...(step.result as string[])].sort()).toEqual([...model].sort());
-        const words = wordsOf(step.trie);
-        expect([...words].sort()).toEqual([...model].sort());
+        } else if (!sameWords(step.result as string[], model)) problems.push(`${at}: listed ${JSON.stringify(step.result)}, the set holds ${JSON.stringify(model)}`);
+        const words = wordsOf(step.trie, problems);
+        if (!sameWords(words, model)) problems.push(`${at}: the trie stores ${JSON.stringify(words)}, the set holds ${JSON.stringify(model)}`);
         // One node per distinct prefix of a stored word, plus the root.
         const prefixes = new Set(model.flatMap((w) => Array.from({ length: w.length }, (_, k) => w.slice(0, k + 1))));
-        expect(nodeCount(step.trie)).toBe(prefixes.size + 1);
+        if (nodeCount(step.trie) !== prefixes.size + 1) problems.push(`${at}: ${nodeCount(step.trie)} nodes, want ${prefixes.size + 1} (the root and one per prefix)`);
       });
-      expectWellFormed(run.frames, TRIE_CODE.length);
+      problems.push(...wellFormedProblems(run.frames, TRIE_CODE.length));
+      expect(problems, `trial ${trial}`).toEqual([]);
     }
   });
 });

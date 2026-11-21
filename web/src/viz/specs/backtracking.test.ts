@@ -10,11 +10,16 @@ const html = (spec: AnyVizSpec, state: unknown) => renderToStaticMarkup(spec.ren
 
 describe('backtracking specs', () => {
   it.each(ALL.map((s) => [s.id, s] as const))('%s: every frame of every example renders', (_, spec) => {
+    const problems: string[] = [];
     for (const { value } of spec.examples) {
       const frames = spec.trace(spec.parse(value));
-      expect(frames.length, value).toBeGreaterThan(1);
-      for (const frame of frames) expect(html(spec, frame.state).length).toBeGreaterThan(100);
+      if (frames.length <= 1) problems.push(`${value}: ${frames.length} frame, want more than 1`);
+      frames.forEach((frame, i) => {
+        const length = html(spec, frame.state).length;
+        if (length <= 100) problems.push(`${value}: frame ${i} renders ${length} characters of markup, want more than 100`);
+      });
     }
+    expect(problems).toEqual([]);
   });
 
   it.each(ALL.map((s) => [s.id, s] as const))('%s: 3 to 5 examples, and random inputs that parse', (_, spec) => {

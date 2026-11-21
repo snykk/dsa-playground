@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { CENTROID_CODE, centroidTrace, parseCentroid, type CentroidCall } from './centroid';
 import { adjacency } from './heavyLight';
-import { expectTreeFramesWellFormed, randomTree } from './treeDecompositionTestKit';
+import { randomTree, treeFrameProblems } from './treeDecompositionTestKit';
 
 const fixtures = JSON.parse(readFileSync(new URL('./__fixtures__/specializedTechniques.json', import.meta.url), 'utf8'));
 
@@ -62,9 +62,12 @@ describe('centroidTrace against brute force', () => {
       const root = Math.floor(rand() * n);
       const run = centroidTrace({ n, edges, root });
       const adj = adjacency(n, edges);
-      expect(run.calls.length).toBe(n);
-      expect(new Set(run.calls.map((c) => c.centroid)).size).toBe(n);
-      expect(run.parent.filter((p) => p === -1).length).toBe(1);
+      const problems = treeFrameProblems(run.frames, CENTROID_CODE.length);
+      if (run.calls.length !== n) problems.push(`${run.calls.length} decompose calls for ${n} nodes`);
+      const centroids = new Set(run.calls.map((c) => c.centroid)).size;
+      if (centroids !== n) problems.push(`${centroids} distinct centroids for ${n} nodes`);
+      const roots = run.parent.filter((p) => p === -1).length;
+      if (roots !== 1) problems.push(`${roots} roots in the centroid tree [${run.parent}]`);
       // Each call's piece is the set of nodes not removed before it that are reachable from u.
       const removed = new Set<number>();
       for (const call of run.calls) {
@@ -74,17 +77,20 @@ describe('centroidTrace against brute force', () => {
           const x = stack.pop()!;
           for (const v of adj[x]) if (!removed.has(v) && !piece.has(v)) piece.add(v), stack.push(v);
         }
-        expect(call.total).toBe(piece.size);
-        expect(piece.has(call.centroid)).toBe(true);
-        for (const s of componentsWithout(adj, piece, call.centroid)) expect(s).toBeLessThanOrEqual(Math.floor(call.total / 2));
+        const at = `decompose(${call.u}, ${call.p})`;
+        if (!Object.is(call.total, piece.size)) problems.push(`${at}: total ${call.total}, the piece has ${piece.size} nodes`);
+        if (!piece.has(call.centroid)) problems.push(`${at}: centroid ${call.centroid} is outside the piece`);
+        for (const s of componentsWithout(adj, piece, call.centroid)) {
+          if (!(s <= Math.floor(call.total / 2))) problems.push(`${at}: removing ${call.centroid} leaves a piece of ${s}, more than half of ${call.total}`);
+        }
         removed.add(call.centroid);
       }
       for (let v = 0; v < n; v++) {
         let d = 1;
         for (let x = v; run.parent[x] !== -1; x = run.parent[x]) d += 1;
-        expect(d).toBeLessThanOrEqual(Math.floor(Math.log2(n)) + 1);
+        if (!(d <= Math.floor(Math.log2(n)) + 1)) problems.push(`node ${v} is on level ${d} of the centroid tree, more than floor(log2 ${n}) + 1`);
       }
-      expectTreeFramesWellFormed(run.frames, CENTROID_CODE.length);
+      expect(problems, `${JSON.stringify(edges)} root ${root}`).toEqual([]);
     }
   });
 });

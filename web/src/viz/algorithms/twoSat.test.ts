@@ -55,23 +55,27 @@ function reach(graph: number[][]): boolean[][] {
   return r;
 }
 
-function expectWellFormed(frames: SatFrame[]) {
-  expect(frames.length).toBeGreaterThan(0);
+/** What is wrong with the frames of a run, one readable line per problem. */
+function frameProblems(frames: SatFrame[]): string[] {
+  const out: string[] = [];
+  if (frames.length === 0) out.push('no frames');
   for (const f of frames) {
-    expect(f.caption.length, f.caption).toBeGreaterThan(20);
-    if (f.line !== undefined) {
-      expect(f.line).toBeGreaterThanOrEqual(0);
-      expect(f.line).toBeLessThan(TWO_SAT_CODE.length);
-    }
+    if (f.caption.length <= 20) out.push(`caption too short: "${f.caption}"`);
+    if (f.line !== undefined && (f.line < 0 || f.line >= TWO_SAT_CODE.length)) out.push(`line ${f.line} out of range: ${f.caption}`);
     const ids = f.state.literals.map((l) => l.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    expect(ids.length).toBe(2 * f.state.n);
+    if (new Set(ids).size !== ids.length) out.push(`repeated literal ids [${ids}]: ${f.caption}`);
+    if (ids.length !== 2 * f.state.n) out.push(`${ids.length} literals for n = ${f.state.n}: ${f.caption}`);
     const edgeIds = f.state.edges.map((e) => e.id);
-    expect(new Set(edgeIds).size).toBe(edgeIds.length);
+    if (new Set(edgeIds).size !== edgeIds.length) out.push(`repeated edge ids [${edgeIds}]: ${f.caption}`);
     const drawn = new Set(ids);
-    for (const e of f.state.edges) expect(drawn.has(e.from) && drawn.has(e.to), e.id).toBe(true);
-    expect(f.state.values.length).toBe(f.state.n);
+    for (const e of f.state.edges) if (!(drawn.has(e.from) && drawn.has(e.to))) out.push(`edge ${e.id} has an end that is not drawn: ${f.caption}`);
+    if (f.state.values.length !== f.state.n) out.push(`${f.state.values.length} values for n = ${f.state.n}: ${f.caption}`);
   }
+  return out;
+}
+
+function expectWellFormed(frames: SatFrame[]) {
+  expect(frameProblems(frames)).toEqual([]);
 }
 
 describe('parseTwoSat', () => {
@@ -165,16 +169,22 @@ describe('2-SAT tracer', () => {
   it('agrees with brute force on random formulas, numbers components in reverse topological order, and satisfies every clause', () => {
     for (const input of randomFormulas(200, 5)) {
       const run = twoSatTrace(input);
-      expect(run.ok, formatTwoSat(input)).toBe(bruteSat(input));
+      const problems = frameProblems(run.frames);
+      const sat = bruteSat(input);
+      if (run.ok !== sat) problems.push(`ok = ${run.ok}, brute force says ${sat}`);
       const r = reach(run.graph);
       const N = 2 * input.n;
       for (let u = 0; u < N; u++) {
-        for (let v = 0; v < N; v++) expect(run.comp[u] === run.comp[v]).toBe(r[u][v] && r[v][u]);
-        for (const v of run.graph[u]) expect(run.comp[u]).toBeGreaterThanOrEqual(run.comp[v]);
+        for (let v = 0; v < N; v++) {
+          if ((run.comp[u] === run.comp[v]) !== (r[u][v] && r[v][u])) problems.push(`${litName(u)} and ${litName(v)}: same component ${run.comp[u] === run.comp[v]}, mutually reachable ${r[u][v] && r[v][u]}`);
+        }
+        for (const v of run.graph[u]) if (!(run.comp[u] >= run.comp[v])) problems.push(`edge ${litName(u)} -> ${litName(v)} goes from component ${run.comp[u]} up to ${run.comp[v]}`);
       }
-      if (run.ok) for (const c of input.clauses) expect(litValue(c.a, run.assignment!) || litValue(c.b, run.assignment!)).toBe(true);
-      expectWellFormed(run.frames);
-      expect(run.frames.length).toBeLessThan(2000);
+      if (run.ok) {
+        for (const c of input.clauses) if (!(litValue(c.a, run.assignment!) || litValue(c.b, run.assignment!))) problems.push(`clause ${litName(c.a)} or ${litName(c.b)} is false`);
+      }
+      if (run.frames.length >= 2000) problems.push(`${run.frames.length} frames, want fewer than 2000`);
+      expect(problems, formatTwoSat(input)).toEqual([]);
     }
   });
 

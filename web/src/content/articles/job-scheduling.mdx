@@ -1,12 +1,12 @@
 ---
 topic: Algorithms/Greedy/Job_Scheduling
 title: Job Scheduling
-lead: Job scheduling asks for the best order for jobs on one machine. The classic form gives every unit-time job a deadline and a profit and wants the most profit. Take jobs by profit and give each the latest free slot before its deadline. Two Python variants cover lateness and weighted completion time.
+lead: Job scheduling asks for the best order for jobs on one machine. The classic form gives every unit-time job a deadline and a profit and wants the most profit. Take jobs by profit and give each the latest free slot before its deadline. Two more rules, in all three languages, cover lateness and weighted completion time.
 level: Intermediate
-updated: 2026-11-15
+updated: 2026-11-21
 facts:
   - label: Deadline version
-    value: O(n log n + n * min(D, n))
+    value: O(n log n + n * min(D, n) + D)
     hint: D is the largest deadline
   - label: Extra space
     value: O(n + D)
@@ -22,7 +22,7 @@ properties:
   - { label: Greedy, value: true }
   - { label: Unit-time jobs (deadline version), value: true }
   - { label: Always optimal, value: true }
-  - { label: C++ and Go have all variants, value: false }
+  - { label: C++ and Go have all variants, value: true }
 prerequisites:
   - Algorithms/Greedy
   - Algorithms/Sorting/Merge_Sort
@@ -102,17 +102,17 @@ jobSchedulingDeadline(jobs):                    # jobs: (id, deadline, profit)
 
 ## Implementation
 
-The Python file has all three variants. C++ and Go have only the deadline version (`jobSchedulingDeadline`, and a profit-only wrapper in C++, `JobSchedulingDeadline` in Go). In Python, jobs are tuples; in C++ they are `std::tuple<int, int, int>`; in Go they are `[]int{id, deadline, profit}`.
+All three languages have all three variants. The deadline version is `jobSchedulingDeadline` in C++ (with a profit-only wrapper) and `JobSchedulingDeadline` in Go; the other two are named after the Python functions in the same way (next section). In Python, jobs are tuples; in C++ they are `std::tuple<int, int, int>`; in Go they are `[]int{id, deadline, profit}`.
 
 <TopicCode topic="Algorithms/Greedy/Job_Scheduling" />
 
 **Differences to know.**
 
-- Python sorts a copy. C++ and Go sort the vector or slice you pass in, so the caller's order changes.
-- Among jobs with equal profit, the order is stable in Python (`sorted`) and unspecified in C++ and Go, so the chosen jobs among ties can differ.
+- Python sorts a copy. The C++ and Go deadline functions sort the vector or slice you pass in, so the caller's order changes; their other two functions sort a copy, as Python does.
+- Among jobs with equal profit, the order is stable in Python (`sorted`) and unspecified in the C++ and Go deadline functions, so the chosen jobs among ties can differ. EDF and Smith's rule use a stable sort in all three languages (`std::stable_sort`, `sort.SliceStable`), so equal keys keep their input order everywhere.
 - Slots hold an explicit "empty" marker (`None` in Python, a `bool` array in C++ and Go). An earlier version used -1 for empty, which broke when a job's id was -1.
 
-## The other two variants (Python)
+## The other two variants
 
 <DataTable
   columns={['Function', 'Input tuple', 'Rule', 'Returns']}
@@ -122,6 +122,8 @@ The Python file has all three variants. C++ and Go have only the deadline versio
     ['`job_scheduling_weighted_completion_time`', '(id, processing_time, weight)', 'sort by weight / processing_time, highest first', 'the order and the sum of weight * completion time'],
   ]}
 />
+
+The table uses the Python names. C++ has `jobSchedulingEarliestDeadline` and `jobSchedulingWeightedCompletionTime` (the total is a `long long`), and Go has `JobSchedulingEarliestDeadline` and `JobSchedulingWeightedCompletionTime` (which also returns an `error`). All three compare the same `weight / processing_time` floating-point ratio, and their tests check them against outputs of the Python code.
 
 **Earliest deadline first (EDF)** minimizes the maximum lateness when every job is available from time 0 on one machine. The function sorts by deadline and returns the order; it ignores `processing_time` and does not compute any lateness.
 
@@ -143,7 +145,7 @@ The function returns `(['J2', 'J3', 'J1'], 17)`. Smith's order puts short, heavy
   rows={[
     { case: 'Sort', time: 'O(n log n)', space: 'O(n)', when: 'Sorting by profit (deadline version), deadline (EDF) or ratio (weighted completion).' },
     { case: 'Slot search', time: 'O(n * min(D, n))', space: 'O(D)', when: 'Each job scans down from its deadline; it can scan up to D slots, but at most n slots are ever taken. D is the largest deadline.' },
-    { case: 'Deadline version, total', time: 'O(n log n + n * min(D, n))', space: 'O(n + D)', when: 'Worst case O(n^2) when deadlines are about n and the early slots fill up.' },
+    { case: 'Deadline version, total', time: 'O(n log n + n * min(D, n) + D)', space: 'O(n + D)', when: 'Worst case O(n^2) when deadlines are about n and the early slots fill up.' },
   ]}
 />
 
@@ -176,7 +178,7 @@ The slot array has one entry per time unit up to the largest deadline, so memory
   cons={[
     'The deadline version needs O(n + D) memory and can be O(n^2); the union-find speed-up is not implemented.',
     'Only unit-time jobs; with different job lengths the problem is harder.',
-    'C++ and Go implement only the deadline version, and they sort the caller\'s input in place.',
+    'The C++ and Go deadline functions sort the caller\'s input in place.',
     'Profits are assumed non-negative: a job with a negative profit is still scheduled if a slot is free.',
   ]}
 />
@@ -194,7 +196,7 @@ The slot array has one entry per time unit up to the largest deadline, so memory
 - **Reading the returned list as a timetable.** It lists accepted jobs in profit order, not slot order.
 - **Starting the slot search above the deadline** or running it below slot 1. A job with deadline 0 or less is never scheduled.
 - **Huge deadlines.** The slot array has one entry per time unit; clamp deadlines to `n` if they can be very large.
-- **Dividing by zero in Smith's rule.** A job with `processing_time` 0 raises `ZeroDivisionError` in `job_scheduling_weighted_completion_time`.
+- **Dividing by zero in Smith's rule.** A job with `processing_time` 0 raises `ZeroDivisionError` in `job_scheduling_weighted_completion_time`; C++ throws `std::domain_error` and Go returns `ErrZeroProcessingTime`.
 - **Assuming EDF reports lateness.** `job_scheduling_earliest_deadline` ignores `processing_time` and only returns an order.
 </Callout>
 

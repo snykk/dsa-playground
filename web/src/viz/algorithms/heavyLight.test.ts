@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { InputError } from '../core/types';
 import { adjacency, HLD_CODE, hldTrace, parseHld, parseTreeShape, type HldOp, type HldResult } from './heavyLight';
-import { expectTreeFramesWellFormed, randomTree } from './treeDecompositionTestKit';
+import { randomTree, treeFrameProblems } from './treeDecompositionTestKit';
 
 const fixtures = JSON.parse(readFileSync(new URL('./__fixtures__/specializedTechniques.json', import.meta.url), 'utf8'));
 
@@ -13,6 +13,9 @@ function rng(seed: number) {
     return s / 2 ** 32;
   };
 }
+
+/** Element by element with Object.is, as toEqual compares numbers. */
+const sameNumbers = (a: readonly number[], b: readonly number[]) => a.length === b.length && a.every((x, i) => Object.is(x, b[i]));
 
 /** Naive tree facts: parent and depth from the root, and the u-v path. */
 function naive(n: number, edges: Array<[number, number]>, root: number) {
@@ -98,38 +101,49 @@ describe('hldTrace against a naive tree', () => {
       const ops: HldOp[] = Array.from({ length: 6 }, (_, k) => ({ kind: k % 2 ? 'path' : 'lca', u: Math.floor(rand() * n), v: Math.floor(rand() * n) }));
       const run = hldTrace({ n, edges, root, ops });
       const ref = naive(n, edges, root);
-      expect(run.parent).toEqual(ref.parent);
-      expect(run.depth).toEqual(ref.depth);
-      expect([...run.pos].sort((a, b) => a - b)).toEqual(Array.from({ length: n }, (_, i) => i));
+      const problems = treeFrameProblems(run.frames, HLD_CODE.length);
+      if (!sameNumbers(run.parent, ref.parent)) problems.push(`parent [${run.parent}], naive [${ref.parent}]`);
+      if (!sameNumbers(run.depth, ref.depth)) problems.push(`depth [${run.depth}], naive [${ref.depth}]`);
+      const positions = [...run.pos].sort((a, b) => a - b);
+      if (!sameNumbers(positions, Array.from({ length: n }, (_, i) => i))) problems.push(`pos [${run.pos}] is not a numbering of 0..${n - 1}`);
       for (let u = 0; u < n; u++) {
         const sub = ref.subtree(u);
-        expect(run.size[u]).toBe(sub.length);
+        if (!Object.is(run.size[u], sub.length)) problems.push(`size[${u}] = ${run.size[u]}, its subtree has ${sub.length} nodes`);
         // Heavy-first numbering: the subtree of u is pos[u] .. pos[u] + size[u] - 1.
-        expect(sub.map((x) => run.pos[x]).sort((a, b) => a - b)).toEqual(Array.from({ length: sub.length }, (_, i) => run.pos[u] + i));
+        const got = sub.map((x) => run.pos[x]).sort((a, b) => a - b);
+        const want = Array.from({ length: sub.length }, (_, i) => run.pos[u] + i);
+        if (!sameNumbers(got, want)) problems.push(`the subtree of ${u} has positions [${got}], want [${want}]`);
         const kids = ref.adj[u].filter((v) => v !== ref.parent[u]);
-        if (kids.length === 0) expect(run.heavy[u]).toBe(-1);
-        else {
+        if (kids.length === 0) {
+          if (!Object.is(run.heavy[u], -1)) problems.push(`leaf ${u} has heavy child ${run.heavy[u]}`);
+        } else {
           const best = Math.max(...kids.map((v) => run.size[v]));
-          expect(run.heavy[u]).toBe(kids.find((v) => run.size[v] === best));
-          expect(run.head[run.heavy[u]]).toBe(run.head[u]);
-          expect(run.pos[run.heavy[u]]).toBe(run.pos[u] + 1);
+          const first = kids.find((v) => run.size[v] === best);
+          if (!Object.is(run.heavy[u], first)) problems.push(`heavy[${u}] = ${run.heavy[u]}, want ${first}, the first child of size ${best}`);
+          if (!Object.is(run.head[run.heavy[u]], run.head[u])) problems.push(`heavy child ${run.heavy[u]} has head ${run.head[run.heavy[u]]}, ${u} has head ${run.head[u]}`);
+          if (!Object.is(run.pos[run.heavy[u]], run.pos[u] + 1)) problems.push(`heavy child ${run.heavy[u]} at position ${run.pos[run.heavy[u]]}, want ${run.pos[u] + 1}`);
         }
       }
       ops.forEach((op, i) => {
         const res = run.results[i];
-        if (op.kind === 'lca') expect(res).toBe(ref.lca(op.u, op.v));
-        else {
+        const at = `${op.kind}(${op.u}, ${op.v})`;
+        if (op.kind === 'lca') {
+          const want = ref.lca(op.u, op.v);
+          if (!Object.is(res, want)) problems.push(`${at} = ${res}, naive ${want}`);
+        } else {
           const covered = new Set<number>();
           for (const [lo, hi] of res as Array<[number, number]>) {
-            expect(lo).toBeLessThanOrEqual(hi);
+            if (!(lo <= hi)) problems.push(`${at}: segment (${lo}, ${hi}) is reversed`);
             for (let p = lo; p <= hi; p++) covered.add(p);
           }
-          expect(covered).toEqual(new Set([...ref.path(op.u, op.v)].map((x) => run.pos[x])));
+          const want = new Set([...ref.path(op.u, op.v)].map((x) => run.pos[x]));
+          if (!(covered.size === want.size && [...covered].every((p) => want.has(p)))) problems.push(`${at} covers positions [${[...covered]}], the path has [${[...want]}]`);
           // At most one segment per chain on each side, and a path to the root crosses at most floor(log2 n) + 1 chains.
-          expect((res as unknown[]).length).toBeLessThanOrEqual(2 * (Math.floor(Math.log2(n)) + 1));
+          const most = 2 * (Math.floor(Math.log2(n)) + 1);
+          if (!((res as unknown[]).length <= most)) problems.push(`${at}: ${(res as unknown[]).length} segments, more than ${most}`);
         }
       });
-      expectTreeFramesWellFormed(run.frames, HLD_CODE.length);
+      expect(problems, `${JSON.stringify(edges)} root ${root}`).toEqual([]);
     }
   });
 });
