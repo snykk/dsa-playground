@@ -226,3 +226,13 @@ Hoare's original scheme from 1961 moves two indices towards each other and swaps
     When equal keys must keep their order (use Merge Sort), when you need a hard worst-case bound and have no fallback (Heap Sort or Merge Sort), and for linked lists, where Merge Sort needs no random access.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Sort an Array', site: 'LeetCode 912', url: 'https://leetcode.com/problems/sort-an-array/', idea: 'Write quick sort itself. With the last element as the pivot, sorted and all-equal inputs take O(n^2), so pick the pivot at random.' },
+    { name: 'Sort Colors', site: 'LeetCode 75', url: 'https://leetcode.com/problems/sort-colors/', idea: 'One three-way partition (the Dutch national flag) sorts the three values in a single pass.' },
+    { name: 'Kth Largest Element in an Array', site: 'LeetCode 215', url: 'https://leetcode.com/problems/kth-largest-element-in-an-array/', idea: 'Partition, then recurse into the one side that holds index n - k: quickselect, O(n) on average.' },
+  ]}
+/>

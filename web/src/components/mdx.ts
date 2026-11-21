@@ -15,6 +15,7 @@ import FaqItem from './molecules/FaqItem.astro';
 import GraphDiagram from './molecules/GraphDiagram.astro';
 import GridDiagram from './molecules/GridDiagram.astro';
 import ListDiagram from './molecules/ListDiagram.astro';
+import PracticeProblems from './molecules/PracticeProblems.astro';
 import ProsCons from './molecules/ProsCons.astro';
 import Step from './molecules/Step.astro';
 import Steps from './molecules/Steps.astro';
@@ -36,6 +37,7 @@ export const MDX_COMPONENTS = {
   GraphDiagram,
   GridDiagram,
   ListDiagram,
+  PracticeProblems,
   ProsCons,
   Step,
   Steps,
