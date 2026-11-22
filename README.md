@@ -5,6 +5,15 @@
 
 A study repository of data structures and algorithms: 153 topics, each with an explanation and an implementation with unit tests in Python, C++ and Go. A companion web site, [DSA Playground](https://snykk.github.io/dsa-playground/), shows every topic as an article with the code side by side and animates every one of them step by step.
 
+<p>
+  <a href="https://snykk.github.io/dsa-playground/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/images/site-dark.png">
+      <img src="docs/images/site-light.png" width="880" alt="The Quick Sort page of DSA Playground: the player is stopped halfway through partitioning around the pivot 19, with the step caption and the playback controls below it.">
+    </picture>
+  </a>
+</p>
+
 ## What Is Here
 
 | Area | Topics | What it covers |
