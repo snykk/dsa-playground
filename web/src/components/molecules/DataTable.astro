@@ -146,4 +146,10 @@ const yesNo = (cell: string): 'yes' | 'no' | undefined => (/^yes\b/i.test(cell) 
     font-size: 14px;
     color: var(--text-3);
   }
+  /* A scrolling box cannot be split across pages: on paper the table runs on between rows. */
+  @media print {
+    .scroll {
+      overflow: visible;
+    }
+  }
 </style>
