@@ -91,7 +91,9 @@ All three take an adjacency matrix. Greedy coloring and DSatur are not implement
 ## Practice Problems
 
 - [Is Graph Bipartite? (LeetCode 785)](https://leetcode.com/problems/is-graph-bipartite/)
-- [Possible Bipartition (LeetCode 886)](https://leetcode.com/problems/possible-bipartition/)
+- [Flower Planting With No Adjacent (LeetCode 1042)](https://leetcode.com/problems/flower-planting-with-no-adjacent/)
+- [RGB Coloring 2 (AtCoder ABC 199 D)](https://atcoder.jp/contests/abc199/tasks/abc199_d)
+- [Coloring Graphs (Kattis coloring)](https://open.kattis.com/problems/coloring)
 
 ## Related
 

@@ -238,3 +238,14 @@ For inserts both red-black and AVL trees need at most one single or double rotat
     Each duplicate becomes a separate node, so `size()` counts it and the inorder traversal lists it. `search` only reports whether at least one copy exists.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Validate Binary Search Tree', site: 'LeetCode 98', url: 'https://leetcode.com/problems/validate-binary-search-tree/', idea: 'Every red-black tree is a BST first. Write the ordering check, then extend the same recursion to compare black heights.' },
+    { name: 'My Calendar I', site: 'LeetCode 729', url: 'https://leetcode.com/problems/my-calendar-i/', idea: 'Insert-only, so a tree without delete is enough, once it can find the neighbours of a key.' },
+    { name: 'Contains Duplicate III', site: 'LeetCode 220', url: 'https://leetcode.com/problems/contains-duplicate-iii/', idea: 'A sliding window needs delete as well. Library ordered sets have it: Java `TreeSet` is a red-black tree, and C++ `std::set` usually is.' },
+    { name: 'Sliding Window Median', site: 'CSES 1076', url: 'https://cses.fi/problemset/task/1076', idea: 'Two ordered multisets, one per half of the window, with one insert and one delete per step.' },
+  ]}
+/>

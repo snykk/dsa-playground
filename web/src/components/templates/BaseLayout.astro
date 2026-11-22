@@ -1,13 +1,17 @@
 ---
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import { joinBase } from '../../lib/repo';
+import { areaOf, OG_HEIGHT, OG_WIDTH, ogImagePath } from '../../lib/og';
+import { getContent, joinBase } from '../../lib/repo';
 import '@fontsource-variable/atkinson-hyperlegible-next/wght.css';
+// The body font's Latin file, the same asset wght.css points to; preloaded below.
+import bodyFont from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 import '../../styles/base.css';
 import '../../styles/layout.css';
 import '../../styles/prose.css';
 import '../../styles/tokens.css';
 import TableOfContents from '../molecules/TableOfContents.astro';
+import SearchDialog from '../organisms/SearchDialog.astro';
 import Sidebar from '../organisms/Sidebar.astro';
 import SiteFooter from '../organisms/SiteFooter.astro';
 import SiteHeader from '../organisms/SiteHeader.astro';
@@ -34,6 +38,15 @@ const tocItems = toc.filter((h) => h.depth === 2 || h.depth === 3);
 const showToc = tocItems.length > 2;
 const pageTitle = title === 'DSA Playground' ? title : `${title} ${String.fromCodePoint(0xb7)} DSA Playground`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+// Link previews: every page has a card named after its slug (src/pages/og/[...slug].png.ts);
+// the home and 404 pages share the home card. The index pages are websites, the rest articles.
+const ogImage = new URL(`${joinBase(base, '')}${ogImagePath(currentSlug)}`, Astro.site);
+const ogType = currentSlug && currentSlug !== 'visualizations' ? 'article' : 'website';
+// Where the page sits: the card alt text names it, and so do search results (Pagefind reads it
+// from the head, see SearchDialog).
+const node = currentSlug ? getContent().bySlug.get(currentSlug) : undefined;
+const area = node ? areaOf(node) : '';
+const ogAlt = title === 'DSA Playground' ? title : `${title}${area ? ` (${area})` : ''}, DSA Playground`;
 ---
 
 <!doctype html>
@@ -44,9 +57,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <!-- Fetched with the page rather than after the stylesheet, so text does not reflow when it arrives. -->
+    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href={`${joinBase(base, '')}favicon.svg`} />
+    <link rel="sitemap" href={`${joinBase(base, '')}sitemap-index.xml`} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="DSA Playground" />
+    <meta property="og:url" content={canonical} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(OG_WIDTH)} />
+    <meta property="og:image:height" content={String(OG_HEIGHT)} />
+    <meta property="og:image:alt" content={ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {area && <meta name="dsa-area" data-pagefind-meta="area[content]" content={area} />}
     <script is:inline>
       (() => {
         try {
@@ -75,5 +101,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       </div>
       {showToc && <TableOfContents headings={tocItems} />}
     </div>
+    <SearchDialog />
+    <script>
+      import { syncScrollStop } from '../../viz/ui/scrollStop';
+
+      // Wide tables and diagrams scroll sideways inside their own box; while one hides content,
+      // it takes a tab stop so a keyboard can scroll it (see scrollStop).
+      const SCROLL_BOXES = '.data-table > .scroll, .table-wrap, .dg-stage, .cells-scroll';
+      const boxes = document.querySelectorAll<HTMLElement>(SCROLL_BOXES);
+      if (boxes.length > 0 && typeof ResizeObserver === 'function') {
+        const observer = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            const box = entry.target.closest<HTMLElement>(SCROLL_BOXES);
+            if (box) syncScrollStop(box);
+          }
+        });
+        // The box and its content: either can change width (a resize, a late font).
+        for (const box of boxes) {
+          observer.observe(box);
+          if (box.firstElementChild) observer.observe(box.firstElementChild);
+        }
+      }
+    </script>
   </body>
 </html>

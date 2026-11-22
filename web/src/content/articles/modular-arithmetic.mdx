@@ -214,3 +214,14 @@ The inverse costs one extended Euclid, which takes a logarithmic number of divis
     Yes for addition, subtraction, multiplication and powers. That is exactly the compatibility rule, and reducing early only keeps the numbers small.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Count All Valid Pickup and Delivery Options', site: 'LeetCode 1359', url: 'https://leetcode.com/problems/count-all-valid-pickup-and-delivery-options/', idea: 'A product formula that overflows at once: reduce modulo 10^9 + 7 after every multiplication.' },
+    { name: 'Modular Arithmetic', site: 'Kattis modulararithmetic', url: 'https://open.kattis.com/problems/modulararithmetic', idea: 'Add, subtract, multiply and divide modulo n up to 10^18: division needs an inverse that may not exist, and products need 128 bits.' },
+    { name: 'Binomial Coefficients', site: 'CSES 1079', url: 'https://cses.fi/problemset/task/1079', idea: 'Precompute factorials and their inverses modulo 10^9 + 7 once, then answer each of 10^5 queries in O(1).' },
+    { name: 'Creating Strings II', site: 'CSES 1715', url: 'https://cses.fi/problemset/task/1715', idea: 'Divide n! by the factorial of each letter count: division modulo a prime is multiplication by an inverse.' },
+  ]}
+/>

@@ -209,3 +209,14 @@ Enqueue is amortized O(1) because an append occasionally reallocates the array a
     Peek returns the front item and leaves it in the queue. Dequeue returns it and removes it.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Number of Recent Calls', site: 'LeetCode 933', url: 'https://leetcode.com/problems/number-of-recent-calls/', idea: 'A FIFO window over time: enqueue every ping and dequeue the ones older than 3000 ms.' },
+    { name: 'Implement Queue using Stacks', site: 'LeetCode 232', url: 'https://leetcode.com/problems/implement-queue-using-stacks/', idea: 'Build FIFO order out of two LIFO stacks, with amortized O(1) per operation.' },
+    { name: 'Implement Stack using Queues', site: 'LeetCode 225', url: 'https://leetcode.com/problems/implement-stack-using-queues/', idea: 'The reverse exercise: rotate the queue so that the newest item reaches the front.' },
+    { name: 'Binary Tree Level Order Traversal', site: 'LeetCode 102', url: 'https://leetcode.com/problems/binary-tree-level-order-traversal/', idea: 'Breadth-first search: the queue holds one level of the tree, and its size at the start of a round says where that level ends.' },
+  ]}
+/>

@@ -200,3 +200,14 @@ In Python the numbers grow with `M`, so each operation on them costs more than a
     It returns 0, the solution modulo 1.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Chinese Remainder', site: 'Kattis chineseremainder', url: 'https://open.kattis.com/problems/chineseremainder', idea: 'Two congruences with coprime moduli up to 10^9: the combined modulus reaches 10^18, so multiply in 128 bits.' },
+    { name: 'Chinese Remainder Theorem (non-relatively prime moduli)', site: 'Kattis generalchineseremainder', url: 'https://open.kattis.com/problems/generalchineseremainder', idea: 'Moduli that share factors: a solution exists only when the remainders agree modulo the gcd, and it is unique modulo the lcm.' },
+    { name: 'Remainders Game', site: 'Codeforces 687B', url: 'https://codeforces.com/problemset/problem/687/B', idea: 'Knowing x modulo every c_i determines x modulo their lcm; decide whether that pins down x modulo k.' },
+    { name: 'Oversleeping', site: 'AtCoder ABC 193 E', url: 'https://atcoder.jp/contests/abc193/tasks/abc193_e', idea: 'Try every pair of offsets inside the two short windows, solve each pair of congruences with non-coprime moduli, and keep the earliest time.' },
+  ]}
+/>

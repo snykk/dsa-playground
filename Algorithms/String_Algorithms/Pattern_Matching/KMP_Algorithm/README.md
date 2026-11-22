@@ -90,11 +90,11 @@ In the search, `i` only increases, `j` grows at most `n` times in total and each
 
 ## Practice Problems
 
-- [LeetCode 28: Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
-- [LeetCode 459: Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/)
-- [LeetCode 1392: Longest Happy Prefix](https://leetcode.com/problems/longest-happy-prefix/)
-- [LeetCode 214: Shortest Palindrome](https://leetcode.com/problems/shortest-palindrome/)
-- [CSES: String Matching](https://cses.fi/problemset/task/1753)
+- [Find the Index of the First Occurrence in a String (LeetCode 28)](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+- [Repeated Substring Pattern (LeetCode 459)](https://leetcode.com/problems/repeated-substring-pattern/)
+- [Longest Happy Prefix (LeetCode 1392)](https://leetcode.com/problems/longest-happy-prefix/)
+- [String Matching (CSES 1753)](https://cses.fi/problemset/task/1753)
+- [Shortest Palindrome (LeetCode 214)](https://leetcode.com/problems/shortest-palindrome/)
 
 ## Related
 

@@ -65,7 +65,7 @@
   fill: var(--text);
 }
 .ring-buffer .rb-item .rb-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 11px;
   text-anchor: start;
 }
@@ -77,9 +77,6 @@
 .ring-buffer .rb-index {
   fill: var(--text-3);
   font-size: 11px;
-}
-.ring-buffer .rb-parking {
-  opacity: 0.7;
 }
 .ring-buffer .rb-list-label {
   fill: var(--text-2);
@@ -97,7 +94,7 @@
   stroke-width: 4px;
 }
 .ring-buffer .rb-ptr:not(.role-idle) text {
-  fill: var(--role);
+  fill: var(--role-text);
 }
 .ring-buffer .rb-ptr line {
   stroke: var(--viz-neutral);

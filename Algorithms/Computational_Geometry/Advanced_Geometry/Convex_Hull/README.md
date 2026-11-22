@@ -97,8 +97,11 @@ Each version returns a new list: counterclockwise, Graham starting at the bottom
 
 ## Practice Problems
 
+- [Convex Hull (Kattis convexhull)](https://open.kattis.com/problems/convexhull)
+- [Convex Hull (CSES 2195)](https://cses.fi/problemset/task/2195)
 - [Erect the Fence (LeetCode 587)](https://leetcode.com/problems/erect-the-fence/)
-- [Convex Hull (CSES)](https://cses.fi/problemset/task/2195)
+- [Board Wrapping (Kattis wrapping)](https://open.kattis.com/problems/wrapping)
+- [Polygons (Codeforces 166B)](https://codeforces.com/problemset/problem/166/B)
 
 ## Related
 

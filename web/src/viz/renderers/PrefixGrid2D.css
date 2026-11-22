@@ -13,7 +13,7 @@
   stroke-width: 4px;
 }
 .ok-svg .pg-sign.minus {
-  fill: var(--viz-bad);
+  fill: var(--viz-bad-text);
 }
 /* A block frame: role-coloured outline over a faint fill; it glides to a new size. */
 .ok-svg .pg-overlay rect {
@@ -35,7 +35,7 @@
 }
 .ok-svg .pg-overlay-label {
   text-anchor: start;
-  fill: var(--role);
+  fill: var(--role-text);
   font-family: var(--font-mono);
   font-size: 11.5px;
   font-weight: 700;

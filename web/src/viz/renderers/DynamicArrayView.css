@@ -41,7 +41,7 @@
   color: var(--text-3);
 }
 .dyn-block:not(.role-idle):not(.role-muted) .dyn-name strong {
-  color: var(--role);
+  color: var(--role-text);
 }
 
 .dyn-indices,
@@ -75,7 +75,7 @@
   white-space: nowrap;
 }
 .dyn-marker:not(.role-idle):not(.role-muted) span {
-  color: var(--role);
+  color: var(--role-text);
 }
 
 .dyn-note {

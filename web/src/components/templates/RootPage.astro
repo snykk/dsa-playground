@@ -12,13 +12,15 @@ import ArticleHeader from '../organisms/ArticleHeader.astro';
 import CategoryContents from '../organisms/CategoryContents.astro';
 import KeyFacts from '../organisms/KeyFacts.astro';
 import RelatedTopics from '../organisms/RelatedTopics.astro';
+import StudyProgress from '../organisms/StudyProgress.astro';
 import BaseLayout from './BaseLayout.astro';
 
 /**
  * Page for a repository-root document with a hand-written article (src/content/pages): the
  * overview (README.md) or the study guide (STUDY_GUIDE.md). Same look as a category overview:
  * header with the repository's totals, key facts, the top-level areas when the page lists
- * them, the MDX body (the slot) and related pages. Other root documents use DocPage.
+ * them, the MDX body (the slot) and related pages. Other root documents use DocPage. The study
+ * guide also shows the reader's progress through its topic lists.
  */
 interface Props {
   doc: StandaloneDoc;
@@ -42,10 +44,11 @@ const stats = [
 const listsAreas = page.contents.length > 0;
 const toc: MarkdownHeading[] = [...(listsAreas ? [{ depth: 2, slug: 'areas', text: 'The areas' }] : []), ...headings];
 const section = doc.slug === 'overview' || doc.slug === 'study-guide' ? doc.slug : undefined;
+const tracksProgress = doc.slug === 'study-guide';
 ---
 
 <BaseLayout title={page.title} description={page.lead} currentSlug={doc.slug} toc={toc} section={section}>
-  <article class="article">
+  <article class="article" data-pagefind-body>
     <ArticleHeader
       source={githubUrl(doc.rel, false)}
       title={page.title}
@@ -56,14 +59,15 @@ const section = doc.slug === 'overview' || doc.slug === 'study-guide' ? doc.slug
       hasViz={hasViz}
     />
     {page.facts.length > 0 && <KeyFacts facts={page.facts} />}
+    {tracksProgress && <StudyProgress />}
     {listsAreas && <CategoryContents node={root} contents={page.contents} heading="The areas" id="areas" />}
     <div class="article-body">
       <slot />
     </div>
     <RelatedTopics title="Related" topics={page.related} />
-    <p class="article-foot">
+    <p class="article-foot" data-pagefind-ignore>
       Spotted a mistake or something unclear?
-      <a href={githubUrl(doc.rel, false)} target="_blank" rel="noopener noreferrer">See the source on GitHub</a>.
+      <a href={githubUrl(doc.rel, false)} target="_blank" rel="noopener noreferrer">See the source on GitHub<span class="visually-hidden"> (opens in a new tab)</span></a>.
     </p>
   </article>
 </BaseLayout>

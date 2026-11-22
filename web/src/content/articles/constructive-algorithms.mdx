@@ -195,3 +195,15 @@ Space is the output plus small helpers. The verifier is usually as cheap as the 
     Nothing special: it assumes non-negative row and column sums. With equal totals, the north-west corner rule always fills it.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Permutations', site: 'CSES 1070', url: 'https://cses.fi/problemset/task/1070', idea: "No two neighbors may differ by 1: the article's pattern of even numbers first, then odd ones, with no solution for n = 2 and 3." },
+    { name: 'Beautiful Arrangement II', site: 'LeetCode 667', url: 'https://leetcode.com/problems/beautiful-arrangement-ii/', idea: 'Exactly k distinct differences: a zig-zag over the first k + 1 numbers, then the rest in order.' },
+    { name: 'Reorganize String', site: 'LeetCode 767', url: 'https://leetcode.com/problems/reorganize-string/', idea: 'Fill the even positions first, starting with the most frequent letter, then the odd ones; it is impossible when one letter needs more than half the places.' },
+    { name: 'Inverse Inversions', site: 'CSES 2214', url: 'https://cses.fi/problemset/task/2214', idea: 'Exactly k inversions for n up to 10^6: place the numbers one by one so that each creates as many of the inversions still needed as it can.' },
+    { name: 'Monotone Subsequences', site: 'CSES 2215', url: 'https://cses.fi/problemset/task/2215', idea: 'Increasing blocks of decreasing runs bound both kinds of monotone subsequence; Erdos-Szekeres shows it is impossible when k * k < n.' },
+  ]}
+/>

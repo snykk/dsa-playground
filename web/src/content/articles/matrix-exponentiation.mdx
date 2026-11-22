@@ -221,3 +221,15 @@ For the triangle graph (three vertices, all joined), the repository gives A<sup>
     They return the same results. The iterative `matrix_power_iterative` uses no recursion stack; the recursive `matrix_power` is shorter and uses O(log k) stack, which is the reason `fibonacci_matrix` is O(log n) in space rather than O(1).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'N-th Tribonacci Number', site: 'LeetCode 1137', url: 'https://leetcode.com/problems/n-th-tribonacci-number/', idea: 'Warm up with a 3 x 3 matrix; n is only 37, so check the power against the plain loop.' },
+    { name: 'Fibonacci Numbers', site: 'CSES 1722', url: 'https://cses.fi/problemset/task/1722', idea: 'The 2 x 2 Fibonacci matrix raised to an n of up to 10^18, modulo 10^9 + 7.' },
+    { name: 'Throwing Dice', site: 'CSES 1096', url: 'https://cses.fi/problemset/task/1096', idea: 'A recurrence of order 6, since each throw adds 1 to 6: put it in a 6 x 6 matrix and raise it to n up to 10^18.' },
+    { name: 'Graph Paths I', site: 'CSES 1723', url: 'https://cses.fi/problemset/task/1723', idea: 'The k-th power of the adjacency matrix counts the walks with exactly k edges, for k up to 10^9.' },
+    { name: 'Graph Paths II', site: 'CSES 1724', url: 'https://cses.fi/problemset/task/1724', idea: 'Replace + and * with min and + in the matrix product: the k-th power then holds the shortest walk with exactly k edges.' },
+  ]}
+/>

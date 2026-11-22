@@ -79,7 +79,7 @@
   opacity: 0.45;
 }
 .qs-bars .qs-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 15px;
   font-weight: 700;
 }

@@ -224,3 +224,15 @@ In a directed graph, DFS sorts every edge into one of four classes by comparing 
     A path from start to target that follows DFS order, not necessarily the shortest one. It returns `[start]` when they are equal and `None` (Python) or an empty list or vector (C++ and Go) when the target is unreachable.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Number of Islands', site: 'LeetCode 200', url: 'https://leetcode.com/problems/number-of-islands/', idea: 'Flood fill: each DFS from an unvisited land cell marks one whole island.' },
+    { name: 'Clone Graph', site: 'LeetCode 133', url: 'https://leetcode.com/problems/clone-graph/', idea: 'DFS with a map from each original node to its copy, so a node is cloned once even when a cycle leads back to it.' },
+    { name: 'Building Teams', site: 'CSES 1668', url: 'https://cses.fi/problemset/task/1668', idea: 'Two-color every component during the DFS; an edge between two equal colors means IMPOSSIBLE.' },
+    { name: 'Round Trip', site: 'CSES 1669', url: 'https://cses.fi/problemset/task/1669', idea: 'A cycle in an undirected graph: an edge to a visited vertex other than the parent closes one, and the parent links print it.' },
+    { name: 'Round Trip II', site: 'CSES 1678', url: 'https://cses.fi/problemset/task/1678', idea: 'A cycle in a directed graph needs three colors: only an edge to a vertex still on the stack closes a cycle.' },
+  ]}
+/>

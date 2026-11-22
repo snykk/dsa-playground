@@ -107,8 +107,9 @@ Linear probing needs a < 1 and degrades fast near 1, so real tables stay below r
 
 ## Practice Problems
 
-- [LeetCode 705 - Design HashSet](https://leetcode.com/problems/design-hashset/)
-- [LeetCode 706 - Design HashMap](https://leetcode.com/problems/design-hashmap/)
+- [Design HashSet (LeetCode 705)](https://leetcode.com/problems/design-hashset/)
+- [Design HashMap (LeetCode 706)](https://leetcode.com/problems/design-hashmap/)
+- [Hash it! (SPOJ HASHIT)](https://www.spoj.com/problems/HASHIT/)
 
 ## Related
 

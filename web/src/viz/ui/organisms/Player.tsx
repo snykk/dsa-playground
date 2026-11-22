@@ -1,17 +1,21 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { InputError, type AnyVizSpec, type Frame } from '../../core/types';
 import { usePlayback } from '../hooks/usePlayback';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { captionLive } from '../live';
 import { AlgorithmTabs } from '../molecules/AlgorithmTabs';
 import { InputPanel } from '../molecules/InputPanel';
 import { Legend } from '../molecules/Legend';
 import { PseudocodePanel, StatePanel } from '../molecules/Panels';
+import { ShortcutsDialog } from '../molecules/ShortcutsDialog';
 import { TransportControls } from '../molecules/TransportControls';
 import '../roles.css';
-import { SYM } from '../symbols';
+import { browserClipboard, buildStepLink, copyText, readStepLink } from '../share';
 import './Player.css';
 
 interface Run {
+  /** The input text this run was traced from. */
+  input: string;
   frames: Array<Frame<unknown>>;
   error: string | null;
 }
@@ -19,17 +23,31 @@ interface Run {
 function runTrace(spec: AnyVizSpec, text: string): Run {
   try {
     const frames = spec.trace(spec.parse(text)) as Array<Frame<unknown>>;
-    return frames.length ? { frames, error: null } : { frames, error: 'Nothing to show for this input.' };
+    return frames.length ? { input: text, frames, error: null } : { input: text, frames, error: 'Nothing to show for this input.' };
   } catch (e) {
-    return { frames: [], error: e instanceof InputError ? e.message : `Unexpected error: ${(e as Error).message}` };
+    return { input: text, frames: [], error: e instanceof InputError ? e.message : `Unexpected error: ${(e as Error).message}` };
   }
 }
 
-/** ?step=N (1-based) opens the first run at a given step, so a moment can be linked to. */
-function stepFromUrl(): number {
-  const n = Number(new URLSearchParams(window.location.search).get('step'));
-  return Number.isInteger(n) && n > 0 ? n - 1 : 0;
+/** The input a visualization opens with: its first example, else a random one. */
+function defaultInput(spec: AnyVizSpec): string {
+  return spec.examples[0]?.value ?? spec.randomInput();
 }
+
+/**
+ * The first run. A step link (see ../share: ?viz=ID&step=N&input=...) picks the tab, the input
+ * and the step; a link input that no longer parses falls back to the default input.
+ */
+function firstRun(specs: AnyVizSpec[], fromUrl: boolean) {
+  const link = fromUrl && typeof window !== 'undefined' ? readStepLink(window.location.search, specs.map((s) => s.id)) : undefined;
+  const tab = link?.tab ?? 0;
+  const spec = specs[tab];
+  const linked = link?.input !== undefined ? runTrace(spec, link.input) : undefined;
+  const run = linked && !linked.error ? linked : runTrace(spec, defaultInput(spec));
+  return { tab, run, index: link?.index ?? 0 };
+}
+
+const STATUS_MS = 2500;
 
 export interface PlayerProps {
   specs: AnyVizSpec[];
@@ -48,13 +66,25 @@ export interface PlayerProps {
 export function Player({ specs, autoplay = false, loop = false, compact = false }: PlayerProps) {
   const uid = useId();
   const reducedMotion = useReducedMotion();
-  const [active, setActive] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const linkButtonRef = useRef<HTMLButtonElement>(null);
+  const manualLinkRef = useRef<HTMLInputElement>(null);
+  // Teasers start from the beginning whatever the URL says.
+  const [first] = useState(() => firstRun(specs, !autoplay && !compact));
+  const [active, setActive] = useState(first.tab);
   const spec = specs[active];
-  const [text, setText] = useState(() => spec.examples[0]?.value ?? spec.randomInput());
-  const [run, setRun] = useState<Run>(() => runTrace(spec, text));
-  const [error, setError] = useState<string | null>(run.error);
-  const playback = usePlayback(run.frames.length, autoplay ? 0 : stepFromUrl());
+  const [text, setText] = useState(first.run.input);
+  const [run, setRun] = useState<Run>(first.run);
+  const [error, setError] = useState<string | null>(first.run.error);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const opener = useRef<HTMLElement | null>(null);
+  const [status, setStatus] = useState('');
+  const [manualLink, setManualLink] = useState<string | null>(null);
+  const playback = usePlayback(run.frames.length, first.index, openShortcuts);
   const frame = run.frames[playback.index];
+  const tabbed = !compact && specs.length > 1;
+  const panelId = `${uid}-panel`;
 
   /** Trace `input` with `target`; on bad input keep the previous run and show the error. */
   function load(target: AnyVizSpec, input: string) {
@@ -68,7 +98,7 @@ export function Player({ specs, autoplay = false, loop = false, compact = false 
   function switchTo(i: number) {
     if (i === active) return;
     const next = specs[i];
-    const input = next.inputKind === spec.inputKind ? text : (next.examples[0]?.value ?? next.randomInput());
+    const input = next.inputKind === spec.inputKind ? text : defaultInput(next);
     setActive(i);
     setText(input);
     const result = runTrace(next, input);
@@ -76,6 +106,52 @@ export function Player({ specs, autoplay = false, loop = false, compact = false 
     setError(result.error);
     playback.reset(0);
   }
+
+  function openShortcuts() {
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setShortcutsOpen(true);
+  }
+
+  function closeShortcuts() {
+    setShortcutsOpen(false);
+    const back = opener.current?.isConnected ? opener.current : stageRef.current;
+    back?.focus({ preventScroll: true });
+  }
+
+  /** Show a short status; clearing it first makes a repeated message speak again. */
+  function announce(message: string) {
+    setStatus('');
+    window.setTimeout(() => setStatus(message), 60);
+  }
+
+  async function copyLink() {
+    const link = buildStepLink(window.location.href, {
+      index: playback.index,
+      viz: specs.length > 1 ? spec.id : undefined,
+      input: spec.examples[0] && run.input === spec.examples[0].value ? undefined : run.input,
+      anchor: rootRef.current?.closest('[id]')?.id || undefined,
+    });
+    if (await copyText(link, browserClipboard())) {
+      setManualLink(null);
+      announce('Link copied');
+    } else {
+      // No clipboard: hand over the link in a field, selected, for the reader to copy.
+      setManualLink(link);
+      announce('Copy the link below');
+    }
+  }
+
+  // A link handed over in a field arrives selected, ready to copy.
+  useEffect(() => {
+    manualLinkRef.current?.focus({ preventScroll: true });
+    manualLinkRef.current?.select();
+  }, [manualLink]);
+
+  useEffect(() => {
+    if (!status) return undefined;
+    const id = window.setTimeout(() => setStatus(''), STATUS_MS);
+    return () => window.clearTimeout(id);
+  }, [status]);
 
   useEffect(() => {
     if (autoplay && !reducedMotion && run.frames.length > 1) playback.play();
@@ -94,10 +170,8 @@ export function Player({ specs, autoplay = false, loop = false, compact = false 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loop, reducedMotion, playback.playing, playback.index, playback.last, run]);
 
-  return (
-    <div className={`viz${compact ? ' viz-compact' : ''}`} onKeyDown={playback.onKeyDown}>
-      {!compact && specs.length > 1 && <AlgorithmTabs titles={specs.map((s) => s.title)} active={active} onSelect={switchTo} />}
-
+  const body = (
+    <>
       {!compact && (
         <InputPanel
           id={`${uid}-input`}
@@ -116,13 +190,19 @@ export function Player({ specs, autoplay = false, loop = false, compact = false 
         />
       )}
 
-      <div className="viz-stage" tabIndex={0} role="group" aria-label={`${spec.title} visualization. Space plays or pauses, arrow keys step.`}>
+      <div
+        ref={stageRef}
+        className="viz-stage"
+        tabIndex={0}
+        role="group"
+        aria-label={`${spec.title} visualization. Space plays or pauses, arrow keys step, question mark lists every shortcut.`}
+      >
         {frame ? spec.render(frame.state) : null}
       </div>
 
       <Legend entries={spec.legend} />
 
-      <p className="viz-caption" aria-live={autoplay ? 'off' : 'polite'}>
+      <p className="viz-caption" aria-live={captionLive(playback.playing, autoplay)}>
         {frame?.caption}
       </p>
 
@@ -135,7 +215,30 @@ export function Player({ specs, autoplay = false, loop = false, compact = false 
         onTogglePlay={playback.togglePlay}
         onSeek={playback.seek}
         onSpeed={playback.setSpeed}
+        onCopyLink={compact ? undefined : copyLink}
+        onShortcuts={compact ? undefined : openShortcuts}
+        status={status}
+        linkButtonRef={linkButtonRef}
       />
+
+      {manualLink && (
+        <div className="viz-manual-link">
+          <label htmlFor={`${uid}-link`}>Link to this step</label>
+          <div className="viz-input-row">
+            <input id={`${uid}-link`} readOnly value={manualLink} ref={manualLinkRef} onFocus={(e) => e.currentTarget.select()} />
+            <button
+              type="button"
+              className="viz-btn"
+              onClick={() => {
+                setManualLink(null);
+                linkButtonRef.current?.focus();
+              }}
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
 
       {!compact && (
         <>
@@ -143,11 +246,23 @@ export function Player({ specs, autoplay = false, loop = false, compact = false 
             <PseudocodePanel lines={spec.pseudocode} current={frame?.line} />
             <StatePanel vars={frame?.vars} complexity={spec.complexity} />
           </div>
-          <p className="viz-keys">
-            Keyboard: Space play/pause {SYM.middot} {SYM.leftArrow} {SYM.rightArrow} step {SYM.middot} Home/End jump
-          </p>
+          <p className="viz-keys">Space plays or pauses and the arrow keys step while the player has focus; press ? for every shortcut.</p>
         </>
       )}
+    </>
+  );
+
+  return (
+    <div ref={rootRef} className={`viz${compact ? ' viz-compact' : ''}`} onKeyDown={shortcutsOpen ? undefined : playback.onKeyDown}>
+      {tabbed && <AlgorithmTabs titles={specs.map((s) => s.title)} active={active} onSelect={switchTo} idBase={uid} panelId={panelId} />}
+      {tabbed ? (
+        <div id={panelId} role="tabpanel" aria-labelledby={`${uid}-tab-${active}`}>
+          {body}
+        </div>
+      ) : (
+        body
+      )}
+      <ShortcutsDialog id={`${uid}-keys`} open={shortcutsOpen} onClose={closeShortcuts} hasTabs={tabbed} hasInput={!compact} />
     </div>
   );
 }

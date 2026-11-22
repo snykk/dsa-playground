@@ -187,3 +187,14 @@ Growth rates, sorted. When the rate of two terms differs, the faster-growing ter
     `f = O(n)` says `f` is at most linear. `f = Theta(n)` says `f` is both at most and at least linear, so linear is its exact growth rate. See the Big-Theta article.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Contains Duplicate', site: 'LeetCode 217', url: 'https://leetcode.com/problems/contains-duplicate/', idea: 'With n up to 10^5, comparing all pairs (O(n^2), about 5 * 10^9 steps) times out, while sorting (O(n log n)) or a hash set (O(n)) passes.' },
+    { name: 'Distinct Numbers', site: 'CSES 1621', url: 'https://cses.fi/problemset/task/1621', idea: 'With n = 2 * 10^5 and a one-second limit: an O(n^2) check is about 2 * 10^10 steps and fails, while sorting and counting the changes is O(n log n).' },
+    { name: 'Sum of Two Values', site: 'CSES 1640', url: 'https://cses.fi/problemset/task/1640', idea: 'The O(n^2) pair scan times out at n = 2 * 10^5; sorting with two pointers, or a hash map, brings it to O(n log n) or O(n).' },
+    { name: 'Sort an Array', site: 'LeetCode 912', url: 'https://leetcode.com/problems/sort-an-array/', idea: 'The statement asks for O(n log n) without built-in sorts, and at n = 5 * 10^4 an O(n^2) sort needs about 2.5 * 10^9 steps and times out.' },
+  ]}
+/>

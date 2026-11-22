@@ -91,8 +91,12 @@ Space is O(n). The amortized proof uses the potential `Phi = trees + 2 * marked 
 
 ## Practice Problems
 
+- [Merge k Sorted Lists (LeetCode 23)](https://leetcode.com/problems/merge-k-sorted-lists/) - insert and extract-min only.
 - [Network Delay Time (LeetCode 743)](https://leetcode.com/problems/network-delay-time/) - Dijkstra, where a heap supplies the closest vertex.
-- [Dijkstra shortest paths (CSES Shortest Routes I)](https://cses.fi/problemset/task/1671) - the standard priority-queue shortest-path exercise.
+- [Shortest Routes I (CSES 1671)](https://cses.fi/problemset/task/1671) - the standard priority-queue shortest-path exercise.
+- [Min Cost to Connect All Points (LeetCode 1584)](https://leetcode.com/problems/min-cost-to-connect-all-points/) - Prim on a dense graph, the case decrease-key was made for.
+
+No judge needs a Fibonacci heap; a binary heap passes all of these.
 
 ## Related
 

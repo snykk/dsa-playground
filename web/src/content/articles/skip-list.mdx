@@ -235,3 +235,14 @@ This repository implements the plain set version for integer keys.
     `p = 0.5` is the usual default: about 2 pointers per key and about 2 moves per level. A smaller `p` saves memory and levels but takes more moves per level.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Design Linked List', site: 'LeetCode 707', url: 'https://leetcode.com/problems/design-linked-list/', idea: 'The bottom level of a skip list is a plain linked list: build and test that first.' },
+    { name: 'My Calendar I', site: 'LeetCode 729', url: 'https://leetcode.com/problems/my-calendar-i/', idea: 'A neighbour query on a sorted set: one search finds the bookings just before and just after the new one.' },
+    { name: 'Design Skiplist', site: 'LeetCode 1206', url: 'https://leetcode.com/problems/design-skiplist/', idea: 'The structure of this article, with duplicate keys allowed: random tower heights and a predecessor on every level for add and erase.' },
+    { name: 'Traffic Lights', site: 'CSES 1163', url: 'https://cses.fi/problemset/task/1163', idea: 'A sorted set of light positions finds the two neighbours of each new light in O(log n). The longest gap needs a second ordered structure.' },
+  ]}
+/>

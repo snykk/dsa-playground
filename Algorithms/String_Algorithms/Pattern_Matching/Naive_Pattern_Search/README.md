@@ -92,9 +92,10 @@ The `count` and `first` helpers run the full search and then take its length or 
 
 ## Practice Problems
 
-- [LeetCode 28: Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
-- [LeetCode 686: Repeated String Match](https://leetcode.com/problems/repeated-string-match/)
-- [LeetCode 459: Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/)
+- [Find the Index of the First Occurrence in a String (LeetCode 28)](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+- [Rotate String (LeetCode 796)](https://leetcode.com/problems/rotate-string/)
+- [String Matching in an Array (LeetCode 1408)](https://leetcode.com/problems/string-matching-in-an-array/)
+- [Repeated String Match (LeetCode 686)](https://leetcode.com/problems/repeated-string-match/)
 
 ## Related
 

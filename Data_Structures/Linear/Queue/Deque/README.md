@@ -92,10 +92,10 @@ Use a deque when you need both ends: sliding-window maximum with a monotonic que
 
 ## Practice Problems
 
-- LeetCode 641: Design Circular Deque.
-- LeetCode 239: Sliding Window Maximum.
-- LeetCode 1438: Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit.
-- LeetCode 1368: Minimum Cost to Make at Least One Valid Path in a Grid (0-1 BFS).
+- [Design Circular Deque (LeetCode 641)](https://leetcode.com/problems/design-circular-deque/)
+- [Sliding Window Maximum (LeetCode 239)](https://leetcode.com/problems/sliding-window-maximum/)
+- [Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit (LeetCode 1438)](https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
+- [Minimum Cost to Make at Least One Valid Path in a Grid (LeetCode 1368)](https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/) (0-1 BFS)
 
 ## Related
 

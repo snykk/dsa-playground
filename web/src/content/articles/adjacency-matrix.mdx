@@ -224,3 +224,14 @@ All three versions allocate a V &times; V table of numbers. Python stores 0/1 fo
     Not directly: one cell holds one value. Store a count or a list in each cell, or use an adjacency list.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Number of Provinces', site: 'LeetCode 547', url: 'https://leetcode.com/problems/number-of-provinces/', idea: 'The graph arrives as an adjacency matrix: scanning row i lists the neighbours of city i in O(V), O(V^2) for the whole graph.' },
+    { name: 'Maximal Network Rank', site: 'LeetCode 1615', url: 'https://leetcode.com/problems/maximal-network-rank/', idea: 'Try every pair of cities. Whether the two share a road is an O(1) matrix lookup, which is what keeps the pair loop at O(V^2).' },
+    { name: 'Find the City With the Smallest Number of Neighbors at a Threshold Distance', site: 'LeetCode 1334', url: 'https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/', idea: 'All-pairs shortest paths on at most 100 cities: Floyd-Warshall works directly on the weight matrix.' },
+    { name: 'Shortest Routes II', site: 'CSES 1672', url: 'https://cses.fi/problemset/task/1672', idea: 'At most 500 cities and 10^5 queries: fill a distance matrix once with Floyd-Warshall, then answer every query by lookup.' },
+  ]}
+/>

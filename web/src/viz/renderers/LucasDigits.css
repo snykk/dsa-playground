@@ -17,11 +17,11 @@
   font-weight: 700;
 }
 .ok-svg .lu-result.role-bad text {
-  fill: var(--viz-bad);
+  fill: var(--viz-bad-text);
   font-weight: 700;
 }
 .ok-svg .lu-table-title.role-bad {
-  fill: var(--viz-bad);
+  fill: var(--viz-bad-text);
 }
 .ok-svg .lu-table-title.role-good {
   fill: var(--text);

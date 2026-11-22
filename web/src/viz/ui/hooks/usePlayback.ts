@@ -1,4 +1,5 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
+import { commandForKey, elementKeepsKey } from '../keys';
 
 const BASE_DELAY_MS = 900;
 
@@ -17,10 +18,11 @@ export interface Playback {
 }
 
 /**
- * The player's clock: current frame, play/pause, speed and keyboard shortcuts
- * (Space play/pause, arrows step, Home/End jump). Knows nothing about algorithms.
+ * The player's clock: current frame, play/pause, speed and keyboard shortcuts (PLAYER_KEYS in
+ * ../keys: Space play/pause, arrows step, Home/End jump, ? calls `onHelp`). Knows nothing
+ * about algorithms.
  */
-export function usePlayback(frameCount: number, initialIndex = 0): Playback {
+export function usePlayback(frameCount: number, initialIndex = 0, onHelp?: () => void): Playback {
   const [index, setIndex] = useState(initialIndex);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -55,14 +57,14 @@ export function usePlayback(frameCount: number, initialIndex = 0): Playback {
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-    const tag = (e.target as HTMLElement).tagName;
-    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return; // fields keep their keys
-    if (tag === 'BUTTON' && (e.key === ' ' || e.key === 'Enter')) return; // buttons activate themselves
-    if (e.key === ' ') togglePlay();
-    else if (e.key === 'ArrowRight') step(1);
-    else if (e.key === 'ArrowLeft') step(-1);
-    else if (e.key === 'Home') step(-Infinity);
-    else if (e.key === 'End') step(Infinity);
+    if (elementKeepsKey(e.target as HTMLElement, e.key)) return; // fields keep their keys, buttons press
+    const command = commandForKey(e);
+    if (command === 'toggle') togglePlay();
+    else if (command === 'next') step(1);
+    else if (command === 'prev') step(-1);
+    else if (command === 'first') step(-Infinity);
+    else if (command === 'last') step(Infinity);
+    else if (command === 'help' && onHelp) onHelp();
     else return;
     e.preventDefault();
   };

@@ -90,12 +90,13 @@ Tree kinds: full (0 or 2 children), complete (filled left to right), perfect (al
 
 ## Practice Problems
 
-- LeetCode 94, Binary Tree Inorder Traversal.
-- LeetCode 144, Binary Tree Preorder Traversal.
-- LeetCode 145, Binary Tree Postorder Traversal.
-- LeetCode 102, Binary Tree Level Order Traversal.
-- LeetCode 104, Maximum Depth of Binary Tree.
-- LeetCode 226, Invert Binary Tree.
+- [Binary Tree Inorder Traversal (LeetCode 94)](https://leetcode.com/problems/binary-tree-inorder-traversal/)
+- [Binary Tree Preorder Traversal (LeetCode 144)](https://leetcode.com/problems/binary-tree-preorder-traversal/)
+- [Binary Tree Postorder Traversal (LeetCode 145)](https://leetcode.com/problems/binary-tree-postorder-traversal/)
+- [Binary Tree Level Order Traversal (LeetCode 102)](https://leetcode.com/problems/binary-tree-level-order-traversal/)
+- [Maximum Depth of Binary Tree (LeetCode 104)](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
+- [Invert Binary Tree (LeetCode 226)](https://leetcode.com/problems/invert-binary-tree/)
+- [Diameter of Binary Tree (LeetCode 543)](https://leetcode.com/problems/diameter-of-binary-tree/)
 
 ## Related
 

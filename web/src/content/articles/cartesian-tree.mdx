@@ -243,3 +243,14 @@ The height h depends on the data. Random data gives O(log n) in expectation. A s
     A treap is the Cartesian tree whose positions are the sorted keys and whose values are random priorities. Random priorities make a random shape with expected height O(log n).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Nearest Smaller Values', site: 'CSES 1645', url: 'https://cses.fi/problemset/task/1645', idea: 'The stack of the O(n) build on its own: once the larger values are popped, the item left on top is the nearest smaller value to the left.' },
+    { name: 'Maximum Binary Tree', site: 'LeetCode 654', url: 'https://leetcode.com/problems/maximum-binary-tree/', idea: 'The max version of this tree. Build it in O(n) with the stack instead of the O(n^2) recursion.' },
+    { name: 'Maximum Binary Tree II', site: 'LeetCode 998', url: 'https://leetcode.com/problems/maximum-binary-tree-ii/', idea: 'Append one value to the array behind a max Cartesian tree: like one step of the stack build, it can only land on the right spine.' },
+    { name: 'Largest Rectangle in Histogram', site: 'LeetCode 84', url: 'https://leetcode.com/problems/largest-rectangle-in-histogram/', idea: 'The widest rectangle of each bar spans the range in which that bar is the minimum, its subtree in the Cartesian tree, and the build stack finds all of them in O(n).' },
+  ]}
+/>

@@ -169,7 +169,7 @@
   stroke-width: 1.5;
 }
 .fft-view .fv-cell .fv-glyph text {
-  fill: var(--role);
+  fill: var(--role-text);
   font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;

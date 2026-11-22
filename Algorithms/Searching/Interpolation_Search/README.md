@@ -93,8 +93,9 @@ Do not use it on skewed or clustered data, on small arrays (the arithmetic costs
 
 ## Practice Problems
 
-- [Binary Search (LeetCode 704)](https://leetcode.com/problems/binary-search/) - implement the baseline, then try interpolation on the same input.
+- [Binary Search (LeetCode 704)](https://leetcode.com/problems/binary-search/)
 - [Search Insert Position (LeetCode 35)](https://leetcode.com/problems/search-insert-position/)
+- [Search a 2D Matrix (LeetCode 74)](https://leetcode.com/problems/search-a-2d-matrix/)
 
 ## Related
 

@@ -231,7 +231,6 @@ The **curse of dimensionality**: with many dimensions the plane test rarely prun
 - **Spatial search:** nearest store or point of interest to a location.
 - **k-NN classification and graphics:** neighbour lookups on low-dimensional features, collision queries, photon mapping.
 - **Computational geometry:** closest points, range counting on point sets.
-- **Practice:** LeetCode 973 (K Closest Points to Origin) can be solved with a K-D tree, though a heap or quickselect is the usual answer.
 
 ## Common mistakes
 
@@ -259,3 +258,15 @@ The **curse of dimensionality**: with many dimensions the plane test rarely prun
     Almost every point is nearly as far away as the nearest, so the plane test rarely rules out a subtree, and the search visits most of the tree.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+No judge problem needs a K-D tree, but these exercise its two queries on real inputs.
+
+<PracticeProblems
+  problems={[
+    { name: 'K Closest Points to Origin', site: 'LeetCode 973', url: 'https://leetcode.com/problems/k-closest-points-to-origin/', idea: 'The k nearest neighbours of one query point: extend `nearest` with a bounded max heap of the k best. A heap or quickselect alone is the usual answer.' },
+    { name: 'Queries on Number of Points Inside a Circle', site: 'LeetCode 1828', url: 'https://leetcode.com/problems/queries-on-number-of-points-inside-a-circle/', idea: 'A `range_search` over the bounding square of each circle, then a distance check on every hit. The limits are small enough for brute force too.' },
+    { name: 'Minimum Euclidean Distance', site: 'CSES 2194', url: 'https://cses.fi/problemset/task/2194', idea: 'One nearest-neighbour query per point, skipping the point itself. The tree has no worst-case guarantee here; a sweep line or divide and conquer is the safe solution.' },
+  ]}
+/>

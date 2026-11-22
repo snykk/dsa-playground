@@ -13,7 +13,7 @@
   --surface-3: #e3e8ef;
   --text: #1c2230;
   --text-2: #4a5468;
-  --text-3: #6b7487;
+  --text-3: #5c6578;
   --border: rgba(28, 34, 48, 0.1);
   --border-strong: rgba(28, 34, 48, 0.2);
   --grid: #e1e6ed;
@@ -21,16 +21,33 @@
   --link: #2457c2;
   --accent: #2a5fd0;
   --accent-soft: #dce6fa;
+  /* The accent as text (step numbers, counters): 4.5:1 on every surface, accent-soft included. */
+  --accent-text: #2a5fd0;
   --focus: #2a5fd0;
   --shadow: 0 1px 2px rgba(28, 34, 48, 0.05), 0 8px 24px rgba(28, 34, 48, 0.06);
 
   --viz-neutral: #8a93a3;
-  --viz-compare: #2a78d6;
-  --viz-active: #eb6834;
-  --viz-done: #1baf7a;
+  --viz-compare: #2875d2;
+  --viz-active: #e9642f;
+  --viz-done: #17a06e;
   --viz-good: #0ca30c;
   --viz-bad: #d03b3b;
+  /* Text drawn on a role fill. White reads on the deep fills (bad; compare in light), the
+   * dark ink on the bright ones; roles.css picks the ink for each role. Every pair is at least
+   * 4.5:1, and every fill at least 3:1 against the stage. */
   --viz-ink-on-fill: #ffffff;
+  --viz-ink-on-deep: #ffffff;
+  --viz-ink-on-bright: #10141b;
+  --viz-ink-on-compare: #ffffff;
+  /* A role colour as text (a pointer's name, a label or a check mark beside a shape): a shade
+   * of the role that reads at 4.5:1 on the stage, the page and the tinted bands (lighter in the
+   * dark theme). roles.css sets --role-text from these. */
+  --viz-neutral-text: #5c6578;
+  --viz-compare-text: #226bc4;
+  --viz-active-text: #b84c1c;
+  --viz-done-text: #0f7c55;
+  --viz-good-text: #077007;
+  --viz-bad-text: #c33535;
   --viz-surface: #ffffff;
 
   --font-sans: 'Atkinson Hyperlegible Next Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -39,7 +56,8 @@
   --radius: 10px;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Dark tokens apply on screen only: a page always prints in the light theme. */
+@media screen and (prefers-color-scheme: dark) {
   :root:where(:not([data-theme='light'])) {
     color-scheme: dark;
     --bg: #10141b;
@@ -48,7 +66,7 @@
     --surface-3: #252d3b;
     --text: #e6eaf2;
     --text-2: #a6b0c3;
-    --text-3: #8a94a8;
+    --text-3: #939db1;
     --border: rgba(230, 234, 242, 0.1);
     --border-strong: rgba(230, 234, 242, 0.2);
     --grid: #232b38;
@@ -56,37 +74,55 @@
     --link: #8fb0f5;
     --accent: #4570d8;
     --accent-soft: #1e3260;
+    --accent-text: #7aa2f7;
     --focus: #7aa2f7;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
     --viz-neutral: #7c8597;
     --viz-compare: #3987e5;
     --viz-active: #d95926;
     --viz-done: #199e70;
+    --viz-ink-on-compare: #10141b;
+    --viz-neutral-text: #7c8597;
+    --viz-compare-text: #3987e5;
+    --viz-active-text: #e66834;
+    --viz-done-text: #199e70;
+    --viz-good-text: #2fb82f;
+    --viz-bad-text: #e86464;
     --viz-surface: #161b24;
   }
 }
 
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --bg: #10141b;
-  --surface: #161b24;
-  --surface-2: #1d2430;
-  --surface-3: #252d3b;
-  --text: #e6eaf2;
-  --text-2: #a6b0c3;
-  --text-3: #8a94a8;
-  --border: rgba(230, 234, 242, 0.1);
-  --border-strong: rgba(230, 234, 242, 0.2);
-  --grid: #232b38;
-  --axis: #354052;
-  --link: #8fb0f5;
-  --accent: #4570d8;
-  --accent-soft: #1e3260;
-  --focus: #7aa2f7;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
-  --viz-neutral: #7c8597;
-  --viz-compare: #3987e5;
-  --viz-active: #d95926;
-  --viz-done: #199e70;
-  --viz-surface: #161b24;
+@media screen {
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+    --bg: #10141b;
+    --surface: #161b24;
+    --surface-2: #1d2430;
+    --surface-3: #252d3b;
+    --text: #e6eaf2;
+    --text-2: #a6b0c3;
+    --text-3: #939db1;
+    --border: rgba(230, 234, 242, 0.1);
+    --border-strong: rgba(230, 234, 242, 0.2);
+    --grid: #232b38;
+    --axis: #354052;
+    --link: #8fb0f5;
+    --accent: #4570d8;
+    --accent-soft: #1e3260;
+    --accent-text: #7aa2f7;
+    --focus: #7aa2f7;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+    --viz-neutral: #7c8597;
+    --viz-compare: #3987e5;
+    --viz-active: #d95926;
+    --viz-done: #199e70;
+    --viz-ink-on-compare: #10141b;
+    --viz-neutral-text: #7c8597;
+    --viz-compare-text: #3987e5;
+    --viz-active-text: #e66834;
+    --viz-done-text: #199e70;
+    --viz-good-text: #2fb82f;
+    --viz-bad-text: #e86464;
+    --viz-surface: #161b24;
+  }
 }

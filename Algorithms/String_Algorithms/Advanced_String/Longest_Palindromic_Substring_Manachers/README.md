@@ -92,10 +92,11 @@ For short inputs, expanding around each center is O(n^2) but shorter to write an
 
 ## Practice Problems
 
-- [LeetCode 5: Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
-- [LeetCode 647: Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
-- [LeetCode 214: Shortest Palindrome](https://leetcode.com/problems/shortest-palindrome/)
-- [LeetCode 132: Palindrome Partitioning II](https://leetcode.com/problems/palindrome-partitioning-ii/)
+- [Longest Palindromic Substring (LeetCode 5)](https://leetcode.com/problems/longest-palindromic-substring/)
+- [Palindromic Substrings (LeetCode 647)](https://leetcode.com/problems/palindromic-substrings/)
+- [Longest Palindrome (CSES 1111)](https://cses.fi/problemset/task/1111)
+- [All Palindromes (CSES 3138)](https://cses.fi/problemset/task/3138)
+- [Maximum Product of the Length of Two Palindromic Substrings (LeetCode 1960)](https://leetcode.com/problems/maximum-product-of-the-length-of-two-palindromic-substrings/)
 
 ## Related
 

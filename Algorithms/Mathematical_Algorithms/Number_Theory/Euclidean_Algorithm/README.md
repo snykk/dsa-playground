@@ -86,10 +86,11 @@ Why logarithmic: after two steps the larger number is less than half of what it 
 
 ## Practice Problems
 
-- [Greatest Common Divisor of Strings (LeetCode 1071)](https://leetcode.com/problems/greatest-common-divisor-of-strings/)
 - [Find Greatest Common Divisor of Array (LeetCode 1979)](https://leetcode.com/problems/find-greatest-common-divisor-of-array/)
+- [Greatest Common Divisor of Strings (LeetCode 1071)](https://leetcode.com/problems/greatest-common-divisor-of-strings/)
 - [Water and Jug Problem (LeetCode 365)](https://leetcode.com/problems/water-and-jug-problem/)
-- [Number of Subarrays With GCD Equal to K (LeetCode 2447)](https://leetcode.com/problems/number-of-subarrays-with-gcd-equal-to-k/)
+- [Line (Codeforces 7C)](https://codeforces.com/problemset/problem/7/C)
+- [Throne (AtCoder ABC 186 E)](https://atcoder.jp/contests/abc186/tasks/abc186_e)
 
 ## Related
 

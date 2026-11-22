@@ -82,7 +82,11 @@ Use it for offline range queries where the window answer can be updated by addin
 
 ## Practice Problems
 
-- [SPOJ DQUERY - D-query](https://www.spoj.com/problems/DQUERY/)
+- [D-query (SPOJ DQUERY)](https://www.spoj.com/problems/DQUERY/)
+- [Distinct Values Queries (CSES 1734)](https://cses.fi/problemset/task/1734)
+- [Little Elephant and Array (Codeforces 220B)](https://codeforces.com/problemset/problem/220/B)
+- [Powerful array (Codeforces 86D)](https://codeforces.com/problemset/problem/86/D)
+- [XOR and Favorite Number (Codeforces 617E)](https://codeforces.com/problemset/problem/617/E)
 
 ## Related
 

@@ -1,7 +1,10 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 
-/** Square button (or external link) holding an Icon; `label` is announced to screen readers. */
+/**
+ * Square button (or external link, opening in a new tab) holding an Icon; `label` is announced
+ * to screen readers, with "(opens in a new tab)" for a link.
+ */
 type Props = HTMLAttributes<'button'> & {
   label: string;
   href?: string;
@@ -12,7 +15,7 @@ const { label, href, class: className, ...rest } = Astro.props;
 
 {
   href ? (
-    <a class:list={['icon-button', className]} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
+    <a class:list={['icon-button', className]} href={href} target="_blank" rel="noopener noreferrer" aria-label={`${label} (opens in a new tab)`}>
       <slot />
     </a>
   ) : (

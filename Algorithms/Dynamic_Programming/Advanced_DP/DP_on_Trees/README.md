@@ -81,10 +81,11 @@ n is the number of nodes and h the height (the recursion stack): O(log n) for a 
 
 ## Practice Problems
 
+- [Diameter of Binary Tree (LeetCode 543)](https://leetcode.com/problems/diameter-of-binary-tree/)
 - [House Robber III (LeetCode 337)](https://leetcode.com/problems/house-robber-iii/)
 - [Binary Tree Maximum Path Sum (LeetCode 124)](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
-- [Diameter of Binary Tree (LeetCode 543)](https://leetcode.com/problems/diameter-of-binary-tree/)
-- [Tree Diameter (CSES)](https://cses.fi/problemset/task/1131)
+- [Independent Set (AtCoder DP P)](https://atcoder.jp/contests/dp/tasks/dp_p)
+- [Tree Distances II (CSES 1133)](https://cses.fi/problemset/task/1133)
 
 ## Related
 

@@ -225,3 +225,15 @@ Only the first row exists in the repository.
     The block size is clamped to 1, there are no blocks, and construction succeeds. Any query on it would be out of range.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Range Sum Query - Mutable', site: 'LeetCode 307', url: 'https://leetcode.com/problems/range-sum-query-mutable/', idea: 'Point updates and range sums, the two operations of this article as they stand.' },
+    { name: 'Dynamic Range Sum Queries', site: 'CSES 1648', url: 'https://cses.fi/problemset/task/1648', idea: 'The same with 2 * 10^5 queries: O(sqrt n) each is fast enough, and the sums need 64-bit integers.' },
+    { name: 'Dynamic Range Minimum Queries', site: 'CSES 1649', url: 'https://cses.fi/problemset/task/1649', idea: 'Block minimums instead of sums: an update must recompute its block, since a minimum cannot be adjusted by a difference.' },
+    { name: 'Range Update Queries', site: 'CSES 1651', url: 'https://cses.fi/problemset/task/1651', idea: 'Range add and point query: keep a pending addition per whole block, the lazy flag from the FAQ.' },
+    { name: 'Holes', site: 'Codeforces 13E', url: 'https://codeforces.com/problemset/problem/13/E', idea: 'Store for each hole the jumps needed to leave its block and the last hole visited there, so both moves and queries cost O(sqrt n).' },
+  ]}
+/>

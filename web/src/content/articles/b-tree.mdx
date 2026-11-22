@@ -279,3 +279,16 @@ The code scans each node linearly, hence the factor `t`. Binary search inside th
     Yes. The root is exempt from the minimum; it only needs one key (or none when the tree is empty), and it is the only node whose removal makes the tree shorter.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+Judges never need a disk-friendly tree, so these practise the B-tree operations in memory: the search inside a node, set semantics and predecessor or successor queries.
+
+<PracticeProblems
+  problems={[
+    { name: 'Search Insert Position', site: 'LeetCode 35', url: 'https://leetcode.com/problems/search-insert-position/', idea: 'The search inside one node: binary search for the first key `>=` the target, which is also the child to descend into.' },
+    { name: 'Distinct Numbers', site: 'CSES 1621', url: 'https://cses.fi/problemset/task/1621', idea: 'Use the tree as a set: insert every value, ignore keys already present, and count the keys.' },
+    { name: 'My Calendar I', site: 'LeetCode 729', url: 'https://leetcode.com/problems/my-calendar-i/', idea: 'The predecessor and successor of a new start time, found by descents from the root.' },
+    { name: 'Contains Duplicate III', site: 'LeetCode 220', url: 'https://leetcode.com/problems/contains-duplicate-iii/', idea: 'A sliding window kept as an ordered set: insert the value that enters, delete the one that leaves, and look up a successor.' },
+  ]}
+/>

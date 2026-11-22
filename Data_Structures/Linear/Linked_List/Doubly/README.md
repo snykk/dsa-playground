@@ -98,10 +98,10 @@ Use it when you walk in both directions or remove nodes you already hold (an LRU
 
 ## Practice Problems
 
-- [Design Linked List](https://leetcode.com/problems/design-linked-list/)
-- [LRU Cache](https://leetcode.com/problems/lru-cache/)
-- [Flatten a Multilevel Doubly Linked List](https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/)
-- [Design Browser History](https://leetcode.com/problems/design-browser-history/)
+- [Design Linked List (LeetCode 707)](https://leetcode.com/problems/design-linked-list/)
+- [Design Browser History (LeetCode 1472)](https://leetcode.com/problems/design-browser-history/)
+- [Flatten a Multilevel Doubly Linked List (LeetCode 430)](https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/)
+- [LRU Cache (LeetCode 146)](https://leetcode.com/problems/lru-cache/)
 
 ## Related
 

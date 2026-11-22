@@ -90,8 +90,9 @@ In total this puzzle (51 blanks) takes 4,209 calls of the recursive search and 4
 
 ## Practice Problems
 
-- [Sudoku Solver (LeetCode 37)](https://leetcode.com/problems/sudoku-solver/)
 - [Valid Sudoku (LeetCode 36)](https://leetcode.com/problems/valid-sudoku/)
+- [Sudoku Solver (LeetCode 37)](https://leetcode.com/problems/sudoku-solver/)
+- [Sudokunique (Kattis sudokunique)](https://open.kattis.com/problems/sudokunique)
 
 ## Related
 

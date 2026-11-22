@@ -82,9 +82,10 @@ Preprocessing is O(m) time and O(sigma) space (one entry per distinct pattern ch
 
 ## Practice Problems
 
-- [LeetCode 28: Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
-- [LeetCode 686: Repeated String Match](https://leetcode.com/problems/repeated-string-match/)
-- [CSES: String Matching](https://cses.fi/problemset/task/1753)
+- [Find the Index of the First Occurrence in a String (LeetCode 28)](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+- [Repeated String Match (LeetCode 686)](https://leetcode.com/problems/repeated-string-match/)
+- [String Matching (Kattis stringmatching)](https://open.kattis.com/problems/stringmatching)
+- [String Matching (CSES 1753)](https://cses.fi/problemset/task/1753)
 
 ## Related
 

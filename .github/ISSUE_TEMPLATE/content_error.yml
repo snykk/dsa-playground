@@ -1,0 +1,45 @@
+name: Content error
+description: A statement in a README or an article on the site that is wrong, or that the code contradicts.
+title: "Content: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every statement in the READMEs and the articles must match the code in its topic folder. Running that code is the best evidence: show the command and its output.
+
+  - type: input
+    id: page
+    attributes:
+      label: Page or file
+      description: The address of the page, or the file in the repository.
+      placeholder: Algorithms/Sorting/Quick_Sort/README.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: statement
+    attributes:
+      label: The statement
+      description: Quote it as written, and name the section it is in.
+    validations:
+      required: true
+
+  - type: textarea
+    id: truth
+    attributes:
+      label: What is true
+      description: The correct statement, or what the code does instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: How you checked
+      description: Preferably, run the code in the topic folder and paste the command and its output. Otherwise, a hand trace or a reference.
+      placeholder: |
+        cd Algorithms/Sorting/Quick_Sort/Python
+        python3 -c "from quick_sort import quick_sort; print(quick_sort([3, 1, 2]))"
+    validations:
+      required: true

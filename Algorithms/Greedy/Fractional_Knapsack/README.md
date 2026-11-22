@@ -83,8 +83,10 @@ On the items above with capacity 50, the fractional answer is 240. The 0/1 optim
 
 ## Practice Problems
 
-- [Maximum Units on a Truck](https://leetcode.com/problems/maximum-units-on-a-truck/) (LeetCode 1710)
-- [Assign Cookies](https://leetcode.com/problems/assign-cookies/) (LeetCode 455), the same sort-then-sweep pattern
+- [Maximum Units on a Truck (LeetCode 1710)](https://leetcode.com/problems/maximum-units-on-a-truck/)
+- [Cheese (AtCoder abc229_c)](https://atcoder.jp/contests/abc229/tasks/abc229_c)
+- [Maximum Bags With Full Capacity of Rocks (LeetCode 2279)](https://leetcode.com/problems/maximum-bags-with-full-capacity-of-rocks/)
+- [Knapsack 1 (AtCoder dp_d)](https://atcoder.jp/contests/dp/tasks/dp_d)
 
 ## Related
 

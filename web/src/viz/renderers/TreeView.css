@@ -130,7 +130,7 @@
   dominant-baseline: central;
 }
 .tree-view .t-rb-black .t-rb-label {
-  fill: var(--viz-ink-on-fill);
+  fill: var(--viz-ink-on-deep);
 }
 .tree-view .t-rb-red .t-rb-label {
   fill: var(--text);

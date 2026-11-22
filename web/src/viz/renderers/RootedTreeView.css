@@ -135,7 +135,7 @@
 }
 .rt-view .rt-glyph {
   text-anchor: end;
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 11px;
   font-weight: 700;
 }

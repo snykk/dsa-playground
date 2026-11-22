@@ -43,7 +43,7 @@
   opacity: 0.45;
 }
 .search-bars .search-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 15px;
   font-weight: 700;
   text-anchor: middle;
@@ -88,7 +88,7 @@
   text-anchor: end;
 }
 .search-bars .search-pointer .caret {
-  fill: var(--viz-compare);
+  fill: var(--viz-compare-text);
 }
 .search-bars .search-pointer .bracket {
   fill: none;

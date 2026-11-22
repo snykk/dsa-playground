@@ -200,3 +200,14 @@ The back is amortized because an append sometimes reallocates and copies the arr
     Dropping the first element is just `slice[1:]`, a new view of the same array. Inserting before the first element needs space that does not exist, so Go allocates a new slice and copies.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Design Circular Deque', site: 'LeetCode 641', url: 'https://leetcode.com/problems/design-circular-deque/', idea: 'Make both ends O(1), unlike the array-backed deque here: in a fixed ring the front index can step backwards and wrap.' },
+    { name: 'Sliding Window Maximum', site: 'LeetCode 239', url: 'https://leetcode.com/problems/sliding-window-maximum/', idea: 'Keep candidate indices in a deque: stale ones leave from the front, dominated ones from the back.' },
+    { name: 'Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit', site: 'LeetCode 1438', url: 'https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/', idea: 'Two monotonic deques track the maximum and the minimum of a window that two pointers slide along.' },
+    { name: 'Minimum Cost to Make at Least One Valid Path in a Grid', site: 'LeetCode 1368', url: 'https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/', idea: '0-1 BFS: a move that follows the arrow costs 0 and goes to the front of the deque, a move that changes it costs 1 and goes to the back.' },
+  ]}
+/>

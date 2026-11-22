@@ -58,3 +58,49 @@
 .viz.viz-compact .viz-stage {
   margin-top: 0;
 }
+
+/* The link to this step, handed over in a field when the browser cannot copy it. */
+.viz-manual-link {
+  margin-top: 12px;
+}
+.viz-manual-link label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+
+/* On paper the player is a figure: the open algorithm's name, the current frame, its legend
+ * and caption. Input, controls, pseudocode and state need a screen. Colors print as shown,
+ * since the roles carry meaning; a player that never loaded is left out. */
+@media print {
+  .viz {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .viz-input,
+  .viz-manual-link,
+  .viz-panels,
+  .viz-keys,
+  .viz-loading,
+  .viz-load-error {
+    display: none;
+  }
+  .viz-stage {
+    margin-top: 8px;
+    overflow: visible;
+    background-image: none;
+    break-inside: avoid;
+  }
+  .viz-stage svg {
+    max-height: 120mm;
+  }
+  .viz-caption {
+    min-height: 0;
+    break-inside: avoid;
+  }
+}

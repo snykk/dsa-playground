@@ -98,10 +98,11 @@ Each line is pushed once and popped at most once, so n operations on the deque c
 
 ## Practice Problems
 
-- [Kalila and Dimna (Codeforces 319C)](https://codeforces.com/problemset/problem/319/C)
-- [Escape Through Leaf (Codeforces 932F)](https://codeforces.com/problemset/problem/932/F)
-- [Frog 3 (AtCoder Educational DP Contest, problem Z)](https://atcoder.jp/contests/dp/tasks/dp_z)
-- [Commando (SPOJ APIO10A)](https://www.spoj.com/problems/APIO10A/)
+- [Monster Game I (CSES 2084)](https://cses.fi/problemset/task/2084)
+- [Frog 3 (AtCoder DP Z)](https://atcoder.jp/contests/dp/tasks/dp_z)
+- [Monster Game II (CSES 2085)](https://cses.fi/problemset/task/2085)
+- [Kalila and Dimna in the Logging Industry (Codeforces 319C)](https://codeforces.com/problemset/problem/319/C)
+- [The Fair Nut and Rectangles (Codeforces 1083E)](https://codeforces.com/problemset/problem/1083/E)
 
 ## Related
 

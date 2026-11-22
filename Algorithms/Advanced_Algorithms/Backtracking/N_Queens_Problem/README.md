@@ -87,9 +87,10 @@ At depth k the queens use k different columns, so there are at most n!/(n-k)! pa
 
 ## Practice Problems
 
+- [Eight Queens (Kattis 8queens)](https://open.kattis.com/problems/8queens)
 - [N-Queens (LeetCode 51)](https://leetcode.com/problems/n-queens/)
 - [N-Queens II (LeetCode 52)](https://leetcode.com/problems/n-queens-ii/)
-- [Chessboard and Queens (CSES)](https://cses.fi/problemset/task/1624)
+- [Chessboard and Queens (CSES 1624)](https://cses.fi/problemset/task/1624)
 
 ## Related
 

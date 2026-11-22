@@ -226,3 +226,13 @@ The repository code uses the first variant only. The MRV figure comes from an ex
     Always branch on the empty cell with the fewest legal digits, and fill cells that have a single candidate before guessing. The same example puzzle then needs 52 calls instead of 4,209.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Valid Sudoku', site: 'LeetCode 36', url: 'https://leetcode.com/problems/valid-sudoku/', idea: 'The validation step on its own: look for a repeated digit among the givens of any row, column or box.' },
+    { name: 'Sudoku Solver', site: 'LeetCode 37', url: 'https://leetcode.com/problems/sudoku-solver/', idea: 'Fill the board with the backtracking of this article; the puzzle has exactly one solution.' },
+    { name: 'Sudokunique', site: 'Kattis sudokunique', url: 'https://open.kattis.com/problems/sudokunique', idea: 'Up to 100 boards, each with a unique solution, several or none: keep searching after the first solution, and branch on the cell with the fewest candidates.' },
+  ]}
+/>

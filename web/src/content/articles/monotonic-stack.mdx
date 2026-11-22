@@ -188,3 +188,15 @@ Edge cases: the value `-1` means "no answer", so an array that itself contains -
     Yes: loop `i` from 0 to 2n - 1 and use `i mod n`. This repository does not implement the circular version.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Next Greater Element I', site: 'LeetCode 496', url: 'https://leetcode.com/problems/next-greater-element-i/', idea: 'One decreasing stack over nums2 maps every value to its next greater one; then answer nums1 from the map.' },
+    { name: 'Daily Temperatures', site: 'LeetCode 739', url: 'https://leetcode.com/problems/daily-temperatures/', idea: 'The distance to the next greater element: keep indices on the stack, not values.' },
+    { name: 'Nearest Smaller Values', site: 'CSES 1645', url: 'https://cses.fi/problemset/task/1645', idea: 'The nearest smaller value to the left of every position, at n = 2 * 10^5: an increasing stack, popped while its top is not smaller.' },
+    { name: 'Online Stock Span', site: 'LeetCode 901', url: 'https://leetcode.com/problems/online-stock-span/', idea: 'The stack works online too: keep (price, span) pairs and add up the spans of the prices you pop.' },
+    { name: 'Largest Rectangle in Histogram', site: 'LeetCode 84', url: 'https://leetcode.com/problems/largest-rectangle-in-histogram/', idea: "The nearest shorter bar on each side bounds a bar's rectangle, and one increasing stack finds both." },
+  ]}
+/>

@@ -90,8 +90,9 @@ Binary insertion is not implemented.
 
 - [Insertion Sort List (LeetCode 147)](https://leetcode.com/problems/insertion-sort-list/)
 - [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
-- [Sort Colors (LeetCode 75)](https://leetcode.com/problems/sort-colors/)
 - [Global and Local Inversions (LeetCode 775)](https://leetcode.com/problems/global-and-local-inversions/)
+- [Insertion Sort (Codeforces 362C)](https://codeforces.com/problemset/problem/362/C)
+- [Sort Colors (LeetCode 75)](https://leetcode.com/problems/sort-colors/)
 
 ## Related
 

@@ -69,6 +69,9 @@
   fill: var(--viz-ink-on-fill);
   font-weight: 700;
 }
+.sieve-grid .sg-cell.crossed.role-active .sg-num {
+  fill: var(--viz-ink-on-fill);
+}
 .sieve-grid .sg-cell.role-active .sg-strike,
 .sieve-grid .sg-cell.role-bad .sg-strike {
   stroke: var(--viz-ink-on-fill);

@@ -39,7 +39,7 @@
   stroke-dasharray: 5 4;
 }
 .cplane .cplane-tick:not(.role-idle):not(.role-muted) text {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 .cplane .cplane-axis {

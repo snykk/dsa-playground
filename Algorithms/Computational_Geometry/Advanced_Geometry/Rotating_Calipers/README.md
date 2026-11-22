@@ -88,7 +88,9 @@ The edge index goes once around the polygon and the pointer `j` moves forward at
 
 ## Practice Problems
 
-- [Beauty Contest (POJ 2187)](http://poj.org/problem?id=2187)
+- [Robert Hood (Kattis roberthood)](https://open.kattis.com/problems/roberthood)
+- [Fossil in the Ice (SPOJ TFOSS)](https://www.spoj.com/problems/TFOSS/)
+- [Fence Orthogonality (Kattis fenceortho)](https://open.kattis.com/problems/fenceortho)
 
 ## Related
 

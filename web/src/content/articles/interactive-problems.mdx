@@ -197,3 +197,15 @@ Each query is O(1) work on your side, so the running time is the number of queri
     Both use n - 1 comparisons. The tournament compares in rounds of independent pairs, so the comparisons of one round could be sent together if the problem allows batching.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Guess Number Higher or Lower', site: 'LeetCode 374', url: 'https://leetcode.com/problems/guess-number-higher-or-lower/', idea: 'Binary search through a guess API: each answer halves the range.' },
+    { name: 'First Bad Version', site: 'LeetCode 278', url: 'https://leetcode.com/problems/first-bad-version/', idea: 'Find the first true value of a monotone predicate with as few API calls as possible, computing the middle without overflow.' },
+    { name: 'Hidden Integer', site: 'CSES 3112', url: 'https://cses.fi/problemset/task/3112', idea: 'With x up to 10^9 and at most 30 questions, exactly the binary search bound; flush after every question.' },
+    { name: 'Find in Mountain Array', site: 'LeetCode 1095', url: 'https://leetcode.com/problems/find-in-mountain-array/', idea: 'At most 100 get calls: find the peak by comparing neighbors, then binary search each side.' },
+    { name: 'Hidden Permutation', site: 'CSES 3139', url: 'https://cses.fi/problemset/task/3139', idea: 'Sort the indices with questions as comparisons: n = 1000 and a budget of 10^4 leave room for merge sort or binary insertion, not for an O(n^2) sort.' },
+  ]}
+/>

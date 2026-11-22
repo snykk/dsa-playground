@@ -25,7 +25,7 @@
   transform-origin: center;
 }
 .witness-chains .wc-two text {
-  fill: var(--viz-ink-on-fill);
+  fill: var(--viz-ink-on-bright);
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
@@ -48,13 +48,13 @@
 }
 .witness-chains .wc-verdict {
   text-anchor: start;
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 12px;
   font-weight: 700;
 }
 .witness-chains .wc-final {
   text-anchor: start;
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 14px;
   font-weight: 700;
 }

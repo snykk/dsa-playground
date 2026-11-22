@@ -216,3 +216,15 @@ With duplicates, the exact-match version returns an arbitrary one of them: on `[
     -1 in every function here except Python's `binary_search_closest`, which returns the index of the nearest element. If you need the position where the value would be inserted, use a lower-bound search (such as Python `bisect_left`) instead.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Binary Search', site: 'LeetCode 704', url: 'https://leetcode.com/problems/binary-search/', idea: 'The plain search, with the loop condition and the middle index written carefully.' },
+    { name: 'Search Insert Position', site: 'LeetCode 35', url: 'https://leetcode.com/problems/search-insert-position/', idea: 'A lower-bound search: the first index whose value is at least the target is also where it would be inserted.' },
+    { name: 'Find First and Last Position of Element in Sorted Array', site: 'LeetCode 34', url: 'https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/', idea: 'Two bound searches: the first index with a value >= target and the first with a value > target.' },
+    { name: 'Search in Rotated Sorted Array', site: 'LeetCode 33', url: 'https://leetcode.com/problems/search-in-rotated-sorted-array/', idea: 'One half of every range is still sorted; check whether the target lies in that half to decide which half to keep.' },
+    { name: 'Koko Eating Bananas', site: 'LeetCode 875', url: 'https://leetcode.com/problems/koko-eating-bananas/', idea: 'Binary search over the eating speed instead of an array: the hours needed only fall as the speed grows.' },
+  ]}
+/>

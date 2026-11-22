@@ -187,14 +187,14 @@
   font-weight: 500;
 }
 .mw-view .mw-etext .mark {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 800;
 }
 .mw-view .mw-etext .mark.role-bad {
   text-decoration: underline;
 }
 .mw-view .mw-elabel:not(.role-idle):not(.role-muted) .mw-etext {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 800;
 }
 .mw-view .mw-elabel.role-muted {

@@ -67,7 +67,7 @@
   stroke-width: 4px;
 }
 .gr-graph .gr-edge:not(.role-idle):not(.role-muted) .gr-weight {
-  fill: var(--role);
+  fill: var(--role-text);
 }
 
 /* The edge list: one cell per tuple, over a frame per index. */

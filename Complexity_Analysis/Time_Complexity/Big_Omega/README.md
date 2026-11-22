@@ -102,8 +102,10 @@ Each cell is a statement about one case function with a tight (Theta) bound; eve
 
 ## Practice Problems
 
-- [Search in Rotated Sorted Array (LeetCode 33)](https://leetcode.com/problems/search-in-rotated-sorted-array/): what lower bound applies to the search?
-- [Sort Colors (LeetCode 75)](https://leetcode.com/problems/sort-colors/): a linear-time sort that is not comparison based.
+- [Search in Rotated Sorted Array (LeetCode 33)](https://leetcode.com/problems/search-in-rotated-sorted-array/)
+- [Search in Rotated Sorted Array II (LeetCode 81)](https://leetcode.com/problems/search-in-rotated-sorted-array-ii/)
+- [Sort Colors (LeetCode 75)](https://leetcode.com/problems/sort-colors/)
+- [Maximum Gap (LeetCode 164)](https://leetcode.com/problems/maximum-gap/)
 - Prove with `c` and `n0` that `n^2 - 10n` is `Omega(n^2)`.
 - Use the decision tree to find the minimum worst-case number of comparisons needed to sort 5 elements (`ceil(log2(120)) = 7`).
 

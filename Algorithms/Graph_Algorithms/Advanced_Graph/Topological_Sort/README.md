@@ -103,11 +103,12 @@ Do not use it when:
 
 ## Practice Problems
 
-- [LeetCode 207. Course Schedule](https://leetcode.com/problems/course-schedule/): is there a cycle?
-- [LeetCode 210. Course Schedule II](https://leetcode.com/problems/course-schedule-ii/): output an order.
-- [LeetCode 269. Alien Dictionary](https://leetcode.com/problems/alien-dictionary/): build the graph from sorted words.
-- [CSES 1679. Course Schedule](https://cses.fi/problemset/task/1679): output an order or report a cycle.
-- [CSES 1681. Game Routes](https://cses.fi/problemset/task/1681): count paths in a DAG.
+- [Course Schedule (LeetCode 207)](https://leetcode.com/problems/course-schedule/)
+- [Course Schedule II (LeetCode 210)](https://leetcode.com/problems/course-schedule-ii/)
+- [Game Routes (CSES 1681)](https://cses.fi/problemset/task/1681)
+- [Longest Flight Route (CSES 1680)](https://cses.fi/problemset/task/1680)
+- [Course Schedule II (CSES 1757)](https://cses.fi/problemset/task/1757)
+- [Course Schedule (CSES 1679)](https://cses.fi/problemset/task/1679)
 
 ## Related
 

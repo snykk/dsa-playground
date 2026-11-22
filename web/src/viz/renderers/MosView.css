@@ -88,12 +88,15 @@
   stroke: var(--viz-surface);
 }
 .mo-view .mo-pill text {
-  fill: var(--viz-ink-on-fill);
+  fill: var(--viz-ink-on-compare);
   font-size: 10.5px;
   font-weight: 700;
 }
 .mo-view .mo-pill.empty rect {
   fill: var(--viz-neutral);
+}
+.mo-view .mo-pill.empty text {
+  fill: var(--viz-ink-on-bright);
 }
 
 /* Query lanes. */

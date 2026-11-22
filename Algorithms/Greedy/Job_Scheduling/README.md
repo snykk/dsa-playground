@@ -104,9 +104,10 @@ Use the deadline version when every task takes one time unit, has a hard deadlin
 
 ## Practice Problems
 
-- [Course Schedule III](https://leetcode.com/problems/course-schedule-iii/) (LeetCode 630)
-- [Maximum Number of Events That Can Be Attended](https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/) (LeetCode 1353)
-- [Maximum Profit in Job Scheduling](https://leetcode.com/problems/maximum-profit-in-job-scheduling/) (LeetCode 1235, the weighted interval version)
+- [Maximum Number of Events That Can Be Attended (LeetCode 1353)](https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/)
+- [Tasks and Deadlines (CSES 1630)](https://cses.fi/problemset/task/1630)
+- [Summer Vacation (AtCoder abc137_d)](https://atcoder.jp/contests/abc137/tasks/abc137_d)
+- [Course Schedule III (LeetCode 630)](https://leetcode.com/problems/course-schedule-iii/)
 
 ## Related
 

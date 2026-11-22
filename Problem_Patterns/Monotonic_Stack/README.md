@@ -95,11 +95,12 @@ Use it when each element needs its nearest greater or smaller neighbour, or a wi
 
 ## Practice Problems
 
-- [LeetCode 496. Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/)
-- [LeetCode 739. Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
-- [LeetCode 901. Online Stock Span](https://leetcode.com/problems/online-stock-span/)
-- [LeetCode 84. Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
-- [LeetCode 42. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
+- [Next Greater Element I (LeetCode 496)](https://leetcode.com/problems/next-greater-element-i/)
+- [Daily Temperatures (LeetCode 739)](https://leetcode.com/problems/daily-temperatures/)
+- [Nearest Smaller Values (CSES 1645)](https://cses.fi/problemset/task/1645)
+- [Online Stock Span (LeetCode 901)](https://leetcode.com/problems/online-stock-span/)
+- [Largest Rectangle in Histogram (LeetCode 84)](https://leetcode.com/problems/largest-rectangle-in-histogram/)
+- [Trapping Rain Water (LeetCode 42)](https://leetcode.com/problems/trapping-rain-water/)
 
 ## Related
 

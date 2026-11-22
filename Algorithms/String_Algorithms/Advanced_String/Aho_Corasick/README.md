@@ -94,10 +94,10 @@ The scan is linear because the depth of the current node grows by at most one pe
 
 ## Practice Problems
 
-- [LeetCode 1032: Stream of Characters](https://leetcode.com/problems/stream-of-characters/)
-- [CSES: String Matching](https://cses.fi/problemset/task/1753) (single pattern warm-up)
-- [HDU 2222: Keywords Search](https://acm.hdu.edu.cn/showproblem.php?pid=2222)
-- [SPOJ SUB_PROB: Substring Problem](https://www.spoj.com/problems/SUB_PROB/)
+- [Finding Patterns (CSES 2102)](https://cses.fi/problemset/task/2102)
+- [Pattern Positions (CSES 2104)](https://cses.fi/problemset/task/2104)
+- [Counting Patterns (CSES 2103)](https://cses.fi/problemset/task/2103)
+- [Stream of Characters (LeetCode 1032)](https://leetcode.com/problems/stream-of-characters/)
 
 ## Related
 

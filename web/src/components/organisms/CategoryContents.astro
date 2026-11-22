@@ -44,7 +44,7 @@ const rows = contents.map((entry) => {
 });
 ---
 
-<section class="contents" aria-labelledby={id}>
+<section class="contents" aria-labelledby={id} data-pagefind-ignore>
   <h2 id={id}>{heading}</h2>
   <ol>
     {
@@ -121,7 +121,7 @@ const rows = contents.map((entry) => {
     border: 1.5px solid var(--accent);
     border-radius: 50%;
     background: var(--surface);
-    color: var(--accent);
+    color: var(--accent-text);
     font-size: 13px;
     font-weight: 650;
     font-variant-numeric: tabular-nums;

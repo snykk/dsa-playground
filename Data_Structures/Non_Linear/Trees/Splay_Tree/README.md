@@ -111,9 +111,10 @@ Insert 50, 30, 70, 20, 40 gives root 40 with children 20 and 70 (30 under 20, 50
 
 ## Practice Problems
 
-- [LeetCode 706: Design HashMap](https://leetcode.com/problems/design-hashmap/) (any ordered map can be swapped in)
-- [LeetCode 981: Time Based Key-Value Store](https://leetcode.com/problems/time-based-key-value-store/) (ordered lookup by key)
-- [CSES: Sliding Window Median](https://cses.fi/problemset/task/1076) (ordered multiset)
+- [Time Based Key-Value Store (LeetCode 981)](https://leetcode.com/problems/time-based-key-value-store/) (ordered lookup by key)
+- [My Calendar I (LeetCode 729)](https://leetcode.com/problems/my-calendar-i/)
+- [Sliding Window Median (CSES 1076)](https://cses.fi/problemset/task/1076) (ordered multiset)
+- [Substring Reversals (CSES 2073)](https://cses.fi/problemset/task/2073) (splay by position)
 
 ## Related
 

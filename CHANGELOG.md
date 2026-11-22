@@ -15,6 +15,46 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+## [v0.8.0] - 2026-11-22
+
+Site search, practice problems on every article, link previews, conveniences in the player and the study guide, an accessibility pass, and documents for contributors.
+
+### Added
+
+- **Site search**: Pagefind 1.6.0 indexes the built site (210 pages; the index loads only when a search starts). The search button in the header, or `/` anywhere outside a field or the player, opens the dialog; results show where a page sits and its matching text, and the arrow keys and Enter pick one. Only the article text is indexed: the player, the code tabs, breadcrumbs and lists of related pages are left out.
+- **Practice problems on 151 articles**: three to five problems each, from easy to harder, on LeetCode, CSES, Codeforces, AtCoder, Kattis and SPOJ, each with a sentence on what of the topic it exercises. Every problem was checked on its judge (the number, the title, and that it is not premium); premium-only problems gave way to free ones, and problems that do not practise their topic were dropped. The topic READMEs list the same problems. Galois Field and Reed-Solomon have none, since no judge has a problem that practises them. A test fails when an article lacks the section, has two, or lists a problem twice, and the build fails on a problem with an empty field, a link that is not https, or an unknown judge.
+- **A weekly check of the practice links** (`scripts/check_practice_links.py`, run by `.github/workflows/practice-links.yml` on Mondays or by hand): it asks each judge whether every problem still exists under its name and number and is free, and fails only on a definite problem. SPOJ refuses scripts, so its problems are listed as unchecked.
+- **Link-preview images**: every page has its own 1200 by 630 card with its title and where it sits, drawn at build time with the site's own fonts; the `og:` and `twitter:` tags point to it.
+- **A sitemap and `robots.txt`**, generated from `SITE_URL` and `SITE_BASE`; the 404 page is left out of the sitemap.
+- **In the player**:
+  - on a phone, the algorithm tabs are one row that scrolls sideways and keeps the selected tab in view; the tabs follow the ARIA tabs pattern;
+  - `?` or a keyboard button lists every shortcut, from the same table the key handler reads;
+  - a link button copies a link to the current step, with the input when it is not the first example; old `?step=N` links still work.
+- **Progress in the study guide**: each topic in its lists gets a checkbox, each list a count, and the top of the page the total with a button that clears it. The ticks stay in the reader's browser.
+- **Print styles**: a page prints in the light theme with the article alone; the player prints its current frame with its legend and caption, the code its selected language, FAQ answers open, and links that leave the site show their address.
+- **A picture of the site in the README**, in the light and the dark theme.
+- **Issue forms** for a bug, a content error and a topic request, and a pull request template.
+
+### Changed
+
+- **CONTRIBUTING has one "Adding a Topic" checklist**, in the order a contributor works, each item naming the check or the command that enforces it. It replaces the two older checklists and the issue templates that were written in the document.
+- **Colours**: the muted text is a shade darker in the light theme and lighter in the dark one, the light compare, active and done fills are a shade deeper, and text on the bright orange and green fills is dark instead of white.
+- **The sidebar's category rows**: the chevron is a toggle of its own, 24 px wide, beside the link to the category.
+- **The body font is preloaded**, so text no longer reflows when it arrives (layout shift on the contributing page at phone size went from 0.144 to 0).
+
+### Fixed
+
+- **Accessibility, against WCAG 2.2 AA**: axe-core finds no violation on the audited pages (home, overview, study guide, visualizations, 404, a category, two articles, a document page, and the open search and shortcut dialogs) at 390 and 1300 px in both themes, where it found up to 169 failing elements per page before. Lighthouse's accessibility score is 100 in all 18 runs, from 87 to 100 before. Among the fixes:
+  - text contrast of page text, code token colours and visualization labels; in all 193 players, 23,024 text samples were under the minimum before and 24 after;
+  - the sidebar's category links sat inside a `<summary>`, where they were not exposed as links;
+  - the closed phone menu's links took focus off screen;
+  - search results were options holding links hidden from assistive technology;
+  - wide tables, diagrams and pseudocode could not be scrolled from the keyboard;
+  - the player's caption was announced at every frame while it played;
+  - links that open a new tab did not say so, and README task-list checkboxes had no name;
+  - small targets (the sidebar toggles, the study guide checkboxes) and a header that did not fit at 320 px.
+- **Keys pressed with Ctrl, Cmd or Alt** reached the player, so Alt+Left did not go back.
+
 ## [v0.7.1] - 2026-11-21
 
 An accuracy audit of every topic, the Job Scheduling rules C++ and Go were missing, and maintenance.
@@ -239,6 +279,7 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
+[v0.8.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.8.0
 [v0.7.1]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.1
 [v0.7.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.0
 [v0.6.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.6.0

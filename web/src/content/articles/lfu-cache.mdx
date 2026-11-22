@@ -213,3 +213,14 @@ Python uses a dictionary of `OrderedDict` buckets (head is the LRU, tail is the 
     A scan touches many keys once. LRU would evict the hot keys to make room for them. LFU evicts the scan keys first, since they have count 1 and the hot keys have higher counts.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'LRU Cache', site: 'LeetCode 146', url: 'https://leetcode.com/problems/lru-cache/', idea: 'The building block: one hash map plus one recency-ordered list. An LFU cache keeps one such list per use count.' },
+    { name: 'LFU Cache', site: 'LeetCode 460', url: 'https://leetcode.com/problems/lfu-cache/', idea: 'The cache of this article: a key map, one recency-ordered bucket per use count and `min_freq` give O(1) get and put.' },
+    { name: 'Maximum Frequency Stack', site: 'LeetCode 895', url: 'https://leetcode.com/problems/maximum-frequency-stack/', idea: 'Group the elements by how often they were pushed and track the highest count, the mirror image of `min_freq`.' },
+    { name: 'All O`one Data Structure', site: 'LeetCode 432', url: 'https://leetcode.com/problems/all-oone-data-structure/', idea: 'Count buckets kept in order in a doubly linked list, so that both the smallest and the largest count sit at an end in O(1).' },
+  ]}
+/>

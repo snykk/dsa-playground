@@ -1,0 +1,74 @@
+---
+import { formatInline } from '../../lib/inline';
+import { practiceProblemIssues, type PracticeProblem } from '../../lib/practice';
+
+/**
+ * "Practice problems" near the end of an article, easy to harder, so the list is numbered:
+ * each problem links to its judge's page, names the judge and says what of the topic it
+ * exercises. A problem without a name, a judge, an https link to a known judge or an idea
+ * fails the build.
+ */
+interface Props {
+  problems: PracticeProblem[];
+}
+
+const { problems } = Astro.props;
+const issues = problems.flatMap((p) => practiceProblemIssues(p).map((issue) => `${p.name || 'a problem'}: ${issue}`));
+if (issues.length > 0) throw new Error(`PracticeProblems: ${issues.join('; ')}`);
+---
+
+<ol class="practice">
+  {
+    problems.map((p) => (
+      <li>
+        <a href={p.url} target="_blank" rel="noopener noreferrer">
+          {p.name}
+          <span class="visually-hidden"> (on {p.site.split(' ')[0]}, opens in a new tab)</span>
+        </a>
+        <span class="site">{p.site}</span>
+        <p set:html={formatInline(p.idea)} />
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .practice {
+    list-style: none;
+    counter-reset: practice;
+    margin: 12px 0 24px;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+    max-width: 68ch;
+  }
+  li {
+    counter-increment: practice;
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    column-gap: 4px;
+    align-items: baseline;
+  }
+  li::before {
+    content: counter(practice);
+    grid-row: 1;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent-text);
+  }
+  li > * {
+    grid-column: 2;
+  }
+  a {
+    font-weight: 700;
+  }
+  .site {
+    font-size: 14px;
+    color: var(--text-3);
+  }
+  p {
+    margin: 2px 0 0;
+    color: var(--text-2);
+  }
+</style>

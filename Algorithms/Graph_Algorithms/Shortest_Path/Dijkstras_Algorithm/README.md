@@ -92,10 +92,12 @@ Use it for single-source shortest paths with non-negative weights: routes, weigh
 
 ## Practice Problems
 
-- [Network Delay Time](https://leetcode.com/problems/network-delay-time/) (LeetCode)
-- [Path With Minimum Effort](https://leetcode.com/problems/path-with-minimum-effort/) (LeetCode)
-- [Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/) (LeetCode)
-- [Shortest Routes I](https://cses.fi/problemset/task/1671) (CSES)
+- [Network Delay Time (LeetCode 743)](https://leetcode.com/problems/network-delay-time/)
+- [Shortest Routes I (CSES 1671)](https://cses.fi/problemset/task/1671)
+- [Path With Minimum Effort (LeetCode 1631)](https://leetcode.com/problems/path-with-minimum-effort/)
+- [Flight Discount (CSES 1195)](https://cses.fi/problemset/task/1195)
+- [Flight Routes (CSES 1196)](https://cses.fi/problemset/task/1196)
+- [Cheapest Flights Within K Stops (LeetCode 787)](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
 
 ## Related
 

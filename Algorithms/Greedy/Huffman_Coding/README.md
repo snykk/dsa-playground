@@ -95,7 +95,10 @@ Use it to compress data whose symbols have skewed frequencies, or as the last st
 
 ## Practice Problems
 
-- [Minimum Cost to Connect Sticks](https://leetcode.com/problems/minimum-cost-to-connect-sticks/) (LeetCode 1167), the same merge loop with a min-heap
+- [Stick Divisions (CSES 1161)](https://cses.fi/problemset/task/1161)
+- [Bread (AtCoder abc252_f)](https://atcoder.jp/contests/abc252/tasks/abc252_f)
+- [Minimum Cost to Merge Stones (LeetCode 1000)](https://leetcode.com/problems/minimum-cost-to-merge-stones/)
+- [Huffman Coding on Segment (Codeforces 700D)](https://codeforces.com/problemset/problem/700/D)
 
 ## Related
 

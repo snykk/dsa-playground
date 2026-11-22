@@ -95,9 +95,10 @@ All three return a new sorted array.
 
 ## Practice Problems
 
-- [Sort Colors (LeetCode 75)](https://leetcode.com/problems/sort-colors/)
-- [Relative Sort Array (LeetCode 1122)](https://leetcode.com/problems/relative-sort-array/)
 - [Height Checker (LeetCode 1051)](https://leetcode.com/problems/height-checker/)
+- [Relative Sort Array (LeetCode 1122)](https://leetcode.com/problems/relative-sort-array/)
+- [How Many Numbers Are Smaller Than the Current Number (LeetCode 1365)](https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/)
+- [Sort Colors (LeetCode 75)](https://leetcode.com/problems/sort-colors/)
 - [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
 
 ## Related

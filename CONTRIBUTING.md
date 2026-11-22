@@ -313,17 +313,53 @@ func TestInsertEmptyTree(t *testing.T) {
 }
 ```
 
-## Implementation Checklist
+## Adding a Topic
 
-Before opening a pull request, check that:
+A topic is a folder with code and tests in Python, C++ and Go and its READMEs, a page on the site with an article and a visualization, and an entry in every list of topics. Work through this checklist in order. Each item names the check that enforces it and the command that runs that check; an item that no check enforces says so, and the reviewer looks at it by hand. Run the web commands in `web/`, after `npm ci` with Node 22. The [pull request template](.github/PULL_REQUEST_TEMPLATE.md) repeats the short form of this list.
 
-- [ ] the code follows the coding standards
-- [ ] `make test` passes (and `make test-web` if the site changed)
-- [ ] `python3 scripts/check_readme_style.py` passes for every README you touched
-- [ ] the READMEs match the code
-- [ ] comments explain why, with no commented-out code
-- [ ] commit titles read `type: <what is true afterwards>`
-- [ ] the branch is up to date with `master`
+### Folder and code
+
+- [ ] **It is not here yet.** Search the repository and the topic lists in [README.md](README.md) and [STUDY_GUIDE.md](STUDY_GUIDE.md); the topic may be part of a broader one. No check.
+- [ ] **One folder, where readers look for it first**: `<Area>/<Category>/<Topic_Name>/`, named as [Folder Names](#folder-names) says, with `Python/`, `C++/` and `Go/` inside. A folder with a language folder in it is a topic to every check below. Its page address comes from its path (`Dijkstras_Algorithm` becomes `dijkstras-algorithm`); an address that two folders share stops the site's repository scan in `web/src/lib/repo.ts`, so `npx vitest run` and `npm run build` fail.
+- [ ] **Python, the reference implementation**: `Python/<topic_name>.py` and `Python/<topic_name>_test.py`, a `unittest` file that imports the implementation by its module name. `make test-python` finds every `*_test.py` and runs `python3 -m unittest <module>` in the file's own folder, with a limit of 120 seconds per file ([scripts/run_one_python_test.sh](scripts/run_one_python_test.sh)).
+- [ ] **C++**: `C++/<topic_name>.cpp` and `C++/<topic_name>_test.cpp`. `make test-cpp` compiles each `*_test.cpp` alone, in its folder, with `g++ -std=c++17 -O2 -Wall -DIS_TEST_BUILD`, and runs it with a limit of 120 seconds ([scripts/run_one_cpp_test.sh](scripts/run_one_cpp_test.sh)). So the test includes the implementation (`#include "<topic_name>.cpp"`, or a header), a demo `main()` in the implementation sits inside `#ifndef IS_TEST_BUILD`, and a failed check exits with a non-zero status (a failed `assert` does). CI runs the same tests again under AddressSanitizer and UndefinedBehaviorSanitizer.
+- [ ] **Go**: `Go/main.go`, `Go/main_test.go` and the module's own `Go/go.mod`, which asks for Go 1.24 at most, the version CI installs. `make test-go` runs `go test ./...` in every folder with a `go.mod` ([scripts/run_one_go_module.sh](scripts/run_one_go_module.sh)).
+- [ ] **Tests** for every public operation, for edge cases (empty input, one element, duplicates) and for error cases, as [Testing Requirements](#testing-requirements) describes. C++ and Go implement at least the topic's core operations and agree with Python on them. `make test` runs all three languages; whether the cases are enough is up to the reviewer.
+
+### READMEs
+
+- [ ] **The topic README**, `<Topic_Name>/README.md`, with the sections of the [topic template](#readmemd-structure) in order, and facts that match the code. `python3 scripts/check_readme_style.py "<topic folder>"` requires the `# <Topic name>` title and every section from Intuition to Related, and rejects emoji and a "Last Updated" stamp. Whether the facts match the code is up to the reviewer.
+- [ ] **A language README** in each language folder, titled `# <Topic> -- <Language> Implementation`. The same command requires that title and the Files, API and How to Run sections; Language-Specific Notes and Key Takeaways complete the template.
+- [ ] **The category README** lists the topic in its `## Topics` table, in reading order, with what it adds and its level. `python3 scripts/check_readme_style.py "<category folder>"` fails when a sub-folder is not linked or a relative link does not resolve, and on any character that is not ASCII.
+- [ ] **The counts.** The number of topics appears in [README.md](README.md) (the total and the area table), in the area and category READMEs and overviews, and in each phase of the study guide. No check finds a stale count: search for the old number.
+
+### The article
+
+- [ ] **The file** `web/src/content/articles/<slug>.mdx`, named after the folder: its slug, with the parent folder's slug in front only when another topic folder has the same name. Checked by `web/src/content/articles.test.ts` (`npx vitest run src/content/articles.test.ts`, test "names every page after its folder").
+- [ ] **The front matter**: `topic` (the folder), `title`, `lead` (one or two sentences, at most 360 characters), `level` (`Beginner`, `Intermediate` or `Advanced`), `updated`, `facts` (2 to 6), and, when they apply, `properties` (yes or no, such as Stable), `prerequisites` and `related` (existing folders). The schema is `articleSchema` in `web/src/lib/article.ts`; `articles.test.ts` and `npm run build` (the content collection in `web/src/content.config.ts`) both check it, and `articles.test.ts` checks that every folder named exists.
+- [ ] **The body**: at least six `##` sections in the order [web/README.md](web/README.md#topic-articles) gives, an Implementation section, `<TopicCode topic="<topic folder>" />` for the topic's own code, the visualization as `<ArticleViz ids={['<id>']} />`, and only the components registered in `web/src/components/mdxNames.ts`. ASCII only (entities such as `&le;` in prose), no `{` in prose, no horizontal rule and no `#` heading. All checked by `articles.test.ts`. Every claim must match the code; that is up to the reviewer.
+- [ ] **Practice problems**: a `## Practice problems` section with at most a one-line paragraph, then one `<PracticeProblems problems={[ { name, site, url, idea }, ... ]} />` with 3 to 5 problems. `name` is the judge's own title, `site` the judge and the problem's number or id (`LeetCode 912`, `CSES 1068`, `Codeforces 118E`), `url` the problem's https page on a judge in `PRACTICE_JUDGES` (`web/src/lib/practice.ts`) without query parameters, `idea` one clause on what the problem practises; no problem twice. Checked by `web/src/lib/practice.test.ts` (`npx vitest run src/lib/practice.test.ts`). A topic that no judge has a problem for is added to `NO_JUDGE_PROBLEMS` in that test with the reason, and its README keeps exercises instead. Whether each problem still exists on its judge under that name and number, and is not premium, is checked by `python3 scripts/check_practice_links.py` (`--judge leetcode` and so on for one judge), which [a weekly workflow](.github/workflows/practice-links.yml) also runs.
+
+### The visualization
+
+- [ ] **A tracer**, `web/src/viz/algorithms/<name>.ts`, that returns one frame per step, each with a caption that says why the step happens, and its test `<name>.test.ts` against a brute force or a reference implementation (`npx vitest run src/viz/algorithms/<name>.test.ts`).
+- [ ] **A renderer**: reuse one in `web/src/viz/renderers/`, or add one built from the atoms and molecules in `web/src/viz/ui/`. `npx astro check` type-checks it; the look is up to the reviewer.
+- [ ] **A spec** in `web/src/viz/specs/`: the parser, the tracer, the renderer, the examples, a random input, the legend and the pseudocode, whose lines match the `line` indices the tracer emits.
+- [ ] **The catalog entry** in the area's file in `web/src/viz/registry/`: `id`, `title`, `group` (one of `VIZ_GROUP_ORDER` in `web/src/viz/catalog.ts`), `blurb` and `topics`, the home topic folder first and then every other article or category overview that embeds the visualization, plus a loader. `web/src/viz/catalog.test.ts` checks unique ids, a loader for each entry, existing folders, that `topics` names exactly the pages whose `<ArticleViz>` embeds it, and runs every example and 25 random inputs through the tracer, checking captions and pseudocode lines.
+- [ ] **Golden fixtures**, when the tracer re-implements the Python code: a generator `web/scripts/gen_<area>_fixtures.py` (or a new case in an existing one) runs the Python implementation on fixed inputs and writes `web/src/viz/algorithms/__fixtures__/<area>.json`, and the tracer's test must reproduce every value. CI runs every generator (`for script in web/scripts/gen_*_fixtures.py; do python3 "$script"; done`) and fails if any fixture changes.
+
+### Lists and overviews
+
+- [ ] **The category overview**, `web/src/content/categories/<category>.mdx`, when the category has one: the folder in `contents`, in reading order. `articles.test.ts` fails unless `contents` names every sub-folder exactly once.
+- [ ] **The study guide**: the topic in its phase and section of [STUDY_GUIDE.md](STUDY_GUIDE.md), with its level, and at the same place in the matching `<TopicList>` of `web/src/content/pages/study-guide.mdx`. `articles.test.ts` fails when the page misses a topic or lists one twice, and when the page and STUDY_GUIDE.md list the topics in a different order.
+
+### Before the pull request
+
+- [ ] **The web checks**, in `web/`: `npx vitest run` (every unit test above), `npx astro check` (types) and `npm run build`, whose output must have no `[broken-link]` line (a README link that resolves nowhere). `make test-web` runs the three; CI's web job runs them and the fixture generators.
+- [ ] **ASCII only** in every file you add. `articles.test.ts` rejects any other character in an MDX page and `check_readme_style.py` in a category README; for the other files, `perl -ne 'print "$ARGV:$.: $_" if /[^\x00-\x7F]/; close ARGV if eof' <files>` prints every line that has one. The site's TypeScript writes symbols as escapes ([web/README.md](web/README.md#conventions)).
+- [ ] **A CHANGELOG entry** under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md), under `### Added`, written for a reader in the format [RELEASING.md](RELEASING.md) describes: `- **What is new**: one line a reader can act on, then the detail.` No check; the release moves it into the version's section.
+- [ ] **The whole suite**: `make test`, `python3 scripts/check_readme_style.py --all` and `make test-web`. CI runs them on every pull request, with the C++ tests again under the sanitizers and the fixture generators.
+- [ ] **The pull request**: commit titles read `type: <what is true afterwards>`, the branch is up to date with `master`, comments explain why and no code is commented out. No check; the reviewer reads them.
 
 ## Code Review Process
 
@@ -339,82 +375,15 @@ Before opening a pull request, check that:
 - Documentation that matches the code
 - Performance where it matters
 
-## Adding a New Data Structure or Algorithm
+## Reporting Bugs and Requesting Topics
 
-1. **Check it is not already there.** Search the repository, and see the topic lists in [README.md](README.md) and [STUDY_GUIDE.md](STUDY_GUIDE.md).
+Open an issue with one of the [issue forms](https://github.com/snykk/dsa-playground/issues/new/choose), kept in [.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/):
 
-2. **Create the folder** in the area where readers look for it first (see Folder Names):
+- **Bug report**: wrong output, a crash or a failing test in the Python, C++ or Go code, or something broken on the site or in a visualization.
+- **Content error**: a wrong statement in a README or an article. Running the code is the best evidence.
+- **Topic request**: a data structure, algorithm or pattern to add, where it belongs and why.
 
-   ```text
-   Data_Structures/Non_Linear/Trees/Your_Topic/
-     README.md
-     Python/
-     C++/
-     Go/
-   ```
-
-3. **Implement it in all three languages**, each with a test file covering every operation, edge cases and error cases.
-
-4. **Write the documentation**: the topic README and a README in each language folder, following the templates above.
-
-5. **Link it**: add it to the category README's `## Topics` table, and to the study guide if it belongs in a phase.
-
-6. **Check and submit**: run `make test` and `python3 scripts/check_readme_style.py "<your topic folder>"`, then open the pull request.
-
-## Reporting Bugs
-
-### Bug Report Template
-
-````markdown
-**Describe the bug**
-A clear description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Run '...'
-3. See error
-
-**Expected behavior**
-What you expected to happen.
-
-**Actual behavior**
-What actually happened.
-
-**Environment:**
-- Language: [Python/C++/Go]
-- Version: [e.g. Python 3.9]
-- OS: [e.g. Windows 10]
-
-**Code Example**
-```python
-# Minimal code to reproduce
-```
-
-**Additional context**
-Any other relevant information.
-````
-
-## Suggesting Features
-
-### Feature Request Template
-
-```markdown
-**Feature Description**
-A clear description of the feature you'd like to see.
-
-**Use Case**
-Why is this feature useful? What problem does it solve?
-
-**Proposed Implementation**
-How would you implement this? (Optional)
-
-**Alternatives**
-Any alternative solutions you've considered.
-
-**Additional Context**
-Any other relevant information.
-```
+For anything else, open a blank issue.
 
 ## Documentation Contributions
 
