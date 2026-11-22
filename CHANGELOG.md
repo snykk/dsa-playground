@@ -15,6 +15,11 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+### Added
+
+- **A Code of Conduct** (`CODE_OF_CONDUCT.md`): the Contributor Covenant 2.1, with the address to report a violation to. CONTRIBUTING.md and the README point to it.
+- **A security policy** (`SECURITY.md`): which versions get fixes, how to report a vulnerability privately (GitHub's private vulnerability reporting, or email), what happens after a report, and what is in and out of scope. The issue chooser links to the private form, and the bug report form says not to report security problems there.
+
 ## [v0.8.0] - 2026-11-22
 
 Site search, practice problems on every article, link previews, conveniences in the player and the study guide, an accessibility pass, and documents for contributors.
