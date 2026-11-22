@@ -1,0 +1,47 @@
+name: Practice links
+
+# Checks that every practice problem the articles link to still exists on its judge, under the
+# name and number the article gives, and is not premium. Judges rename, move and paywall
+# problems, so this runs every week. It depends on outside sites, so it never runs on a push or
+# a pull request: a judge that is down must not block a change. A Cloudflare challenge or a
+# timeout is reported as "could not check" and does not fail the run;
+# scripts/check_practice_links.py describes the checks.
+
+on:
+  schedule:
+    - cron: "23 5 * * 1"  # Mondays at 05:23 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: practice-links
+  cancel-in-progress: false
+
+defaults:
+  run:
+    # bash with -e and -o pipefail, so a failing command before a pipe fails the step
+    shell: bash
+
+jobs:
+  practice-links:
+    name: Practice problems exist on their judges
+    runs-on: ubuntu-26.04  # pinned, like every job in ci.yml
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The parts that need no network: reading the entries, labels, names and answers.
+      - name: Unit tests of the checker
+        run: python3 -m unittest discover -s scripts -p "test_*.py"
+
+      # About 280 LeetCode requests with a pause between them, and one request or page for
+      # each problem on the other judges: a few minutes.
+      - name: Check every practice link
+        run: python3 scripts/check_practice_links.py

@@ -1,0 +1,43 @@
+name: Topic request
+description: A data structure, algorithm or problem pattern the repository does not cover yet.
+title: "Topic: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        First check the topic tables in the README and the study guide: the topic may be there under another name, or inside a broader topic. CONTRIBUTING.md lists everything a new topic needs, if you would like to add it yourself.
+
+  - type: input
+    id: topic
+    attributes:
+      label: Topic
+      description: What to add.
+      placeholder: Wavelet tree
+    validations:
+      required: true
+
+  - type: input
+    id: where
+    attributes:
+      label: Where it belongs
+      description: The area and category where readers would look for it first.
+      placeholder: Data_Structures/Non_Linear/Trees
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: What it adds that the existing topics do not, the problems it solves, and the topics it builds on.
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Optional. A textbook chapter, a paper, lecture notes, or judge problems that need it.
+    validations:
+      required: false
