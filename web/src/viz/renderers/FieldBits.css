@@ -34,7 +34,7 @@
   opacity: 0.45;
 }
 .field-bits .fb-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 

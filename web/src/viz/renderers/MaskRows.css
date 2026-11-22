@@ -39,7 +39,7 @@
   opacity: 0.5;
 }
 .ok-svg .mr-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 

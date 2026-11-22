@@ -73,7 +73,7 @@
   }
 }
 .env-view .env-label {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 11px;
   font-weight: 700;
   paint-order: stroke;
@@ -92,7 +92,7 @@
   stroke-dasharray: 4 4;
 }
 .env-view .env-probe-label {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 11px;
   font-weight: 700;
 }
@@ -110,7 +110,7 @@
   animation: viz-pop 0.35s ease;
 }
 .env-view .env-mark text {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 11px;
   font-weight: 700;
   paint-order: stroke;
@@ -169,8 +169,8 @@
   opacity: 0.5;
   text-decoration: line-through;
 }
-.env-view .env-glyph {
-  fill: var(--role);
+.env-view .env-cell text.env-glyph {
+  fill: var(--role-text);
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;

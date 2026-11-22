@@ -1,11 +1,14 @@
-/* Role -> color token mapping shared by every visualization atom. */
-.viz .role-idle { --role: var(--viz-neutral); }
-.viz .role-compare { --role: var(--viz-compare); }
-.viz .role-active { --role: var(--viz-active); }
-.viz .role-done { --role: var(--viz-done); }
-.viz .role-good { --role: var(--viz-good); }
-.viz .role-bad { --role: var(--viz-bad); }
-.viz .role-muted { --role: var(--viz-neutral); }
+/* Role -> color token mapping shared by every visualization atom (see tokens.css). Besides the
+ * role's colour (--role) each role sets the ink for text drawn on its fill (--viz-ink-on-fill:
+ * white on the deep fills, the dark ink on the bright ones) and the colour for text written in
+ * the role's colour on the stage (--role-text), so every label keeps 4.5:1. */
+.viz .role-idle { --role: var(--viz-neutral); --role-text: var(--viz-neutral-text); --viz-ink-on-fill: var(--viz-ink-on-bright); }
+.viz .role-compare { --role: var(--viz-compare); --role-text: var(--viz-compare-text); --viz-ink-on-fill: var(--viz-ink-on-compare); }
+.viz .role-active { --role: var(--viz-active); --role-text: var(--viz-active-text); --viz-ink-on-fill: var(--viz-ink-on-bright); }
+.viz .role-done { --role: var(--viz-done); --role-text: var(--viz-done-text); --viz-ink-on-fill: var(--viz-ink-on-bright); }
+.viz .role-good { --role: var(--viz-good); --role-text: var(--viz-good-text); --viz-ink-on-fill: var(--viz-ink-on-bright); }
+.viz .role-bad { --role: var(--viz-bad); --role-text: var(--viz-bad-text); --viz-ink-on-fill: var(--viz-ink-on-deep); }
+.viz .role-muted { --role: var(--viz-neutral); --role-text: var(--viz-neutral-text); --viz-ink-on-fill: var(--viz-ink-on-bright); }
 
 @media (prefers-reduced-motion: reduce) {
   .viz *,

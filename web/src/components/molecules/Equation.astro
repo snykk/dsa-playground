@@ -17,9 +17,11 @@ const { expr, label, result } = Astro.props;
   {
     result && (
       <span class="eq-result">
-        <span class="arrow" aria-label="which gives">
+        {/* aria-label is not read on a plain span: hide the arrow and say it in words instead. */}
+        <span class="arrow" aria-hidden="true">
           &#x21d2;
         </span>
+        <span class="visually-hidden">which gives</span>
         <span set:html={formatInline(result)} />
       </span>
     )

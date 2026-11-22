@@ -23,7 +23,7 @@
   font-weight: 600;
 }
 .strassen-view .sv-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 .strassen-view .sv-frame {

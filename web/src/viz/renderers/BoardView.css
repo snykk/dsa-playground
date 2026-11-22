@@ -157,7 +157,7 @@
   animation: board-drop 0.3s ease;
 }
 .board .board-tried {
-  fill: var(--text-3);
+  fill: var(--text-2);
   font-size: 15px;
 }
 .board .board-glyph circle {
@@ -166,7 +166,7 @@
   stroke-width: 1.5;
 }
 .board .board-glyph text {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 9px;
   font-weight: 700;
 }
@@ -213,7 +213,7 @@
 .board-stack .viz-token.role-good,
 .board-stack .viz-token.role-bad {
   border-color: var(--role);
-  color: var(--role);
+  color: var(--role-text);
   font-weight: 700;
 }
 .board-stack .viz-token.role-muted {

@@ -23,7 +23,7 @@ if (issues.length > 0) throw new Error(`PracticeProblems: ${issues.join('; ')}`)
       <li>
         <a href={p.url} target="_blank" rel="noopener noreferrer">
           {p.name}
-          <span class="visually-hidden"> (opens on {p.site.split(' ')[0]})</span>
+          <span class="visually-hidden"> (on {p.site.split(' ')[0]}, opens in a new tab)</span>
         </a>
         <span class="site">{p.site}</span>
         <p set:html={formatInline(p.idea)} />
@@ -55,7 +55,7 @@ if (issues.length > 0) throw new Error(`PracticeProblems: ${issues.join('; ')}`)
     font-family: var(--font-mono);
     font-weight: 700;
     font-size: 14px;
-    color: var(--accent);
+    color: var(--accent-text);
   }
   li > * {
     grid-column: 2;

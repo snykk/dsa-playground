@@ -13,6 +13,7 @@ const linkProps = external ? { target: '_blank', rel: 'noopener noreferrer' } : 
   href ? (
     <a class="chip" href={href} {...linkProps}>
       <slot />
+      {external && <span class="visually-hidden"> (opens in a new tab)</span>}
     </a>
   ) : (
     <span class="chip">

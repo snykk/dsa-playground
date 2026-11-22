@@ -45,11 +45,11 @@
   font-size: 12px;
 }
 .bit-rows .bitrows-row:not(.role-idle):not(.role-muted) .bitrows-value {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 .bit-rows .bitrows-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 .bit-rows .bitrows-row.muted text,

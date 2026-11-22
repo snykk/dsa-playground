@@ -37,7 +37,7 @@ const base = import.meta.env.BASE_URL;
     <Button href={joinBase(base, 'visualizations')} variant="primary">Browse visualizations</Button>
     <Button href={joinBase(base, 'study-guide')}>Follow the study guide</Button>
   </div>
-  <div class="hero-demo" aria-label="Live demo: quick sort on random input">
+  <div class="hero-demo" role="group" aria-label="Live demo: quick sort on random input">
     <VizMount client:visible ids={['quick-sort']} autoplay loop compact />
   </div>
 </section>

@@ -50,7 +50,7 @@
   font: 700 10px var(--font-sans);
   background: var(--viz-surface);
   border: 1.5px solid var(--role);
-  color: var(--role);
+  color: var(--role-text);
 }
 .cell.role-muted {
   opacity: 0.4;

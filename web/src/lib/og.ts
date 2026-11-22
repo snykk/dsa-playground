@@ -68,7 +68,7 @@ const C = {
   axis: '#c2cad6',
   ink: '#1c2230',
   ink2: '#4a5468',
-  ink3: '#6b7487',
+  ink3: '#5c6578',
   step: '#2a5fd0',
   neutral: '#c9d0db',
   compare: '#2a78d6',

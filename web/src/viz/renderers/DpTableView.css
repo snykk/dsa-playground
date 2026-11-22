@@ -36,7 +36,7 @@
 }
 /* A highlighted header: the current mask or position reads in bold, on a tinted pill. */
 .dt-view .dt-head:not(.role-idle) {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 .dt-view .dt-rowhead rect {
@@ -142,7 +142,7 @@
 .dt-view .dt-glyph,
 .dt-view .dt-cell text.dt-glyph,
 .dt-view .dt-chip text.dt-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;

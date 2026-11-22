@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { InputError, type AnyVizSpec, type Frame } from '../../core/types';
 import { usePlayback } from '../hooks/usePlayback';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { captionLive } from '../live';
 import { AlgorithmTabs } from '../molecules/AlgorithmTabs';
 import { InputPanel } from '../molecules/InputPanel';
 import { Legend } from '../molecules/Legend';
@@ -201,7 +202,7 @@ export function Player({ specs, autoplay = false, loop = false, compact = false 
 
       <Legend entries={spec.legend} />
 
-      <p className="viz-caption" aria-live={autoplay ? 'off' : 'polite'}>
+      <p className="viz-caption" aria-live={captionLive(playback.playing, autoplay)}>
         {frame?.caption}
       </p>
 

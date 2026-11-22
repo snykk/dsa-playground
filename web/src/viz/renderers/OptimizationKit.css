@@ -78,7 +78,7 @@
   fill: var(--text-3);
 }
 .ok-svg .ok-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
@@ -140,7 +140,7 @@
   opacity: 0.55;
 }
 .ok-svg .ok-line-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
 }
 .ok-svg .ok-title {
   text-anchor: start;

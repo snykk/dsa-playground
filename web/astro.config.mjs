@@ -3,6 +3,7 @@ import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
+import { codeContrast } from './src/lib/codeColors.ts';
 
 // GitHub project pages serve the site from https://<owner>.github.io/<repo>/.
 // Override SITE_URL / SITE_BASE for a custom domain (e.g. SITE_BASE=/).
@@ -26,6 +27,8 @@ export default defineConfig({
       themes: { light: 'github-light', dark: 'github-dark' },
       defaultColor: 'light',
       wrap: false,
+      // Two token colours of these themes are too faint to read (src/lib/codeColors.ts).
+      transformers: [codeContrast],
     },
   },
   // The floating dev toolbar covers page content while reviewing locally.

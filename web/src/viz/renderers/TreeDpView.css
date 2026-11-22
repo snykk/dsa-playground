@@ -94,8 +94,8 @@
 .td-view .td-cell.role-muted rect {
   stroke-dasharray: 3 3;
 }
-.td-view .td-glyph {
-  fill: var(--role);
+.td-view .td-cell text.td-glyph {
+  fill: var(--role-text);
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;

@@ -35,7 +35,7 @@
   font-size: 12px;
 }
 .nim-view .nim-verdict {
-  fill: var(--role);
+  fill: var(--role-text);
   font-family: var(--font-sans);
   font-weight: 700;
 }

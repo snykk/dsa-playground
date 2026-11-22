@@ -38,7 +38,7 @@
   fill: color-mix(in srgb, var(--role) 14%, transparent);
 }
 .chain-view .c-box.sentinel:not(.role-idle):not(.role-muted) .c-label {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 .chain-view .c-box.ghost {
@@ -133,7 +133,7 @@
   stroke-width: 4px;
 }
 .chain-view .c-ptr:not(.role-idle) text {
-  fill: var(--role);
+  fill: var(--role-text);
 }
 .chain-view .c-ptr line {
   stroke: var(--viz-neutral);
@@ -152,7 +152,7 @@
   font-variant-numeric: tabular-nums;
 }
 .chain-view .c-lane:not(.role-idle):not(.role-muted) {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 
@@ -163,6 +163,6 @@
   color: var(--text-2);
 }
 .chain-note .c-null-ref:not(.role-idle):not(.role-muted) .c-null-name {
-  color: var(--role);
+  color: var(--role-text);
   font-weight: 700;
 }

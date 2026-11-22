@@ -63,11 +63,18 @@
     z-index: 30;
     background: var(--bg);
     transform: translateX(-100%);
-    transition: transform 0.2s ease;
+    /* Closed, the drawer is also hidden: its links leave the tab order and the accessibility
+       tree instead of taking focus off screen. Visibility flips after the slide-out. */
+    visibility: hidden;
+    transition:
+      transform 0.2s ease,
+      visibility 0s linear 0.2s;
     box-shadow: var(--shadow);
   }
   body.nav-open .sidebar {
     transform: none;
+    visibility: visible;
+    transition: transform 0.2s ease;
   }
   .content {
     padding: 20px 16px 48px;

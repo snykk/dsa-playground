@@ -83,7 +83,7 @@
 .huffman-forest .hf-edge.role-active text,
 .huffman-forest .hf-edge.role-done text,
 .huffman-forest .hf-edge.role-compare text {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 12px;
 }
 .huffman-forest .hf-freq {

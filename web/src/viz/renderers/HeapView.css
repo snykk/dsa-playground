@@ -95,7 +95,7 @@
   font-weight: 700;
 }
 .heap-view .h-marker:not(.role-idle) text {
-  fill: var(--role);
+  fill: var(--role-text);
 }
 
 .heap-note {

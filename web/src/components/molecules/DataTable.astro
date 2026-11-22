@@ -37,7 +37,8 @@ const yesNo = (cell: string): 'yes' | 'no' | undefined => (/^yes\b/i.test(cell) 
           {
             cols.map((c) => (
               <Fragment>
-                <th scope="col" class={c.align ?? 'left'}>{c.label}</th>{' '}
+                {/* An empty corner over the row headers is a plain cell: a header must name something. */}
+                {c.label ? <th scope="col" class={c.align ?? 'left'}>{c.label}</th> : <td class={c.align ?? 'left'} />}{' '}
               </Fragment>
             ))
           }
@@ -106,7 +107,8 @@ const yesNo = (cell: string): 'yes' | 'no' | undefined => (/^yes\b/i.test(cell) 
   .right {
     text-align: right;
   }
-  thead th {
+  thead th,
+  thead td {
     background: var(--surface-2);
     color: var(--text-2);
     font-size: 13px;

@@ -71,7 +71,7 @@
   fill: var(--viz-ink-on-fill);
 }
 .rope-view .r-mark {
-  fill: var(--role);
+  fill: var(--role-text);
 }
 .rope-view .r-slice {
   stroke: var(--viz-active);
@@ -84,7 +84,7 @@
   font-variant-numeric: tabular-nums;
 }
 .rope-view .r-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 12px;
   font-weight: 700;
   text-anchor: end;
@@ -117,10 +117,10 @@
   text-anchor: middle;
 }
 .rope-view .r-piece:not(.role-idle) .r-piece-label {
-  fill: var(--role);
+  fill: var(--role-text);
 }
 .rope-view .r-pointer {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 12px;
   font-weight: 700;
   paint-order: stroke;
