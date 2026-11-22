@@ -99,8 +99,8 @@
 .judge-view .jv-cell.role-muted {
   opacity: 0.4;
 }
-.judge-view .jv-cell .jv-cell-note,
-.judge-view .jv-cell .jv-index {
+.judge-view .jv-cell text.jv-cell-note,
+.judge-view .jv-cell text.jv-index {
   fill: var(--text-3);
   font-family: var(--font-sans);
   font-size: 10px;
@@ -122,7 +122,7 @@
   stroke-width: 2.5;
 }
 .judge-view .jv-mid text {
-  fill: var(--viz-active);
+  fill: var(--viz-active-text);
   font-size: 11px;
   font-weight: 700;
 }
@@ -180,7 +180,7 @@
 }
 .judge-view .jv-status {
   text-anchor: start;
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 13px;
   font-weight: 700;
 }

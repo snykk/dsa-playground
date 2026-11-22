@@ -28,4 +28,9 @@ describe('renderMarkdown', () => {
     expect(html).toMatch(/target="_blank"/);
     expect(html).toMatch(/rel="noopener noreferrer"/);
   });
+
+  it('keeps the token colours of code blocks readable', async () => {
+    const { html } = await renderMarkdown('```go\nvar value int\n```\n', RS);
+    expect(html).not.toMatch(/#E36209/i);
+  });
 });

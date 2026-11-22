@@ -58,7 +58,7 @@
   opacity: 0.35;
 }
 .ac-view .ac-head {
-  fill: var(--role);
+  fill: var(--role-text);
 }
 .ac-view marker.role-idle .ac-head,
 .ac-view marker.role-muted .ac-head {

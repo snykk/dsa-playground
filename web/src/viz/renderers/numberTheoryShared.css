@@ -59,7 +59,7 @@
   stroke-width: 1.5;
 }
 .nt-svg .nt-cell .nt-glyph text {
-  fill: var(--role);
+  fill: var(--role-text);
   font: 700 9px var(--font-sans);
 }
 .nt-blank {

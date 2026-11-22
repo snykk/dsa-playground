@@ -55,7 +55,7 @@
     height 0.35s ease;
 }
 .ok-svg .io-caret {
-  fill: var(--viz-active);
+  fill: var(--viz-active-text);
   transition: transform 0.35s ease;
 }
 
@@ -146,7 +146,7 @@
   opacity: 0.4;
 }
 .ok-svg .io-index {
-  fill: var(--viz-active);
+  fill: var(--viz-active-text);
 }
 .ok-svg .io-none {
   text-anchor: start;

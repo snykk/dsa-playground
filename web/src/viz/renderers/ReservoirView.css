@@ -125,7 +125,7 @@
   stroke-width: 2;
 }
 .reservoir-view .rv-draw .hit text {
-  fill: var(--viz-ink-on-fill);
+  fill: var(--viz-ink-on-bright);
   font-weight: 700;
 }
 .reservoir-view .rv-j {
@@ -146,7 +146,7 @@
   fill: var(--viz-done);
 }
 .reservoir-view .rv-tally text {
-  fill: var(--viz-ink-on-fill);
+  fill: var(--viz-ink-on-bright);
   font-size: 10px;
   font-weight: 700;
 }

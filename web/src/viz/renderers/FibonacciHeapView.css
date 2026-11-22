@@ -48,7 +48,7 @@
   stroke-width: 3px;
 }
 .fib-view .fh-ptr:not(.role-idle) {
-  fill: var(--role);
+  fill: var(--role-text);
 }
 
 /* degree_table: one cell per degree, filled with the root stored there. */

@@ -29,7 +29,7 @@
   text-anchor: end;
 }
 .amz-view .amz-block.role-active .amz-label {
-  fill: var(--viz-active);
+  fill: var(--viz-active-text);
 }
 .amz-view .amz-sub {
   fill: var(--text-3);

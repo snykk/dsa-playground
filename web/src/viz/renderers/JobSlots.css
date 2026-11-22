@@ -54,11 +54,11 @@
   font-size: 11px;
 }
 .job-slots .js-slot:not(.role-idle) .js-num {
-  fill: var(--role);
+  fill: var(--role-text);
   font-weight: 700;
 }
 .job-slots .js-slot-glyph {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 12px;
   font-weight: 700;
 }
@@ -104,7 +104,7 @@
   fill: var(--role);
   stroke: var(--role);
 }
-.job-slots .js-card:not(.role-idle):not(.role-muted) text {
+.job-slots .js-card:not(.role-idle):not(.role-muted) > text {
   fill: var(--viz-ink-on-fill);
 }
 .job-slots .js-card.role-compare rect {
@@ -130,7 +130,7 @@
   stroke-width: 1.5;
 }
 .job-slots .js-glyph text {
-  fill: var(--role);
+  fill: var(--role-text);
   font-size: 10px;
   font-weight: 700;
 }

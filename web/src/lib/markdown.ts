@@ -8,6 +8,7 @@
 import { createMarkdownProcessor, type MarkdownHeading, type MarkdownProcessor } from '@astrojs/markdown-remark';
 import type { Element, ElementContent, Root } from 'hast';
 import { CONTINUE, visit } from 'unist-util-visit';
+import { codeContrast } from './codeColors';
 import { getContent, resolveLink } from './repo';
 
 export interface RenderedMarkdown {
@@ -85,6 +86,7 @@ function getProcessor(): Promise<MarkdownProcessor> {
       themes: { light: 'github-light', dark: 'github-dark' },
       defaultColor: 'light',
       wrap: false,
+      transformers: [codeContrast],
     },
     rehypePlugins: [rehypeRepoLinks],
   });

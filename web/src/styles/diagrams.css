@@ -11,7 +11,7 @@
 .dg-tone.tone-p {
   --dg-fill: var(--viz-active);
   --dg-stroke: var(--viz-active);
-  --dg-ink: var(--viz-ink-on-fill);
+  --dg-ink: var(--viz-ink-on-bright);
 }
 .dg-tone.tone-l {
   --dg-fill: color-mix(in srgb, var(--viz-compare) 22%, var(--surface));
@@ -27,7 +27,7 @@
 .dg-tone.tone-f {
   --dg-fill: var(--viz-done);
   --dg-stroke: var(--viz-done);
-  --dg-ink: var(--viz-ink-on-fill);
+  --dg-ink: var(--viz-ink-on-bright);
 }
 .dg-tone.tone-m {
   opacity: 0.4;

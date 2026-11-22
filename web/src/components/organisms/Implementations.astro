@@ -1,5 +1,6 @@
 ---
 import { Code } from 'astro:components';
+import { codeContrast } from '../../lib/codeColors';
 import { renderMarkdown } from '../../lib/markdown';
 import { githubUrl, type DocNode } from '../../lib/repo';
 import SectionTitle from '../atoms/SectionTitle.astro';
@@ -71,7 +72,7 @@ const lineCount = (code: string) => code.replace(/\n$/, '').split('\n').length;
                 </span>
               </summary>
               <div class="code-block">
-                <Code code={f.code} lang={f.lang as 'python'} themes={{ light: 'github-light', dark: 'github-dark' }} />
+                <Code code={f.code} lang={f.lang as 'python'} themes={{ light: 'github-light', dark: 'github-dark' }} transformers={[codeContrast]} />
               </div>
             </details>
           ))}
