@@ -15,10 +15,18 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+## [v0.8.1] - 2026-11-22
+
+A Code of Conduct, a security policy, and workflows on Node 24.
+
 ### Added
 
 - **A Code of Conduct** (`CODE_OF_CONDUCT.md`): the Contributor Covenant 2.1, with the address to report a violation to. CONTRIBUTING.md and the README point to it.
 - **A security policy** (`SECURITY.md`): which versions get fixes, how to report a vulnerability privately (GitHub's private vulnerability reporting, or email), what happens after a report, and what is in and out of scope. The issue chooser links to the private form, and the bug report form says not to report security problems there.
+
+### Changed
+
+- **The workflows use the Node 24 releases of GitHub's actions** (checkout, setup-python, setup-go and setup-node v7, upload-pages-artifact and deploy-pages v5), so jobs no longer warn that Node.js 20 is deprecated. The site is still built with Node 22.
 
 ## [v0.8.0] - 2026-11-22
 
@@ -284,6 +292,7 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
+[v0.8.1]: https://github.com/snykk/dsa-playground/releases/tag/v0.8.1
 [v0.8.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.8.0
 [v0.7.1]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.1
 [v0.7.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.0
