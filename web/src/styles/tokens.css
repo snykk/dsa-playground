@@ -39,7 +39,8 @@
   --radius: 10px;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Dark tokens apply on screen only: a page always prints in the light theme. */
+@media screen and (prefers-color-scheme: dark) {
   :root:where(:not([data-theme='light'])) {
     color-scheme: dark;
     --bg: #10141b;
@@ -66,27 +67,29 @@
   }
 }
 
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --bg: #10141b;
-  --surface: #161b24;
-  --surface-2: #1d2430;
-  --surface-3: #252d3b;
-  --text: #e6eaf2;
-  --text-2: #a6b0c3;
-  --text-3: #8a94a8;
-  --border: rgba(230, 234, 242, 0.1);
-  --border-strong: rgba(230, 234, 242, 0.2);
-  --grid: #232b38;
-  --axis: #354052;
-  --link: #8fb0f5;
-  --accent: #4570d8;
-  --accent-soft: #1e3260;
-  --focus: #7aa2f7;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
-  --viz-neutral: #7c8597;
-  --viz-compare: #3987e5;
-  --viz-active: #d95926;
-  --viz-done: #199e70;
-  --viz-surface: #161b24;
+@media screen {
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+    --bg: #10141b;
+    --surface: #161b24;
+    --surface-2: #1d2430;
+    --surface-3: #252d3b;
+    --text: #e6eaf2;
+    --text-2: #a6b0c3;
+    --text-3: #8a94a8;
+    --border: rgba(230, 234, 242, 0.1);
+    --border-strong: rgba(230, 234, 242, 0.2);
+    --grid: #232b38;
+    --axis: #354052;
+    --link: #8fb0f5;
+    --accent: #4570d8;
+    --accent-soft: #1e3260;
+    --focus: #7aa2f7;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+    --viz-neutral: #7c8597;
+    --viz-compare: #3987e5;
+    --viz-active: #d95926;
+    --viz-done: #199e70;
+    --viz-surface: #161b24;
+  }
 }

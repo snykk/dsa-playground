@@ -13,4 +13,10 @@
     background: var(--surface);
     overflow: hidden;
   }
+  /* A clipping box cannot be split across pages, and the questions may fill more than one. */
+  @media print {
+    .faq {
+      overflow: visible;
+    }
+  }
 </style>

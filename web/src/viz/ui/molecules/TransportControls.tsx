@@ -1,3 +1,4 @@
+import type { Ref } from 'react';
 import { IconButton } from '../atoms/IconButton';
 import { SYM } from '../symbols';
 import './TransportControls.css';
@@ -13,10 +14,33 @@ interface Props {
   onTogglePlay: () => void;
   onSeek: (index: number) => void;
   onSpeed: (speed: number) => void;
+  /** Copy a link to this step; the button shows when given. */
+  onCopyLink?: () => void;
+  /** Open the keyboard shortcut list; the button shows when given. */
+  onShortcuts?: () => void;
+  /** A short message about the last action ("Link copied"), announced to screen readers. */
+  status?: string;
+  linkButtonRef?: Ref<HTMLButtonElement>;
 }
 
-/** First / previous / play-pause / next / last, a step scrubber, the step counter and speed. */
-export function TransportControls({ index, count, playing, speed, onStep, onTogglePlay, onSeek, onSpeed }: Props) {
+/**
+ * First / previous / play-pause / next / last, a step scrubber, the step counter and speed;
+ * optionally a "copy a link to this step" button, a shortcut-list button and a status line.
+ */
+export function TransportControls({
+  index,
+  count,
+  playing,
+  speed,
+  onStep,
+  onTogglePlay,
+  onSeek,
+  onSpeed,
+  onCopyLink,
+  onShortcuts,
+  status = '',
+  linkButtonRef,
+}: Props) {
   const last = Math.max(0, count - 1);
   return (
     <div className="viz-controls">
@@ -48,6 +72,18 @@ export function TransportControls({ index, count, playing, speed, onStep, onTogg
           ))}
         </select>
       </label>
+      {(onCopyLink || onShortcuts) && (
+        <div className="viz-extras">
+          {onCopyLink && (
+            <IconButton icon="link" label="Copy a link to this step" onClick={onCopyLink} disabled={count === 0} buttonRef={linkButtonRef} />
+          )}
+          {onShortcuts && <IconButton icon="keyboard" label="Keyboard shortcuts" onClick={onShortcuts} hasPopup="dialog" />}
+          {/* Always in the page, so a screen reader hears each new message. */}
+          <span className="viz-status" role="status">
+            {status}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

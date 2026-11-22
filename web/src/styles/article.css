@@ -83,3 +83,43 @@
   font-size: 14px;
   color: var(--text-3);
 }
+
+/* Print: a book's type size, headings kept with what follows, figures and tables in one
+ * piece, colors as shown (diagram tones and table shading carry meaning), and the address of
+ * every link that leaves the site, since paper cannot follow it. */
+@media print {
+  .article {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .article-body {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .article-body > h2 {
+    margin-top: 32px;
+  }
+  .article-body > :is(h2, h3) {
+    break-after: avoid;
+  }
+  .article-body > :is(p, ul, ol) {
+    orphans: 3;
+    widows: 3;
+  }
+  .article-body :is(figure, table, tr, .equation),
+  .article-body > pre {
+    break-inside: avoid;
+  }
+  .article-body > pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow: visible;
+  }
+  .article a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    font-weight: 400;
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+}

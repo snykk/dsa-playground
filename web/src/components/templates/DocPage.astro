@@ -75,4 +75,10 @@ const sourceLink = node ? githubUrl(node.rel, true) : githubUrl(doc?.rel ?? '', 
     gap: 8px;
     margin: 8px 0 24px;
   }
+  /* The chips jump within the page or to GitHub, which paper cannot do. */
+  @media print {
+    .page-meta {
+      display: none;
+    }
+  }
 </style>
