@@ -108,9 +108,10 @@ The interactive visualization on the topic page animates insert, delete and ever
 
 ## Practice Problems
 
-- LeetCode 110, Balanced Binary Tree (check the AVL property).
-- LeetCode 108, Convert Sorted Array to Binary Search Tree (build a height-balanced tree).
-- LeetCode 1382, Balance a Binary Search Tree.
+- [Balanced Binary Tree (LeetCode 110)](https://leetcode.com/problems/balanced-binary-tree/) (check the AVL property)
+- [Convert Sorted Array to Binary Search Tree (LeetCode 108)](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/) (build a height-balanced tree)
+- [Balance a Binary Search Tree (LeetCode 1382)](https://leetcode.com/problems/balance-a-binary-search-tree/)
+- [Josephus Problem II (CSES 2163)](https://cses.fi/problemset/task/2163) (a balanced tree with subtree sizes)
 
 ## Related
 

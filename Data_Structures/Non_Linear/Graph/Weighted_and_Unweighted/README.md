@@ -95,11 +95,12 @@ Calling `add_edge(0, 3, 1)` afterwards replaces the weight-10 edge, so the total
 
 ## Practice Problems
 
-- LeetCode 743: Network Delay Time
-- LeetCode 787: Cheapest Flights Within K Stops
-- LeetCode 1514: Path with Maximum Probability
-- LeetCode 1631: Path With Minimum Effort
-- LeetCode 1584: Min Cost to Connect All Points
+- [Message Route (CSES 1667)](https://cses.fi/problemset/task/1667) (unweighted: BFS)
+- [Network Delay Time (LeetCode 743)](https://leetcode.com/problems/network-delay-time/)
+- [Path with Maximum Probability (LeetCode 1514)](https://leetcode.com/problems/path-with-maximum-probability/)
+- [Path With Minimum Effort (LeetCode 1631)](https://leetcode.com/problems/path-with-minimum-effort/)
+- [Cheapest Flights Within K Stops (LeetCode 787)](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
+- [Min Cost to Connect All Points (LeetCode 1584)](https://leetcode.com/problems/min-cost-to-connect-all-points/)
 
 ## Related
 

@@ -98,9 +98,10 @@ Skip lists are used in practice: Redis sorted sets, the LevelDB memtable and Jav
 
 ## Practice Problems
 
-- [Design Skiplist](https://leetcode.com/problems/design-skiplist/)
-- [Design Linked List](https://leetcode.com/problems/design-linked-list/)
-- [Search in a Sorted Array of Unknown Size](https://leetcode.com/problems/search-in-a-sorted-array-of-unknown-size/)
+- [Design Linked List (LeetCode 707)](https://leetcode.com/problems/design-linked-list/)
+- [My Calendar I (LeetCode 729)](https://leetcode.com/problems/my-calendar-i/)
+- [Design Skiplist (LeetCode 1206)](https://leetcode.com/problems/design-skiplist/)
+- [Traffic Lights (CSES 1163)](https://cses.fi/problemset/task/1163)
 
 ## Related
 

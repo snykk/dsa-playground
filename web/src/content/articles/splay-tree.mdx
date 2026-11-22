@@ -250,3 +250,14 @@ The same potential argument gives further guarantees: accessing all keys in sort
     Delete. The key must be splayed to the root first, and both subtrees detached with cleared parent pointers before the maximum of the left subtree is splayed.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Time Based Key-Value Store', site: 'LeetCode 981', url: 'https://leetcode.com/problems/time-based-key-value-store/', idea: 'A floor query per key. A search that misses splays the last visited node, which is the predecessor or the successor of the missing key.' },
+    { name: 'My Calendar I', site: 'LeetCode 729', url: 'https://leetcode.com/problems/my-calendar-i/', idea: 'After a search for the new start, one neighbour of the booking is the root and the other is at the near end of one of its subtrees.' },
+    { name: 'Sliding Window Median', site: 'CSES 1076', url: 'https://cses.fi/problemset/task/1076', idea: 'Two splay trees, one per half of the window, rebalanced with `find_max`, `find_min`, insert and delete. Equal values need the index in the key.' },
+    { name: 'Substring Reversals', site: 'CSES 2073', url: 'https://cses.fi/problemset/task/2073', idea: 'Splay by position instead of by key: with subtree sizes, splay the two ends of the range into place and flip a lazy reverse flag on the subtree between them.' },
+  ]}
+/>

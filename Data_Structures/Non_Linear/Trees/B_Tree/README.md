@@ -109,6 +109,10 @@ All three have the same algorithms and are tested against a set or sorted list o
 
 ## Practice Problems
 
+- [Search Insert Position (LeetCode 35)](https://leetcode.com/problems/search-insert-position/) (the search inside one node)
+- [Distinct Numbers (CSES 1621)](https://cses.fi/problemset/task/1621) (set semantics)
+- [My Calendar I (LeetCode 729)](https://leetcode.com/problems/my-calendar-i/) (predecessor and successor)
+- [Contains Duplicate III (LeetCode 220)](https://leetcode.com/problems/contains-duplicate-iii/) (insert, delete and successor on a sliding window)
 - Add a `range_search(lo, hi)` on top of the tree and compare it with the B+ tree leaf scan in [B+ Tree](../B_Plus_Tree/README.md).
 - Make `insert` ignore existing keys (set semantics) and extend the random test to check it.
 - Add a `min()` / `max()` and a `predecessor(key)` query using only node descents.

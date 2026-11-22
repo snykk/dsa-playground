@@ -193,3 +193,14 @@ Python and Go use sentinel head and tail nodes with the front as the most recent
     Guard both operations with one lock, because even get mutates the list. Sharding the cache by key hash reduces contention.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Design Linked List', site: 'LeetCode 707', url: 'https://leetcode.com/problems/design-linked-list/', idea: 'Build the doubly linked list on its own first. Sentinel head and tail nodes remove the special cases at both ends.' },
+    { name: 'LRU Cache', site: 'LeetCode 146', url: 'https://leetcode.com/problems/lru-cache/', idea: 'The cache of this article: a hash map from key to node plus a list in recency order give O(1) get and put.' },
+    { name: 'Design Authentication Manager', site: 'LeetCode 1797', url: 'https://leetcode.com/problems/design-authentication-manager/', idea: 'A renewed token moves to the recent end and expired tokens leave from the old end: the same ordered map, with a time limit in place of the capacity.' },
+    { name: 'LFU Cache', site: 'LeetCode 460', url: 'https://leetcode.com/problems/lfu-cache/', idea: 'The follow-up: one recency list per use count, with LRU order breaking ties between keys used equally often.' },
+  ]}
+/>

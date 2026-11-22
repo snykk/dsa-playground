@@ -241,3 +241,14 @@ All three tables use separate chaining and double their capacity when the load f
     Order follows bucket order, which depends on the hash function and the capacity. A resize reshuffles it. Never rely on it.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Two Sum', site: 'LeetCode 1', url: 'https://leetcode.com/problems/two-sum/', idea: 'Map each value to its index and look up the complement before inserting the current value.' },
+    { name: 'Design HashMap', site: 'LeetCode 706', url: 'https://leetcode.com/problems/design-hashmap/', idea: 'Write `put`, `get` and `remove` over an array of chained buckets, the design of this article.' },
+    { name: 'Group Anagrams', site: 'LeetCode 49', url: 'https://leetcode.com/problems/group-anagrams/', idea: 'Grouping by a key: every word maps to a key that is the same for all its anagrams, and the key maps to the group.' },
+    { name: 'Subarray Sum Equals K', site: 'LeetCode 560', url: 'https://leetcode.com/problems/subarray-sum-equals-k/', idea: 'Count frequencies of prefix sums in a map, so that each position finds its matching earlier prefixes in O(1).' },
+  ]}
+/>

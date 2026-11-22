@@ -100,8 +100,10 @@ Start with LRU; move to LFU if profiling shows scan pollution.
 
 ## Practice Problems
 
-- [LeetCode 460 - LFU Cache](https://leetcode.com/problems/lfu-cache/)
-- [LeetCode 146 - LRU Cache](https://leetcode.com/problems/lru-cache/)
+- [LRU Cache (LeetCode 146)](https://leetcode.com/problems/lru-cache/)
+- [LFU Cache (LeetCode 460)](https://leetcode.com/problems/lfu-cache/)
+- [Maximum Frequency Stack (LeetCode 895)](https://leetcode.com/problems/maximum-frequency-stack/)
+- [All O\`one Data Structure (LeetCode 432)](https://leetcode.com/problems/all-oone-data-structure/)
 
 ## Related
 

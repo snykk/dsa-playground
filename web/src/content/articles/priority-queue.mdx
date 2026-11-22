@@ -218,3 +218,15 @@ Space is O(n) for the entries. The tie-break counter adds one integer per entry.
     Yes. All three versions reset it to 0, which is safe because the queue is empty.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Last Stone Weight', site: 'LeetCode 1046', url: 'https://leetcode.com/problems/last-stone-weight/', idea: 'Take the two heaviest stones and push back the difference: a max-priority queue, or a min heap on negated weights.' },
+    { name: 'Kth Largest Element in a Stream', site: 'LeetCode 703', url: 'https://leetcode.com/problems/kth-largest-element-in-a-stream/', idea: 'Keep the k largest values seen in a min-priority queue; its front is the answer after every add.' },
+    { name: 'Top K Frequent Elements', site: 'LeetCode 347', url: 'https://leetcode.com/problems/top-k-frequent-elements/', idea: 'Count with a hash map, then keep the k most frequent values in a size-k queue keyed by count.' },
+    { name: 'Merge k Sorted Lists', site: 'LeetCode 23', url: 'https://leetcode.com/problems/merge-k-sorted-lists/', idea: 'The queue holds the current head of every list, so each dequeue yields the next node of the output.' },
+    { name: 'Room Allocation', site: 'CSES 1164', url: 'https://cses.fi/problemset/task/1164', idea: 'Process the customers by arrival and keep the occupied rooms in a queue ordered by departure day, so the room that frees up first is on top.' },
+  ]}
+/>

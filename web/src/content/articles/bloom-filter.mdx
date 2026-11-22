@@ -197,3 +197,15 @@ All three keep `m` flags (one byte per bit in Python and Go, a packed `std::vect
     Two. Computing `h1` and `h2` once and using `h1 + i * h2 mod m` for i = 0 to k-1 behaves like k independent hashes, as long as `h2` is not tied to `h1`.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+No judge accepts a probably-right answer, so these practise the parts of a Bloom filter: the bit array, a hash into it, and the "have I seen this?" question.
+
+<PracticeProblems
+  problems={[
+    { name: 'Design HashSet', site: 'LeetCode 705', url: 'https://leetcode.com/problems/design-hashset/', idea: 'The keys are at most 10^6, so one bit per possible key is a filter with a single hash, the identity, that never errs. Remove is safe here because no two keys share a bit.' },
+    { name: 'Design Bitset', site: 'LeetCode 2166', url: 'https://leetcode.com/problems/design-bitset/', idea: 'The storage under every Bloom filter: a compact array of bits that you set, clear and test by index.' },
+    { name: 'Repeated DNA Sequences', site: 'LeetCode 187', url: 'https://leetcode.com/problems/repeated-dna-sequences/', idea: 'Duplicate suppression over all 10-letter windows. With 2 bits per letter a window is a 20-bit number, so a bit array answers "seen before?" exactly.' },
+  ]}
+/>

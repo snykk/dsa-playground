@@ -265,3 +265,14 @@ AVL trees are more rigidly balanced than Red-Black trees, so lookups are slightl
     Nothing: the tree stores each key once and returns without changing it.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Balanced Binary Tree', site: 'LeetCode 110', url: 'https://leetcode.com/problems/balanced-binary-tree/', idea: 'Check the AVL condition itself: at every node the two subtree heights differ by at most 1. Compute the heights bottom-up in one pass.' },
+    { name: 'Convert Sorted Array to Binary Search Tree', site: 'LeetCode 108', url: 'https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/', idea: 'When every key is known up front, a height-balanced tree needs no rotations: build it from the middle outwards.' },
+    { name: 'Balance a Binary Search Tree', site: 'LeetCode 1382', url: 'https://leetcode.com/problems/balance-a-binary-search-tree/', idea: 'Repair a lopsided BST. Rebuilding from the in-order sequence is O(n); inserting every key into an AVL tree is the O(n log n) alternative.' },
+    { name: 'Josephus Problem II', site: 'CSES 2163', url: 'https://cses.fi/problemset/task/2163', idea: 'Find and delete the k-th remaining child, n times. A balanced tree whose nodes also store subtree sizes does both in O(log n).' },
+  ]}
+/>

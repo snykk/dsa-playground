@@ -173,3 +173,14 @@ The three versions mirror the Min Heap code with the comparisons reversed.
     Keep a max heap of size k. A new value smaller than the root replaces it. After one pass the heap holds the k smallest.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Last Stone Weight', site: 'LeetCode 1046', url: 'https://leetcode.com/problems/last-stone-weight/', idea: 'Extract the two largest, insert the difference: a direct use of a max heap.' },
+    { name: 'Kth Largest Element in an Array', site: 'LeetCode 215', url: 'https://leetcode.com/problems/kth-largest-element-in-an-array/', idea: 'Heapify the array in O(n), then extract the maximum k times.' },
+    { name: 'K Closest Points to Origin', site: 'LeetCode 973', url: 'https://leetcode.com/problems/k-closest-points-to-origin/', idea: 'The k smallest by distance: keep a max heap of size k and replace the root whenever a closer point arrives.' },
+    { name: 'Find Median from Data Stream', site: 'LeetCode 295', url: 'https://leetcode.com/problems/find-median-from-data-stream/', idea: 'The running median: a max heap for the lower half and a min heap for the upper half, kept within one element of each other.' },
+  ]}
+/>

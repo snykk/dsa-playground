@@ -97,8 +97,9 @@ Heap sort uses a **max** heap, see [Heap Sort](../../../../Algorithms/Sorting/He
 
 - [Kth Largest Element in a Stream (LeetCode 703)](https://leetcode.com/problems/kth-largest-element-in-a-stream/)
 - [Kth Largest Element in an Array (LeetCode 215)](https://leetcode.com/problems/kth-largest-element-in-an-array/)
-- [Merge k Sorted Lists (LeetCode 23)](https://leetcode.com/problems/merge-k-sorted-lists/)
 - [Top K Frequent Elements (LeetCode 347)](https://leetcode.com/problems/top-k-frequent-elements/)
+- [Furthest Building You Can Reach (LeetCode 1642)](https://leetcode.com/problems/furthest-building-you-can-reach/)
+- [Merge k Sorted Lists (LeetCode 23)](https://leetcode.com/problems/merge-k-sorted-lists/)
 - [Find Median from Data Stream (LeetCode 295)](https://leetcode.com/problems/find-median-from-data-stream/)
 
 ## Related

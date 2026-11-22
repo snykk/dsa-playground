@@ -99,11 +99,10 @@ The height h is about log n for random input and up to n for input sorted by `lo
 
 ## Practice Problems
 
-- [LeetCode 729: My Calendar I](https://leetcode.com/problems/my-calendar-i/)
-- [LeetCode 731: My Calendar II](https://leetcode.com/problems/my-calendar-ii/)
-- [LeetCode 56: Merge Intervals](https://leetcode.com/problems/merge-intervals/)
-- [LeetCode 57: Insert Interval](https://leetcode.com/problems/insert-interval/)
-- [LeetCode 253: Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/)
+- [Merge Intervals (LeetCode 56)](https://leetcode.com/problems/merge-intervals/)
+- [Insert Interval (LeetCode 57)](https://leetcode.com/problems/insert-interval/)
+- [My Calendar I (LeetCode 729)](https://leetcode.com/problems/my-calendar-i/)
+- [My Calendar II (LeetCode 731)](https://leetcode.com/problems/my-calendar-ii/)
 
 ## Related
 

@@ -96,8 +96,10 @@ Python's `OrderedDict.move_to_end` and `functools.lru_cache` do the same job in 
 
 ## Practice Problems
 
-- [LeetCode 146 - LRU Cache](https://leetcode.com/problems/lru-cache/)
-- [LeetCode 460 - LFU Cache](https://leetcode.com/problems/lfu-cache/)
+- [Design Linked List (LeetCode 707)](https://leetcode.com/problems/design-linked-list/)
+- [LRU Cache (LeetCode 146)](https://leetcode.com/problems/lru-cache/)
+- [Design Authentication Manager (LeetCode 1797)](https://leetcode.com/problems/design-authentication-manager/)
+- [LFU Cache (LeetCode 460)](https://leetcode.com/problems/lfu-cache/)
 
 ## Related
 

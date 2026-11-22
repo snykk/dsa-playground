@@ -201,3 +201,14 @@ Space is O(n): each item costs a node with the value and one pointer, plus the a
     In C++ the code `delete`s it. In Python and Go nothing points at it any more, so the garbage collector reclaims it.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Valid Parentheses', site: 'LeetCode 20', url: 'https://leetcode.com/problems/valid-parentheses/', idea: 'The classic stack check: push openers, pop and compare on every closer.' },
+    { name: 'Implement Queue using Stacks', site: 'LeetCode 232', url: 'https://leetcode.com/problems/implement-queue-using-stacks/', idea: 'Two stacks make a FIFO queue. Items move across only when the output stack is empty, so each operation is amortized O(1).' },
+    { name: 'Simplify Path', site: 'LeetCode 71', url: 'https://leetcode.com/problems/simplify-path/', idea: 'Push directory names, pop on `..`, skip `.` and empty parts; the stack read from bottom to top is the answer.' },
+    { name: 'Min Stack', site: 'LeetCode 155', url: 'https://leetcode.com/problems/min-stack/', idea: 'Let each node carry the minimum of itself and every node below it, so the minimum is always in the top node.' },
+  ]}
+/>

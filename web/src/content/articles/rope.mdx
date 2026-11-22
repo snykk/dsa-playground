@@ -259,3 +259,14 @@ Space is O(n) for the text plus about one internal node per fragment. A leaf may
     They solve the same problem. Both are balanced trees ordered by position, where each node knows its subtree size. An implicit treap stores one character per node and balances with random priorities; a rope stores fragments in leaves.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Design a Text Editor', site: 'LeetCode 2296', url: 'https://leetcode.com/problems/design-a-text-editor/', idea: 'Insert and delete at a moving cursor: `split` at the cursor and join the pieces back. Two stacks around the cursor are the lighter alternative.' },
+    { name: 'List Removals', site: 'CSES 1749', url: 'https://cses.fi/problemset/task/1749', idea: 'Remove the element at a position, n times: follow the weights to it and delete it in O(log n), instead of the O(n) shift of an array.' },
+    { name: 'Cut and Paste', site: 'CSES 2072', url: 'https://cses.fi/problemset/task/2072', idea: 'Each operation is two splits and two concatenations, the core operations of this article, on up to 2 * 10^5 characters.' },
+    { name: 'Substring Reversals', site: 'CSES 2073', url: 'https://cses.fi/problemset/task/2073', idea: 'Split out the substring, reverse it, join it back. Reversing a whole subtree needs a lazy flag that is pushed down on the next visit, as in an implicit treap.' },
+  ]}
+/>

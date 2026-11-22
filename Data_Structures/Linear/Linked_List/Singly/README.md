@@ -98,11 +98,12 @@ Use it for stacks, for queues (with a tail pointer), for hash-table chains and w
 
 ## Practice Problems
 
-- [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
-- [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
-- [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
-- [Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
-- [Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)
+- [Reverse Linked List (LeetCode 206)](https://leetcode.com/problems/reverse-linked-list/)
+- [Merge Two Sorted Lists (LeetCode 21)](https://leetcode.com/problems/merge-two-sorted-lists/)
+- [Linked List Cycle (LeetCode 141)](https://leetcode.com/problems/linked-list-cycle/)
+- [Middle of the Linked List (LeetCode 876)](https://leetcode.com/problems/middle-of-the-linked-list/)
+- [Remove Nth Node From End of List (LeetCode 19)](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
+- [Reverse Linked List II (LeetCode 92)](https://leetcode.com/problems/reverse-linked-list-ii/)
 
 ## Related
 

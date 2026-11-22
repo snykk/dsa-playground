@@ -217,3 +217,15 @@ All three versions store an adjacency list of `(neighbor, weight)` pairs. Python
     The old edge is replaced, so its weight is updated and the graph still has one edge between the two vertices.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Message Route', site: 'CSES 1667', url: 'https://cses.fi/problemset/task/1667', idea: 'Unweighted: every connection counts as one step, so BFS finds the route through the fewest computers.' },
+    { name: 'Network Delay Time', site: 'LeetCode 743', url: 'https://leetcode.com/problems/network-delay-time/', idea: 'Weighted with non-negative times: Dijkstra from the source, then the largest of the shortest distances.' },
+    { name: 'Path with Maximum Probability', site: 'LeetCode 1514', url: 'https://leetcode.com/problems/path-with-maximum-probability/', idea: 'The weights are probabilities that multiply along a path. None exceeds 1, so Dijkstra still works with max in place of min.' },
+    { name: 'Path With Minimum Effort', site: 'LeetCode 1631', url: 'https://leetcode.com/problems/path-with-minimum-effort/', idea: 'A step weighs the height difference, and a path costs its largest step rather than the sum. Dijkstra handles that cost as well.' },
+    { name: 'Cheapest Flights Within K Stops', site: 'LeetCode 787', url: 'https://leetcode.com/problems/cheapest-flights-within-k-stops/', idea: 'Weights plus a limit on the number of edges: the cheapest route may have too many stops, so the search has to track both.' },
+  ]}
+/>
