@@ -3,6 +3,8 @@ import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { areaOf, OG_HEIGHT, OG_WIDTH, ogImagePath } from '../../lib/og';
 import { getContent, joinBase } from '../../lib/repo';
 import '@fontsource-variable/atkinson-hyperlegible-next/wght.css';
+// The body font's Latin file, the same asset wght.css points to; preloaded below.
+import bodyFont from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 import '../../styles/base.css';
 import '../../styles/layout.css';
@@ -55,6 +57,8 @@ const ogAlt = title === 'DSA Playground' ? title : `${title}${area ? ` (${area})
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <!-- Fetched with the page rather than after the stylesheet, so text does not reflow when it arrives. -->
+    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href={`${joinBase(base, '')}favicon.svg`} />
     <link rel="sitemap" href={`${joinBase(base, '')}sitemap-index.xml`} />
     <meta property="og:type" content={ogType} />
