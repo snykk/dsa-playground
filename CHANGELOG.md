@@ -17,7 +17,7 @@ Changes on `master` that are not in a release yet.
 
 ## [v0.8.1] - 2026-11-22
 
-A Code of Conduct, a security policy, and workflows on Node 24.
+A Code of Conduct, a security policy, a README that shows what the site offers, and workflows on Node 24.
 
 ### Added
 
@@ -27,6 +27,7 @@ A Code of Conduct, a security policy, and workflows on Node 24.
 ### Changed
 
 - **The workflows use the Node 24 releases of GitHub's actions** (checkout, setup-python, setup-go and setup-node v7, upload-pages-artifact and deploy-pages v5), so jobs no longer warn that Node.js 20 is deprecated. The site is still built with Node 22.
+- **The README** points to the practice problems at the end of the articles, the site's search and the study guide's ticks; shows how to run one topic's tests in each language; says how the explanations were checked against the code; and has a latest-release badge.
 
 ## [v0.8.0] - 2026-11-22
 
