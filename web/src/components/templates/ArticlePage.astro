@@ -24,7 +24,7 @@ const { node, article, headings } = Astro.props;
 ---
 
 <BaseLayout title={article.title} description={article.lead} currentSlug={node.slug} toc={headings}>
-  <article class="article">
+  <article class="article" data-pagefind-body>
     <ArticleHeader
       node={node}
       title={article.title}
@@ -39,7 +39,7 @@ const { node, article, headings } = Astro.props;
       <slot />
     </div>
     <RelatedTopics title="Related topics" topics={article.related} />
-    <p class="article-foot">
+    <p class="article-foot" data-pagefind-ignore>
       Spotted a mistake or something unclear?
       <a href={githubUrl(node.rel, true)} target="_blank" rel="noopener noreferrer">See the source on GitHub</a>.
     </p>

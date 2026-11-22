@@ -45,7 +45,7 @@ const section = doc.slug === 'overview' || doc.slug === 'study-guide' ? doc.slug
 ---
 
 <BaseLayout title={page.title} description={page.lead} currentSlug={doc.slug} toc={toc} section={section}>
-  <article class="article">
+  <article class="article" data-pagefind-body>
     <ArticleHeader
       source={githubUrl(doc.rel, false)}
       title={page.title}
@@ -61,7 +61,7 @@ const section = doc.slug === 'overview' || doc.slug === 'study-guide' ? doc.slug
       <slot />
     </div>
     <RelatedTopics title="Related" topics={page.related} />
-    <p class="article-foot">
+    <p class="article-foot" data-pagefind-ignore>
       Spotted a mistake or something unclear?
       <a href={githubUrl(doc.rel, false)} target="_blank" rel="noopener noreferrer">See the source on GitHub</a>.
     </p>

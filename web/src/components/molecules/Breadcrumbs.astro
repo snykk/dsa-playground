@@ -13,7 +13,7 @@ const base = import.meta.env.BASE_URL;
 const trail = node ? ancestors(node) : [];
 ---
 
-<nav class="breadcrumbs" aria-label="Breadcrumb">
+<nav class="breadcrumbs" aria-label="Breadcrumb" data-pagefind-ignore>
   <ol>
     <li><a href={joinBase(base, '')}>Home</a></li>
     {trail.map((n) => <li><a href={joinBase(base, n.slug)}>{n.title}</a></li>)}
