@@ -20,7 +20,7 @@ const id = `related-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
 {
   nodes.length > 0 && (
-    <section class="related" aria-labelledby={id}>
+    <section class="related" aria-labelledby={id} data-pagefind-ignore>
       <h2 id={id}>{title}</h2>
       <ul>
         {nodes.map((n) => (
