@@ -7,6 +7,7 @@ body:
     attributes:
       value: |
         For a wrong statement in a README or an article, use the "Content error" form instead.
+        For a security problem, do not open an issue: report it privately as SECURITY.md describes.
 
   - type: dropdown
     id: where
