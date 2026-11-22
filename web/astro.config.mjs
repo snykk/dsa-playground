@@ -1,6 +1,7 @@
 // @ts-check
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 
 // GitHub project pages serve the site from https://<owner>.github.io/<repo>/.
@@ -12,7 +13,12 @@ export default defineConfig({
   site,
   base,
   trailingSlash: 'always',
-  integrations: [react(), mdx()],
+  integrations: [
+    react(),
+    mdx(),
+    // sitemap-index.xml at the base path, with every page but the 404 page (src/pages/robots.txt.ts points to it).
+    sitemap({ filter: (page) => !new URL(page).pathname.endsWith('/404/') }),
+  ],
   // Topic articles (src/content/articles/*.mdx) use the same code style as the README pages.
   markdown: {
     smartypants: false,
