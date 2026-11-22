@@ -210,3 +210,13 @@ For comparison, a quick run on 100,000 random distinct integers below ten millio
     Only for large arrays of numbers with a nearly uniform spread, or when each probe is costly. For general data Binary Search's guaranteed O(log n) is the safer choice.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Binary Search', site: 'LeetCode 704', url: 'https://leetcode.com/problems/binary-search/', idea: 'Write interpolation search on sorted integers and count its probes against Binary Search. Check for a flat window before dividing.' },
+    { name: 'Search Insert Position', site: 'LeetCode 35', url: 'https://leetcode.com/problems/search-insert-position/', idea: 'When the target is missing, the estimate must stay inside the window: stop as soon as the target leaves [a[lo], a[hi]] and return the insertion point.' },
+    { name: 'Search a 2D Matrix', site: 'LeetCode 74', url: 'https://leetcode.com/problems/search-a-2d-matrix/', idea: 'The rows form one sorted array of m * n values, so interpolate on the flattened index.' },
+  ]}
+/>

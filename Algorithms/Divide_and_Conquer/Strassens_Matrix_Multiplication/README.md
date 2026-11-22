@@ -106,9 +106,9 @@ Do not use it for small matrices, sparse matrices, or floating-point work where 
 
 ## Practice Problems
 
-- [Sparse Matrix Multiplication (LeetCode 311)](https://leetcode.com/problems/sparse-matrix-multiplication/) - a case where exploiting zeros beats Strassen.
-- [Fibonacci Numbers (CSES)](https://cses.fi/problemset/task/1722) - matrix power; every step is a matrix product.
-- [Graph Paths I (CSES)](https://cses.fi/problemset/task/1723) - count walks of length k with a matrix power.
+- [Fibonacci Numbers (CSES 1722)](https://cses.fi/problemset/task/1722)
+- [Graph Paths I (CSES 1723)](https://cses.fi/problemset/task/1723)
+- [Graph Paths II (CSES 1724)](https://cses.fi/problemset/task/1724)
 
 ## Related
 

@@ -100,12 +100,14 @@ Use it for flags and small sets that fit in a word, XOR cancellation tricks, par
 
 ## Practice Problems
 
-- LeetCode 136, Single Number
-- LeetCode 191, Number of 1 Bits
-- LeetCode 231, Power of Two
-- LeetCode 461, Hamming Distance
-- LeetCode 338, Counting Bits
-- LeetCode 78, Subsets
+- [Power of Two (LeetCode 231)](https://leetcode.com/problems/power-of-two/)
+- [Single Number (LeetCode 136)](https://leetcode.com/problems/single-number/)
+- [Counting Bits (LeetCode 338)](https://leetcode.com/problems/counting-bits/)
+- [Single Number III (LeetCode 260)](https://leetcode.com/problems/single-number-iii/)
+- [Counting Bits (CSES 1146)](https://cses.fi/problemset/task/1146)
+- [Number of 1 Bits (LeetCode 191)](https://leetcode.com/problems/number-of-1-bits/)
+- [Hamming Distance (LeetCode 461)](https://leetcode.com/problems/hamming-distance/)
+- [Subsets (LeetCode 78)](https://leetcode.com/problems/subsets/)
 
 ## Related
 

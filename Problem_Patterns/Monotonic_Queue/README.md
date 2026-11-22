@@ -98,11 +98,12 @@ Use it for sliding window maximum or minimum, DP transitions over a bounded wind
 
 ## Practice Problems
 
-- [LeetCode 239. Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)
-- [LeetCode 862. Shortest Subarray with Sum at Least K](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)
-- [LeetCode 1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit](https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
-- [LeetCode 1499. Max Value of Equation](https://leetcode.com/problems/max-value-of-equation/)
-- [Codeforces 372C. Watching Fireworks is Fun](https://codeforces.com/problemset/problem/372/C)
+- [Sliding Window Maximum (LeetCode 239)](https://leetcode.com/problems/sliding-window-maximum/)
+- [Sliding Window Minimum (CSES 3221)](https://cses.fi/problemset/task/3221)
+- [Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit (LeetCode 1438)](https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
+- [Shortest Subarray with Sum at Least K (LeetCode 862)](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)
+- [Watching Fireworks is Fun (Codeforces 372C)](https://codeforces.com/problemset/problem/372/C)
+- [Max Value of Equation (LeetCode 1499)](https://leetcode.com/problems/max-value-of-equation/)
 
 ## Related
 

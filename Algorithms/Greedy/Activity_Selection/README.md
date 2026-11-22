@@ -102,11 +102,11 @@ For weights: `(1, 4, 10)`, `(3, 5, 5)`, `(0, 6, 15)`, `(5, 7, 7)` have best tota
 
 ## Practice Problems
 
-- [Movie Festival](https://cses.fi/problemset/task/1629) (CSES)
-- [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/) (LeetCode 435)
-- [Minimum Number of Arrows to Burst Balloons](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/) (LeetCode 452)
-- [Maximum Profit in Job Scheduling](https://leetcode.com/problems/maximum-profit-in-job-scheduling/) (LeetCode 1235, the weighted version)
-- [Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/) (LeetCode 253, a related problem)
+- [Movie Festival (CSES 1629)](https://cses.fi/problemset/task/1629)
+- [Non-overlapping Intervals (LeetCode 435)](https://leetcode.com/problems/non-overlapping-intervals/)
+- [Minimum Number of Arrows to Burst Balloons (LeetCode 452)](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)
+- [Movie Festival II (CSES 1632)](https://cses.fi/problemset/task/1632)
+- [Maximum Profit in Job Scheduling (LeetCode 1235)](https://leetcode.com/problems/maximum-profit-in-job-scheduling/)
 
 ## Related
 

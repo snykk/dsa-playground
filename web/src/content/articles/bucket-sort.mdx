@@ -206,3 +206,15 @@ The linear bound is a statement about the input distribution, not about the algo
     Not directly here: the functions reject them. Scale the data to `[0, 1]` first with `(x - min) / (max - min)`, or use `bucket_sort_integers` in Python for integers.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Sort Characters By Frequency', site: 'LeetCode 451', url: 'https://leetcode.com/problems/sort-characters-by-frequency/', idea: 'A count is at most n, so bucket the characters by frequency and read the buckets from high to low.' },
+    { name: 'Top K Frequent Elements', site: 'LeetCode 347', url: 'https://leetcode.com/problems/top-k-frequent-elements/', idea: 'Frequencies lie in 1..n: bucket the values by count and collect from the top, O(n) without a heap.' },
+    { name: 'H-Index', site: 'LeetCode 274', url: 'https://leetcode.com/problems/h-index/', idea: 'Citations above n count as n, so n + 1 buckets suffice; scan them from the top with a running total.' },
+    { name: 'Maximum Gap', site: 'LeetCode 164', url: 'https://leetcode.com/problems/maximum-gap/', idea: "Use n - 1 equal-width buckets over [min, max]: the largest gap never lies inside a bucket, so only each bucket's minimum and maximum matter." },
+    { name: 'Contains Duplicate III', site: 'LeetCode 220', url: 'https://leetcode.com/problems/contains-duplicate-iii/', idea: 'Buckets of width valueDiff + 1 over a sliding window of indices: two close values land in the same bucket or in neighboring ones.' },
+  ]}
+/>

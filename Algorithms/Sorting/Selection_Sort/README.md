@@ -84,9 +84,10 @@ All three skip the swap when the minimum is already in position.
 
 ## Practice Problems
 
-- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
-- [Kth Largest Element in an Array (LeetCode 215)](https://leetcode.com/problems/kth-largest-element-in-an-array/)
 - [Sort Colors (LeetCode 75)](https://leetcode.com/problems/sort-colors/)
+- [SwapSort (Codeforces 489A)](https://codeforces.com/problemset/problem/489/A)
+- [Kth Largest Element in an Array (LeetCode 215)](https://leetcode.com/problems/kth-largest-element-in-an-array/)
+- [Minimum Number of Operations to Sort a Binary Tree by Level (LeetCode 2471)](https://leetcode.com/problems/minimum-number-of-operations-to-sort-a-binary-tree-by-level/)
 
 ## Related
 

@@ -199,3 +199,15 @@ When the order is **unique**: at every step of Kahn's algorithm the queue holds 
     Sort topologically, then process vertices in that order: for each edge `u -> v`, set `dist[v] = max(dist[v], dist[u] + weight)`. `longest_path_dag` does this in Python.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Course Schedule', site: 'LeetCode 207', url: 'https://leetcode.com/problems/course-schedule/', idea: "Kahn's algorithm decides it: if fewer than n courses ever reach in-degree 0, the prerequisites contain a cycle." },
+    { name: 'Course Schedule II', site: 'LeetCode 210', url: 'https://leetcode.com/problems/course-schedule-ii/', idea: "Return the order in which Kahn's algorithm removes the vertices, or an empty list when a cycle stops it early." },
+    { name: 'Game Routes', site: 'CSES 1681', url: 'https://cses.fi/problemset/task/1681', idea: "Count the paths from level 1 to level n by pushing each vertex's count to its successors in topological order, modulo 10^9 + 7." },
+    { name: 'Longest Flight Route', site: 'CSES 1680', url: 'https://cses.fi/problemset/task/1680', idea: 'Longest path in a DAG: relax the edges in topological order with max instead of min, and keep a parent to print the route.' },
+    { name: 'Course Schedule II', site: 'CSES 1757', url: 'https://cses.fi/problemset/task/1757', idea: "Not the lexicographically smallest order, which is the trap. Think about which course can go last, and give Kahn's algorithm a heap." },
+  ]}
+/>

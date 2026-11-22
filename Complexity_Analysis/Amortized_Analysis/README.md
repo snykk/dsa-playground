@@ -112,8 +112,10 @@ All three count total element copies (`copies`) and total bit flips (`flips`); t
 
 ## Practice Problems
 
-- [Implement Queue using Stacks (LeetCode 232)](https://leetcode.com/problems/implement-queue-using-stacks/): each element moves between the stacks at most twice, so operations are O(1) amortized.
-- [Min Stack (LeetCode 155)](https://leetcode.com/problems/min-stack/): constant-time operations backed by an auxiliary stack.
+- [Implement Queue using Stacks (LeetCode 232)](https://leetcode.com/problems/implement-queue-using-stacks/)
+- [Online Stock Span (LeetCode 901)](https://leetcode.com/problems/online-stock-span/)
+- [Nearest Smaller Values (CSES 1645)](https://cses.fi/problemset/task/1645)
+- [Road Construction (CSES 1676)](https://cses.fi/problemset/task/1676)
 - Prove that `n` increments of a binary counter flip fewer than 2n bits, using each of the three methods.
 
 ## Related

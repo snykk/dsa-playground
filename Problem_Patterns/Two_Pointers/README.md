@@ -98,11 +98,11 @@ Use it on sorted data, for palindromes, and for in-place filtering. Do not use t
 
 ## Practice Problems
 
-- [LeetCode 167. Two Sum II - Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
-- [LeetCode 15. 3Sum](https://leetcode.com/problems/3sum/)
-- [LeetCode 125. Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
-- [LeetCode 26. Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
-- [LeetCode 11. Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
+- [Valid Palindrome (LeetCode 125)](https://leetcode.com/problems/valid-palindrome/)
+- [Two Sum II - Input Array Is Sorted (LeetCode 167)](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
+- [Remove Duplicates from Sorted Array (LeetCode 26)](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
+- [Container With Most Water (LeetCode 11)](https://leetcode.com/problems/container-with-most-water/)
+- [3Sum (LeetCode 15)](https://leetcode.com/problems/3sum/)
 
 ## Related
 

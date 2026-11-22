@@ -189,3 +189,15 @@ Both structures use <BigO of="n" /> extra space. For q operations the totals are
     Keep a running prefix sum and a map of how often each prefix value has occurred. For each position, add the count of `current - k`.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Static Range Sum Queries', site: 'CSES 1646', url: 'https://cses.fi/problemset/task/1646', idea: 'Prefix sums answer each of the 2 * 10^5 queries in O(1); the sums reach 2 * 10^14, so use 64-bit.' },
+    { name: 'Subarray Sum Equals K', site: 'LeetCode 560', url: 'https://leetcode.com/problems/subarray-sum-equals-k/', idea: 'Negative numbers rule out a sliding window: keep a running prefix sum and a map of how often each value has occurred.' },
+    { name: 'Corporate Flight Bookings', site: 'LeetCode 1109', url: 'https://leetcode.com/problems/corporate-flight-bookings/', idea: 'Each booking adds to a range of flights: two updates on a difference array, and one prefix sum at the end.' },
+    { name: 'Car Pooling', site: 'LeetCode 1094', url: 'https://leetcode.com/problems/car-pooling/', idea: 'A difference array over the stops; the trip works if the running sum never exceeds the capacity.' },
+    { name: 'Forest Queries', site: 'CSES 1652', url: 'https://cses.fi/problemset/task/1652', idea: 'A 2D prefix sum over the 1000 x 1000 grid answers each rectangle with four lookups.' },
+  ]}
+/>

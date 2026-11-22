@@ -209,3 +209,15 @@ The sieve bound comes from the harmonic sum over primes: the work is about n(1/2
     When n is large (above a few thousand) and the modulus is prime. Pascal's triangle costs O(n<sup>2</sup>) time and memory; the factorial tables cost O(n) and answer each binomial in O(1).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Count Primes', site: 'LeetCode 204', url: 'https://leetcode.com/problems/count-primes/', idea: 'Primes below n for n up to 5 * 10^6: one sieve of Eratosthenes instead of testing every number.' },
+    { name: 'Range Sum Query 2D - Immutable', site: 'LeetCode 304', url: 'https://leetcode.com/problems/range-sum-query-2d-immutable/', idea: 'Build the 2D prefix sums once; every region is then four lookups combined by inclusion-exclusion.' },
+    { name: 'Counting Divisors', site: 'CSES 1713', url: 'https://cses.fi/problemset/task/1713', idea: 'For 10^5 numbers up to 10^6, precompute every divisor count once with a sieve-style loop, then answer each number in O(1).' },
+    { name: 'Static Range Minimum Queries', site: 'CSES 1647', url: 'https://cses.fi/problemset/task/1647', idea: 'A sparse table built in O(n log n) answers each minimum query in O(1) from two overlapping blocks.' },
+    { name: 'Company Queries II', site: 'CSES 1688', url: 'https://cses.fi/problemset/task/1688', idea: 'Binary lifting: precompute the 2^k-th boss of every employee, then each lowest common ancestor query takes O(log n).' },
+  ]}
+/>

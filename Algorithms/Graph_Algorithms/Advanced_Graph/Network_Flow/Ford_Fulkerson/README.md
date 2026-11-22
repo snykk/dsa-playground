@@ -99,9 +99,10 @@ Do not use it when:
 
 ## Practice Problems
 
-- [CSES 1694. Download Speed](https://cses.fi/problemset/task/1694): maximum flow.
-- [CSES 1695. Police Chase](https://cses.fi/problemset/task/1695): minimum cut.
-- [CSES 1696. School Dance](https://cses.fi/problemset/task/1696): bipartite matching as flow.
+- [School Dance (CSES 1696)](https://cses.fi/problemset/task/1696)
+- [Police Chase (CSES 1695)](https://cses.fi/problemset/task/1695)
+- [Distinct Routes (CSES 1711)](https://cses.fi/problemset/task/1711)
+- [Download Speed (CSES 1694)](https://cses.fi/problemset/task/1694)
 
 ## Related
 

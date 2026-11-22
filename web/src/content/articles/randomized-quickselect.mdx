@@ -210,3 +210,15 @@ A two-way partition with a strict `<` test puts every key equal to the pivot on 
     When `k` is small compared with `n` or the data arrives as a stream: a heap of size `k` takes <BigO of="n log k" /> time and only `O(k)` memory, and it never needs the whole array at once.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Kth Largest Element in an Array', site: 'LeetCode 215', url: 'https://leetcode.com/problems/kth-largest-element-in-an-array/', idea: "The standard problem: the k-th largest is rank n - k in this article's 0-indexed terms. Many equal values make the three-band partition necessary." },
+    { name: 'K Closest Points to Origin', site: 'LeetCode 973', url: 'https://leetcode.com/problems/k-closest-points-to-origin/', idea: 'Quickselect on squared distances; afterwards the first k slots hold the answer, in any order.' },
+    { name: 'Minimum Moves to Equal Array Elements II', site: 'LeetCode 462', url: 'https://leetcode.com/problems/minimum-moves-to-equal-array-elements-ii/', idea: 'The best common value is a median, which quickselect finds in expected O(n) without sorting.' },
+    { name: 'Top K Frequent Elements', site: 'LeetCode 347', url: 'https://leetcode.com/problems/top-k-frequent-elements/', idea: 'Count the frequencies, then quickselect the distinct values by count.' },
+    { name: 'Wiggle Sort II', site: 'LeetCode 324', url: 'https://leetcode.com/problems/wiggle-sort-ii/', idea: 'Find the median with quickselect and split around it into three bands; placing the bands in the right slots is the rest of the puzzle.' },
+  ]}
+/>

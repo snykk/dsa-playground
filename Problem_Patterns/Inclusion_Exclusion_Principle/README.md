@@ -89,7 +89,11 @@ Use it when conditions overlap, intersections are easy to count and k is small (
 
 ## Practice Problems
 
-- LeetCode 1201, Ugly Number III
+- [Prime Multiples (CSES 2185)](https://cses.fi/problemset/task/2185)
+- [Nth Magical Number (LeetCode 878)](https://leetcode.com/problems/nth-magical-number/)
+- [Ugly Number III (LeetCode 1201)](https://leetcode.com/problems/ugly-number-iii/)
+- [Christmas Party (CSES 1717)](https://cses.fi/problemset/task/1717)
+- [Counting Coprime Pairs (CSES 2417)](https://cses.fi/problemset/task/2417)
 - Count the integers in 1..n that are coprime to m, using the prime factors of m
 - Count derangements of n items with inclusion-exclusion
 - Count the integers in 1..n divisible by none of a given list of numbers

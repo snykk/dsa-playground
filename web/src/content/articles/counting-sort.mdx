@@ -200,3 +200,15 @@ Sorting `[1, 1000000000]` needs a count array of a billion slots. The running ti
     When the range is too large for one count array, for example 32-bit integers. Radix Sort applies Counting Sort to one digit at a time, so each pass only needs a small count array.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Height Checker', site: 'LeetCode 1051', url: 'https://leetcode.com/problems/height-checker/', idea: 'Heights are at most 100: count them, then walk the counts to rebuild the sorted order and compare.' },
+    { name: 'Relative Sort Array', site: 'LeetCode 1122', url: 'https://leetcode.com/problems/relative-sort-array/', idea: 'Values are at most 1000: count them, emit them in the order of arr2, then the rest in increasing order.' },
+    { name: 'How Many Numbers Are Smaller Than the Current Number', site: 'LeetCode 1365', url: 'https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/', idea: 'Prefix sums of the counts say how many values are smaller: the cumulative step of counting sort on its own.' },
+    { name: 'Sort Colors', site: 'LeetCode 75', url: 'https://leetcode.com/problems/sort-colors/', idea: 'Three values: count them in one pass and write them back in a second, before trying the one-pass partition of the follow-up.' },
+    { name: 'Sort an Array', site: 'LeetCode 912', url: 'https://leetcode.com/problems/sort-an-array/', idea: 'Values lie in [-5 * 10^4, 5 * 10^4]: shift by the minimum and counting sort runs in O(n + k).' },
+  ]}
+/>

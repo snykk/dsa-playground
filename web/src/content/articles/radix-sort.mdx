@@ -203,3 +203,13 @@ Radix Sort is linear only when the number of digits is small. For `n` distinct i
     Each pass sorts keys that have only 10 possible values, which is exactly what Counting Sort does in linear time, and it is stable. Radix Sort is Counting Sort applied once per digit.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Sort an Array', site: 'LeetCode 912', url: 'https://leetcode.com/problems/sort-an-array/', idea: 'LSD radix sort on integers; negative values need an offset first, because the digits assume non-negative keys.' },
+    { name: 'Maximum Gap', site: 'LeetCode 164', url: 'https://leetcode.com/problems/maximum-gap/', idea: 'The statement asks for linear time: radix sort the values (below 2^30, so four passes in base 256), then scan adjacent pairs.' },
+    { name: 'Query Kth Smallest Trimmed Number', site: 'LeetCode 2343', url: 'https://leetcode.com/problems/query-kth-smallest-trimmed-number/', idea: 'The follow-up asks for radix sort: after the stable passes over the last t digits, the order is the answer for trim length t, for every t at once.' },
+  ]}
+/>

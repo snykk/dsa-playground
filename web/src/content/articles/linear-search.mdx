@@ -194,3 +194,14 @@ Sorting first only pays off if you search often: `n` linear searches cost `O(n^2
     Scan from the end, or take the last element of the result of the all-occurrences function. This repository has no dedicated last-occurrence function.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find the Index of the First Occurrence in a String', site: 'LeetCode 28', url: 'https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/', idea: 'Try every start position and compare: the brute-force scan, O(nm), fast enough at these sizes.' },
+    { name: 'Find Target Indices After Sorting Array', site: 'LeetCode 2089', url: 'https://leetcode.com/problems/find-target-indices-after-sorting-array/', idea: 'No sort needed: one scan counts the values smaller than the target and the copies of it, and the indices follow.' },
+    { name: 'Two Sum', site: 'LeetCode 1', url: 'https://leetcode.com/problems/two-sum/', idea: 'A scan over all pairs is O(n^2) and passes at n = 10^4; the follow-up asks for less, which a hash map gives.' },
+    { name: 'Search Insert Position', site: 'LeetCode 35', url: 'https://leetcode.com/problems/search-insert-position/', idea: 'A scan for the first value >= target is correct but O(n). The statement asks for O(log n), the point where Binary Search takes over.' },
+  ]}
+/>

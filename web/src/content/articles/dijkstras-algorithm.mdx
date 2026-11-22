@@ -216,3 +216,15 @@ Zero weights are fine. Parallel edges and self-loops are also fine, since only t
     Infinity: `float('inf')` in Python, `LLONG_MAX` in C++ and `math.MaxInt` in Go. The path functions return `None` in Python and `(-1, {})` or `(-1, nil)` in C++ and Go.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Network Delay Time', site: 'LeetCode 743', url: 'https://leetcode.com/problems/network-delay-time/', idea: 'Single-source shortest paths with non-negative times; the answer is the largest distance, or -1 when some node is unreachable.' },
+    { name: 'Shortest Routes I', site: 'CSES 1671', url: 'https://cses.fi/problemset/task/1671', idea: 'Up to 10^5 cities and 2 * 10^5 flights with prices up to 10^9: a binary heap, 64-bit distances and a skip for stale heap entries.' },
+    { name: 'Path With Minimum Effort', site: 'LeetCode 1631', url: 'https://leetcode.com/problems/path-with-minimum-effort/', idea: 'A path costs its largest step, not the sum. Dijkstra still works when you relax with max(d[u], w) instead of d[u] + w.' },
+    { name: 'Flight Discount', site: 'CSES 1195', url: 'https://cses.fi/problemset/task/1195', idea: 'Add one bit to the state, whether the coupon has been used, and run Dijkstra over (city, used) pairs.' },
+    { name: 'Flight Routes', site: 'CSES 1196', url: 'https://cses.fi/problemset/task/1196', idea: 'The k cheapest routes: let each city be popped from the heap up to k times instead of once.' },
+  ]}
+/>

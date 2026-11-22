@@ -222,3 +222,15 @@ Merging in place is possible but complicated and slower. The versions here are t
     They do the same merges, in a different order. Top-down is shorter to write; bottom-up avoids recursion. This repository has the bottom-up version in Python only.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Merge Sorted Array', site: 'LeetCode 88', url: 'https://leetcode.com/problems/merge-sorted-array/', idea: 'The merge step alone, done in place from the back so nothing in nums1 is overwritten before it is read.' },
+    { name: 'Sort List', site: 'LeetCode 148', url: 'https://leetcode.com/problems/sort-list/', idea: 'Merge sort suits linked lists: split with slow and fast pointers and merge by relinking, O(n log n) with no extra array.' },
+    { name: 'Ultra-QuickSort', site: 'Kattis ultraquicksort', url: 'https://open.kattis.com/problems/ultraquicksort', idea: 'The adjacent swaps needed are the inversions, up to about 1.25 * 10^11 for n = 500000, so count them during the merge in 64-bit.' },
+    { name: 'Reverse Pairs', site: 'LeetCode 493', url: 'https://leetcode.com/problems/reverse-pairs/', idea: 'Like counting inversions, but pairs with nums[i] > 2 * nums[j] need their own pass over the two sorted halves before each merge.' },
+    { name: 'Count of Smaller Numbers After Self', site: 'LeetCode 315', url: 'https://leetcode.com/problems/count-of-smaller-numbers-after-self/', idea: 'Merge sort over indices: each element counts the right-half elements that are placed before it.' },
+  ]}
+/>
