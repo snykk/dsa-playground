@@ -73,3 +73,34 @@
     padding: 20px 16px 48px;
   }
 }
+
+/* Printing gives the content alone. The header (with the search and the theme switch), the
+ * sidebar and the contents list stay on screen; they hide with !important because their own
+ * scoped styles outrank this sheet. Colors are the light theme's (see tokens.css), and each
+ * component that has controls drops them itself (the player, the code tabs, ...). */
+@media print {
+  @page {
+    margin: 16mm 14mm 18mm;
+  }
+  body {
+    display: block;
+    min-height: 0;
+    background: none;
+  }
+  .skip-link,
+  .site-header,
+  .sidebar,
+  .toc {
+    display: none !important;
+  }
+  .layout,
+  .layout.has-toc {
+    display: block;
+  }
+  .content {
+    padding: 0;
+  }
+  .content-inner {
+    max-width: none;
+  }
+}

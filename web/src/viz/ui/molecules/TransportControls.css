@@ -37,3 +37,34 @@
   background: var(--surface);
   color: var(--text);
 }
+
+/* Link and shortcut buttons, with the status of the last action floating above them so a
+ * message never shifts the controls. */
+.viz-extras {
+  position: relative;
+  display: flex;
+  gap: 4px;
+}
+.viz-status {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 2;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.viz-status:empty {
+  padding: 0;
+}
+
+@media print {
+  .viz-controls {
+    display: none;
+  }
+}

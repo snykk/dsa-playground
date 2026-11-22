@@ -179,4 +179,33 @@ const lineCount = (code: string) => code.replace(/\n$/, '').split('\n').length;
     border-radius: 0;
     max-height: 560px;
   }
+  /* On paper: the selected language's name instead of the tabs, its open files in full
+   * (the closed test files stay out) and long lines wrapped instead of scrolled. */
+  @media print {
+    .impl-tablist {
+      border: 0;
+      break-after: avoid;
+    }
+    .impl-tablist button[aria-selected='false'] {
+      display: none;
+    }
+    .impl-tablist button[aria-selected='true'] {
+      padding: 0;
+      border: 0;
+    }
+    .code-file:not([open]) {
+      display: none;
+    }
+    /* A clipping box cannot be split across pages; long files must be. */
+    .code-file {
+      overflow: visible;
+    }
+    .code-file > summary {
+      cursor: auto;
+    }
+    .code-file :global(pre) {
+      max-height: none;
+      font-size: 11.5px;
+    }
+  }
 </style>

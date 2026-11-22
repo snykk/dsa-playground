@@ -1,0 +1,75 @@
+/* ShortcutsDialog molecule: the keyboard shortcut list. */
+.viz-shortcuts {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.viz-shortcuts::backdrop {
+  background: rgba(16, 20, 27, 0.45);
+}
+.viz-shortcuts-sheet {
+  padding: 16px 20px 20px;
+}
+.viz-shortcuts-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.viz-shortcuts h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.3;
+}
+.viz-shortcuts-head .viz-btn {
+  padding: 6px 12px;
+}
+.viz-shortcuts-note {
+  margin: 6px 0 4px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+.viz-shortcuts h3 {
+  margin: 16px 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+.viz-shortcuts dl {
+  margin: 0;
+}
+.viz-shortcuts-row {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+.viz-shortcuts dt {
+  margin: 0;
+}
+.viz-shortcuts dd {
+  margin: 0;
+  font-size: 15px;
+}
+.viz-shortcuts kbd {
+  display: inline-block;
+  min-width: 2em;
+  padding: 1px 7px;
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  font: 13px/1.5 var(--font-mono);
+  text-align: center;
+}
+.viz-shortcuts-or {
+  font-size: 13px;
+  color: var(--text-3);
+}
