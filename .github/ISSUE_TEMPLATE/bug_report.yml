@@ -1,0 +1,79 @@
+name: Bug report
+description: Wrong output, a crash or a failing test in the Python, C++ or Go code, or something broken on the web site or in a visualization.
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a wrong statement in a README or an article, use the "Content error" form instead.
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      description: Choose every place that shows the bug.
+      multiple: true
+      options:
+        - Python implementation
+        - C++ implementation
+        - Go implementation
+        - Web site (pages, navigation, search)
+        - Visualization
+    validations:
+      required: true
+
+  - type: input
+    id: topic
+    attributes:
+      label: Topic
+      description: The topic folder, or the address of the page.
+      placeholder: Algorithms/Sorting/Quick_Sort
+    validations:
+      required: true
+
+  - type: textarea
+    id: input
+    attributes:
+      label: Input
+      description: The smallest input or the steps that show the bug. For code, a call or a test; for a visualization, the input you typed and the step (the player's link button copies a link to that step).
+      placeholder: |
+        from quick_sort import quick_sort
+        quick_sort([3, 3, 1])
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: What should happen, and how you know (a hand trace, another language's implementation, a reference).
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: What happens instead. Paste the output or the error message as it is.
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: A release tag or a commit hash (git rev-parse --short HEAD). For the web site, the date you saw it.
+      placeholder: v0.8.0
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Optional. The Python, compiler or Go version, the operating system or the browser, when they may matter.
+      placeholder: Python 3.12 on Ubuntu 24.04
+    validations:
+      required: false
