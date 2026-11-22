@@ -89,10 +89,9 @@ For very long strings use a suffix array (concatenate with a separator and take 
 
 ## Practice Problems
 
-- [LeetCode 718: Maximum Length of Repeated Subarray](https://leetcode.com/problems/maximum-length-of-repeated-subarray/)
-- [LeetCode 1143: Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/) (the subsequence contrast)
-- [LeetCode 1044: Longest Duplicate Substring](https://leetcode.com/problems/longest-duplicate-substring/)
-- [LeetCode 1062: Longest Repeating Substring](https://leetcode.com/problems/longest-repeating-substring/)
+- [Maximum Length of Repeated Subarray (LeetCode 718)](https://leetcode.com/problems/maximum-length-of-repeated-subarray/)
+- [Longest Duplicate Substring (LeetCode 1044)](https://leetcode.com/problems/longest-duplicate-substring/)
+- [Longest Common Subpath (LeetCode 1923)](https://leetcode.com/problems/longest-common-subpath/)
 
 ## Related
 

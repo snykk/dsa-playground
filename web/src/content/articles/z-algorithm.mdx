@@ -212,3 +212,15 @@ The search copies the text into the combined string, so it needs O(n + m) extra 
     Yes: a border of length `k` exists when `i + Z[i] == n` for `i = n - k`. The longest border comes from the smallest such `i`.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find the Index of the First Occurrence in a String', site: 'LeetCode 28', url: 'https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/', idea: 'Build the Z-array of `pattern + separator + text` and return the first position whose value equals the pattern length.' },
+    { name: 'String Matching', site: 'CSES 1753', url: 'https://cses.fi/problemset/task/1753', idea: 'The same search, counting every match, for a text and a pattern of up to 10^6 characters.' },
+    { name: 'Finding Borders', site: 'CSES 1732', url: 'https://cses.fi/problemset/task/1732', idea: 'A border of length n - i exists exactly where i + z[i] = n.' },
+    { name: 'Finding Periods', site: 'CSES 1733', url: 'https://cses.fi/problemset/task/1733', idea: 'Like borders, but the last copy may be partial: p is a period when the Z-box at p reaches the end of the string.' },
+    { name: 'Sum of Scores of Built Strings', site: 'LeetCode 2223', url: 'https://leetcode.com/problems/sum-of-scores-of-built-strings/', idea: 'The score of each suffix is its longest common prefix with the whole string, so the answer is the sum of the Z-array, with z[0] counted as n.' },
+  ]}
+/>

@@ -234,3 +234,14 @@ The recursion depth of `decompose` is only O(log n), so the Python recursion lim
     No. `build(root)` decomposes only the component containing `root`, and it resets all state first, so a second call would erase the first result. Merge the trees under a virtual root, or run one object per tree.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Ciel the Commander', site: 'Codeforces 321C', url: 'https://codeforces.com/problemset/problem/321/C', idea: 'Assign ranks by building the centroid tree; its O(log n) height is what keeps the ranks within 26 letters.' },
+    { name: 'Fixed-Length Paths I', site: 'CSES 2080', url: 'https://cses.fi/problemset/task/2080', idea: 'Count the paths with exactly k edges: at each centroid, combine the depth counts of its subtrees, O(n log n) in total.' },
+    { name: 'Fixed-Length Paths II', site: 'CSES 2081', url: 'https://cses.fi/problemset/task/2081', idea: 'Lengths between k_1 and k_2: the same decomposition, with prefix sums over the depth counts.' },
+    { name: 'Xenia and Tree', site: 'Codeforces 342E', url: 'https://codeforces.com/problemset/problem/342/E', idea: 'Paint nodes red and ask for the nearest red node: keep the closest red distance at each centroid and walk the O(log n) centroid ancestors.' },
+  ]}
+/>

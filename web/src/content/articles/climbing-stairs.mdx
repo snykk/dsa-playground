@@ -212,3 +212,14 @@ The repository counts **ordered** sequences: the outer loop is over stairs. If y
     In Python nothing is needed. In C++ and Go, take the result modulo a number at every addition if the problem asks for it, or use a big-integer type. The repository versions do not.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Climbing Stairs', site: 'LeetCode 70', url: 'https://leetcode.com/problems/climbing-stairs/', idea: 'The problem of this article: `ways(n) = ways(n - 1) + ways(n - 2)`.' },
+    { name: 'Min Cost Climbing Stairs', site: 'LeetCode 746', url: 'https://leetcode.com/problems/min-cost-climbing-stairs/', idea: 'The same two moves, but the table keeps the cheapest cost to reach a step instead of a count.' },
+    { name: 'Dice Combinations', site: 'CSES 1633', url: 'https://cses.fi/problemset/task/1633', idea: 'Steps of 1 to 6 and n up to 10^6: sum the last six values and reduce modulo 10^9 + 7.' },
+    { name: 'Frog 2', site: 'AtCoder DP B', url: 'https://atcoder.jp/contests/dp/tasks/dp_b', idea: 'Jumps of up to K stones with a cost per jump: the O(n k) minimum over the last K values.' },
+  ]}
+/>

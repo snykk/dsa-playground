@@ -100,10 +100,10 @@ Each is a single 2D-table function that returns only the distance.
 
 ## Practice Problems
 
-- [LeetCode 72. Edit Distance](https://leetcode.com/problems/edit-distance/) - the canonical problem
-- [LeetCode 583. Delete Operation for Two Strings](https://leetcode.com/problems/delete-operation-for-two-strings/) - insert and delete only
-- [LeetCode 161. One Edit Distance](https://leetcode.com/problems/one-edit-distance/) - is the distance exactly 1
-- [LeetCode 712. Minimum ASCII Delete Sum for Two Strings](https://leetcode.com/problems/minimum-ascii-delete-sum-for-two-strings/) - weighted deletions
+- [Delete Operation for Two Strings (LeetCode 583)](https://leetcode.com/problems/delete-operation-for-two-strings/)
+- [Edit Distance (LeetCode 72)](https://leetcode.com/problems/edit-distance/)
+- [Edit Distance (CSES 1639)](https://cses.fi/problemset/task/1639)
+- [Minimum ASCII Delete Sum for Two Strings (LeetCode 712)](https://leetcode.com/problems/minimum-ascii-delete-sum-for-two-strings/)
 
 ## Related
 

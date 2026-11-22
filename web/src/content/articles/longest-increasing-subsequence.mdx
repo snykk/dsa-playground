@@ -229,3 +229,15 @@ The invariant is that `tails[k]` is the smallest last value over all increasing 
     Then you want the longest non-decreasing subsequence: replace `<` with `<=` in the table, or `bisect_left` with `bisect_right`.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Longest Increasing Subsequence', site: 'LeetCode 300', url: 'https://leetcode.com/problems/longest-increasing-subsequence/', idea: 'The length of the LIS: write the O(n^2) DP first, then the tails array with binary search.' },
+    { name: 'Increasing Subsequence', site: 'CSES 1145', url: 'https://cses.fi/problemset/task/1145', idea: 'With n up to 2 * 10^5 only the O(n log n) tails method is fast enough.' },
+    { name: 'Number of Longest Increasing Subsequence', site: 'LeetCode 673', url: 'https://leetcode.com/problems/number-of-longest-increasing-subsequence/', idea: 'Keep a count beside each length in the O(n^2) DP and add counts when lengths tie.' },
+    { name: 'Russian Doll Envelopes', site: 'LeetCode 354', url: 'https://leetcode.com/problems/russian-doll-envelopes/', idea: 'Sort by width, with equal widths by height descending, then take the LIS of the heights.' },
+    { name: 'Find the Longest Valid Obstacle Course at Each Position', site: 'LeetCode 1964', url: 'https://leetcode.com/problems/find-the-longest-valid-obstacle-course-at-each-position/', idea: 'Non-decreasing instead of increasing, reported at every index: binary search for the first tail that is strictly greater.' },
+  ]}
+/>

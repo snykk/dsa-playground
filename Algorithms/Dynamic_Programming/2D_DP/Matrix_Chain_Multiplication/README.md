@@ -92,10 +92,11 @@ All three implement the same bottom-up function and return only the minimum cost
 
 ## Practice Problems
 
-- [LeetCode 1039. Minimum Score Triangulation of Polygon](https://leetcode.com/problems/minimum-score-triangulation-of-polygon/) - the same interval DP
-- [LeetCode 312. Burst Balloons](https://leetcode.com/problems/burst-balloons/) - interval DP choosing the last element
-- [LeetCode 1000. Minimum Cost to Merge Stones](https://leetcode.com/problems/minimum-cost-to-merge-stones/) - interval DP with merge cost
-- [LeetCode 96. Unique Binary Search Trees](https://leetcode.com/problems/unique-binary-search-trees/) - counts the Catalan numbers behind the orders
+- [Slimes (AtCoder DP N)](https://atcoder.jp/contests/dp/tasks/dp_n)
+- [Minimum Score Triangulation of Polygon (LeetCode 1039)](https://leetcode.com/problems/minimum-score-triangulation-of-polygon/)
+- [Minimum Cost to Cut a Stick (LeetCode 1547)](https://leetcode.com/problems/minimum-cost-to-cut-a-stick/)
+- [Burst Balloons (LeetCode 312)](https://leetcode.com/problems/burst-balloons/)
+- [Minimum Cost to Merge Stones (LeetCode 1000)](https://leetcode.com/problems/minimum-cost-to-merge-stones/)
 
 ## Related
 

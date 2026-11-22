@@ -232,3 +232,14 @@ Space is O(m) only because children are hash maps. A table of `sigma` entries pe
     A duplicate is stored twice in the same node, so each occurrence is reported once per copy.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Finding Patterns', site: 'CSES 2102', url: 'https://cses.fi/problemset/task/2102', idea: 'Build the automaton from up to 5 * 10^5 patterns, scan the text once, then mark every state reachable from a visited one along the failure links.' },
+    { name: 'Pattern Positions', site: 'CSES 2104', url: 'https://cses.fi/problemset/task/2104', idea: 'The first position of each pattern: keep the earliest end index per state and pass it on along the failure links.' },
+    { name: 'Counting Patterns', site: 'CSES 2103', url: 'https://cses.fi/problemset/task/2103', idea: 'Counting every occurrence through output links can be too slow here; add the visit counts up the failure links in reverse BFS order instead.' },
+    { name: 'Stream of Characters', site: 'LeetCode 1032', url: 'https://leetcode.com/problems/stream-of-characters/', idea: 'The text arrives one letter per query: keep the current state between calls and report whether any word ends there.' },
+  ]}
+/>

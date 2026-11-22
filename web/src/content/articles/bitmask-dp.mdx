@@ -256,3 +256,15 @@ A problem that only needs *which subset*, with no last item, uses a one-dimensio
     For subset-only DP, yes, when transitions read a limited set of masks. For TSP the full table is needed, which is why it stops around n = 20 to 25 in practice.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Beautiful Arrangement', site: 'LeetCode 526', url: 'https://leetcode.com/problems/beautiful-arrangement/', idea: 'Place the numbers one position at a time with `dp[mask]` over the numbers used; the next position is `popcount(mask) + 1`.' },
+    { name: 'Matching', site: 'AtCoder DP O', url: 'https://atcoder.jp/contests/dp/tasks/dp_o', idea: 'The assignment pattern: man number `popcount(mask)` takes one free compatible woman, counted over 2^21 masks.' },
+    { name: 'Hamiltonian Flights', site: 'CSES 1690', url: 'https://cses.fi/problemset/task/1690', idea: 'Count with `dp[mask][last]` from this article instead of minimizing: every path from city 1 to city n that visits each city once.' },
+    { name: 'Shortest Path Visiting All Nodes', site: 'LeetCode 847', url: 'https://leetcode.com/problems/shortest-path-visiting-all-nodes/', idea: 'Breadth-first search over (node, visited mask) states, since edges may be revisited.' },
+    { name: 'Elevator Rides', site: 'CSES 1653', url: 'https://cses.fi/problemset/task/1653', idea: 'Partition into groups under a limit: for each mask store the best (rides, load of the last ride) pair.' },
+  ]}
+/>

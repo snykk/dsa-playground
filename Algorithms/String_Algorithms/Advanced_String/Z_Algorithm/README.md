@@ -89,11 +89,11 @@ Every successful comparison moves `r` right by one and `r` never moves left, so 
 
 ## Practice Problems
 
-- [LeetCode 28: Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
-- [LeetCode 459: Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/)
-- [LeetCode 1392: Longest Happy Prefix](https://leetcode.com/problems/longest-happy-prefix/)
-- [CSES: String Matching](https://cses.fi/problemset/task/1753)
-- [CSES: Finding Borders](https://cses.fi/problemset/task/1732)
+- [Find the Index of the First Occurrence in a String (LeetCode 28)](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+- [String Matching (CSES 1753)](https://cses.fi/problemset/task/1753)
+- [Finding Borders (CSES 1732)](https://cses.fi/problemset/task/1732)
+- [Finding Periods (CSES 1733)](https://cses.fi/problemset/task/1733)
+- [Sum of Scores of Built Strings (LeetCode 2223)](https://leetcode.com/problems/sum-of-scores-of-built-strings/)
 
 ## Related
 

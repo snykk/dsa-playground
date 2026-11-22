@@ -208,3 +208,15 @@ In C++ and Go the hash is a machine integer. `base * (hash - lead * h)` reaches 
     It is a small prime that keeps the arithmetic easy to follow. It is fine for learning, but with about 1 in 101 windows colliding by chance it is far too small for large inputs.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find the Index of the First Occurrence in a String', site: 'LeetCode 28', url: 'https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/', idea: 'Hash the needle, roll the hash over the haystack and compare characters only when the hashes agree.' },
+    { name: 'Repeated DNA Sequences', site: 'LeetCode 187', url: 'https://leetcode.com/problems/repeated-dna-sequences/', idea: 'Roll a hash over every window of 10 letters; with four letters, a base-4 hash of 10 letters is exact, so collisions cannot happen.' },
+    { name: 'Find Substring With Given Hash Value', site: 'LeetCode 2156', url: 'https://leetcode.com/problems/find-substring-with-given-hash-value/', idea: 'Here the first character has the lowest power, so roll the window from right to left to keep each update O(1).' },
+    { name: 'Longest Duplicate Substring', site: 'LeetCode 1044', url: 'https://leetcode.com/problems/longest-duplicate-substring/', idea: 'Binary search on the length and look for a repeated window hash at each length; guard against collisions with a second modulus.' },
+    { name: 'Distinct Echo Substrings', site: 'LeetCode 1316', url: 'https://leetcode.com/problems/distinct-echo-substrings/', idea: 'Compare the two halves of every candidate in O(1) with prefix hashes, and count distinct strings by their hash.' },
+  ]}
+/>

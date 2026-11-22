@@ -209,3 +209,14 @@ A backtracking search that only un-marks cells on the way out has to re-enter a 
     Keep the `solution` mark but reset the `visited` mark on the way out, and collect a copy of the matrix each time the goal is reached. This is a different search with exponential cost and is not implemented in this repository.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Word Search', site: 'LeetCode 79', url: 'https://leetcode.com/problems/word-search/', idea: 'Walk the grid letter by letter, marking a cell on entry and unmarking it on the way back, because another path may need it.' },
+    { name: 'Path with Maximum Gold', site: 'LeetCode 1219', url: 'https://leetcode.com/problems/path-with-maximum-gold/', idea: 'The best path is wanted, not just one: try every start cell and explore all paths, unmarking cells on return.' },
+    { name: 'Unique Paths III', site: 'LeetCode 980', url: 'https://leetcode.com/problems/unique-paths-iii/', idea: 'Count the paths that visit every open cell exactly once: list every path, as the FAQ describes, with a count of the cells still to visit.' },
+    { name: 'Grid Path Description', site: 'CSES 1625', url: 'https://cses.fi/problemset/task/1625', idea: 'Count the paths through a 7 x 7 grid that match a pattern: plain backtracking is far too slow, so prune when the path cuts the free cells in two.' },
+  ]}
+/>

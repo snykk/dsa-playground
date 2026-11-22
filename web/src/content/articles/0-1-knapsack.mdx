@@ -212,3 +212,15 @@ Greedy by value-per-weight works for the fractional knapsack, but not here. Item
     It is always taken. The code handles it without special cases: its weight is at most every `w`, so it adds its value whenever that helps.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Knapsack 1', site: 'AtCoder DP D', url: 'https://atcoder.jp/contests/dp/tasks/dp_d', idea: 'The textbook table over (items, capacity). Values reach 10^9 each, so sum them in 64-bit integers.' },
+    { name: 'Book Shop', site: 'CSES 1158', url: 'https://cses.fi/problemset/task/1158', idea: 'The same problem with 1000 books and a budget up to 10^5: the one-row version, looping the capacity downward, keeps the memory small.' },
+    { name: 'Partition Equal Subset Sum', site: 'LeetCode 416', url: 'https://leetcode.com/problems/partition-equal-subset-sum/', idea: 'Subset sum is a knapsack whose value equals its weight: fill a capacity of exactly half the total.' },
+    { name: 'Ones and Zeroes', site: 'LeetCode 474', url: 'https://leetcode.com/problems/ones-and-zeroes/', idea: 'Each string costs some zeros and some ones, so the knapsack has two capacities and the table gains a dimension.' },
+    { name: 'Knapsack 2', site: 'AtCoder DP E', url: 'https://atcoder.jp/contests/dp/tasks/dp_e', idea: 'The capacity reaches 10^9 but the values are small, so index the table by total value and store the least weight for each.' },
+  ]}
+/>

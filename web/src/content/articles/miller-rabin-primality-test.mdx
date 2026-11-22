@@ -208,3 +208,14 @@ Beyond the bound the twelve primes are no longer enough: `399165290221 * 7983305
     The Fermat test checks only `a^(n-1) = 1`. Miller-Rabin also inspects the square roots along the way, which exposes Carmichael numbers.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Prime Palindrome', site: 'LeetCode 866', url: 'https://leetcode.com/problems/prime-palindrome/', idea: 'Test palindromes up to 2 * 10^8 for primality; a few fixed witnesses make Miller-Rabin exact in this range.' },
+    { name: 'Pseudoprime numbers', site: 'Kattis pseudoprime', url: 'https://open.kattis.com/problems/pseudoprime', idea: "Say yes when p is composite yet passes Fermat's test for base a: a primality test and a modular power in one problem." },
+    { name: 'Next Prime', site: 'CSES 3396', url: 'https://cses.fi/problemset/task/3396', idea: 'Test the numbers after n one by one, for n up to 10^12; each test costs a few modular powers instead of a million trial divisions.' },
+    { name: 'Prime or Not', site: 'SPOJ PON', url: 'https://www.spoj.com/problems/PON/', idea: 'Numbers up to 2^63 - 1, Carmichael numbers included: a Fermat test fails, and the products need 128-bit multiplication modulo n.' },
+  ]}
+/>

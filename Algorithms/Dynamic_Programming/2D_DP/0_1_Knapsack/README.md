@@ -101,10 +101,11 @@ All three return the best value, not the chosen items.
 
 ## Practice Problems
 
-- [LeetCode 416. Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/) - subset sum, a 0/1 knapsack with value = weight
-- [LeetCode 494. Target Sum](https://leetcode.com/problems/target-sum/) - reduces to subset sum
-- [LeetCode 474. Ones and Zeroes](https://leetcode.com/problems/ones-and-zeroes/) - a knapsack with two capacities
-- [LeetCode 1049. Last Stone Weight II](https://leetcode.com/problems/last-stone-weight-ii/) - split into two piles with minimal difference
+- [Knapsack 1 (AtCoder DP D)](https://atcoder.jp/contests/dp/tasks/dp_d)
+- [Book Shop (CSES 1158)](https://cses.fi/problemset/task/1158)
+- [Partition Equal Subset Sum (LeetCode 416)](https://leetcode.com/problems/partition-equal-subset-sum/)
+- [Ones and Zeroes (LeetCode 474)](https://leetcode.com/problems/ones-and-zeroes/)
+- [Knapsack 2 (AtCoder DP E)](https://atcoder.jp/contests/dp/tasks/dp_e)
 
 ## Related
 

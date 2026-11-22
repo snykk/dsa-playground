@@ -87,9 +87,10 @@ Finding all paths is not implemented.
 
 ## Practice Problems
 
-- [Shortest Path in Binary Matrix (LeetCode 1091)](https://leetcode.com/problems/shortest-path-in-binary-matrix/)
-- [Number of Islands (LeetCode 200)](https://leetcode.com/problems/number-of-islands/)
+- [Word Search (LeetCode 79)](https://leetcode.com/problems/word-search/)
+- [Path with Maximum Gold (LeetCode 1219)](https://leetcode.com/problems/path-with-maximum-gold/)
 - [Unique Paths III (LeetCode 980)](https://leetcode.com/problems/unique-paths-iii/)
+- [Grid Path Description (CSES 1625)](https://cses.fi/problemset/task/1625)
 
 ## Related
 
