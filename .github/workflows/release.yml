@@ -37,7 +37,7 @@ jobs:
       # A pushed tag is read at its own commit; a dispatch reads master, where a
       # changelog section written after the tag lands. The whole history, for the
       # first-parent check.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.repository.default_branch || github.ref }}
           fetch-depth: 0
