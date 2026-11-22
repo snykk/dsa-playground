@@ -1,0 +1,384 @@
+---
+import { joinBase } from '../../lib/repo';
+import Icon from '../atoms/Icon.astro';
+
+/**
+ * Full-text search over the articles, in a modal dialog. Opened by any [data-search-open]
+ * button (the header has one) or the "/" key, unless the reader is typing in a field or a
+ * player has focus; Escape or a click outside closes it and focus goes back where it was.
+ * The arrow keys move through the results and Enter opens one.
+ *
+ * The index is Pagefind's (built after `astro build`, see package.json), loaded on first use
+ * from <base>pagefind/ through its JS API; this component draws the results itself. Under
+ * `astro dev` there is no index, and the dialog says so.
+ */
+const base = joinBase(import.meta.env.BASE_URL, '');
+---
+
+<dialog class="search" aria-label="Search the articles" data-search data-base={base} data-bundle={`${base}pagefind/pagefind.js`}>
+  <div class="panel">
+    <div class="field">
+      <Icon name="search" size={18} />
+      <input
+        type="text"
+        role="combobox"
+        aria-label="Search the articles"
+        aria-autocomplete="list"
+        aria-expanded="false"
+        aria-controls="search-results"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        enterkeyhint="go"
+        placeholder="Search the articles"
+        data-search-input
+      />
+      <button type="button" class="close" data-search-close aria-label="Close search">Esc</button>
+    </div>
+    <p class="status" role="status" aria-live="polite" data-search-status></p>
+    <ul id="search-results" class="results" role="listbox" aria-label="Results" data-search-results></ul>
+    <p class="keys" aria-hidden="true">
+      <span><kbd>&#x2191;</kbd><kbd>&#x2193;</kbd> move</span>
+      <span><kbd>Enter</kbd> open</span>
+      <span><kbd>Esc</kbd> close</span>
+    </p>
+  </div>
+</dialog>
+
+<script>
+  import {
+    escapeHtml,
+    moveActive,
+    opensSearch,
+    safeExcerpt,
+    statusText,
+    type PagefindApi,
+    type PagefindResultData,
+  } from '../../lib/search';
+
+  const MAX_RESULTS = 10;
+
+  const dialog = document.querySelector<HTMLDialogElement>('[data-search]');
+  const input = dialog?.querySelector<HTMLInputElement>('[data-search-input]');
+  const list = dialog?.querySelector<HTMLUListElement>('[data-search-results]');
+  const status = dialog?.querySelector<HTMLParagraphElement>('[data-search-status]');
+
+  if (dialog && input && list && status) {
+    let pagefind: Promise<PagefindApi | null> | undefined;
+    let results: PagefindResultData[] = [];
+    let active = -1;
+    let opener: HTMLElement | null = null;
+    let lastQuery = '';
+
+    /** Pagefind's bundle, loaded once; null when the site was not indexed (as under astro dev). */
+    const load = () => {
+      pagefind ??= (async () => {
+        try {
+          const api = (await import(/* @vite-ignore */ dialog.dataset.bundle ?? '')) as PagefindApi;
+          await api.options({ baseUrl: dialog.dataset.base ?? '/', excerptLength: 22 });
+          await api.init();
+          return api;
+        } catch {
+          return null;
+        }
+      })();
+      return pagefind;
+    };
+
+    const setActive = (index: number, scroll = true) => {
+      active = index;
+      list.querySelectorAll<HTMLLIElement>('[role="option"]').forEach((li, i) => {
+        li.setAttribute('aria-selected', String(i === active));
+        if (i === active && scroll) li.scrollIntoView({ block: 'nearest' });
+      });
+      if (active >= 0) input.setAttribute('aria-activedescendant', `search-option-${active}`);
+      else input.removeAttribute('aria-activedescendant');
+    };
+
+    const render = () => {
+      list.innerHTML = results
+        .map((r, i) => {
+          const area = r.meta.area ? `<span class="area">${escapeHtml(r.meta.area)}</span>` : '';
+          const title = `<span class="title">${escapeHtml(r.meta.title ?? r.url)}</span>`;
+          const excerpt = `<span class="excerpt">${safeExcerpt(r.excerpt)}</span>`;
+          return `<li role="option" id="search-option-${i}" aria-selected="false"><a href="${escapeHtml(r.url)}" tabindex="-1">${area}${title}${excerpt}</a></li>`;
+        })
+        .join('');
+      input.setAttribute('aria-expanded', String(results.length > 0));
+      setActive(results.length > 0 ? 0 : -1, false);
+      list.scrollTop = 0;
+    };
+
+    const search = async () => {
+      const query = input.value.trim();
+      lastQuery = query;
+      if (!query) {
+        results = [];
+        render();
+        status.textContent = '';
+        return;
+      }
+      const api = await load();
+      if (!api) {
+        status.textContent = 'Search needs the built site: run npm run build, then npm run preview.';
+        return;
+      }
+      const found = await api.debouncedSearch(query, {}, 150);
+      // null: a newer keystroke superseded this search; a changed query: an older one finished late.
+      if (!found || query !== lastQuery) return;
+      const data = await Promise.all(found.results.slice(0, MAX_RESULTS).map((r) => r.data()));
+      if (query !== lastQuery) return;
+      results = data;
+      render();
+      status.textContent = statusText(query, found.results.length, data.length);
+    };
+
+    const open = () => {
+      if (dialog.open) return;
+      opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      dialog.showModal();
+      input.focus();
+      input.select();
+      void load();
+    };
+
+    for (const button of document.querySelectorAll<HTMLElement>('[data-search-open]')) {
+      button.addEventListener('click', open);
+      // Start fetching the index while the pointer is on its way to the button.
+      button.addEventListener('pointerenter', () => void load(), { once: true });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (dialog.open || e.defaultPrevented) return;
+      if (!opensSearch(e, document.activeElement)) return;
+      e.preventDefault();
+      open();
+    });
+
+    input.addEventListener('input', () => void search());
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActive(moveActive(active, e.key === 'ArrowDown' ? 1 : -1, results.length));
+      } else if (e.key === 'Enter' && !e.isComposing) {
+        e.preventDefault();
+        list.querySelector<HTMLAnchorElement>(`#search-option-${active} a`)?.click();
+      }
+    });
+
+    list.addEventListener('pointermove', (e) => {
+      const li = (e.target as Element).closest('[role="option"]');
+      if (!li) return;
+      const index = Number(li.id.replace('search-option-', ''));
+      if (index !== active) setActive(index, false);
+    });
+
+    dialog.querySelector('[data-search-close]')?.addEventListener('click', () => dialog.close());
+
+    // A click on the backdrop lands on the dialog itself, outside the panel.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    dialog.addEventListener('close', () => {
+      opener?.focus();
+      opener = null;
+    });
+  }
+</script>
+
+<style>
+  .search {
+    width: min(640px, calc(100vw - 32px));
+    max-width: none;
+    max-height: min(640px, calc(100dvh - 2 * min(12vh, 96px)));
+    margin: min(12vh, 96px) auto auto;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .search[open] {
+    display: flex;
+  }
+  /* The backdrop does not inherit the theme tokens in every browser, so it is a plain scrim. */
+  .search::backdrop {
+    background: rgba(16, 20, 27, 0.45);
+  }
+  :global(html:has(dialog.search[open])) {
+    overflow: hidden;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px 0 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-3);
+  }
+  .field input {
+    flex: 1;
+    min-width: 0;
+    height: 56px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 17px;
+  }
+  .field input::placeholder {
+    color: var(--text-3);
+  }
+  .field input:focus-visible {
+    outline: none;
+  }
+  .field:focus-within {
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .close {
+    flex: none;
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    font: 500 12px/1 var(--font-sans);
+    cursor: pointer;
+  }
+  .close:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
+  .status {
+    margin: 0;
+    padding: 10px 16px 6px;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .status:empty {
+    display: none;
+  }
+
+  .results {
+    list-style: none;
+    margin: 0;
+    padding: 4px 8px 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    min-height: 0;
+    flex: 1;
+  }
+  .results:empty {
+    display: none;
+  }
+  .results :global(li a) {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: inherit;
+    text-decoration: none;
+  }
+  /* The active result is marked like the current line of a pseudocode panel. */
+  .results :global(li[aria-selected='true'] a) {
+    background: var(--accent-soft);
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+  .results :global(.area) {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .results :global(.title) {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--text);
+  }
+  .results :global(li[aria-selected='true'] .title) {
+    color: var(--link);
+  }
+  .results :global(.excerpt) {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .results :global(mark) {
+    background: none;
+    color: var(--text);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+  }
+
+  .keys {
+    display: flex;
+    gap: 16px;
+    margin: 0;
+    padding: 8px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .keys span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    font: 500 11px/1 var(--font-sans);
+  }
+
+  @media (max-width: 599px) {
+    .search {
+      margin-top: 12px;
+      max-height: calc(100dvh - 24px);
+    }
+    .keys {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .search[open] {
+      animation: search-in 0.14s ease-out;
+    }
+    @keyframes search-in {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+    }
+  }
+</style>

@@ -9,6 +9,7 @@ import '../../styles/layout.css';
 import '../../styles/prose.css';
 import '../../styles/tokens.css';
 import TableOfContents from '../molecules/TableOfContents.astro';
+import SearchDialog from '../organisms/SearchDialog.astro';
 import Sidebar from '../organisms/Sidebar.astro';
 import SiteFooter from '../organisms/SiteFooter.astro';
 import SiteHeader from '../organisms/SiteHeader.astro';
@@ -39,7 +40,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 // the home and 404 pages share the home card. The index pages are websites, the rest articles.
 const ogImage = new URL(`${joinBase(base, '')}${ogImagePath(currentSlug)}`, Astro.site);
 const ogType = currentSlug && currentSlug !== 'visualizations' ? 'article' : 'website';
-// The card alt text says where the page sits.
+// Where the page sits: the card alt text names it, and so do search results (Pagefind reads it
+// from the head, see SearchDialog).
 const node = currentSlug ? getContent().bySlug.get(currentSlug) : undefined;
 const area = node ? areaOf(node) : '';
 const ogAlt = title === 'DSA Playground' ? title : `${title}${area ? ` (${area})` : ''}, DSA Playground`;
@@ -66,6 +68,7 @@ const ogAlt = title === 'DSA Playground' ? title : `${title}${area ? ` (${area})
     <meta property="og:image:height" content={String(OG_HEIGHT)} />
     <meta property="og:image:alt" content={ogAlt} />
     <meta name="twitter:card" content="summary_large_image" />
+    {area && <meta name="dsa-area" data-pagefind-meta="area[content]" content={area} />}
     <script is:inline>
       (() => {
         try {
@@ -94,5 +97,6 @@ const ogAlt = title === 'DSA Playground' ? title : `${title}${area ? ` (${area})
       </div>
       {showToc && <TableOfContents headings={tocItems} />}
     </div>
+    <SearchDialog />
   </body>
 </html>

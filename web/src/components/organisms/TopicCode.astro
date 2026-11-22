@@ -13,7 +13,7 @@ const node = getContent().byRel.get(topic);
 if (!node) throw new Error(`TopicCode: unknown topic folder "${topic}"`);
 ---
 
-<div id="code" class="topic-code">
+<div id="code" class="topic-code" data-pagefind-ignore>
   <Implementations node={node} titled={false} readmes={false} />
 </div>
 
