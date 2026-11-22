@@ -45,6 +45,8 @@ const base = import.meta.env.BASE_URL;
 <style>
   .hero {
     padding: 40px 0 8px;
+    /* The demo's glow (below) paints under everything in the hero, text and buttons included. */
+    isolation: isolate;
   }
   h1 {
     font-size: clamp(32px, 5.2vw, 48px);
@@ -69,5 +71,26 @@ const base = import.meta.env.BASE_URL;
   }
   .hero-demo {
     margin-top: 32px;
+    position: relative;
+  }
+  /* A soft glow of the accent rising from behind the demo: the light peaks at the demo's top
+     edge and fades over the buttons and the pitch above it (the demo's own card hides the rest).
+     It spans the demo's width and no more, so a phone never scrolls sideways; on paper it is
+     barely there, in the dark theme it shows. The colours are --hero-glow* in tokens.css. */
+  .hero-demo::before {
+    content: '';
+    position: absolute;
+    inset: -220px 0 auto;
+    height: 440px;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(60% 50% at 50% 50%, var(--hero-glow), transparent 70%),
+      radial-gradient(30% 35% at 18% 50%, var(--hero-glow-2), transparent 70%);
+  }
+  @media print {
+    .hero-demo::before {
+      display: none;
+    }
   }
 </style>
