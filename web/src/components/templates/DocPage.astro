@@ -39,7 +39,7 @@ const sourceLink = node ? githubUrl(node.rel, true) : githubUrl(doc?.rel ?? '', 
 <BaseLayout title={title} description={description} currentSlug={node?.slug ?? doc?.slug} toc={rendered.headings} section={section}>
   {node && <Breadcrumbs node={node} />}
 
-  <article class="prose">
+  <article class="prose" data-pagefind-body>
     {titleHtml ? <Fragment set:html={titleHtml} /> : <h1>{title}</h1>}
   </article>
 
@@ -52,7 +52,7 @@ const sourceLink = node ? githubUrl(node.rel, true) : githubUrl(doc?.rel ?? '', 
 
   {vizzes.length > 0 && <VizSection vizzes={vizzes} />}
 
-  <article class="prose">
+  <article class="prose" data-pagefind-body>
     {bodyHtml ? <Fragment set:html={bodyHtml} /> : node?.description && <p>{node.description}</p>}
   </article>
 

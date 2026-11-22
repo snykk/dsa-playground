@@ -33,7 +33,14 @@ const yesNo = (cell: string): 'yes' | 'no' | undefined => (/^yes\b/i.test(cell) 
     <table>
       <thead>
         <tr>
-          {cols.map((c) => <th scope="col" class={c.align ?? 'left'}>{c.label}</th>)}
+          {/* A space between header cells: the search index (Pagefind) does not break words at a th. */}
+          {
+            cols.map((c) => (
+              <Fragment>
+                <th scope="col" class={c.align ?? 'left'}>{c.label}</th>{' '}
+              </Fragment>
+            ))
+          }
         </tr>
       </thead>
       <tbody>

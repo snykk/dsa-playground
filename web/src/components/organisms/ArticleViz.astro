@@ -9,7 +9,7 @@ interface Props {
 const { ids } = Astro.props;
 ---
 
-<div id="visualize" class="article-viz">
+<div id="visualize" class="article-viz" data-pagefind-ignore>
   <VizMount client:visible ids={ids} />
   <noscript><p>The visualization needs JavaScript; the rest of the article works without it.</p></noscript>
 </div>

@@ -43,7 +43,7 @@ const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'shor
   <h1>{title}</h1>
   <p class="lead" set:html={formatInline(lead)} />
 
-  <div class="meta">
+  <div class="meta" data-pagefind-ignore>
     {level && <LevelMeter level={level} />}
     {stats.map((s) => <span>{s}</span>)}
     {languages && <span>{languages}</span>}
@@ -55,7 +55,7 @@ const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'shor
 
   {
     before.length > 0 && (
-      <p class="before">
+      <p class="before" data-pagefind-ignore>
         <span class="before-label">Before you start</span>
         {before.map((n) => (
           <a href={joinBase(base, n.slug)}>{n.title}</a>
@@ -64,7 +64,7 @@ const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'shor
     )
   }
 
-  <div class="actions">
+  <div class="actions" data-pagefind-ignore>
     {
       hasViz && (
         <Button href="#visualize" variant="primary" size="sm">
