@@ -210,3 +210,15 @@ With 64-bit values each multiplication is `O(1)`. With big integers each one cos
     No. Square and multiply works for any positive modulus. Only the tricks built on top of it need conditions: Fermat's inverse `a^(p-2)` needs a prime `p`, and a negative exponent needs `gcd(base, m) = 1`.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Pow(x, n)', site: 'LeetCode 50', url: 'https://leetcode.com/problems/powx-n/', idea: 'Square and multiply on a double; a negative n becomes 1 / x^{-n}, and -n overflows for the smallest 32-bit integer.' },
+    { name: 'Exponentiation', site: 'CSES 1095', url: 'https://cses.fi/problemset/task/1095', idea: 'Compute a^b modulo 10^9 + 7 for 2 * 10^5 queries, with 0^0 = 1: the function of this article as it stands.' },
+    { name: 'Count Good Numbers', site: 'LeetCode 1922', url: 'https://leetcode.com/problems/count-good-numbers/', idea: 'With n up to 10^15, the answer is a product of two powers, each one square and multiply.' },
+    { name: 'Super Pow', site: 'LeetCode 372', url: 'https://leetcode.com/problems/super-pow/', idea: 'The exponent is an array of up to 2000 digits: raise to the 10th power between digits, since 1337 is not prime and Fermat does not apply.' },
+    { name: 'Exponentiation II', site: 'CSES 1712', url: 'https://cses.fi/problemset/task/1712', idea: 'Compute a^{b^c} modulo a prime p: by Fermat, reduce the inner power b^c modulo p - 1 first.' },
+  ]}
+/>

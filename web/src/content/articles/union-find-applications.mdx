@@ -213,3 +213,15 @@ Space is <BigO of="n" />.
     No. Use DFS with colours, or Kahn's algorithm, which returns fewer than n nodes when a cycle exists.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Number of Provinces', site: 'LeetCode 547', url: 'https://leetcode.com/problems/number-of-provinces/', idea: 'Union the cities that are directly connected and count the roots that remain.' },
+    { name: 'Redundant Connection', site: 'LeetCode 684', url: 'https://leetcode.com/problems/redundant-connection/', idea: 'Add the edges in order; the first union that finds both ends already joined is the answer.' },
+    { name: 'Satisfiability of Equality Equations', site: 'LeetCode 990', url: 'https://leetcode.com/problems/satisfiability-of-equality-equations/', idea: 'Union all the equalities first, then check that no inequality joins two letters of one set.' },
+    { name: 'Accounts Merge', site: 'LeetCode 721', url: 'https://leetcode.com/problems/accounts-merge/', idea: 'Union the accounts that share an email, then group the emails by root.' },
+    { name: 'Road Construction', site: 'CSES 1676', url: 'https://cses.fi/problemset/task/1676', idea: 'After each new road, print the number of components and the size of the largest: keep the sizes up to date in the union step.' },
+  ]}
+/>

@@ -92,10 +92,11 @@ Each language is tested against an in-process fake judge.
 
 ## Practice Problems
 
-- [LeetCode 374 - Guess Number Higher or Lower](https://leetcode.com/problems/guess-number-higher-or-lower/)
-- [LeetCode 278 - First Bad Version](https://leetcode.com/problems/first-bad-version/)
-- [LeetCode 702 - Search in a Sorted Array of Unknown Size](https://leetcode.com/problems/search-in-a-sorted-array-of-unknown-size/)
-- [LeetCode 1095 - Find in Mountain Array](https://leetcode.com/problems/find-in-mountain-array/)
+- [Guess Number Higher or Lower (LeetCode 374)](https://leetcode.com/problems/guess-number-higher-or-lower/)
+- [First Bad Version (LeetCode 278)](https://leetcode.com/problems/first-bad-version/)
+- [Hidden Integer (CSES 3112)](https://cses.fi/problemset/task/3112)
+- [Find in Mountain Array (LeetCode 1095)](https://leetcode.com/problems/find-in-mountain-array/)
+- [Hidden Permutation (CSES 3139)](https://cses.fi/problemset/task/3139)
 
 ## Related
 

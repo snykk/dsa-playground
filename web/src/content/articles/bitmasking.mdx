@@ -221,3 +221,15 @@ The Python, C++ and Go files share the basic operations, subset enumeration, a T
     Bit Manipulation is about tricks on single numbers (parity, XOR pairing, single-bit counting). Bitmasking is about representing a set as a number and using it for enumeration and DP.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Subsets', site: 'LeetCode 78', url: 'https://leetcode.com/problems/subsets/', idea: 'Enumerate the masks 0 .. 2^n - 1; bit i says whether item i is in the subset.' },
+    { name: 'Partition to K Equal Sum Subsets', site: 'LeetCode 698', url: 'https://leetcode.com/problems/partition-to-k-equal-sum-subsets/', idea: 'With at most 16 numbers, dp[mask] can store how full the current bucket is after using the numbers in mask.' },
+    { name: 'Shortest Path Visiting All Nodes', site: 'LeetCode 847', url: 'https://leetcode.com/problems/shortest-path-visiting-all-nodes/', idea: 'BFS over states (node, mask of visited nodes): 12 nodes give only 12 * 2^12 states.' },
+    { name: 'Hamiltonian Flights', site: 'CSES 1690', url: 'https://cses.fi/problemset/task/1690', idea: 'The state dp[mask][last] counts the routes through the cities in mask that end at last. With 20 cities that is 2^20 * 20 states, so keep the inner loop tight.' },
+    { name: 'Elevator Rides', site: 'CSES 1653', url: 'https://cses.fi/problemset/task/1653', idea: 'For each set of people, dp[mask] keeps the fewest rides and the weight of the last ride, in O(2^n * n).' },
+  ]}
+/>

@@ -195,3 +195,14 @@ The DFS stores one parent per vertex and rebuilds the path once, so a round cost
     With integers every augmentation adds at least 1, which bounds the number of rounds. With irrational capacities a bad path order can produce an infinite sequence of ever smaller augmentations.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'School Dance', site: 'CSES 1696', url: 'https://cses.fi/problemset/task/1696', idea: 'Bipartite matching with unit capacities: every augmenting path adds one pair, so DFS needs at most as many rounds as there are boys.' },
+    { name: 'Police Chase', site: 'CSES 1695', url: 'https://cses.fi/problemset/task/1695', idea: 'Max-flow min-cut in action: once no augmenting path is left, the edges from the vertices reachable from the source to the rest form a minimum cut.' },
+    { name: 'Distinct Routes', site: 'CSES 1711', url: 'https://cses.fi/problemset/task/1711', idea: 'With capacity 1 on every teleporter the flow value counts edge-disjoint routes. Follow the saturated edges from room 1 to print each route.' },
+    { name: 'Download Speed', site: 'CSES 1694', url: 'https://cses.fi/problemset/task/1694', idea: 'Capacities reach 10^9, so the bound of one unit of flow per round says nothing here. This is where shortest paths (Edmonds-Karp) or capacity scaling earn their place.' },
+  ]}
+/>

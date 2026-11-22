@@ -189,3 +189,14 @@ A bridge endpoint with another edge besides the bridge is always an articulation
     Run a second search that ignores bridge edges, or use a union-find structure over the non-bridge edges. Each result is a 2-edge-connected component.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Critical Connections in a Network', site: 'LeetCode 1192', url: 'https://leetcode.com/problems/critical-connections-in-a-network/', idea: 'Every bridge in one DFS: a tree edge u-v is a bridge when low[v] > disc[u].' },
+    { name: 'Necessary Roads', site: 'CSES 2076', url: 'https://cses.fi/problemset/task/2076', idea: 'The same bridge test on up to 10^5 cities, deep enough that a recursive DFS needs a raised limit or an explicit stack.' },
+    { name: 'Necessary Cities', site: 'CSES 2077', url: 'https://cses.fi/problemset/task/2077', idea: 'Articulation points: a non-root u with a child v where low[v] >= disc[u], and a root with two or more DFS children.' },
+    { name: 'Bertown roads', site: 'Codeforces 118E', url: 'https://codeforces.com/problemset/problem/118/E', idea: 'A one-way orientation that keeps every junction reachable exists exactly when the graph has no bridge. Then the DFS tree itself tells you how to orient each edge.' },
+  ]}
+/>

@@ -214,3 +214,14 @@ The heap lives inside the input array, so no buffer is needed. The recursive `he
     A max-heap, so the largest element can be swapped to the end of the same array. With a min-heap you would get descending order in place, or need an output array for ascending order.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Sort an Array', site: 'LeetCode 912', url: 'https://leetcode.com/problems/sort-an-array/', idea: 'Heap sort meets the O(n log n) bound in every case, in place: build the max-heap bottom-up, then swap the root to the end n - 1 times.' },
+    { name: 'Kth Largest Element in an Array', site: 'LeetCode 215', url: 'https://leetcode.com/problems/kth-largest-element-in-an-array/', idea: 'Stop the extraction phase after k steps: O(n + k log n), the partial result from the article.' },
+    { name: 'Top K Frequent Elements', site: 'LeetCode 347', url: 'https://leetcode.com/problems/top-k-frequent-elements/', idea: 'Count the values, then keep a heap of size k over the counts.' },
+    { name: 'Merge k Sorted Lists', site: 'LeetCode 23', url: 'https://leetcode.com/problems/merge-k-sorted-lists/', idea: 'A min-heap of the k list heads always yields the next smallest node, O(N log k): the sift-down at work outside sorting.' },
+  ]}
+/>

@@ -89,10 +89,11 @@ Circle tests compare squared distances, so no square root is needed. Results are
 
 ## Practice Problems
 
-- [Point Location Test (CSES)](https://cses.fi/problemset/task/2189)
+- [Point Location Test (CSES 2189)](https://cses.fi/problemset/task/2189)
 - [Check If It Is a Straight Line (LeetCode 1232)](https://leetcode.com/problems/check-if-it-is-a-straight-line/)
 - [Valid Boomerang (LeetCode 1037)](https://leetcode.com/problems/valid-boomerang/)
 - [Valid Square (LeetCode 593)](https://leetcode.com/problems/valid-square/)
+- [Circle and Rectangle Overlapping (LeetCode 1401)](https://leetcode.com/problems/circle-and-rectangle-overlapping/)
 
 ## Related
 

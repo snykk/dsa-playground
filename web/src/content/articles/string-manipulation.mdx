@@ -223,3 +223,15 @@ Because strings are immutable in Python and Go, building a result with `+=` in a
     It returns the empty string in all three languages, and `join` of a single item returns that item with no separator.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Reverse String', site: 'LeetCode 344', url: 'https://leetcode.com/problems/reverse-string/', idea: 'Two pointers that swap and move inward, in place.' },
+    { name: 'Valid Palindrome', site: 'LeetCode 125', url: 'https://leetcode.com/problems/valid-palindrome/', idea: 'The palindrome check with two pointers, skipping characters that are not letters or digits and comparing without case.' },
+    { name: 'Reverse Vowels of a String', site: 'LeetCode 345', url: 'https://leetcode.com/problems/reverse-vowels-of-a-string/', idea: 'Reverse with two pointers that only stop at vowels, in either case.' },
+    { name: 'Reverse Words in a String', site: 'LeetCode 151', url: 'https://leetcode.com/problems/reverse-words-in-a-string/', idea: 'Split on runs of spaces, reverse the list of words and join with single spaces.' },
+    { name: 'String Compression', site: 'LeetCode 443', url: 'https://leetcode.com/problems/string-compression/', idea: 'Count runs and write the result back into the same array with a read and a write index.' },
+  ]}
+/>

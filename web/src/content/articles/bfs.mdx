@@ -234,3 +234,15 @@ The repository implements the first two; the others reuse the same loop with a d
     Record `parent[w] = v` when you discover `w`, then walk the parents back from the target and reverse the result. `bfs_with_path` does this and returns `None` (Python) or an empty list or vector (C++ and Go) when there is no path.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Shortest Path in Binary Matrix', site: 'LeetCode 1091', url: 'https://leetcode.com/problems/shortest-path-in-binary-matrix/', idea: 'Fewest steps on a grid with eight moves: plain BFS from the top-left cell.' },
+    { name: 'Message Route', site: 'CSES 1667', url: 'https://cses.fi/problemset/task/1667', idea: 'Shortest route in an unweighted graph. Record parent[w] when w is discovered and walk it back to print the route.' },
+    { name: 'Rotting Oranges', site: 'LeetCode 994', url: 'https://leetcode.com/problems/rotting-oranges/', idea: 'Multi-source BFS: start with every rotten orange in the queue and count the layers.' },
+    { name: 'Labyrinth', site: 'CSES 1193', url: 'https://cses.fi/problemset/task/1193', idea: 'BFS on a grid of up to 10^6 cells, then rebuild the path as a string of moves from the stored directions.' },
+    { name: 'Word Ladder', site: 'LeetCode 127', url: 'https://leetcode.com/problems/word-ladder/', idea: 'The graph is implicit: words are vertices and one-letter changes are edges. Generate the neighbors by trying every letter at every position.' },
+  ]}
+/>

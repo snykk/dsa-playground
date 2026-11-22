@@ -99,7 +99,12 @@ Measured on 1000 items at p = 1% (m = 9586, k = 7) with 20000 non-members: Pytho
 
 ## Practice Problems
 
+- [Design HashSet (LeetCode 705)](https://leetcode.com/problems/design-hashset/)
+- [Design Bitset (LeetCode 2166)](https://leetcode.com/problems/design-bitset/)
+- [Repeated DNA Sequences (LeetCode 187)](https://leetcode.com/problems/repeated-dna-sequences/)
 - Exercise: design a spell checker or URL-seen filter with a Bloom filter in front of an exact set.
+
+No judge accepts a probably-right answer, so the problems above practise the parts of a Bloom filter (the bit array, a hash into it, "seen before?") rather than the filter itself.
 
 ## Related
 

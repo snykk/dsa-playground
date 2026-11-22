@@ -114,9 +114,11 @@ Without lazy tags a range add costs O(n log n): one point update per element.
 
 ## Practice Problems
 
-- [LeetCode 307: Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/) (point updates; start with the plain tree)
-- [LeetCode 699: Falling Squares](https://leetcode.com/problems/falling-squares/) (range assign and range max)
-- [LeetCode 218: The Skyline Problem](https://leetcode.com/problems/the-skyline-problem/)
+- [Range Update Queries (CSES 1651)](https://cses.fi/problemset/task/1651) (range add, point query)
+- [Falling Squares (LeetCode 699)](https://leetcode.com/problems/falling-squares/) (range assign and range max)
+- [Handling Sum Queries After Update (LeetCode 2569)](https://leetcode.com/problems/handling-sum-queries-after-update/) (range flip and sum)
+- [Range Updates and Sums (CSES 1735)](https://cses.fi/problemset/task/1735) (range add, range assign and sum)
+- [The Skyline Problem (LeetCode 218)](https://leetcode.com/problems/the-skyline-problem/)
 - Add range assignment and write the tag composition rule.
 
 ## Related

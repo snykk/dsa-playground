@@ -82,10 +82,10 @@ d is the number of digits of `n`. There are d positions, 2 values of `tight` and
 
 ## Practice Problems
 
-- [Count Numbers with Unique Digits (LeetCode 357)](https://leetcode.com/problems/count-numbers-with-unique-digits/)
-- [Numbers With Repeated Digits (LeetCode 1012)](https://leetcode.com/problems/numbers-with-repeated-digits/)
+- [Digit Sum (AtCoder DP S)](https://atcoder.jp/contests/dp/tasks/dp_s)
+- [Counting Numbers (CSES 2220)](https://cses.fi/problemset/task/2220)
 - [Number of Digit One (LeetCode 233)](https://leetcode.com/problems/number-of-digit-one/)
-- [Digit Sum (AtCoder Educational DP Contest, problem S)](https://atcoder.jp/contests/dp/tasks/dp_s)
+- [Numbers With Repeated Digits (LeetCode 1012)](https://leetcode.com/problems/numbers-with-repeated-digits/)
 
 ## Related
 

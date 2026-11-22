@@ -103,9 +103,10 @@ Use a string for text. For heavy editing of a long text, a list of pieces, a bui
 
 ## Practice Problems
 
-- [Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/)
-- [Length of Last Word](https://leetcode.com/problems/length-of-last-word/)
-- [Merge Strings Alternately](https://leetcode.com/problems/merge-strings-alternately/)
+- [Length of Last Word (LeetCode 58)](https://leetcode.com/problems/length-of-last-word/)
+- [Merge Strings Alternately (LeetCode 1768)](https://leetcode.com/problems/merge-strings-alternately/)
+- [Longest Common Prefix (LeetCode 14)](https://leetcode.com/problems/longest-common-prefix/)
+- [Repetitions (CSES 1069)](https://cses.fi/problemset/task/1069)
 
 ## Related
 

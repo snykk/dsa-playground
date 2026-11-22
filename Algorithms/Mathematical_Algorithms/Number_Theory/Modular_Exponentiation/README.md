@@ -86,10 +86,11 @@ At most `2 * floor(log2 e) + 2` multiplications, each followed by one reduction.
 
 ## Practice Problems
 
-- [Exponentiation (CSES)](https://cses.fi/problemset/task/1095)
-- [Exponentiation II (CSES)](https://cses.fi/problemset/task/1712): the exponent is itself a power; with a prime modulus, Fermat lets you reduce it modulo `m - 1`.
-- [Pow(x, n) (LeetCode 50)](https://leetcode.com/problems/powx-n/): the same idea with real numbers.
+- [Pow(x, n) (LeetCode 50)](https://leetcode.com/problems/powx-n/)
+- [Exponentiation (CSES 1095)](https://cses.fi/problemset/task/1095)
+- [Count Good Numbers (LeetCode 1922)](https://leetcode.com/problems/count-good-numbers/)
 - [Super Pow (LeetCode 372)](https://leetcode.com/problems/super-pow/)
+- [Exponentiation II (CSES 1712)](https://cses.fi/problemset/task/1712)
 
 ## Related
 

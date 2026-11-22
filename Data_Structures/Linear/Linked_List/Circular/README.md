@@ -97,10 +97,10 @@ Use it when you cycle through items repeatedly (round-robin scheduling, turn ord
 
 ## Practice Problems
 
-- [Find the Winner of the Circular Game](https://leetcode.com/problems/find-the-winner-of-the-circular-game/)
-- [Insert into a Sorted Circular Linked List](https://leetcode.com/problems/insert-into-a-sorted-circular-linked-list/)
-- [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
-- [Design Circular Queue](https://leetcode.com/problems/design-circular-queue/)
+- [Linked List Cycle (LeetCode 141)](https://leetcode.com/problems/linked-list-cycle/)
+- [Find the Winner of the Circular Game (LeetCode 1823)](https://leetcode.com/problems/find-the-winner-of-the-circular-game/)
+- [Design Circular Queue (LeetCode 622)](https://leetcode.com/problems/design-circular-queue/)
+- [Josephus Problem I (CSES 2162)](https://cses.fi/problemset/task/2162)
 
 ## Related
 

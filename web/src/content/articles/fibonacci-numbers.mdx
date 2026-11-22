@@ -230,3 +230,14 @@ Exponentiation by squaring uses O(log n) matrix products. `fibonacci_matrix(100)
     In the number of arithmetic operations yes: O(log n) against O(n). For small `n` the loop is faster in practice, and for large `n` the cost is dominated by the multiplication of very large integers.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Fibonacci Number', site: 'LeetCode 509', url: 'https://leetcode.com/problems/fibonacci-number/', idea: 'The definition itself: write the memoized version and the two-variable loop.' },
+    { name: 'N-th Tribonacci Number', site: 'LeetCode 1137', url: 'https://leetcode.com/problems/n-th-tribonacci-number/', idea: 'Each term sums the three before it, so the loop keeps three variables.' },
+    { name: 'Climbing Stairs', site: 'LeetCode 70', url: 'https://leetcode.com/problems/climbing-stairs/', idea: 'The Fibonacci recurrence in disguise: the last move was one step or two.' },
+    { name: 'Fibonacci Numbers', site: 'CSES 1722', url: 'https://cses.fi/problemset/task/1722', idea: 'With n up to 10^18 no loop finishes: raise the 2 x 2 matrix to the n-th power modulo 10^9 + 7.' },
+  ]}
+/>

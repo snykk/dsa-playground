@@ -91,12 +91,12 @@ Use BFS for fewest steps in an unweighted graph, flood fill for regions, Kahn fo
 
 ## Practice Problems
 
-- LeetCode 200, Number of Islands
-- LeetCode 733, Flood Fill
-- LeetCode 994, Rotting Oranges
-- LeetCode 127, Word Ladder
-- LeetCode 207, Course Schedule
-- LeetCode 210, Course Schedule II
+- [Flood Fill (LeetCode 733)](https://leetcode.com/problems/flood-fill/)
+- [Number of Islands (LeetCode 200)](https://leetcode.com/problems/number-of-islands/)
+- [Rotting Oranges (LeetCode 994)](https://leetcode.com/problems/rotting-oranges/)
+- [Word Ladder (LeetCode 127)](https://leetcode.com/problems/word-ladder/)
+- [Course Schedule (LeetCode 207)](https://leetcode.com/problems/course-schedule/)
+- [Course Schedule II (LeetCode 210)](https://leetcode.com/problems/course-schedule-ii/)
 
 ## Related
 

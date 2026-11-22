@@ -94,10 +94,11 @@ Use it when the answer is a number in a known range, a candidate is cheap to ver
 
 ## Practice Problems
 
-- LeetCode 1011, Capacity to Ship Packages Within D Days
-- LeetCode 410, Split Array Largest Sum
-- LeetCode 875, Koko Eating Bananas
-- LeetCode 719, Find K-th Smallest Pair Distance
+- [Koko Eating Bananas (LeetCode 875)](https://leetcode.com/problems/koko-eating-bananas/)
+- [Capacity To Ship Packages Within D Days (LeetCode 1011)](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/)
+- [Factory Machines (CSES 1620)](https://cses.fi/problemset/task/1620)
+- [Split Array Largest Sum (LeetCode 410)](https://leetcode.com/problems/split-array-largest-sum/)
+- [Find K-th Smallest Pair Distance (LeetCode 719)](https://leetcode.com/problems/find-k-th-smallest-pair-distance/)
 
 ## Related
 

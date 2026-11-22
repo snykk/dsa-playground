@@ -95,11 +95,13 @@ Do not use it when you need the fewest edges between two vertices (use BFS) or l
 
 ## Practice Problems
 
-- [Number of Islands](https://leetcode.com/problems/number-of-islands/) (LeetCode)
-- [Course Schedule](https://leetcode.com/problems/course-schedule/) (LeetCode, directed cycle)
-- [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/) (LeetCode, topological order)
-- [Clone Graph](https://leetcode.com/problems/clone-graph/) (LeetCode)
-- [Building Teams](https://cses.fi/problemset/task/1668) and [Round Trip](https://cses.fi/problemset/task/1669) (CSES)
+- [Number of Islands (LeetCode 200)](https://leetcode.com/problems/number-of-islands/)
+- [Clone Graph (LeetCode 133)](https://leetcode.com/problems/clone-graph/)
+- [Building Teams (CSES 1668)](https://cses.fi/problemset/task/1668)
+- [Round Trip (CSES 1669)](https://cses.fi/problemset/task/1669)
+- [Round Trip II (CSES 1678)](https://cses.fi/problemset/task/1678)
+- [Course Schedule (LeetCode 207)](https://leetcode.com/problems/course-schedule/)
+- [Course Schedule II (LeetCode 210)](https://leetcode.com/problems/course-schedule-ii/)
 
 ## Related
 

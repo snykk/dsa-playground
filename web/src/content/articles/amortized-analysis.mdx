@@ -198,3 +198,14 @@ Amortized O(1) is a worst-case guarantee over every sequence of operations, with
     With doubling, every resize buys as many cheap appends as elements it copied, so the copy cost per append stays constant. With a fixed increment `k`, the resizes copy 1k, 2k, 3k, &hellip;, which sums to O(n<sup>2</sup>/k) over n appends.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Implement Queue using Stacks', site: 'LeetCode 232', url: 'https://leetcode.com/problems/implement-queue-using-stacks/', idea: 'Each element moves from the input stack to the output stack at most once, so n operations cost O(n) in total: the amortized O(1) that the follow-up asks for.' },
+    { name: 'Online Stock Span', site: 'LeetCode 901', url: 'https://leetcode.com/problems/online-stock-span/', idea: 'Each price is pushed once and popped at most once, so a call that pops many earlier prices is paid for by their pushes: O(1) amortized per call.' },
+    { name: 'Nearest Smaller Values', site: 'CSES 1645', url: 'https://cses.fi/problemset/task/1645', idea: 'At n = 2 * 10^5, scanning back from every position is O(n^2) in the worst case and times out. A stack where each index is pushed and popped once is O(n) in total, even though one step can pop many.' },
+    { name: 'Road Construction', site: 'CSES 1676', url: 'https://cses.fi/problemset/task/1676', idea: 'Up to 2 * 10^5 merges: union-find with path compression and union by size costs nearly O(1) amortized per operation, while plain linking can build long chains that make every find slow.' },
+  ]}
+/>

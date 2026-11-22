@@ -98,11 +98,12 @@ Do not use it for weighted shortest paths (use Dijkstra's algorithm), or when yo
 
 ## Practice Problems
 
-- [Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/) (LeetCode)
-- [Shortest Path in Binary Matrix](https://leetcode.com/problems/shortest-path-in-binary-matrix/) (LeetCode)
-- [Rotting Oranges](https://leetcode.com/problems/rotting-oranges/) (LeetCode, multi-source)
-- [Word Ladder](https://leetcode.com/problems/word-ladder/) (LeetCode)
-- [Message Route](https://cses.fi/problemset/task/1667) and [Labyrinth](https://cses.fi/problemset/task/1193) (CSES)
+- [Shortest Path in Binary Matrix (LeetCode 1091)](https://leetcode.com/problems/shortest-path-in-binary-matrix/)
+- [Message Route (CSES 1667)](https://cses.fi/problemset/task/1667)
+- [Rotting Oranges (LeetCode 994)](https://leetcode.com/problems/rotting-oranges/)
+- [Labyrinth (CSES 1193)](https://cses.fi/problemset/task/1193)
+- [Word Ladder (LeetCode 127)](https://leetcode.com/problems/word-ladder/)
+- [Binary Tree Level Order Traversal (LeetCode 102)](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
 ## Related
 

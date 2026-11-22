@@ -100,8 +100,8 @@ In-place heap sort with a max heap yields **ascending** order: each extraction m
 
 - [Last Stone Weight (LeetCode 1046)](https://leetcode.com/problems/last-stone-weight/)
 - [Kth Largest Element in an Array (LeetCode 215)](https://leetcode.com/problems/kth-largest-element-in-an-array/)
-- [Find Median from Data Stream (LeetCode 295)](https://leetcode.com/problems/find-median-from-data-stream/)
 - [K Closest Points to Origin (LeetCode 973)](https://leetcode.com/problems/k-closest-points-to-origin/)
+- [Find Median from Data Stream (LeetCode 295)](https://leetcode.com/problems/find-median-from-data-stream/)
 
 ## Related
 

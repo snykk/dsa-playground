@@ -97,9 +97,11 @@ The worst case needs an unlucky run of priorities. The priorities are drawn by t
 
 ## Practice Problems
 
-- [Codeforces 702F: T-Shirts](https://codeforces.com/problemset/problem/702/F)
-- [Codeforces 455D: Serega and Fun](https://codeforces.com/problemset/problem/455/D) (implicit treap)
-- [SPOJ ORDERSET](https://www.spoj.com/problems/ORDERSET/) (order-statistic set)
+- [Cut and Paste (CSES 2072)](https://cses.fi/problemset/task/2072) (implicit treap)
+- [Order statistic set (SPOJ ORDERSET)](https://www.spoj.com/problems/ORDERSET/) (order-statistic set)
+- [Substring Reversals (CSES 2073)](https://cses.fi/problemset/task/2073) (implicit treap with a lazy flag)
+- [T-Shirts (Codeforces 702F)](https://codeforces.com/problemset/problem/702/F)
+- [Serega and Fun (Codeforces 455D)](https://codeforces.com/problemset/problem/455/D) (implicit treap)
 
 ## Related
 

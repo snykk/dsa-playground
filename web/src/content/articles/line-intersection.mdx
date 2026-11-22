@@ -229,9 +229,11 @@ For many segments, a sweep-line algorithm such as Bentley-Ottmann reports all in
 
 ## Practice problems
 
-<DataTable
-  columns={['Problem', 'Idea']}
-  rows={[
-    ['Line Segment Intersection (CSES)', 'decide for each query whether two segments share a point, including collinear cases'],
+<PracticeProblems
+  problems={[
+    { name: 'Line Segment Intersection', site: 'CSES 2190', url: 'https://cses.fi/problemset/task/2190', idea: 'Decide for each query whether two segments share a point, including collinear cases, with coordinates up to 10^9.' },
+    { name: 'Line Segment Intersection', site: 'Kattis segmentintersection', url: 'https://open.kattis.com/problems/segmentintersection', idea: 'Print the intersection itself: none, a single point, or the overlapping segment when the two are collinear.' },
+    { name: 'Intersection Points', site: 'CSES 1740', url: 'https://cses.fi/problemset/task/1740', idea: 'Count the crossings among 10^5 horizontal and vertical segments with a sweep line, the many-segment case from the FAQ.' },
+    { name: 'Covered Points', site: 'Codeforces 1036E', url: 'https://codeforces.com/problemset/problem/1036/E', idea: 'Count the lattice points on 1000 segments: a gcd gives the points of each segment, and the pairwise intersection points must not be counted twice.' },
   ]}
 />

@@ -181,3 +181,14 @@ This repository gives no timing table, because the speed-up depends on the machi
     The C++ readers return 0 (or an empty string), and the Go `BufferedInput` returns an empty token or 0 and records an error. Python raises: `fast_int` a `ValueError` from `int('')`, and `BufferedInput.next()` or `AllInputReader.next()` an `IndexError` once the tokens run out (`AllInputReader.next_n` is a slice, so it returns fewer numbers instead). Check how many values to read from the input header instead of reading until the end.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Static Range Sum Queries', site: 'CSES 1646', url: 'https://cses.fi/problemset/task/1646', idea: 'About 6 * 10^5 numbers in and 2 * 10^5 lines out under one second: untie cin and print newline characters instead of endl in C++, and in Python read everything at once and write the answers in one call.' },
+    { name: 'Forest Queries', site: 'CSES 1652', url: 'https://cses.fi/problemset/task/1652', idea: 'A 1000 x 1000 grid plus 2 * 10^5 queries of four numbers: the reading costs more than the O(1) answers, so buffered input decides the running time.' },
+    { name: 'Inverse Inversions', site: 'CSES 2214', url: 'https://cses.fi/problemset/task/2214', idea: 'The answer is a permutation of up to 10^6 numbers: build the whole output in one buffer and write it once, instead of one print call per number.' },
+    { name: 'Hidden Integer', site: 'CSES 3112', url: 'https://cses.fi/problemset/task/3112', idea: 'The opposite rule: in an interactive problem, output that is buffered and not flushed after each question leaves the grader waiting.' },
+  ]}
+/>

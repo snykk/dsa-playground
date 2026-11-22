@@ -93,10 +93,11 @@ Use it for real numbers (or integers) with a known range and roughly uniform spr
 
 ## Practice Problems
 
-- [Maximum Gap (LeetCode 164)](https://leetcode.com/problems/maximum-gap/)
 - [Sort Characters By Frequency (LeetCode 451)](https://leetcode.com/problems/sort-characters-by-frequency/)
 - [Top K Frequent Elements (LeetCode 347)](https://leetcode.com/problems/top-k-frequent-elements/)
 - [H-Index (LeetCode 274)](https://leetcode.com/problems/h-index/)
+- [Maximum Gap (LeetCode 164)](https://leetcode.com/problems/maximum-gap/)
+- [Contains Duplicate III (LeetCode 220)](https://leetcode.com/problems/contains-duplicate-iii/)
 
 ## Related
 

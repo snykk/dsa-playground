@@ -95,7 +95,10 @@ The recurrence is T(n) = 2 T(n/2) + O(n): splitting the y-list, building the str
 
 ## Practice Problems
 
-- [Minimum Euclidean Distance (CSES)](https://cses.fi/problemset/task/2194)
+- [Closest Pair (Uniform) (Kattis closestpair1)](https://open.kattis.com/problems/closestpair1)
+- [Minimum Euclidean Distance (CSES 2194)](https://cses.fi/problemset/task/2194)
+- [Closest Pair (Kattis closestpair2)](https://open.kattis.com/problems/closestpair2)
+- [Tricky Function (Codeforces 429D)](https://codeforces.com/problemset/problem/429/D)
 
 ## Related
 

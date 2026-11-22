@@ -106,6 +106,9 @@ All three are tested against a dictionary or `std::map` on thousands of random i
 
 ## Practice Problems
 
+- [My Calendar I (LeetCode 729)](https://leetcode.com/problems/my-calendar-i/)
+- [Time Based Key-Value Store (LeetCode 981)](https://leetcode.com/problems/time-based-key-value-store/) (a floor query)
+- [Tweet Counts Per Frequency (LeetCode 1348)](https://leetcode.com/problems/tweet-counts-per-frequency/) (range scans)
 - Add `delete` (borrow and merge in leaves and internal nodes, updating separators).
 - Add a `prev` pointer to the leaves and a reverse range scan.
 - Add a `floor(key)` query (largest key `<=` key) using one descent.

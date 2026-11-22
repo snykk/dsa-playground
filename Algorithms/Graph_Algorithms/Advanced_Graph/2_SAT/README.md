@@ -121,8 +121,10 @@ All three use an iterative Tarjan and the same assignment rule.
 
 ## Practice Problems
 
-- [CSES 1684. Giant Pizza](https://cses.fi/problemset/task/1684): each person wants two toppings in or out; a direct 2-SAT.
-- [Codeforces 568C. New Language](https://codeforces.com/problemset/problem/568/C): 2-SAT with letter-type constraints, combined with a search for the smallest string.
+- [Giant Pizza (CSES 1684)](https://cses.fi/problemset/task/1684)
+- [The Road to Berland is Paved With Good Intentions (Codeforces 228E)](https://codeforces.com/problemset/problem/228/E)
+- [Ring Road 2 (Codeforces 27D)](https://codeforces.com/problemset/problem/27/D)
+- [New Language (Codeforces 568C)](https://codeforces.com/problemset/problem/568/C)
 
 ## Related
 

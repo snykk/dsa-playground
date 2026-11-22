@@ -182,3 +182,13 @@ The suffix-array route concatenates the strings with a separator that occurs in 
     Yes. A suffix array or suffix automaton solves it in near-linear time. For two strings of a few thousand characters the quadratic table is fine.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Maximum Length of Repeated Subarray', site: 'LeetCode 718', url: 'https://leetcode.com/problems/maximum-length-of-repeated-subarray/', idea: 'The table of matching-run lengths from this article, on two integer arrays of up to 1000 elements.' },
+    { name: 'Longest Duplicate Substring', site: 'LeetCode 1044', url: 'https://leetcode.com/problems/longest-duplicate-substring/', idea: 'One string against itself, up to 3 * 10^4 characters: the O(n^2) table is too slow, so use a suffix array or binary search with hashing.' },
+    { name: 'Longest Common Subpath', site: 'LeetCode 1923', url: 'https://leetcode.com/problems/longest-common-subpath/', idea: 'The longest common substring of many arrays at once: binary search on the length and compare rolling hashes of all windows.' },
+  ]}
+/>

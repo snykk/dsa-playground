@@ -93,10 +93,11 @@ Use it for linear recurrences with constant coefficients and a huge index, count
 
 ## Practice Problems
 
-- [Climbing Stairs (LeetCode 70)](https://leetcode.com/problems/climbing-stairs/): solve it in O(log n).
-- [Fibonacci Numbers (CSES)](https://cses.fi/problemset/task/1722): the n-th Fibonacci number modulo 10^9 + 7 for n up to 10^18.
-- [N-th Tribonacci Number (LeetCode 1137)](https://leetcode.com/problems/n-th-tribonacci-number/): use a 3 x 3 matrix.
-- Count walks of length `k` between two vertices of a small graph.
+- [N-th Tribonacci Number (LeetCode 1137)](https://leetcode.com/problems/n-th-tribonacci-number/)
+- [Fibonacci Numbers (CSES 1722)](https://cses.fi/problemset/task/1722)
+- [Throwing Dice (CSES 1096)](https://cses.fi/problemset/task/1096)
+- [Graph Paths I (CSES 1723)](https://cses.fi/problemset/task/1723)
+- [Graph Paths II (CSES 1724)](https://cses.fi/problemset/task/1724)
 - Compute the `n`-th term of a recurrence with a negative coefficient modulo a prime.
 
 ## Related

@@ -227,3 +227,14 @@ A treap is a Cartesian tree built on `(key, priority)` pairs; see the Cartesian 
     It is only a convention. The code keeps the largest priority at the root, which is what `merge` checks with `a.priority > b.priority`.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Cut and Paste', site: 'CSES 2072', url: 'https://cses.fi/problemset/task/2072', idea: 'The implicit treap: order the nodes by position, kept as subtree sizes, instead of by key. Each operation is then two splits and two merges.' },
+    { name: 'Order statistic set', site: 'SPOJ ORDERSET', url: 'https://www.spoj.com/problems/ORDERSET/', idea: 'Insert, delete, the k-th smallest and the number of keys below x. Store subtree sizes so that split and search can count.' },
+    { name: 'Substring Reversals', site: 'CSES 2073', url: 'https://cses.fi/problemset/task/2073', idea: 'An implicit treap with a lazy reverse flag: split out the range, flip its flag, merge it back.' },
+    { name: 'T-Shirts', site: 'Codeforces 702F', url: 'https://codeforces.com/problemset/problem/702/F', idea: 'Keep the customers in a treap keyed by remaining budget and apply each t-shirt to all of them at once with split, merge and lazy tags.' },
+  ]}
+/>

@@ -247,9 +247,11 @@ The tree has k leaves and k - 1 internal nodes, so it needs <BigO of="k" /> memo
 
 ## Practice problems
 
-<DataTable
-  columns={['Problem', 'Idea']}
-  rows={[
-    ['LeetCode 1167, Minimum Cost to Connect Sticks', 'the same loop as Huffman: always merge the two smallest with a min-heap; the cost is the sum of the merges'],
+<PracticeProblems
+  problems={[
+    { name: 'Stick Divisions', site: 'CSES 1161', url: 'https://cses.fi/problemset/task/1161', idea: 'Huffman in reverse: a cut costs the length of the stick cut, which is the cost of merging the pieces back. Merge the two shortest with a min-heap.' },
+    { name: 'Bread', site: 'AtCoder abc252_f', url: 'https://atcoder.jp/contests/abc252/tasks/abc252_f', idea: 'The same merging with one twist: the part of the loaf nobody asked for is one more piece, when it is not empty.' },
+    { name: 'Minimum Cost to Merge Stones', site: 'LeetCode 1000', url: 'https://leetcode.com/problems/minimum-cost-to-merge-stones/', idea: 'Only adjacent piles may merge, so merging the two smallest is no longer allowed: a contrast that needs interval DP.' },
+    { name: 'Huffman Coding on Segment', site: 'Codeforces 700D', url: 'https://codeforces.com/problemset/problem/700/D', idea: 'Huffman code lengths for many substrings. Symbols with equal counts can be merged in bulk, which keeps each query fast.' },
   ]}
 />

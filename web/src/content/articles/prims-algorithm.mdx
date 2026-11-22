@@ -229,3 +229,14 @@ The loops are almost identical: a priority queue, a visited set and relaxation o
     Dijkstra's priority is the distance from the source through a path; Prim's is the weight of one connecting edge. The answers differ: a minimum spanning tree minimizes total edge weight, not distances from a vertex.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Min Cost to Connect All Points', site: 'LeetCode 1584', url: 'https://leetcode.com/problems/min-cost-to-connect-all-points/', idea: 'A complete graph, where the O(V^2) array version of Prim, without a heap, is the natural fit.' },
+    { name: 'Road Reparation', site: 'CSES 1675', url: 'https://cses.fi/problemset/task/1675', idea: 'A sparse graph with up to 10^5 cities: Prim with a binary heap, and IMPOSSIBLE when the tree does not reach every city.' },
+    { name: 'Minimum Spanning Tree', site: 'Kattis minspantree', url: 'https://open.kattis.com/problems/minspantree', idea: "Several test cases, negative weights and the tree's edges printed in sorted order. Prim only compares weights, so negative ones need no special care." },
+    { name: 'Shichikuji and Power Grid', site: 'Codeforces 1245D', url: 'https://codeforces.com/problemset/problem/1245/D', idea: 'Add a virtual vertex for building a power station, then run the O(n^2) Prim on the dense graph of up to 2000 cities.' },
+  ]}
+/>

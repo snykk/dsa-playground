@@ -231,3 +231,14 @@ Only the first row is implemented in the repository.
     Yes, with a min combine and tags applied without the length factor. This repository only implements range add with range sum.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Range Update Queries', site: 'CSES 1651', url: 'https://cses.fi/problemset/task/1651', idea: 'Range add and point query: `update_range`, then a query whose range is a single position.' },
+    { name: 'Falling Squares', site: 'LeetCode 699', url: 'https://leetcode.com/problems/falling-squares/', idea: 'Compress the coordinates, then range assign and range max: a different tag with its own rule for pushing it down.' },
+    { name: 'Handling Sum Queries After Update', site: 'LeetCode 2569', url: 'https://leetcode.com/problems/handling-sum-queries-after-update/', idea: 'Range flips on a 0-1 array with a count of ones per node. A flip turns a count c into length - c, and two pending flips cancel.' },
+    { name: 'Range Updates and Sums', site: 'CSES 1735', url: 'https://cses.fi/problemset/task/1735', idea: 'Range add and range assign in one tree: an assignment wipes out a pending add, so the order in which tags compose is the whole problem.' },
+  ]}
+/>

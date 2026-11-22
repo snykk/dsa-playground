@@ -94,11 +94,13 @@ The three languages implement the same three functions. There is no Fibonacci or
 
 ## Practice Problems
 
-- [0/1 Knapsack (AtCoder Educational DP Contest, problem D)](https://atcoder.jp/contests/dp/tasks/dp_d)
+- [Coin Change (LeetCode 322)](https://leetcode.com/problems/coin-change/)
+- [Knapsack 1 (AtCoder dp_d)](https://atcoder.jp/contests/dp/tasks/dp_d)
 - [Longest Common Subsequence (LeetCode 1143)](https://leetcode.com/problems/longest-common-subsequence/)
+- [Slimes (AtCoder dp_n)](https://atcoder.jp/contests/dp/tasks/dp_n)
+- [Matching (AtCoder dp_o)](https://atcoder.jp/contests/dp/tasks/dp_o)
 - [Longest Increasing Subsequence (LeetCode 300)](https://leetcode.com/problems/longest-increasing-subsequence/)
 - [Partition Equal Subset Sum (LeetCode 416)](https://leetcode.com/problems/partition-equal-subset-sum/)
-- [Coin Change (LeetCode 322)](https://leetcode.com/problems/coin-change/)
 
 ## Related
 

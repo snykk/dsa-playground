@@ -212,3 +212,14 @@ Memoization makes each of the (m + 1)(n + 1) pairs of prefixes cost O(1), which 
     For general strings no strongly subquadratic algorithm is known, and under a well-known hardness conjecture none exists. If the distance is small (at most k), there are O(k n) algorithms.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Delete Operation for Two Strings', site: 'LeetCode 583', url: 'https://leetcode.com/problems/delete-operation-for-two-strings/', idea: 'Edit distance with deletions only: drop the replace move from the recurrence.' },
+    { name: 'Edit Distance', site: 'LeetCode 72', url: 'https://leetcode.com/problems/edit-distance/', idea: 'The full Levenshtein distance with insert, delete and replace, exactly the table of this article.' },
+    { name: 'Edit Distance', site: 'CSES 1639', url: 'https://cses.fi/problemset/task/1639', idea: 'The same table for strings of up to 5000 characters: 25 million cells, where two rows of memory are enough.' },
+    { name: 'Minimum ASCII Delete Sum for Two Strings', site: 'LeetCode 712', url: 'https://leetcode.com/problems/minimum-ascii-delete-sum-for-two-strings/', idea: "Weighted edits: a deletion costs the character's code, so the base row and column hold prefix sums instead of 0, 1, 2, ..." },
+  ]}
+/>

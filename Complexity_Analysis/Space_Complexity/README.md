@@ -110,10 +110,13 @@ And why naive Fibonacci has O(n) space although it makes exponentially many call
 
 ## Practice Problems
 
-- [Reverse String (LeetCode 344)](https://leetcode.com/problems/reverse-string/): the in-place O(1) reverse.
-- [Climbing Stairs (LeetCode 70)](https://leetcode.com/problems/climbing-stairs/): O(n) memo table, reducible to O(1) with two variables.
-- [Fibonacci Number (LeetCode 509)](https://leetcode.com/problems/fibonacci-number/): compare recursive, memoized and iterative space.
-- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/): compare the space of Merge Sort and Heap Sort.
+- [Reverse String (LeetCode 344)](https://leetcode.com/problems/reverse-string/)
+- [Climbing Stairs (LeetCode 70)](https://leetcode.com/problems/climbing-stairs/)
+- [First Missing Positive (LeetCode 41)](https://leetcode.com/problems/first-missing-positive/)
+- [Find the Duplicate Number (LeetCode 287)](https://leetcode.com/problems/find-the-duplicate-number/)
+- [Counting Rooms (CSES 1192)](https://cses.fi/problemset/task/1192)
+- [Fibonacci Number (LeetCode 509)](https://leetcode.com/problems/fibonacci-number/)
+- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
 
 ## Related
 

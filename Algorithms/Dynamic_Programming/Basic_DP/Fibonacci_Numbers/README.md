@@ -109,11 +109,10 @@ Do not use the naive recursion for anything beyond about `n = 35`.
 
 ## Practice Problems
 
-- [LeetCode 509. Fibonacci Number](https://leetcode.com/problems/fibonacci-number/) - the definition itself
-- [LeetCode 70. Climbing Stairs](https://leetcode.com/problems/climbing-stairs/) - the same recurrence in disguise
-- [LeetCode 1137. N-th Tribonacci Number](https://leetcode.com/problems/n-th-tribonacci-number/) - three previous terms
-- [LeetCode 746. Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/) - a minimum instead of a sum
-- [LeetCode 198. House Robber](https://leetcode.com/problems/house-robber/) - a two-variable DP
+- [Fibonacci Number (LeetCode 509)](https://leetcode.com/problems/fibonacci-number/)
+- [N-th Tribonacci Number (LeetCode 1137)](https://leetcode.com/problems/n-th-tribonacci-number/)
+- [Climbing Stairs (LeetCode 70)](https://leetcode.com/problems/climbing-stairs/)
+- [Fibonacci Numbers (CSES 1722)](https://cses.fi/problemset/task/1722)
 
 ## Related
 

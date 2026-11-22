@@ -82,8 +82,11 @@ Use it for range queries with point updates when you want simple code, or when t
 
 ## Practice Problems
 
-- [LeetCode 307 - Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
-- [CSES - Dynamic Range Sum Queries](https://cses.fi/problemset/task/1648)
+- [Range Sum Query - Mutable (LeetCode 307)](https://leetcode.com/problems/range-sum-query-mutable/)
+- [Dynamic Range Sum Queries (CSES 1648)](https://cses.fi/problemset/task/1648)
+- [Dynamic Range Minimum Queries (CSES 1649)](https://cses.fi/problemset/task/1649)
+- [Range Update Queries (CSES 1651)](https://cses.fi/problemset/task/1651)
+- [Holes (Codeforces 13E)](https://codeforces.com/problemset/problem/13/E)
 
 ## Related
 

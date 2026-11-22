@@ -193,8 +193,6 @@ For problem patterns see the Union-Find Applications topic (linked above). More 
 - **Percolation and grid regions,** and image-region labelling.
 - **Equivalence classes,** such as accounts that share an e-mail.
 
-Problems: LeetCode 547 (Number of Provinces), 684 (Redundant Connection), 721 (Accounts Merge), 1971 (Find if Path Exists in Graph).
-
 ## Common mistakes
 
 <Callout tone="warning" title="Watch out for these">
@@ -227,3 +225,15 @@ All three versions use path compression, union by rank, a `size` array and a com
     Assign each distinct key an integer index (a dictionary does it) and run the DSU on the indices.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find if Path Exists in Graph', site: 'LeetCode 1971', url: 'https://leetcode.com/problems/find-if-path-exists-in-graph/', idea: 'Union the two ends of every edge, then compare the roots of source and destination.' },
+    { name: 'Number of Provinces', site: 'LeetCode 547', url: 'https://leetcode.com/problems/number-of-provinces/', idea: 'The graph comes as an adjacency matrix: union every connected pair and read the component counter.' },
+    { name: 'Redundant Connection', site: 'LeetCode 684', url: 'https://leetcode.com/problems/redundant-connection/', idea: 'Cycle detection: add the edges in order and watch for the union that returns false.' },
+    { name: 'Accounts Merge', site: 'LeetCode 721', url: 'https://leetcode.com/problems/accounts-merge/', idea: 'Equivalence classes over string keys: give every e-mail an integer index, union the addresses of each account, then group by root.' },
+    { name: 'Road Construction', site: 'CSES 1676', url: 'https://cses.fi/problemset/task/1676', idea: 'After every new road, print the number of components and the size of the largest one, straight from the counter and the size array.' },
+  ]}
+/>

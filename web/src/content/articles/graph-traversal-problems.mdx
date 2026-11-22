@@ -232,3 +232,15 @@ Space is <BigO of="V" />: the visited set plus the queue or stack. Kahn also sto
     The standard problem defines connectivity by the four edge-sharing neighbours. The code here uses exactly those four offsets; add four more for 8-connectivity.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Flood Fill', site: 'LeetCode 733', url: 'https://leetcode.com/problems/flood-fill/', idea: 'DFS or BFS from the start pixel, recoloring as you go; return at once when the new color equals the old one.' },
+    { name: 'Number of Islands', site: 'LeetCode 200', url: 'https://leetcode.com/problems/number-of-islands/', idea: 'Count the flood fills started from unvisited land cells.' },
+    { name: 'Rotting Oranges', site: 'LeetCode 994', url: 'https://leetcode.com/problems/rotting-oranges/', idea: 'Multi-source BFS, one layer per minute; the answer is -1 when some fresh orange is never reached.' },
+    { name: 'Word Ladder', site: 'LeetCode 127', url: 'https://leetcode.com/problems/word-ladder/', idea: 'BFS over words, with an edge between words that differ in one letter; generate the neighbors instead of comparing all pairs.' },
+    { name: 'Course Schedule', site: 'LeetCode 207', url: 'https://leetcode.com/problems/course-schedule/', idea: "Kahn's algorithm: every course can be taken exactly when the order reaches every vertex, that is, when there is no cycle." },
+  ]}
+/>

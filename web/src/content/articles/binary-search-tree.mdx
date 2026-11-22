@@ -220,3 +220,15 @@ B-Trees are not binary search trees: they have many keys per node and are built 
     Use a self-balancing variant: an AVL or Red-Black tree for worst-case guarantees, or a treap for randomized balancing.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Search in a Binary Search Tree', site: 'LeetCode 700', url: 'https://leetcode.com/problems/search-in-a-binary-search-tree/', idea: 'Each comparison discards one subtree: an O(h) walk down from the root.' },
+    { name: 'Insert into a Binary Search Tree', site: 'LeetCode 701', url: 'https://leetcode.com/problems/insert-into-a-binary-search-tree/', idea: 'Search for the key and attach a new leaf where the search falls off the tree.' },
+    { name: 'Validate Binary Search Tree', site: 'LeetCode 98', url: 'https://leetcode.com/problems/validate-binary-search-tree/', idea: 'Comparing each node with its children is not enough: pass the allowed range down, or check that the in-order traversal strictly increases.' },
+    { name: 'Delete Node in a BST', site: 'LeetCode 450', url: 'https://leetcode.com/problems/delete-node-in-a-bst/', idea: 'All three delete cases, including the two-child one that copies the in-order successor and then deletes it.' },
+    { name: 'Kth Smallest Element in a BST', site: 'LeetCode 230', url: 'https://leetcode.com/problems/kth-smallest-element-in-a-bst/', idea: 'An in-order traversal visits the keys in sorted order, so stop at the k-th.' },
+  ]}
+/>

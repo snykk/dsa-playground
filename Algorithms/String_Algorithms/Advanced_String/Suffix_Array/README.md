@@ -110,10 +110,10 @@ Worst input for the build: `aaaa...a`, where every comparison runs to the end of
 
 ## Practice Problems
 
-- [LeetCode 1044: Longest Duplicate Substring](https://leetcode.com/problems/longest-duplicate-substring/)
-- [LeetCode 718: Maximum Length of Repeated Subarray](https://leetcode.com/problems/maximum-length-of-repeated-subarray/)
-- [CSES: String Matching](https://cses.fi/problemset/task/1753)
-- [CSES: Distinct Substrings](https://cses.fi/problemset/task/2105)
+- [Counting Patterns (CSES 2103)](https://cses.fi/problemset/task/2103)
+- [Repeating Substring (CSES 2106)](https://cses.fi/problemset/task/2106)
+- [Distinct Substrings (CSES 2105)](https://cses.fi/problemset/task/2105)
+- [Substring Order I (CSES 2108)](https://cses.fi/problemset/task/2108)
 
 ## Related
 

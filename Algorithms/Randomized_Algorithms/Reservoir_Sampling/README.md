@@ -110,8 +110,9 @@ Do not use it when all the data is in memory with a known length (shuffle or pic
 
 ## Practice Problems
 
-- [Linked List Random Node (LeetCode 382)](https://leetcode.com/problems/linked-list-random-node/) - reservoir sampling with `k = 1` on a list you cannot count first.
-- [Random Pick Index (LeetCode 398)](https://leetcode.com/problems/random-pick-index/) - pick a random index among equal values.
+- [Linked List Random Node (LeetCode 382)](https://leetcode.com/problems/linked-list-random-node/)
+- [Random Pick Index (LeetCode 398)](https://leetcode.com/problems/random-pick-index/)
+- [Random Point in Non-overlapping Rectangles (LeetCode 497)](https://leetcode.com/problems/random-point-in-non-overlapping-rectangles/)
 
 ## Related
 

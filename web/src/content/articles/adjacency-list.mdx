@@ -223,3 +223,15 @@ All three versions use a map from vertex to a list of neighbors. Python stores p
     For a directed graph it is E. For an undirected graph it is 2E, because each edge appears in two lists (the handshake lemma).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find if Path Exists in Graph', site: 'LeetCode 1971', url: 'https://leetcode.com/problems/find-if-path-exists-in-graph/', idea: 'Turn the edge list into adjacency lists, adding each undirected edge in both directions, then search from the source.' },
+    { name: 'All Paths From Source to Target', site: 'LeetCode 797', url: 'https://leetcode.com/problems/all-paths-from-source-to-target/', idea: 'The input already is an adjacency list, `graph[i]` holding the successors of i: walk it with DFS and backtracking.' },
+    { name: 'Clone Graph', site: 'LeetCode 133', url: 'https://leetcode.com/problems/clone-graph/', idea: 'Each node carries its own neighbour list. Copy the lists with a map from old node to new node, so that every vertex is cloned once.' },
+    { name: 'Course Schedule', site: 'LeetCode 207', url: 'https://leetcode.com/problems/course-schedule/', idea: 'Build the lists from the prerequisite pairs, then look for a directed cycle with DFS or an in-degree queue.' },
+    { name: 'Building Roads', site: 'CSES 1666', url: 'https://cses.fi/problemset/task/1666', idea: 'With 10^5 cities only O(V + E) storage fits: traverse the lists to find the components, then link them up.' },
+  ]}
+/>

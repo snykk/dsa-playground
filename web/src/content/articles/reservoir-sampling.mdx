@@ -212,3 +212,13 @@ There is no best or worst input: the running time depends only on the stream len
     Use a weighted variant such as A-Res (Efraimidis and Spirakis), which assigns each item a random key based on its weight and keeps the `k` largest keys. It is a different algorithm from the one in this repository.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Linked List Random Node', site: 'LeetCode 382', url: 'https://leetcode.com/problems/linked-list-random-node/', idea: 'The k = 1 case on a list you do not count first: keep the i-th node with probability 1/i.' },
+    { name: 'Random Pick Index', site: 'LeetCode 398', url: 'https://leetcode.com/problems/random-pick-index/', idea: 'The stream is the positions that hold the target; only those advance the counter.' },
+    { name: 'Random Point in Non-overlapping Rectangles', site: 'LeetCode 497', url: 'https://leetcode.com/problems/random-point-in-non-overlapping-rectangles/', idea: 'A weighted pick: keep rectangle i with probability w_i / (w_1 + ... + w_i), where w_i counts its integer points, then choose a point inside it. Prefix sums with a binary search are the faster alternative per call.' },
+  ]}
+/>

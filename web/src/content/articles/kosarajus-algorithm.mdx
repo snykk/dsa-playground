@@ -192,3 +192,14 @@ Both produce the same partition into components on every graph. Only the order o
     Yes. A self-loop only affects a single-vertex component, and repeated edges are just visited twice.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Flight Routes Check', site: 'CSES 1682', url: 'https://cses.fi/problemset/task/1682', idea: 'The graph is strongly connected when one search from city 1 reaches everything both in the graph and in its reverse; otherwise print a pair that fails.' },
+    { name: 'Planets and Kingdoms', site: 'CSES 1683', url: 'https://cses.fi/problemset/task/1683', idea: 'Label every planet with its component: the second pass, on the reversed graph, numbers the kingdoms as it finds them.' },
+    { name: 'Coin Collector', site: 'CSES 1686', url: 'https://cses.fi/problemset/task/1686', idea: 'Contract each component into one vertex worth its coins, then find the best path in the condensation DAG. Kosaraju already finds the components in topological order.' },
+    { name: 'Giant Pizza', site: 'CSES 1684', url: 'https://cses.fi/problemset/task/1684', idea: 'Solve 2-SAT on top of the components: a topping in the same component as its negation means no answer, and the component order gives a valid choice.' },
+  ]}
+/>

@@ -218,3 +218,14 @@ Space is O(n): one node per element and no extra structure. All operations use O
     Yes: make the last node's `next` the head and the head's `prev` the last node. That gives O(1) access to the tail from the head and lets you walk in both directions. This repository's circular list is singly linked.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Linked List Cycle', site: 'LeetCode 141', url: 'https://leetcode.com/problems/linked-list-cycle/', idea: 'Tell a list that ends in null from one that closes into a ring, with O(1) extra memory.' },
+    { name: 'Find the Winner of the Circular Game', site: 'LeetCode 1823', url: 'https://leetcode.com/problems/find-the-winner-of-the-circular-game/', idea: 'The Josephus problem on a ring of friends: count k nodes around the ring and unlink the last one counted, until one is left.' },
+    { name: 'Design Circular Queue', site: 'LeetCode 622', url: 'https://leetcode.com/problems/design-circular-queue/', idea: 'Keep only a tail pointer, as in the variant above: `tail.next` is the front, so both enqueue and dequeue are O(1).' },
+    { name: 'Josephus Problem I', site: 'CSES 2162', url: 'https://cses.fi/problemset/task/2162', idea: 'Every other child leaves. With up to 2 * 10^5 children, a walk around the ring that unlinks as it goes is O(n) in total.' },
+  ]}
+/>

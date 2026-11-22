@@ -106,9 +106,10 @@ Use it for static range-minimum queries when you also want the tree structure (L
 
 ## Practice Problems
 
-- LeetCode 654, Maximum Binary Tree (the max version of this tree).
-- LeetCode 84, Largest Rectangle in Histogram (same stack idea).
-- LeetCode 239, Sliding Window Maximum (related monotonic structure).
+- [Nearest Smaller Values (CSES 1645)](https://cses.fi/problemset/task/1645) (the stack of the build)
+- [Maximum Binary Tree (LeetCode 654)](https://leetcode.com/problems/maximum-binary-tree/) (the max version of this tree)
+- [Maximum Binary Tree II (LeetCode 998)](https://leetcode.com/problems/maximum-binary-tree-ii/) (append one value)
+- [Largest Rectangle in Histogram (LeetCode 84)](https://leetcode.com/problems/largest-rectangle-in-histogram/) (same stack idea)
 
 ## Related
 

@@ -184,3 +184,14 @@ Space is O(capacity) whether the stack is empty or full. Unlike the dynamic stac
     The dynamic version grows by replacing its array with a bigger one, so a push never fails but occasionally copies. This one never grows and never copies.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Valid Parentheses', site: 'LeetCode 20', url: 'https://leetcode.com/problems/valid-parentheses/', idea: 'The string length bounds the nesting depth, so one array of that size, allocated up front, never overflows.' },
+    { name: 'Evaluate Reverse Polish Notation', site: 'LeetCode 150', url: 'https://leetcode.com/problems/evaluate-reverse-polish-notation/', idea: 'Push operands and fold them on every operator. The number of tokens bounds the stack, so a fixed array is enough.' },
+    { name: 'Min Stack', site: 'LeetCode 155', url: 'https://leetcode.com/problems/min-stack/', idea: 'Store the running minimum next to each item. The limit of 3 * 10^4 calls bounds the size, so the arrays can be allocated once.' },
+    { name: 'Design a Stack With Increment Operation', site: 'LeetCode 1381', url: 'https://leetcode.com/problems/design-a-stack-with-increment-operation/', idea: 'A stack with a fixed maximum size that ignores a push when full: the static stack of this article, plus adding a value to the bottom k items.' },
+  ]}
+/>

@@ -215,3 +215,14 @@ The order in which vertices are visited matters a lot. Coloring the vertex with 
     The pattern is the same: place one item, check constraints, recurse, undo. Here the choice for vertex v is a color and the constraint is its neighbors; in N-Queens the choice for row r is a column and the constraint is the earlier queens.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Is Graph Bipartite?', site: 'LeetCode 785', url: 'https://leetcode.com/problems/is-graph-bipartite/', idea: 'Two colors are the easy case: a BFS or DFS 2-coloring decides it in O(V + E) with no backtracking.' },
+    { name: 'Flower Planting With No Adjacent', site: 'LeetCode 1042', url: 'https://leetcode.com/problems/flower-planting-with-no-adjacent/', idea: 'Every garden has at most three neighbors, so four colors always suffice and a greedy pass never needs to undo a choice.' },
+    { name: 'RGB Coloring 2', site: 'AtCoder ABC 199 D', url: 'https://atcoder.jp/contests/abc199/tasks/abc199_d', idea: 'Count the 3-colorings of a graph with 20 vertices: backtrack over each connected component and multiply the counts.' },
+    { name: 'Coloring Graphs', site: 'Kattis coloring', url: 'https://open.kattis.com/problems/coloring', idea: 'The chromatic number of a graph with up to 11 vertices: try m = 1, 2, 3, ... with the backtracking solver, as this article does.' },
+  ]}
+/>

@@ -93,10 +93,10 @@ Use it when every operation must be constant time in the worst case, or when the
 
 ## Practice Problems
 
-- LeetCode 20: Valid Parentheses.
-- LeetCode 155: Min Stack.
-- LeetCode 232: Implement Queue using Stacks.
-- LeetCode 71: Simplify Path.
+- [Valid Parentheses (LeetCode 20)](https://leetcode.com/problems/valid-parentheses/)
+- [Implement Queue using Stacks (LeetCode 232)](https://leetcode.com/problems/implement-queue-using-stacks/)
+- [Simplify Path (LeetCode 71)](https://leetcode.com/problems/simplify-path/)
+- [Min Stack (LeetCode 155)](https://leetcode.com/problems/min-stack/)
 
 ## Related
 

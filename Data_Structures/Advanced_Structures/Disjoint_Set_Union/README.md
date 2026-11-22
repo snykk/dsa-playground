@@ -110,11 +110,11 @@ A root of rank r has at least 2^r nodes (rank grows only when equal-rank trees m
 
 ## Practice Problems
 
-- [LeetCode 547 - Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
-- [LeetCode 684 - Redundant Connection](https://leetcode.com/problems/redundant-connection/)
-- [LeetCode 721 - Accounts Merge](https://leetcode.com/problems/accounts-merge/)
-- [LeetCode 1971 - Find if Path Exists in Graph](https://leetcode.com/problems/find-if-path-exists-in-graph/)
-- [CSES - Road Construction](https://cses.fi/problemset/task/1676)
+- [Find if Path Exists in Graph (LeetCode 1971)](https://leetcode.com/problems/find-if-path-exists-in-graph/)
+- [Number of Provinces (LeetCode 547)](https://leetcode.com/problems/number-of-provinces/)
+- [Redundant Connection (LeetCode 684)](https://leetcode.com/problems/redundant-connection/)
+- [Accounts Merge (LeetCode 721)](https://leetcode.com/problems/accounts-merge/)
+- [Road Construction (CSES 1676)](https://cses.fi/problemset/task/1676)
 
 ## Related
 

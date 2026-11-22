@@ -96,11 +96,12 @@ For Kruskal, sort one entry per edge by weight: 0-2 (1), 1-2 (2), 0-1 (4), 2-3 (
 
 ## Practice Problems
 
-- LeetCode 1584: Min Cost to Connect All Points (Kruskal on an edge list)
-- LeetCode 1135: Connecting Cities With Minimum Cost
-- LeetCode 743: Network Delay Time (Bellman-Ford over edges)
-- LeetCode 787: Cheapest Flights Within K Stops
-- LeetCode 1971: Find if Path Exists in Graph
+- [Find if Path Exists in Graph (LeetCode 1971)](https://leetcode.com/problems/find-if-path-exists-in-graph/)
+- [Min Cost to Connect All Points (LeetCode 1584)](https://leetcode.com/problems/min-cost-to-connect-all-points/) (Kruskal on an edge list)
+- [Network Delay Time (LeetCode 743)](https://leetcode.com/problems/network-delay-time/) (Bellman-Ford over edges)
+- [Cheapest Flights Within K Stops (LeetCode 787)](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
+- [Road Reparation (CSES 1675)](https://cses.fi/problemset/task/1675)
+- [Cycle Finding (CSES 1197)](https://cses.fi/problemset/task/1197)
 
 ## Related
 

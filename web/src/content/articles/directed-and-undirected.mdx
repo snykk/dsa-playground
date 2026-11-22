@@ -234,3 +234,15 @@ All three versions are an adjacency list in a map. Python and Go return a copy f
     Yes. It follows only outgoing edges, so it visits exactly the vertices reachable from the start, which may be fewer than all vertices.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find the Town Judge', site: 'LeetCode 997', url: 'https://leetcode.com/problems/find-the-town-judge/', idea: 'Trust is a directed edge, so in-degree and out-degree are two different counts, and the judge is defined by both.' },
+    { name: 'Find if Path Exists in Graph', site: 'LeetCode 1971', url: 'https://leetcode.com/problems/find-if-path-exists-in-graph/', idea: 'The edges are undirected: store each one in both endpoint lists before searching.' },
+    { name: 'Course Schedule', site: 'LeetCode 207', url: 'https://leetcode.com/problems/course-schedule/', idea: 'Prerequisites are directed edges, and the courses can all be taken exactly when that directed graph has no cycle.' },
+    { name: 'Round Trip', site: 'CSES 1669', url: 'https://cses.fi/problemset/task/1669', idea: 'A cycle in an undirected graph. Every edge shows up again from the other end, so the edge back to the parent must not count as a cycle.' },
+    { name: 'Round Trip II', site: 'CSES 1678', url: 'https://cses.fi/problemset/task/1678', idea: 'The same question on a directed graph: only an edge back to a vertex still on the DFS stack closes a cycle.' },
+  ]}
+/>

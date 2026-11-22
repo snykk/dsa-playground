@@ -204,3 +204,14 @@ All three languages provide `mod`, `add`, `sub`, `mul`, `power`, the two inverse
     When n is larger than the prime modulus p, so that n! contains a factor p and the factorial-table formula breaks. Lucas splits n and r into base-p digits and multiplies small binomials.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Exponentiation', site: 'CSES 1095', url: 'https://cses.fi/problemset/task/1095', idea: 'Fast exponentiation modulo 10^9 + 7 for 2 * 10^5 queries: O(log b) multiplications each, reducing after every product.' },
+    { name: 'Exponentiation II', site: 'CSES 1712', url: 'https://cses.fi/problemset/task/1712', idea: 'Compute a^(b^c) by reducing the exponent b^c modulo p - 1 (Fermat), then calling the power function twice.' },
+    { name: 'Binomial Coefficients', site: 'CSES 1079', url: 'https://cses.fi/problemset/task/1079', idea: 'For 10^5 queries with a up to 10^6, tables of factorials and inverse factorials answer each C(a, b) in O(1).' },
+    { name: 'Creating Strings II', site: 'CSES 1715', url: 'https://cses.fi/problemset/task/1715', idea: 'A multinomial coefficient n! / (c_1! c_2! ...) modulo 10^9 + 7: multiply by modular inverses instead of dividing.' },
+  ]}
+/>

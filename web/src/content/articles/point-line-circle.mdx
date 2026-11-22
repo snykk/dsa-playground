@@ -246,12 +246,12 @@ Squared distances avoid the square root, so comparing distances or testing conta
 
 ## Practice problems
 
-<DataTable
-  columns={['Problem', 'Idea']}
-  rows={[
-    ['Point Location Test (CSES)', 'orientation of a point against a directed line'],
-    ['Check If It Is a Straight Line (LeetCode 1232)', 'all cross products against the first segment are zero'],
-    ['Valid Boomerang (LeetCode 1037)', 'three distinct points that are not collinear'],
-    ['Valid Square (LeetCode 593)', 'distances and right angles from squared distances and dot products'],
+<PracticeProblems
+  problems={[
+    { name: 'Point Location Test', site: 'CSES 2189', url: 'https://cses.fi/problemset/task/2189', idea: 'The orientation of a point against a directed line: the sign of one cross product.' },
+    { name: 'Check If It Is a Straight Line', site: 'LeetCode 1232', url: 'https://leetcode.com/problems/check-if-it-is-a-straight-line/', idea: 'All cross products against the first segment are zero, with no division by a slope.' },
+    { name: 'Valid Boomerang', site: 'LeetCode 1037', url: 'https://leetcode.com/problems/valid-boomerang/', idea: 'Three distinct points that are not collinear: one nonzero cross product.' },
+    { name: 'Valid Square', site: 'LeetCode 593', url: 'https://leetcode.com/problems/valid-square/', idea: 'Distances and right angles from squared distances and dot products, all exact on integer input.' },
+    { name: 'Circle and Rectangle Overlapping', site: 'LeetCode 1401', url: 'https://leetcode.com/problems/circle-and-rectangle-overlapping/', idea: 'Clamp the center to the rectangle and compare squared distances with the squared radius, as the point-in-circle test does.' },
   ]}
 />

@@ -90,9 +90,9 @@ Use it when the queue has a natural bound and you want constant-time operations 
 
 ## Practice Problems
 
-- LeetCode 622: Design Circular Queue.
-- LeetCode 641: Design Circular Deque.
-- LeetCode 346: Moving Average from Data Stream (a fixed window, naturally a ring).
+- [Number of Recent Calls (LeetCode 933)](https://leetcode.com/problems/number-of-recent-calls/)
+- [Design Circular Queue (LeetCode 622)](https://leetcode.com/problems/design-circular-queue/)
+- [Design Circular Deque (LeetCode 641)](https://leetcode.com/problems/design-circular-deque/)
 
 ## Related
 

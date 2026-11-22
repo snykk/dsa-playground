@@ -105,9 +105,11 @@ A bridge endpoint that has other edges is an articulation point; a leaf at the e
 
 ## Practice Problems
 
-- [LeetCode 1192. Critical Connections in a Network](https://leetcode.com/problems/critical-connections-in-a-network/): the canonical bridges problem.
-- [Codeforces 118E. Bertown Roads](https://codeforces.com/problemset/problem/118/E): orient the edges of a bridge-free graph.
-- [UVa 315. Network](https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=11&page=show_problem&problem=251): the canonical articulation points problem.
+- [Critical Connections in a Network (LeetCode 1192)](https://leetcode.com/problems/critical-connections-in-a-network/)
+- [Necessary Roads (CSES 2076)](https://cses.fi/problemset/task/2076)
+- [Necessary Cities (CSES 2077)](https://cses.fi/problemset/task/2077)
+- [Bertown roads (Codeforces 118E)](https://codeforces.com/problemset/problem/118/E)
+- [Network (UVa 315)](https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=11&page=show_problem&problem=251)
 
 ## Related
 
