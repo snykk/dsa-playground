@@ -21,7 +21,7 @@ Or from the repository root: `make web-dev`.
 | Command | What it does |
 |---------|--------------|
 | `npm run dev` | Dev server with live reload |
-| `npm run build` | Static build into `web/dist/` (also prints `[broken-link]` warnings for README links that point nowhere) |
+| `npm run build` | Static build into `web/dist/`, then the Pagefind search index into `web/dist/pagefind/` (the build also prints `[broken-link]` warnings for README links that point nowhere) |
 | `npm run preview` | Serve the production build locally |
 | `npm test` | Vitest unit tests (content pipeline + every visualization) |
 | `npm run check` | Type-check `.astro`, `.ts` and `.tsx` files |
@@ -32,6 +32,10 @@ Handy URL parameters on any page with a visualization: `?step=40` opens the run 
 In a player, Space plays or pauses, the arrow keys step and Home / End jump; `?` (or the keyboard button in the controls) lists every shortcut. The list and the key handlers share one table in [`src/viz/ui/keys.ts`](src/viz/ui/keys.ts).
 
 Printing a page gives the article alone, in the light theme: no header, sidebar, contents list or controls; the visualization prints its current frame with its legend and caption, the code tabs the selected language, FAQ answers open, and links that leave the site show their address. Each component keeps its own `@media print` rules.
+
+The search box in the header (or `/` anywhere outside a field or a player) searches every page. Pagefind indexes the built pages after `astro build`: the parts marked `data-pagefind-body`, without those marked `data-pagefind-ignore`. The dialog's logic (the `/` shortcut, the arrow keys, the status line, safe excerpts) is in [`src/lib/search.ts`](src/lib/search.ts). Search needs the build: under `npm run dev` the dialog says to run `npm run build`, then `npm run preview`.
+
+Every page has a link-preview image (`og:image`, 1200 by 630) with its title and where it sits, drawn by [`src/lib/og.ts`](src/lib/og.ts) and rasterized at build time to `/og/<page>.png`. The build also writes `sitemap-index.xml` and a `robots.txt` that points to it, both from `SITE_URL` and `SITE_BASE`.
 
 ---
 
@@ -165,7 +169,8 @@ The visualizations re-implement algorithms in TypeScript, so they are pinned to 
 
 - **ASCII-only sources** (repository rule): use `SYM` from `src/viz/ui/symbols.ts` (or `String.fromCodePoint`) for UI symbols; otherwise write them as escapes in strings (`'\u221e'`), as entities in markup (`&#x2197;`) and as CSS escapes in stylesheets (`'\2713'`).
 - **Colors are role tokens** (`--viz-compare`, `--viz-active`, `--viz-done`, ...) defined once in `src/styles/tokens.css` for light and dark. The three categorical roles were checked for color-vision-deficiency separation in both themes; status colors (match / mismatch) always come with a ✓ / ✕ glyph, and every visualization has a legend, so color never carries meaning alone.
-- **No external requests**: system fonts, no CDN scripts, no analytics.
+- **Text keeps 4.5:1 in both themes**: text on a role fill uses `--viz-ink-on-fill` and text in a role's colour uses `--role-text`, both set per role in `src/viz/ui/roles.css`; page text in the accent colour uses `--accent-text`. Measure a new colour pair in both themes before using it. Code blocks use Shiki's github themes with their two faint token colours replaced ([`src/lib/codeColors.ts`](src/lib/codeColors.ts)).
+- **No external requests**: the fonts and the search index are served with the site; no CDN scripts, no analytics.
 
 ---
 
