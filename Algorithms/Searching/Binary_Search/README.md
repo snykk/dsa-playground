@@ -101,7 +101,7 @@ No language implements lower and upper bound (the insertion point); Python's `bi
 - [Search Insert Position (LeetCode 35)](https://leetcode.com/problems/search-insert-position/)
 - [Find First and Last Position of Element in Sorted Array (LeetCode 34)](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
 - [Search in Rotated Sorted Array (LeetCode 33)](https://leetcode.com/problems/search-in-rotated-sorted-array/)
-- [Koko Eating Bananas (LeetCode 875)](https://leetcode.com/problems/koko-eating-bananas/) - binary search on the answer.
+- [Koko Eating Bananas (LeetCode 875)](https://leetcode.com/problems/koko-eating-bananas/)
 
 ## Related
 

@@ -104,10 +104,11 @@ Range update with point query works by storing the difference array in a Fenwick
 
 ## Practice Problems
 
-- [LeetCode 307: Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
-- [LeetCode 315: Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
-- [LeetCode 493: Reverse Pairs](https://leetcode.com/problems/reverse-pairs/)
-- [CSES: Dynamic Range Sum Queries](https://cses.fi/problemset/task/1648)
+- [Dynamic Range Sum Queries (CSES 1648)](https://cses.fi/problemset/task/1648)
+- [Range Sum Query - Mutable (LeetCode 307)](https://leetcode.com/problems/range-sum-query-mutable/)
+- [Range Update Queries (CSES 1651)](https://cses.fi/problemset/task/1651) (difference array)
+- [Count of Smaller Numbers After Self (LeetCode 315)](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
+- [Reverse Pairs (LeetCode 493)](https://leetcode.com/problems/reverse-pairs/)
 
 ## Related
 

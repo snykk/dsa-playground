@@ -84,11 +84,12 @@ Use it when many queries hit the same static data, or when a value is needed ove
 
 ## Practice Problems
 
-- [Range Sum Queries (LeetCode 303)](https://leetcode.com/problems/range-sum-query-immutable/)
-- [Range Sum Query 2D (LeetCode 304)](https://leetcode.com/problems/range-sum-query-2d-immutable/)
 - [Count Primes (LeetCode 204)](https://leetcode.com/problems/count-primes/)
-- [Static Range Minimum Queries (CSES)](https://cses.fi/problemset/task/1647)
-- [Company Queries II (CSES)](https://cses.fi/problemset/task/1688): lowest common ancestor with binary lifting.
+- [Range Sum Query 2D - Immutable (LeetCode 304)](https://leetcode.com/problems/range-sum-query-2d-immutable/)
+- [Counting Divisors (CSES 1713)](https://cses.fi/problemset/task/1713)
+- [Static Range Minimum Queries (CSES 1647)](https://cses.fi/problemset/task/1647)
+- [Company Queries II (CSES 1688)](https://cses.fi/problemset/task/1688)
+- [Range Sum Query - Immutable (LeetCode 303)](https://leetcode.com/problems/range-sum-query-immutable/)
 
 ## Related
 

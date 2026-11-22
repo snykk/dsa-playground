@@ -120,9 +120,11 @@ Linear search bounds, per case: best `Theta(1)`, worst `Theta(n)`, average `Thet
 
 ## Practice Problems
 
-- [Contains Duplicate (LeetCode 217)](https://leetcode.com/problems/contains-duplicate/): compare `O(n^2)`, `O(n log n)` and `O(n)` solutions.
-- [Two Sum (LeetCode 1)](https://leetcode.com/problems/two-sum/): brute force `O(n^2)` versus a hash map `O(n)`.
-- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/): bound the cost of a hand-written sort.
+- [Contains Duplicate (LeetCode 217)](https://leetcode.com/problems/contains-duplicate/)
+- [Distinct Numbers (CSES 1621)](https://cses.fi/problemset/task/1621)
+- [Sum of Two Values (CSES 1640)](https://cses.fi/problemset/task/1640)
+- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
+- [Two Sum (LeetCode 1)](https://leetcode.com/problems/two-sum/)
 - Prove with explicit `c` and `n0` that `n^2 + 10n` is `O(n^2)`, and that `2^n` is not `O(n^100)`.
 
 ## Related

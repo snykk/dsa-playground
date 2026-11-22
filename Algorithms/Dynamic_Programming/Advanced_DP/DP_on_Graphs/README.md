@@ -84,10 +84,11 @@ Each reachable node is expanded once and each of its edges is read once. The mem
 
 ## Practice Problems
 
+- [Longest Path (AtCoder DP G)](https://atcoder.jp/contests/dp/tasks/dp_g)
+- [Game Routes (CSES 1681)](https://cses.fi/problemset/task/1681)
+- [Longest Flight Route (CSES 1680)](https://cses.fi/problemset/task/1680)
 - [Longest Increasing Path in a Matrix (LeetCode 329)](https://leetcode.com/problems/longest-increasing-path-in-a-matrix/)
-- [Course Schedule II (LeetCode 210)](https://leetcode.com/problems/course-schedule-ii/)
-- [Longest Path (AtCoder Educational DP Contest, problem G)](https://atcoder.jp/contests/dp/tasks/dp_g)
-- [Game Routes (CSES)](https://cses.fi/problemset/task/1681)
+- [Largest Color Value in a Directed Graph (LeetCode 1857)](https://leetcode.com/problems/largest-color-value-in-a-directed-graph/)
 
 ## Related
 

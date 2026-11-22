@@ -208,3 +208,14 @@ Space is O(n). Indexing by character is O(1) only when every character has the s
     Append pieces to a list (or a `strings.Builder`, or a C++ `std::string`) and produce the final string once. That costs O(total length) instead of O(n<sup>2</sup>).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Length of Last Word', site: 'LeetCode 58', url: 'https://leetcode.com/problems/length-of-last-word/', idea: 'Index from the end: skip the trailing spaces, then count characters back to the next space.' },
+    { name: 'Merge Strings Alternately', site: 'LeetCode 1768', url: 'https://leetcode.com/problems/merge-strings-alternately/', idea: 'Build a new string from two others. Collect the characters and join once, rather than concatenating in a loop.' },
+    { name: 'Longest Common Prefix', site: 'LeetCode 14', url: 'https://leetcode.com/problems/longest-common-prefix/', idea: 'Compare characters at the same index across all strings and stop at the first mismatch or at the end of the shortest string.' },
+    { name: 'Repetitions', site: 'CSES 1069', url: 'https://cses.fi/problemset/task/1069', idea: 'One traversal that compares each character with the one before it and tracks the longest run.' },
+  ]}
+/>

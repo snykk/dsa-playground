@@ -97,11 +97,12 @@ Children are stored in hash maps keyed by character, so a node costs memory in p
 
 ## Practice Problems
 
-- LeetCode 208: Implement Trie (Prefix Tree)
-- LeetCode 211: Design Add and Search Words Data Structure
-- LeetCode 212: Word Search II
-- LeetCode 648: Replace Words
-- LeetCode 421: Maximum XOR of Two Numbers in an Array
+- [Implement Trie (Prefix Tree) (LeetCode 208)](https://leetcode.com/problems/implement-trie-prefix-tree/)
+- [Replace Words (LeetCode 648)](https://leetcode.com/problems/replace-words/)
+- [Design Add and Search Words Data Structure (LeetCode 211)](https://leetcode.com/problems/design-add-and-search-words-data-structure/)
+- [Maximum XOR of Two Numbers in an Array (LeetCode 421)](https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/)
+- [Word Search II (LeetCode 212)](https://leetcode.com/problems/word-search-ii/)
+- [Word Combinations (CSES 1731)](https://cses.fi/problemset/task/1731) (trie plus DP)
 
 ## Related
 

@@ -215,3 +215,14 @@ The state is the only part that changes between problems.
     Run the counter for every target in the range and add the results, or change the base case to accept any sum within the range and prune with the upper limit.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Digit Sum', site: 'AtCoder DP S', url: 'https://atcoder.jp/contests/dp/tasks/dp_s', idea: 'Digit sums divisible by D up to a bound with 10,000 digits: the state is (position, tight, sum mod D), and the number 0 must not be counted.' },
+    { name: 'Counting Numbers', site: 'CSES 2220', url: 'https://cses.fi/problemset/task/2220', idea: 'No two adjacent digits equal: the previous digit joins the state, and leading zeros must not count as a previous digit.' },
+    { name: 'Number of Digit One', site: 'LeetCode 233', url: 'https://leetcode.com/problems/number-of-digit-one/', idea: 'Count the digit 1 over all numbers up to n, so each state returns a total of ones, not a count of numbers.' },
+    { name: 'Numbers With Repeated Digits', site: 'LeetCode 1012', url: 'https://leetcode.com/problems/numbers-with-repeated-digits/', idea: 'Count the numbers whose digits are all distinct with a mask of used digits in the state, then subtract from n.' },
+  ]}
+/>

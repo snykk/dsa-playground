@@ -255,3 +255,14 @@ All three versions share the same plan: append the NUL terminator, insert every 
     An empty list. The implementation defines no matches for an empty pattern, so check for it before calling search if you need every position.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find the Index of the First Occurrence in a String', site: 'LeetCode 28', url: 'https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/', idea: '`search(pattern)` walks the edges from the root, and the smallest start index below the end of the match is the answer.' },
+    { name: 'String Matching', site: 'CSES 1753', url: 'https://cses.fi/problemset/task/1753', idea: 'Count the leaves below the end of the match. With n up to 10^6 the O(n^2) build here is too slow: it needs a linear-time build, or KMP for this task alone.' },
+    { name: 'Distinct Substrings', site: 'CSES 2105', url: 'https://cses.fi/problemset/task/2105', idea: 'Every distinct substring is a path that starts at the root, so add up the lengths of all edge labels, leaving out the terminator.' },
+    { name: 'Repeating Substring', site: 'CSES 2106', url: 'https://cses.fi/problemset/task/2106', idea: 'A substring that occurs twice ends at an internal node, so the answer is the deepest internal node, measured in characters.' },
+  ]}
+/>

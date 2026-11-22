@@ -94,9 +94,10 @@ Use Prim's algorithm on dense graphs (array version), when the graph is already 
 
 ## Practice Problems
 
-- [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/) (LeetCode)
-- [Connecting Cities With Minimum Cost](https://leetcode.com/problems/connecting-cities-with-minimum-cost/) (LeetCode)
-- [Road Reparation](https://cses.fi/problemset/task/1675) (CSES)
+- [Min Cost to Connect All Points (LeetCode 1584)](https://leetcode.com/problems/min-cost-to-connect-all-points/)
+- [Road Reparation (CSES 1675)](https://cses.fi/problemset/task/1675)
+- [Minimum Spanning Tree (Kattis minspantree)](https://open.kattis.com/problems/minspantree)
+- [Shichikuji and Power Grid (Codeforces 1245D)](https://codeforces.com/problemset/problem/1245/D)
 
 ## Related
 

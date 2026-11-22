@@ -233,3 +233,14 @@ Define `LCP[k]` as the common prefix length of the suffixes at ranks `k-1` and `
     The matching suffixes are ordered alphabetically, which is unrelated to where they occur. Sorting turns the block of `SA` values into increasing text positions.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Counting Patterns', site: 'CSES 2103', url: 'https://cses.fi/problemset/task/2103', idea: 'The occurrences of a pattern form one block of the suffix array, so two binary searches count them. With n up to 10^5, build by prefix doubling.' },
+    { name: 'Repeating Substring', site: 'CSES 2106', url: 'https://cses.fi/problemset/task/2106', idea: 'The longest substring that occurs twice is the largest value in the LCP array.' },
+    { name: 'Distinct Substrings', site: 'CSES 2105', url: 'https://cses.fi/problemset/task/2105', idea: 'Each suffix adds its length minus its LCP with the previous suffix in sorted order as new distinct substrings.' },
+    { name: 'Substring Order I', site: 'CSES 2108', url: 'https://cses.fi/problemset/task/2108', idea: 'The k-th smallest distinct substring: walk the suffixes in sorted order and count the new substrings each one adds, as in Distinct Substrings.' },
+  ]}
+/>

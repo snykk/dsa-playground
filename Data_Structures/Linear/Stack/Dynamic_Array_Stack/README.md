@@ -92,11 +92,11 @@ Use it when the maximum size is unknown: undo history, expression evaluation, pa
 
 ## Practice Problems
 
-- LeetCode 20: Valid Parentheses.
-- LeetCode 155: Min Stack.
-- LeetCode 150: Evaluate Reverse Polish Notation.
-- LeetCode 739: Daily Temperatures.
-- LeetCode 232: Implement Queue using Stacks.
+- [Valid Parentheses (LeetCode 20)](https://leetcode.com/problems/valid-parentheses/)
+- [Evaluate Reverse Polish Notation (LeetCode 150)](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
+- [Min Stack (LeetCode 155)](https://leetcode.com/problems/min-stack/)
+- [Daily Temperatures (LeetCode 739)](https://leetcode.com/problems/daily-temperatures/)
+- [Implement Queue using Stacks (LeetCode 232)](https://leetcode.com/problems/implement-queue-using-stacks/)
 
 ## Related
 

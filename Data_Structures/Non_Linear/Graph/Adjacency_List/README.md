@@ -94,11 +94,11 @@ The degree is at most V - 1, so the worst case for the per-edge operations is O(
 
 ## Practice Problems
 
-- LeetCode 133: Clone Graph
-- LeetCode 207: Course Schedule
-- LeetCode 997: Find the Town Judge
-- LeetCode 797: All Paths From Source to Target
-- LeetCode 1971: Find if Path Exists in Graph
+- [Find if Path Exists in Graph (LeetCode 1971)](https://leetcode.com/problems/find-if-path-exists-in-graph/)
+- [All Paths From Source to Target (LeetCode 797)](https://leetcode.com/problems/all-paths-from-source-to-target/)
+- [Clone Graph (LeetCode 133)](https://leetcode.com/problems/clone-graph/)
+- [Course Schedule (LeetCode 207)](https://leetcode.com/problems/course-schedule/)
+- [Building Roads (CSES 1666)](https://cses.fi/problemset/task/1666)
 
 ## Related
 

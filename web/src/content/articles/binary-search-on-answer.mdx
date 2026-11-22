@@ -181,3 +181,15 @@ Space is <BigO of="1" /> besides the check's own storage. The range size matters
     Ordinary binary search looks for a value inside a sorted array. Here no array is searched at all: the search space is the range of possible answers and the "comparison" is a feasibility check.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Koko Eating Bananas', site: 'LeetCode 875', url: 'https://leetcode.com/problems/koko-eating-bananas/', idea: 'The check sums ceil(pile / k) over the piles and compares it with h; the smallest speed that passes is the answer.' },
+    { name: 'Capacity To Ship Packages Within D Days', site: 'LeetCode 1011', url: 'https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/', idea: 'The capacity lies between the heaviest package and the total weight, and a greedy packing tells whether D days suffice.' },
+    { name: 'Factory Machines', site: 'CSES 1620', url: 'https://cses.fi/problemset/task/1620', idea: 'In time T the machines make the sum of T / k_i products. The answer can reach 10^18, so use 64-bit bounds and stop adding once the sum reaches t.' },
+    { name: 'Split Array Largest Sum', site: 'LeetCode 410', url: 'https://leetcode.com/problems/split-array-largest-sum/', idea: 'Minimize the largest part: for a limit x, a greedy cut counts how many parts are needed.' },
+    { name: 'Find K-th Smallest Pair Distance', site: 'LeetCode 719', url: 'https://leetcode.com/problems/find-k-th-smallest-pair-distance/', idea: 'Search over the distance: after sorting, two pointers count the pairs with distance <= x in O(n).' },
+  ]}
+/>

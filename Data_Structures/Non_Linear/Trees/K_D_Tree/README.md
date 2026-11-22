@@ -119,7 +119,9 @@ The curse of dimensionality: with many dimensions the plane test prunes little a
 
 ## Practice Problems
 
-- [LeetCode 973: K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/) (usually a heap or quickselect; a K-D tree also works)
+- [K Closest Points to Origin (LeetCode 973)](https://leetcode.com/problems/k-closest-points-to-origin/) (usually a heap or quickselect; a K-D tree also works)
+- [Queries on Number of Points Inside a Circle (LeetCode 1828)](https://leetcode.com/problems/queries-on-number-of-points-inside-a-circle/) (range search, then a distance check)
+- [Minimum Euclidean Distance (CSES 2194)](https://cses.fi/problemset/task/2194) (nearest neighbour per point; a sweep line is the safe solution)
 - Extend `nearest` to return the k nearest points with a bounded max-heap.
 - Add delete (replace by the minimum along the node's axis from a subtree).
 - Build with the widest-spread axis instead of cycling and compare query counts.

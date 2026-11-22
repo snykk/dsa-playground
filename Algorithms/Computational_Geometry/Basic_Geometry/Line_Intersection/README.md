@@ -87,7 +87,10 @@ A sweep-line algorithm (Bentley-Ottmann) reports all intersections in O((n + k) 
 
 ## Practice Problems
 
-- [Line Segment Intersection (CSES)](https://cses.fi/problemset/task/2190)
+- [Line Segment Intersection (CSES 2190)](https://cses.fi/problemset/task/2190)
+- [Line Segment Intersection (Kattis segmentintersection)](https://open.kattis.com/problems/segmentintersection)
+- [Intersection Points (CSES 1740)](https://cses.fi/problemset/task/1740)
+- [Covered Points (Codeforces 1036E)](https://codeforces.com/problemset/problem/1036/E)
 
 ## Related
 

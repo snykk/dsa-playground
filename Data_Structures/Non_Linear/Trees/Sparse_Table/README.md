@@ -92,8 +92,10 @@ RMQ structures with linear preprocessing and O(1) queries exist, so the sparse t
 
 ## Practice Problems
 
-- [CSES: Static Range Minimum Queries](https://cses.fi/problemset/task/1647)
-- [LeetCode 239: Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/) (a sparse table works, a deque is the usual answer)
+- [Static Range Minimum Queries (CSES 1647)](https://cses.fi/problemset/task/1647)
+- [Sliding Window Maximum (LeetCode 239)](https://leetcode.com/problems/sliding-window-maximum/) (a sparse table works, a deque is the usual answer)
+- [Integers Have Friends (Codeforces 1548B)](https://codeforces.com/problemset/problem/1548/B) (range gcd)
+- [Find a Value of a Mysterious Function Closest to Target (LeetCode 1521)](https://leetcode.com/problems/find-a-value-of-a-mysterious-function-closest-to-target/) (range AND)
 - Build an argmin table that returns the position of the minimum.
 - Answer range gcd queries with the same structure.
 

@@ -107,11 +107,11 @@ Use an array when you need fast access by position, compact storage and fast ite
 
 ## Practice Problems
 
-- [Two Sum](https://leetcode.com/problems/two-sum/)
-- [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
-- [Rotate Array](https://leetcode.com/problems/rotate-array/)
-- [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
-- [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
+- [Increasing Array (CSES 1094)](https://cses.fi/problemset/task/1094)
+- [Remove Duplicates from Sorted Array (LeetCode 26)](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
+- [Rotate Array (LeetCode 189)](https://leetcode.com/problems/rotate-array/)
+- [Product of Array Except Self (LeetCode 238)](https://leetcode.com/problems/product-of-array-except-self/)
+- [Spiral Matrix (LeetCode 54)](https://leetcode.com/problems/spiral-matrix/)
 
 ## Related
 

@@ -227,3 +227,15 @@ Only the first row is implemented in the repository; the others use the same ske
     Only `max` versus `min` in the transition. The DP is the same, and both run in O(V + E), which is faster than Dijkstra or Bellman-Ford.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Longest Path', site: 'AtCoder DP G', url: 'https://atcoder.jp/contests/dp/tasks/dp_g', idea: 'The longest path in a DAG, exactly the recurrence `dp[v] = 1 + max dp[w]` of this article.' },
+    { name: 'Game Routes', site: 'CSES 1681', url: 'https://cses.fi/problemset/task/1681', idea: 'Count the paths from level 1 to level n: sum over successors instead of taking a maximum.' },
+    { name: 'Longest Flight Route', site: 'CSES 1680', url: 'https://cses.fi/problemset/task/1680', idea: 'A longest path that must start at 1 and end at n; keep a successor pointer to print the route.' },
+    { name: 'Longest Increasing Path in a Matrix', site: 'LeetCode 329', url: 'https://leetcode.com/problems/longest-increasing-path-in-a-matrix/', idea: 'Edges go from a cell to a larger neighbour, so the grid is an implicit DAG and a memoized DFS solves it.' },
+    { name: 'Largest Color Value in a Directed Graph', site: 'LeetCode 1857', url: 'https://leetcode.com/problems/largest-color-value-in-a-directed-graph/', idea: 'Paths with a constraint: `dp[v][c]` is the most nodes of color c on a path ending at v, and a cycle must be detected and reported.' },
+  ]}
+/>

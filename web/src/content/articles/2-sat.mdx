@@ -206,3 +206,14 @@ The solver in this repository returns one assignment. It does not enumerate all 
     No. It returns one satisfying assignment. Counting all of them is #P-complete even for 2-SAT.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Giant Pizza', site: 'CSES 1684', url: 'https://cses.fi/problemset/task/1684', idea: 'Each wish is a clause over two toppings. Build the implication graph, reject when a topping shares a component with its negation, and read the assignment from the component order.' },
+    { name: 'The Road to Berland is Paved With Good Intentions', site: 'Codeforces 228E', url: 'https://codeforces.com/problemset/problem/228/E', idea: 'Choosing a city flips all its roads, so each city is one boolean. Each road asks its two ends to be equal or different, which is two clauses.' },
+    { name: 'Ring Road 2', site: 'Codeforces 27D', url: 'https://codeforces.com/problemset/problem/27/D', idea: 'Each new road goes inside or outside the ring. Two roads whose endpoints interleave cannot share a side, which gives two clauses for every crossing pair.' },
+    { name: 'New Language', site: 'Codeforces 568C', url: 'https://codeforces.com/problemset/problem/568/C', idea: 'Use 2-SAT as the feasibility check inside a greedy search for the smallest valid word not below the given one: fix the letters one at a time and keep only choices that stay satisfiable.' },
+  ]}
+/>

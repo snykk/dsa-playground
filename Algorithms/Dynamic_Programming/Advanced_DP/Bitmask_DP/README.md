@@ -109,10 +109,11 @@ There are 2^n masks and n values of `last`, and each cell tries up to n next cit
 
 ## Practice Problems
 
-- [Traveling Salesman Problem (CSES Hamiltonian Flights counts routes with the same state)](https://cses.fi/problemset/task/1690)
-- [Elevator Rides (CSES)](https://cses.fi/problemset/task/1653)
-- [Matching (Educational DP Contest, problem O)](https://atcoder.jp/contests/dp/tasks/dp_o)
+- [Beautiful Arrangement (LeetCode 526)](https://leetcode.com/problems/beautiful-arrangement/)
+- [Matching (AtCoder DP O)](https://atcoder.jp/contests/dp/tasks/dp_o)
+- [Hamiltonian Flights (CSES 1690)](https://cses.fi/problemset/task/1690)
 - [Shortest Path Visiting All Nodes (LeetCode 847)](https://leetcode.com/problems/shortest-path-visiting-all-nodes/)
+- [Elevator Rides (CSES 1653)](https://cses.fi/problemset/task/1653)
 
 ## Related
 

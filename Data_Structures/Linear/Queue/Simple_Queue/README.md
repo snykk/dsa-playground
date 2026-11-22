@@ -87,10 +87,10 @@ Use it to learn, or when queues are small and arrival order matters: BFS frontie
 
 ## Practice Problems
 
-- LeetCode 232: Implement Queue using Stacks.
-- LeetCode 225: Implement Stack using Queues.
-- LeetCode 933: Number of Recent Calls.
-- LeetCode 102: Binary Tree Level Order Traversal.
+- [Number of Recent Calls (LeetCode 933)](https://leetcode.com/problems/number-of-recent-calls/)
+- [Implement Queue using Stacks (LeetCode 232)](https://leetcode.com/problems/implement-queue-using-stacks/)
+- [Implement Stack using Queues (LeetCode 225)](https://leetcode.com/problems/implement-stack-using-queues/)
+- [Binary Tree Level Order Traversal (LeetCode 102)](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
 ## Related
 

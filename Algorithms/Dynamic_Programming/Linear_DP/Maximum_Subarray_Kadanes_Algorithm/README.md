@@ -91,10 +91,10 @@ Do not use it when:
 
 ## Practice Problems
 
-- [LeetCode 53. Maximum Subarray](https://leetcode.com/problems/maximum-subarray/) - the classic
-- [LeetCode 152. Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) - track the minimum too
-- [LeetCode 918. Maximum Sum Circular Subarray](https://leetcode.com/problems/maximum-sum-circular-subarray/) - total sum minus the minimum block
-- [LeetCode 121. Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/) - Kadane on the daily differences
+- [Maximum Subarray (LeetCode 53)](https://leetcode.com/problems/maximum-subarray/)
+- [Best Time to Buy and Sell Stock (LeetCode 121)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
+- [Maximum Product Subarray (LeetCode 152)](https://leetcode.com/problems/maximum-product-subarray/)
+- [Maximum Sum Circular Subarray (LeetCode 918)](https://leetcode.com/problems/maximum-sum-circular-subarray/)
 
 ## Related
 

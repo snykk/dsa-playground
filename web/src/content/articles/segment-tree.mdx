@@ -201,3 +201,14 @@ The classic recursive layout allocates `4n` cells to be safe for any `n`. Paddin
     When you only need sums (or other invertible operations) and want the smallest and shortest code. A segment tree is the more general tool.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Range Sum Query - Mutable', site: 'LeetCode 307', url: 'https://leetcode.com/problems/range-sum-query-mutable/', idea: 'The tree of this article behind a class: `update` assigns a value and the range sum is inclusive at both ends.' },
+    { name: 'Dynamic Range Minimum Queries', site: 'CSES 1649', url: 'https://cses.fi/problemset/task/1649', idea: 'The same tree with a different combine: min instead of +, and infinity instead of 0 for an empty side.' },
+    { name: 'Xenia and Bit Operations', site: 'Codeforces 339D', url: 'https://codeforces.com/problemset/problem/339/D', idea: 'The levels of the tree combine their children with OR and XOR in turn. A point update recomputes only the path to the root.' },
+    { name: 'Hotel Queries', site: 'CSES 1143', url: 'https://cses.fi/problemset/task/1143', idea: 'A max tree with a descent: walk down from the root to the leftmost hotel with enough free rooms, then update that leaf.' },
+  ]}
+/>

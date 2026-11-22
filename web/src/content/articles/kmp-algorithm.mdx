@@ -198,3 +198,15 @@ All three languages are the same algorithm. Python exposes `build_lps`, `kmp_sea
     Both reuse information about prefixes to avoid re-comparing. The Z-array of the pattern and the LPS table carry the same information in different forms, and either gives a linear-time search.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find the Index of the First Occurrence in a String', site: 'LeetCode 28', url: 'https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/', idea: 'Build the LPS array of the needle and scan the haystack once, never moving back in it.' },
+    { name: 'Repeated Substring Pattern', site: 'LeetCode 459', url: 'https://leetcode.com/problems/repeated-substring-pattern/', idea: 'The last LPS value gives the shortest period of the string; check whether that period divides the length.' },
+    { name: 'Longest Happy Prefix', site: 'LeetCode 1392', url: 'https://leetcode.com/problems/longest-happy-prefix/', idea: 'The longest prefix that is also a suffix is exactly what the LPS array stores for the whole string.' },
+    { name: 'String Matching', site: 'CSES 1753', url: 'https://cses.fi/problemset/task/1753', idea: 'Count every match in a text of up to 10^6 characters: after a full match, fall back through the LPS array and continue.' },
+    { name: 'Shortest Palindrome', site: 'LeetCode 214', url: 'https://leetcode.com/problems/shortest-palindrome/', idea: 'Find the longest palindromic prefix with the LPS array of `s + separator + reverse(s)`.' },
+  ]}
+/>

@@ -243,3 +243,15 @@ The growth factor only needs to be greater than 1 for the amortized argument to 
     When you insert or remove at known positions in the middle very often and never need random access. In practice arrays win for most sizes because of cache locality, so measure before choosing a list.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Increasing Array', site: 'CSES 1094', url: 'https://cses.fi/problemset/task/1094', idea: 'One left-to-right pass that compares each element with the one before it. The total can exceed 32 bits.' },
+    { name: 'Remove Duplicates from Sorted Array', site: 'LeetCode 26', url: 'https://leetcode.com/problems/remove-duplicates-from-sorted-array/', idea: 'Compact the array in place with a read index and a write index, the same left shift that a delete does, done once for all removals.' },
+    { name: 'Rotate Array', site: 'LeetCode 189', url: 'https://leetcode.com/problems/rotate-array/', idea: 'Rotate in place with O(1) extra memory, which rules out copying into a second array.' },
+    { name: 'Product of Array Except Self', site: 'LeetCode 238', url: 'https://leetcode.com/problems/product-of-array-except-self/', idea: 'Prefix and suffix passes over the array, without division.' },
+    { name: 'Spiral Matrix', site: 'LeetCode 54', url: 'https://leetcode.com/problems/spiral-matrix/', idea: 'Walk a 2D array by shrinking its row and column bounds: careful index arithmetic at every turn.' },
+  ]}
+/>

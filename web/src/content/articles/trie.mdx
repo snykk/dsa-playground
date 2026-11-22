@@ -240,3 +240,15 @@ All three versions have a node with a map of children and an end flag. Python an
     Keep the children sorted (an ordered map, or sort the characters while traversing) and do a depth-first traversal that emits a word when it meets a flagged node, before descending into its children.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Implement Trie (Prefix Tree)', site: 'LeetCode 208', url: 'https://leetcode.com/problems/implement-trie-prefix-tree/', idea: 'The structure of this article: insert, search and a prefix check, with an end flag on the last node of every word.' },
+    { name: 'Replace Words', site: 'LeetCode 648', url: 'https://leetcode.com/problems/replace-words/', idea: 'Walk each word down the trie of roots and stop at the first flagged node: the shortest root that is a prefix.' },
+    { name: 'Design Add and Search Words Data Structure', site: 'LeetCode 211', url: 'https://leetcode.com/problems/design-add-and-search-words-data-structure/', idea: 'A `.` matches any letter, so the search branches into every child at that position.' },
+    { name: 'Maximum XOR of Two Numbers in an Array', site: 'LeetCode 421', url: 'https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/', idea: 'A binary trie over the bits, from the highest down: for each number, greedily follow the opposite bit when it exists.' },
+    { name: 'Word Search II', site: 'LeetCode 212', url: 'https://leetcode.com/problems/word-search-ii/', idea: 'Put all the words in one trie and run a single grid DFS that follows it, pruning a path as soon as it leaves the trie.' },
+  ]}
+/>

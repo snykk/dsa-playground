@@ -94,11 +94,13 @@ Use it when edges arrive over time, when you need the cycle test or Kruskal, or 
 
 ## Practice Problems
 
-- [LeetCode 547. Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
-- [LeetCode 684. Redundant Connection](https://leetcode.com/problems/redundant-connection/)
-- [LeetCode 721. Accounts Merge](https://leetcode.com/problems/accounts-merge/)
-- [LeetCode 1584. Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
-- [LeetCode 200. Number of Islands](https://leetcode.com/problems/number-of-islands/)
+- [Number of Provinces (LeetCode 547)](https://leetcode.com/problems/number-of-provinces/)
+- [Redundant Connection (LeetCode 684)](https://leetcode.com/problems/redundant-connection/)
+- [Satisfiability of Equality Equations (LeetCode 990)](https://leetcode.com/problems/satisfiability-of-equality-equations/)
+- [Accounts Merge (LeetCode 721)](https://leetcode.com/problems/accounts-merge/)
+- [Road Construction (CSES 1676)](https://cses.fi/problemset/task/1676)
+- [Min Cost to Connect All Points (LeetCode 1584)](https://leetcode.com/problems/min-cost-to-connect-all-points/)
+- [Number of Islands (LeetCode 200)](https://leetcode.com/problems/number-of-islands/)
 
 ## Related
 

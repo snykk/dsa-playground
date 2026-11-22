@@ -252,3 +252,15 @@ Only the first two are implemented in the repository. The others use the same tr
     Compute a DFS order with an explicit stack, then process the nodes in reverse order, so every child is handled before its parent. The combine step does not change.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Diameter of Binary Tree', site: 'LeetCode 543', url: 'https://leetcode.com/problems/diameter-of-binary-tree/', idea: 'Each node returns its height, and the two largest child heights through it give a candidate diameter.' },
+    { name: 'House Robber III', site: 'LeetCode 337', url: 'https://leetcode.com/problems/house-robber-iii/', idea: 'Maximum independent set with values: two numbers per node, with the node robbed and without it.' },
+    { name: 'Binary Tree Maximum Path Sum', site: 'LeetCode 124', url: 'https://leetcode.com/problems/binary-tree-maximum-path-sum/', idea: 'Return the best downward chain, but join the two best positive chains at each node for the answer.' },
+    { name: 'Independent Set', site: 'AtCoder DP P', url: 'https://atcoder.jp/contests/dp/tasks/dp_p', idea: 'Count the colorings with no two adjacent black vertices: the same two-state DP with sums and products, on an undirected edge list.' },
+    { name: 'Tree Distances II', site: 'CSES 1133', url: 'https://cses.fi/problemset/task/1133', idea: 'The sum of distances from every node: one pass up for subtree sizes, then rerooting on a second pass down.' },
+  ]}
+/>

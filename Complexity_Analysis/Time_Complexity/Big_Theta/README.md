@@ -106,8 +106,9 @@ When no matching lower bound is known, state O and Omega separately.
 
 ## Practice Problems
 
-- [Binary Search (LeetCode 704)](https://leetcode.com/problems/binary-search/): state the best and worst case separately.
-- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/): which of your sort's cases are `Theta(n log n)`?
+- [Binary Search (LeetCode 704)](https://leetcode.com/problems/binary-search/)
+- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
+- [Static Range Sum Queries (CSES 1646)](https://cses.fi/problemset/task/1646)
 - Prove with `c1`, `c2` and `n0` that `n^2 / 2 - 3n` is `Theta(n^2)`.
 - Show that `log2(n!)` is `Theta(n log n)`.
 

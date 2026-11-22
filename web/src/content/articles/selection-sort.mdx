@@ -188,3 +188,14 @@ Bubble Sort and Insertion Sort do one move per inversion, up to `n(n - 1)/2` of 
     Yes. Both repeatedly pick the extreme element of the unsorted part and place it. Heap Sort keeps the unsorted part in a heap, so each pick costs O(log n) instead of O(n).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Sort Colors', site: 'LeetCode 75', url: 'https://leetcode.com/problems/sort-colors/', idea: 'Selection sort on at most 300 values, in place, with at most n - 1 swaps.' },
+    { name: 'SwapSort', site: 'Codeforces 489A', url: 'https://codeforces.com/problemset/problem/489/A', idea: 'At most n swaps are allowed: selection sort makes one per position, so print them as it goes.' },
+    { name: 'Kth Largest Element in an Array', site: 'LeetCode 215', url: 'https://leetcode.com/problems/kth-largest-element-in-an-array/', idea: 'Stopping after k rounds of selection gives the answer in O(kn): fine for small k, too slow when k is near n / 2 at n = 10^5, where a heap or quickselect takes over.' },
+    { name: 'Minimum Number of Operations to Sort a Binary Tree by Level', site: 'LeetCode 2471', url: 'https://leetcode.com/problems/minimum-number-of-operations-to-sort-a-binary-tree-by-level/', idea: 'The fewest swaps that sort each level: selection sort that skips useless swaps makes exactly that many, n minus the number of cycles. At O(w^2) per level it is too slow, so count the cycles.' },
+  ]}
+/>

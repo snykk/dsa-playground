@@ -94,10 +94,11 @@ Set `tree[size + i] = value`, then for each ancestor `i = (size + i) / 2, ..., 1
 
 ## Practice Problems
 
-- [LeetCode 307: Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
-- [LeetCode 303: Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/)
-- [CSES: Dynamic Range Sum Queries](https://cses.fi/problemset/task/1648)
-- [CSES: Range Minimum Queries II](https://cses.fi/problemset/task/1649) (change the combine to min)
+- [Range Sum Query - Mutable (LeetCode 307)](https://leetcode.com/problems/range-sum-query-mutable/)
+- [Dynamic Range Sum Queries (CSES 1648)](https://cses.fi/problemset/task/1648)
+- [Dynamic Range Minimum Queries (CSES 1649)](https://cses.fi/problemset/task/1649) (change the combine to min)
+- [Xenia and Bit Operations (Codeforces 339D)](https://codeforces.com/problemset/problem/339/D)
+- [Hotel Queries (CSES 1143)](https://cses.fi/problemset/task/1143) (descend to the first large enough leaf)
 
 ## Related
 

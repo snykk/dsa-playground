@@ -91,10 +91,10 @@ All three raise an error for a negative amount and return `-1` when the amount c
 
 ## Practice Problems
 
-- [LeetCode 322. Coin Change](https://leetcode.com/problems/coin-change/) - fewest coins
-- [LeetCode 518. Coin Change II](https://leetcode.com/problems/coin-change-ii/) - number of combinations
-- [LeetCode 377. Combination Sum IV](https://leetcode.com/problems/combination-sum-iv/) - number of ordered sequences
-- [LeetCode 279. Perfect Squares](https://leetcode.com/problems/perfect-squares/) - coin change with square numbers
+- [Coin Change (LeetCode 322)](https://leetcode.com/problems/coin-change/)
+- [Coin Change II (LeetCode 518)](https://leetcode.com/problems/coin-change-ii/)
+- [Combination Sum IV (LeetCode 377)](https://leetcode.com/problems/combination-sum-iv/)
+- [Perfect Squares (LeetCode 279)](https://leetcode.com/problems/perfect-squares/)
 
 ## Related
 

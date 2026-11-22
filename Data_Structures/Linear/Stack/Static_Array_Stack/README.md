@@ -89,10 +89,11 @@ Use it when memory must be bounded or predictable (embedded code, no allocation 
 
 ## Practice Problems
 
-- LeetCode 20: Valid Parentheses.
-- LeetCode 155: Min Stack.
-- LeetCode 232: Implement Queue using Stacks.
-- LeetCode 150: Evaluate Reverse Polish Notation.
+- [Valid Parentheses (LeetCode 20)](https://leetcode.com/problems/valid-parentheses/)
+- [Evaluate Reverse Polish Notation (LeetCode 150)](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
+- [Min Stack (LeetCode 155)](https://leetcode.com/problems/min-stack/)
+- [Design a Stack With Increment Operation (LeetCode 1381)](https://leetcode.com/problems/design-a-stack-with-increment-operation/)
+- [Implement Queue using Stacks (LeetCode 232)](https://leetcode.com/problems/implement-queue-using-stacks/)
 
 ## Related
 

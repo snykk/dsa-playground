@@ -246,3 +246,15 @@ For larger values, split each coefficient into smaller pieces (for example 15 bi
     Use a number-theoretic transform, which replaces the complex roots of unity by roots of unity modulo a suitable prime. It is not implemented in this repository.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Apples and Bananas', site: 'CSES 2111', url: 'https://cses.fi/problemset/task/2111', idea: 'Count the pairs for every combined weight: multiply the two weight histograms as polynomials.' },
+    { name: 'Polynomial Multiplication 2', site: 'Kattis polymul2', url: 'https://open.kattis.com/problems/polymul2', idea: 'Two polynomials of degree up to 131,071: multiply with the FFT, round each coefficient back to an integer, and read the large input fast.' },
+    { name: 'One Bit Positions', site: 'CSES 2112', url: 'https://cses.fi/problemset/task/2112', idea: 'Pairs of one bits at every distance k: convolve the bit string with its own reverse.' },
+    { name: 'Convolution', site: 'AtCoder Library Practice F', url: 'https://atcoder.jp/contests/practice2/tasks/practice2_f', idea: 'Exact results modulo 998244353 for lengths up to 524,288: the number-theoretic transform, with no rounding at all.' },
+    { name: 'Nikita and Order Statistics', site: 'Codeforces 993E', url: 'https://codeforces.com/problemset/problem/993/E', idea: 'For every k, count the subarrays with exactly k elements below x: convolve the histogram of prefix counts with its reverse, and treat k = 0 apart.' },
+  ]}
+/>

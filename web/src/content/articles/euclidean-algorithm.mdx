@@ -200,3 +200,15 @@ Two steps at least halve the larger number, so there are at most about `2 log2(m
     Not for the gcd: if `a < b`, the first step swaps them, because `a mod b = a`. The extended coefficients do depend on the order.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find Greatest Common Divisor of Array', site: 'LeetCode 1979', url: 'https://leetcode.com/problems/find-greatest-common-divisor-of-array/', idea: 'The gcd of the smallest and the largest element: one call of the algorithm.' },
+    { name: 'Greatest Common Divisor of Strings', site: 'LeetCode 1071', url: 'https://leetcode.com/problems/greatest-common-divisor-of-strings/', idea: 'A common divisor string must have the gcd of the two lengths as its length; then check that it builds both strings.' },
+    { name: 'Water and Jug Problem', site: 'LeetCode 365', url: 'https://leetcode.com/problems/water-and-jug-problem/', idea: "Bezout's identity: the amounts you can measure are the multiples of gcd(x, y) up to x + y." },
+    { name: 'Line', site: 'Codeforces 7C', url: 'https://codeforces.com/problemset/problem/7/C', idea: 'Find integers with Ax + By = -C: extended Euclid gives the Bezout coefficients, which you scale by -C / gcd(A, B).' },
+    { name: 'Throne', site: 'AtCoder ABC 186 E', url: 'https://atcoder.jp/contests/abc186/tasks/abc186_e', idea: 'Solve S + K x = 0 (mod N): divide by gcd(K, N), then invert K with the extended algorithm.' },
+  ]}
+/>

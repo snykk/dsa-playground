@@ -236,3 +236,15 @@ If a vertex i lies on a cycle of negative total weight, some round produces `dis
     Keep a next matrix as `floyd_warshall_path` does, and follow it with `reconstruct_path`. It returns `None` if there is no path. C++ and Go in this repository return distances only.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find the City With the Smallest Number of Neighbors at a Threshold Distance', site: 'LeetCode 1334', url: 'https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/', idea: 'All-pairs distances on at most 100 cities, then count for each city the others within the threshold.' },
+    { name: 'Shortest Routes II', site: 'CSES 1672', url: 'https://cses.fi/problemset/task/1672', idea: 'Up to 500 cities and 10^5 queries: one O(n^3) pass answers every query in O(1). Keep the cheapest of repeated roads and use 64-bit sums.' },
+    { name: 'Course Schedule IV', site: 'LeetCode 1462', url: 'https://leetcode.com/problems/course-schedule-iv/', idea: 'Transitive closure: replace min and + with or and and, and every query becomes a table lookup.' },
+    { name: 'Minimum Cost to Convert String I', site: 'LeetCode 2976', url: 'https://leetcode.com/problems/minimum-cost-to-convert-string-i/', idea: 'Floyd-Warshall on the 26 letters gives the cheapest conversion between any two, then add up the positions.' },
+    { name: 'Greg and Graph', site: 'Codeforces 295B', url: 'https://codeforces.com/problemset/problem/295/B', idea: 'Vertices are deleted one by one. Reverse the order and add them back as the intermediate vertex k of the outer loop.' },
+  ]}
+/>

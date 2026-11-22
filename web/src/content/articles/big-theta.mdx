@@ -168,3 +168,13 @@ Binary search shows why one algorithm needs several Thetas:
     No. `Theta(n^2)` implies `Omega(n^2)`, which is larger than every `O(n)` function for large `n`.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Binary Search', site: 'LeetCode 704', url: 'https://leetcode.com/problems/binary-search/', idea: 'State the cases separately: Theta(1) at best, Theta(log n) at worst. At n = 10^4 a linear scan also passes, so the bound here is about the analysis, not the time limit.' },
+    { name: 'Sort an Array', site: 'LeetCode 912', url: 'https://leetcode.com/problems/sort-an-array/', idea: 'Merge sort is Theta(n log n) on every input; quick sort with a fixed pivot is Theta(n^2) in the worst case, which sorted or all-equal arrays reach at n = 5 * 10^4.' },
+    { name: 'Static Range Sum Queries', site: 'CSES 1646', url: 'https://cses.fi/problemset/task/1646', idea: 'A loop per query is Theta(nq) in the worst case, about 4 * 10^10 steps at n = q = 2 * 10^5; prefix sums are Theta(n + q) on every input and pass.' },
+  ]}
+/>

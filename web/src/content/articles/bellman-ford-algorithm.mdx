@@ -213,3 +213,14 @@ If an undirected edge u-v has weight -2, you can walk u, v, u, v, ... and lose 4
     Infinity: `float('inf')` in Python, `INT_MAX` in C++ and `math.MaxInt` in Go. With `num_vertices` equal to 0, Python returns `{start: 0}` while C++ and Go return an empty map.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Network Delay Time', site: 'LeetCode 743', url: 'https://leetcode.com/problems/network-delay-time/', idea: 'Run up to V - 1 rounds over the edge list from k and take the largest distance; the early exit stops once a round changes nothing.' },
+    { name: 'Cheapest Flights Within K Stops', site: 'LeetCode 787', url: 'https://leetcode.com/problems/cheapest-flights-within-k-stops/', idea: "At most k stops means at most k + 1 edges: run exactly k + 1 rounds, each relaxing from a copy of the previous round's distances." },
+    { name: 'Cycle Finding', site: 'CSES 1197', url: 'https://cses.fi/problemset/task/1197', idea: 'Detect a negative cycle and print it: a vertex relaxed in round n leads into the cycle after n steps along the parents.' },
+    { name: 'High Score', site: 'CSES 1673', url: 'https://cses.fi/problemset/task/1673', idea: 'Maximize by negating the weights. A negative cycle only matters if it is reachable from room 1 and can reach room n, so check both directions.' },
+  ]}
+/>

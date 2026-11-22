@@ -113,8 +113,8 @@ The function sets overlap but are not identical; see each language README. TSP r
 - [Subsets (LeetCode 78)](https://leetcode.com/problems/subsets/)
 - [Partition to K Equal Sum Subsets (LeetCode 698)](https://leetcode.com/problems/partition-to-k-equal-sum-subsets/)
 - [Shortest Path Visiting All Nodes (LeetCode 847)](https://leetcode.com/problems/shortest-path-visiting-all-nodes/)
-- [Hamiltonian Flights (CSES)](https://cses.fi/problemset/task/1690)
-- [Elevator Rides (CSES)](https://cses.fi/problemset/task/1653)
+- [Hamiltonian Flights (CSES 1690)](https://cses.fi/problemset/task/1690)
+- [Elevator Rides (CSES 1653)](https://cses.fi/problemset/task/1653)
 
 ## Related
 

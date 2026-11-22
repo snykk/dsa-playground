@@ -211,3 +211,15 @@ Extra space is <BigO of="1" /> apart from the output list (and the sorted copy i
     Sort pairs of `(value, index)`, or use a hash map for two sum, which needs no sorting and costs O(n) extra space.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Valid Palindrome', site: 'LeetCode 125', url: 'https://leetcode.com/problems/valid-palindrome/', idea: 'Compare from both ends, skipping characters that are not letters or digits.' },
+    { name: 'Two Sum II - Input Array Is Sorted', site: 'LeetCode 167', url: 'https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/', idea: 'Opposite ends: move the left pointer up when the sum is too small and the right one down when it is too large.' },
+    { name: 'Remove Duplicates from Sorted Array', site: 'LeetCode 26', url: 'https://leetcode.com/problems/remove-duplicates-from-sorted-array/', idea: 'A read pointer and a write pointer: copy a value only when it differs from the last one written.' },
+    { name: 'Container With Most Water', site: 'LeetCode 11', url: 'https://leetcode.com/problems/container-with-most-water/', idea: 'Start at both ends and always move the shorter wall: keeping it can never give more water at a smaller width.' },
+    { name: '3Sum', site: 'LeetCode 15', url: 'https://leetcode.com/problems/3sum/', idea: 'Sort, fix one index and run the two-pointer scan on the rest, skipping duplicates.' },
+  ]}
+/>

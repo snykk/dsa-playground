@@ -192,3 +192,14 @@ The full Boyer-Moore algorithm adds the **good-suffix rule**, which uses the par
     `[]` in all three languages, as in the naive, KMP and Rabin-Karp searches here. Library searches differ: `'abc'.find('')`, `std::string::find` and `strings.Index` report a match at index 0, so check the convention before swapping one in.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find the Index of the First Occurrence in a String', site: 'LeetCode 28', url: 'https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/', idea: 'Build the bad-character table, scan each window from right to left and return the first match.' },
+    { name: 'Repeated String Match', site: 'LeetCode 686', url: 'https://leetcode.com/problems/repeated-string-match/', idea: 'Repeat a until it is at least as long as b, add one more copy, and search for b in the result.' },
+    { name: 'String Matching', site: 'Kattis stringmatching', url: 'https://open.kattis.com/problems/stringmatching', idea: 'Report every occurrence, not only the first: after a match, shift the pattern and keep scanning.' },
+    { name: 'String Matching', site: 'CSES 1753', url: 'https://cses.fi/problemset/task/1753', idea: 'A text of one repeated letter pushes the bad-character rule to O(n m); time it against KMP on such input, with n and m up to 10^6.' },
+  ]}
+/>

@@ -245,3 +245,15 @@ Comparisons inside a node are linear, so each node visit costs O(t) comparisons.
     No. Insert, search, range search and traverse are implemented. A delete needs borrow and merge for leaves (with separator updates) and for internal nodes, and is left out.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+Judges never need a disk-friendly tree, so these practise the operations a B+ tree is built for, in memory: descents to a leaf and range scans along the leaf chain.
+
+<PracticeProblems
+  problems={[
+    { name: 'My Calendar I', site: 'LeetCode 729', url: 'https://leetcode.com/problems/my-calendar-i/', idea: 'Each new booking is checked against its neighbours in start-time order: one descent, then a step along the leaves.' },
+    { name: 'Time Based Key-Value Store', site: 'LeetCode 981', url: 'https://leetcode.com/problems/time-based-key-value-store/', idea: 'A floor query per key, the largest timestamp `<=` t, answered with one descent.' },
+    { name: 'Tweet Counts Per Frequency', site: 'LeetCode 1348', url: 'https://leetcode.com/problems/tweet-counts-per-frequency/', idea: 'Counting tweets between two times is `range_search`: descend to the start time and walk the leaf chain. Store a count per time as the value, since `insert` overwrites an existing key.' },
+  ]}
+/>

@@ -100,9 +100,10 @@ Both give the same partition on every graph.
 
 ## Practice Problems
 
-- [CSES 1682. Flight Routes Check](https://cses.fi/problemset/task/1682): is the graph strongly connected?
-- [CSES 1683. Planets and Kingdoms](https://cses.fi/problemset/task/1683): label every SCC.
-- [CSES 1684. Giant Pizza](https://cses.fi/problemset/task/1684): 2-SAT, solved with SCCs.
+- [Flight Routes Check (CSES 1682)](https://cses.fi/problemset/task/1682)
+- [Planets and Kingdoms (CSES 1683)](https://cses.fi/problemset/task/1683)
+- [Coin Collector (CSES 1686)](https://cses.fi/problemset/task/1686)
+- [Giant Pizza (CSES 1684)](https://cses.fi/problemset/task/1684)
 
 ## Related
 

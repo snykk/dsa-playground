@@ -96,10 +96,10 @@ Use Kruskal on sparse graphs, when the graph is already an edge list, or when yo
 
 ## Practice Problems
 
-- [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/) (LeetCode)
-- [Connecting Cities With Minimum Cost](https://leetcode.com/problems/connecting-cities-with-minimum-cost/) (LeetCode)
-- [Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree](https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/) (LeetCode)
-- [Road Reparation](https://cses.fi/problemset/task/1675) (CSES)
+- [Road Reparation (CSES 1675)](https://cses.fi/problemset/task/1675)
+- [Min Cost to Connect All Points (LeetCode 1584)](https://leetcode.com/problems/min-cost-to-connect-all-points/)
+- [Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree (LeetCode 1489)](https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/)
+- [MST Edge Check (CSES 3407)](https://cses.fi/problemset/task/3407)
 
 ## Related
 

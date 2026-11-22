@@ -197,12 +197,12 @@ If every activity has a weight and you want the largest total weight, earliest f
 
 ## Practice problems
 
-<DataTable
-  columns={['Problem', 'Idea']}
-  rows={[
-    ['LeetCode 435, Non-overlapping Intervals', 'n minus the maximum compatible set, found by this greedy'],
-    ['LeetCode 452, Minimum Number of Arrows to Burst Balloons', 'sort by right end; shoot at the end of the first balloon'],
-    ['LeetCode 253, Meeting Rooms II', 'a related problem: the number of rooms needed, not a maximum subset'],
-    ['LeetCode 1235, Maximum Profit in Job Scheduling', 'the weighted version: DP over intervals sorted by end time'],
+<PracticeProblems
+  problems={[
+    { name: 'Movie Festival', site: 'CSES 1629', url: 'https://cses.fi/problemset/task/1629', idea: 'The textbook problem at 2 * 10^5 movies: sort by ending time and take every movie that starts after the last one taken ends.' },
+    { name: 'Non-overlapping Intervals', site: 'LeetCode 435', url: 'https://leetcode.com/problems/non-overlapping-intervals/', idea: 'The fewest removals is n minus the largest compatible set, which this greedy finds.' },
+    { name: 'Minimum Number of Arrows to Burst Balloons', site: 'LeetCode 452', url: 'https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/', idea: 'Sort by right end and shoot at the end of the first balloon still standing; balloons that only touch still share an arrow.' },
+    { name: 'Movie Festival II', site: 'CSES 1632', url: 'https://cses.fi/problemset/task/1632', idea: 'Now k members watch at the same time. Still go in order of ending time, but give each movie to the member who became free latest without a clash, kept in a multiset.' },
+    { name: 'Maximum Profit in Job Scheduling', site: 'LeetCode 1235', url: 'https://leetcode.com/problems/maximum-profit-in-job-scheduling/', idea: 'The weighted version, where taking the earliest finish can lose: a DP over intervals sorted by end time.' },
   ]}
 />

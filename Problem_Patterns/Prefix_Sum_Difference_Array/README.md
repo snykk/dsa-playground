@@ -95,11 +95,13 @@ Use prefix sums for many queries on an array that does not change, and a differe
 
 ## Practice Problems
 
-- [LeetCode 303. Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/)
-- [LeetCode 560. Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
-- [LeetCode 238. Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
-- [LeetCode 1109. Corporate Flight Bookings](https://leetcode.com/problems/corporate-flight-bookings/)
-- [LeetCode 1094. Car Pooling](https://leetcode.com/problems/car-pooling/)
+- [Static Range Sum Queries (CSES 1646)](https://cses.fi/problemset/task/1646)
+- [Subarray Sum Equals K (LeetCode 560)](https://leetcode.com/problems/subarray-sum-equals-k/)
+- [Corporate Flight Bookings (LeetCode 1109)](https://leetcode.com/problems/corporate-flight-bookings/)
+- [Car Pooling (LeetCode 1094)](https://leetcode.com/problems/car-pooling/)
+- [Forest Queries (CSES 1652)](https://cses.fi/problemset/task/1652)
+- [Range Sum Query - Immutable (LeetCode 303)](https://leetcode.com/problems/range-sum-query-immutable/)
+- [Product of Array Except Self (LeetCode 238)](https://leetcode.com/problems/product-of-array-except-self/)
 
 ## Related
 

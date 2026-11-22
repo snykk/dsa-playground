@@ -191,3 +191,15 @@ Space is <BigO of="1" /> for the fixed window and <BigO of="k" /> (or the alphab
     Use a monotonic queue: it keeps the window maximum at the front in O(1).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Maximum Average Subarray I', site: 'LeetCode 643', url: 'https://leetcode.com/problems/maximum-average-subarray-i/', idea: 'A fixed window of size k: add the element that enters and subtract the one that leaves.' },
+    { name: 'Longest Substring Without Repeating Characters', site: 'LeetCode 3', url: 'https://leetcode.com/problems/longest-substring-without-repeating-characters/', idea: 'A variable window: on a repeat, move the left end past the previous occurrence.' },
+    { name: 'Playlist', site: 'CSES 1141', url: 'https://cses.fi/problemset/task/1141', idea: 'The same longest window of distinct values at n = 2 * 10^5, with values up to 10^9, so keep the last positions in a hash map.' },
+    { name: 'Permutation in String', site: 'LeetCode 567', url: 'https://leetcode.com/problems/permutation-in-string/', idea: 'A fixed window of length |s1| with equal letter counts, updated in O(1) per step.' },
+    { name: 'Minimum Window Substring', site: 'LeetCode 76', url: 'https://leetcode.com/problems/minimum-window-substring/', idea: 'Grow the window until it covers t, then shrink it from the left while it still does, keeping the shortest.' },
+  ]}
+/>

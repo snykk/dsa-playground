@@ -210,3 +210,14 @@ Space is O(n). The unused capacity is at most a constant factor of the size, so 
     The static stack has a fixed capacity and rejects a push when full. The dynamic stack replaces its array with a bigger one instead.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Valid Parentheses', site: 'LeetCode 20', url: 'https://leetcode.com/problems/valid-parentheses/', idea: 'Push every opener and pop on a closer: the popped opener must match it, and the stack must be empty at the end.' },
+    { name: 'Evaluate Reverse Polish Notation', site: 'LeetCode 150', url: 'https://leetcode.com/problems/evaluate-reverse-polish-notation/', idea: 'Push numbers; on an operator pop two operands and push the result. Mind the operand order for `-` and `/`.' },
+    { name: 'Min Stack', site: 'LeetCode 155', url: 'https://leetcode.com/problems/min-stack/', idea: 'Keep the minimum next to every item, so that getting the minimum is a peek and stays O(1) after a pop.' },
+    { name: 'Daily Temperatures', site: 'LeetCode 739', url: 'https://leetcode.com/problems/daily-temperatures/', idea: 'A monotonic stack of indices still waiting for a warmer day. Each index is pushed and popped once, so the whole pass is O(n).' },
+  ]}
+/>

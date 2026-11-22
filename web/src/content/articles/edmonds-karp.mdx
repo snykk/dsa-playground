@@ -191,3 +191,14 @@ On the 1000/1 diamond (edges `0->1`, `0->2`, `1->3`, `2->3` of capacity 1000 and
     When the graph has thousands of edges or more, or when you need many flow computations. Dinic runs BFS once to build levels and then pushes many paths per phase.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Download Speed', site: 'CSES 1694', url: 'https://cses.fi/problemset/task/1694', idea: 'Plain maximum flow with capacities up to 10^9. Shortest augmenting paths bound the number of rounds by O(VE) however large the capacities are.' },
+    { name: 'Police Chase', site: 'CSES 1695', url: 'https://cses.fi/problemset/task/1695', idea: 'After the maximum flow, the vertices reachable from the source in the residual graph form one side of a minimum cut; print the edges that leave it.' },
+    { name: 'School Dance', site: 'CSES 1696', url: 'https://cses.fi/problemset/task/1696', idea: 'Bipartite matching as flow: a super source to the boys, the girls to a super sink, capacity 1 everywhere. The pairs are the middle edges that carry flow.' },
+    { name: 'Maximum Flow', site: 'Kattis maxflow', url: 'https://open.kattis.com/problems/maxflow', idea: 'Print the flow on every edge as well as the total, read off the residual capacities once BFS finds no more augmenting path.' },
+  ]}
+/>

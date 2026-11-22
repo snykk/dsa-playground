@@ -209,3 +209,14 @@ LCS is the edit distance with only inserts and deletes: that distance equals `m 
     For general strings, no strongly subquadratic algorithm is known. Bit-parallel versions pack the table into machine words and run about a word-size factor faster, and special cases (few matches, small alphabet) have faster algorithms.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Longest Common Subsequence', site: 'LeetCode 1143', url: 'https://leetcode.com/problems/longest-common-subsequence/', idea: 'The length of the LCS of two strings, the table of this article as it stands.' },
+    { name: 'Uncrossed Lines', site: 'LeetCode 1035', url: 'https://leetcode.com/problems/uncrossed-lines/', idea: 'Lines that may not cross pair equal values in the same order: the LCS of two arrays in disguise.' },
+    { name: 'LCS', site: 'AtCoder DP F', url: 'https://atcoder.jp/contests/dp/tasks/dp_f', idea: 'Print one longest common subsequence, not its length: walk back through the table from the bottom-right cell.' },
+    { name: 'Shortest Common Supersequence', site: 'LeetCode 1092', url: 'https://leetcode.com/problems/shortest-common-supersequence/', idea: 'The shortest string containing both has length m + n - LCS; build it during the walk back, keeping the unmatched characters too.' },
+  ]}
+/>

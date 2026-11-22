@@ -218,3 +218,14 @@ The two diagonals are the key to the O(1) variants: all squares on one diagonal 
     The solver always takes the smallest safe column first, so it returns the lexicographically smallest solution, `[0, 4, 7, 5, 2, 6, 1, 3]`, which is the first of 92 in that order.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Eight Queens', site: 'Kattis 8queens', url: 'https://open.kattis.com/problems/8queens', idea: 'Check a given board instead of searching: rows, columns and both diagonals, the same attack test the solver uses.' },
+    { name: 'N-Queens', site: 'LeetCode 51', url: 'https://leetcode.com/problems/n-queens/', idea: 'Print every solution for n up to 9: the search of this article, collecting boards instead of stopping at the first.' },
+    { name: 'N-Queens II', site: 'LeetCode 52', url: 'https://leetcode.com/problems/n-queens-ii/', idea: 'Only count the solutions; sets of used columns and diagonals make each safety check O(1).' },
+    { name: 'Chessboard and Queens', site: 'CSES 1624', url: 'https://cses.fi/problemset/task/1624', idea: 'Eight queens with reserved squares that a queen may not occupy but that do not block attacks: one extra test in the search.' },
+  ]}
+/>

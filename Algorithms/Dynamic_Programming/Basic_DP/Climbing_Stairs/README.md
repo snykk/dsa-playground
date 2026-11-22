@@ -100,11 +100,10 @@ For the minimum cost to reach the top use a `min` recurrence instead; for combin
 
 ## Practice Problems
 
-- [LeetCode 70. Climbing Stairs](https://leetcode.com/problems/climbing-stairs/) - the classic
-- [LeetCode 746. Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/) - a minimum instead of a count
-- [LeetCode 198. House Robber](https://leetcode.com/problems/house-robber/) - the same two-variable pattern
-- [LeetCode 509. Fibonacci Number](https://leetcode.com/problems/fibonacci-number/) - the same sequence
-- [LeetCode 1137. N-th Tribonacci Number](https://leetcode.com/problems/n-th-tribonacci-number/) - steps 1, 2 and 3
+- [Climbing Stairs (LeetCode 70)](https://leetcode.com/problems/climbing-stairs/)
+- [Min Cost Climbing Stairs (LeetCode 746)](https://leetcode.com/problems/min-cost-climbing-stairs/)
+- [Dice Combinations (CSES 1633)](https://cses.fi/problemset/task/1633)
+- [Frog 2 (AtCoder DP B)](https://atcoder.jp/contests/dp/tasks/dp_b)
 
 ## Related
 

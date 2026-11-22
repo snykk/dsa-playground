@@ -247,3 +247,15 @@ Space is O(n): one node per element, each carrying a link (8 bytes on a typical 
     Move a slow pointer one step and a fast pointer two steps at a time. When the fast pointer reaches the end, the slow pointer is at the middle.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Reverse Linked List', site: 'LeetCode 206', url: 'https://leetcode.com/problems/reverse-linked-list/', idea: 'Re-point every `next` link in one walk, keeping the previous node in hand.' },
+    { name: 'Merge Two Sorted Lists', site: 'LeetCode 21', url: 'https://leetcode.com/problems/merge-two-sorted-lists/', idea: 'Splice the existing nodes into one list. A dummy head removes the special case for the first node.' },
+    { name: 'Middle of the Linked List', site: 'LeetCode 876', url: 'https://leetcode.com/problems/middle-of-the-linked-list/', idea: 'Find the middle in one pass without knowing the length: one pointer moves two links for every link of the other.' },
+    { name: 'Remove Nth Node From End of List', site: 'LeetCode 19', url: 'https://leetcode.com/problems/remove-nth-node-from-end-of-list/', idea: 'A delete needs the node before the target. Two pointers kept n links apart reach it in one pass.' },
+    { name: 'Reverse Linked List II', site: 'LeetCode 92', url: 'https://leetcode.com/problems/reverse-linked-list-ii/', idea: 'Reverse only the positions from left to right, then reconnect both ends. A dummy head covers left = 1.' },
+  ]}
+/>

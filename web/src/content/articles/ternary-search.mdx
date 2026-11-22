@@ -219,3 +219,14 @@ Cutting the range in more parts does not help, because every extra part needs an
     Use the same two-probe rule on floating-point `lo` and `hi`, and stop after a fixed number of iterations or when `hi - lo` is smaller than a tolerance. The repository's Python version covers integers only.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Peak Index in a Mountain Array', site: 'LeetCode 852', url: 'https://leetcode.com/problems/peak-index-in-a-mountain-array/', idea: 'A strictly unimodal array: two probes per round, and drop the third that cannot hold the peak. Comparing neighbors (binary search on the slope) needs fewer probes.' },
+    { name: 'Find in Mountain Array', site: 'LeetCode 1095', url: 'https://leetcode.com/problems/find-in-mountain-array/', idea: 'Every get call counts against a limit of 100: find the peak first, then binary search the rising and the falling side.' },
+    { name: 'Devu and his Brother', site: 'Codeforces 439D', url: 'https://codeforces.com/problemset/problem/439/D', idea: 'The number of operations is a convex function of the common threshold, so ternary search over integers finds its minimum.' },
+    { name: 'Weakness and Poorness', site: 'Codeforces 578C', url: 'https://codeforces.com/problemset/problem/578/C', idea: 'Ternary search over a real x: for a fixed x the weakness is a maximum absolute subarray sum, and it is convex in x. Run a fixed number of iterations.' },
+  ]}
+/>

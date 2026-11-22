@@ -203,3 +203,15 @@ Memory differs by language: a Python list holds a pointer (8 bytes) per number, 
     Use Miller-Rabin instead. The sieve builds a table for every number up to `n`, which is wasteful and impossible beyond a few billion.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Count Primes', site: 'LeetCode 204', url: 'https://leetcode.com/problems/count-primes/', idea: 'Count the primes below n up to 5 * 10^6 with the sieve of this article.' },
+    { name: 'Closest Prime Numbers in Range', site: 'LeetCode 2523', url: 'https://leetcode.com/problems/closest-prime-numbers-in-range/', idea: 'Sieve up to 10^6 once, then scan consecutive primes inside the range.' },
+    { name: 'Counting Divisors', site: 'CSES 1713', url: 'https://cses.fi/problemset/task/1713', idea: 'Store the smallest prime factor of every number up to 10^6, then factor each query in O(log x) and count its divisors.' },
+    { name: 'Prime Generator', site: 'SPOJ PRIME1', url: 'https://www.spoj.com/problems/PRIME1/', idea: 'Primes in windows of 10^5 numbers below 10^9: a segmented sieve with the primes up to the square root.' },
+    { name: 'Largest Component Size by Common Factor', site: 'LeetCode 952', url: 'https://leetcode.com/problems/largest-component-size-by-common-factor/', idea: 'Factor every value with a smallest-prime-factor sieve and join each number to its prime factors in a union-find.' },
+  ]}
+/>

@@ -89,9 +89,11 @@ Use it for all-pairs shortest paths on small or dense graphs, with negative edge
 
 ## Practice Problems
 
-- [Find the City With the Smallest Number of Neighbors at a Threshold Distance](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/) (LeetCode)
-- [Network Delay Time](https://leetcode.com/problems/network-delay-time/) (LeetCode)
-- [Shortest Routes II](https://cses.fi/problemset/task/1672) (CSES)
+- [Find the City With the Smallest Number of Neighbors at a Threshold Distance (LeetCode 1334)](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/)
+- [Shortest Routes II (CSES 1672)](https://cses.fi/problemset/task/1672)
+- [Course Schedule IV (LeetCode 1462)](https://leetcode.com/problems/course-schedule-iv/)
+- [Minimum Cost to Convert String I (LeetCode 2976)](https://leetcode.com/problems/minimum-cost-to-convert-string-i/)
+- [Greg and Graph (Codeforces 295B)](https://codeforces.com/problemset/problem/295/B)
 
 ## Related
 

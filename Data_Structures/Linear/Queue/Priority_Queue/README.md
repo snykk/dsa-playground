@@ -96,11 +96,12 @@ Against the other queues in this section ([Simple Queue](../Simple_Queue), [Circ
 
 ## Practice Problems
 
-- LeetCode 215: Kth Largest Element in an Array.
-- LeetCode 347: Top K Frequent Elements.
-- LeetCode 23: Merge k Sorted Lists.
-- LeetCode 1046: Last Stone Weight.
-- LeetCode 703: Kth Largest Element in a Stream.
+- [Last Stone Weight (LeetCode 1046)](https://leetcode.com/problems/last-stone-weight/)
+- [Kth Largest Element in a Stream (LeetCode 703)](https://leetcode.com/problems/kth-largest-element-in-a-stream/)
+- [Kth Largest Element in an Array (LeetCode 215)](https://leetcode.com/problems/kth-largest-element-in-an-array/)
+- [Top K Frequent Elements (LeetCode 347)](https://leetcode.com/problems/top-k-frequent-elements/)
+- [Merge k Sorted Lists (LeetCode 23)](https://leetcode.com/problems/merge-k-sorted-lists/)
+- [Room Allocation (CSES 1164)](https://cses.fi/problemset/task/1164)
 
 ## Related
 

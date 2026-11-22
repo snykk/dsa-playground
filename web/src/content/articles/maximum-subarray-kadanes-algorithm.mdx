@@ -211,3 +211,14 @@ Kadane is both simpler and faster.
     Use `kadane_with_indices` in Python: it returns the sum, the start index and the end index. Slice with `arr[start:end + 1]`. The C++ and Go versions return only the sum.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Maximum Subarray', site: 'LeetCode 53', url: 'https://leetcode.com/problems/maximum-subarray/', idea: 'The problem of this article; the array may be all negative, so start from the first element, not from 0.' },
+    { name: 'Best Time to Buy and Sell Stock', site: 'LeetCode 121', url: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/', idea: 'The best profit is the maximum subarray of the daily price differences.' },
+    { name: 'Maximum Product Subarray', site: 'LeetCode 152', url: 'https://leetcode.com/problems/maximum-product-subarray/', idea: 'A negative number swaps the best and the worst, so track the minimum product ending here too.' },
+    { name: 'Maximum Sum Circular Subarray', site: 'LeetCode 918', url: 'https://leetcode.com/problems/maximum-sum-circular-subarray/', idea: 'A wrapping subarray is the total minus a minimum subarray, found by Kadane with min.' },
+  ]}
+/>

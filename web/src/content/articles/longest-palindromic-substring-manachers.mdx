@@ -193,3 +193,15 @@ Why the expansion is cheap: when `i < r`, the start value either already equals 
     Yes, in spirit. Both keep the furthest-reaching window found so far and reuse a mirrored value inside it, which is what makes them linear.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Longest Palindromic Substring', site: 'LeetCode 5', url: 'https://leetcode.com/problems/longest-palindromic-substring/', idea: "The problem of this article; with n only 1000, check Manacher's answer against expanding around every center." },
+    { name: 'Palindromic Substrings', site: 'LeetCode 647', url: 'https://leetcode.com/problems/palindromic-substrings/', idea: 'Count every palindrome, not only the longest: each center contributes as many palindromes as its radius allows, so sum over the radius array.' },
+    { name: 'Longest Palindrome', site: 'CSES 1111', url: 'https://cses.fi/problemset/task/1111', idea: 'With n up to 10^6, expanding around centers is too slow and the linear algorithm is needed.' },
+    { name: 'All Palindromes', site: 'CSES 3138', url: 'https://cses.fi/problemset/task/3138', idea: 'The longest palindrome ending at every position, derived from the radius array with one more linear sweep.' },
+    { name: 'Maximum Product of the Length of Two Palindromic Substrings', site: 'LeetCode 1960', url: 'https://leetcode.com/problems/maximum-product-of-the-length-of-two-palindromic-substrings/', idea: 'Two non-overlapping odd-length palindromes in a string of 10^5 characters: from the radii, compute the best palindrome on each side of every split.' },
+  ]}
+/>

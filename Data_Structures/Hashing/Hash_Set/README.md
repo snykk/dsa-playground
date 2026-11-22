@@ -93,10 +93,11 @@ Resizing doubles the bucket count, so all resizes over n adds cost less than 2n 
 
 ## Practice Problems
 
-- [LeetCode 217 - Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
-- [LeetCode 705 - Design HashSet](https://leetcode.com/problems/design-hashset/)
-- [LeetCode 349 - Intersection of Two Arrays](https://leetcode.com/problems/intersection-of-two-arrays/)
-- [LeetCode 128 - Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
+- [Contains Duplicate (LeetCode 217)](https://leetcode.com/problems/contains-duplicate/)
+- [Intersection of Two Arrays (LeetCode 349)](https://leetcode.com/problems/intersection-of-two-arrays/)
+- [Distinct Numbers (CSES 1621)](https://cses.fi/problemset/task/1621)
+- [Design HashSet (LeetCode 705)](https://leetcode.com/problems/design-hashset/)
+- [Longest Consecutive Sequence (LeetCode 128)](https://leetcode.com/problems/longest-consecutive-sequence/)
 
 ## Related
 

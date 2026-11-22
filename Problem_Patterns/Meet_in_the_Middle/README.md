@@ -87,10 +87,11 @@ Each half has 2^(n/2) sums. Sorting one half costs O(2^(n/2) * n) and each of th
 
 ## Practice Problems
 
+- [4Sum II (LeetCode 454)](https://leetcode.com/problems/4sum-ii/)
+- [Meet in the Middle (CSES 1628)](https://cses.fi/problemset/task/1628)
 - [Closest Subsequence Sum (LeetCode 1755)](https://leetcode.com/problems/closest-subsequence-sum/)
 - [Partition Array Into Two Arrays to Minimize Sum Difference (LeetCode 2035)](https://leetcode.com/problems/partition-array-into-two-arrays-to-minimize-sum-difference/)
-- [4Sum II (LeetCode 454)](https://leetcode.com/problems/4sum-ii/)
-- [Meet in the Middle (CSES)](https://cses.fi/problemset/task/1628)
+- [Maximum Subsequence (Codeforces 888E)](https://codeforces.com/problemset/problem/888/E)
 
 ## Related
 

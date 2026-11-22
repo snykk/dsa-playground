@@ -168,3 +168,15 @@ Python has seven examples (the table above). C++ and Go have the four non-recurs
     Yes, in both directions. Memoization and hash tables spend memory to save time. In-place algorithms and recomputation save memory at the cost of extra time.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Reverse String', site: 'LeetCode 344', url: 'https://leetcode.com/problems/reverse-string/', idea: 'The statement demands O(1) extra memory: swap from both ends instead of building a reversed copy.' },
+    { name: 'Climbing Stairs', site: 'LeetCode 70', url: 'https://leetcode.com/problems/climbing-stairs/', idea: 'The O(n) table only ever reads its last two cells, so two variables bring the space down to O(1).' },
+    { name: 'First Missing Positive', site: 'LeetCode 41', url: 'https://leetcode.com/problems/first-missing-positive/', idea: 'O(n) time with O(1) auxiliary space rules out a hash set: use the array itself as the table.' },
+    { name: 'Find the Duplicate Number', site: 'LeetCode 287', url: 'https://leetcode.com/problems/find-the-duplicate-number/', idea: 'Constant extra space without modifying the array rules out both a hash set and sorting in place; only a few indices may be stored.' },
+    { name: 'Counting Rooms', site: 'CSES 1192', url: 'https://cses.fi/problemset/task/1192', idea: 'A recursive flood fill on a 1000 x 1000 map can go 10^6 frames deep and overflow the stack: recursion depth is space too. An explicit stack or a BFS queue keeps it on the heap.' },
+  ]}
+/>

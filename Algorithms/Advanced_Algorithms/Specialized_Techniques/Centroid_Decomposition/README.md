@@ -100,8 +100,10 @@ No language implements a distance or nearest-marked-node query.
 
 ## Practice Problems
 
-- [CSES - Fixed-Length Paths I](https://cses.fi/problemset/task/2080)
-- [CSES - Fixed-Length Paths II](https://cses.fi/problemset/task/2081)
+- [Ciel the Commander (Codeforces 321C)](https://codeforces.com/problemset/problem/321/C)
+- [Fixed-Length Paths I (CSES 2080)](https://cses.fi/problemset/task/2080)
+- [Fixed-Length Paths II (CSES 2081)](https://cses.fi/problemset/task/2081)
+- [Xenia and Tree (Codeforces 342E)](https://codeforces.com/problemset/problem/342/E)
 
 ## Related
 
