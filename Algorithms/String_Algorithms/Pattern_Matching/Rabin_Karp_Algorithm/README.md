@@ -87,10 +87,11 @@ Extra space is O(1). The default modulus 101 is small, so about 1 window in 101 
 
 ## Practice Problems
 
-- [LeetCode 28: Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
-- [LeetCode 187: Repeated DNA Sequences](https://leetcode.com/problems/repeated-dna-sequences/)
-- [LeetCode 1044: Longest Duplicate Substring](https://leetcode.com/problems/longest-duplicate-substring/)
-- [LeetCode 686: Repeated String Match](https://leetcode.com/problems/repeated-string-match/)
+- [Find the Index of the First Occurrence in a String (LeetCode 28)](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+- [Repeated DNA Sequences (LeetCode 187)](https://leetcode.com/problems/repeated-dna-sequences/)
+- [Find Substring With Given Hash Value (LeetCode 2156)](https://leetcode.com/problems/find-substring-with-given-hash-value/)
+- [Longest Duplicate Substring (LeetCode 1044)](https://leetcode.com/problems/longest-duplicate-substring/)
+- [Distinct Echo Substrings (LeetCode 1316)](https://leetcode.com/problems/distinct-echo-substrings/)
 
 ## Related
 

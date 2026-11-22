@@ -102,11 +102,12 @@ In an undirected graph the degrees sum to 2E (handshake lemma). In a digraph the
 
 ## Practice Problems
 
-- LeetCode 997: Find the Town Judge (in-degree and out-degree)
-- LeetCode 207: Course Schedule (directed cycle detection)
-- LeetCode 323: Number of Connected Components in an Undirected Graph
-- LeetCode 785: Is Graph Bipartite?
-- LeetCode 1971: Find if Path Exists in Graph
+- [Find the Town Judge (LeetCode 997)](https://leetcode.com/problems/find-the-town-judge/) (in-degree and out-degree)
+- [Find if Path Exists in Graph (LeetCode 1971)](https://leetcode.com/problems/find-if-path-exists-in-graph/)
+- [Course Schedule (LeetCode 207)](https://leetcode.com/problems/course-schedule/) (directed cycle detection)
+- [Is Graph Bipartite? (LeetCode 785)](https://leetcode.com/problems/is-graph-bipartite/)
+- [Round Trip (CSES 1669)](https://cses.fi/problemset/task/1669) (undirected cycle)
+- [Round Trip II (CSES 1678)](https://cses.fi/problemset/task/1678) (directed cycle)
 
 ## Related
 

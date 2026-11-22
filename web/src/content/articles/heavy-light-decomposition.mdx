@@ -256,3 +256,14 @@ What each language really provides:
     When you only need LCA or a static aggregate along an ancestor path and do not mind O(n log n) memory. HLD wins when values change.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Company Queries II', site: 'CSES 1688', url: 'https://cses.fi/problemset/task/1688', idea: 'Lowest common ancestors for 2 * 10^5 queries: jump chain by chain with the head pointers, as `lca` does.' },
+    { name: 'Path Queries', site: 'CSES 1138', url: 'https://cses.fi/problemset/task/1138', idea: 'Sums on root-to-node paths with point updates: add a Fenwick or segment tree over `pos` and query one range per chain.' },
+    { name: 'Path Queries II', site: 'CSES 2134', url: 'https://cses.fi/problemset/task/2134', idea: 'The maximum on any path with point updates: split the path into O(log n) chain ranges, each a segment-tree query.' },
+    { name: 'Water Tree', site: 'Codeforces 343D', url: 'https://codeforces.com/problemset/problem/343/D', idea: 'Fill a subtree and empty a root path: subtrees and chains are both contiguous in `pos`, so one segment tree with range assignment serves both.' },
+  ]}
+/>

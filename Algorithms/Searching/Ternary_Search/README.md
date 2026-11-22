@@ -100,9 +100,11 @@ Do not use it for plain lookup in a sorted array (use Binary Search), or on func
 
 ## Practice Problems
 
-- [Peak Index in a Mountain Array (LeetCode 852)](https://leetcode.com/problems/peak-index-in-a-mountain-array/) - a unimodal peak on an array; binary search on the slope is simplest.
+- [Peak Index in a Mountain Array (LeetCode 852)](https://leetcode.com/problems/peak-index-in-a-mountain-array/)
+- [Find in Mountain Array (LeetCode 1095)](https://leetcode.com/problems/find-in-mountain-array/)
+- [Devu and his Brother (Codeforces 439D)](https://codeforces.com/problemset/problem/439/D)
+- [Weakness and Poorness (Codeforces 578C)](https://codeforces.com/problemset/problem/578/C)
 - [Find Peak Element (LeetCode 162)](https://leetcode.com/problems/find-peak-element/)
-- [Binary Search (LeetCode 704)](https://leetcode.com/problems/binary-search/) - the lookup baseline.
 
 ## Related
 

@@ -81,9 +81,9 @@ All three are LSD with base 10; other bases are not implemented.
 
 ## Practice Problems
 
-- [Maximum Gap (LeetCode 164)](https://leetcode.com/problems/maximum-gap/)
 - [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
-- [Sort Colors (LeetCode 75)](https://leetcode.com/problems/sort-colors/)
+- [Maximum Gap (LeetCode 164)](https://leetcode.com/problems/maximum-gap/)
+- [Query Kth Smallest Trimmed Number (LeetCode 2343)](https://leetcode.com/problems/query-kth-smallest-trimmed-number/)
 
 ## Related
 

@@ -192,3 +192,14 @@ Extra space is O(1) besides the result list.
     KMP. It keeps the idea of scanning left to right but uses the pattern's own structure (the LPS table) so that the text pointer never moves back and the worst case is O(n + m).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find the Index of the First Occurrence in a String', site: 'LeetCode 28', url: 'https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/', idea: 'The problem of this article: slide the needle over the haystack and compare character by character.' },
+    { name: 'Rotate String', site: 'LeetCode 796', url: 'https://leetcode.com/problems/rotate-string/', idea: 'A rotation of s equals goal exactly when goal occurs in s + s, which the naive search checks quickly at 200 characters.' },
+    { name: 'String Matching in an Array', site: 'LeetCode 1408', url: 'https://leetcode.com/problems/string-matching-in-an-array/', idea: 'Test every pair of words with the naive search; the words are short, so O(n m) per pair is fine.' },
+    { name: 'Repeated String Match', site: 'LeetCode 686', url: 'https://leetcode.com/problems/repeated-string-match/', idea: 'Repeat a until it covers b, plus one more copy, then search b in it; only two repeat counts can work.' },
+  ]}
+/>

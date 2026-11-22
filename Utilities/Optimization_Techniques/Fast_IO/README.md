@@ -91,9 +91,12 @@ Use it when the input has hundreds of thousands of numbers or more, there is one
 
 ## Practice Problems
 
-- [Static Range Sum Queries (CSES)](https://cses.fi/problemset/task/1646): many queries, one line of output each.
-- [Sum of Two Values (CSES)](https://cses.fi/problemset/task/1640): large input array.
-- [Distinct Numbers (CSES)](https://cses.fi/problemset/task/1621): 2 * 10^5 numbers to read.
+- [Static Range Sum Queries (CSES 1646)](https://cses.fi/problemset/task/1646)
+- [Forest Queries (CSES 1652)](https://cses.fi/problemset/task/1652)
+- [Inverse Inversions (CSES 2214)](https://cses.fi/problemset/task/2214)
+- [Hidden Integer (CSES 3112)](https://cses.fi/problemset/task/3112)
+- [Sum of Two Values (CSES 1640)](https://cses.fi/problemset/task/1640)
+- [Distinct Numbers (CSES 1621)](https://cses.fi/problemset/task/1621)
 - Write a reader that parses 10^6 numbers from a file and compare it with `cin` on your machine.
 
 ## Related

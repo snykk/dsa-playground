@@ -224,9 +224,10 @@ When the input is a raw point set, you can also run the all-pairs search on the 
 
 ## Practice problems
 
-<DataTable
-  columns={['Problem', 'Idea']}
-  rows={[
-    ['Beauty Contest (POJ 2187)', 'the farthest pair of points: hull, then calipers'],
+<PracticeProblems
+  problems={[
+    { name: 'Robert Hood', site: 'Kattis roberthood', url: 'https://open.kattis.com/problems/roberthood', idea: 'The farthest pair among 10^5 points: build the hull, then sweep its antipodal pairs.' },
+    { name: 'Fossil in the Ice', site: 'SPOJ TFOSS', url: 'https://www.spoj.com/problems/TFOSS/', idea: 'The diameter again, printed as a squared integer distance, so the whole computation can stay in exact integer arithmetic.' },
+    { name: 'Fence Orthogonality', site: 'Kattis fenceortho', url: 'https://open.kattis.com/problems/fenceortho', idea: 'The shortest rectangular fence around all points: one side lies on a hull edge, so four calipers that rotate together find it in linear time.' },
   ]}
 />

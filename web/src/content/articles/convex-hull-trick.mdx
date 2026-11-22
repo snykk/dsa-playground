@@ -260,3 +260,15 @@ In the monotonic version every line is pushed once and popped at most once, so a
     When two lines tie at `x` and queries never decrease, the one with the larger slope can only get worse afterwards, so the front line is no longer needed.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Monster Game I', site: 'CSES 2084', url: 'https://cses.fi/problemset/task/2084', idea: 'Each killed monster adds a line; the strengths are sorted and the skill factors decrease, so the monotonic deque version applies.' },
+    { name: 'Frog 3', site: 'AtCoder DP Z', url: 'https://atcoder.jp/contests/dp/tasks/dp_z', idea: 'Expand (h_i - h_j)^2 to get one line per stone; the heights are increasing, so slopes and queries are both sorted.' },
+    { name: 'Monster Game II', site: 'CSES 2085', url: 'https://cses.fi/problemset/task/2085', idea: 'The same game with unsorted strengths and skill factors, so lines and queries come in any order: use a Li Chao tree.' },
+    { name: 'Kalila and Dimna in the Logging Industry', site: 'Codeforces 319C', url: 'https://codeforces.com/problemset/problem/319/C', idea: 'Recognize `dp[i] = min(b_j * a_i + dp[j])` and keep the products in 64-bit integers.' },
+    { name: 'The Fair Nut and Rectangles', site: 'Codeforces 1083E', url: 'https://codeforces.com/problemset/problem/1083/E', idea: 'Sort the rectangles so the transition becomes one line query per rectangle, then maximize with the hull.' },
+  ]}
+/>

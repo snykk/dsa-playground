@@ -121,11 +121,11 @@ Use these functions for per-character transformations, input cleaning and parsin
 
 ## Practice Problems
 
-- [Reverse String](https://leetcode.com/problems/reverse-string/)
-- [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
-- [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
-- [Reverse Vowels of a String](https://leetcode.com/problems/reverse-vowels-of-a-string/)
-- [String Compression](https://leetcode.com/problems/string-compression/)
+- [Reverse String (LeetCode 344)](https://leetcode.com/problems/reverse-string/)
+- [Valid Palindrome (LeetCode 125)](https://leetcode.com/problems/valid-palindrome/)
+- [Reverse Vowels of a String (LeetCode 345)](https://leetcode.com/problems/reverse-vowels-of-a-string/)
+- [Reverse Words in a String (LeetCode 151)](https://leetcode.com/problems/reverse-words-in-a-string/)
+- [String Compression (LeetCode 443)](https://leetcode.com/problems/string-compression/)
 
 ## Related
 

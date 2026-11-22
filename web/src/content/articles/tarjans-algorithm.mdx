@@ -196,3 +196,14 @@ The two algorithms always find the same components. Tarjan is a little faster an
     Tarjan, usually, because it needs one pass and little memory. Choose Kosaraju if you want simpler code to reason about or if you need the components in topological order without reversing the list.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Planets and Kingdoms', site: 'CSES 1683', url: 'https://cses.fi/problemset/task/1683', idea: 'Label every planet with its component: each time a low-link equals the discovery time, pop one kingdom off the stack.' },
+    { name: 'Checkposts', site: 'Codeforces 427C', url: 'https://codeforces.com/problemset/problem/427/C', idea: 'Every component needs one checkpost at its cheapest junction. Sum those costs, and multiply the numbers of cheapest junctions for the count of ways.' },
+    { name: 'Coin Collector', site: 'CSES 1686', url: 'https://cses.fi/problemset/task/1686', idea: 'Contract the components and take the most valuable path in the DAG. Tarjan emits the components in reverse topological order, so a DP in that order needs no separate sort.' },
+    { name: 'New Flight Routes', site: 'CSES 1685', url: 'https://cses.fi/problemset/task/1685', idea: 'Contract the components: the answer depends on the components with no incoming or no outgoing edge, and the hard part is choosing which flights to add.' },
+  ]}
+/>

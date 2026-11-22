@@ -260,3 +260,15 @@ All three have tests that check results against a brute-force game-tree search: 
     Not in general. Misere play of arbitrary sums does not reduce to Grundy numbers; only special games such as Nim have the simple rule shown above.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Nim Game', site: 'LeetCode 292', url: 'https://leetcode.com/problems/nim-game/', idea: 'Taking 1 to 3 stones: the losing positions are the multiples of 4, so the first player wins when n % 4 != 0.' },
+    { name: 'Stick Game', site: 'CSES 1729', url: 'https://cses.fi/problemset/task/1729', idea: 'A win/lose DP over 1..n with the given move set: a position wins when some move leads to a losing one.' },
+    { name: 'Nim Game I', site: 'CSES 1730', url: 'https://cses.fi/problemset/task/1730', idea: 'Plain Nim: the first player wins exactly when the XOR of the heaps is not zero.' },
+    { name: 'Nim Game II', site: 'CSES 1098', url: 'https://cses.fi/problemset/task/1098', idea: 'Each heap is a subtraction game with moves 1 to 3, whose Grundy value is x mod 4; XOR them by Sprague-Grundy.' },
+    { name: "Grundy's Game", site: 'CSES 2207', url: 'https://cses.fi/problemset/task/2207', idea: 'Splitting a heap creates two independent games, so a Grundy value is the mex over the XORs of the two parts. Tabulate small n and look at where the losing positions stop.' },
+  ]}
+/>

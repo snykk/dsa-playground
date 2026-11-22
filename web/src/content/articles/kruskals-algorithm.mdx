@@ -216,3 +216,14 @@ Since E is at most V<sup>2</sup>, log E is at most 2 log V, so O(E log E) is the
     Kruskal for sparse graphs and edge lists; Prim for dense graphs or when the graph is already an adjacency structure. Both are correct and give the same total weight.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Road Reparation', site: 'CSES 1675', url: 'https://cses.fi/problemset/task/1675', idea: 'Kruskal with a union-find over up to 2 * 10^5 roads; print IMPOSSIBLE when fewer than n - 1 edges join two components.' },
+    { name: 'Min Cost to Connect All Points', site: 'LeetCode 1584', url: 'https://leetcode.com/problems/min-cost-to-connect-all-points/', idea: 'Every pair of points is an edge weighted by its Manhattan distance: sort them all and run Kruskal.' },
+    { name: 'Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree', site: 'LeetCode 1489', url: 'https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/', idea: 'Rerun Kruskal with one edge banned (does the total rise?) or forced in first (does it stay the same?) to classify every edge.' },
+    { name: 'MST Edge Check', site: 'CSES 3407', url: 'https://cses.fi/problemset/task/3407', idea: 'Process the edges in groups of equal weight: an edge can be in some minimum spanning tree exactly when its ends are still in different components before its group is merged.' },
+  ]}
+/>

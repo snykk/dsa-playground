@@ -90,10 +90,10 @@ The cocktail shaker variant (alternating directions) is not implemented.
 
 ## Practice Problems
 
-- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
+- [Height Checker (LeetCode 1051)](https://leetcode.com/problems/height-checker/)
 - [Sort Colors (LeetCode 75)](https://leetcode.com/problems/sort-colors/)
 - [Global and Local Inversions (LeetCode 775)](https://leetcode.com/problems/global-and-local-inversions/)
-- [Squares of a Sorted Array (LeetCode 977)](https://leetcode.com/problems/squares-of-a-sorted-array/)
+- [Bubble Sort Graph (Codeforces 340D)](https://codeforces.com/problemset/problem/340/D)
 
 ## Related
 

@@ -16,6 +16,7 @@ export const MDX_COMPONENT_NAMES = [
   'GraphDiagram',
   'GridDiagram',
   'ListDiagram',
+  'PracticeProblems',
   'ProsCons',
   'Step',
   'Steps',

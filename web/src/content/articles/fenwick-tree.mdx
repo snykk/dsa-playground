@@ -212,3 +212,14 @@ A Fenwick tree needs to *subtract* (`prefix(r) - prefix(l - 1)`), so it fits sum
     Yes. Copy the array into `tree[1..n]`, then for each `i` add `tree[i]` into its parent `i + lowbit(i)` if that index is within `n`. This is O(n). The repository uses the simpler n updates, O(n log n).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Dynamic Range Sum Queries', site: 'CSES 1648', url: 'https://cses.fi/problemset/task/1648', idea: 'Point update and range sum, the two operations of this article. The update assigns a value, so add the difference from the old one.' },
+    { name: 'Range Update Queries', site: 'CSES 1651', url: 'https://cses.fi/problemset/task/1651', idea: 'The range update, point query variant: keep the difference array in the tree, so that a range add is two point updates and a value is a prefix sum.' },
+    { name: 'Count of Smaller Numbers After Self', site: 'LeetCode 315', url: 'https://leetcode.com/problems/count-of-smaller-numbers-after-self/', idea: 'Sweep from the right over compressed values; a prefix sum over the values seen so far counts the smaller ones.' },
+    { name: 'Reverse Pairs', site: 'LeetCode 493', url: 'https://leetcode.com/problems/reverse-pairs/', idea: 'The same sweep, counting earlier values above 2 * nums[j]. The doubled values must be compressed too, and they overflow 32 bits.' },
+  ]}
+/>

@@ -214,3 +214,15 @@ For n nodes, a complete tree has height floor(log<sub>2</sub> n); a chain has he
     The tree has no ordering that says where a value belongs, so the code scans in level order for the first free slot. That keeps the tree complete at the price of a linear scan.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Binary Tree Inorder Traversal', site: 'LeetCode 94', url: 'https://leetcode.com/problems/binary-tree-inorder-traversal/', idea: 'Left, node, right. Write it recursively, then iteratively with an explicit stack.' },
+    { name: 'Binary Tree Postorder Traversal', site: 'LeetCode 145', url: 'https://leetcode.com/problems/binary-tree-postorder-traversal/', idea: 'Both children before the node, the order that evaluates an expression tree. The iterative version is the trickiest of the depth-first orders.' },
+    { name: 'Maximum Depth of Binary Tree', site: 'LeetCode 104', url: 'https://leetcode.com/problems/maximum-depth-of-binary-tree/', idea: 'Height by recursion: one more than the larger height of the two subtrees.' },
+    { name: 'Binary Tree Level Order Traversal', site: 'LeetCode 102', url: 'https://leetcode.com/problems/binary-tree-level-order-traversal/', idea: 'The breadth-first traversal: a queue visits the tree one level at a time.' },
+    { name: 'Diameter of Binary Tree', site: 'LeetCode 543', url: 'https://leetcode.com/problems/diameter-of-binary-tree/', idea: 'One post-order pass that returns the height of each subtree and records the longest path through the current node.' },
+  ]}
+/>

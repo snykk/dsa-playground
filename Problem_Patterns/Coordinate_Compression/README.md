@@ -80,10 +80,11 @@ All three provide compress, decompress and a 2D compress. They work on integers.
 
 ## Practice Problems
 
-- [The Skyline Problem (LeetCode 218)](https://leetcode.com/problems/the-skyline-problem/)
-- [Rectangle Area II (LeetCode 850)](https://leetcode.com/problems/rectangle-area-ii/)
+- [Rank Transform of an Array (LeetCode 1331)](https://leetcode.com/problems/rank-transform-of-an-array/)
 - [Count of Smaller Numbers After Self (LeetCode 315)](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
-- [Salary Queries (CSES)](https://cses.fi/problemset/task/1144)
+- [Salary Queries (CSES 1144)](https://cses.fi/problemset/task/1144)
+- [Rectangle Area II (LeetCode 850)](https://leetcode.com/problems/rectangle-area-ii/)
+- [The Skyline Problem (LeetCode 218)](https://leetcode.com/problems/the-skyline-problem/)
 
 ## Related
 

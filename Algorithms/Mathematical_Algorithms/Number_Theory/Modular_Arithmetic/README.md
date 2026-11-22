@@ -99,9 +99,10 @@ Modulo 11:
 
 ## Practice Problems
 
-- [Exponentiation (CSES)](https://cses.fi/problemset/task/1095)
-- [Binomial Coefficients (CSES)](https://cses.fi/problemset/task/1079): needs modular inverses of factorials.
 - [Count All Valid Pickup and Delivery Options (LeetCode 1359)](https://leetcode.com/problems/count-all-valid-pickup-and-delivery-options/)
+- [Modular Arithmetic (Kattis modulararithmetic)](https://open.kattis.com/problems/modulararithmetic)
+- [Binomial Coefficients (CSES 1079)](https://cses.fi/problemset/task/1079)
+- [Creating Strings II (CSES 1715)](https://cses.fi/problemset/task/1715)
 - Exercise: compute all inverses modulo 13 and check the table against `mod_inverse`.
 
 ## Related

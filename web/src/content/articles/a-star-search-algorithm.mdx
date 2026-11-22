@@ -226,3 +226,14 @@ A heuristic that is closer to the true cost, without exceeding it, expands fewer
     It empties the queue and reports no path: `None` in Python, `(-1, {})` in C++ and `(-1, nil)` in Go. If start equals the goal, it returns cost 0 and the path with that single vertex.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Shortest Path in Binary Matrix', site: 'LeetCode 1091', url: 'https://leetcode.com/problems/shortest-path-in-binary-matrix/', idea: 'BFS already solves it, which makes it a good check for A*. With eight directions Manhattan distance can overestimate, so use the Chebyshev distance max(dr, dc).' },
+    { name: 'Open the Lock', site: 'LeetCode 752', url: 'https://leetcode.com/problems/open-the-lock/', idea: 'A graph of 10^4 lock states. The sum over the wheels of the circular distance to the target digit never overestimates, since one move turns one wheel by one step.' },
+    { name: 'Sliding Puzzle', site: 'LeetCode 773', url: 'https://leetcode.com/problems/sliding-puzzle/', idea: "The sum of the tiles' Manhattan distances to their goal cells is admissible: the puzzle heuristic from the article." },
+    { name: 'Cut Off Trees for Golf Event', site: 'LeetCode 675', url: 'https://leetcode.com/problems/cut-off-trees-for-golf-event/', idea: 'Many shortest paths between consecutive trees on one grid. A* with Manhattan distance speeds up each leg compared with a full BFS.' },
+  ]}
+/>

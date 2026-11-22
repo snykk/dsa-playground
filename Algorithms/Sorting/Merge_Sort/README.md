@@ -93,11 +93,12 @@ Use it when you need a stable sort, a guaranteed O(n log n) bound, to sort linke
 
 ## Practice Problems
 
-- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
-- [Sort List (LeetCode 148)](https://leetcode.com/problems/sort-list/)
 - [Merge Sorted Array (LeetCode 88)](https://leetcode.com/problems/merge-sorted-array/)
+- [Sort List (LeetCode 148)](https://leetcode.com/problems/sort-list/)
+- [Ultra-QuickSort (Kattis ultraquicksort)](https://open.kattis.com/problems/ultraquicksort)
 - [Reverse Pairs (LeetCode 493)](https://leetcode.com/problems/reverse-pairs/)
 - [Count of Smaller Numbers After Self (LeetCode 315)](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
+- [Sort an Array (LeetCode 912)](https://leetcode.com/problems/sort-an-array/)
 
 ## Related
 

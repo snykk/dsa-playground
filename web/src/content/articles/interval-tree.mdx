@@ -248,3 +248,14 @@ An earlier version recomputed `max` over the whole tree after every insert and d
     Yes. Equal intervals are stored as separate nodes, and `delete` removes one of them.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Merge Intervals', site: 'LeetCode 56', url: 'https://leetcode.com/problems/merge-intervals/', idea: 'The offline baseline: sort by left end and sweep. A good reference to check the tree against.' },
+    { name: 'Insert Interval', site: 'LeetCode 57', url: 'https://leetcode.com/problems/insert-interval/', idea: 'One new interval against a sorted list of disjoint ones: find every interval it overlaps and merge them.' },
+    { name: 'My Calendar I', site: 'LeetCode 729', url: 'https://leetcode.com/problems/my-calendar-i/', idea: 'Before each booking, ask whether any stored interval overlaps it. Bookings are half-open, so store and query them as [start, end - 1].' },
+    { name: 'My Calendar II', site: 'LeetCode 731', url: 'https://leetcode.com/problems/my-calendar-ii/', idea: 'Keep a second tree of the overlaps that are already double-booked; a new booking fails when it overlaps one of those.' },
+  ]}
+/>

@@ -90,8 +90,10 @@ Why `n log log n`: prime `p` does about `n / p` crossings, and the sum of `1 / p
 ## Practice Problems
 
 - [Count Primes (LeetCode 204)](https://leetcode.com/problems/count-primes/)
-- [Prime Number of Set Bits in Binary Representation (LeetCode 762)](https://leetcode.com/problems/prime-number-of-set-bits-in-binary-representation/)
-- [Prime Arrangements (LeetCode 1175)](https://leetcode.com/problems/prime-arrangements/)
+- [Closest Prime Numbers in Range (LeetCode 2523)](https://leetcode.com/problems/closest-prime-numbers-in-range/)
+- [Counting Divisors (CSES 1713)](https://cses.fi/problemset/task/1713)
+- [Prime Generator (SPOJ PRIME1)](https://www.spoj.com/problems/PRIME1/)
+- [Largest Component Size by Common Factor (LeetCode 952)](https://leetcode.com/problems/largest-component-size-by-common-factor/)
 - Exercise: change the sieve to store the smallest prime factor of every number, then factor 360 with it.
 
 ## Related

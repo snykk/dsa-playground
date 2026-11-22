@@ -103,9 +103,10 @@ Ropes are used in editors such as xi-editor, Zed and Helix (through the `ropey` 
 
 ## Practice Problems
 
-- [Design a Text Editor](https://leetcode.com/problems/design-a-text-editor/)
-- [CSES: Substring Reversals](https://cses.fi/problemset/task/2073)
-- [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
+- [Design a Text Editor (LeetCode 2296)](https://leetcode.com/problems/design-a-text-editor/)
+- [List Removals (CSES 1749)](https://cses.fi/problemset/task/1749)
+- [Cut and Paste (CSES 2072)](https://cses.fi/problemset/task/2072)
+- [Substring Reversals (CSES 2073)](https://cses.fi/problemset/task/2073)
 
 ## Related
 

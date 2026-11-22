@@ -186,3 +186,15 @@ Space is <BigO of="1" /> except `subset_generation`, which returns all 2<sup>n</
     Not by much on its own: the compiler already turns `x * 2` into a shift. The real gains come from the algorithms, such as O(k) popcount, XOR cancellation in O(n) time and O(1) space, and subset DP.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Power of Two', site: 'LeetCode 231', url: 'https://leetcode.com/problems/power-of-two/', idea: 'Check n > 0 and n & (n - 1) == 0, with the parentheses your language needs around the AND.' },
+    { name: 'Single Number', site: 'LeetCode 136', url: 'https://leetcode.com/problems/single-number/', idea: 'XOR every value: pairs cancel and the unique one remains, in O(1) space.' },
+    { name: 'Counting Bits', site: 'LeetCode 338', url: 'https://leetcode.com/problems/counting-bits/', idea: 'The recurrence bits[i] = bits[i & (i - 1)] + 1 fills the table in O(n), with no popcount per number.' },
+    { name: 'Single Number III', site: 'LeetCode 260', url: 'https://leetcode.com/problems/single-number-iii/', idea: 'XOR everything to get a ^ b, then split the values on its lowest set bit so that each group holds one of the two.' },
+    { name: 'Counting Bits', site: 'CSES 1146', url: 'https://cses.fi/problemset/task/1146', idea: 'With n up to 10^15, count per bit position instead of per number: bit b repeats with period 2^(b+1), half of it ones.' },
+  ]}
+/>

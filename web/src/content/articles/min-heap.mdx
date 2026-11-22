@@ -223,3 +223,14 @@ The three versions share the same structure: `heapify_up` (sift up), `heapify_do
     Keep a min heap of at most k elements. For each new value, push it, and if the heap has more than k elements, pop the minimum. At the end the heap holds the k largest, with the k-th largest at the root.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Kth Largest Element in a Stream', site: 'LeetCode 703', url: 'https://leetcode.com/problems/kth-largest-element-in-a-stream/', idea: 'Top k of a stream: a min heap of size k, whose root is the k-th largest after every add.' },
+    { name: 'Top K Frequent Elements', site: 'LeetCode 347', url: 'https://leetcode.com/problems/top-k-frequent-elements/', idea: 'Count with a hash map, then keep a min heap of the k best counts, O(n log k) in total.' },
+    { name: 'Furthest Building You Can Reach', site: 'LeetCode 1642', url: 'https://leetcode.com/problems/furthest-building-you-can-reach/', idea: 'A min heap of size `ladders` holds the largest climbs seen so far, the ones worth a ladder.' },
+    { name: 'Merge k Sorted Lists', site: 'LeetCode 23', url: 'https://leetcode.com/problems/merge-k-sorted-lists/', idea: 'Hold the current head of every list: extract-min gives the next output node, then insert the next node of the same list.' },
+  ]}
+/>

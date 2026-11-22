@@ -87,9 +87,10 @@ Variants not implemented here: the sentinel technique (store the target after th
 
 ## Practice Problems
 
-- [Two Sum (LeetCode 1)](https://leetcode.com/problems/two-sum/) - the brute-force linear scan, then a hash table.
 - [Find the Index of the First Occurrence in a String (LeetCode 28)](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
-- [Search Insert Position (LeetCode 35)](https://leetcode.com/problems/search-insert-position/) - solve it with a scan, then with Binary Search.
+- [Find Target Indices After Sorting Array (LeetCode 2089)](https://leetcode.com/problems/find-target-indices-after-sorting-array/)
+- [Two Sum (LeetCode 1)](https://leetcode.com/problems/two-sum/)
+- [Search Insert Position (LeetCode 35)](https://leetcode.com/problems/search-insert-position/)
 
 ## Related
 

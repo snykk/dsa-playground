@@ -261,3 +261,13 @@ For n = 128 with the cutoff of 64, there is one level: 7 naive products of size 
     Yes, asymptotically: researchers have found methods with exponents near 2.37. They are not used in practice because their constant factors are enormous.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Fibonacci Numbers', site: 'CSES 1722', url: 'https://cses.fi/problemset/task/1722', idea: "F(n) for n up to 10^18 is a power of a 2 x 2 matrix. Write that product with Strassen's seven multiplications and check it against the eight-product formula." },
+    { name: 'Graph Paths I', site: 'CSES 1723', url: 'https://cses.fi/problemset/task/1723', idea: 'Count walks of length k with a power of the adjacency matrix modulo 10^9 + 7. The plain product already passes at n = 100; Strassen works here too, because arithmetic modulo a prime has subtraction, and it is a good test of the padding and the signs.' },
+    { name: 'Graph Paths II', site: 'CSES 1724', url: 'https://cses.fi/problemset/task/1724', idea: "The same matrix power over (min, +). That algebra has no subtraction, so Strassen's seven products do not apply: the case that shows the limit of the method." },
+  ]}
+/>

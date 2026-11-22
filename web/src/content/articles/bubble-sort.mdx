@@ -199,3 +199,14 @@ Bubble Sort and Insertion Sort do the same number of element moves (one per inve
     Swapping two adjacent out-of-order elements removes exactly one inversion and creates none, and Bubble Sort only ever swaps adjacent elements. So the total number of swaps equals the number of inversions in the input.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Height Checker', site: 'LeetCode 1051', url: 'https://leetcode.com/problems/height-checker/', idea: 'Sort a copy and count the positions that differ; at n <= 100, bubble sort with the early exit is plenty.' },
+    { name: 'Sort Colors', site: 'LeetCode 75', url: 'https://leetcode.com/problems/sort-colors/', idea: "Bubble sort sorts the 300 values in place and passes; the follow-up's one-pass partition shows how much less work is possible." },
+    { name: 'Global and Local Inversions', site: 'LeetCode 775', url: 'https://leetcode.com/problems/global-and-local-inversions/', idea: 'Each bubble sort swap removes one inversion, but counting them that way is O(n^2), too slow at 10^5. Compare the two kinds of inversion instead.' },
+    { name: 'Bubble Sort Graph', site: 'Codeforces 340D', url: 'https://codeforces.com/problemset/problem/340/D', idea: 'The graph gets an edge for every pair bubble sort swaps, that is, for every inversion. Work out what an independent set means for the sequence.' },
+  ]}
+/>

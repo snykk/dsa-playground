@@ -193,3 +193,15 @@ The table instead has only O(n<sup>2</sup>) distinct sub-chains. Faster algorith
     No. Hu and Shing described an O(n log n) algorithm. The cubic DP is the standard, simple solution and is fast enough for typical chain lengths.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Slimes', site: 'AtCoder DP N', url: 'https://atcoder.jp/contests/dp/tasks/dp_n', idea: 'Merge adjacent slimes at the cost of their total size: the same interval DP with a prefix-sum join cost, O(N^3) for N = 400.' },
+    { name: 'Minimum Score Triangulation of Polygon', site: 'LeetCode 1039', url: 'https://leetcode.com/problems/minimum-score-triangulation-of-polygon/', idea: 'Polygon triangulation: for the side (i, j) try every third vertex k, just as the chain tries every split.' },
+    { name: 'Minimum Cost to Cut a Stick', site: 'LeetCode 1547', url: 'https://leetcode.com/problems/minimum-cost-to-cut-a-stick/', idea: "Sort the cut positions and run the interval DP over them; the first cut inside a segment costs the segment's length." },
+    { name: 'Burst Balloons', site: 'LeetCode 312', url: 'https://leetcode.com/problems/burst-balloons/', idea: 'Try the balloon burst last in i..j, not first: then both sides stay independent and the split works.' },
+    { name: 'Minimum Cost to Merge Stones', site: 'LeetCode 1000', url: 'https://leetcode.com/problems/minimum-cost-to-merge-stones/', idea: 'Merging K piles at a time adds the number of piles a segment has become to the state.' },
+  ]}
+/>

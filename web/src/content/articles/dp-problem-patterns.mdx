@@ -202,3 +202,15 @@ The general rule: time is the number of states times the work per state. Knapsac
     Look at what is being chosen: a position in a sequence (linear), a subset of items under a budget (knapsack), two sequences (grid over prefixes), a split point in a range (interval), or a small set of used items (bitmask). Then write the state sentence for that family.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Coin Change', site: 'LeetCode 322', url: 'https://leetcode.com/problems/coin-change/', idea: 'Linear DP over the amount: dp[a] is the fewest coins for a, built from dp[a - c] for every coin c.' },
+    { name: 'Knapsack 1', site: 'AtCoder dp_d', url: 'https://atcoder.jp/contests/dp/tasks/dp_d', idea: 'The 0/1 knapsack: dp[w] over the capacity, iterating w downward so that each item is taken at most once.' },
+    { name: 'Longest Common Subsequence', site: 'LeetCode 1143', url: 'https://leetcode.com/problems/longest-common-subsequence/', idea: 'Two sequences: dp[i][j] over two prefixes, matching the last characters or dropping one.' },
+    { name: 'Slimes', site: 'AtCoder dp_n', url: 'https://atcoder.jp/contests/dp/tasks/dp_n', idea: 'Interval DP: dp[l][r] is the cheapest way to merge a range, split at every k, with prefix sums for the cost of the last merge.' },
+    { name: 'Matching', site: 'AtCoder dp_o', url: 'https://atcoder.jp/contests/dp/tasks/dp_o', idea: 'Bitmask DP: dp[mask] counts the ways to pair the first popcount(mask) men with the set of women in mask.' },
+  ]}
+/>

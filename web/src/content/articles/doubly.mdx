@@ -223,3 +223,14 @@ The C++ class owns its nodes. It has a destructor that frees the chain, and its 
     A deque is an interface (push and pop at both ends). A doubly linked list with head and tail pointers is one way to implement it; a ring buffer or a chunked array is another.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Design Linked List', site: 'LeetCode 707', url: 'https://leetcode.com/problems/design-linked-list/', idea: 'Insert and delete by index. With `prev` links, unlinking a node needs no second pointer trailing behind.' },
+    { name: 'Design Browser History', site: 'LeetCode 1472', url: 'https://leetcode.com/problems/design-browser-history/', idea: 'Back and forward are steps along `prev` and `next`. Visiting a new page cuts off every node after the current one.' },
+    { name: 'Flatten a Multilevel Doubly Linked List', site: 'LeetCode 430', url: 'https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/', idea: 'Splice each child list in between a node and its next, fixing both the `next` and the `prev` links at both seams.' },
+    { name: 'LRU Cache', site: 'LeetCode 146', url: 'https://leetcode.com/problems/lru-cache/', idea: 'A doubly linked list in recency order lets a hash map hit unlink its node and move it to the front in O(1).' },
+  ]}
+/>

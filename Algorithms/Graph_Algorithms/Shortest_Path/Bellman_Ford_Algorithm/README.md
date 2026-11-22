@@ -88,10 +88,10 @@ Use Bellman-Ford when edge weights can be negative, when you need to detect a ne
 
 ## Practice Problems
 
-- [Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/) (LeetCode; at most K + 1 rounds)
-- [Network Delay Time](https://leetcode.com/problems/network-delay-time/) (LeetCode)
-- [High Score](https://cses.fi/problemset/task/1673) (CSES; negative cycle on a path to the goal)
-- [Cycle Finding](https://cses.fi/problemset/task/1197) (CSES)
+- [Network Delay Time (LeetCode 743)](https://leetcode.com/problems/network-delay-time/)
+- [Cheapest Flights Within K Stops (LeetCode 787)](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
+- [Cycle Finding (CSES 1197)](https://cses.fi/problemset/task/1197)
+- [High Score (CSES 1673)](https://cses.fi/problemset/task/1673)
 
 ## Related
 

@@ -193,3 +193,14 @@ The inner loop runs once per element that is larger than the key and sits to its
     The algorithm can process elements as they arrive: after each insertion the prefix is a sorted copy of everything seen so far. It does not need the whole input in advance.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Insertion Sort List', site: 'LeetCode 147', url: 'https://leetcode.com/problems/insertion-sort-list/', idea: 'Insertion sort itself on a linked list: no shifting, just splice each node after the last smaller one in the sorted part.' },
+    { name: 'Sort an Array', site: 'LeetCode 912', url: 'https://leetcode.com/problems/sort-an-array/', idea: 'Alone it does about n^2/4 shifts on random input, too slow at n = 5 * 10^4. Use it below a small cutoff inside merge sort or quick sort, as hybrid sorts do.' },
+    { name: 'Global and Local Inversions', site: 'LeetCode 775', url: 'https://leetcode.com/problems/global-and-local-inversions/', idea: 'Insertion sort does one shift per inversion. The two counts agree only when no element sits more than one place from its sorted position, which a scan checks without sorting.' },
+    { name: 'Insertion Sort', site: 'Codeforces 362C', url: 'https://codeforces.com/problemset/problem/362/C', idea: "The sort's swaps equal the inversions. Work out how swapping one pair first changes the inversion count, for every pair." },
+  ]}
+/>

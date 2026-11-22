@@ -91,10 +91,12 @@ Use these patterns when the statement says "print any ... such that ..." or "pri
 
 ## Practice Problems
 
-- [LeetCode 667 - Beautiful Arrangement II](https://leetcode.com/problems/beautiful-arrangement-ii/)
-- [LeetCode 767 - Reorganize String](https://leetcode.com/problems/reorganize-string/)
-- [LeetCode 1054 - Distant Barcodes](https://leetcode.com/problems/distant-barcodes/)
-- [CSES - Permutations](https://cses.fi/problemset/task/1070)
+- [Permutations (CSES 1070)](https://cses.fi/problemset/task/1070)
+- [Beautiful Arrangement II (LeetCode 667)](https://leetcode.com/problems/beautiful-arrangement-ii/)
+- [Reorganize String (LeetCode 767)](https://leetcode.com/problems/reorganize-string/)
+- [Inverse Inversions (CSES 2214)](https://cses.fi/problemset/task/2214)
+- [Monotone Subsequences (CSES 2215)](https://cses.fi/problemset/task/2215)
+- [Distant Barcodes (LeetCode 1054)](https://leetcode.com/problems/distant-barcodes/)
 
 ## Related
 

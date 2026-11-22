@@ -88,8 +88,10 @@ The answer is 23, unique modulo 105. For a non-coprime system, `x = 1 (mod 4)` a
 
 ## Practice Problems
 
-- [CRT on cp-algorithms](https://cp-algorithms.com/algebra/chinese-remainder-theorem.html): theory and the Garner algorithm.
-- [Chinese remainder theorem (Wikipedia)](https://en.wikipedia.org/wiki/Chinese_remainder_theorem): statement, proof and applications.
+- [Chinese Remainder (Kattis chineseremainder)](https://open.kattis.com/problems/chineseremainder)
+- [Chinese Remainder Theorem (non-relatively prime moduli) (Kattis generalchineseremainder)](https://open.kattis.com/problems/generalchineseremainder)
+- [Remainders Game (Codeforces 687B)](https://codeforces.com/problemset/problem/687/B)
+- [Oversleeping (AtCoder ABC 193 E)](https://atcoder.jp/contests/abc193/tasks/abc193_e)
 - Exercise: solve `x = 3 (mod 4)`, `x = 4 (mod 5)`, `x = 5 (mod 7)` by hand, then check with `verify_crt_solution`.
 - Exercise: decide whether `x = 5 (mod 12)` and `x = 7 (mod 18)` is solvable (look at `gcd(12, 18) = 6`).
 

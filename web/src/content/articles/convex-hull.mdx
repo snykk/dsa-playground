@@ -241,10 +241,12 @@ In the comparison model, computing the hull needs <BigO of="n log n" /> time in 
 
 ## Practice problems
 
-<DataTable
-  columns={['Problem', 'Idea']}
-  rows={[
-    ['Erect the Fence (LeetCode 587)', 'the hull including boundary points; this code excludes them, so add the points that lie on hull edges'],
-    ['Convex Hull (CSES)', 'output the hull vertices in order'],
+<PracticeProblems
+  problems={[
+    { name: 'Convex Hull', site: 'Kattis convexhull', url: 'https://open.kattis.com/problems/convexhull', idea: 'Several cases with up to 10,000 points: print the hull counterclockwise without collinear points, and handle cases of one or two points.' },
+    { name: 'Convex Hull', site: 'CSES 2195', url: 'https://cses.fi/problemset/task/2195', idea: 'Every point on the boundary counts here, collinear ones included, and coordinates reach 10^9, so keep the cross products in 64-bit integers.' },
+    { name: 'Erect the Fence', site: 'LeetCode 587', url: 'https://leetcode.com/problems/erect-the-fence/', idea: 'The hull including boundary points; this code excludes them, so add the points that lie on hull edges.' },
+    { name: 'Board Wrapping', site: 'Kattis wrapping', url: 'https://open.kattis.com/problems/wrapping', idea: "Compute the corners of every rotated board, take the hull of all corners, and compare its area with the boards' total area." },
+    { name: 'Polygons', site: 'Codeforces 166B', url: 'https://codeforces.com/problemset/problem/166/B', idea: 'Is polygon B strictly inside convex polygon A? Build the hull of all the points, keeping collinear ones, and check that no vertex of B lands on it.' },
   ]}
 />

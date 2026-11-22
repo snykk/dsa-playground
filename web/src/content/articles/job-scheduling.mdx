@@ -219,11 +219,11 @@ The slot array has one entry per time unit up to the largest deadline, so memory
 
 ## Practice problems
 
-<DataTable
-  columns={['Problem', 'Idea']}
-  rows={[
-    ['LeetCode 630, Course Schedule III', 'sort by deadline, keep a max-heap of durations, drop the longest course when you run over a deadline'],
-    ['LeetCode 1353, Maximum Number of Events That Can Be Attended', 'each day, attend the open event that ends first (a min-heap of end days)'],
-    ['LeetCode 1235, Maximum Profit in Job Scheduling', 'the weighted interval version, solved with dynamic programming'],
+<PracticeProblems
+  problems={[
+    { name: 'Maximum Number of Events That Can Be Attended', site: 'LeetCode 1353', url: 'https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/', idea: 'Each day, attend the open event that ends first, kept in a min-heap of end days.' },
+    { name: 'Tasks and Deadlines', site: 'CSES 1630', url: 'https://cses.fi/problemset/task/1630', idea: "The reward is deadline minus finishing time, so the deadlines add up to a constant and only the order of durations matters: Smith's rule with equal weights." },
+    { name: 'Summer Vacation', site: 'AtCoder abc137_d', url: 'https://atcoder.jp/contests/abc137/tasks/abc137_d', idea: "Unit-time jobs with deadlines and rewards, the article's classic form: a job that pays after A days must be done by day M - A. At 10^5 jobs, find the latest free day with a union-find or sweep the days backwards with a heap." },
+    { name: 'Course Schedule III', site: 'LeetCode 630', url: 'https://leetcode.com/problems/course-schedule-iii/', idea: 'Sort by deadline and keep a max-heap of durations; when the total runs past a deadline, drop the longest course so far.' },
   ]}
 />

@@ -189,3 +189,15 @@ All three versions are chaining tables of bare elements with a 0.75 load factor 
     A Bloom filter uses far less memory for a very large set, at the price of occasional false positives and no way to list or delete elements.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Contains Duplicate', site: 'LeetCode 217', url: 'https://leetcode.com/problems/contains-duplicate/', idea: 'Duplicate detection: the first `add` that finds the element already there gives the answer.' },
+    { name: 'Intersection of Two Arrays', site: 'LeetCode 349', url: 'https://leetcode.com/problems/intersection-of-two-arrays/', idea: 'Build a set from one array, then look up each element of the other.' },
+    { name: 'Distinct Numbers', site: 'CSES 1621', url: 'https://cses.fi/problemset/task/1621', idea: 'Insert every value and print the size of the set: one pass instead of a sort.' },
+    { name: 'Design HashSet', site: 'LeetCode 705', url: 'https://leetcode.com/problems/design-hashset/', idea: 'Write the set itself without a built-in hash table: buckets, a hash function, `add`, `remove` and `contains`.' },
+    { name: 'Longest Consecutive Sequence', site: 'LeetCode 128', url: 'https://leetcode.com/problems/longest-consecutive-sequence/', idea: 'The O(n) bound rules out sorting, so every run has to be measured with O(1) membership tests.' },
+  ]}
+/>

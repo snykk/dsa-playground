@@ -105,9 +105,10 @@ On the "diamond" `0->1 1000, 0->2 1000, 1->3 1000, 2->3 1000, 1->2 1`, Edmonds-K
 
 ## Practice Problems
 
-- [CSES 1694. Download Speed](https://cses.fi/problemset/task/1694): maximum flow.
-- [CSES 1695. Police Chase](https://cses.fi/problemset/task/1695): minimum cut, print the edges.
-- [CSES 1696. School Dance](https://cses.fi/problemset/task/1696): bipartite matching as flow.
+- [Download Speed (CSES 1694)](https://cses.fi/problemset/task/1694)
+- [Police Chase (CSES 1695)](https://cses.fi/problemset/task/1695)
+- [School Dance (CSES 1696)](https://cses.fi/problemset/task/1696)
+- [Maximum Flow (Kattis maxflow)](https://open.kattis.com/problems/maxflow)
 
 ## Related
 

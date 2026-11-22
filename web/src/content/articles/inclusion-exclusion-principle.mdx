@@ -195,3 +195,15 @@ The 2<sup>k</sup> factor is the whole cost: k = 20 means about a million subsets
     The method still works because it uses the lcm of each subset. Only the coprime case lets the lcm equal the product.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Prime Multiples', site: 'CSES 2185', url: 'https://cses.fi/problemset/task/2185', idea: 'The textbook case: up to 20 primes, so add and subtract n / product over all 2^k subsets, skipping products that exceed n before they overflow.' },
+    { name: 'Nth Magical Number', site: 'LeetCode 878', url: 'https://leetcode.com/problems/nth-magical-number/', idea: 'Count the multiples of a or b up to x as x/a + x/b - x/lcm(a, b), then binary search the smallest x with a count of at least n.' },
+    { name: 'Ugly Number III', site: 'LeetCode 1201', url: 'https://leetcode.com/problems/ugly-number-iii/', idea: 'Three divisors give seven terms, with the pairwise and triple lcms, inside a binary search on x.' },
+    { name: 'Christmas Party', site: 'CSES 1717', url: 'https://cses.fi/problemset/task/1717', idea: 'Derangements: inclusion-exclusion over the children who get their own gift gives the sum of (-1)^k n!/k!, modulo 10^9 + 7.' },
+    { name: 'Counting Coprime Pairs', site: 'CSES 2417', url: 'https://cses.fi/problemset/task/2417', idea: 'Count the pairs that share each square-free divisor d, then combine them with a sign set by the number of prime factors of d.' },
+  ]}
+/>

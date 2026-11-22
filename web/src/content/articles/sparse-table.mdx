@@ -189,3 +189,14 @@ Linear-preprocessing range-minimum structures with O(1) queries exist, so a spar
     It is related to the segment tree and the Fenwick tree as a range-query structure, but it contains no tree. The folder is only a grouping.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Static Range Minimum Queries', site: 'CSES 1647', url: 'https://cses.fi/problemset/task/1647', idea: 'The structure of this article: build the levels once, then answer every query with two overlapping windows.' },
+    { name: 'Sliding Window Maximum', site: 'LeetCode 239', url: 'https://leetcode.com/problems/sliding-window-maximum/', idea: 'Every window has the same length k, so a max table answers each one in O(1). A monotonic deque is the usual O(n) answer.' },
+    { name: 'Integers Have Friends', site: 'Codeforces 1548B', url: 'https://codeforces.com/problemset/problem/1548/B', idea: 'Gcd is idempotent like min, so the same table works for it: build it over the differences of neighbours and slide two pointers.' },
+    { name: 'Find a Value of a Mysterious Function Closest to Target', site: 'LeetCode 1521', url: 'https://leetcode.com/problems/find-a-value-of-a-mysterious-function-closest-to-target/', idea: 'The function is a bitwise AND over a range, idempotent as well. For a fixed left end it only shrinks as the range grows, so binary search the right end.' },
+  ]}
+/>

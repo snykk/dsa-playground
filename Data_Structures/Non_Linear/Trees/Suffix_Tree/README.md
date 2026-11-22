@@ -101,11 +101,11 @@ A text such as `aaaa...a` makes the tree a chain of depth n. Searches and leaf c
 
 ## Practice Problems
 
-- LeetCode 28: Find the Index of the First Occurrence in a String
-- LeetCode 1044: Longest Duplicate Substring
-- CSES: String Matching
-- CSES: Distinct Substrings
-- CSES: Repeating Substring
+- [Find the Index of the First Occurrence in a String (LeetCode 28)](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+- [String Matching (CSES 1753)](https://cses.fi/problemset/task/1753)
+- [Distinct Substrings (CSES 2105)](https://cses.fi/problemset/task/2105)
+- [Repeating Substring (CSES 2106)](https://cses.fi/problemset/task/2106)
+- [Longest Duplicate Substring (LeetCode 1044)](https://leetcode.com/problems/longest-duplicate-substring/)
 
 ## Related
 

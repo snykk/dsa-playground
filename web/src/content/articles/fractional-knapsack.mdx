@@ -184,10 +184,11 @@ The fractional answer is always at least the 0/1 answer for the same items, beca
 
 ## Practice problems
 
-<DataTable
-  columns={['Problem', 'Idea']}
-  rows={[
-    ['LeetCode 1710, Maximum Units on a Truck', 'every box takes one unit of capacity, so sort box types by units per box and take the best first'],
-    ['LeetCode 455, Assign Cookies', 'a greedy matching on sorted arrays: the same sort-then-sweep pattern'],
+<PracticeProblems
+  problems={[
+    { name: 'Maximum Units on a Truck', site: 'LeetCode 1710', url: 'https://leetcode.com/problems/maximum-units-on-a-truck/', idea: 'Every box takes one unit of capacity, so sort the box types by units per box and take the best first.' },
+    { name: 'Cheese', site: 'AtCoder abc229_c', url: 'https://atcoder.jp/contests/abc229/tasks/abc229_c', idea: 'The fractional knapsack itself: cheese can be cut to the gram, so take the kinds in order of deliciousness per gram until W grams are used.' },
+    { name: 'Maximum Bags With Full Capacity of Rocks', site: 'LeetCode 2279', url: 'https://leetcode.com/problems/maximum-bags-with-full-capacity-of-rocks/', idea: 'Every full bag is worth the same, so the best value per rock comes from the bags missing the fewest rocks: fill those first.' },
+    { name: 'Knapsack 1', site: 'AtCoder dp_d', url: 'https://atcoder.jp/contests/dp/tasks/dp_d', idea: 'The 0/1 version for contrast: items cannot be cut, the ratio greedy gives wrong answers, and a DP over the capacity is needed.' },
   ]}
 />

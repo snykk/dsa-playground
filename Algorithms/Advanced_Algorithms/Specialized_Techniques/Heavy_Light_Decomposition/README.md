@@ -85,9 +85,10 @@ Use it for many online queries or updates on tree paths or subtrees, on a static
 
 ## Practice Problems
 
-- [CSES - Path Queries](https://cses.fi/problemset/task/1138)
-- [CSES - Path Queries II](https://cses.fi/problemset/task/2134)
-- [LeetCode 236 - Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
+- [Company Queries II (CSES 1688)](https://cses.fi/problemset/task/1688)
+- [Path Queries (CSES 1138)](https://cses.fi/problemset/task/1138)
+- [Path Queries II (CSES 2134)](https://cses.fi/problemset/task/2134)
+- [Water Tree (Codeforces 343D)](https://codeforces.com/problemset/problem/343/D)
 
 ## Related
 

@@ -219,3 +219,15 @@ Memory is the real limit: with 2<sup>20</sup> sums per half the lists hold about
     Store a count per sum for the right half (a dictionary from sum to number of subsets) and add the count of `target - a` for every left sum `a`.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: '4Sum II', site: 'LeetCode 454', url: 'https://leetcode.com/problems/4sum-ii/', idea: 'Split the four arrays into two pairs: count the sums of the first pair in a map and look up the negated sums of the second, O(n^2) instead of O(n^4).' },
+    { name: 'Meet in the Middle', site: 'CSES 1628', url: 'https://cses.fi/problemset/task/1628', idea: 'With n = 40 and large values, list the 2^20 subset sums of each half, sort one side and count the matching partners.' },
+    { name: 'Closest Subsequence Sum', site: 'LeetCode 1755', url: 'https://leetcode.com/problems/closest-subsequence-sum/', idea: 'Again n = 40: the sums of both halves, one side sorted, and a binary search or two pointers for the closest partner of each sum.' },
+    { name: 'Partition Array Into Two Arrays to Minimize Sum Difference', site: 'LeetCode 2035', url: 'https://leetcode.com/problems/partition-array-into-two-arrays-to-minimize-sum-difference/', idea: 'Group the half sums by how many elements they take, so that the two halves together pick exactly n elements.' },
+    { name: 'Maximum Subsequence', site: 'Codeforces 888E', url: 'https://codeforces.com/problemset/problem/888/E', idea: "The largest subset sum modulo m with n = 35: sort one half's sums modulo m and pair each left sum with its best partner by binary search, remembering that the total can wrap past m once." },
+  ]}
+/>

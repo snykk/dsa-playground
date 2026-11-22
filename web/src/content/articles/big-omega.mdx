@@ -174,3 +174,14 @@ Python has four examples: linear search, bubble sort, a three-way quick sort and
     `f = Omega(g)` exactly when `g = O(f)`. If `f` is both `O(g)` and `Omega(g)`, then `f = Theta(g)`.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Search in Rotated Sorted Array', site: 'LeetCode 33', url: 'https://leetcode.com/problems/search-in-rotated-sorted-array/', idea: 'With distinct values O(log n) is reachable, and it is also the floor: any comparison-based search needs Omega(log n) probes to tell n positions apart.' },
+    { name: 'Search in Rotated Sorted Array II', site: 'LeetCode 81', url: 'https://leetcode.com/problems/search-in-rotated-sorted-array-ii/', idea: 'With duplicates, the follow-up asks whether the complexity changes. An array of equal values with one different element forces Omega(n) probes in the worst case.' },
+    { name: 'Sort Colors', site: 'LeetCode 75', url: 'https://leetcode.com/problems/sort-colors/', idea: 'Only three values, so the Omega(n log n) bound for comparison sorts does not apply and one pass suffices; the Omega(n) for reading the input still does.' },
+    { name: 'Maximum Gap', site: 'LeetCode 164', url: 'https://leetcode.com/problems/maximum-gap/', idea: 'Linear time is asked for, below the comparison-sort bound. Integer keys allow it, because placing values in buckets is not a comparison.' },
+  ]}
+/>

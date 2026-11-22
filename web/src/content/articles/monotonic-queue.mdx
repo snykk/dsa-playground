@@ -178,3 +178,15 @@ Brute force recomputes each window in <BigO of="k" />, giving <BigO of="n * k" /
     Yes: run two deques over the same window, one decreasing and one increasing. That solves problems such as the longest subarray whose range is at most a limit.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Sliding Window Maximum', site: 'LeetCode 239', url: 'https://leetcode.com/problems/sliding-window-maximum/', idea: 'The template: a deque of indices with decreasing values, whose front leaves once it falls out of the window.' },
+    { name: 'Sliding Window Minimum', site: 'CSES 3221', url: 'https://cses.fi/problemset/task/3221', idea: 'Up to 10^7 values from a generator: the O(n) deque fits the time limit, where a heap or a multiset is at risk.' },
+    { name: 'Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit', site: 'LeetCode 1438', url: 'https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/', idea: 'A max deque and a min deque over a variable window; move the left end while their fronts differ by more than the limit.' },
+    { name: 'Shortest Subarray with Sum at Least K', site: 'LeetCode 862', url: 'https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/', idea: 'Negative numbers break the plain sliding window; keep a deque of prefix-sum indices with increasing sums instead.' },
+    { name: 'Watching Fireworks is Fun', site: 'Codeforces 372C', url: 'https://codeforces.com/problemset/problem/372/C', idea: 'A DP whose transition takes the maximum over a sliding range of positions: the deque makes each layer O(n).' },
+  ]}
+/>

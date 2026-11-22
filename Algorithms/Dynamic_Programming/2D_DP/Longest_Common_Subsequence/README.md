@@ -97,11 +97,10 @@ Do not use it when:
 
 ## Practice Problems
 
-- [LeetCode 1143. Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/) - the canonical problem
-- [LeetCode 1035. Uncrossed Lines](https://leetcode.com/problems/uncrossed-lines/) - the LCS in disguise
-- [LeetCode 583. Delete Operation for Two Strings](https://leetcode.com/problems/delete-operation-for-two-strings/) - `m + n - 2 * LCS`
-- [LeetCode 1092. Shortest Common Supersequence](https://leetcode.com/problems/shortest-common-supersequence/) - build the string from the table
-- [LeetCode 718. Maximum Length of Repeated Subarray](https://leetcode.com/problems/maximum-length-of-repeated-subarray/) - the substring variant
+- [Longest Common Subsequence (LeetCode 1143)](https://leetcode.com/problems/longest-common-subsequence/)
+- [Uncrossed Lines (LeetCode 1035)](https://leetcode.com/problems/uncrossed-lines/)
+- [LCS (AtCoder DP F)](https://atcoder.jp/contests/dp/tasks/dp_f)
+- [Shortest Common Supersequence (LeetCode 1092)](https://leetcode.com/problems/shortest-common-supersequence/)
 
 ## Related
 

@@ -109,10 +109,11 @@ The O(n log n) method can also recover the sequence (store each element's predec
 
 ## Practice Problems
 
-- [LeetCode 300. Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/) - the classic
-- [LeetCode 673. Number of Longest Increasing Subsequence](https://leetcode.com/problems/number-of-longest-increasing-subsequence/) - counting
-- [LeetCode 354. Russian Doll Envelopes](https://leetcode.com/problems/russian-doll-envelopes/) - sort, then LIS
-- [LeetCode 646. Maximum Length of Pair Chain](https://leetcode.com/problems/maximum-length-of-pair-chain/) - a chain problem
+- [Longest Increasing Subsequence (LeetCode 300)](https://leetcode.com/problems/longest-increasing-subsequence/)
+- [Increasing Subsequence (CSES 1145)](https://cses.fi/problemset/task/1145)
+- [Number of Longest Increasing Subsequence (LeetCode 673)](https://leetcode.com/problems/number-of-longest-increasing-subsequence/)
+- [Russian Doll Envelopes (LeetCode 354)](https://leetcode.com/problems/russian-doll-envelopes/)
+- [Find the Longest Valid Obstacle Course at Each Position (LeetCode 1964)](https://leetcode.com/problems/find-the-longest-valid-obstacle-course-at-each-position/)
 
 ## Related
 

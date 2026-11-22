@@ -102,10 +102,11 @@ Why O(1): with an even hash, a chain has `n / capacity` pairs on average, and re
 
 ## Practice Problems
 
-- [LeetCode 1 - Two Sum](https://leetcode.com/problems/two-sum/)
-- [LeetCode 706 - Design HashMap](https://leetcode.com/problems/design-hashmap/)
-- [LeetCode 49 - Group Anagrams](https://leetcode.com/problems/group-anagrams/)
-- [LeetCode 217 - Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
+- [Two Sum (LeetCode 1)](https://leetcode.com/problems/two-sum/)
+- [Design HashMap (LeetCode 706)](https://leetcode.com/problems/design-hashmap/)
+- [Group Anagrams (LeetCode 49)](https://leetcode.com/problems/group-anagrams/)
+- [Subarray Sum Equals K (LeetCode 560)](https://leetcode.com/problems/subarray-sum-equals-k/)
+- [Contains Duplicate (LeetCode 217)](https://leetcode.com/problems/contains-duplicate/)
 
 ## Related
 

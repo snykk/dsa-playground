@@ -121,10 +121,11 @@ All logarithmic bounds come from the height bound h <= 2 log<sub>2</sub>(n + 1).
 
 ## Practice Problems
 
-- [LeetCode 98: Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
-- [LeetCode 230: Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
-- [LeetCode 220: Contains Duplicate III](https://leetcode.com/problems/contains-duplicate-iii/) (ordered set)
-- [CSES: Sliding Window Median](https://cses.fi/problemset/task/1076) (ordered multiset)
+- [Validate Binary Search Tree (LeetCode 98)](https://leetcode.com/problems/validate-binary-search-tree/)
+- [Kth Smallest Element in a BST (LeetCode 230)](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
+- [My Calendar I (LeetCode 729)](https://leetcode.com/problems/my-calendar-i/) (insert-only ordered set)
+- [Contains Duplicate III (LeetCode 220)](https://leetcode.com/problems/contains-duplicate-iii/) (ordered set)
+- [Sliding Window Median (CSES 1076)](https://cses.fi/problemset/task/1076) (ordered multiset)
 
 ## Related
 

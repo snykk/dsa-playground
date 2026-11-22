@@ -227,3 +227,13 @@ The repository implements only the plain bounded version, which rejects an enque
     No. The implementations here assume a single thread. A ring buffer can be made lock-free only for exactly one producer and one consumer, and that needs careful memory ordering.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Number of Recent Calls', site: 'LeetCode 933', url: 'https://leetcode.com/problems/number-of-recent-calls/', idea: 'Ping times strictly increase, so the last 3000 ms hold at most 3001 calls: a fixed ring of that capacity never overflows.' },
+    { name: 'Design Circular Queue', site: 'LeetCode 622', url: 'https://leetcode.com/problems/design-circular-queue/', idea: 'The ring buffer of this article: `front` and `rear` wrap with `% capacity`, and full and empty need telling apart.' },
+    { name: 'Design Circular Deque', site: 'LeetCode 641', url: 'https://leetcode.com/problems/design-circular-deque/', idea: 'Both ends wrap: inserting at the front moves `front` back by one slot, modulo the capacity.' },
+  ]}
+/>

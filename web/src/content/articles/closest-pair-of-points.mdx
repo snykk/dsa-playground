@@ -220,9 +220,11 @@ The two initial sorts cost another <BigO of="n log n" />, which has the same ord
 
 ## Practice problems
 
-<DataTable
-  columns={['Problem', 'Idea']}
-  rows={[
-    ['Minimum Euclidean Distance (CSES)', 'the squared distance of the closest pair among n points'],
+<PracticeProblems
+  problems={[
+    { name: 'Closest Pair (Uniform)', site: 'Kattis closestpair1', url: 'https://open.kattis.com/problems/closestpair1', idea: 'Up to 10^5 random points per case: print any closest pair, and check the divide and conquer against a brute force on small cases.' },
+    { name: 'Minimum Euclidean Distance', site: 'CSES 2194', url: 'https://cses.fi/problemset/task/2194', idea: 'The squared distance of the closest pair among 2 * 10^5 points with coordinates up to 10^9: stay in 64-bit integers and never take a square root.' },
+    { name: 'Closest Pair', site: 'Kattis closestpair2', url: 'https://open.kattis.com/problems/closestpair2', idea: 'The same task without the promise of random points, so the input can be adversarial and only the O(n log n) strip argument keeps it fast.' },
+    { name: 'Tricky Function', site: 'Codeforces 429D', url: 'https://codeforces.com/problemset/problem/429/D', idea: 'Turn index i into the point (i, prefix sum up to i): the smallest value of the function is the squared distance of the closest pair.' },
   ]}
 />

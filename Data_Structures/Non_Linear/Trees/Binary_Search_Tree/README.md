@@ -91,12 +91,12 @@ The topic page has an interactive visualization of insert, search and delete.
 
 ## Practice Problems
 
-- LeetCode 98, Validate Binary Search Tree.
-- LeetCode 700, Search in a Binary Search Tree.
-- LeetCode 701, Insert into a Binary Search Tree.
-- LeetCode 450, Delete Node in a BST.
-- LeetCode 230, Kth Smallest Element in a BST.
-- LeetCode 235, Lowest Common Ancestor of a Binary Search Tree.
+- [Search in a Binary Search Tree (LeetCode 700)](https://leetcode.com/problems/search-in-a-binary-search-tree/)
+- [Insert into a Binary Search Tree (LeetCode 701)](https://leetcode.com/problems/insert-into-a-binary-search-tree/)
+- [Validate Binary Search Tree (LeetCode 98)](https://leetcode.com/problems/validate-binary-search-tree/)
+- [Delete Node in a BST (LeetCode 450)](https://leetcode.com/problems/delete-node-in-a-bst/)
+- [Kth Smallest Element in a BST (LeetCode 230)](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
+- [Lowest Common Ancestor of a Binary Search Tree (LeetCode 235)](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 ## Related
 

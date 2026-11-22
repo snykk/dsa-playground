@@ -87,9 +87,10 @@ Use A* for one source and one goal when you can supply a good admissible heurist
 
 ## Practice Problems
 
-- [Shortest Path in Binary Matrix](https://leetcode.com/problems/shortest-path-in-binary-matrix/) (LeetCode; BFS is enough, A* is a good exercise)
-- [Sliding Puzzle](https://leetcode.com/problems/sliding-puzzle/) (LeetCode)
-- [Network Delay Time](https://leetcode.com/problems/network-delay-time/) (LeetCode; the Dijkstra special case h = 0)
+- [Shortest Path in Binary Matrix (LeetCode 1091)](https://leetcode.com/problems/shortest-path-in-binary-matrix/)
+- [Open the Lock (LeetCode 752)](https://leetcode.com/problems/open-the-lock/)
+- [Sliding Puzzle (LeetCode 773)](https://leetcode.com/problems/sliding-puzzle/)
+- [Cut Off Trees for Golf Event (LeetCode 675)](https://leetcode.com/problems/cut-off-trees-for-golf-event/)
 
 ## Related
 

@@ -85,10 +85,12 @@ All three are tested against brute-force game-tree search.
 
 ## Practice Problems
 
-- [LeetCode 292 - Nim Game](https://leetcode.com/problems/nim-game/)
-- [LeetCode 877 - Stone Game](https://leetcode.com/problems/stone-game/)
-- [CSES - Nim Game I](https://cses.fi/problemset/task/1730)
-- [CSES - Stick Game](https://cses.fi/problemset/task/1729)
+- [Nim Game (LeetCode 292)](https://leetcode.com/problems/nim-game/)
+- [Stick Game (CSES 1729)](https://cses.fi/problemset/task/1729)
+- [Nim Game I (CSES 1730)](https://cses.fi/problemset/task/1730)
+- [Nim Game II (CSES 1098)](https://cses.fi/problemset/task/1098)
+- [Grundy's Game (CSES 2207)](https://cses.fi/problemset/task/2207)
+- [Stone Game (LeetCode 877)](https://leetcode.com/problems/stone-game/)
 
 ## Related
 

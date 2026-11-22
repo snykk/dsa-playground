@@ -91,8 +91,10 @@ Use the FFT for multiplying long polynomials or big numbers, convolutions, corre
 
 ## Practice Problems
 
-- [Multiply Strings (LeetCode 43)](https://leetcode.com/problems/multiply-strings/): solve it with the FFT.
-- [Fast Multiplication (SPOJ MUL)](https://www.spoj.com/problems/MUL/)
+- [Apples and Bananas (CSES 2111)](https://cses.fi/problemset/task/2111)
+- [Polynomial Multiplication 2 (Kattis polymul2)](https://open.kattis.com/problems/polymul2)
+- [One Bit Positions (CSES 2112)](https://cses.fi/problemset/task/2112)
+- [Convolution (AtCoder Library Practice F)](https://atcoder.jp/contests/practice2/tasks/practice2_f)
 - [Nikita and Order Statistics (Codeforces 993E)](https://codeforces.com/problemset/problem/993/E)
 - Write an iterative in-place FFT with bit-reversal and compare the speed.
 - Implement an NTT modulo 998244353 and compare with this version.

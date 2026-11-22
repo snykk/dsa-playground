@@ -85,8 +85,10 @@ Error: a composite survives one random witness with probability at most 1/4, so 
 
 ## Practice Problems
 
-- [Count Primes (LeetCode 204)](https://leetcode.com/problems/count-primes/): compare a sieve with per-number tests.
-- [Miller-Rabin primality test on cp-algorithms](https://cp-algorithms.com/algebra/primality_tests.html): theory and the deterministic base sets.
+- [Prime Palindrome (LeetCode 866)](https://leetcode.com/problems/prime-palindrome/)
+- [Pseudoprime numbers (Kattis pseudoprime)](https://open.kattis.com/problems/pseudoprime)
+- [Next Prime (CSES 3396)](https://cses.fi/problemset/task/3396)
+- [Prime or Not (SPOJ PON)](https://www.spoj.com/problems/PON/)
 - Exercise: find the smallest strong liar bases for 2047 and 3215031751.
 - Exercise: run `miller_rabin_deterministic(2**64 - 59)` and check it against a sieve-based method on smaller primes.
 

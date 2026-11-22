@@ -82,9 +82,10 @@ Use these whenever a statement says "modulo 10^9 + 7" or similar, or an exact co
 
 ## Practice Problems
 
-- [Exponentiation (CSES)](https://cses.fi/problemset/task/1095)
-- [Binomial Coefficients (CSES)](https://cses.fi/problemset/task/1079)
-- [Creating Strings II (CSES)](https://cses.fi/problemset/task/1715)
+- [Exponentiation (CSES 1095)](https://cses.fi/problemset/task/1095)
+- [Exponentiation II (CSES 1712)](https://cses.fi/problemset/task/1712)
+- [Binomial Coefficients (CSES 1079)](https://cses.fi/problemset/task/1079)
+- [Creating Strings II (CSES 1715)](https://cses.fi/problemset/task/1715)
 - [Pow(x, n) (LeetCode 50)](https://leetcode.com/problems/powx-n/)
 - Compute `C(10^18, 5)` modulo 10^9 + 7 without factorial tables up to 10^18.
 

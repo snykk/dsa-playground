@@ -222,3 +222,13 @@ Python shares one base class between linear and quadratic probing and differs on
     Yes, in the worst case every scheme is O(n). Cuckoo hashing gives O(1) worst-case lookups, and chaining with balanced trees in each bucket bounds the chain cost at O(log n).
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Design HashSet', site: 'LeetCode 705', url: 'https://leetcode.com/problems/design-hashset/', idea: 'Build the set with separate chaining: an array of buckets, each a short list of the keys that hash to it.' },
+    { name: 'Design HashMap', site: 'LeetCode 706', url: 'https://leetcode.com/problems/design-hashmap/', idea: 'Build the map with linear probing instead. `remove` must leave a tombstone, or a later `get` stops early at the hole.' },
+    { name: 'Hash it!', site: 'SPOJ HASHIT', url: 'https://www.spoj.com/problems/HASHIT/', idea: 'Open addressing with the table size, hash and probe sequence that the statement fixes, deletes included: every probe has to land exactly where the rules say.' },
+  ]}
+/>

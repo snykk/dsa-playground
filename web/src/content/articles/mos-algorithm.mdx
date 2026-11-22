@@ -222,3 +222,15 @@ The frequency map is a hash map in every language. Queries are 0-indexed and inc
     Yes. Queries are processed in sorted order but the answers are returned in the input order.
   </FaqItem>
 </Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'D-query', site: 'SPOJ DQUERY', url: 'https://www.spoj.com/problems/DQUERY/', idea: "The classic for Mo's algorithm: the number of distinct values in 2 * 10^5 ranges of an array of 30,000 elements." },
+    { name: 'Distinct Values Queries', site: 'CSES 1734', url: 'https://cses.fi/problemset/task/1734', idea: 'The same question on 2 * 10^5 elements with values up to 10^9: compress the values, then keep a count per value as the window moves.' },
+    { name: 'Little Elephant and Array', site: 'Codeforces 220B', url: 'https://codeforces.com/problemset/problem/220/B', idea: 'Count the values x that occur exactly x times in a range: adding or removing one element changes the answer by at most one.' },
+    { name: 'Powerful array', site: 'Codeforces 86D', url: 'https://codeforces.com/problemset/problem/86/D', idea: 'The power is the sum of K_s^2 * s, which each add or remove updates in O(1); the answers need 64-bit integers.' },
+    { name: 'XOR and Favorite Number', site: 'Codeforces 617E', url: 'https://codeforces.com/problemset/problem/617/E', idea: 'Turn subarrays into pairs of prefix XORs, then count the pairs with XOR k inside the window as it moves.' },
+  ]}
+/>
