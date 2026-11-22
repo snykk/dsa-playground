@@ -1,11 +1,16 @@
 /* AlgorithmTabs molecule: switch between algorithms sharing one player. */
 /* ---------- tabs + input ---------- */
 
+.viz-tabs-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
 .viz-tabs {
+  /* The positioning parent of the tabs, so their offsetLeft is measured inside the row. */
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  margin-bottom: 14px;
   padding: 4px;
   border-radius: 10px;
   background: var(--surface-2);
@@ -25,4 +30,81 @@
   color: var(--text);
   font-weight: 600;
   box-shadow: var(--shadow);
+}
+.viz-tabs button:focus-visible {
+  outline-offset: -2px;
+}
+
+/* On a phone, many tabs would wrap into a tall block above the stage: keep one row that
+ * scrolls sideways instead. An arrow over a faded end says that more tabs wait there. */
+@media (max-width: 640px) {
+  .viz-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .viz-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .viz-tabs button {
+    flex: none;
+    white-space: nowrap;
+  }
+}
+
+.viz-tabs-more {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+}
+.viz-tabs-more.before {
+  left: 0;
+  justify-content: flex-start;
+  border-radius: 10px 0 0 10px;
+  background: linear-gradient(to right, var(--surface-2) 45%, transparent);
+}
+.viz-tabs-more.after {
+  right: 0;
+  justify-content: flex-end;
+  border-radius: 0 10px 10px 0;
+  background: linear-gradient(to left, var(--surface-2) 45%, transparent);
+}
+.viz-tabs-more svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* On paper only the open algorithm's name is left, as the figure's title. */
+@media print {
+  .viz-tabs-wrap {
+    break-after: avoid;
+  }
+  .viz-tabs {
+    display: block;
+    padding: 0;
+    background: none;
+  }
+  .viz-tabs button:not(.selected),
+  .viz-tabs-more {
+    display: none;
+  }
+  .viz-tabs button.selected {
+    padding: 0;
+    box-shadow: none;
+    font-size: 15px;
+    font-weight: 700;
+  }
 }
