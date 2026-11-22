@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to the **Data Structures & Algorithms (DSA) Playground** repository. This document explains how to propose a change and what a good change looks like.
 
+Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md). Report a security problem privately, as [SECURITY.md](SECURITY.md) describes, never in a public issue.
+
 ## How to Contribute
 
 Contributions of all kinds are welcome:
@@ -87,7 +89,8 @@ dsa-playground/
   web/                   the Astro site (articles, visualizations, tests)
   scripts/               test runners and check_readme_style.py
   Makefile               make test and the other targets
-  README.md  STUDY_GUIDE.md  CONTRIBUTING.md  RELEASING.md  CHANGELOG.md  LICENSE
+  README.md  STUDY_GUIDE.md  CONTRIBUTING.md  RELEASING.md  CHANGELOG.md
+  CODE_OF_CONDUCT.md  SECURITY.md  LICENSE
 ```
 
 Every topic folder has the same layout, for example `Algorithms/Sorting/Quick_Sort/`:

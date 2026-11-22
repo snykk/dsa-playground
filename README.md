@@ -68,6 +68,8 @@ The site lives in [web/](web/). It is an Astro site that turns this repository i
 - [CONTRIBUTING.md](CONTRIBUTING.md): the README templates, coding standards and test requirements.
 - [RELEASING.md](RELEASING.md): how changes reach `master` through a release branch and a reviewed pull request.
 - [CHANGELOG.md](CHANGELOG.md): what each release contains.
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): how everyone taking part is expected to behave (the Contributor Covenant 2.1).
+- [SECURITY.md](SECURITY.md): how to report a vulnerability privately, and what counts as one.
 
 ## License
 
