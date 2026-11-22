@@ -1,5 +1,10 @@
 ---
-/** Recursive folder tree; styled by Sidebar. Categories on the current path start open. */
+/**
+ * Recursive folder tree; styled by Sidebar. Categories on the current path start open.
+ * A category row is a disclosure toggle (a <details> holding only its <summary>, the chevron)
+ * beside the link to the category page; CSS shows the nested list while the toggle is open.
+ * The link sits outside the summary because a summary's content is not exposed as a link.
+ */
 import { joinBase, type DocNode } from '../../lib/repo';
 
 interface Props {
@@ -19,16 +24,19 @@ const isOnPath = (n: DocNode) =>
     nodes.map((n) => {
       const current = currentSlug === n.slug ? 'page' : undefined;
       return (
-        <li data-nav-text={n.title.toLowerCase()}>
+        <li class={n.children.length > 0 ? 'branch' : undefined} data-nav-text={n.title.toLowerCase()}>
           {n.children.length > 0 ? (
-            <details open={isOnPath(n)} data-initial-open={String(isOnPath(n))}>
-              <summary>
-                <a href={joinBase(base, n.slug)} aria-current={current}>
-                  {n.title}
-                </a>
-              </summary>
+            <>
+              <details open={isOnPath(n)} data-initial-open={String(isOnPath(n))}>
+                <summary>
+                  <span class="visually-hidden">{n.title} topics</span>
+                </summary>
+              </details>
+              <a href={joinBase(base, n.slug)} aria-current={current}>
+                {n.title}
+              </a>
               <Astro.self nodes={n.children} currentSlug={currentSlug} />
-            </details>
+            </>
           ) : (
             <a class="leaf" href={joinBase(base, n.slug)} aria-current={current}>
               {n.title}

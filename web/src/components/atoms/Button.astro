@@ -12,7 +12,9 @@ const { href, variant = 'secondary', size = 'md', external = false } = Astro.pro
 const linkProps = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
-<a class:list={['button', size, { primary: variant === 'primary' }]} href={href} {...linkProps}><slot /></a>
+<a class:list={['button', size, { primary: variant === 'primary' }]} href={href} {...linkProps}
+  ><slot />{external && <span class="visually-hidden"> (opens in a new tab)</span>}</a
+>
 
 <style>
   .button {

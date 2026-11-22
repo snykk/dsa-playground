@@ -7,7 +7,7 @@
  */
 import { createMarkdownProcessor, type MarkdownHeading, type MarkdownProcessor } from '@astrojs/markdown-remark';
 import type { Element, ElementContent, Root } from 'hast';
-import { CONTINUE, visit } from 'unist-util-visit';
+import { CONTINUE, SKIP, visit } from 'unist-util-visit';
 import { codeContrast } from './codeColors';
 import { getContent, resolveLink } from './repo';
 
@@ -56,6 +56,7 @@ function rehypeRepoLinks() {
         if (node.tagName === 'a') {
           node.properties.target = '_blank';
           node.properties.rel = ['noopener', 'noreferrer'];
+          node.children.push(NEW_TAB_NOTE());
         }
       } else if (link.kind === 'broken') {
         if (!brokenLinks.has(from)) brokenLinks.set(from, new Set());
@@ -75,6 +76,45 @@ function rehypeRepoLinks() {
   };
 }
 
+/** Said after the text of a link that opens in a new tab; seen by screen readers only. */
+const NEW_TAB_NOTE = (): Element => ({
+  type: 'element',
+  tagName: 'span',
+  properties: { className: ['visually-hidden'] },
+  children: [{ type: 'text', value: ' (opens in a new tab)' }],
+});
+
+const BLOCK = new Set(['ul', 'ol', 'p', 'div', 'pre', 'blockquote', 'table']);
+
+/**
+ * GFM task lists render a bare disabled checkbox before the item's text. Wrap the checkbox and
+ * the inline content after it (up to a nested list or block) in a <label>, so the box is named
+ * by its item.
+ */
+function rehypeTaskLabels() {
+  return (tree: Root) => {
+    visit(tree, 'element', (node: Element, index, parent) => {
+      if (node.tagName !== 'input' || node.properties?.type !== 'checkbox' || !parent || typeof index !== 'number') return;
+      if (parent.type !== 'element' || (parent.tagName !== 'li' && parent.tagName !== 'p')) return;
+      let end = index + 1;
+      while (end < parent.children.length) {
+        const next = parent.children[end];
+        if (next.type === 'element' && BLOCK.has(next.tagName)) break;
+        end++;
+      }
+      // The line break before a nested list stays outside the label.
+      while (end > index + 1) {
+        const last = parent.children[end - 1];
+        if (last.type !== 'text' || last.value.trim() !== '') break;
+        end--;
+      }
+      const label: Element = { type: 'element', tagName: 'label', properties: {}, children: parent.children.slice(index, end) };
+      parent.children.splice(index, end - index, label);
+      return SKIP;
+    });
+  };
+}
+
 let processor: Promise<MarkdownProcessor> | undefined;
 
 function getProcessor(): Promise<MarkdownProcessor> {
@@ -88,7 +128,7 @@ function getProcessor(): Promise<MarkdownProcessor> {
       wrap: false,
       transformers: [codeContrast],
     },
-    rehypePlugins: [rehypeRepoLinks],
+    rehypePlugins: [rehypeRepoLinks, rehypeTaskLabels],
   });
   return processor;
 }

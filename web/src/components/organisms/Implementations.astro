@@ -78,7 +78,7 @@ const lineCount = (code: string) => code.replace(/\n$/, '').split('\n').length;
           ))}
           <p>
             <a href={githubUrl(lang.rel, true)} target="_blank" rel="noopener noreferrer">
-              Open the {lang.label} folder on GitHub &#x2197;
+              Open the {lang.label} folder on GitHub &#x2197;<span class="visually-hidden"> (opens in a new tab)</span>
             </a>
           </p>
         </div>

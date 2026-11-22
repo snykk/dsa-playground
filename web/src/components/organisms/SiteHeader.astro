@@ -26,7 +26,7 @@ const links = [
   </span>
   <a class="brand" href={joinBase(base, '')}>
     <img src={`${joinBase(base, '')}favicon.svg`} alt="" width="26" height="26" />
-    DSA Playground
+    <span class="brand-name">DSA Playground</span>
   </a>
   <nav class="header-nav" aria-label="Primary">
     {
@@ -168,6 +168,18 @@ const links = [
     .search-label,
     .search-key {
       display: none;
+    }
+  }
+  /* In a window narrower than 360px (a small phone, or zoomed in) the bar holds the logo
+     alone, so it fits without scrolling sideways; the name stays for screen readers. */
+  @media (max-width: 359px) {
+    .brand-name {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
   }
 </style>

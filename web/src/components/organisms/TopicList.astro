@@ -231,11 +231,12 @@ const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${marke
     color: var(--text);
     text-decoration: none;
   }
-  /* The done checkbox, shown by the script; the whole cell is its label. */
+  /* The done checkbox, shown by the script; the whole cell is its label. The 4px before the
+     link keeps a 24px circle around the 18px box clear of it (target spacing, WCAG 2.5.8). */
   .done {
     display: flex;
     align-items: center;
-    padding: 0 2px 0 16px;
+    padding: 0 4px 0 14px;
     cursor: pointer;
   }
   .done[hidden] {

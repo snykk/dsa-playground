@@ -42,7 +42,7 @@ const quickLinks = [
     const q = search.value.trim().toLowerCase();
     for (const li of items) {
       const self = (li.dataset.navText ?? '').includes(q);
-      const child = li.querySelector(':scope > details > ul > li:not([hidden])') !== null;
+      const child = li.querySelector(':scope > ul > li:not([hidden])') !== null;
       li.hidden = q !== '' && !self && !child;
       const details = li.querySelector<HTMLDetailsElement>(':scope > details');
       if (details) details.open = q === '' ? details.dataset.initialOpen === 'true' : child;
@@ -85,12 +85,42 @@ const quickLinks = [
     padding-left: 8px;
     border-left: 1px solid var(--border);
   }
+  /* A category row: the chevron toggle, then the link; the nested list below shows while the
+     toggle is open. The toggle is 24px wide (a target size of at least 24 by 24), reaching 8px
+     to the left of its column so the chevron and the link keep their places. */
+  .sidebar :global(.tree .branch) {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    align-items: start;
+  }
+  /* The filter hides rows with the hidden attribute, which the display above would override. */
+  .sidebar :global(.tree li[hidden]) {
+    display: none;
+  }
+  .sidebar :global(.tree .branch > details) {
+    grid-area: 1 / 1;
+    margin-left: -8px;
+  }
+  .sidebar :global(.tree .branch > a) {
+    grid-area: 1 / 2;
+  }
+  .sidebar :global(.tree .branch > ul) {
+    grid-column: 1 / -1;
+  }
+  .sidebar :global(.tree .branch > details:not([open]) ~ ul) {
+    display: none;
+  }
   .sidebar :global(.tree summary) {
     list-style: none;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 2px;
+    justify-content: flex-end;
+    position: relative;
+    width: 24px;
+    height: calc(1.4em + 6px);
+    padding-right: 2px;
+    border-radius: 6px;
   }
   .sidebar :global(.tree summary::-webkit-details-marker) {
     display: none;

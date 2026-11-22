@@ -29,6 +29,18 @@ describe('renderMarkdown', () => {
     expect(html).toMatch(/rel="noopener noreferrer"/);
   });
 
+  it('says that an external link opens in a new tab', async () => {
+    const { html } = await renderMarkdown('[x](https://example.com)', RS);
+    expect(html).toContain('x<span class="visually-hidden"> (opens in a new tab)</span></a>');
+  });
+
+  it('names each task list checkbox by its item', async () => {
+    const { html } = await renderMarkdown('- [ ] tests pass\n- [x] `make` runs\n  - [ ] nested\n', RS);
+    expect(html).toContain('<label><input type="checkbox" disabled> tests pass</label>');
+    expect(html).toContain('<label><input type="checkbox" checked disabled> <code>make</code> runs</label>');
+    expect(html).toContain('<label><input type="checkbox" disabled> nested</label>');
+  });
+
   it('keeps the token colours of code blocks readable', async () => {
     const { html } = await renderMarkdown('```go\nvar value int\n```\n', RS);
     expect(html).not.toMatch(/#E36209/i);

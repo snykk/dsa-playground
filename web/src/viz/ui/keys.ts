@@ -63,13 +63,22 @@ export function commandForKey(e: KeyLike): PlayerCommand | undefined {
   return PLAYER_KEYS.find((k) => k.key === e.key)?.command;
 }
 
+/** Keys that scroll a focused box sideways. */
+const SCROLL_KEYS: ReadonlySet<string> = new Set(['ArrowLeft', 'ArrowRight', 'Home', 'End']);
+
 /**
  * Whether the focused element keeps its own keys: fields and menus keep every key (typing,
- * the scrubber's arrows, a menu's type-ahead), and buttons keep Space and Enter, which press them.
+ * the scrubber's arrows, a menu's type-ahead), buttons keep Space and Enter, which press them,
+ * and a box given a tab stop to scroll (pseudocode with cut-off lines, see ./scrollStop) keeps
+ * the keys that scroll it.
  */
-export function elementKeepsKey(target: { tagName?: string } | null | undefined, key: string): boolean {
+export function elementKeepsKey(
+  target: { tagName?: string; hasAttribute?: (name: string) => boolean } | null | undefined,
+  key: string,
+): boolean {
   const tag = target?.tagName ?? '';
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return true;
+  if (SCROLL_KEYS.has(key) && target?.hasAttribute?.('data-scroll-stop')) return true;
   return tag === 'BUTTON' && (key === ' ' || key === 'Enter');
 }
 

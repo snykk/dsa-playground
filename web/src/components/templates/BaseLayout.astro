@@ -98,5 +98,26 @@ const ogAlt = title === 'DSA Playground' ? title : `${title}${area ? ` (${area})
       {showToc && <TableOfContents headings={tocItems} />}
     </div>
     <SearchDialog />
+    <script>
+      import { syncScrollStop } from '../../viz/ui/scrollStop';
+
+      // Wide tables and diagrams scroll sideways inside their own box; while one hides content,
+      // it takes a tab stop so a keyboard can scroll it (see scrollStop).
+      const SCROLL_BOXES = '.data-table > .scroll, .table-wrap, .dg-stage, .cells-scroll';
+      const boxes = document.querySelectorAll<HTMLElement>(SCROLL_BOXES);
+      if (boxes.length > 0 && typeof ResizeObserver === 'function') {
+        const observer = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            const box = entry.target.closest<HTMLElement>(SCROLL_BOXES);
+            if (box) syncScrollStop(box);
+          }
+        });
+        // The box and its content: either can change width (a resize, a late font).
+        for (const box of boxes) {
+          observer.observe(box);
+          if (box.firstElementChild) observer.observe(box.firstElementChild);
+        }
+      }
+    </script>
   </body>
 </html>
