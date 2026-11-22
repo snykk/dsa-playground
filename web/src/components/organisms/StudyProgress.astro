@@ -1,0 +1,90 @@
+---
+/**
+ * The reader's progress through a page's topic lists, at the top of the study guide:
+ * "12 of 153 topics done", a thin bar and a way to clear the ticks. Hidden until TopicList's
+ * script fills it in, so a reader without JavaScript never sees an empty count. The ticks stay
+ * in the browser (src/lib/progress.ts); nothing is sent anywhere.
+ */
+---
+
+<section class="study-progress" aria-label="Your progress" data-progress-summary hidden>
+  <div class="line">
+    <p class="total" tabindex="-1" data-progress-total></p>
+    <button type="button" class="clear" data-progress-clear hidden>Clear ticks</button>
+  </div>
+  <div class="bar" aria-hidden="true"><span data-progress-bar></span></div>
+  <p class="note" data-progress-note>Tick a topic in the lists below once you can write it yourself. The ticks are kept in this browser only.</p>
+  <p class="visually-hidden" role="status" data-progress-status></p>
+</section>
+
+<style>
+  .study-progress {
+    margin: 24px 0 8px;
+    max-width: 760px;
+  }
+  .study-progress[hidden] {
+    display: none;
+  }
+  .line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 16px;
+  }
+  .total {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .total:focus {
+    outline: none;
+  }
+  .clear {
+    font: inherit;
+    font-size: 14px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .clear:hover {
+    background: var(--surface-2);
+  }
+  .clear[hidden] {
+    display: none;
+  }
+  .bar {
+    height: 6px;
+    margin: 10px 0 8px;
+    border-radius: 3px;
+    background: var(--surface-3);
+    overflow: hidden;
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .note {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-3);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bar span {
+      transition: none;
+    }
+  }
+  @media print {
+    .clear,
+    .note {
+      display: none;
+    }
+  }
+</style>

@@ -27,7 +27,11 @@ Or from the repository root: `make web-dev`.
 | `npm run check` | Type-check `.astro`, `.ts` and `.tsx` files |
 | `make test-web` (repo root) | Tests, type check and build in one go |
 
-Handy URL parameters on any page with a visualization: `?step=40` opens the run at step 40 (useful for linking to a specific moment), and `?theme=dark` / `?theme=light` previews a theme without changing the saved preference.
+Handy URL parameters on any page with a visualization: `?step=40` opens the run at step 40, `?viz=sliding-window` opens that tab on a page with several visualizations, `?input=5+1+4` runs that input instead of the first example, and `?theme=dark` / `?theme=light` previews a theme without changing the saved preference. The player's link button copies such a link for the current moment (`?viz=sliding-window&step=7#visualize`, with `input` only when it differs from the example); [`src/viz/ui/share.ts`](src/viz/ui/share.ts) builds and reads it.
+
+In a player, Space plays or pauses, the arrow keys step and Home / End jump; `?` (or the keyboard button in the controls) lists every shortcut. The list and the key handlers share one table in [`src/viz/ui/keys.ts`](src/viz/ui/keys.ts).
+
+Printing a page gives the article alone, in the light theme: no header, sidebar, contents list or controls; the visualization prints its current frame with its legend and caption, the code tabs the selected language, FAQ answers open, and links that leave the site show their address. Each component keeps its own `@media print` rules.
 
 ---
 
@@ -63,7 +67,7 @@ A category can have an overview in [`src/content/categories/`](src/content/categ
 `/overview/` and `/study-guide/` are hand-written pages in [`src/content/pages/`](src/content/pages/) (MDX) that replace the rendering of `README.md` and `STUDY_GUIDE.md`, with the same look as a category overview. `/contributing/` still renders `CONTRIBUTING.md`.
 
 - **Frontmatter** (schema in [`src/lib/page.ts`](src/lib/page.ts)): `page` (the document's page slug, also the file name: `overview.mdx`), `title`, `lead`, `updated`, `facts` (0-6), `contents` (the overview's list of top-level areas: every top-level folder once, in reading order) and `related`.
-- **`TopicList`** lists topics in reading order, each with its area, level and whether it is visualized: `<TopicList title="Hashing" note="..." topics={['Data_Structures/Hashing/Hash_Table', ...]} />`. Every entry must be a topic folder.
+- **`TopicList`** lists topics in reading order, each with its area, level and whether it is visualized: `<TopicList title="Hashing" note="..." topics={['Data_Structures/Hashing/Hash_Table', ...]} />`. Every entry must be a topic folder. With JavaScript each topic gets a "done" checkbox and each list a count; `StudyProgress` shows the total at the top of the study guide. The ticks stay in the reader's browser ([`src/lib/progress.ts`](src/lib/progress.ts): localStorage key `dsa-study-progress`, `{"version":1,"done":[<topic folders>]}`); without storage they last for the visit, and without JavaScript the lists are plain lists.
 - **Checks**: `src/content/articles.test.ts` covers these pages too, and fails when the study guide misses a topic or lists one twice.
 - `README.md` and `STUDY_GUIDE.md` are what GitHub shows: keep them in step with the pages.
 
@@ -80,7 +84,7 @@ src/
                        ArrayDiagram, ProsCons, Faq/FaqItem, FactTile
     organisms/         SiteHeader, Sidebar + NavTree, SiteFooter, Hero, VizIndex, AreaList, ChildTopics,
                        Implementations, VizSection, ArticleHeader, KeyFacts, ArticleViz, TopicCode,
-                       RelatedTopics, CategoryContents, TopicList
+                       RelatedTopics, CategoryContents, TopicList, StudyProgress
     templates/         BaseLayout (page shell), DocPage (README page), ArticlePage (hand-written article),
                        CategoryPage (hand-written category overview), RootPage (hand-written overview or study guide)
     mdx.ts             the components an article can use without importing them
@@ -89,14 +93,17 @@ src/
   content/pages/       hand-written root pages: the overview and the study guide (MDX)
   pages/               routes only: load data, pick a template
   styles/              global CSS only: tokens, base elements, page grid, README prose, article prose
-  lib/                 build-time logic: repository scan, slugs, Markdown rendering, article, category and page schemas, inline text
+  lib/                 build-time logic: repository scan, slugs, Markdown rendering, article, category and page schemas, inline text;
+                       progress.ts (the study guide's ticks, in the browser)
   viz/
     ui/                React design system for visualizations
       atoms/           Cell, Token, Swatch, IconButton, NodeGlyph
-      molecules/       CellRow, Strip, Legend, AlgorithmTabs, InputPanel, TransportControls, Panels
+      molecules/       CellRow, Strip, Legend, AlgorithmTabs, InputPanel, TransportControls, Panels, ShortcutsDialog
       organisms/       Player
       hooks/           usePlayback, useTween, useReducedMotion
       roles.css        role -> color mapping;  symbols.ts  UI symbols as code points
+      keys.ts          the keyboard shortcuts (handlers and the shortcut list read it)
+      share.ts         step links and copying them;  scroll.ts  the tab row's scroll geometry
     renderers/         organisms that draw one frame (ArrayBars, ChainView, GraphView, TreeView, Grid, ByteRows...)
     algorithms/        tracers: pure TypeScript, unit-tested
     specs/             glue per visualization: parser + tracer + renderer + pseudocode

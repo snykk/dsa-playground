@@ -152,4 +152,10 @@ const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'shor
     gap: 8px;
     margin-top: 18px;
   }
+  /* On paper the quick actions (jump to the player, the code, GitHub) lead nowhere. */
+  @media print {
+    .actions {
+      display: none;
+    }
+  }
 </style>

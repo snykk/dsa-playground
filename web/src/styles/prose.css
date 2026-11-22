@@ -108,16 +108,19 @@
   cursor: help;
 }
 
-/* Shiki dual themes: light colors inline, dark colors via CSS variables. */
-:root[data-theme='dark'] .astro-code,
-:root[data-theme='dark'] .astro-code span {
-  color: var(--shiki-dark) !important;
-  background-color: var(--shiki-dark-bg) !important;
-  font-style: var(--shiki-dark-font-style) !important;
-  font-weight: var(--shiki-dark-font-weight) !important;
-  text-decoration: var(--shiki-dark-text-decoration) !important;
+/* Shiki dual themes: light colors inline, dark colors via CSS variables (on screen only:
+ * code prints in the light theme). */
+@media screen {
+  :root[data-theme='dark'] .astro-code,
+  :root[data-theme='dark'] .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+    text-decoration: var(--shiki-dark-text-decoration) !important;
+  }
 }
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .astro-code,
   :root:not([data-theme='light']) .astro-code span {
     color: var(--shiki-dark) !important;
@@ -125,5 +128,30 @@
     font-style: var(--shiki-dark-font-style) !important;
     font-weight: var(--shiki-dark-font-weight) !important;
     text-decoration: var(--shiki-dark-text-decoration) !important;
+  }
+}
+
+/* Print: README pages keep their tables and code whole and say where outside links go. */
+@media print {
+  .prose :is(h2, h3, h4) {
+    break-after: avoid;
+  }
+  .prose :is(table, tr, img) {
+    break-inside: avoid;
+  }
+  .table-wrap {
+    overflow: visible;
+  }
+  .prose pre,
+  .code-block pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow: visible !important; /* Shiki sets overflow-x inline */
+  }
+  .prose a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    color: var(--text-2);
+    overflow-wrap: anywhere;
   }
 }

@@ -65,4 +65,17 @@ const { question, open = false } = Astro.props;
       transition: none;
     }
   }
+  /* On paper every answer is shown: a closed question could never be opened there. */
+  @media print {
+    .faq-item::details-content {
+      content-visibility: visible;
+      display: block;
+    }
+    .faq-item {
+      break-inside: avoid;
+    }
+    .chevron {
+      display: none;
+    }
+  }
 </style>

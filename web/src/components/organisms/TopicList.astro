@@ -12,6 +12,10 @@ import LevelMeter from '../atoms/LevelMeter.astro';
  * Each row links to the topic and shows its area, its level and, while some topics have none,
  * whether it has a visualization.
  * Every entry must be a topic folder; the build fails otherwise.
+ *
+ * With JavaScript each row also gets a "done" checkbox and the header a count ("2 of 7 done");
+ * the ticks live in this browser's storage (src/lib/progress.ts) and StudyProgress shows the
+ * total. Without JavaScript the checkboxes stay hidden and the list is a plain list.
  */
 interface Props {
   topics: string[];
@@ -33,6 +37,7 @@ const rows = topics.map((rel) => {
   const article = articles.get(rel);
   const parent = node.parent && node.parent.kind !== 'root' ? node.parent : undefined;
   return {
+    rel,
     href: joinBase(base, node.slug),
     title: article?.title ?? node.title,
     // The folder's own name ("Linked List", "Sorting"), shorter and more uniform than its page title.
@@ -45,13 +50,15 @@ const visualized = rows.filter((r) => r.visualized).length;
 const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${markers && visualized > 0 ? `, ${visualized} visualized` : ''}`;
 ---
 
-<section class="topic-list">
+<section class="topic-list" data-topic-list>
   {
     (title || note) && (
       <header>
         <div class="head">
           {title && <h3>{title}</h3>}
-          <span class="count">{count}</span>
+          <span class="count" data-progress-count>
+            {count}
+          </span>
         </div>
         {note && <p class="note" set:html={formatInline(note)} />}
       </header>
@@ -60,7 +67,11 @@ const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${marke
   <ol>
     {
       rows.map((r, i) => (
-        <li>
+        <li data-topic={r.rel}>
+          <label class="done" hidden>
+            <input type="checkbox" value={r.rel} data-progress-box />
+            <span class="visually-hidden">Mark {r.title} as done</span>
+          </label>
           <a href={r.href}>
             <span class="num" aria-hidden="true">
               {i + 1}
@@ -86,6 +97,75 @@ const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${marke
     }
   </ol>
 </section>
+
+<script>
+  import { countDone, openProgress, PROGRESS_KEY, progressText } from '../../lib/progress';
+
+  // One script for every list on the page (Astro bundles it once). Ticks are saved as they
+  // change and follow other tabs through the storage event.
+  const lists = Array.from(document.querySelectorAll<HTMLElement>('[data-topic-list]'));
+  if (lists.length > 0) {
+    const store = openProgress(() => window.localStorage);
+    const summary = document.querySelector<HTMLElement>('[data-progress-summary]');
+    const topicsOf = (root: ParentNode) => Array.from(root.querySelectorAll<HTMLElement>('[data-topic]'), (row) => row.dataset.topic ?? '');
+
+    const render = () => {
+      for (const list of lists) {
+        for (const row of list.querySelectorAll<HTMLElement>('[data-topic]')) {
+          const done = store.done.has(row.dataset.topic ?? '');
+          row.classList.toggle('is-done', done);
+          const box = row.querySelector<HTMLInputElement>('[data-progress-box]');
+          if (box) box.checked = done;
+        }
+        const count = list.querySelector('[data-progress-count]');
+        if (count) {
+          const c = countDone(topicsOf(list), store.done);
+          count.textContent = progressText(c.done, c.total);
+        }
+      }
+      if (!summary) return;
+      const c = countDone(lists.flatMap(topicsOf), store.done);
+      const total = summary.querySelector('[data-progress-total]');
+      if (total) total.textContent = progressText(c.done, c.total, 'topics');
+      const bar = summary.querySelector<HTMLElement>('[data-progress-bar]');
+      if (bar) bar.style.width = `${c.total ? (100 * c.done) / c.total : 0}%`;
+      const clear = summary.querySelector<HTMLButtonElement>('[data-progress-clear]');
+      if (clear) clear.hidden = c.done === 0;
+      const note = summary.querySelector('[data-progress-note]');
+      if (note && !store.saved) note.textContent = 'This browser is not keeping data for this site, so your ticks last until you leave the page.';
+    };
+
+    for (const list of lists) {
+      for (const label of list.querySelectorAll<HTMLElement>('.done')) label.hidden = false;
+      list.addEventListener('change', (e) => {
+        const box = e.target;
+        if (!(box instanceof HTMLInputElement) || !box.matches('[data-progress-box]')) return;
+        store.set(box.value, box.checked);
+        render();
+      });
+    }
+
+    summary?.querySelector('[data-progress-clear]')?.addEventListener('click', () => {
+      const n = store.done.size;
+      if (n === 0 || !window.confirm(`Clear all ${n} ticks? This cannot be undone.`)) return;
+      store.clear();
+      render();
+      // The button hides with nothing left to clear: move focus to the count and say what happened.
+      summary.querySelector<HTMLElement>('[data-progress-total]')?.focus();
+      const status = summary.querySelector('[data-progress-status]');
+      if (status) status.textContent = 'All ticks cleared.';
+    });
+
+    window.addEventListener('storage', (e) => {
+      if (e.key !== PROGRESS_KEY && e.key !== null) return;
+      store.reload();
+      render();
+    });
+
+    render();
+    if (summary) summary.hidden = false;
+  }
+</script>
 
 <style>
   .topic-list {
@@ -130,10 +210,19 @@ const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${marke
     margin: 0;
     padding: 0;
   }
+  li {
+    display: flex;
+    transition: background-color 0.15s ease;
+  }
   li + li {
     border-top: 1px solid var(--border);
   }
+  li:hover {
+    background: var(--surface-2);
+  }
   a {
+    flex: 1;
+    min-width: 0;
     display: grid;
     grid-template-columns: 22px minmax(0, 1fr) auto;
     align-items: center;
@@ -141,10 +230,26 @@ const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${marke
     padding: 9px 16px;
     color: var(--text);
     text-decoration: none;
-    transition: background-color 0.15s ease;
   }
-  a:hover {
-    background: var(--surface-2);
+  /* The done checkbox, shown by the script; the whole cell is its label. */
+  .done {
+    display: flex;
+    align-items: center;
+    padding: 0 2px 0 16px;
+    cursor: pointer;
+  }
+  .done[hidden] {
+    display: none;
+  }
+  .done input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .is-done .title {
+    color: var(--text-2);
   }
   a:hover .title {
     color: var(--link);
@@ -196,6 +301,12 @@ const count = `${rows.length === 1 ? '1 topic' : `${rows.length} topics`}${marke
     .meta {
       grid-column: 2;
       justify-content: flex-start;
+    }
+  }
+  /* On paper the ticks stay (a printed checklist), and a list may run onto the next page. */
+  @media print {
+    .topic-list {
+      overflow: visible;
     }
   }
 </style>
