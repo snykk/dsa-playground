@@ -1,7 +1,7 @@
 ---
 category: Algorithms/Dynamic_Programming/DP_Optimizations
 title: DP Optimizations
-lead: A DP optimization keeps the recurrence and speeds up the transition by using structure in its cost. The one topic here, the Convex Hull Trick with its Li Chao tree variant, answers a minimum over lines in amortized O(1) or in O(log V) per query.
+lead: A DP optimization keeps the recurrence and speeds up the transition by using structure in its cost. The Convex Hull Trick answers a minimum over lines in amortized O(1) or O(log V) per query. Divide and Conquer Optimization computes a layer of a DP in O(n log n) when the best earlier state never moves left.
 updated: 2026-11-13
 facts:
   - label: Monotonic CHT
@@ -13,6 +13,9 @@ facts:
   - label: DP speedup
     value: O(n^2) to O(n)
     hint: or O(n log V) with a Li Chao tree
+  - label: Divide and conquer
+    value: O(n log n) per layer
+    hint: when the best j is monotone in i
   - label: Overflow
     value: m*x + b
     hint: the values must fit the integer type
@@ -20,6 +23,8 @@ facts:
 contents:
   - folder: Convex_Hull_Trick
     note: Turn dp[i] = min over j of m_j*x_i + b_j from O(n) per step into amortized O(1), or O(log V) in any order.
+  - folder: Divide_and_Conquer_Optimization
+    note: Solve the middle cell of a layer first, then each half only on its side of that cell's best j. O(n log n) per layer when the cost satisfies the quadrangle inequality.
 prerequisites:
   - Algorithms/Dynamic_Programming/Linear_DP
   - Algorithms/Dynamic_Programming/2D_DP
@@ -33,10 +38,12 @@ related:
 
 Some DP recurrences have the form `dp[i] = min over j < i of (m_j * x_i + b_j)`. Evaluating every `j` costs O(n) per state and O(n^2) in total. Each earlier state is a line `y = m*x + b`, and the minimum over lines at one `x` is the lower envelope of those lines. The Convex Hull Trick keeps only the lines that appear on that envelope.
 
-Both structures in the Python code solve one problem: given a set of lines, return the minimum `y` at a query `x`.
+Both structures in the Convex Hull Trick's Python code solve one problem: given a set of lines, return the minimum `y` at a query `x`.
 
 - `MonotonicCHT` needs slopes inserted in non-increasing order and queries with non-decreasing `x`. It keeps a deque of lines and drops a line that can never be best.
 - `LiChaoTree` has no such requirement, but it covers a fixed range of `x` that is given at construction.
+
+Divide and Conquer Optimization needs no formula for the cost. It works on layered DPs, `dp[g][i] = min over j < i of dp[g-1][j] + C(j, i)`, such as splitting an array into exactly `k` groups. If the best `j` never moves left as `i` grows, the middle cell of a layer is solved first, and each half searches only on its side of that cell's best `j`. The quadrangle inequality `C(a, c) + C(b, d) <= C(a, d) + C(b, c)` guarantees it. Knuth's optimization, for interval DPs, rests on the same inequality.
 
 ## At a glance
 
@@ -46,6 +53,15 @@ Both structures in the Python code solve one problem: given a set of lines, retu
     ['`MonotonicCHT`', 'slopes in non-increasing order, queries in non-decreasing order', 'O(1) amortized', 'O(1) amortized', 'a line is pushed once and popped at most once'],
     ['`LiChaoTree`', 'a fixed range of `x`', 'O(log V)', 'O(log V)', 'V is the size of that range; any order'],
     ['Scan every line', 'nothing', 'O(1)', 'O(n)', 'the baseline that these replace'],
+  ]}
+/>
+
+<DataTable
+  columns={['Technique', 'Requires', { label: 'One layer of n cells', kind: 'mono' }, 'Notes']}
+  rows={[
+    ['Convex Hull Trick', 'the cost is a line in a value of `i`', 'O(n) sorted, O(n log V) any order', 'a structure of lines, queried once per cell'],
+    ['Divide and Conquer Optimization', 'the best `j` is monotone in `i`', 'O(n log n)', 'no structure: each cost is evaluated directly'],
+    ['Try every `j`', 'nothing', 'O(n^2)', 'the baseline that both replace'],
   ]}
 />
 
@@ -64,6 +80,15 @@ The lines `y = 4x`, `y = 2x + 6`, `y = x + 10` and `y = 17` were added in that o
 />
 
 The answer is the smallest of four lines, and which line wins changes as `x` grows.
+
+## One problem, both techniques
+
+Split `3, 1, 4, 1, 5, 9, 2, 6` into exactly three contiguous groups so that the sum of `(sum of the group)^2` is smallest. With prefix sums `P`, a layer is `dp[g][i] = min over j of dp[g-1][j] + (P[i] - P[j])^2`.
+
+- `min_cost_partition(values, 3)` in Divide and Conquer Optimization returns 341, with the groups `3, 1, 4, 1`, then `5, 9`, then `2, 6`. Its recursion evaluates 41 costs, where trying every `j` evaluates 57.
+- The same cost expands to `P[i]^2 + (-2 P[j]) * P[i] + (dp[g-1][j] + P[j]^2)`: a line in `P[i]` for each `j`, with slopes that never increase and queries that never decrease. One `MonotonicCHT` per layer returns 341 too.
+
+They meet here because the square expands into lines. A cost that does not, such as the number of equal pairs inside a group, leaves only divide and conquer; a cost made of lines whose best `j` is not monotone leaves only the Convex Hull Trick, with a Li Chao tree.
 
 ## Complexity
 
@@ -85,7 +110,9 @@ Used in a DP, the monotonic version turns O(n^2) into O(n) when the slopes and q
     ['Slopes and query points both arrive sorted', 'Monotonic CHT', 'amortized O(1), simplest code'],
     ['Lines or queries in any order, over a bounded range of x', 'Li Chao tree', 'no sorting assumption, O(log V)'],
     ['Few lines', 'a plain scan', 'the setup is not worth it'],
-    ['The transition is not a minimum of lines', 'another technique', 'CHT only applies to a cost that is linear in `x`'],
+    ['The transition is not a minimum of lines, but the best `j` is monotone', 'Divide and Conquer Optimization', 'O(n log n) per layer from the order of the best `j` alone'],
+    ['Split a sequence into exactly `k` groups', 'Divide and Conquer Optimization', 'one layer per group, O(k n log n) in all'],
+    ['Neither structure holds', 'the plain DP', 'both techniques give wrong answers without their requirement'],
   ]}
 />
 
@@ -97,18 +124,22 @@ Used in a DP, the monotonic version turns O(n^2) into O(n) when the slopes and q
 - **Overflow.** The products `m*x + b` must fit in the integer type. C++ and Go use wide arithmetic in the comparison of lines, but not in the values themselves.
 - **Querying an empty `MonotonicCHT`.** Python raises `ValueError`, C++ has undefined behavior and Go panics.
 - **Using the minimum structure for a maximum.** Both structures answer minimum queries.
+- **Divide and conquer without its inequality.** With a negative value, `(sum of the group)^2` breaks the quadrangle inequality, and the recursion returns 10 instead of 2 for `1, 2, 4, -5` in two groups, with no error.
 </Callout>
 
 ## Frequently asked questions
 
 <Faq>
   <FaqItem question="When should I reach for a DP optimization?">
-    When the recurrence is correct but a profile shows the transition dominating, and the cost has the structure the technique needs. Here that structure is a minimum over lines.
+    When the recurrence is correct but a profile shows the transition dominating, and the cost has the structure the technique needs: a minimum over lines for the Convex Hull Trick, a best `j` that never moves left for divide and conquer.
   </FaqItem>
   <FaqItem question="Why do slopes have to be sorted for the monotonic version?">
     Lines then enter the deque in the order they can become best, so a line that is never best can be removed from the back, and one that has stopped being best can be removed from the front.
   </FaqItem>
   <FaqItem question="Is the Li Chao tree always better?">
     It is more general, but it costs O(log V) instead of amortized O(1) and needs a bounded range of `x`. When both inputs are sorted, the monotonic version is faster.
+  </FaqItem>
+  <FaqItem question="How do I know whether divide and conquer applies?">
+    Check the quadrangle inequality on the cost, as the topic does for the square of a group's sum, or run the plain DP on small random inputs and compare. A wrong answer is the only symptom when it does not apply.
   </FaqItem>
 </Faq>

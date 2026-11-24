@@ -108,5 +108,6 @@ Each line is pushed once and popped at most once, so n operations on the deque c
 
 - [Dynamic Programming](../../README.md)
 - [DP on Trees](../../Advanced_DP/DP_on_Trees/)
+- [Divide and Conquer Optimization](../Divide_and_Conquer_Optimization/): the other speed-up for a minimum over earlier states, when the best `j` is monotone instead of the cost being a line
 - [Monotonic Queue](../../../../Problem_Patterns/Monotonic_Queue/)
 - [DP Problem Patterns](../../../../Problem_Patterns/DP_Problem_Patterns/)

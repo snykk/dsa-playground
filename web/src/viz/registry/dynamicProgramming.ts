@@ -138,6 +138,13 @@ export const entries: VizInfo[] = [
     blurb: 'Lines enter a deque by decreasing slope; the back pops lines the new one makes useless, queries pop the front.',
     topics: ['Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick'],
   },
+  {
+    id: 'dnc-optimization',
+    title: 'Divide and Conquer Optimization',
+    group: 'Dynamic Programming',
+    blurb: 'One layer of a DP: the middle cell tries its range of j first, and each half then searches only on its side of that best j.',
+    topics: ['Algorithms/Dynamic_Programming/DP_Optimizations/Divide_and_Conquer_Optimization'],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -160,4 +167,5 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'bitmask-dp-tsp': () => import('../specs/advancedDp').then((m) => m.bitmaskTspSpec),
   'digit-dp': () => import('../specs/advancedDp').then((m) => m.digitDpSpec),
   'convex-hull-trick': () => import('../specs/advancedDp').then((m) => m.convexHullTrickSpec),
+  'dnc-optimization': () => import('../specs/dncOptimization').then((m) => m.dncOptimizationSpec),
 };

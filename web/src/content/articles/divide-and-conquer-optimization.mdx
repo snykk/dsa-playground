@@ -1,0 +1,302 @@
+---
+topic: Algorithms/Dynamic_Programming/DP_Optimizations/Divide_and_Conquer_Optimization
+title: Divide and Conquer Optimization
+lead: Divide and Conquer Optimization computes a layer of dp[g][i] = min over j < i of dp[g-1][j] + C(j, i) in O(n log n) instead of O(n^2), when the best j never moves left as i grows. It solves the middle cell first and searches each half only on its side of that cell's best j.
+level: Advanced
+updated: 2026-11-24
+facts:
+  - label: Time
+    value: O(k n log n)
+    hint: k layers of n cells; the plain DP is O(k n^2)
+  - label: Space
+    value: O(k n)
+    hint: the best j of every cell, to rebuild the groups
+  - label: Needs
+    value: opt(g, i) <= opt(g, i + 1)
+    hint: the quadrangle inequality on the cost guarantees it
+  - label: Ties
+    value: smallest best j
+    hint: j going up, replaced only by a strictly smaller cost
+  - label: Wrong cost
+    value: silently wrong answers
+    hint: with a negative value, the square of the sum breaks the inequality
+    tone: warn
+properties:
+  - { label: Exact when opt is monotone, value: true }
+  - { label: Returns the groups, value: true }
+  - { label: Checks its own requirement, value: false }
+  - { label: Needs a formula for the cost, value: false }
+prerequisites:
+  - Problem_Patterns/Prefix_Sum_Difference_Array
+  - Algorithms/Divide_and_Conquer
+related:
+  - Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick
+  - Problem_Patterns/DP_Problem_Patterns
+---
+
+## How Divide and Conquer Optimization works
+
+Split `n` numbers into exactly `k` contiguous, non-empty groups so that the sum over the groups of `(sum of the group)^2` is as small as possible. The square punishes a heavy group, so the best split balances the sums. Let `dp[g][i]` be the best cost of the first `i` values in `g` groups. The last group is `values[j:i]` for some `j`:
+
+<Equation label="One layer" expr="dp[g][i] = min over j in [g-1, i-1] of dp[g-1][j] + C(j, i)" result="C(j, i) = (P[i] - P[j])^2, from the prefix sums P" />
+
+Filled directly, each cell tries every `j`, and a layer of `n` cells costs O(n<sup>2</sup>). Call the best `j` of cell `i` `opt(g, i)`. For this cost it never moves left: `opt(g, i)` &le; `opt(g, i + 1)`. One layer then goes like this:
+
+<Steps>
+  <Step title="Solve the middle cell first">
+    Of the cells `lo..hi` of the call, take `mid = (lo + hi) // 2`. Try every `j` the call allows, from `max(opt_lo, g - 1)` to `min(opt_hi, mid - 1)`, going up, and keep the smallest `j` with the least `dp[g-1][j] + C(j, mid)`.
+  </Step>
+  <Step title="Split the range of j at that best j">
+    Every cell left of `mid` has its best `j` at or below `opt(g, mid)`, and every cell right of it at or above. So the left half is solved with `j` in `opt_lo..opt(g, mid)` and the right half with `j` in `opt(g, mid)..opt_hi`.
+  </Step>
+  <Step title="Recurse, one layer after another">
+    The first call covers the whole layer, cells `g..n` with `j` in `g-1..n-1`. Layer 1 is one group, `dp[1][i] = C(0, i)`, and each later layer reads the one before it.
+  </Step>
+  <Step title="Walk back to the groups">
+    `bounds[k] = n`, then `bounds[g - 1] = opt(g, bounds[g])` down to `g = 2`, and `bounds[0] = 0`. Group `g` is `values[bounds[g]:bounds[g + 1]]`.
+  </Step>
+</Steps>
+
+<Callout title="Why the halves never lose the answer">
+The ranges of `j` that the calls at one depth of the recursion try only touch at their ends, so each depth tries about `n` values of `j` in all, and there are about log<sub>2</sub>(n) depths. That is only correct because `opt` is monotone. With a cost that breaks this, the recursion still returns a split and its true cost, just not the best one, and nothing fails.
+</Callout>
+
+## See it in action
+
+One layer at a time. The values sit between the columns, so a group `values[j:i]` spans the columns `j` to `i`. The bracket over the previous layer is the range of `j` the current cell may try; the arrow is the `j` being tried, labelled with its group's cost. Under the layer, every call of the recursion is a bar over its cells, one row per depth, with the range of `j` its middle cell tries: dashed while it waits, filled when it runs and once its cell is solved. The counters compare the cost evaluations with the plain DP's. **A negative value: wrong answer** runs the same recursion on `1, 2, 4, -5`, which `min_cost_partition` rejects, and shows the cell where it misses.
+
+<ArticleViz ids={['dnc-optimization']} />
+
+## Worked example
+
+`values = [3, 1, 4, 1, 5, 9, 2, 6]` and `k = 3`. Each row of the grid is one layer as the code computes it; the cells below the diagonal do not exist, since every group needs at least one value.
+
+<GridDiagram
+  corner="row \ i"
+  colLabels={[0, 1, 2, 3, 4, 5, 6, 7, 8]}
+  rowLabels={['P[i]', 'dp[1][i]', 'dp[2][i]', 'opt[2][i]', 'dp[3][i]', 'opt[3][i]']}
+  rows={[
+    [0, 3, 4, 8, 9, 14, 23, 25, 31],
+    ['-', 9, 16, 64, 81, 196, 529, 625, 961],
+    ['-', '-', 10, 32, 41, 100, 277, 317, 485],
+    ['-', '-', 1, 2, 2, 3, 4, 5, 5],
+    ['-', '-', '-', 26, 33, 66, 181, 221, 341],
+    ['-', '-', '-', 2, 3, 4, 5, 5, 6],
+  ]}
+  tones={['.........', '.........', '......f..', '......f..', '........f', '........f']}
+  legend={{ f: 'the walk back: opt(3, 8) = 6, then opt(2, 6) = 4' }}
+  caption="Each opt row never decreases. The answer dp[3][8] = 341 is the groups [3, 1, 4, 1], [5, 9], [2, 6]: 81 + 196 + 64."
+  label="The layers of the divide and conquer DP for 3 1 4 1 5 9 2 6 in three groups"
+/>
+
+Layer 2 as the recursion solves it. Each call tries `j` only in its range:
+
+<TreeDiagram
+  root={{
+    label: 'i=5 j 1..4: 3',
+    tone: 'p',
+    children: [
+      {
+        label: 'i=3 j 1..2: 2',
+        tone: 'l',
+        children: [
+          { label: 'i=2 j 1: 1', tone: 'l' },
+          { label: 'i=4 j 2..3: 2', tone: 'l' },
+        ],
+      },
+      {
+        label: 'i=7 j 3..6: 5',
+        tone: 'l',
+        children: [
+          { label: 'i=6 j 3..5: 4', tone: 'l' },
+          { label: 'i=8 j 5..7: 5', tone: 'l' },
+        ],
+      },
+    ],
+  }}
+  legend={{ p: 'the first call: the middle cell of the whole layer', l: "a later call: its range of j is cut at its parent's best j" }}
+  caption="Each node is the middle cell i of a call, the range of j it tries, and its best j. The three depths try 4, 6 and 9 values of j: 19 in all, against 28 for every j of every cell."
+  label="The recursion tree of layer 2"
+/>
+
+The candidates of each call, `dp[1][j] + (P[i] - P[j])^2`, as `_best_split` sees them:
+
+<DataTable
+  columns={['Call: cells, j allowed', 'mid', 'Candidates', 'dp[2][mid], opt']}
+  rows={[
+    ['2..8, j 1..7', '5', 'j=1: 9 + 121 = 130; j=2: 16 + 100 = 116; j=3: 64 + 36 = 100; j=4: 81 + 25 = 106', '100, opt 3'],
+    ['2..4, j 1..3', '3', 'j=1: 34; j=2: 16 + 16 = 32; j stops at mid - 1 = 2', '32, opt 2'],
+    ['2..2, j 1..2', '2', 'j=1: 9 + 1 = 10', '10, opt 1'],
+    ['4..4, j 2..3', '4', 'j=2: 16 + 25 = 41; j=3: 65', '41, opt 2'],
+    ['6..8, j 3..7', '7', 'j=3: 353; j=4: 337; j=5: 196 + 121 = 317; j=6: 533', '317, opt 5'],
+    ['6..6, j 3..5', '6', 'j=3: 289; j=4: 81 + 196 = 277; j=5: 196 + 81 = 277, a tie: j=4 stays', '277, opt 4'],
+    ['8..8, j 5..7', '8', 'j=5: 196 + 289 = 485; j=6: 593; j=7: 661', '485, opt 5'],
+  ]}
+/>
+
+Layer 3 tries 3 + 1 + 2 + 3 + 2 + 3 = 14 values of `j`. The walk back reads `opt(3, 8) = 6` and `opt(2, 6) = 4`, so `min_cost_partition(values, 3)` returns `(341, [0, 4, 6, 8])` after 8 + 19 + 14 = 41 cost evaluations; `min_cost_partition_plain` returns the same after 8 + 28 + 21 = 57.
+
+**When the inequality fails.** With `values = [1, 2, 4, -5]` and `k = 2`, the prefix sums `0, 1, 3, 7, 2` go down at the end. The recursion solves `i = 3` first: `j = 1` gives 1 + 36 = 37 and `j = 2` gives 9 + 16 = 25, so `opt = 2`. The right half, `i = 4`, then tries only `j` in 2..3 and returns 9 + 1 = 10, the groups `[1, 2]` and `[4, -5]`. The best split is `[1]` and `[2, 4, -5]`, cost 1 + 1 = 2, at `j = 1`, which that call never tries. `partition_dp(4, 2, cost, optimized=True)` returns `(10, [0, 2, 4])`, and `optimized=False` returns `(2, [0, 1, 4])`.
+
+## Pseudocode
+
+```text
+partition_dp(n, k, C):
+    for i = 1 to n: dp[1][i] = C(0, i)                 # one group
+    for g = 2 to k: solve(g, g, n, g - 1, n - 1)
+    bounds[k] = n
+    for g = k down to 2: bounds[g - 1] = opt[g][bounds[g]]
+    bounds[0] = 0
+    return dp[k][n], bounds
+
+solve(g, lo, hi, opt_lo, opt_hi):
+    if lo > hi: return
+    mid = (lo + hi) // 2
+    best = infinity
+    for j = max(opt_lo, g - 1) to min(opt_hi, mid - 1):    # going up
+        if dp[g-1][j] + C(j, mid) < best:                   # strictly: the smallest j wins ties
+            best = dp[g-1][j] + C(j, mid)
+            opt[g][mid] = j
+    dp[g][mid] = best
+    solve(g, lo, mid - 1, opt_lo, opt[g][mid])              # left: j <= opt(mid)
+    solve(g, mid + 1, hi, opt[g][mid], opt_hi)              # right: j >= opt(mid)
+```
+
+## Implementation
+
+All three languages have the same three operations and try `j` in the same order.
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['With the recursion', '`min_cost_partition(values, k)`', '`minCostPartition(values, k)`', '`MinCostPartition(values, k)`'],
+    ['Plain DP, same answer', '`min_cost_partition_plain`', '`minCostPartitionPlain`', '`MinCostPartitionPlain`'],
+    ['Any cost', '`partition_dp(n, k, cost, optimized)`', '`partitionDp(n, k, cost, optimized)`, a template', '`PartitionDP(n, k, cost, optimized)`'],
+    ['Result', '`(cost, bounds)`', 'a `Partition` struct', 'a `Partition` struct and an error'],
+    ['Numbers', 'unbounded integers', '`long long`', '`int64`'],
+    ['Bad input', '`ValueError`', '`std::invalid_argument`', 'an error wrapping `ErrInvalidInput`'],
+    ['Overflow', 'none: the exact number', '`std::overflow_error`', 'an error wrapping `ErrOverflow`'],
+  ]}
+/>
+
+**Which groups.** `opt(g, i)` is the smallest `j` that reaches the minimum: `j` goes up and only a strictly smaller candidate replaces the best. So of several best splits the code returns the one whose last cut is smallest, then the cut before it, and so on. With `[1, 1, 1, 1, 1]` and `k = 2`, the splits 2 + 3 and 3 + 2 both cost 13, and the code returns `[0, 2, 5]`. The plain DP uses the same `_best_split`, so both versions return the same bounds, and the tests check them against every split of small inputs. The C++ and Go tests check 44 inputs, 12 inputs where the recursion fails, and the cost evaluations on 8 more against outputs of the Python code.
+
+**Edge cases.** Groups are never empty, so `k` runs from 1 to `n`: `k > n`, `k < 1` and every `k` on an empty list are errors. `k = 1` returns `P[n]^2` and `[0, n]`; `k = n` puts every value alone. A negative value is an error in the two concrete functions, because it can break the quadrangle inequality; `partition_dp` takes any cost and does not check.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/DP_Optimizations/Divide_and_Conquer_Optimization" />
+
+## Complexity analysis
+
+The calls at one depth of a layer's recursion cover disjoint cells, and their ranges of `j` follow each other, sharing at most an end. So one depth tries at most `m` plus its number of calls values of `j`, for a layer of `m` cells. With `floor(log2(m)) + 1` depths and `m` calls in all, a layer costs at most `m (floor(log2(m)) + 2)` cost evaluations.
+
+<ComplexityTable
+  rows={[
+    { case: 'With the recursion', time: 'O(k n log n)', space: 'O(k n)', when: 'At most m (log2(m) + 2) cost evaluations for a layer of m cells.' },
+    { case: 'Plain DP', time: 'O(k n^2)', space: 'O(k n)', when: 'Every cell tries every j: m (m + 1) / 2 per layer.' },
+  ]}
+/>
+
+Counted on the Python code with `k = 4` and `values[t] = (37 t + 11) mod 101`:
+
+<DataTable
+  columns={[{ label: 'n', kind: 'mono' }, { label: 'Recursion', kind: 'mono' }, { label: 'Bound', kind: 'mono' }, { label: 'Plain DP', kind: 'mono' }, { label: 'Ratio', kind: 'mono' }]}
+  rows={[
+    ['64', '1,140', '1,366', '5,924', '5.2'],
+    ['256', '6,225', '7,114', '97,412', '15.6'],
+    ['1,024', '31,234', '34,750', '1,569,284', '50.2'],
+    ['4,096', '149,749', '163,762', '25,151,492', '168.0'],
+  ]}
+/>
+
+At `n = 4096` each layer after the first costs between 48,000 and 49,200 evaluations, about `n log2(n)` = 49,152, where the plain DP costs about `n^2 / 2`. The space is the table of best `j`, needed for the walk back; the costs themselves need only two rows.
+
+<Callout tone="warning" title="Overflow in C++ and Go">
+Every number the DP forms is the cost of splitting a prefix into groups, at most the square of the total, and the DP forms that square itself in layer 1. So C++ and Go check once that the total is at most 3,037,000,499, whose square is the largest that fits in 64 bits, and report an overflow otherwise. Python is exact: `[3037000499, 1]` in two groups costs 9,223,372,030,926,249,002 there, which fits, but C++ and Go report it, because its total does not square into 64 bits.
+</Callout>
+
+## The quadrangle inequality
+
+`opt` is monotone whenever the cost satisfies, for all `a` &le; `b` &le; `c` &le; `d`:
+
+<Equation label="Quadrangle inequality" expr="C(a, c) + C(b, d) <= C(a, d) + C(b, c)" result="two crossing groups cost no more than the outer and the inner one" />
+
+Suppose the smallest best `j` of cell `i` were larger than the best `j'` of a later cell `i'`. Then `j'` loses to `j` at `i`, and the inequality with `a = j'`, `b = j`, `c = i`, `d = i'` says that going from `i` to `i'` adds no more to `j`'s cost than to `j'`'s, so `j'` still loses at `i'`: a contradiction. For the square of the sum the two sides differ by exactly
+
+<Equation label="This cost" expr="C(a, c) + C(b, d) - C(a, d) - C(b, c) = -2 (P[b] - P[a]) (P[d] - P[c])" result="at most 0 when every value is 0 or more" />
+
+That is why this cost was chosen: integers only (the squared deviation from a group's mean needs fractions), O(1) per cost from the prefix sums, a proof in one line, and with one negative value the same formula breaks. In `1, 2, 4, -5`, `C(1, 3) + C(2, 4)` = 36 + 1 = 37 is more than `C(1, 4) + C(2, 3)` = 1 + 16 = 17. The tests check the inequality on 400 random inputs with no negative value, and on 3000 random inputs with negative values they find the recursion's answer different from the plain DP's 219 times.
+
+## Divide and conquer vs other DP optimizations
+
+<DataTable
+  columns={['Technique', { label: 'k layers of n cells', kind: 'mono' }, 'Needs']}
+  highlight={0}
+  rows={[
+    ['Divide and Conquer Optimization', 'O(k n log n)', 'opt monotone in i: the quadrangle inequality on C'],
+    ['Convex Hull Trick', 'O(k n) with sorted slopes and queries', 'C(j, i) splits into lines: a slope from j times a value of i'],
+    ['Knuth optimization', 'O(n^2) for an interval DP instead of O(n^3)', 'the quadrangle inequality, and C monotone on nested intervals'],
+    ['Plain DP', 'O(k n^2)', 'nothing'],
+  ]}
+/>
+
+For this particular cost the Convex Hull Trick applies too: `(P[i] - P[j])^2` expands into `P[i]^2 - 2 P[j] P[i] + P[j]^2`, a line in `P[i]` for each `j`. Divide and conquer needs no such formula, only the monotone `opt`, so it also covers costs that are not lines in anything, such as the number of equal pairs inside a group.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'From O(k n^2) to O(k n log n) with a recursion of about ten lines on top of the plain DP.',
+    'Needs no formula for the cost: any O(1) cost whose best j is monotone.',
+    'Exact, and returns the same groups as the plain DP under one tie rule.',
+  ]}
+  cons={[
+    'Wrong answers, with no error, when the quadrangle inequality fails.',
+    'A log factor slower than the Convex Hull Trick when the cost is made of lines.',
+    'O(k n) memory to rebuild the groups; the costs alone need two rows.',
+  ]}
+/>
+
+## Applications
+
+- **Splitting a sequence into k parts.** Balanced loads, the least sum of squares, or any cost of a part with the inequality.
+- **Placing k facilities on a line.** Mailboxes or warehouses for sorted houses, each serving a contiguous run.
+- **Scheduling jobs in order on k days or machines**, when a day's cost grows faster than linearly with its work.
+- **Grouping with a costly measure**, such as the number of equal pairs in a segment, where the cost is kept by a window that the recursion moves.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Not checking the inequality.** With `[1, 2, 4, -5]` the recursion returns 10 instead of 2. Prove it, or compare with the plain DP on small random inputs.
+- **Forgetting to narrow.** Passing the whole range of `j` to both halves still gives the right answers, at the plain DP's cost; the tests count the evaluations to catch it.
+- **The clamps.** `j` must stay below `mid`, so the last group is not empty, and at least `g - 1`, so the earlier groups are not.
+- **`<=` for the update.** The cost stays right, but the code then keeps the largest best `j` and returns other groups on ties.
+- **`k > n`.** Groups cannot be empty, so it is an error, not the same as `k = n`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why solve the middle cell first?">
+    Its best j splits the range of j in two for the cells on each side. Taking the middle cell halves the cells at every depth, so there are about log2(n) depths, and each depth tries about n values of j in all.
+  </FaqItem>
+  <FaqItem question="How do I know my cost has a monotone opt?">
+    Prove the quadrangle inequality, as the topic does for the square of a group's sum with values of 0 or more. If you cannot, run the plain DP beside the recursion on small random inputs: a wrong answer is the only symptom.
+  </FaqItem>
+  <FaqItem question="What happens with k greater than n?">
+    The code raises an error. Every group must hold at least one value, so there is no way to split n values into more than n groups; k = n puts every value alone.
+  </FaqItem>
+  <FaqItem question="Should I use the Convex Hull Trick instead?">
+    When the cost expands into lines, as the square of a sum does, the Convex Hull Trick is O(k n) and faster. Divide and conquer is the choice when the cost has no such form, or when its monotone opt is easier to prove than the lines are to find.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Subarray Squares', site: 'CSES 2086', url: 'https://cses.fi/problemset/task/2086', idea: 'Exactly this problem with n up to 3000; the example 2 3 1 2 2 3 4 1 in 3 groups costs 110.' },
+    { name: 'Famous Pagoda', site: 'Kattis famouspagoda', url: 'https://open.kattis.com/problems/famouspagoda', idea: 'Sorted heights in G contiguous groups, each group costing a sum read from prefix sums.' },
+    { name: 'Branch Assignment', site: 'Kattis branch', url: 'https://open.kattis.com/problems/branch', idea: 'After shortest paths to and from headquarters and a sort, the groups are contiguous runs, and the layered DP applies.' },
+    { name: 'Yet Another Minimization Problem', site: 'Codeforces 868F', url: 'https://codeforces.com/problemset/problem/868/F', idea: 'A segment costs its pairs of equal values, kept by a window that the recursion moves instead of an O(1) formula.' },
+  ]}
+/>

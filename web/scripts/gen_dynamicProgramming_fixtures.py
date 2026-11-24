@@ -1,7 +1,7 @@
 """Generate golden fixtures for the dynamic-programming visualizations.
 
 The web visualizer re-implements Fibonacci, Climbing Stairs, Coin Change, LIS, Kadane,
-Edit Distance, Matrix Chain Multiplication, the LCS traceback and the Unbounded Knapsack in TypeScript. These fixtures pin each port
+Edit Distance, Matrix Chain Multiplication, the LCS traceback, the Unbounded Knapsack and the Divide and Conquer Optimization in TypeScript. These fixtures pin each port
 to the repository's Python implementation (tie-breaking included). Run from anywhere:
 
     python3 web/scripts/gen_dynamicProgramming_fixtures.py
@@ -27,6 +27,7 @@ for folder in (
     "2D_DP/Edit_Distance",
     "2D_DP/Matrix_Chain_Multiplication",
     "2D_DP/Longest_Common_Subsequence",
+    "DP_Optimizations/Divide_and_Conquer_Optimization",
 ):
     sys.path.insert(0, str(DP / folder / "Python"))
 
@@ -39,6 +40,8 @@ from lcs import lcs_sequence  # noqa: E402
 from lis import lis_binary_search, lis_with_sequence  # noqa: E402
 from matrix_chain import matrix_chain_multiplication  # noqa: E402
 import unbounded_knapsack  # noqa: E402
+import divide_and_conquer_optimization as dnc  # noqa: E402
+from itertools import accumulate  # noqa: E402
 
 OUT = ROOT / "web" / "src" / "viz" / "algorithms" / "__fixtures__" / "dynamicProgramming.json"
 
@@ -94,6 +97,67 @@ def unbounded_cases():
             weights, values = weights[:5], values[:5]
         fixed.append((weights, values, rng.randint(0, 12)))
     return [unbounded_case(*c) for c in fixed]
+
+
+def dnc_case(values, k):
+    """Every call of the recursion, every cell it solves and every cost it evaluates, by wrapping
+    the module-level helpers. partition_dp with the square of the sum is what min_cost_partition
+    runs; it also takes the negative values that min_cost_partition rejects."""
+    n = len(values)
+    prefix = list(accumulate(values, initial=0))
+    calls, splits, evaluations = [], [], []
+
+    def cost(j, i):
+        c = (prefix[i] - prefix[j]) ** 2
+        evaluations.append([j, i, c])
+        return c
+
+    real_solve, real_split = dnc._solve_range, dnc._best_split
+
+    def solve(prev, cur, opt_row, cost_fn, g, lo, hi, opt_lo, opt_hi):
+        calls.append([g, lo, hi, opt_lo, opt_hi])
+        real_solve(prev, cur, opt_row, cost_fn, g, lo, hi, opt_lo, opt_hi)
+
+    def split(prev, cost_fn, i, j_lo, j_hi):
+        best, best_j = real_split(prev, cost_fn, i, j_lo, j_hi)
+        splits.append([i, j_lo, j_hi, best, best_j])
+        return best, best_j
+
+    dnc._solve_range, dnc._best_split = solve, split
+    try:
+        result, bounds = dnc.partition_dp(n, k, cost, optimized=True)
+    finally:
+        dnc._solve_range, dnc._best_split = real_solve, real_split
+    square = lambda j, i: (prefix[i] - prefix[j]) ** 2  # noqa: E731
+    plain, plain_bounds = dnc.partition_dp(n, k, square, optimized=False)
+    if min(values) >= 0:
+        assert (result, bounds) == dnc.min_cost_partition(values, k) == (plain, plain_bounds)
+    return {"values": values, "k": k, "calls": calls, "splits": splits, "evaluations": evaluations,
+            "cost": result, "bounds": bounds, "plainCost": plain, "plainBounds": plain_bounds}
+
+
+def dnc_cases():
+    # Its own generator, so the other sections keep their values. The fixed cases are the
+    # visualization's examples; the random ones stay inside its limits (1 to 12 values, k from 1
+    # to min(n, 5), values -30..30), and some have a negative value, where the recursion can miss.
+    rng = random.Random(2086)
+    fixed = [
+        ([3, 1, 4, 1, 5, 9, 2, 6], 3),
+        ([3, 1, 4, 1, 5, 9, 2, 6], 2),
+        ([5, 2, 8, 1, 9, 3, 7, 4, 6, 2, 8, 5], 4),
+        ([1, 1, 1, 1, 1, 1, 1], 3),
+        ([1, 2, 4, -5], 2),
+        ([3, 1, 4, 1, 5, 9, 2, 6], 1),
+        ([4, 0, 7], 3),
+        ([7], 1),
+    ]
+    for _ in range(60):
+        n = rng.randint(1, 12)
+        high = rng.choice([3, 9, 30])
+        low = -high if rng.random() < 0.3 else 0
+        values = [rng.randint(low, high) for _ in range(n)]
+        fixed.append((values, rng.randint(1, min(n, 5))))
+    return [dnc_case(*c) for c in fixed]
 
 
 def make_sections():
@@ -155,6 +219,7 @@ def make_sections():
         ("mcm", mcm),
         ("lcs", lcs),
         ("unboundedKnapsack", unbounded_cases()),
+        ("dncOptimization", dnc_cases()),
     ]
 
 
@@ -162,7 +227,7 @@ def main():
     sections = make_sections()
     header = {
         "generator": "web/scripts/gen_dynamicProgramming_fixtures.py",
-        "reference": "Algorithms/Dynamic_Programming (fibonacci, climbing_stairs, coin_change, lis, kadane, edit_distance, matrix_chain, lcs, unbounded_knapsack)",
+        "reference": "Algorithms/Dynamic_Programming (fibonacci, climbing_stairs, coin_change, lis, kadane, edit_distance, matrix_chain, lcs, unbounded_knapsack, divide_and_conquer_optimization)",
     }
     parts = [json.dumps(header)[:-1]]
     for name, cases in sections:

@@ -266,6 +266,7 @@ Bit manipulation first, because bitmask DP stores a subset in an integer.
 - [Bitmask DP](Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP/) (Advanced)
 - [Digit DP](Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP/) (Advanced)
 - [Convex Hull Trick and Li Chao Tree](Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick/) (Advanced)
+- [Divide and Conquer Optimization](Algorithms/Dynamic_Programming/DP_Optimizations/Divide_and_Conquer_Optimization/) (Advanced)
 
 **Milestone:** you can solve LeetCode Hard problems and are interview-ready for senior roles.
 
