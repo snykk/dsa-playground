@@ -40,7 +40,7 @@ if (issues.length > 0) throw new Error(`PracticeProblems: ${issues.join('; ')}`)
     padding: 0;
     display: grid;
     gap: 14px;
-    max-width: 68ch;
+    max-width: var(--text-measure);
   }
   li {
     counter-increment: practice;
