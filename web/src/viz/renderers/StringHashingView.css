@@ -1,0 +1,4 @@
+/* StringHashingView organism: StringScan in a box that scrolls sideways on a narrow screen. */
+.hash-scroll {
+  overflow-x: auto;
+}

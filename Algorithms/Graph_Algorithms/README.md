@@ -9,9 +9,9 @@ Read them in this order.
 | # | Section | What it adds | Level |
 |---|---------|--------------|-------|
 | 1 | [Graph Traversal Algorithms](Traversal/) | Visit every reachable vertex. BFS goes ring by ring, DFS goes deep first; almost everything else is built on one of them. | 2 topics |
-| 2 | [Shortest Path Algorithms](Shortest_Path/) | Cheapest routes in weighted graphs. Dijkstra, Bellman-Ford for negative edges, Floyd-Warshall for all pairs, A* for one goal. | 4 topics |
+| 2 | [Shortest Path Algorithms](Shortest_Path/) | Cheapest routes in weighted graphs. Dijkstra, 0-1 BFS for weights 0 and 1, Bellman-Ford for negative edges, Floyd-Warshall for all pairs, A* for one goal. | 5 topics |
 | 3 | [Minimum Spanning Tree](Minimum_Spanning_Tree/) | Connect all vertices with the least total weight. Kruskal sorts edges, Prim grows one tree. | 2 topics |
-| 4 | [Advanced Graph Algorithms](Advanced_Graph/) | Structure inside a graph. Topological order, strongly connected components, bridges, 2-SAT and maximum flow. | 7 topics |
+| 4 | [Advanced Graph Algorithms](Advanced_Graph/) | Structure inside a graph. Topological order, Eulerian paths, strongly connected components, bridges, 2-SAT, maximum flow and bipartite matching. | 10 topics |
 
 All four areas are implemented in Python, C++ and Go.
 

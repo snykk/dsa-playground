@@ -1,9 +1,9 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import type { AnyVizSpec } from '../core/types';
-import { centroidSpec, heavyLightSpec, mosAlgorithmSpec, sqrtDecompositionSpec } from './specializedTechniques';
+import { centroidSpec, heavyLightSpec, lcaEulerSpec, lcaLiftingSpec, mosAlgorithmSpec, sqrtDecompositionSpec } from './specializedTechniques';
 
-const ALL: AnyVizSpec[] = [sqrtDecompositionSpec, mosAlgorithmSpec, heavyLightSpec, centroidSpec];
+const ALL: AnyVizSpec[] = [sqrtDecompositionSpec, mosAlgorithmSpec, lcaLiftingSpec, lcaEulerSpec, heavyLightSpec, centroidSpec];
 
 const html = (spec: AnyVizSpec, state: unknown) => renderToStaticMarkup(spec.render(state) as Parameters<typeof renderToStaticMarkup>[0]);
 const viewBox = (markup: string) => {
@@ -11,8 +11,15 @@ const viewBox = (markup: string) => {
   return m ? [Number(m[1]), Number(m[2])] : null;
 };
 
-/** The largest inputs each parser accepts: 20 or 16 elements, 16 nodes as a star, a path and a broom. */
+/** The largest inputs each parser accepts: 20 or 16 elements; 16 nodes (12 for the LCA tabs) as a star, a path and a broom. */
+const LCA_LARGEST = [
+  `${Array.from({ length: 11 }, (_, i) => `0-${i + 1}`).join(' ')}; ${Array.from({ length: 8 }, (_, i) => `lca ${i + 1} ${11 - i}`).join(', ')}`,
+  `${Array.from({ length: 11 }, (_, i) => `${i}-${i + 1}`).join(' ')}; lca 11 0, dist 0 11, kth 11 11, kth 11 7, lca 5 9, dist 99 0, kth 99 1, lca 11 11`,
+  `${Array.from({ length: 5 }, (_, i) => `${i}-${i + 1}`).join(' ')} ${Array.from({ length: 6 }, (_, i) => `5-${i + 6}`).join(' ')}; lca 6 11, dist 0 11, kth 11 6`,
+];
 const LARGEST: Record<string, string[]> = {
+  'lca-up-table': LCA_LARGEST,
+  'lca-euler-tour': LCA_LARGEST,
   'sqrt-decomposition': [`[${Array.from({ length: 20 }, (_, i) => -99 + i).join(', ')}]; query 0 19, update 19 -99, query 3 25`],
   'mos-algorithm': [`[${Array.from({ length: 16 }, (_, i) => -99 + i).join(', ')}]; ${Array.from({ length: 8 }, (_, i) => `(${i}, ${15 - i})`).join(' ')}`],
   'heavy-light-decomposition': [
@@ -56,5 +63,13 @@ describe('specialized technique specs', () => {
   it('the tree tabs read different inputs, so switching tabs loads each one its own example', () => {
     expect(heavyLightSpec.inputKind).not.toBe(centroidSpec.inputKind);
     expect(sqrtDecompositionSpec.inputKind).not.toBe(mosAlgorithmSpec.inputKind);
+  });
+
+  it('the two lowest common ancestor tabs share one input, and every example of one runs on the other', () => {
+    expect(lcaLiftingSpec.inputKind).toBe(lcaEulerSpec.inputKind);
+    for (const { value } of [...lcaLiftingSpec.examples, ...lcaEulerSpec.examples]) {
+      expect(lcaEulerSpec.trace(lcaEulerSpec.parse(value)).length).toBeGreaterThan(0);
+      expect(lcaLiftingSpec.trace(lcaLiftingSpec.parse(value)).length).toBeGreaterThan(0);
+    }
   });
 });

@@ -1,8 +1,8 @@
 ---
 category: Algorithms/Advanced_Algorithms/Specialized_Techniques
 title: Specialized Techniques
-lead: Four ways to split a big structure into pieces that are cheap to combine. Square root decomposition and Mo's algorithm answer range queries on an array, heavy-light and centroid decomposition work on trees. They differ in what they answer, whether updates are allowed, and whether queries must be known in advance.
-updated: 2026-11-15
+lead: Five techniques that pay a setup cost so that many queries on a big array or tree become cheap. Square root decomposition and Mo's algorithm work on an array; the lowest common ancestor tables, heavy-light and centroid decomposition on a tree. They differ in what they answer, whether updates are allowed, and whether queries must be known in advance.
+updated: 2026-11-24
 facts:
   - label: Square root blocks
     value: O(sqrt n)
@@ -11,6 +11,9 @@ facts:
     value: O((N + Q) sqrt N)
     hint: all Q queries, offline only
     tone: warn
+  - label: Lowest common ancestor
+    value: O(1) or O(log n)
+    hint: per query, Euler tour or binary lifting
   - label: Heavy-light
     value: O(log n)
     hint: chains on any path, and one LCA query
@@ -22,6 +25,8 @@ contents:
     note: Blocks of about sqrt(n) elements with one sum each. Range sums with point updates, answered online.
   - folder: Mos_Algorithm
     note: Sort offline queries so a sliding window moves little. Counts distinct values per range, with no updates.
+  - folder: Lowest_Common_Ancestor
+    note: Binary lifting (O(log n) per query, and the k-th ancestor) or an Euler tour with a sparse table (O(1) per query). Also the distance between two nodes.
   - folder: Heavy_Light_Decomposition
     note: Cut a tree into chains so any path crosses O(log n) of them. Gives the LCA and the segments of a path.
   - folder: Centroid_Decomposition
@@ -29,6 +34,7 @@ contents:
 prerequisites:
   - Problem_Patterns/Prefix_Sum_Difference_Array
   - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
 related:
   - Algorithms/Advanced_Algorithms
   - Algorithms/Advanced_Algorithms/Backtracking
@@ -44,8 +50,8 @@ A plain scan answers a range query in O(n) and a plain DFS answers a path query 
 
 The techniques split along two lines:
 
-- **The data.** Square root decomposition and Mo's algorithm work on an array. Heavy-light and centroid decomposition work on a tree.
-- **How queries arrive.** Square root decomposition answers each query as it comes (online) and allows point updates. Mo's algorithm needs every query up front (offline) and the array must not change. Heavy-light decomposition is online on a fixed tree shape. Centroid decomposition is a divide-and-conquer on a fixed tree.
+- **The data.** Square root decomposition and Mo's algorithm work on an array. The lowest common ancestor tables, heavy-light and centroid decomposition work on a tree.
+- **How queries arrive.** Square root decomposition answers each query as it comes (online) and allows point updates. Mo's algorithm needs every query up front (offline) and the array must not change. The lowest common ancestor tables and heavy-light decomposition are online on a fixed tree shape. Centroid decomposition is a divide-and-conquer on a fixed tree.
 
 ## At a glance
 
@@ -54,6 +60,7 @@ The techniques split along two lines:
   rows={[
     ['Square root decomposition', 'array', 'blocks of about sqrt(n) elements', 'range sum (the code); any mergeable summary', 'point update in O(1)', 'online'],
     ['Mo\'s algorithm', 'array', 'blocks of queries by left end', 'a statistic that adds and removes one element in O(1); the code counts distinct values', 'none between queries', 'offline'],
+    ['Lowest common ancestor', 'tree', 'jumps of 2^k levels, or an Euler tour cut into windows of 2^k entries', 'LCA and distance; k-th ancestor with binary lifting', 'none: rebuild', 'online'],
     ['Heavy-light decomposition', 'tree', 'vertical chains of heavy edges', 'LCA, and the array segments that cover a path', 'values only, with a segment tree on top (not in this repository)', 'online'],
     ['Centroid decomposition', 'tree', 'pieces of at most half the size, around the centroid', 'the centroid tree; used for path, distance and nearest-marked-node problems', 'not for edges', 'online, once built'],
   ]}
@@ -61,9 +68,9 @@ The techniques split along two lines:
 
 ## See them side by side
 
-One tab per technique, in reading order: the two array techniques open on their topic examples (paste `[1, 2, 1, 3, 2, 1, 4, 2, 3]` with the queries of the next section to compare them on one array), and the **Nine nodes (overview)** example of each tree tab loads the tree used below.
+One tab per technique, in reading order: the two array techniques open on their topic examples (paste `[1, 2, 1, 3, 2, 1, 4, 2, 3]` with the queries of the next section to compare them on one array), and the **Nine nodes (overview)** example of each tree tab loads the tree used below. The lowest common ancestor tab is binary lifting; its topic page has the Euler tour as well.
 
-<ArticleViz ids={['sqrt-decomposition', 'mos-algorithm', 'heavy-light-decomposition', 'centroid-decomposition']} />
+<ArticleViz ids={['sqrt-decomposition', 'mos-algorithm', 'lca-up-table', 'heavy-light-decomposition', 'centroid-decomposition']} />
 
 ## One array and one tree
 
@@ -85,6 +92,7 @@ Now a tree with 9 vertices and the edges `0-1, 0-2, 1-3, 1-4, 3-6, 3-7, 2-5, 5-8
 <DataTable
   columns={['Technique', 'Result']}
   rows={[
+    ['Lowest common ancestor', '`lca(6, 4) = 1` and `lca(8, 7) = 0`; `distance(6, 4) = 3` and `distance(8, 7) = 6`; binary lifting uses 4 rows of jumps (1, 2, 4 and 8 levels)'],
     ['Heavy-light decomposition', 'four chains: `0, 1, 3, 6` and `2, 5, 8` and the single vertices `4` and `7`'],
     ['`lca(6, 4)` and `lca(8, 7)`', '1 and 0'],
     ['`query_path(6, 4)`', 'two segments of the position array, `[(5, 5), (1, 3)]`'],
@@ -99,6 +107,8 @@ Now a tree with 9 vertices and the edges `0-1, 0-2, 1-3, 1-4, 3-6, 3-7, 2-5, 5-8
   rows={[
     ['Square root decomposition', 'O(n)', 'O(sqrt n)', 'O(1) for a point', 'O(sqrt n) plus a copy of the array'],
     ['Mo\'s algorithm', 'O(Q log Q) to sort the queries', 'O((N + Q) sqrt N) for all of them', 'not supported', 'O(N + Q)'],
+    ['Lowest common ancestor, binary lifting', 'O(n log n)', 'O(log n) for LCA, distance or k-th ancestor', 'not supported', 'O(n log n)'],
+    ['Lowest common ancestor, Euler tour + sparse table', 'O(n log n)', 'O(1) for LCA or distance', 'not supported', 'O(n log n)'],
     ['Heavy-light decomposition', 'O(n)', 'O(log n) for LCA or the path segments', 'not in the code', 'O(n)'],
     ['Centroid decomposition', 'O(n log n)', 'O(log n), one step per centroid ancestor, in a typical use', 'not supported', 'O(n)'],
   ]}
@@ -113,7 +123,8 @@ A heavy-light path query that also asks for a sum, with a segment tree over the 
   rows={[
     ['Range sums with point updates, and you want simple code', 'Square root decomposition', 'one array and one block-sum array; a segment tree or Fenwick tree is faster at O(log n)'],
     ['Many range queries on a fixed array, statistic hard to merge', 'Mo\'s algorithm', 'only needs add and remove of one element; all queries must be known first'],
-    ['Path queries or the LCA on a fixed tree', 'Heavy-light decomposition', 'any path becomes O(log n) contiguous ranges of one array'],
+    ['Many LCA, distance or k-th ancestor queries on a fixed tree', 'Lowest common ancestor', 'binary lifting is short and gives the k-th ancestor; the Euler tour answers in O(1)'],
+    ['Path sums or maxima on a fixed tree', 'Heavy-light decomposition', 'any path becomes O(log n) contiguous ranges of one array; it gives the LCA too, in O(n) memory'],
     ['Count paths of a given length, or nearest marked vertex', 'Centroid decomposition', 'every path passes through a centroid at some level, and the levels are O(log n)'],
     ['Range sums with no updates', 'Prefix sums', 'O(n) build and O(1) per query, no decomposition needed'],
   ]}
@@ -121,9 +132,9 @@ A heavy-light path query that also asks for a sum, with a segment tree over the 
 
 ## Applications
 
-- **Competitive programming.** All four are standard tools for range and tree queries with large limits.
+- **Competitive programming.** All five are standard tools for range and tree queries with large limits.
 - **Offline analytics.** Mo's algorithm answers batches of distinct-count or frequency queries on logs.
-- **Hierarchies.** Heavy-light decomposition gives the LCA and path aggregates on trees such as organisation charts or file systems.
+- **Hierarchies.** The lowest common ancestor tables answer "which manager do these two share" and "how far apart are they" on trees such as organisation charts or file systems; heavy-light decomposition adds path aggregates.
 - **Network and road trees.** Centroid decomposition answers nearest-facility queries after each facility is marked.
 
 ## Common mistakes
@@ -133,6 +144,7 @@ A heavy-light path query that also asks for a sum, with a segment tree over the 
 - **Using Mo's algorithm online or with updates.** It sorts all queries first and assumes the array never changes.
 - **Shrinking Mo's window before expanding it.** The window can go invalid and a count can go negative. Expand first.
 - **A slow add or remove in Mo's algorithm.** An O(log n) step makes the total O((N + Q) sqrt N log N).
+- **Jumping when the ancestors are equal in binary lifting.** An equal ancestor may not be the lowest one; jump both nodes only while their ancestors differ.
 - **Treating `pos` as the vertex id.** Segment tree indexes in heavy-light decomposition are `pos[u]`, not `u`.
 - **Stale sizes or a missing removed flag in centroid decomposition.** Recompute sizes for each piece and never walk back into a removed centroid.
 </Callout>
@@ -141,7 +153,7 @@ A heavy-light path query that also asks for a sum, with a segment tree over the 
 
 <Faq>
   <FaqItem question="In what order should I read these?">
-    Square root decomposition first: it introduces blocks and the sqrt(n) balance. Mo's algorithm builds on it and on the two-pointer idea. The two tree techniques are independent of those two. Read heavy-light decomposition first, because it is the more common one, then centroid decomposition.
+    Square root decomposition first: it introduces blocks and the sqrt(n) balance. Mo's algorithm builds on it and on the two-pointer idea. The tree techniques are independent of those two. Read the lowest common ancestor first: it is the most common tree query, and heavy-light decomposition answers it again in another way. Then heavy-light decomposition, then centroid decomposition.
   </FaqItem>
   <FaqItem question="Why sqrt(n) for the block size?">
     A query scans up to two partial blocks of B elements and up to n/B whole blocks. B + n/B is smallest when B is about sqrt(n). Mo's algorithm balances pointer moves in the same way.

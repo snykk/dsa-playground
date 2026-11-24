@@ -1,0 +1,316 @@
+---
+topic: Algorithms/String_Algorithms/Advanced_String/String_Hashing
+title: String Hashing
+lead: A polynomial hash turns a string into a number modulo a prime. Keep the hash of every prefix and the powers of the base, and the hash of any substring takes O(1). Substring equality, the common prefix of two suffixes, their order and distinct substrings follow, right with high probability.
+level: Intermediate
+updated: 2026-11-24
+facts:
+  - label: Build
+    value: O(n)
+    hint: prefix hashes and powers, n + 1 each
+  - label: Substring hash
+    value: O(1)
+    hint: prefix[r] - prefix[l] * B^(r-l), mod M
+  - label: LCP, compare
+    value: O(log n)
+    hint: binary search on the length
+  - label: One comparison
+    value: <= (n - 1) / M
+    hint: collision chance with a random base
+  - label: k hashes
+    value: about k^2 / 2M
+    hint: colliding pairs (birthday bound)
+    tone: warn
+properties:
+  - { label: Always correct, value: false }
+  - { label: Equal strings always get equal hashes, value: true }
+  - { label: Same numbers in Python, C++ and Go, value: true }
+  - { label: Supports changing the string, value: false }
+prerequisites:
+  - Algorithms/String_Algorithms/Pattern_Matching/Rabin_Karp_Algorithm
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+  - Algorithms/Searching/Binary_Search
+related:
+  - Algorithms/String_Algorithms/Advanced_String/Suffix_Array
+  - Algorithms/String_Algorithms/Advanced_String/Z_Algorithm
+  - Algorithms/String_Algorithms/Advanced_String/Longest_Common_Substring
+  - Data_Structures/Hashing/Hash_Table
+---
+
+## How it works
+
+Comparing two strings of length m costs O(m). Comparing two numbers costs O(1). A **polynomial hash** reads the characters `c_0 c_1 ... c_(m-1)` as the digits of a number in base B and keeps its remainder modulo a prime M:
+
+<Equation label="Polynomial hash" expr="hash = (c_0 * B^(m-1) + c_1 * B^(m-2) + ... + c_(m-1)) mod M" />
+
+Equal strings always get equal hashes. Different strings of the same length can collide, but rarely, so a hash mismatch is a proof that two strings differ and a hash match is very strong evidence that they are equal.
+
+Rabin-Karp, a prerequisite of this page, slides one window of this hash along a text to find one pattern. String hashing keeps the hash of **every prefix** of one string instead, so it can hash any substring, in any order, as often as needed.
+
+<Steps>
+  <Step title="Build the prefix hashes">
+    `prefix[0] = 0`, and `prefix[i + 1] = (prefix[i] * B + c_i) mod M` by Horner's rule: shift one digit left, add the next character. `prefix[i]` is the hash of the first i characters.
+  </Step>
+  <Step title="Build the power table">
+    `power[0] = 1` and `power[i + 1] = power[i] * B mod M`, so `power[i] = B^i mod M`. One pass builds both tables in O(n).
+  </Step>
+  <Step title="Hash any substring in O(1)">
+    `prefix[r]` is the number written by `s[0:r]`. The digits of `s[0:l]` sit in it `r - l` places to the left, so `hash(s[l:r]) = (prefix[r] - prefix[l] * power[r - l]) mod M`.
+  </Step>
+  <Step title="Answer the queries">
+    Two substrings of the same length are equal when their hashes are. The longest common prefix of two suffixes is a binary search on the length, and the first character after it orders the two.
+  </Step>
+</Steps>
+
+<Callout title="Why the subtraction works">
+It is the prefix-sum trick with a shift. `prefix[5]` for `mississippi` holds `m i s s i` as base-B digits. `prefix[1]` holds `m`; multiplied by `B^4`, it lines up with the `m` inside `prefix[5]`, and the difference keeps only `i s s i`, the hash of `s[1:5]`.
+</Callout>
+
+## The queries
+
+<DataTable
+  columns={['Query', 'How', { label: 'Time', kind: 'mono' }]}
+  rows={[
+    ['`get(l, r)`', 'the hash of `s[l:r]` from two prefix hashes and one power', 'O(1)'],
+    ['`equal(i, j, length)`', 'compare `get(i, i + length)` with `get(j, j + length)`', 'O(1)'],
+    ['`lcp(i, j)`', 'binary search on the length k in `0..min(n - i, n - j)`: the longest k whose two prefixes have equal hashes', 'O(log n)'],
+    ['`compare(l1, r1, l2, r2)`', 'the same search, limited to the shorter length; a proper prefix comes first, else the characters at offset k decide', 'O(log n)'],
+    ['`count_distinct(length)`', 'the number of different hashes among the `n - length + 1` substrings of that length', 'O(n) expected'],
+  ]}
+/>
+
+The binary search is valid because equal prefixes are monotone: if the first k characters of two suffixes agree, so do the first k - 1. It keeps `lo`, a length known to agree (0 at the start), and `hi`, the longest length that still might. It tries `mid = (lo + hi + 1) // 2`: equal hashes move `lo` up to `mid`, different hashes move `hi` down to `mid - 1`. The `+ 1` rounds up, so `mid` is always above `lo` and the loop ends.
+
+## How likely is a collision?
+
+<DataTable
+  columns={['Situation', 'Probability', 'Checked by running the code']}
+  rows={[
+    ['One comparison of two different strings of length n, a random base, a prime M', 'at most `(n - 1) / M`', 'with M = 1009, trying all 1008 bases on random pairs: a pair of length n never collided for more than n - 1 of them'],
+    ['k different strings, M possible hashes', 'about `k^2 / (2M)` colliding pairs; at least one with chance about `1 - exp(-k^2 / (2M))`', 'M = 10,007 and k = 300: 4.45 pairs on average over 1000 trials (formula 4.48), a collision in 99% of them'],
+    ['10^5 substrings, one modulus `1,000,000,007`', 'about 5 colliding pairs: a collision is almost certain', '`count_distinct(20)` on 20 random strings of 100,019 letters: short by 5.0 on average, wrong on all 20'],
+    ['10^5 substrings, the largest prime below 2^32', 'about 1.16 pairs, at least one with chance 69%', '27 of 40 random strings had one'],
+    ['10^5 substrings, `DoubleHash` (two moduli)', 'about `5 x 10^-9`', 'none of 5 random strings lost a count'],
+  ]}
+/>
+
+<Callout title="One comparison: n / M">
+When two strings of length n differ, `hash(x) - hash(y)` is a polynomial in B of degree at most n - 1, and it is not zero. Modulo a prime it has at most n - 1 roots. A base drawn at random from M values hits a root with probability at most `(n - 1) / M`: about 10<sup>-4</sup> for n = 10<sup>5</sup> and M near 10<sup>9</sup>.
+</Callout>
+
+**Many comparisons add up.** A query is rarely one comparison. A distinct-substring count compares every pair of 10<sup>5</sup> hashes at once, about 5 x 10<sup>9</sup> pairs, and the birthday bound says that one modulus near 10<sup>9</sup> (it fits in 32 bits) then expects 5 collisions. That is why the code here keeps **two moduli**: `DoubleHash` stores two hashes of every prefix, one modulo 1,000,000,007 and one modulo 998,244,353, each with its own base, and compares them as a pair, which behaves like one modulus near 10<sup>18</sup>. A single modulus near 2<sup>61</sup> works too, but its products need 128 bits.
+
+<Callout title="Random base or fixed base">
+The bound `(n - 1) / M` holds for **any** two strings when the base is random: an adversary who writes the input cannot know which base the program will pick. That is why contest code draws the base when the program starts. This repository fixes its bases (911,382,323 and 972,663,749), so that Python, C++ and Go compute the same numbers and the tests can pin them. Fixed public constants are fine for these tests, not for hostile input: anyone who knows them can prepare a colliding input offline, as the Thue-Morse strings below do for the modulus 2<sup>64</sup>.
+</Callout>
+
+## Why not let 64-bit integers overflow?
+
+Unsigned 64-bit arithmetic in C++ and Go wraps around, so dropping the `mod` computes the hash modulo 2<sup>64</sup> for free. It is a classic mistake, and the code includes it, as `overflow_hash`, to show why:
+
+- **An even base** forgets everything but the last 64 characters, since B<sup>64</sup> is a multiple of 2<sup>64</sup>. `x` followed by 64 `a`s and `y` followed by 64 `a`s collide for bases 2, 256, 1000 and 2<sup>32</sup>.
+- **An odd base** loses to the **Thue-Morse** strings. Character i is `b` when i has an odd number of 1 bits: `abbabaab...`, against its complement `baababba...`. Up to sign, their difference is the product of `B^(2^j) - 1` for j below 10. For an odd B, 2 divides `B - 1` and `2^(j+2)` divides `B^(2^j) - 1`, so `2^(1 + 3 + 4 + ... + 11) = 2^64` divides the product: the strings of length 1024 collide for **every** odd base.
+
+The tests check this for 207 odd bases, in Python, C++ and Go alike: every one collides at length 1024, while length 512 does not always collide (not for base 3). `DoubleHash` tells the two strings apart. The simpler estimate, `2^(j+1)` per factor, gives `2^(1 + 2 + ... + k)` and asks for k = 11, length 2048; counted exactly, length 1024 is already enough.
+
+## See it in action
+
+The tracer runs the Python `PolynomialHash` with one small modulus, so every number fits in a cell; the repository's `DoubleHash` uses two moduli near 10<sup>9</sup>. The first example builds the prefix hashes and powers of `mississippi` with base 31 and modulus 97, then answers `lcp(1, 4)` with three steps of the binary search. **Collision misleads lcp** shows modulus 11 fooling the search, and **Distinct count with a collision** shows `abra` and `brac` sharing one hash.
+
+<ArticleViz ids={['string-hashing']} />
+
+## Worked example
+
+`PolynomialHash("mississippi", 31, 97)`. The column of `prefix[i]` shows the character it adds last:
+
+<DataTable
+  columns={['i', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']}
+  rowHeaders
+  rows={[
+    ['adds', '', 'm', 'i', 's', 's', 'i', 's', 's', 'i', 'p', 'p', 'i'],
+    ['code', '', '109', '105', '115', '115', '105', '115', '115', '105', '112', '112', '105'],
+    ['prefix[i]', '0', '12', '89', '61', '66', '17', '60', '35', '26', '45', '52', '68'],
+    ['power[i]', '1', '31', '88', '12', '81', '86', '47', '2', '62', '79', '24', '65'],
+  ]}
+/>
+
+For example `prefix[2] = (12 x 31 + 105) mod 97 = 477 mod 97 = 89`. The two copies of `issi` get the same hash:
+
+<Equation label="hash(s[1:5])" expr="(prefix[5] - prefix[1] * power[4]) mod 97 = (17 - 12 * 81) mod 97" result="15" />
+<Equation label="hash(s[4:8])" expr="(prefix[8] - prefix[4] * power[4]) mod 97 = (26 - 66 * 81) mod 97" result="15" />
+
+`lcp(1, 4)` compares the suffixes `ississippi` and `issippi`, so the common prefix is at most 7 long:
+
+<DataTable
+  columns={['Step', 'lo', 'hi', 'mid', 'Hashes of the prefixes of length mid', 'Result']}
+  rows={[
+    ['1', '0', '7', '4', '`get(1, 5)` = 15, `get(4, 8)` = 15 (`issi`, `issi`)', 'equal: lo = 4'],
+    ['2', '4', '7', '6', '`get(1, 7)` = 53, `get(4, 10)` = 54 (`ississ`, `issipp`)', 'differ: hi = 5'],
+    ['3', '4', '5', '5', '`get(1, 6)` = 95, `get(4, 9)` = 92 (`issis`, `issip`)', 'differ: hi = 4'],
+    ['4', '4', '4', '', 'lo == hi', 'return 4'],
+  ]}
+/>
+
+Six substring hashes answer the query. `DoubleHash("mississippi")` agrees: `lcp(2, 5) = 3`, `compare(0, 4, 1, 5) = 1` (`miss` comes after `issi`: `m` > `i` at offset 0), and the counts of distinct substrings of lengths 1 to 11 are 4, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1.
+
+A modulus this small collides easily. With base 31 and modulus 101, `abra` and `brac` in `abracadabra` both hash to 57, so `count_distinct(4)` returns 6 instead of 7. With base 7 and modulus 11, `abra` and `cada` collide and `lcp(0, 4)` returns 4 instead of 0: the search trusts the collision at length 4 and never tries length 1. `DoubleHash` gets both right.
+
+## Pseudocode
+
+```text
+PolynomialHash(s, base, mod):            # 2 <= mod <= 2^32, 1 <= base < mod
+    prefix[0] = 0; power[0] = 1
+    for i, c in enumerate(codes(s)):
+        prefix[i + 1] = (prefix[i] * base + c) % mod
+        power[i + 1] = power[i] * base % mod
+
+get(l, r):                               # 0 <= l <= r <= n
+    return (prefix[r] - prefix[l] * power[r - l]) % mod
+
+equal(i, j, length):
+    return get(i, i + length) == get(j, j + length)
+
+_lcp(i, j, limit):                       # longest k <= limit with equal hashes
+    lo, hi = 0, limit
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if get(i, i + mid) == get(j, j + mid): lo = mid
+        else: hi = mid - 1
+    return lo
+
+lcp(i, j) = _lcp(i, j, min(n - i, n - j))
+
+compare(l1, r1, l2, r2):
+    k = _lcp(l1, l2, min(r1 - l1, r2 - l2))
+    if k == min(r1 - l1, r2 - l2): return sign((r1 - l1) - (r2 - l2))
+    return -1 if codes[l1 + k] < codes[l2 + k] else 1
+
+count_distinct(length):
+    return size of { get(i, i + length) for i in 0 .. n - length }
+
+DoubleHash(s): two PolynomialHash tables, (911382323, 1000000007) and (972663749, 998244353);
+               get returns the pair, and the queries above work on pairs unchanged
+```
+
+## Implementation
+
+Every language provides the same pieces with the same results:
+
+- **`PolynomialHash`** with `get`, `equal`, `lcp`, `compare` and `count_distinct` (`countDistinct`, `CountDistinct`), for any modulus from 2 to 2<sup>32</sup> and base from 1 to mod - 1.
+- **`DoubleHash`** with the same queries, on the two fixed pairs.
+- **`polynomial_hash`** (`polynomialHash`, `PolynomialHashOf`) for one whole string, **`overflow_hash`** (`overflowHash`, `OverflowHash`) for the broken hash modulo 2<sup>64</sup>, and **`thue_morse_pair`** (`thueMorsePair`, `ThueMorsePair`).
+
+**No overflow in C++ and Go.** Every hash and power is below the modulus, at most 2<sup>32</sup>, so a product of two of them is at most (2<sup>32</sup> - 1)<sup>2</sup>, below 2<sup>64</sup>: it fits in an unsigned 64-bit integer. `get` adds `mod` before subtracting, since an unsigned value cannot go below zero. Python's integers never overflow, and its `%` is never negative.
+
+**Characters.** Python hashes the code points of a `str` (or the bytes of a `bytes`); C++ and Go hash the bytes of their strings, so text in UTF-8 is hashed byte by byte. For ASCII the three agree, and `s.encode("utf-8")` gives Python the numbers of the other two. The C++ and Go tests pin the tables of `mississippi`, the `DoubleHash` values, the tables at modulus 2<sup>32</sup> and base 2<sup>32</sup> - 1, and the hashes of a UTF-8 string and of a 100,000-character string, all computed by the Python code.
+
+**Errors.** A bad base or modulus raises `ValueError` in Python, throws `std::invalid_argument` in C++, and returns an error wrapping `ErrBadParameters` in Go. A range outside the string raises `IndexError`, throws `std::out_of_range`, or panics in Go; a negative length raises `ValueError`, throws `std::invalid_argument`, or panics.
+
+<TopicCode topic="Algorithms/String_Algorithms/Advanced_String/String_Hashing" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Build', time: 'O(n)', space: 'O(n)', when: 'One pass; n + 1 prefix hashes and n + 1 powers per modulus.' },
+    { case: 'get, equal', time: 'O(1)', when: 'Two prefix hashes and one power per substring.' },
+    { case: 'lcp, compare', time: 'O(log n)', when: 'At most ceil(log2(n + 1)) steps of the binary search, two get calls each.' },
+    { case: 'count_distinct(length)', time: 'O(n) expected', space: 'O(n)', when: 'A hash set in Python and Go; C++ sorts the hashes, O(n log n).' },
+    { case: 'Distinct substrings of every length', time: 'O(n^2)', space: 'O(n)', when: 'n(n + 1)/2 get calls in all.' },
+  ]}
+/>
+
+Counted with the Python code on strings of 10 to 10<sup>6</sup> characters, random and all equal: no `lcp` made more than `2 * ceil(log2(n + 1))` calls to `get`, which is 40 at n = 10<sup>6</sup>, and `count_distinct` over every length of 2000 characters made exactly 2,001,000 = n(n + 1)/2 calls.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Choice', 'Options', 'Trade-off']}
+  rows={[
+    ['The modulus', 'two primes near 10^9 (used here), one prime near 2^61, one near 10^9', 'two 30-bit primes keep every product in 64 bits; 2^61 - 1 needs a 128-bit product; one modulus near 10^9 fails at 10^5 substrings'],
+    ['The base', 'random at start-up (contest code), fixed (used here)', 'random defeats prepared inputs; fixed gives reproducible numbers across languages and tests'],
+    ['Hashing modulo 2^64 by overflow', 'never', 'fast, but the Thue-Morse strings of length 1024 collide for every odd base'],
+    ['Digit order', 'first character is the most significant (used here, as Rabin-Karp), or the least', 'both work; the other order multiplies by an inverse power, or compares hashes scaled to a common power'],
+    ['Verifying a match', 'trust the hash (used here), or compare the characters on a hit', 'verifying makes the answer exact, at O(length) per hit, which an adversary can make frequent'],
+    ['A changing string', 'a Fenwick or segment tree of hashes', 'O(log n) per update and per query; not in this repository'],
+  ]}
+/>
+
+## String hashing compared
+
+<DataTable
+  columns={['Method', 'Preprocessing', 'Substring equality', 'LCP of two suffixes', 'Exact']}
+  highlight={0}
+  rows={[
+    ['String hashing', 'O(n)', 'O(1)', 'O(log n)', 'with high probability'],
+    ['Direct comparison', 'none', 'O(length)', 'O(answer)', 'yes'],
+    ['Z-algorithm', 'O(n)', 'only with a prefix of the string', 'O(1) with the whole string only', 'yes'],
+    ['Suffix array + LCP array + sparse table', 'O(n log n) with prefix doubling and radix sort (not in this repository)', 'through the LCP', 'O(1)', 'yes'],
+    ['Rabin-Karp', 'none', 'one rolling window, left to right', 'no', 'verifies every hit'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Any substring becomes one number in O(1), after O(n) work.',
+    'Short code that turns many string problems into binary search or set membership.',
+    'Works for any comparison of equal-length pieces: palindromes, periods, rotations, several strings at once.',
+    'The same tables answer equality, LCP, order and distinct counts.',
+  ]}
+  cons={[
+    'Right with high probability, not always; one modulus near 10^9 is not enough for 10^5 substrings.',
+    'Fixed public constants can be attacked; hostile input needs a random base.',
+    'O(log n) for an LCP, where a suffix array with an LCP table answers in O(1).',
+    'The string must not change, or a tree of hashes is needed.',
+  ]}
+/>
+
+## Applications
+
+- **Longest repeated or common substring**: binary search on the length, with a set of the hashes of every window of that length.
+- **Palindromes**: hash the string and its reverse; a substring is a palindrome when both hashes of it agree.
+- **Periods, borders and rotations**: `s[0:n-p] == s[p:n]` in O(1) per p; the smallest rotation by comparing rotations of `s + s`.
+- **Deduplication**: equal file blocks or repeated lines, found by their hashes, then confirmed.
+- **Building a suffix array**: sort the suffixes with `compare` as the comparison, O(n log<sup>2</sup> n) in all.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Comparing hashes of different lengths.** `\0` and `\0\0` both hash to 0. Compare lengths first, as every query here does.
+- **A negative difference** in C++ and Go: add `mod` before taking the remainder.
+- **Overflowing the product.** Keep both factors below 2<sup>32</sup>, or use a 128-bit product for a modulus near 2<sup>61</sup>.
+- **Natural overflow as the modulus.** Thue-Morse strings break it for every odd base, and an even base keeps only the last 64 characters.
+- **One modulus near 10<sup>9</sup> for 10<sup>5</sup> substrings.** About 5 collisions are expected. Use two moduli.
+- **Signed `char` in C++.** Bytes of 0x80 or more would be negative; read them as `unsigned char`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Do I need a prime modulus?">
+    The bound of n - 1 roots holds modulo a prime. Modulo a composite a polynomial can have many more roots, and a power of two is a bad case, as the Thue-Morse strings show. Both moduli here are primes.
+  </FaqItem>
+  <FaqItem question="Should the base be larger than the alphabet?">
+    It need not be. The collision bound comes from the random base, not from the size of the alphabet. A base below the largest character code only means two different strings can share a hash before the modulus is taken, which the bound already counts. The fixed bases here are near 10<sup>9</sup>, far above every code point.
+  </FaqItem>
+  <FaqItem question="Why binary search for the LCP instead of comparing characters?">
+    A scan costs O(answer) per query, and the answer can be n. The binary search costs O(log n) whatever the answer, which matters when there are many queries, for example the O(n log n) comparisons of a sort.
+  </FaqItem>
+  <FaqItem question="Can hashing replace a suffix array?">
+    For many problems, yes, at a log factor: comparisons in O(log n), distinct counts per length in O(n). A suffix array with an LCP array answers exactly and in O(1) per LCP, but its fast construction is much longer code.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Finding Borders', site: 'CSES 1732', url: 'https://cses.fi/problemset/task/1732', idea: 'Every prefix that is also a suffix: one `equal(0, n - k, k)` per length k.' },
+    { name: 'Good Substrings', site: 'Codeforces 271D', url: 'https://codeforces.com/problemset/problem/271/D', idea: 'Distinct substrings with a limit on bad letters: put the hash of every allowed substring in a set.' },
+    { name: 'Longest Duplicate Substring', site: 'LeetCode 1044', url: 'https://leetcode.com/problems/longest-duplicate-substring/', idea: 'Binary search on the length, with a set of the hashes of every window of that length.' },
+    { name: 'Minimal Rotation', site: 'CSES 1110', url: 'https://cses.fi/problemset/task/1110', idea: 'Compare rotations of `s + s` with `compare`: the common prefix by binary search, then one character.' },
+    { name: 'Longest Common Subpath', site: 'LeetCode 1923', url: 'https://leetcode.com/problems/longest-common-subpath/', idea: 'Sequences of numbers instead of letters, a set of hashes per path, and tests built to break one modulus.' },
+  ]}
+/>

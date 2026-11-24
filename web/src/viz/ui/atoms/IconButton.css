@@ -21,7 +21,7 @@
   border-color: var(--accent);
   color: #fff;
 }
-.viz-icon:disabled {
+.viz-icon[aria-disabled='true'] {
   opacity: 0.4;
   cursor: default;
 }

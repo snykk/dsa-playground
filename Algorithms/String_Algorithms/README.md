@@ -9,7 +9,7 @@ Read them in this order.
 | # | Section | What it adds | Level |
 |---|---------|--------------|-------|
 | 1 | [Pattern Matching Algorithms](Pattern_Matching/) | Find every occurrence of one pattern in a text. Four searches that differ in what they do after a mismatch. | 4 topics |
-| 2 | [Advanced String Algorithms](Advanced_String/) | Many patterns at once, suffix arrays, the Z-array, palindromes and common substrings. | 5 topics |
+| 2 | [Advanced String Algorithms](Advanced_String/) | Many patterns at once, suffix arrays, the Z-array, substring hashes, palindromes and common substrings. | 6 topics |
 
 Pattern Matching is the foundation. KMP's failure idea reappears in the Z-array and in the failure links of Aho-Corasick, and the suffix array is what you build when you ask the same question many times against one text.
 

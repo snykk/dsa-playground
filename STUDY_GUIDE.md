@@ -178,7 +178,7 @@ Coin Change is the first problem where greedy fails; LCS opens 2D tables; the re
 
 ## Phase 4: Advanced Algorithms and Structures (Weeks 11-15)
 
-**Goal:** Learn the topics that separate passing interviews from solving contest problems. (47 topics)
+**Goal:** Learn the topics that separate passing interviews from solving contest problems. (52 topics)
 
 **Why this order:** Graph algorithms reuse the Phase 2 structures, strings reuse the trie, range structures come before the specialist trees, and bitmask DP needs bit manipulation.
 
@@ -187,6 +187,7 @@ Coin Change is the first problem where greedy fails; LCS opens 2D tables; the re
 Dijkstra first; the others each change one assumption.
 
 - [Dijkstra's Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm/) (Intermediate)
+- [0-1 BFS](Algorithms/Graph_Algorithms/Shortest_Path/0_1_BFS/) (Intermediate)
 - [Bellman-Ford Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm/) (Intermediate)
 - [Floyd-Warshall Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm/) (Intermediate)
 - [A* Search](Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm/) (Intermediate)
@@ -195,14 +196,17 @@ Dijkstra first; the others each change one assumption.
 
 ### Advanced graphs
 
-SCC, bridges and 2-SAT reuse DFS; network flow is self-contained.
+Eulerian paths need only degrees and connectivity; SCC, bridges and 2-SAT reuse DFS; network flow is self-contained.
 
+- [Eulerian Path and Circuit](Algorithms/Graph_Algorithms/Advanced_Graph/Eulerian_Path/) (Intermediate)
 - [Kosaraju's Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosarajus_Algorithm/) (Advanced)
 - [Tarjan's SCC Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm/) (Advanced)
 - [Bridges and Articulation Points](Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/) (Advanced)
 - [2-SAT](Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT/) (Advanced)
 - [Ford-Fulkerson Method](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson/) (Advanced)
 - [Edmonds-Karp Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp/) (Advanced)
+- [Dinic's Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Dinic/) (Advanced)
+- [Bipartite Matching](Algorithms/Graph_Algorithms/Advanced_Graph/Bipartite_Matching/) (Advanced)
 
 ### String algorithms
 
@@ -213,6 +217,7 @@ KMP's border table is the idea most later algorithms borrow.
 - [Knuth-Morris-Pratt (KMP) Algorithm](Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm/) (Intermediate)
 - [Boyer-Moore Algorithm](Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm/) (Intermediate)
 - [Z-Algorithm](Algorithms/String_Algorithms/Advanced_String/Z_Algorithm/) (Intermediate)
+- [String Hashing](Algorithms/String_Algorithms/Advanced_String/String_Hashing/) (Intermediate)
 - [Aho-Corasick](Algorithms/String_Algorithms/Advanced_String/Aho_Corasick/) (Advanced)
 - [Suffix Array](Algorithms/String_Algorithms/Advanced_String/Suffix_Array/) (Advanced)
 - [Manacher's Algorithm](Algorithms/String_Algorithms/Advanced_String/Longest_Palindromic_Substring_Manachers/) (Advanced)
@@ -264,16 +269,17 @@ Bit manipulation first, because bitmask DP stores a subset in an integer.
 
 ## Phase 5: Competitive Programming (Week 16 onward)
 
-**Goal:** Pick up the techniques that win contests, plus the utilities around them. (31 topics)
+**Goal:** Pick up the techniques that win contests, plus the utilities around them. (32 topics)
 
 **Why this order:** Decompositions need segment trees and DFS, number theory comes before matrix exponentiation and FFT, and the utilities are used together with all of it.
 
 ### Decomposition techniques
 
-Array side first (square root, Mo), then the tree side (heavy-light, centroid).
+Array side first (square root, Mo), then the tree side (lowest common ancestor, heavy-light, centroid).
 
 - [Square Root Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition/) (Intermediate)
 - [Mo's Algorithm](Algorithms/Advanced_Algorithms/Specialized_Techniques/Mos_Algorithm/) (Advanced)
+- [Lowest Common Ancestor](Algorithms/Advanced_Algorithms/Specialized_Techniques/Lowest_Common_Ancestor/) (Advanced)
 - [Heavy-Light Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Heavy_Light_Decomposition/) (Advanced)
 - [Centroid Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposition/) (Advanced)
 

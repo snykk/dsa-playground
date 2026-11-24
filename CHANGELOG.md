@@ -15,6 +15,32 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+## [v0.9.0] - 2026-11-24
+
+Six new topics on graphs, trees and strings, a complete Fibonacci heap, and a player that keeps keyboard focus.
+
+### Added
+
+- **Six new topics, bringing the repository to 159.** Each has Python, C++ and Go code with tests (the C++ and Go tests pin outputs computed by the Python code), READMEs, an article with checked practice problems, and a visualization whose tracer is pinned to the Python code by golden fixtures (eight new visualizations, 199 in all):
+  - **Bipartite Matching**: Kuhn's augmenting paths in O(V E) and Hopcroft-Karp in O(E sqrt(V)), with a minimum vertex cover read off the matching (Konig's theorem). ([ad4c202](https://github.com/snykk/dsa-playground/commit/ad4c20273a91b2052f79fa18e8d2a7eb49881a4a))
+  - **Dinic's Algorithm**: level graphs and blocking flows with a current-arc pointer, O(V^2 E), with the flow on every edge and the minimum cut. ([dee7901](https://github.com/snykk/dsa-playground/commit/dee790124004a7ab2d6e42f8f9be322c270e7b40))
+  - **Eulerian Path and Circuit**: when one exists in directed and undirected graphs, and Hierholzer's algorithm with an explicit stack in O(V + E). ([fc02652](https://github.com/snykk/dsa-playground/commit/fc026521a2b7c593c4caec180d833085c30e793d))
+  - **0-1 BFS**: shortest paths with weights 0 and 1 on a deque in O(V + E), with paths and a grid example. ([48edb25](https://github.com/snykk/dsa-playground/commit/48edb25c5f6c1276dc01843a457119d002cfece5))
+  - **Lowest Common Ancestor**: binary lifting and the Euler tour with a sparse table, with distances and k-th ancestors. ([72ed855](https://github.com/snykk/dsa-playground/commit/72ed855591cc3c3bf06277bc03141c4928700d5e))
+  - **String Hashing**: prefix hashes and double hashing, substring equality, the longest common prefix and comparison by binary search, distinct substrings, the probability of a collision, and the Thue-Morse strings that break hashing modulo 2^64. ([4f7b58f](https://github.com/snykk/dsa-playground/commit/4f7b58f46f4943915d12acec7b4e2746fe3232ed))
+- **The Fibonacci heap's decrease-key, delete and merge**, in all three languages: insert returns a handle, decrease-key cuts and walks up the marked ancestors (cascading cuts) in O(1) amortized, and a stale handle is rejected. The article shows a Dijkstra that calls decrease-key, and the visualization shows cuts, marks, delete and merge. ([4ee2bca](https://github.com/snykk/dsa-playground/commit/4ee2bca2b5800dbd65541787aa9109d82306de1e))
+
+### Changed
+
+- **The topic lists, overviews and the study guide include the new topics**, and the Edmonds-Karp pages point to Dinic's algorithm instead of calling it missing. ([0bf1a6c](https://github.com/snykk/dsa-playground/commit/0bf1a6c463808c5442fd41e2e2ada912e5bbf0e0), [dee7901](https://github.com/snykk/dsa-playground/commit/dee790124004a7ab2d6e42f8f9be322c270e7b40))
+- **The home page's demo has a soft glow of the accent behind it**, faint on paper and visible in the dark theme. ([3e876e4](https://github.com/snykk/dsa-playground/commit/3e876e41f05c4add1665cf15d4b3aa31d22b9d13))
+- **Changelog entries link the commits that made them**, from this version on, and each version's footer link opens its compare view. ([1643947](https://github.com/snykk/dsa-playground/commit/1643947ad8afe15df127dae4053bf11dbf03a89b))
+
+### Fixed
+
+- **The player kept keyboard focus only until the last step.** Next and Last disabled themselves there and dropped focus to the page; they now stay focusable, are announced as unavailable, and ignore presses. ([d520199](https://github.com/snykk/dsa-playground/commit/d5201997b222374428b089616e0e260720ee5aec))
+- **The wide pictures of the optimization visualizations** (Precomputation and the others drawn in the same frame) could not be scrolled from the keyboard at phone width; they take a tab stop while they overflow. ([72ed855](https://github.com/snykk/dsa-playground/commit/72ed855591cc3c3bf06277bc03141c4928700d5e))
+
 ## [v0.8.1] - 2026-11-22
 
 A Code of Conduct, a security policy, a README that shows what the site offers, and workflows on Node 24.
@@ -293,13 +319,14 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
-[v0.8.1]: https://github.com/snykk/dsa-playground/releases/tag/v0.8.1
-[v0.8.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.8.0
-[v0.7.1]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.1
-[v0.7.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.0
-[v0.6.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.6.0
-[v0.5.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.5.0
-[v0.4.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.4.0
-[v0.3.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.3.0
-[v0.2.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.2.0
+[v0.9.0]: https://github.com/snykk/dsa-playground/compare/v0.8.1...v0.9.0
+[v0.8.1]: https://github.com/snykk/dsa-playground/compare/v0.8.0...v0.8.1
+[v0.8.0]: https://github.com/snykk/dsa-playground/compare/v0.7.1...v0.8.0
+[v0.7.1]: https://github.com/snykk/dsa-playground/compare/v0.7.0...v0.7.1
+[v0.7.0]: https://github.com/snykk/dsa-playground/compare/v0.6.0...v0.7.0
+[v0.6.0]: https://github.com/snykk/dsa-playground/compare/v0.5.0...v0.6.0
+[v0.5.0]: https://github.com/snykk/dsa-playground/compare/v0.4.0...v0.5.0
+[v0.4.0]: https://github.com/snykk/dsa-playground/compare/v0.3.0...v0.4.0
+[v0.3.0]: https://github.com/snykk/dsa-playground/compare/v0.2.0...v0.3.0
+[v0.2.0]: https://github.com/snykk/dsa-playground/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.1.0

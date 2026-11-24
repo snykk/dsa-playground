@@ -1,12 +1,15 @@
 ---
 category: Algorithms/Graph_Algorithms/Shortest_Path
 title: Shortest Path Algorithms
-lead: Shortest-path algorithms find the cheapest route through a weighted graph. The four here differ in what they assume and what they return, which is non-negative weights and one source for Dijkstra, negative weights for Bellman-Ford, every pair for Floyd-Warshall, and one goal with a hint for A*.
-updated: 2026-11-13
+lead: Shortest-path algorithms find the cheapest route through a weighted graph. The five here differ in what they assume and what they return, which is non-negative weights and one source for Dijkstra, weights of only 0 and 1 for 0-1 BFS, negative weights for Bellman-Ford, every pair for Floyd-Warshall, and one goal with a hint for A*.
+updated: 2026-11-24
 facts:
   - label: Dijkstra
     value: O((V + E) log V)
     hint: non-negative weights only
+  - label: 0-1 BFS
+    value: O(V + E)
+    hint: weights 0 and 1, a deque instead of a heap
   - label: Bellman-Ford
     value: O(V * E)
     hint: negative weights, detects negative cycles
@@ -20,6 +23,8 @@ facts:
 contents:
   - folder: Dijkstras_Algorithm
     note: The baseline. Settle the closest unsettled vertex with a priority queue. Fast, but wrong if any edge is negative.
+  - folder: 0_1_BFS
+    note: Dijkstra for weights 0 and 1 only. A deque replaces the heap, a weight-0 edge pushes to the front and a weight-1 edge to the back, for O(V + E).
   - folder: Bellman_Ford_Algorithm
     note: Relax every edge V - 1 times. Slower, but it handles negative edges and detects a reachable negative cycle.
   - folder: Floyd_Warshall_Algorithm
@@ -39,7 +44,7 @@ related:
 
 Given a weighted graph, find the path between two vertices whose edge weights add up to the smallest total. Variants ask for one source to every vertex, or for every pair.
 
-BFS solves this when every edge costs the same. Once weights differ, the path with the fewest edges is no longer the cheapest, and these four algorithms take over. Each one keeps a distance estimate for every vertex and lowers it by **relaxing** an edge: if `dist[u] + w < dist[v]`, then `dist[v]` becomes `dist[u] + w`. They differ in which edges they relax and in what order.
+BFS solves this when every edge costs the same. Once weights differ, the path with the fewest edges is no longer the cheapest, and these five algorithms take over. Each one keeps a distance estimate for every vertex and lowers it by **relaxing** an edge: if `dist[u] + w < dist[v]`, then `dist[v]` becomes `dist[u] + w`. They differ in which edges they relax and in what order.
 
 ## At a glance
 
@@ -47,6 +52,7 @@ BFS solves this when every edge costs the same. Once weights differ, the path wi
   columns={['Algorithm', 'Answers', 'Idea', 'Negative edges', { label: 'Time', kind: 'mono' }]}
   rows={[
     ['Dijkstra', 'one source to all', 'settle the closest unsettled vertex, then relax its edges', 'no', 'O((V + E) log V)'],
+    ['0-1 BFS', 'one source to all', "Dijkstra's order kept by a deque: weight 0 to the front, weight 1 to the back", 'no; weights 0 and 1 only', 'O(V + E)'],
     ['Bellman-Ford', 'one source to all', 'relax every edge, V - 1 rounds, then one check round', 'yes, and detects negative cycles', 'O(V * E)'],
     ['Floyd-Warshall', 'all pairs', 'allow vertex k as an intermediate, for k from 0 to V - 1', 'yes, and detects negative cycles', 'O(V^3)'],
     ['A*', 'one source to one goal', 'Dijkstra ordered by g + h, with h an estimate of the cost left', 'no', 'O(b^d) worst case'],
@@ -57,9 +63,9 @@ A negative cycle, one whose weights sum below zero, makes the cheapest path unde
 
 ## See them side by side
 
-Each tab animates one algorithm on an input you can edit. Load **Detour wins** in the Dijkstra tab, then **Negative edge** in the Bellman-Ford tab and compare. In the A* tab, **Around a wall** shows how the heuristic steers the search on a grid. Try **Open field** as well: with no walls every cell ties at f = 10, so A* still expands 31 of the 32 cells before it reaches the goal.
+Each tab animates one algorithm on an input you can edit. Load **Detour wins** in the Dijkstra tab, then **Negative edge** in the Bellman-Ford tab and compare. In the A* tab, **Around a wall** shows how the heuristic steers the search on a grid. Try **Open field** as well: with no walls every cell ties at f = 10, so A* still expands 31 of the 32 cells before it reaches the goal. In the 0-1 BFS tab, **Worked example** shows a vertex pushed twice and its first entry skipped as stale.
 
-<ArticleViz ids={['dijkstra', 'bellman-ford', 'floyd-warshall', 'a-star']} />
+<ArticleViz ids={['dijkstra', 'zero-one-bfs', 'bellman-ford', 'floyd-warshall', 'a-star']} />
 
 ## One graph, three answers
 
@@ -107,6 +113,7 @@ Dijkstra settles vertex 1 at distance 4 before it ever looks at vertex 2, and it
   columns={['Algorithm', { label: 'Time', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, 'Notes']}
   rows={[
     ['Dijkstra', 'O((V + E) log V)', 'O(V + E)', 'binary heap with lazy deletion; the heap can hold one entry per edge'],
+    ['0-1 BFS', 'O(V + E)', 'O(V + E)', 'a deque; each vertex is pushed at most twice and processed once'],
     ['Bellman-Ford', 'O(V * E)', 'O(V)', 'V - 1 rounds over all E edges, plus one check round'],
     ['Floyd-Warshall', 'O(V^3)', 'O(V^2)', 'three nested loops over a distance matrix'],
     ['A*', 'O(b^d)', 'depends on the open set', 'worst case with a useless heuristic; with h = 0 it behaves as Dijkstra'],
@@ -121,6 +128,7 @@ To get all pairs, you can also run Dijkstra from every vertex. That costs V time
   columns={['Situation', 'Use', 'Why']}
   rows={[
     ['One source, non-negative weights', 'Dijkstra', 'the fastest of the general methods here'],
+    ['One source, every edge costs 0 or 1', '0-1 BFS', 'a deque instead of a heap, so no log factor'],
     ['Negative edges, or you must detect a negative cycle', 'Bellman-Ford', 'it does not assume that settled vertices are final'],
     ['Distances between all pairs on a small graph', 'Floyd-Warshall', 'three short loops, handles negative edges, one table'],
     ['One goal and a good distance estimate, such as a map or a grid', 'A*', 'the heuristic prunes vertices that point away from the goal'],
@@ -149,7 +157,7 @@ To get all pairs, you can also run Dijkstra from every vertex. That costs V time
 
 <Faq>
   <FaqItem question="What should I read first?">
-    Dijkstra's algorithm. The other three each change one of its assumptions: Bellman-Ford drops the ban on negative edges, Floyd-Warshall computes every pair, and A* adds a heuristic to the priority.
+    Dijkstra's algorithm. The other four each change one of its assumptions: 0-1 BFS allows only weights 0 and 1 and trades the heap for a deque, Bellman-Ford drops the ban on negative edges, Floyd-Warshall computes every pair, and A* adds a heuristic to the priority.
   </FaqItem>
   <FaqItem question="Is A* always faster than Dijkstra?">
     No. It expands fewer vertices only when the heuristic is informative. With h = 0 it is Dijkstra, and with a poor estimate it does as much work. It also answers one goal only, while Dijkstra gives distances to every vertex.

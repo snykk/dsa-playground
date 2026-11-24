@@ -20,6 +20,10 @@ export interface SparseTableState {
   /** What the picture shows, for screen readers. */
   label: string;
   arr: SparseCell[];
+  /** Label of the array row; "a" when left out. */
+  arrLabel?: string;
+  /** More rows indexed like the array, drawn under it (the depths along an Euler tour). */
+  rows?: Array<{ label: string; cells: SparseCell[] }>;
   /** Two window rows, always drawn (empty when null) so the picture keeps its height. */
   windows: [SparseWindow | null, SparseWindow | null];
   windowLabels: [string, string];
@@ -30,22 +34,30 @@ export interface SparseTableState {
 }
 
 /**
- * Organism for a sparse table: the array, two window rows that slide along it (the halves a
- * cell is built from, or the two windows a query reads) and the table, one row per level j
- * (windows of length 2^j). Built from the Cell atom and the CellRow molecules.
+ * Organism for a sparse table: the array (with any rows indexed like it underneath), two window
+ * rows that slide along it (the halves a cell is built from, or the two windows a query reads)
+ * and the table, one row per level j (windows of length 2^j). Built from the Cell atom and the
+ * CellRow molecules.
  */
 export function SparseTableView({ state }: { state: SparseTableState }) {
-  const { arr, windows, windowLabels, levels, note, strips } = state;
+  const { arr, rows, windows, windowLabels, levels, note, strips } = state;
   return (
     <div>
       <div className="sparse-view">
         <CellGrid label={state.label}>
           <IndexRow count={arr.length} label="i" />
-          <CellRow label="a">
+          <CellRow label={state.arrLabel ?? 'a'}>
             {arr.map((c, i) => (
               <Cell key={i} value={c.value} role={c.role} title={c.title} />
             ))}
           </CellRow>
+          {(rows ?? []).map((row) => (
+            <CellRow key={`x${row.label}`} label={row.label}>
+              {row.cells.map((c, i) => (
+                <Cell key={i} value={c.value} role={c.role} title={c.title} />
+              ))}
+            </CellRow>
+          ))}
           {windows.map((w, k) => (
             <CellRow key={`w${k}`} label={w ? windowLabels[k] : ''} shift={w?.start ?? 0}>
               {w && w.cells.length > 0 ? w.cells.map((c, i) => <Cell key={i} value={c.value} role={c.role} title={c.title} />) : <Cell variant="blank" />}
