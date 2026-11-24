@@ -1,4 +1,4 @@
-/** Visualization registry: Advanced graph algorithms (network flow, 2-SAT, bipartite matching). */
+/** Visualization registry: Advanced graph algorithms (network flow, 2-SAT, bipartite matching, Eulerian paths). */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
@@ -48,6 +48,13 @@ export const entries: VizInfo[] = [
     blurb: 'Every clause becomes two implications; Tarjan splits the graph into components, and x shares one with ~x exactly when the formula is unsatisfiable.',
     topics: [`${ADV}/2_SAT`, ADV],
   },
+  {
+    id: 'hierholzer',
+    title: "Hierholzer's algorithm (Eulerian path)",
+    group: 'Graphs',
+    blurb: 'Degrees decide whether a walk through every edge exists; a stack walks until it is stuck, and each detour found while backing up is spliced in as a closed circuit.',
+    topics: [`${ADV}/Eulerian_Path`, ADV],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -57,4 +64,5 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'kuhn-matching': () => import('../specs/advancedGraph').then((m) => m.kuhnSpec),
   'hopcroft-karp': () => import('../specs/advancedGraph').then((m) => m.hopcroftKarpSpec),
   'two-sat': () => import('../specs/advancedGraph').then((m) => m.twoSatSpec),
+  hierholzer: () => import('../specs/advancedGraph').then((m) => m.hierholzerSpec),
 };

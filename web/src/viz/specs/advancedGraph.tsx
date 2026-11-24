@@ -8,6 +8,7 @@ import {
 } from '../algorithms/bipartiteMatching';
 import { DINIC_CODE, dinicTrace, parseDinic } from '../algorithms/dinic';
 import { EDMONDS_KARP_CODE, edmondsKarpTrace, parseEdmondsKarp } from '../algorithms/edmondsKarp';
+import { EULER_CODE, eulerTrace, parseEuler, type EulerInput } from '../algorithms/eulerianPath';
 import type { FlowInput } from '../algorithms/flowNetwork';
 import { FORD_FULKERSON_CODE, fordFulkersonTrace, parseFordFulkerson } from '../algorithms/fordFulkerson';
 import { parseTwoSat, TWO_SAT_CODE, twoSatTrace, type TwoSatInput } from '../algorithms/twoSat';
@@ -270,4 +271,72 @@ export const hopcroftKarpSpec: VizSpec<MatchingInput, GraphState> = {
     { role: 'idle', label: 'free vertex; edge outside the matching' },
   ],
   complexity: { time: 'O(E sqrt(V))', space: 'O(V + E)' },
+};
+
+// ---------------------------------------------------------------- Eulerian path
+
+const EULER_EXAMPLES: Example[] = [
+  { label: 'Splice at the start', value: '0-3, 0-1, 1-2, 2-0, 3-4, 4-5, 5-3' },
+  { label: 'Directed detour', value: '0->1, 1->4, 1->2, 2->3, 3->1' },
+  { label: 'House in one stroke', value: '0-1, 1-2, 2-3, 3-0, 0-2, 1-3, 2-4, 3-4' },
+  { label: 'Weakly connected only', value: '0->1, 1->2, 2->0, 2->3' },
+  { label: 'Four odd vertices', value: '0-1, 0-2, 0-3, 1-2, 1-3, 2-3' },
+  { label: 'Two components', value: '0-1, 1-2, 2-0, 3-4, 4-5, 5-3; n 7' },
+];
+
+/** A random walk on 4 to 7 vertices without loops or repeated pairs, closed half the time; now and then one more edge, which may spoil it. */
+function randomEulerGraph(): string {
+  const n = rint(4, 7);
+  const directed = Math.random() < 0.5;
+  const arrow = directed ? '->' : '-';
+  const seen = new Set<string>();
+  const edges: string[] = [];
+  const add = (u: number, v: number) => {
+    const key = directed ? `${u}->${v}` : `${Math.min(u, v)}-${Math.max(u, v)}`;
+    if (u === v || seen.has(key)) return false;
+    seen.add(key);
+    edges.push(`${u}${arrow}${v}`);
+    return true;
+  };
+  const first = rint(0, n - 1);
+  let v = first;
+  for (let step = rint(5, 11); step > 0; step--) {
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const w = rint(0, n - 1);
+      if (add(v, w)) {
+        v = w;
+        break;
+      }
+    }
+  }
+  if (Math.random() < 0.5) add(v, first);
+  if (Math.random() < 0.25) add(rint(0, n - 1), rint(0, n - 1));
+  return edges.join(', ');
+}
+
+export const hierholzerSpec: VizSpec<EulerInput, GraphState> = {
+  id: 'hierholzer',
+  title: "Hierholzer's algorithm",
+  inputKind: 'euler-graph',
+  inputLabel: 'Edges',
+  inputHelp:
+    'Undirected edges "0-1" or directed edges "0->1", separated by commas, all of one kind. Vertices are numbered 0 to 7; add "n 6" for vertices without an edge. ' +
+    'adj keeps the edges in the order you write them, and the walk leaves each vertex by its first unused edge. The code also takes loops and parallel edges; the picture does not draw them. ' +
+    'Up to 16 edges.',
+  examples: EULER_EXAMPLES,
+  randomInput: () => valid(randomEulerGraph, parseEuler),
+  parse: parseEuler,
+  trace: (input) => eulerTrace(input).frames,
+  render: (state) => <GraphView state={state} />,
+  pseudocode: EULER_CODE,
+  legend: [
+    { role: 'active', label: 'top of the stack, where the walk is; the edge just taken or just finished' },
+    { role: 'compare', label: 'on the stack, with the edges of the walk in progress; an odd or unbalanced vertex' },
+    { role: 'done', label: 'finished: an edge in the path, a vertex with no unused edge (badge left = unused edges)' },
+    { role: 'good', label: `an end of the finished walk (${SYM.check})` },
+    { role: 'bad', label: `a vertex that rules a walk out, or one the walk never reached (${SYM.cross})` },
+    { role: 'muted', label: 'no edge: plays no part' },
+    { role: 'idle', label: 'unused edge; vertex with unused edges' },
+  ],
+  complexity: { time: 'O(V + E)', space: 'O(V + E)' },
 };

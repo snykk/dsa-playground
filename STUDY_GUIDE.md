@@ -196,8 +196,9 @@ Dijkstra first; the others each change one assumption.
 
 ### Advanced graphs
 
-SCC, bridges and 2-SAT reuse DFS; network flow is self-contained.
+Eulerian paths need only degrees and connectivity; SCC, bridges and 2-SAT reuse DFS; network flow is self-contained.
 
+- [Eulerian Path and Circuit](Algorithms/Graph_Algorithms/Advanced_Graph/Eulerian_Path/) (Intermediate)
 - [Kosaraju's Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosarajus_Algorithm/) (Advanced)
 - [Tarjan's SCC Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm/) (Advanced)
 - [Bridges and Articulation Points](Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/) (Advanced)

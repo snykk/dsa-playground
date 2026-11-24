@@ -1,9 +1,10 @@
-"""Generate golden fixtures for the network-flow, 2-SAT and matching visualizations from the repository's Python code.
+"""Generate golden fixtures for the network-flow, 2-SAT, matching and Eulerian-path visualizations from the repository's Python code.
 
 The web visualizer re-implements Ford-Fulkerson, Edmonds-Karp, the 2-SAT solver, Kuhn's
 algorithm, Hopcroft-Karp and Dinic's algorithm in TypeScript (web/src/viz/algorithms/fordFulkerson.ts,
 edmondsKarp.ts, twoSat.ts, bipartiteMatching.ts and dinic.ts). These fixtures pin each port to its
-reference in Algorithms/Graph_Algorithms/Advanced_Graph:
+reference in Algorithms/Graph_Algorithms/Advanced_Graph. Hierholzer's algorithm
+(eulerianPath.ts, from Eulerian_Path/Python/eulerian_path.py) is pinned the same way:
 
 - flow: for every network (edges in dict order, source, sink), Ford-Fulkerson's augmenting
   paths and bottlenecks (ford_fulkerson_with_path), the vertices each DFS reached in the
@@ -22,6 +23,10 @@ reference in Algorithms/Graph_Algorithms/Advanced_Graph:
   BFS order and, for each _find_path call, the path or null, the entries it looked at and
   what _push returned; the final residual dict, and dinic_flow's value, flows (rows and
   entries in graph order), source side, phases and edge visits.
+- euler: for every graph (n, directed and the edges in order), the (kind, start) that
+  _degree_check returned, the vertices and edge_ids that _hierholzer returned (the walk of the
+  start's component, null when the degree check failed or there is no edge), eulerian_kind's
+  answer and eulerian_path's walk or null.
 
 The values that the functions keep to themselves (a DFS's parent dict, edmonds_karp's
 residual dict and the BFS parents, solve()'s comp list, the matching searches' stack, path
@@ -44,10 +49,12 @@ ADV = ROOT / "Algorithms" / "Graph_Algorithms" / "Advanced_Graph"
 for folder in ("Network_Flow/Ford_Fulkerson/Python", "Network_Flow/Edmonds_Karp/Python", "2_SAT/Python", "Bipartite_Matching/Python",
                "Network_Flow/Dinic/Python"):
     sys.path.insert(0, str(ADV / folder))
+sys.path.insert(0, str(ADV / "Eulerian_Path" / "Python"))
 
 import bipartite_matching as bm_module  # noqa: E402
 import dinic as dinic_module  # noqa: E402
 import edmonds_karp as ek_module  # noqa: E402
+import eulerian_path as eu_module  # noqa: E402
 import ford_fulkerson as ff_module  # noqa: E402
 from two_sat import TwoSAT  # noqa: E402
 
@@ -382,6 +389,91 @@ def random_matching(rng):
     return n_left, n_right, edges
 
 
+def euler_case(n, directed, edges):
+    """Run eulerian_path and eulerian_kind; record the degree check and the walk _hierholzer returned."""
+    seen = {}
+
+    def profile(frame, event, arg):
+        if event != "return":
+            return
+        name = frame.f_code.co_name
+        if name == "_degree_check":
+            seen["degrees"] = {"kind": arg[0], "start": arg[1]}
+        elif name == "_hierholzer":
+            seen["walked"] = {"vertices": list(arg[0]), "edge_ids": list(arg[1])}
+
+    sys.setprofile(profile)
+    try:
+        walk = eu_module.eulerian_path(n, edges, directed)
+    finally:
+        sys.setprofile(None)
+    return {
+        "n": n,
+        "directed": directed,
+        "edges": [list(e) for e in edges],
+        "degrees": seen["degrees"],
+        "walked": seen.get("walked"),
+        "kind": eu_module.eulerian_kind(n, edges, directed),
+        "walk": None if walk is None else {"vertices": walk.vertices, "edge_ids": walk.edge_ids},
+    }
+
+
+HAND_EULER = [
+    # The visualization's examples.
+    (6, False, [(0, 3), (0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)]),
+    (5, True, [(0, 1), (1, 4), (1, 2), (2, 3), (3, 1)]),
+    (5, False, [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (1, 3), (2, 4), (3, 4)]),
+    (4, True, [(0, 1), (1, 2), (2, 0), (2, 3)]),
+    (4, False, [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]),
+    (7, False, [(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)]),
+    # The repository tests: Konigsberg and an eighth bridge, no edges, loops, parallel edges,
+    # isolated vertices, the tie rule, degree failures.
+    (4, False, [(0, 1), (0, 1), (0, 2), (0, 2), (0, 3), (1, 3), (2, 3)]),
+    (4, False, [(0, 1), (0, 1), (0, 2), (0, 2), (0, 3), (1, 3), (2, 3), (1, 2)]),
+    (0, False, []),
+    (4, True, []),
+    (1, False, [(0, 0)]),
+    (1, True, [(0, 0)]),
+    (3, False, [(0, 1), (1, 1), (1, 2)]),
+    (2, False, [(0, 1), (0, 1), (0, 1)]),
+    (2, True, [(0, 1), (1, 0), (0, 1)]),
+    (6, False, [(3, 4)]),
+    (3, False, [(0, 1), (1, 0), (2, 2)]),
+    (4, True, [(0, 1), (1, 3), (3, 0), (3, 2)]),
+    (3, False, [(2, 1), (1, 0)]),
+    (5, False, [(0, 1), (1, 2), (2, 0), (0, 3), (3, 4), (4, 0)]),
+    (5, False, [(0, 1), (1, 2), (2, 0), (1, 3), (3, 4), (4, 1)]),
+    (3, True, [(0, 1), (0, 2)]),
+    (4, True, [(0, 1), (2, 3)]),
+]
+
+
+def random_euler(rng):
+    """1 to 8 vertices, directed or not; mostly the edges of one random walk, else random edges
+    with loops and repeats, so all three answers come up."""
+    directed = rng.random() < 0.5
+    n = rng.randint(1, 8)
+    if rng.random() < 0.6:
+        v = rng.randrange(n)
+        first = v
+        length = rng.randint(1, 16)
+        closed = rng.random() < 0.5
+        edges = []
+        for k in range(length):
+            w = first if closed and k == length - 1 else rng.randrange(n)
+            edges.append((v, w))
+            v = w
+        rng.shuffle(edges)
+    else:
+        edges = []
+        for _ in range(rng.randint(0, 12)):
+            if edges and rng.random() < 0.1:
+                edges.append(rng.choice(edges))
+            else:
+                edges.append((rng.randrange(n), rng.randrange(n)))
+    return n, directed, edges
+
+
 def main():
     rng = random.Random(20261115)
     flow = [flow_case(parse_edges(text), s, t) for text, s, t in HAND_FLOW]
@@ -397,9 +489,12 @@ def main():
     dinic = [dinic_case(parse_edges(text), s, t) for text, s, t in HAND_DINIC]
     dinic += [dinic_case(*random_flow(dinic_rng)) for _ in range(140)]
     sections = {"flow": flow, "twosat": sat, "matching": matching, "dinic": dinic}
+    # Euler: a generator of its own, so the earlier sections keep their random cases.
+    euler_rng = random.Random(20261124)
+    sections["euler"] = [euler_case(*case) for case in HAND_EULER] + [euler_case(*random_euler(euler_rng)) for _ in range(160)]
     header = {
         "generator": "web/scripts/gen_advancedGraph_fixtures.py",
-        "reference": "Algorithms/Graph_Algorithms/Advanced_Graph (Network_Flow/Ford_Fulkerson/Python/ford_fulkerson.py, Network_Flow/Edmonds_Karp/Python/edmonds_karp.py, 2_SAT/Python/two_sat.py, Bipartite_Matching/Python/bipartite_matching.py, Network_Flow/Dinic/Python/dinic.py)",
+        "reference": "Algorithms/Graph_Algorithms/Advanced_Graph (Network_Flow/Ford_Fulkerson/Python/ford_fulkerson.py, Network_Flow/Edmonds_Karp/Python/edmonds_karp.py, 2_SAT/Python/two_sat.py, Bipartite_Matching/Python/bipartite_matching.py, Network_Flow/Dinic/Python/dinic.py, Eulerian_Path/Python/eulerian_path.py)",
     }
     parts = []
     for key, cases in sections.items():
