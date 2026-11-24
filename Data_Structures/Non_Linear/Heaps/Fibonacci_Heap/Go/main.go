@@ -1,18 +1,40 @@
 package main
 
+// FibonacciHeapNode is a node of the heap and also the handle that Insert
+// returns: keep it to call DecreaseKey or Delete on that node later.
 type FibonacciHeapNode struct {
-	key      int
-	degree   int
-	parent   *FibonacciHeapNode
-	child    *FibonacciHeapNode
-	left     *FibonacciHeapNode
-	right    *FibonacciHeapNode
-	marked   bool
+	key    int
+	degree int
+	parent *FibonacciHeapNode
+	child  *FibonacciHeapNode
+	left   *FibonacciHeapNode
+	right  *FibonacciHeapNode
+	marked bool
+	// false once the node has left its heap (ExtractMin, Delete, Clear): the
+	// handle is then stale, and DecreaseKey and Delete panic on it.
+	inHeap bool
+}
+
+// Key returns the node's current key; it panics on a nil handle.
+func (n *FibonacciHeapNode) Key() int {
+	if n == nil {
+		panic("empty handle")
+	}
+	return n.key
+}
+
+// InHeap reports whether the node is still in a heap (false for nil).
+func (n *FibonacciHeapNode) InHeap() bool {
+	return n != nil && n.inHeap
 }
 
 type FibonacciHeap struct {
 	minNode *FibonacciHeapNode
 	count   int
+	// Work counters for the amortized analysis: trees linked by consolidation
+	// and nodes cut from their parent.
+	links int
+	cuts  int
 }
 
 func NewFibonacciHeap() *FibonacciHeap {
@@ -25,6 +47,16 @@ func (h *FibonacciHeap) IsEmpty() bool {
 
 func (h *FibonacciHeap) Size() int {
 	return h.count
+}
+
+// LinkCount is the number of links made by consolidation so far.
+func (h *FibonacciHeap) LinkCount() int {
+	return h.links
+}
+
+// CutCount is the number of nodes cut from their parent so far.
+func (h *FibonacciHeap) CutCount() int {
+	return h.cuts
 }
 
 func (h *FibonacciHeap) addToRootList(node *FibonacciHeapNode) {
@@ -59,6 +91,7 @@ func (h *FibonacciHeap) link(child, parent *FibonacciHeapNode) {
 	}
 
 	parent.degree++
+	h.links++
 }
 
 func (h *FibonacciHeap) consolidate() {
@@ -120,13 +153,15 @@ func removeDegree(order []int, degree int) []int {
 	return order
 }
 
-func (h *FibonacciHeap) Insert(key int) {
+// Insert adds key and returns its node as a handle for DecreaseKey and Delete.
+func (h *FibonacciHeap) Insert(key int) *FibonacciHeapNode {
 	node := &FibonacciHeapNode{
 		key:    key,
 		degree: 0,
 		parent: nil,
 		child:  nil,
 		marked: false,
+		inHeap: true,
 	}
 	node.left = node
 	node.right = node
@@ -141,6 +176,7 @@ func (h *FibonacciHeap) Insert(key int) {
 	}
 
 	h.count++
+	return node
 }
 
 func (h *FibonacciHeap) ExtractMin() int {
@@ -151,11 +187,13 @@ func (h *FibonacciHeap) ExtractMin() int {
 	minNode := h.minNode
 	minKey := minNode.key
 
+	// Move the children to the root list; a root is never marked.
 	if minNode.child != nil {
 		child := minNode.child
 		for {
 			nextChild := child.right
 			child.parent = nil
+			child.marked = false
 			h.addToRootList(child)
 			if nextChild == minNode.child {
 				break
@@ -172,8 +210,18 @@ func (h *FibonacciHeap) ExtractMin() int {
 		h.consolidate()
 	}
 
+	detach(minNode)
 	h.count--
 	return minKey
+}
+
+// detach forgets a node that left the heap: its handle is stale from now on.
+func detach(node *FibonacciHeapNode) {
+	node.inHeap = false
+	node.parent = nil
+	node.child = nil
+	node.left = node
+	node.right = node
 }
 
 func (h *FibonacciHeap) Peek() int {
@@ -183,7 +231,132 @@ func (h *FibonacciHeap) Peek() int {
 	return h.minNode.key
 }
 
+func checkHandle(node *FibonacciHeapNode) {
+	if !node.InHeap() {
+		panic("stale handle: the node is no longer in a heap")
+	}
+}
+
+// DecreaseKey lowers the key behind a handle. If the node now beats its
+// parent, it is cut to the root list, and each marked ancestor is cut after it
+// (cascading cut). It panics on a stale or nil handle and on a larger key.
+func (h *FibonacciHeap) DecreaseKey(node *FibonacciHeapNode, newKey int) {
+	checkHandle(node)
+	if newKey > node.key {
+		panic("new key is greater than the current key")
+	}
+	node.key = newKey
+	parent := node.parent
+	if parent != nil && node.key < parent.key {
+		h.cut(node, parent)
+		h.cascadingCut(parent)
+	}
+	if node.key < h.minNode.key {
+		h.minNode = node
+	}
+}
+
+// Delete removes the node behind a handle: decrease-key to minus infinity
+// without a sentinel. The node is cut like a decreased one, made the minimum
+// without changing its key, and extracted. It panics on a stale or nil handle.
+func (h *FibonacciHeap) Delete(node *FibonacciHeapNode) {
+	checkHandle(node)
+	parent := node.parent
+	if parent != nil {
+		h.cut(node, parent)
+		h.cascadingCut(parent)
+	}
+	h.minNode = node
+	h.ExtractMin()
+}
+
+// cut moves node (with its subtree) from parent's children to the root list.
+func (h *FibonacciHeap) cut(node, parent *FibonacciHeapNode) {
+	if node.right == node {
+		parent.child = nil
+	} else {
+		if parent.child == node {
+			parent.child = node.right
+		}
+		node.left.right = node.right
+		node.right.left = node.left
+	}
+	parent.degree--
+	h.addToRootList(node)
+	node.parent = nil
+	node.marked = false
+	h.cuts++
+}
+
+// cascadingCut walks up from a node that just lost a child: a non-root node
+// that loses its first child is marked; a marked node that loses a second
+// child is cut too, and the walk goes on with its parent. Roots are never marked.
+func (h *FibonacciHeap) cascadingCut(node *FibonacciHeapNode) {
+	parent := node.parent
+	for parent != nil {
+		if !node.marked {
+			node.marked = true
+			return
+		}
+		h.cut(node, parent)
+		node = parent
+		parent = node.parent
+	}
+}
+
+// Merge moves every node of other into h in O(1): other's root list is
+// spliced in right after minNode, and other is left empty. Handles from other
+// stay valid and now belong to h. It panics when other is h.
+func (h *FibonacciHeap) Merge(other *FibonacciHeap) {
+	if other == h {
+		panic("cannot merge a heap with itself")
+	}
+	if other.minNode != nil {
+		if h.minNode == nil {
+			h.minNode = other.minNode
+		} else {
+			first := other.minNode
+			last := first.left
+			after := h.minNode.right
+			h.minNode.right = first
+			first.left = h.minNode
+			last.right = after
+			after.left = last
+			if first.key < h.minNode.key {
+				h.minNode = first
+			}
+		}
+		h.count += other.count
+	}
+	other.minNode = nil
+	other.count = 0
+}
+
+// Clear removes every node in O(n): each one is flagged, so every handle
+// becomes stale.
 func (h *FibonacciHeap) Clear() {
+	rings := []*FibonacciHeapNode{}
+	if h.minNode != nil {
+		rings = append(rings, h.minNode)
+	}
+	for len(rings) > 0 {
+		start := rings[len(rings)-1]
+		rings = rings[:len(rings)-1]
+		ring := []*FibonacciHeapNode{}
+		for current := start; ; {
+			ring = append(ring, current)
+			current = current.right
+			if current == start {
+				break
+			}
+		}
+		for _, node := range ring {
+			if node.child != nil {
+				rings = append(rings, node.child)
+			}
+			detach(node)
+		}
+	}
 	h.minNode = nil
 	h.count = 0
 }
@@ -192,7 +365,7 @@ func main() {
 	heap := NewFibonacciHeap()
 	heap.Insert(5)
 	heap.Insert(3)
-	heap.Insert(7)
-	println("Peek:", heap.Peek()) // 3
+	seven := heap.Insert(7)
+	heap.DecreaseKey(seven, 1)
+	println("Peek:", heap.Peek()) // 1
 }
-

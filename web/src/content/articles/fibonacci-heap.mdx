@@ -1,9 +1,9 @@
 ---
 topic: Data_Structures/Non_Linear/Heaps/Fibonacci_Heap
 title: Fibonacci Heap
-lead: A Fibonacci heap is a lazy forest of heap-ordered trees. Insert only drops a node into a circular list, and the real work is postponed to extract-min. Its selling point is O(1) amortized decrease-key, which this repository's version does not implement yet.
+lead: A Fibonacci heap is a lazy forest of heap-ordered trees. Insert and merge only splice lists, extract-min does the tidying, and decrease-key cuts a node loose in O(1) amortized time, which is what speeds up Dijkstra and Prim on dense graphs.
 level: Advanced
-updated: 2026-11-12
+updated: 2026-11-22
 facts:
   - label: Insert
     value: O(1)
@@ -11,16 +11,19 @@ facts:
   - label: Extract min
     value: O(log n)
     hint: amortized, after consolidation
-  - label: Peek
+  - label: Decrease key
     value: O(1)
-  - label: In this repo
-    value: no decrease-key
-    tone: warn
-    hint: insert, extract-min, peek, clear only
+    hint: amortized, through a handle
+  - label: Merge
+    value: O(1)
+    hint: splices two root lists
+  - label: Delete
+    value: O(log n)
+    hint: amortized, a cut and an extract-min
 properties:
   - { label: Lazy (consolidates on extract), value: true }
   - { label: Array-backed, value: false }
-  - { label: Decrease-key implemented here, value: false }
+  - { label: Handles for decrease-key and delete, value: true }
 prerequisites:
   - Data_Structures/Non_Linear/Heaps/Min_Heap
   - Complexity_Analysis/Time_Complexity/Big_O_Notation
@@ -36,25 +39,26 @@ related:
 A binary heap is one tree stored in an array and kept tidy after every operation. A Fibonacci heap does the opposite: it keeps a **collection of min-heap-ordered trees** and tidies up only when it has to.
 
 - The roots of the trees sit in a **circular doubly linked list**, the root list.
-- Every node stores its key, its `degree` (number of children), a `parent` pointer, one `child` pointer and the `left` and `right` links of its sibling ring.
+- Every node stores its key, its `degree` (number of children), a `parent` pointer, one `child` pointer, the `left` and `right` links of its sibling ring, a `marked` flag and an `in_heap` flag.
 - A single pointer, `min_node`, points at the root with the smallest key. Every non-root key is at least its parent key, so that root is the global minimum.
+- `insert` returns the new node as a **handle**. Passing it back to `decrease_key` or `delete` tells the heap which node to change, so nothing is ever searched for.
 
 <TreeDiagram
   root={{ label: 'root list', children: [
-    { label: 2, tone: 'f', children: [ { label: 8 }, { label: 7, children: [ { label: 9 } ] } ] },
-    { label: 3, children: [ { label: 5 } ] },
+    { label: 0, tone: 'f' },
+    { label: 1, children: [ { label: 2 }, { label: 5, children: [ { label: 6 }, { label: 7, tone: 'r', badge: '*' } ] }, { label: 3, children: [ { label: 4 } ] } ] },
   ] }}
-  legend={{ f: 'min_node, the smallest root' }}
-  caption="A heap holding 2, 3, 5, 7, 8, 9. The two roots are linked in a circle (the root list); each tree is heap ordered."
+  legend={{ f: 'min_node, the smallest root', r: 'marked (*): 7 lost its child 8, which was cut to the root list' }}
+  caption="Insert 0 to 8, extract the minimum, then decrease 8 to 0: the repository run gives this forest. The two roots are linked in a circle; each tree is heap ordered."
 />
 
 <Callout title="Laziness is the design">
-Insert does no comparisons with the rest of the heap and no tree merging. It just splices a one-node tree into the root list. The cost of the mess is paid later by extract-min, which cleans up all the trees in one sweep.
+Insert does no comparisons with the rest of the heap and no tree merging: it splices a one-node tree into the root list. Merge splices a whole root list. Decrease-key does not sift: it cuts the node off and makes it a root. The cost of the mess is paid later by extract-min, which cleans up all the trees in one sweep.
 </Callout>
 
 ## See it in action
 
-Run **Seven inserts, then consolidate**, the example of the next sections: the inserts only splice nodes into the root list next to `min_node`, and the first `extract_min` fills `degree_table` slot by slot, linking trees of equal degree. **Binomial trees from 1 to 9** builds trees of degree 3. There is no decrease-key to try, because the class has none.
+Run **Seven inserts, then consolidate**, the example of the extract-min section: the inserts only splice nodes into the root list next to `min_node`, and the first `extract_min` fills `degree_table` slot by slot, linking trees of equal degree. **Decrease-key and a cascading cut** is the example of the decrease-key section: watch a marked node lose its second child and follow it to the root list. A marked node has a dashed outline and a `*` at its corner. **Delete a node** and **Merge two heaps** show `delete` and `merge`, and **Errors and stale handles** shows what the class refuses. A handle is named after the key it was inserted with: `decrease_key 8 0` lowers the node inserted as 8.
 
 <ArticleViz ids={['fibonacci-heap']} />
 
@@ -63,28 +67,31 @@ Run **Seven inserts, then consolidate**, the example of the next sections: the i
 <DataTable
   columns={['Operation', 'What it does', { label: 'Time', kind: 'mono' }]}
   rows={[
-    ['`insert(x)`', 'splice a new one-node tree into the root list; update `min_node` if `x` is smaller', 'O(1)'],
+    ['`insert(x)`', 'splice a new one-node tree into the root list; update `min_node` if `x` is smaller; return the node as a handle', 'O(1)'],
     ['`peek()`', 'return `min_node.key`', 'O(1)'],
     ['`extract_min()`', 'promote the children of the minimum to the root list, remove it, then consolidate', 'O(log n) amortized'],
+    ['`decrease_key(h, k)`', 'lower the key; if it now beats its parent, cut the node, then cascade up the marked ancestors', 'O(1) amortized'],
+    ['`delete(h)`', 'cut the node as decrease-key would, make it `min_node`, extract it', 'O(log n) amortized'],
+    ['`merge(other)`', 'splice the root list of `other` in right after `min_node`; `other` is left empty', 'O(1)'],
     ['`size()`, `is_empty()`', 'counter / pointer check', 'O(1)'],
-    ['`clear()`', 'forget everything (Python and Go) or free node by node (C++)', 'O(1) / O(n log n)'],
+    ['`clear()`', 'flag every node as removed, then forget them', 'O(n)'],
   ]}
 />
 
-<Callout tone="warning" title="What this repository does not have">
-The textbook Fibonacci heap also offers `decrease_key`, `delete` and `merge` (union of two heaps in O(1)). **None of the three implementations here has them**, and the `marked` flag on each node is stored but never used. What the code provides is the lazy core: a binomial-style heap with O(1) insert and consolidation on extract-min. Treat the decrease-key discussion below as theory, not as an API you can call.
+<Callout title="Handles and stale handles">
+A handle is the caller's reference to one node: the node itself in Python and Go, a small `FibonacciHeapHandle` that shares ownership of the node in C++. It becomes **stale** when its node leaves the heap through `extract_min`, `delete` or `clear`: the node's `in_heap` flag turns false, and `decrease_key` and `delete` then refuse the handle with an error and change nothing (`ValueError` in Python, `std::invalid_argument` in C++, a panic in Go). A stale handle is still safe to hold and read. After `a.merge(b)`, the handles of `b`'s nodes belong to `a`. A handle passed to a heap that does not hold its node is not detected, because that check would cost more than O(1), and it leaves both heaps broken: pass a handle only to the heap it came from, or to the heap that heap was merged into.
 </Callout>
 
 ## Extract min and consolidation
 
-`extract_min()` is the only operation that restructures anything:
+`extract_min()` is the only operation that restructures whole trees:
 
 <Steps>
   <Step title="Promote the children">
-    Every child of `min_node` loses its parent pointer and joins the root list.
+    Every child of `min_node` loses its parent pointer and its mark and joins the root list.
   </Step>
   <Step title="Unlink the minimum">
-    Remove it from the root list and free it. If it was the only root and had no children, the heap is now empty.
+    Remove it from the root list and flag it as no longer in the heap, so its handle turns stale. If it was the only root and had no children, the heap is now empty.
   </Step>
   <Step title="Consolidate">
     Walk the root list once. Keep a table indexed by degree. When two trees of the same degree `d` meet, make the one with the larger root a child of the other: the result has degree `d + 1`. Repeat until every degree appears at most once.
@@ -113,36 +120,107 @@ Inserting `5, 3, 7, 1, 9, 2, 8` leaves seven separate roots, with `1` as the min
 
 Extracting `2` next promotes its children `8` and `7 (9)`, giving roots `3 (5)`, `8` and `7 (9)`. Consolidation links `3` and `7`, both of degree 1, into one tree `3 (5, 7 (9))` of degree 2. The roots are now `3` and `8`.
 
-## Why it is O(log n) amortized
+## Decrease-key and cascading cuts
+
+Decrease-key is the reason Fibonacci heaps exist. It never sifts a node up. It cuts it loose:
+
+<Steps>
+  <Step title="Check and set">
+    A stale handle is refused, and so is a key larger than the current one (an equal key is allowed and changes nothing). Otherwise the key is set.
+  </Step>
+  <Step title="Cut">
+    If the node now beats its parent, it leaves the parent's child list and joins the root list right after `min_node`, with its whole subtree, unmarked. The parent's degree drops by one.
+  </Step>
+  <Step title="Cascading cut">
+    Walk up from the parent. An unmarked non-root node has lost its first child: mark it and stop. A marked node has lost its second child: cut it too, and continue with its own parent. A root is never marked, so the walk stops there.
+  </Step>
+  <Step title="Update the minimum">
+    If the new key is smaller than the key at `min_node`, `min_node` moves to the node.
+  </Step>
+</Steps>
+
+Insert `0` to `8` and extract 0: one tree `1 (2, 5 (6, 7 (8)), 3 (4))` remains. Lowering 8 to 0 cuts it and marks 7; lowering 6 to 3 cuts it and marks 5:
+
+<TreeDiagram
+  root={{ label: 'root list', children: [
+    { label: 0, tone: 'f' },
+    { label: 3 },
+    { label: 1, children: [ { label: 2 }, { label: 5, tone: 'r', badge: '*', children: [ { label: 7, tone: 'r', badge: '*' } ] }, { label: 3, children: [ { label: 4 } ] } ] },
+  ] }}
+  legend={{ f: 'min_node', r: 'marked (*): lost one child since it was linked' }}
+  caption="Two cuts so far. The 0 and the 3 in the root list are the nodes inserted as 8 and 6."
+/>
+
+Now lower 7 to 1. It beats its parent 5, so it is cut (and its mark cleared). Its parent 5 was already marked: losing a second child, it is cut as well. The walk reaches 1, a root, and stops.
+
+<TreeDiagram
+  root={{ label: 'root list', children: [
+    { label: 0, tone: 'f' },
+    { label: 5, tone: 'l' },
+    { label: 1, tone: 'l' },
+    { label: 3 },
+    { label: 1, children: [ { label: 2 }, { label: 3, children: [ { label: 4 } ] } ] },
+  ] }}
+  legend={{ f: 'min_node', l: 'cut by this call: the node inserted as 7 (now 1), then its marked parent 5' }}
+  caption="Four cuts in total and no mark left. Each cut node joined the root list right after min_node, so the last one cut comes first."
+/>
+
+Why stop a node at two lost children? A node of degree `d` then still roots at least `F(d+2)` nodes, where `F` is the Fibonacci sequence. That keeps every degree below about `1.44 log2(n)`, which is what consolidation needs. Without the cascading cut, the trees could thin out, and the repository's tests catch that: their invariant check after every operation fails as soon as the cascade is removed.
+
+## Delete and merge
+
+`delete(h)` is decrease-key to minus infinity followed by extract-min, without ever writing minus infinity. A sentinel needs a key smaller than every real key, and a Python tuple has none, while a C++ `int` key may itself be `INT_MIN`. So `delete` cuts the node and cascades exactly as decrease-key would, sets `min_node` to the node as if its key were the smallest, and calls `extract_min`.
+
+`merge(other)` splices the circular root list of `other` in right after `min_node`, starting at `other.min_node`: four pointer writes, whatever the sizes. The minimum moves only if the other one is strictly smaller, the counts add up, and `other` is left empty but usable. Merging a heap with itself is an error. The Python tests count the pointer writes of a merge: four, both for heaps of 9 nodes and of 999.
+
+## Why the bounds hold
 
 Consolidation can look expensive: one extract-min may touch many roots. The accounting argument uses a potential function:
 
 <Equation label="Potential" expr="Phi = t + 2m" result="t = number of trees, m = number of marked nodes" />
 
-Insert raises `t` by one, so it costs O(1) plus one unit of potential. Consolidation spends one unit per tree it links, and every link lowers `t` by one, so the work is paid for by potential saved earlier. What remains is the cost proportional to the **maximum degree** `D(n)`, the number of distinct degrees left after consolidation.
+Insert raises `t` by one, so it costs O(1) plus one unit of potential. Consolidation spends one unit per link, and every link lowers `t` by one, so the work is paid for by potential saved earlier. What remains is the cost proportional to the **maximum degree**, which the `F(d+2)` bound keeps at O(log n).
 
-The bound on `D(n)` comes from the shape of trees. In a full Fibonacci heap (with cascading cuts) a node of degree `d` has a subtree of at least `F(d+2)` nodes, where `F` is the Fibonacci sequence, which is where the name comes from. Since `F(d+2)` grows like `1.618^d`, we get `D(n) = O(log n)`. The repository's variant never cuts nodes, so its trees are binomial trees, in which a tree of degree `d` has exactly `2^d` nodes. The degree bound `D(n) <= log2(n)` therefore holds there too.
+Decrease-key makes one cut, which adds a tree, and sets at most one mark: O(1) plus a constant rise in potential. Every further cut in the cascade clears a mark, which releases two units: one pays for the cut, one for the new tree. So decrease-key is **O(1) amortized**, however long a single cascade is.
 
-## Decrease-key (theory only here)
+The repository's tests check this by counting rather than timing. After n inserts, a run of decreases (60%), deletes (10%) and extractions (30%) until the heap is empty makes 0.14 to 0.15 cuts per decrease or delete for every n from 1000 to 64000, while the links per extraction or delete grow slowly, from 6.1 to 10.5, like `log n`.
 
-Decrease-key is the reason Fibonacci heaps exist. The node is cut from its parent and moved to the root list in O(1). To keep the degree bound, a node that loses a second child is cut too (a *cascading cut*), which is what the `marked` flag records. The cuts are paid for by the `2m` term of the potential, giving **O(1) amortized**.
+## Why decrease-key matters: Dijkstra
 
-That is what improves Dijkstra and Prim from O(E log V) with a binary heap to O(E + V log V): they call decrease-key up to E times but extract-min only V times.
+Dijkstra's algorithm extracts each vertex once but may lower a distance once per edge. With a handle per vertex, every improvement is a `decrease_key` instead of a new entry. This is the Python code, with `(distance, vertex)` tuples as keys:
+
+```python
+def dijkstra(graph, source):
+    dist = {v: math.inf for v in graph}
+    dist[source] = 0
+    heap = FibonacciHeap()
+    handle = {v: heap.insert((dist[v], v)) for v in graph}   # one node per vertex
+    while not heap.is_empty():
+        d, u = heap.extract_min()                             # V extractions
+        for v, w in graph[u]:
+            if d + w < dist[v]:
+                dist[v] = d + w
+                heap.decrease_key(handle[v], (dist[v], v))    # up to E decreases
+    return dist
+```
+
+On the graph A&rarr;B (4), A&rarr;C (1), C&rarr;B (2), B&rarr;D (1), C&rarr;D (5) from A it returns `{'A': 0, 'B': 3, 'C': 1, 'D': 4}` after five `decrease_key` calls and four extractions. A settled vertex is never decreased again, since its distance cannot improve, so no stale handle is used. With O(1) amortized decrease-key the whole run costs O(E + V log V), against O(E log V) with a binary heap.
 
 ## Complexity
 
 <DataTable
-  columns={['Operation', { label: 'This repo', kind: 'mono' }, { label: 'Textbook Fibonacci heap', kind: 'mono' }, { label: 'Binary heap', kind: 'mono' }]}
+  columns={['Operation', { label: 'Fibonacci heap (this repo)', kind: 'mono' }, { label: 'Binary heap', kind: 'mono' }]}
   rows={[
-    ['insert', 'O(1)', 'O(1)', 'O(log n)'],
-    ['peek', 'O(1)', 'O(1)', 'O(1)'],
-    ['extract min', 'O(log n) amortized', 'O(log n) amortized', 'O(log n)'],
-    ['decrease key', 'not implemented', 'O(1) amortized', 'O(log n)'],
-    ['merge', 'not implemented', 'O(1)', 'O(n)'],
+    ['insert', 'O(1)', 'O(log n)'],
+    ['peek', 'O(1)', 'O(1)'],
+    ['extract min', 'O(log n) amortized', 'O(log n)'],
+    ['decrease key', 'O(1) amortized', 'O(log n), with a position map'],
+    ['delete', 'O(log n) amortized', 'O(log n), with a position map'],
+    ['merge', 'O(1)', 'O(n)'],
   ]}
 />
 
-Extra space is O(n): each node carries four pointers plus `key`, `degree` and `marked`. Amortized means the bound holds over a whole sequence: a single extract-min can take O(n) time right after n inserts.
+Extra space is O(n): each node carries four pointers plus `key`, `degree`, `marked` and `in_heap` (and in C++ the shared pointer through which the heap owns it). Amortized means the bound holds over a whole sequence: a single extract-min can take O(n) time right after n inserts. The first one after 100000 inserts made 99989 links.
 
 ## Variants
 
@@ -151,8 +229,8 @@ Extra space is O(n): each node carries four pointers plus `key`, `degree` and `m
   rows={[
     ['Binary heap', 'one tree in an array', 'simplest and fastest in practice'],
     ['Binomial heap', 'eager: at most one tree per degree', 'O(log n) insert and merge'],
-    ['Lazy binomial (this repo)', 'insert lazily, consolidate on extract', 'O(1) insert, no cheap decrease-key'],
-    ['Fibonacci heap', 'lazy plus cascading cuts', 'O(1) amortized decrease-key, large constants'],
+    ['Lazy binomial heap', 'insert lazily, consolidate on extract, never cut', 'O(1) insert, but no cheap decrease-key'],
+    ['Fibonacci heap (this repo)', 'lazy, plus cuts and cascading cuts', 'O(1) amortized decrease-key, large constants'],
   ]}
 />
 
@@ -164,7 +242,8 @@ Extra space is O(n): each node carries four pointers plus `key`, `degree` and `m
   rows={[
     ['Memory layout', 'many small nodes, pointer chasing', 'one contiguous array'],
     ['Worst single operation', 'O(n) extract-min', 'O(log n)'],
-    ['Decrease-key', 'O(1) amortized (textbook)', 'O(log n)'],
+    ['Decrease-key', 'O(1) amortized, through a handle', 'O(log n), with a position map'],
+    ['Merge', 'O(1)', 'O(n)'],
     ['Implementation effort', 'high', 'low'],
     ['Typical winner', 'huge dense graphs, in theory', 'almost every real program'],
   ]}
@@ -174,38 +253,42 @@ Extra space is O(n): each node carries four pointers plus `key`, `degree` and `m
 
 <ProsCons
   pros={[
-    'Insert and peek are O(1) in the worst case.',
-    'Extract-min stays O(log n) amortized despite the lazy insert.',
-    'The full structure gives O(1) amortized decrease-key and O(1) merge.',
+    'Insert, peek and merge are O(1) in the worst case.',
+    'Decrease-key is O(1) amortized, the operation Dijkstra and Prim call most.',
+    'Extract-min and delete stay O(log n) amortized despite all the laziness.',
   ]}
   cons={[
     'Pointer-heavy nodes: poor cache behaviour and a big constant factor.',
     'A single extract-min can be slow, so it is unsuitable for hard real-time use.',
-    'Complex to implement correctly; the repository version is only the lazy core.',
+    'Complex to implement correctly: cuts, marks and handles all have to agree.',
     'In practice binary or d-ary heaps usually beat it, even for Dijkstra.',
   ]}
 />
 
 ## Applications
 
-- **Dijkstra and Prim** with many decrease-key calls on dense graphs: the reason the structure was invented. The asymptotic gain needs a version with `decrease_key`, which this repository does not include.
+- **Dijkstra and Prim** with many decrease-key calls on dense graphs: the reason the structure was invented.
+- **Merging priority queues** often, as in some scheduling and simulation code: merge is a splice.
 - **Teaching amortized analysis**: the potential-function argument is a classic example.
 - **Insert-heavy priority queues** where most elements are never extracted: the lazy insert costs almost nothing.
 
 ## Common mistakes
 
 <Callout tone="warning" title="Watch out for these">
-- **Believing the insert advantage is the point.** A binary heap also has O(1) average insert. The advantage is decrease-key.
+- **Believing the insert advantage is the point.** The advantage is decrease-key.
 - **Calling O(log n) extract-min a worst-case bound.** It is amortized; one call can cost O(n).
-- **Forgetting to clear the parent pointer** when promoting children to the root list.
-- **Iterating the root list while modifying it.** Consolidation first copies the roots into a list, then links them.
-- **Copying a heap in C++.** Nodes are owned through raw pointers, so the C++ class has its copy constructor and assignment deleted.
+- **Skipping the cascading cut.** The trees thin out and the degree bound breaks.
+- **Keeping a mark when a node becomes a root or is linked.** It would then be cut on its first lost child under the new parent, not its second.
+- **Deleting with a sentinel key.** The key type may not have one; cut the node and make it the minimum instead.
+- **Using a handle after its node left the heap.** All three languages refuse a stale handle.
+- **Walking a tree recursively.** A crafted sequence turns one tree into a path of n nodes (1000 rounds gave a path of 1001), so `clear` uses an explicit stack.
+- **Copying a heap in C++.** Nodes are linked through raw pointers, so the C++ class has its copy constructor and assignment deleted.
 - **Reading from an empty heap.** `peek` and `extract_min` raise `IndexError` in Python, throw `std::runtime_error` in C++ and panic in Go.
 </Callout>
 
 ## Implementation
 
-All three versions keep `min_node`, the circular root list, a degree table for consolidation and a `count`. Python and Go hold the degree table in a map, C++ in a `std::map`.
+All three versions keep `min_node`, the circular root list, a degree table for consolidation and a `count`, plus counters of links and cuts for the amortized analysis. Python and Go return the node itself as the handle. C++ returns a `FibonacciHeapHandle` that shares ownership of the node, so a stale handle never dangles, and names delete `erase`, because `delete` is a keyword. On equal keys the three agree node for node: the C++ and Go tests pin the trees the Python code builds on the same script.
 
 <TopicCode topic="Data_Structures/Non_Linear/Heaps/Fibonacci_Heap" />
 
@@ -213,10 +296,13 @@ All three versions keep `min_node`, the circular root list, a degree table for c
 
 <Faq>
   <FaqItem question="Why is it called a Fibonacci heap?">
-    In the full structure, a node of degree d has at least F(d+2) descendants including itself, where F is the Fibonacci sequence. That growth bound is what keeps the maximum degree logarithmic.
+    Because of the cascading cut, a node of degree d has at least F(d+2) descendants including itself, where F is the Fibonacci sequence. That growth bound is what keeps the maximum degree logarithmic.
   </FaqItem>
-  <FaqItem question="Does this repository implement decrease-key?">
-    No. Only insert, extract-min, peek, size, is-empty and clear exist, and the `marked` field is unused. It is the lazy consolidating core.
+  <FaqItem question="What happens if I use a handle after extract_min returned its key?">
+    The handle is stale: its node is flagged as no longer in the heap, so decrease_key and delete raise ValueError in Python, throw std::invalid_argument in C++ and panic in Go, and the heap is not changed.
+  </FaqItem>
+  <FaqItem question="Why mark a node instead of cutting it at its first lost child?">
+    Cutting at once would make every decrease-key a long chain of cuts. Allowing one loss per node keeps the trees bushy enough for the F(d+2) bound, and the marks pay for the later cascades, so decrease-key stays O(1) amortized.
   </FaqItem>
   <FaqItem question="Is it faster than a binary heap?">
     Asymptotically better for decrease-key-heavy workloads, but the large constants and poor locality mean binary heaps usually win on real inputs.
@@ -228,13 +314,14 @@ All three versions keep `min_node`, the circular root list, a degree table for c
 
 ## Practice problems
 
-No judge needs a Fibonacci heap, because a binary heap is fast enough everywhere. These problems exercise the operations it speeds up, and the last one is the dense case it was invented for.
+No judge needs a Fibonacci heap, because a binary heap is fast enough everywhere, but these problems exercise its handle operations, from decrease-key in Dijkstra and Prim to delete in a sliding window.
 
 <PracticeProblems
   problems={[
-    { name: 'Merge k Sorted Lists', site: 'LeetCode 23', url: 'https://leetcode.com/problems/merge-k-sorted-lists/', idea: 'Only insert and extract-min, the two operations this repository provides: insert the head of every list, then extract and refill.' },
-    { name: 'Network Delay Time', site: 'LeetCode 743', url: 'https://leetcode.com/problems/network-delay-time/', idea: 'Dijkstra without decrease-key: insert a fresh entry when a distance improves and skip stale entries on extract-min.' },
-    { name: 'Shortest Routes I', site: 'CSES 1671', url: 'https://cses.fi/problemset/task/1671', idea: 'The same at scale, 10^5 cities and 2 * 10^5 flights: with lazy re-insertion the heap can hold one entry per edge.' },
-    { name: 'Min Cost to Connect All Points', site: 'LeetCode 1584', url: 'https://leetcode.com/problems/min-cost-to-connect-all-points/', idea: 'Prim on a complete graph of up to 1000 points, where E is about V^2 / 2: the dense case in which O(1) decrease-key pays off in theory. In practice a plain O(V^2) scan wins.' },
+    { name: 'Network Delay Time', site: 'LeetCode 743', url: 'https://leetcode.com/problems/network-delay-time/', idea: 'Dijkstra with one handle per node: insert every node once, then decrease_key whenever a distance improves.' },
+    { name: 'Min Cost to Connect All Points', site: 'LeetCode 1584', url: 'https://leetcode.com/problems/min-cost-to-connect-all-points/', idea: 'Prim on a complete graph of up to 1000 points, where E is about V^2 / 2: the dense case decrease-key was made for.' },
+    { name: 'Shortest Routes I', site: 'CSES 1671', url: 'https://cses.fi/problemset/task/1671', idea: 'Dijkstra on 10^5 cities and 2 * 10^5 flights; distances reach about 10^14, so the keys must be 64-bit.' },
+    { name: 'Sliding Window Maximum', site: 'LeetCode 239', url: 'https://leetcode.com/problems/sliding-window-maximum/', idea: 'Insert each number with its key negated, delete the handle of the number that leaves the window, and peek.' },
+    { name: 'Sliding Window Median', site: 'LeetCode 480', url: 'https://leetcode.com/problems/sliding-window-median/', idea: 'Two heaps around the median; delete by handle when a number leaves, and rebalance with extract_min and insert.' },
   ]}
 />

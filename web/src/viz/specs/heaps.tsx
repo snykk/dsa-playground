@@ -1,5 +1,5 @@
 import { HEAP_LIMITS, heapPseudocode, heapTrace, parseHeapScript, type HeapInput, type HeapMode } from '../algorithms/binaryHeap';
-import { FIB_CODE, fibTrace, parseFibScript, type FibOp } from '../algorithms/fibonacciHeap';
+import { FIB_CODE, FIB_LIMITS, fibTrace, parseFibScript, type FibOp } from '../algorithms/fibonacciHeap';
 import type { Example, VizSpec } from '../core/types';
 import { FibonacciHeapView, stabilizeFib, type FibHeapState } from '../renderers/FibonacciHeapView';
 import { HeapView, stabilizeHeap, type HeapState } from '../renderers/HeapView';
@@ -73,31 +73,92 @@ export const maxHeapSpec = binaryHeapSpec('max', [
   { label: 'Empty heap and one element', value: 'extract, peek, insert 7, extract, is_empty' },
 ]);
 
+/**
+ * A random Fibonacci heap script: inserts and one extract to build trees, then decrease_key,
+ * delete, extract, insert and merge. A model of the keys keeps track of the live handles, so
+ * decrease_key and delete always name a node in the heap, and most decrease_key calls really cut.
+ * The live keys stay distinct, so the model knows which node extract_min removes and the count
+ * never passes the limit.
+ */
+function randomFibScript(): string {
+  const parts: string[] = [];
+  /** handle name (the insert key) -> its key now, for the handles that are live */
+  const live = new Map<number, number>();
+  const taken = (k: number) => [...live.values()].includes(k);
+  const add = (k: number) => {
+    if (live.has(k) || taken(k)) return false;
+    live.set(k, k);
+    return true;
+  };
+  const extract = () => {
+    parts.push('extract');
+    let best: number | null = null;
+    for (const [h, k] of live) if (best === null || k < live.get(best)!) best = h;
+    if (best !== null) live.delete(best);
+  };
+  for (let n = rint(5, 10); n > 0; n--) {
+    const k = rint(1, 40);
+    if (add(k)) parts.push(`insert ${k}`);
+  }
+  extract();
+  for (let n = rint(4, 9); n > 0; n--) {
+    const r = Math.random();
+    const names = [...live.keys()];
+    if (names.length === 0 || (r < 0.1 && live.size < FIB_LIMITS.maxSize)) {
+      const k = rint(1, 40);
+      if (add(k)) parts.push(`insert ${k}`);
+    } else if (r < 0.65) {
+      const h = names[rint(0, names.length - 1)];
+      const to = live.get(h)! - rint(1, 15);
+      if (to < -99 || taken(to)) continue;
+      parts.push(`decrease_key ${h} ${to}`);
+      live.set(h, to);
+    } else if (r < 0.75) {
+      const h = names[rint(0, names.length - 1)];
+      parts.push(`delete ${h}`);
+      live.delete(h);
+    } else if (r < 0.85 && live.size < FIB_LIMITS.maxSize - 3) {
+      const more = Array.from({ length: rint(1, 3) }, () => rint(1, 40)).filter(add);
+      parts.push(`merge ${more.join(' ')}`);
+    } else extract();
+  }
+  return parts.join(', ');
+}
+
 export const fibonacciHeapSpec: VizSpec<FibOp[], FibHeapState> = {
   id: 'fibonacci-heap',
   title: 'Fibonacci Heap',
   inputKind: 'heap-ops',
   inputLabel: 'Operations',
   inputHelp:
-    'Operations separated by commas: "insert 5" (or just "5"), "extract" (extract_min), "peek", "size", "is_empty", "clear". Keys are integers from -99 to 999; ' +
-    'at most 15 keys at once and 30 operations. The class has no decrease_key, merge or build-from-array, so "build" shows the TypeError its constructor raises.',
+    'Operations separated by commas: "insert 5" (or just "5"), "extract" (extract_min), "peek", "size", "is_empty", "clear", ' +
+    '"decrease_key 9 2", "delete 9" and "merge 4 8 1" (a second heap holding 4, 8 and 1, merged in). insert returns a handle, named after the key it was inserted with: ' +
+    '"decrease_key 9 2" lowers the node inserted as 9 to 2, whatever its key is now. Keys are integers from -99 to 999; at most 15 keys at once and 30 operations. ' +
+    'The class has no build-from-array, so "build" shows the TypeError its constructor raises.',
   examples: [
     { label: 'Seven inserts, then consolidate', value: 'insert 5, insert 3, insert 7, insert 1, insert 9, insert 2, insert 8, extract, extract' },
-    { label: 'Insert is lazy', value: 'insert 4, insert 9, insert 2, insert 7, insert 1, peek, size' },
+    { label: 'Decrease-key and a cascading cut', value: '0, 1, 2, 3, 4, 5, 6, 7, 8, extract, decrease_key 8 0, decrease_key 6 3, decrease_key 7 1, extract' },
+    { label: 'Delete a node', value: '0, 1, 2, 3, 4, 5, 6, 7, 8, extract, decrease_key 6 0, delete 7, delete 4, extract' },
+    { label: 'Merge two heaps', value: 'insert 5, insert 3, insert 7, merge 4 1 6, extract' },
     { label: 'Binomial trees from 1 to 9', value: '1, 2, 3, 4, 5, 6, 7, 8, 9, extract, extract' },
     { label: 'Equal keys', value: 'insert 4, insert 4, insert 4, insert 4, insert 4, extract, extract' },
-    { label: 'Empty heap, no build', value: 'build 3 1 2, extract, insert 2, extract, is_empty' },
+    { label: 'Errors and stale handles', value: 'build 3 1 2, extract, insert 4, insert 9, extract, decrease_key 4 1, decrease_key 9 12, delete 9, delete 9' },
   ],
-  randomInput: () => randomHeapScript(false),
+  randomInput: randomFibScript,
   parse: parseFibScript,
   trace: (ops) => stabilizeFib(fibTrace(ops).frames),
   render: (state) => <FibonacciHeapView state={state} />,
   pseudocode: FIB_CODE,
   legend: [
-    { role: 'active', label: 'node being inserted, promoted or placed' },
-    { role: 'compare', label: 'tree of the same degree, about to be linked' },
+    { role: 'active', label: 'node being inserted, cut, promoted or placed' },
+    { role: 'compare', label: 'tree of the same degree, about to be linked; the parent that loses a child' },
     { role: 'done', label: 'min_node, or the key returned' },
+    { role: 'bad', label: 'node being deleted, or a decrease_key that is refused' },
     { role: 'muted', label: 'degree_table slot just emptied by a link' },
+    { role: 'idle', label: 'dashed outline and a * at its corner: a marked node, which lost a child since it was linked under its parent' },
   ],
-  complexity: { time: 'O(1) insert and peek, O(log n) amortized extract_min', space: 'O(n), four pointers per node' },
+  complexity: {
+    time: 'O(1) insert, peek and merge; O(1) amortized decrease_key; O(log n) amortized extract_min and delete',
+    space: 'O(n), four pointers per node',
+  },
 };
