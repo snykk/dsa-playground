@@ -17,16 +17,20 @@ export interface LcaState {
   nodeRoles: Record<number, Role>;
   /** depth[u], or null before the DFS reaches u. */
   depth: Array<number | null>;
-  /** parent[i][j], with whether the code has written or examined it yet. */
-  table: Array<Array<{ value: number; written: boolean }>>;
+  /** parent[i][j], with whether the code has written or examined it yet ('' draws an empty cell). */
+  table: Array<Array<{ value: number | string; written: boolean }>>;
   /** Roles keyed by "i,j". */
   cellRoles: Record<string, Role>;
   /** Jumps drawn on the tree: from a node to an ancestor. */
   jumps: Array<{ from: number; to: number; label: string; role?: Role }>;
   /** The query's u and v, pinned beside their nodes. */
   pills: Array<{ name: string; at: number; role?: Role }>;
-  /** The DFS stack, bottom first. */
+  /** The DFS stack, bottom first (or the queue of a breadth-first walk, front first). */
   stack: string[];
+  /** What the stack line is called; "DFS stack" when left out. */
+  stackLabel?: string;
+  /** Header over the node numbers of the table; "i" when left out. */
+  rowHeader?: string;
   work: OkText[];
   answers: OkText[];
   answerRows: number;
@@ -195,7 +199,7 @@ export function LcaLifting({ state }: { state: LcaState }) {
       })}
 
       <text className="ok-head" x={tx + idxW - 6} y={tableTop - 10} style={{ textAnchor: 'end' }}>
-        i
+        {state.rowHeader ?? 'i'}
       </text>
       <text className="ok-head" x={tx + idxW + CW / 2} y={tableTop - 10}>
         depth
@@ -230,7 +234,7 @@ export function LcaLifting({ state }: { state: LcaState }) {
         );
       })}
       <text className="lca-stack" x={10} y={bodyH + 4}>
-        {state.stack.length ? `DFS stack: [${state.stack.join(', ')}]` : 'DFS stack: []'}
+        {`${state.stackLabel ?? 'DFS stack'}: [${state.stack.join(', ')}]`}
       </text>
       <TextLines x={10} y={bodyH + 4 + LINE_H} lines={[...state.work, ...state.answers]} lineH={LINE_H} />
     </SvgFrame>

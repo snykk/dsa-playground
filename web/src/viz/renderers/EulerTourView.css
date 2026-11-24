@@ -1,0 +1,19 @@
+/* EulerTourView organism: the tree above the tour and its sparse table, in one sideways-scrolling box. */
+.euler-scroll {
+  overflow-x: auto;
+  container-type: inline-size;
+}
+/* As wide as the widest part (usually the tour), and never narrower than the box. */
+.euler-stack {
+  display: grid;
+  gap: 10px;
+  width: max-content;
+  min-width: 100%;
+}
+/* The tree stays in view, centred in the box, while the tour scrolls under it. */
+.euler-stack > :first-child {
+  position: sticky;
+  left: 0;
+  width: max-content;
+  min-width: 100cqw;
+}

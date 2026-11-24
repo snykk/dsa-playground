@@ -1,4 +1,4 @@
-/** Visualization registry: Specialized techniques (square root decomposition, Mo's algorithm, heavy-light and centroid decomposition). */
+/** Visualization registry: Specialized techniques (square root decomposition, Mo's algorithm, the lowest common ancestor, heavy-light and centroid decomposition). */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
@@ -20,6 +20,20 @@ export const entries: VizInfo[] = [
     topics: [`${ST}/Mos_Algorithm`, ST],
   },
   {
+    id: 'lca-up-table',
+    title: 'Lowest Common Ancestor (binary lifting)',
+    group: 'Trees',
+    blurb: 'A breadth-first walk gives parents and depths, up[k][v] doubles each jump, and a query lifts the deeper node by the bits of the depth gap, then both nodes while their ancestors differ.',
+    topics: [`${ST}/Lowest_Common_Ancestor`, ST],
+  },
+  {
+    id: 'lca-euler-tour',
+    title: 'Lowest Common Ancestor (Euler tour + sparse table)',
+    group: 'Trees',
+    blurb: 'A depth-first walk writes every node it enters or returns to; the LCA is the shallowest node between the first visits of u and v, read from a sparse table in O(1).',
+    topics: [`${ST}/Lowest_Common_Ancestor`],
+  },
+  {
     id: 'heavy-light-decomposition',
     title: 'Heavy-Light Decomposition',
     group: 'Trees',
@@ -38,6 +52,8 @@ export const entries: VizInfo[] = [
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'sqrt-decomposition': () => import('../specs/specializedTechniques').then((m) => m.sqrtDecompositionSpec),
   'mos-algorithm': () => import('../specs/specializedTechniques').then((m) => m.mosAlgorithmSpec),
+  'lca-up-table': () => import('../specs/specializedTechniques').then((m) => m.lcaLiftingSpec),
+  'lca-euler-tour': () => import('../specs/specializedTechniques').then((m) => m.lcaEulerSpec),
   'heavy-light-decomposition': () => import('../specs/specializedTechniques').then((m) => m.heavyLightSpec),
   'centroid-decomposition': () => import('../specs/specializedTechniques').then((m) => m.centroidSpec),
 };

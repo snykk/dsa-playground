@@ -1,8 +1,11 @@
 import { CENTROID_CODE, centroidTrace, parseCentroid, type CentroidInput } from '../algorithms/centroid';
 import { HLD_CODE, hldTrace, parseHld, type HldInput } from '../algorithms/heavyLight';
+import { EULER_CODE, eulerTrace, LIFT_CODE, liftingTrace, parseLcaTree, type LcaTreeInput } from '../algorithms/lowestCommonAncestor';
 import { MO_CODE, moTrace, parseMo, type MoInput } from '../algorithms/mosAlgorithm';
 import { parseSqrt, SQRT_CODE, sqrtTrace, type SqrtInput } from '../algorithms/sqrtDecomposition';
-import type { VizSpec } from '../core/types';
+import type { Example, VizSpec } from '../core/types';
+import { EulerTourView, type EulerTourState } from '../renderers/EulerTourView';
+import { LcaLifting, type LcaState } from '../renderers/LcaLifting';
 import { MosView, type MosViewState } from '../renderers/MosView';
 import { RootedTreeView, type RootedTreeState } from '../renderers/RootedTreeView';
 import { SegmentTreeView, type SegmentTreeState } from '../renderers/SegmentTreeView';
@@ -102,6 +105,89 @@ function randomTreeEdges(n: number): string {
   }
   return edges.sort(() => Math.random() - 0.5).join(' ');
 }
+
+/* ---------- lowest common ancestor: two tabs on one input ---------- */
+
+const TEN_NODES = '0-1 0-2 1-3 1-4 2-5 3-6 3-7 5-8 6-9';
+const PATH12 = '0-1 1-2 2-3 3-4 4-5 5-6 6-7 7-8 8-9 9-10 10-11';
+const STAR9 = '0-1 0-2 0-3 0-4 0-5 0-6 0-7 0-8';
+
+const LCA_HELP =
+  'Start with the edges of a tree on the nodes 0..n-1 ("0-1 0-2 1-3", up to 12 nodes; the order of the edges is the order of adj, which decides the order of the Euler tour), or "n 1" for a single node. ' +
+  'Then a semicolon, an optional "root 4" (0 if left out), and up to 8 queries separated by commas: "lca 9 4", "dist 9 8" (distance) and "kth 9 3" (kth_ancestor(9, 3), binary lifting only). A node that does not exist raises IndexError.';
+
+function randomLca(): string {
+  const n = rint(5, 12);
+  const ops = Array.from({ length: rint(2, 4) }, () => {
+    const r = Math.random();
+    return r < 0.6 ? `lca ${rint(0, n - 1)} ${rint(0, n - 1)}` : r < 0.8 ? `dist ${rint(0, n - 1)} ${rint(0, n - 1)}` : `kth ${rint(0, n - 1)} ${rint(0, 4)}`;
+  });
+  return `${randomTreeEdges(n)}; ${ops.join(', ')}`;
+}
+
+const LIFT_EXAMPLES: Example[] = [
+  { label: 'Ten nodes (article)', value: `${TEN_NODES}; lca 9 4, lca 9 8, dist 9 8, kth 9 3` },
+  { label: 'An ancestor, the same node, too far up', value: `${TEN_NODES}; lca 1 9, lca 6 6, kth 9 5` },
+  { label: 'Path of 12, rooted in the middle', value: `${PATH12}; root 6; lca 0 11, lca 2 4, dist 0 11, kth 11 5` },
+  { label: 'Star: every jump of 2 or more hits the root', value: `${STAR9}; lca 3 5, lca 0 7, kth 6 2` },
+  { label: 'Nine nodes (overview)', value: '0-1 0-2 1-3 1-4 3-6 3-7 2-5 5-8; lca 6 4, lca 8 7' },
+  { label: 'A node past the tree: IndexError', value: '0-1 0-2 1-3; lca 3 2, lca 3 7, kth 9 0' },
+];
+
+const EULER_EXAMPLES: Example[] = [
+  { label: 'Ten nodes (article)', value: `${TEN_NODES}; lca 9 4, lca 9 8, dist 9 8` },
+  { label: 'An ancestor, the same node', value: `${TEN_NODES}; lca 1 9, lca 6 6, lca 8 5` },
+  { label: 'Path of 12, rooted in the middle', value: `${PATH12}; root 6; lca 0 11, lca 2 4, dist 0 11` },
+  { label: 'Star: the tour returns to the root', value: `${STAR9}; lca 3 5, lca 0 7` },
+  { label: 'Nine nodes (overview)', value: '0-1 0-2 1-3 1-4 3-6 3-7 2-5 5-8; lca 6 4, lca 8 7' },
+  { label: 'A node past the tree: IndexError', value: '0-1 0-2 1-3; lca 3 2, lca 3 7' },
+];
+
+export const lcaLiftingSpec: VizSpec<LcaTreeInput, LcaState> = {
+  id: 'lca-up-table',
+  title: 'Lowest Common Ancestor (binary lifting)',
+  inputKind: 'lowest-common-ancestor',
+  inputLabel: 'Tree and queries',
+  inputHelp: LCA_HELP,
+  examples: LIFT_EXAMPLES,
+  randomInput: randomLca,
+  parse: parseLcaTree,
+  trace: (input) => liftingTrace(input).frames,
+  render: (state) => <LcaLifting state={state} />,
+  pseudocode: LIFT_CODE,
+  legend: [
+    { role: 'compare', label: 'node or entry read; the node v; a node the queue has just found' },
+    { role: 'active', label: 'entry written; the node u; the jump taken' },
+    { role: 'muted', label: 'earlier jumps of the same query' },
+    { role: 'idle', label: 'dashed: not reached by the walk yet, or an entry not written yet' },
+    { role: 'good', label: `answer equals a walk up the parents (${SYM.check})` },
+    { role: 'bad', label: `IndexError (${SYM.cross})` },
+  ],
+  complexity: { time: 'O(n log n) to build; O(log n) per lca, distance or kth_ancestor', space: 'O(n log n)' },
+};
+
+export const lcaEulerSpec: VizSpec<LcaTreeInput, EulerTourState> = {
+  id: 'lca-euler-tour',
+  title: 'Lowest Common Ancestor (Euler tour + sparse table)',
+  inputKind: 'lowest-common-ancestor',
+  inputLabel: 'Tree and queries',
+  inputHelp: LCA_HELP,
+  examples: EULER_EXAMPLES,
+  randomInput: randomLca,
+  parse: parseLcaTree,
+  trace: (input) => eulerTrace(input).frames,
+  render: (state) => <EulerTourView state={state} />,
+  pseudocode: EULER_CODE,
+  legend: [
+    { role: 'compare', label: 'on the stack; the range between first[u] and first[v]; the halves or windows read; the node v' },
+    { role: 'active', label: 'top of the stack; the entry or cell written; the node u' },
+    { role: 'done', label: 'left the stack: its whole subtree is in the tour' },
+    { role: 'good', label: `the LCA, equal to a walk up the parents (${SYM.check})` },
+    { role: 'bad', label: `IndexError, or kth_ancestor, which this class lacks (${SYM.cross})` },
+    { role: 'idle', label: 'badge on a node = its depth; f3 under a node = first[v] = 3' },
+  ],
+  complexity: { time: 'O(n log n) to build; O(1) per lca', space: 'O(n log n)' },
+};
 
 function randomHld(): string {
   const n = rint(6, 13);

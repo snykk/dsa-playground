@@ -1,10 +1,10 @@
 """Generate golden advanced-string fixtures from the repository's Python implementations.
 
-The web visualizer re-implements four topics of Algorithms/String_Algorithms/Advanced_String
+The web visualizer re-implements five topics of Algorithms/String_Algorithms/Advanced_String
 in TypeScript (web/src/viz/algorithms/): Aho-Corasick (ahoCorasick.ts), the longest common
-substring (longestCommonSubstring.ts), Manacher's algorithm (manacher.ts) and the suffix
-array (suffixArray.ts). These fixtures pin each port to its reference in
-Advanced_String/<topic>/Python:
+substring (longestCommonSubstring.ts), Manacher's algorithm (manacher.ts), the suffix
+array (suffixArray.ts) and string hashing (stringHashing.ts). These fixtures pin each port to
+its reference in Advanced_String/<topic>/Python:
 
 - aho: the trie (every node in creation order with its parent, character, failure link,
   output link and patterns), every `char in node.children` test the build and the search
@@ -15,7 +15,11 @@ Advanced_String/<topic>/Python:
   every loop iteration, and the result tuple;
 - suffix: the suffix array, and for every search the indices search_pattern reads from the
   suffix array (the binary-search probes, then the block it collects) and its result, and
-  longest_common_prefix results.
+  longest_common_prefix results;
+- hashing: PolynomialHash with a small (base, mod): the prefix and power tables, and for every
+  query (get, equal, lcp, compare, count_distinct) every get call it makes, in order, as
+  [l, r, value] (a subclass logs them), and its result. This section draws its inputs from its
+  own random generator, so the other sections stay as they were.
 
 The dp table, p and (center, right) are local variables, read with sys.settrace when the
 function returns or starts a loop iteration; the repository code is never modified.
@@ -34,13 +38,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ADV = ROOT / "Algorithms" / "String_Algorithms" / "Advanced_String"
-for folder in ("Aho_Corasick", "Longest_Common_Substring", "Longest_Palindromic_Substring_Manachers", "Suffix_Array"):
+for folder in ("Aho_Corasick", "Longest_Common_Substring", "Longest_Palindromic_Substring_Manachers", "Suffix_Array", "String_Hashing"):
     sys.path.insert(0, str(ADV / folder / "Python"))
 
 import aho_corasick  # noqa: E402
 from longest_common_substring import longest_common_substring  # noqa: E402
 from manacher import manacher  # noqa: E402
 from suffix_array import build_suffix_array, longest_common_prefix, search_pattern  # noqa: E402
+from string_hashing import PolynomialHash  # noqa: E402
 
 OUT = ROOT / "web" / "src" / "viz" / "algorithms" / "__fixtures__" / "advancedStrings.json"
 RNG = random.Random(20261115)
@@ -297,16 +302,97 @@ def suffix_cases(count):
     return cases
 
 
+# ---------- string hashing ----------
+
+HASH_RNG = random.Random(20261124)
+
+
+class RecordingHash(PolynomialHash):
+    """A PolynomialHash that logs every get call, from the queries too, as [l, r, value]."""
+
+    def __init__(self, s, base, mod):
+        super().__init__(s, base, mod)
+        self.log = []
+
+    def get(self, l, r):
+        value = super().get(l, r)
+        self.log.append([l, r, value])
+        return value
+
+
+def hash_case(text, base, mod, ops):
+    h = RecordingHash(text, base, mod)
+    runs = []
+    for op in ops:
+        kind, args = op[0], list(op[1:])
+        del h.log[:]
+        if kind == "hash":
+            result = h.get(*args)
+        elif kind == "eq":
+            result = h.equal(*args)
+        elif kind == "lcp":
+            result = h.lcp(*args)
+        elif kind == "cmp":
+            result = h.compare(*args)
+        else:
+            result = h.count_distinct(*args)
+        runs.append({"op": kind, "args": args, "calls": list(h.log), "result": result})
+    return {"text": text, "base": base, "mod": mod, "prefix": h.prefix, "power": h.power, "ops": runs}
+
+
+HASH_FIXED = [
+    ("mississippi", 31, 97, [("lcp", 1, 4), ("lcp", 2, 5), ("cmp", 0, 4, 1, 5), ("distinct", 4)]),
+    ("abracadabra", 31, 101, [("distinct", 4), ("hash", 0, 4), ("hash", 1, 5)]),
+    ("abracadabra", 7, 11, [("lcp", 0, 4), ("eq", 0, 4, 4), ("cmp", 0, 7, 4, 11)]),
+    ("abababaca", 31, 97, [("lcp", 0, 2), ("distinct", 3), ("cmp", 0, 3, 6, 9)]),
+    ("", 31, 97, [("lcp", 0, 0), ("hash", 0, 0)]),
+    ("a", 31, 97, [("lcp", 0, 1), ("cmp", 0, 1, 0, 0), ("distinct", 1), ("eq", 0, 1, 0)]),
+    ("aaaaaa", 31, 97, [("lcp", 0, 2), ("distinct", 3), ("cmp", 0, 3, 2, 6), ("lcp", 3, 3)]),
+    ("banana", 2, 3, [("distinct", 2), ("lcp", 1, 3), ("eq", 0, 3, 3)]),
+    ("zz~!AZ09{}", 996, 997, [("hash", 0, 10), ("cmp", 0, 2, 8, 10), ("lcp", 0, 1)]),
+    ("abcab", 1, 2, [("distinct", 2), ("cmp", 0, 2, 3, 5)]),
+]
+
+
+def hash_cases(count):
+    cases = [hash_case(*c) for c in HASH_FIXED]
+    while len(cases) < count:
+        alphabet = HASH_RNG.choice(["ab", "abc", "mis", "xy!", "a"])
+        text = "".join(HASH_RNG.choice(alphabet) for _ in range(HASH_RNG.randint(1, 12)))
+        n = len(text)
+        mod = HASH_RNG.choice([5, 7, 11, 13, 64, 97, 100, 101, 211, 997])
+        base = HASH_RNG.randint(1, mod - 1)
+        ops = []
+        for _ in range(HASH_RNG.randint(1, 4)):
+            kind = HASH_RNG.choice(["hash", "eq", "lcp", "lcp", "cmp", "distinct"])
+            if kind == "hash":
+                l = HASH_RNG.randint(0, n)
+                ops.append(("hash", l, HASH_RNG.randint(l, n)))
+            elif kind == "eq":
+                length = HASH_RNG.randint(0, n)
+                ops.append(("eq", HASH_RNG.randint(0, n - length), HASH_RNG.randint(0, n - length), length))
+            elif kind == "lcp":
+                ops.append(("lcp", HASH_RNG.randint(0, n), HASH_RNG.randint(0, n)))
+            elif kind == "cmp":
+                l1, l2 = HASH_RNG.randint(0, n), HASH_RNG.randint(0, n)
+                ops.append(("cmp", l1, HASH_RNG.randint(l1, n), l2, HASH_RNG.randint(l2, n)))
+            else:
+                ops.append(("distinct", HASH_RNG.randint(1, n)))
+        cases.append(hash_case(text, base, mod, ops))
+    return cases
+
+
 def main():
     sections = {
         "aho": aho_cases(70),
         "lcs": lcs_cases(60),
         "manacher": manacher_cases(60),
         "suffix": suffix_cases(60),
+        "hashing": hash_cases(60),
     }
     header = {
         "generator": "web/scripts/gen_advancedStrings_fixtures.py",
-        "reference": "Algorithms/String_Algorithms/Advanced_String/{Aho_Corasick,Longest_Common_Substring,Longest_Palindromic_Substring_Manachers,Suffix_Array}/Python",
+        "reference": "Algorithms/String_Algorithms/Advanced_String/{Aho_Corasick,Longest_Common_Substring,Longest_Palindromic_Substring_Manachers,Suffix_Array,String_Hashing}/Python",
     }
     parts = []
     for key, cases in sections.items():

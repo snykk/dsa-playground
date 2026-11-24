@@ -2,10 +2,12 @@ import { AC_CODE, acTrace, parseAho, trieSize, AC_LIMITS, type AcInput } from '.
 import { LCSUB_CODE, lcsubTrace, parseLcsub, type LcsubInput } from '../algorithms/longestCommonSubstring';
 import { MANACHER_CODE, manacherTrace, parseManacher, type ManacherInput, type ManacherState } from '../algorithms/manacher';
 import { parseSuffixArray, SA_CODE, saTrace, type SaInput } from '../algorithms/suffixArray';
+import { HASH_CODE, parseStringHashing, stringHashingTrace, type HashInput } from '../algorithms/stringHashing';
 import type { VizSpec } from '../core/types';
 import { AhoCorasickView, stabilizeAho, type AcState } from '../renderers/AhoCorasickView';
 import { Grid, type GridState } from '../renderers/Grid';
-import { StringScan } from '../renderers/StringScan';
+import { StringHashingView } from '../renderers/StringHashingView';
+import { StringScan, type StringScanState } from '../renderers/StringScan';
 import { stabilizeSuffixArray, SuffixArrayView, type SaState } from '../renderers/SuffixArrayView';
 import { SYM } from '../ui/symbols';
 
@@ -162,4 +164,54 @@ export const suffixArraySpec: VizSpec<SaInput, SaState> = {
     { role: 'muted', label: 'ranks the binary search ruled out' },
   ],
   complexity: { time: 'build O(n^2 log n) here; search O(m log n + k log k) for k matches', space: 'O(n^2) while building (copied suffixes), O(n) after' },
+};
+
+/* ---------- string hashing ---------- */
+
+function randomStringHashing(): string {
+  const text = word(pick(['ab', 'abc', 'mis', 'abr']), rint(6, 10));
+  const n = text.length;
+  const ops: string[] = [];
+  const i = rint(0, n - 2);
+  let j = rint(0, n - 1);
+  if (j === i) j = i + 1;
+  ops.push(`lcp ${i} ${j}`);
+  if (Math.random() < 0.5) {
+    const l1 = rint(0, n - 2);
+    const l2 = rint(0, n - 2);
+    ops.push(`cmp ${l1} ${rint(l1 + 1, n)} ${l2} ${rint(l2 + 1, n)}`);
+  }
+  if (Math.random() < 0.4) ops.push(`distinct ${rint(2, Math.min(4, n))}`);
+  const mod = pick([97, 101, 211, 997]);
+  return `${text}; ${ops.join(', ')}; base ${rint(2, 60)}, mod ${mod}`;
+}
+
+export const stringHashingSpec: VizSpec<HashInput, StringScanState> = {
+  id: 'string-hashing',
+  title: 'String Hashing',
+  inputKind: 'string-hashing',
+  inputLabel: 'String; queries; base, mod',
+  inputHelp:
+    'The string (up to 12 printable ASCII characters, no spaces; "" for the empty string), a ";", then up to 4 queries: "hash l r", "eq i j length", "lcp i j", "cmp l1 r1 l2 r2" and "distinct length". ' +
+    'Optionally "base B" and "mod M" (a modulus up to 997, so every value fits in a cell; the defaults are 31 and 97). The repository code keeps two moduli near 10^9 instead.',
+  examples: [
+    { label: 'Textbook: lcp in mississippi', value: 'mississippi; lcp 1 4; base 31, mod 97' },
+    { label: 'Collision misleads lcp', value: 'abracadabra; lcp 0 4, eq 0 4 4; base 7, mod 11' },
+    { label: 'Distinct count with a collision', value: 'abracadabra; distinct 4, hash 0 4, hash 1 5; base 31, mod 101' },
+    { label: 'Compare two substrings', value: 'mississippi; cmp 0 4 1 5, cmp 1 5 4 8; base 31, mod 97' },
+    { label: 'All equal: aaaaaa', value: 'aaaaaa; lcp 0 2, distinct 3; base 31, mod 97' },
+  ],
+  randomInput: randomStringHashing,
+  parse: parseStringHashing,
+  trace: (input) => stringHashingTrace(input).frames,
+  render: (state) => <StringHashingView state={state} />,
+  pseudocode: HASH_CODE,
+  legend: [
+    { role: 'active', label: 'value being computed, power used, length mid tried, new hash, deciding characters' },
+    { role: 'compare', label: 'characters and prefix hashes a query reads, repeated hash' },
+    { role: 'good', label: `hashes equal (${SYM.check})` },
+    { role: 'bad', label: `hashes differ (${SYM.cross})` },
+    { role: 'done', label: 'lengths and characters the search counts as agreeing' },
+  ],
+  complexity: { time: 'build O(n); get and equal O(1); lcp and compare O(log n); count_distinct O(n) expected', space: 'O(n): prefix and power, n + 1 values each' },
 };

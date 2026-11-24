@@ -217,6 +217,7 @@ KMP's border table is the idea most later algorithms borrow.
 - [Knuth-Morris-Pratt (KMP) Algorithm](Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm/) (Intermediate)
 - [Boyer-Moore Algorithm](Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm/) (Intermediate)
 - [Z-Algorithm](Algorithms/String_Algorithms/Advanced_String/Z_Algorithm/) (Intermediate)
+- [String Hashing](Algorithms/String_Algorithms/Advanced_String/String_Hashing/) (Intermediate)
 - [Aho-Corasick](Algorithms/String_Algorithms/Advanced_String/Aho_Corasick/) (Advanced)
 - [Suffix Array](Algorithms/String_Algorithms/Advanced_String/Suffix_Array/) (Advanced)
 - [Manacher's Algorithm](Algorithms/String_Algorithms/Advanced_String/Longest_Palindromic_Substring_Manachers/) (Advanced)
@@ -274,10 +275,11 @@ Bit manipulation first, because bitmask DP stores a subset in an integer.
 
 ### Decomposition techniques
 
-Array side first (square root, Mo), then the tree side (heavy-light, centroid).
+Array side first (square root, Mo), then the tree side (lowest common ancestor, heavy-light, centroid).
 
 - [Square Root Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition/) (Intermediate)
 - [Mo's Algorithm](Algorithms/Advanced_Algorithms/Specialized_Techniques/Mos_Algorithm/) (Advanced)
+- [Lowest Common Ancestor](Algorithms/Advanced_Algorithms/Specialized_Techniques/Lowest_Common_Ancestor/) (Advanced)
 - [Heavy-Light Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Heavy_Light_Decomposition/) (Advanced)
 - [Centroid Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposition/) (Advanced)
 

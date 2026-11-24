@@ -1,10 +1,11 @@
 """Generate golden specialized-technique fixtures from the repository's Python implementations.
 
-The web visualizer re-implements the four topics of
+The web visualizer re-implements the five topics of
 Algorithms/Advanced_Algorithms/Specialized_Techniques in TypeScript: square root
 decomposition (web/src/viz/algorithms/sqrtDecomposition.ts), Mo's algorithm
-(mosAlgorithm.ts), heavy-light decomposition (heavyLight.ts) and centroid decomposition
-(centroid.ts). These fixtures pin each port to its Python reference:
+(mosAlgorithm.ts), the lowest common ancestor (lowestCommonAncestor.ts), heavy-light
+decomposition (heavyLight.ts) and centroid decomposition (centroid.ts). These fixtures pin
+each port to its Python reference:
 
 - square root decomposition: the block size and block count, the block sums after the
   build, and after every operation the result or IndexError, the array and the block sums,
@@ -12,6 +13,9 @@ decomposition (web/src/viz/algorithms/sqrtDecomposition.ts), Mo's algorithm
 - Mo's algorithm: the block size, the order process_queries visits the queries (the result
   of its own stable sort), every add and remove with the index it reads and the answer it
   returns, and the answers in input order;
+- lowest common ancestor: parent, depth, levels and up of BinaryLiftingLCA; euler, first and
+  sparse of EulerTourLCA; and for every lca, distance and kth_ancestor call on each class its
+  result (or the exception's name) with the table cells it reads, in order;
 - heavy-light decomposition: parent, depth, size, heavy, head and pos after build(root),
   the order dfs_size writes the sizes and decompose hands out the positions, and every lca
   and query_path result (or IndexError);
@@ -36,12 +40,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TECH = ROOT / "Algorithms" / "Advanced_Algorithms" / "Specialized_Techniques"
-for folder in ("Square_Root_Decomposition", "Mos_Algorithm", "Heavy_Light_Decomposition", "Centroid_Decomposition"):
+for folder in ("Square_Root_Decomposition", "Mos_Algorithm", "Lowest_Common_Ancestor", "Heavy_Light_Decomposition", "Centroid_Decomposition"):
     sys.path.insert(0, str(TECH / folder / "Python"))
 
 import mos_algorithm  # noqa: E402
 from centroid_decomposition import CentroidDecomposition  # noqa: E402
 from heavy_light_decomposition import HLD  # noqa: E402
+from lowest_common_ancestor import BinaryLiftingLCA, EulerTourLCA  # noqa: E402
 from mos_algorithm import MoSAlgorithm  # noqa: E402
 from square_root_decomposition import SqrtDecomposition  # noqa: E402
 
@@ -264,6 +269,116 @@ TIES = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6], [3, 7], [4, 8]]
 BINARY15 = [[i, 2 * i + 1] for i in range(7)] + [[i, 2 * i + 2] for i in range(7)]
 
 
+# ---------- lowest common ancestor ----------
+
+# A generator of its own, so adding these cases left the other sections' random cases unchanged.
+LCA_RNG = random.Random(20261122)
+# The tree of the topic README and article: depths up to 4, and lca(9, 8) jumps both nodes at k = 1.
+TEN = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [3, 6], [3, 7], [5, 8], [6, 9]]
+
+
+class TaggedReads(list):
+    """A table row that appends [tag, index] to a shared log on every read, so the reads of rows interleave in order."""
+
+    def __init__(self, items, tag, log):
+        super().__init__(items)
+        self.tag = tag
+        self.log = log
+
+    def __getitem__(self, index):
+        self.log.append([self.tag, index])
+        return list.__getitem__(self, index)
+
+
+def lca_calls(obj, rows_attr, ops):
+    """Run every op on obj with each row of obj.<rows_attr> logging its reads; the result or the exception's name."""
+    log = []
+    setattr(obj, rows_attr, [TaggedReads(row, k, log) for k, row in enumerate(getattr(obj, rows_attr))])
+    out = []
+    for kind, a, b in ops:
+        del log[:]
+        try:
+            if kind == "lca":
+                result = obj.lca(a, b)
+            elif kind == "dist":
+                result = obj.distance(a, b)
+            else:
+                result = obj.kth_ancestor(a, b)
+        except (IndexError, ValueError, AttributeError) as error:
+            result = type(error).__name__
+        out.append({"result": result, "reads": list(log)})
+    setattr(obj, rows_attr, [list(row) for row in getattr(obj, rows_attr)])
+    return out
+
+
+def lca_case(n, edges, root, ops):
+    lifting = BinaryLiftingLCA(n, edges, root)
+    tour = EulerTourLCA(n, edges, root)
+    return {
+        "n": n,
+        "edges": edges,
+        "root": root,
+        "ops": ops,
+        "parent": list(lifting.parent),
+        "depth": list(lifting.depth),
+        "levels": lifting.levels,
+        "up": [list(row) for row in lifting.up],
+        "euler": list(tour.euler),
+        "first": list(tour.first),
+        "sparse": [list(row) for row in tour.sparse],
+        "lifting": lca_calls(lifting, "up", ops),
+        "tour": lca_calls(tour, "sparse", ops),
+    }
+
+
+def lca_ops(n, count):
+    ops = []
+    for _ in range(count):
+        kind = LCA_RNG.choice(["lca", "lca", "dist", "kth"])
+        a = LCA_RNG.randrange(n) if LCA_RNG.random() > 0.05 else n + LCA_RNG.randint(0, 3)
+        b = LCA_RNG.randrange(n + 2) if kind == "kth" else LCA_RNG.randrange(n) if LCA_RNG.random() > 0.05 else n + LCA_RNG.randint(0, 3)
+        ops.append([kind, a, b])
+    return ops
+
+
+def lca_cases(count):
+    every = lambda n: [[k, u, v] for k in ("lca", "dist") for u in range(n) for v in range(n)] + [["kth", v, k] for v in range(n) for k in range(n + 1)]  # noqa: E731
+    fixed = [
+        (10, TEN, 0, [["lca", 9, 4], ["lca", 9, 8], ["dist", 9, 8], ["kth", 9, 3], ["kth", 9, 5], ["lca", 7, 9], ["lca", 3, 3], ["dist", 6, 7]]),
+        (10, TEN, 0, [["lca", 1, 9], ["lca", 6, 6], ["kth", 8, 2], ["kth", 0, 0], ["dist", 4, 4]]),
+        (10, TEN, 4, [["lca", 9, 8], ["lca", 0, 3], ["dist", 9, 8], ["kth", 8, 4]]),
+        (7, DEMO, 0, every(7)),
+        (5, SAMPLE5, 2, every(5)),
+        (9, OVERVIEW, 0, [["lca", 6, 4], ["lca", 8, 7], ["dist", 6, 4], ["kth", 7, 2]]),
+        (12, path_edges(12), 0, [["lca", 11, 4], ["lca", 0, 11], ["kth", 11, 7], ["dist", 3, 9]]),
+        (12, path_edges(12), 6, [["lca", 0, 11], ["lca", 2, 4], ["dist", 0, 11], ["kth", 11, 5], ["kth", 0, 7]]),
+        (12, star_edges(12), 0, [["lca", 3, 5], ["lca", 0, 7], ["dist", 3, 5], ["kth", 9, 1], ["kth", 9, 2]]),
+        (12, star_edges(12), 5, [["lca", 3, 9], ["lca", 0, 7], ["dist", 3, 9]]),
+        (1, [], 0, [["lca", 0, 0], ["dist", 0, 0], ["kth", 0, 0], ["kth", 0, 1], ["lca", 0, 1]]),
+        (2, [[0, 1]], 1, [["lca", 0, 1], ["kth", 0, 1], ["kth", 0, 2], ["dist", 1, 0]]),
+        (4, [[0, 1], [0, 2], [1, 3]], 0, [["lca", 3, 2], ["lca", 3, 7], ["dist", 9, 0], ["kth", 4, 0]]),
+        (12, [[(v - 1) // 2, v] for v in range(1, 12)], 0, [["lca", 7, 10], ["lca", 11, 8], ["dist", 7, 11], ["kth", 11, 3]]),
+    ]
+    cases = [lca_case(n, edges, root, ops) for n, edges, root, ops in fixed]
+    while len(cases) < count:
+        n = LCA_RNG.randint(1, 12)
+        edges = random_tree_from(LCA_RNG, n)
+        cases.append(lca_case(n, edges, LCA_RNG.randrange(n), lca_ops(n, LCA_RNG.randint(1, 8))))
+    return cases
+
+
+def random_tree_from(rng, n):
+    """random_tree with its own generator."""
+    label = list(range(n))
+    rng.shuffle(label)
+    edges = []
+    for v in range(1, n):
+        u = rng.randrange(v) if rng.random() < 0.7 else rng.randrange(max(0, v - 2), v)
+        edges.append([label[u], label[v]] if rng.random() < 0.5 else [label[v], label[u]])
+    rng.shuffle(edges)
+    return edges
+
+
 # ---------- heavy-light decomposition ----------
 
 
@@ -417,10 +532,11 @@ def main():
         "mosAlgorithm": mo_cases(60),
         "heavyLight": hld_cases(60),
         "centroid": centroid_cases(60),
+        "lowestCommonAncestor": lca_cases(60),
     }
     header = {
         "generator": "web/scripts/gen_specializedTechniques_fixtures.py",
-        "reference": "Algorithms/Advanced_Algorithms/Specialized_Techniques (square_root_decomposition.py, mos_algorithm.py, heavy_light_decomposition.py, centroid_decomposition.py)",
+        "reference": "Algorithms/Advanced_Algorithms/Specialized_Techniques (square_root_decomposition.py, mos_algorithm.py, heavy_light_decomposition.py, centroid_decomposition.py, lowest_common_ancestor.py)",
     }
     parts = []
     for key, cases in sections.items():
