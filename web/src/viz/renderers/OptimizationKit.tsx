@@ -6,6 +6,7 @@
  */
 import type { ReactNode } from 'react';
 import type { Role } from '../core/types';
+import { useScrollStop } from '../ui/hooks/useScrollStop';
 import '../ui/roles.css';
 import { SYM } from '../ui/symbols';
 import './OptimizationKit.css';
@@ -144,8 +145,9 @@ export function TextLines({ x, y, lines, lineH = 18, className }: { x: number; y
 
 /** The scrollable frame every optimization renderer draws its SVG in. */
 export function SvgFrame({ width, height, label, minWidth, children }: { width: number; height: number; label: string; minWidth?: number; children: ReactNode }) {
+  const scrollRef = useScrollStop<HTMLDivElement>();
   return (
-    <div className="ok-scroll">
+    <div className="ok-scroll" ref={scrollRef}>
       <svg className="ok-svg" viewBox={`0 0 ${width} ${height}`} style={{ width, maxWidth: '100%', minWidth: Math.min(width, minWidth ?? 360) }} role="img" aria-label={label}>
         {children}
       </svg>

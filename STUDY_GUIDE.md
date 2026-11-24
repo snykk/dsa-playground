@@ -270,10 +270,11 @@ Bit manipulation first, because bitmask DP stores a subset in an integer.
 
 ### Decomposition techniques
 
-Array side first (square root, Mo), then the tree side (heavy-light, centroid).
+Array side first (square root, Mo), then the tree side (lowest common ancestor, heavy-light, centroid).
 
 - [Square Root Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Square_Root_Decomposition/) (Intermediate)
 - [Mo's Algorithm](Algorithms/Advanced_Algorithms/Specialized_Techniques/Mos_Algorithm/) (Advanced)
+- [Lowest Common Ancestor](Algorithms/Advanced_Algorithms/Specialized_Techniques/Lowest_Common_Ancestor/) (Advanced)
 - [Heavy-Light Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Heavy_Light_Decomposition/) (Advanced)
 - [Centroid Decomposition](Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposition/) (Advanced)
 

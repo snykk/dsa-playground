@@ -1,0 +1,322 @@
+---
+topic: Algorithms/Advanced_Algorithms/Specialized_Techniques/Lowest_Common_Ancestor
+title: Lowest Common Ancestor
+lead: The lowest common ancestor of two nodes in a rooted tree is the deepest node that has both of them in its subtree. Build a table once in O(n log n), then answer each query in O(log n) with binary lifting or in O(1) with an Euler tour and a sparse table. The distance between two nodes and the k-th ancestor of a node come with it.
+level: Advanced
+updated: 2026-11-24
+facts:
+  - label: Build
+    value: O(n log n)
+    hint: both methods
+  - label: Binary lifting query
+    value: O(log n)
+    hint: lift the deeper node, then jump both
+  - label: Euler tour query
+    value: O(1)
+    hint: two reads of a sparse table
+  - label: Distance
+    value: d(u) + d(v) - 2 d(lca)
+    hint: edges on the path, through the LCA
+  - label: Extra memory
+    value: O(n log n)
+    hint: a row of n, or at most 2n - 1, per level
+    tone: warn
+properties:
+  - { label: Works on a static tree, value: true }
+  - { label: Supports changing the tree, value: false }
+  - { label: Gives the k-th ancestor, value: true }
+  - { label: Uses recursion, value: false }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Data_Structures/Non_Linear/Trees/Sparse_Table
+related:
+  - Utilities/Optimization_Techniques/Precomputation
+  - Algorithms/Advanced_Algorithms/Specialized_Techniques/Heavy_Light_Decomposition
+  - Algorithms/Advanced_Algorithms/Specialized_Techniques/Centroid_Decomposition
+  - Data_Structures/Non_Linear/Trees/Cartesian_Tree
+---
+
+## When to use it
+
+The **lowest common ancestor** (LCA) of nodes `u` and `v` in a rooted tree is the deepest node that has both of them in its subtree. A node counts as its own ancestor, so `lca(u, u) = u`, and `lca(u, v) = u` when `u` is above `v`.
+
+For one question, walking up one parent at a time is enough. For many questions on the same tree it is too slow: on a path of n nodes a single walk costs O(n). Build a table once and every query becomes cheap. Typical questions:
+
+- "Which manager do employees `u` and `v` share?" (the LCA itself)
+- "How many edges separate `u` and `v`?" (the distance, through the LCA)
+- "Who is the boss `k` levels above `v`?" (the k-th ancestor)
+
+This page covers the two standard tables. Precomputation shows binary lifting as one precomputed table among many, and heavy-light decomposition is a third way to the LCA.
+
+## Binary lifting
+
+Store, for every node `v`, its ancestors 1, 2, 4, 8, ... levels up: `up[k][v]` is the ancestor 2<sup>k</sup> levels above `v`. Since every climb is a sum of powers of two (5 = 4 + 1), any climb of `d` levels takes one jump per 1 bit of `d`.
+
+<TreeDiagram
+  label="A rooted tree of 10 nodes with depths up to 4"
+  legend={{ p: 'the query nodes 9 and 8', f: 'their LCA, node 0', l: 'where u and v stand after the last jump' }}
+  root={{
+    label: 0,
+    tone: 'f',
+    children: [
+      { label: 1, tone: 'l', children: [
+        { label: 3, children: [
+          { label: 6, children: [ { label: 9, tone: 'p' } ] },
+          { label: 7 },
+        ] },
+        { label: 4 },
+      ] },
+      { label: 2, tone: 'l', children: [
+        { label: 5, children: [ { label: 8, tone: 'p' } ] },
+      ] },
+    ],
+  }}
+  caption="The tree of the code's tests and demo, rooted at 0. lca(9, 8) is 0: node 9 is lifted to 6, then both climb two levels to 1 and 2, the two children of the answer."
+/>
+
+<Steps>
+  <Step title="Walk the tree for parents and depths">
+    A breadth-first walk from the root sets `parent[v]` and `depth[v]`. It also checks the input: n - 1 edges that reach every node form a tree.
+  </Step>
+  <Step title="Fill the table">
+    `up[0][v]` is the parent, and the root is its own parent, so a jump past the root stops there. Then `up[k][v] = up[k-1][up[k-1][v]]`: two jumps of 2<sup>k-1</sup> make one of 2<sup>k</sup>. With `levels = n.bit_length()` rows, the jumps add up to at least n - 1, the deepest any node can be.
+  </Step>
+  <Step title="Lift the deeper node">
+    Make `u` the deeper node and climb `depth[u] - depth[v]` levels with one jump per 1 bit. If `u` lands on `v`, then `v` was an ancestor of the other node, and it is the answer.
+  </Step>
+  <Step title="Climb both while their ancestors differ">
+    For `k` from the largest down to 0, jump both nodes 2<sup>k</sup> levels when `up[k][u] != up[k][v]`. Afterwards they are two children of the LCA, and `up[0][u]` is the answer.
+  </Step>
+</Steps>
+
+<Callout title="Why jump only when the ancestors differ">
+Equal ancestors are common ancestors, but maybe not the lowest one. A jump to different ancestors keeps both nodes strictly below the LCA, so it can never overshoot. Trying every power of two from the largest down climbs as far as possible while staying below it, and that is exactly one level below the LCA.
+</Callout>
+
+The same table answers `kth_ancestor(v, k)`: -1 when `k > depth[v]`, else one jump per 1 bit of `k`.
+
+## The Euler tour
+
+Walk the tree depth-first and write a node down every time the walk enters it and every time it comes back to it from a child. The tour has 2n - 1 entries. `first[v]` is where `v` appears first.
+
+Between `first[u]` and `first[v]` the walk goes from `u` to `v` without leaving the subtree of their LCA, and it passes through the LCA on the way. So the LCA is the **shallowest node of that stretch**: a range minimum query over the depths. A sparse table answers it with two overlapping windows of the largest power of two that fits.
+
+<ArrayDiagram
+  legend={{ p: 'the stretch from first[9] to first[4]', f: 'its shallowest node: the LCA', c: 'the first visits of 9 and 4' }}
+  rows={[
+    { label: 'euler (node)', values: [0, 1, 3, 6, 9, 6, 3, 7, 3, 1, 4, 1, 0, 2, 5, 8, 5, 2, 0], tones: '....cpppppc........', marks: { 4: 'first[9]', 9: 'lca', 10: 'first[4]' } },
+    { label: 'depth', values: [0, 1, 2, 3, 4, 3, 2, 3, 2, 1, 2, 1, 0, 1, 2, 3, 2, 1, 0], tones: '....pppppfp........', note: 'Indices 0 to 18. lca(9, 4): the depths between index 4 and index 10 are 4 3 2 3 2 1 2, and the only depth 1 belongs to node 1.' },
+  ]}
+/>
+
+<Callout title="Ties do not matter">
+`shallower(a, b)` keeps the left node when the depths are equal, but that rule never picks between two different nodes: two different nodes of the same depth always have a shallower node, their LCA, between them in the tour. Every window has exactly one shallowest node.
+</Callout>
+
+## See it in action
+
+Two tabs on the same input. **Binary lifting** shows the breadth-first walk filling `parent` and `depth`, then the table column by column with each new jump drawn as two shorter ones, then every query: the lift by the bits of the depth gap and the joint climb. **Euler tour + sparse table** walks the tree depth-first while the tour grows under it, builds the table level by level, and answers each query with the two windows. The **Ten nodes (article)** example is the tree above; `kth` queries run only on the first tab, since the Euler tour class has no `kth_ancestor`.
+
+<ArticleViz ids={['lca-up-table', 'lca-euler-tour']} />
+
+## Worked example
+
+The binary lifting table of the tree above, as the Python code builds it (`levels = 4`):
+
+<DataTable
+  columns={['Node', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']}
+  rowHeaders
+  rows={[
+    ['depth', '0', '1', '1', '2', '2', '2', '3', '3', '3', '4'],
+    ['up[0] (1 up)', '0', '0', '0', '1', '1', '2', '3', '3', '5', '6'],
+    ['up[1] (2 up)', '0', '0', '0', '0', '0', '0', '1', '1', '2', '3'],
+    ['up[2] (4 up)', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+    ['up[3] (8 up)', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+  ]}
+/>
+
+`lca(9, 8)` with binary lifting:
+
+<DataTable
+  columns={['Step', 'u', 'v', 'Action']}
+  rows={[
+    ['1', '9', '8', 'Depths 4 and 3, so u is the deeper node. Lift it by 1 = 0b1: u = up[0][9] = 6.'],
+    ['2', '6', '8', 'k = 3 and k = 2: both ancestors are 0. Equal, so no jump.'],
+    ['3', '6', '8', 'k = 1: up[1][6] = 1 and up[1][8] = 2 differ. Both jump: u = 1, v = 2.'],
+    ['4', '1', '2', 'k = 0: up[0][1] = up[0][2] = 0. Equal, no jump.'],
+    ['5', '1', '2', 'Return up[0][1] = 0.'],
+  ]}
+/>
+
+The query reads 12 table entries. `distance(9, 8)` = 4 + 3 - 2 x 0 = 7 edges. `kth_ancestor(9, 3)` jumps by 1 (to 6) and by 2 (to 1), and `kth_ancestor(9, 5)` is -1 because node 9 is only 4 levels deep.
+
+`lca(9, 4)` with the Euler tour: `first[9] = 4` and `first[4] = 10`, a stretch of length 7, so `k = 2` and the windows start at 4 and at 7. `sparse[2][4] = 3` (the shallowest of `9 6 3 7`) and `sparse[2][7] = 1` (the shallowest of `7 3 1 4`). Node 1 is shallower, so `lca(9, 4) = 1`: two table reads.
+
+## Pseudocode
+
+```text
+rooted_tree(n, edges, root):          # shared; ValueError unless a tree
+    adj from the edges, in input order
+    breadth-first from root: parent[v], depth[v]   (parent[root] = -1)
+    if fewer than n nodes reached: raise ValueError
+
+BinaryLiftingLCA(n, edges, root):
+    levels = n.bit_length()
+    up[0][v] = parent[v], or root for the root
+    for k in 1 .. levels - 1:
+        for v in 0 .. n - 1:
+            up[k][v] = up[k-1][up[k-1][v]]
+
+kth_ancestor(v, k):
+    if k > depth[v]: return -1
+    for every 1 bit of k (bit b):  v = up[b][v]
+    return v
+
+lca(u, v):                            # binary lifting
+    if depth[u] < depth[v]: swap(u, v)
+    u = kth_ancestor(u, depth[u] - depth[v])
+    if u == v: return u
+    for k in levels - 1 down to 0:
+        if up[k][u] != up[k][v]:
+            u, v = up[k][u], up[k][v]
+    return up[0][u]
+
+EulerTourLCA(n, edges, root):
+    euler = [root]; first[root] = 0; stack = [root]
+    while stack:
+        u = top of stack
+        if u has a neighbour left to try (next in adj order): v
+            if v != parent[u]: first[v] = len(euler); euler.append(v); push v
+        else:
+            pop u; if stack: euler.append(top of stack)     # back in the parent
+    sparse[0] = euler
+    sparse[k][i] = shallower(sparse[k-1][i], sparse[k-1][i + 2^(k-1)])
+
+lca(u, v):                            # Euler tour
+    left, right = sorted(first[u], first[v])
+    k = (right - left + 1).bit_length() - 1
+    return shallower(sparse[k][left], sparse[k][right - 2^k + 1])
+
+distance(u, v) = depth[u] + depth[v] - 2 * depth[lca(u, v)]
+```
+
+## Implementation
+
+Every language provides the same three pieces with the same results:
+
+- **`rooted_tree`** (`rootedTree`, `NewRootedTree`) checks the input and walks it breadth-first. Fewer than one node, a root or an endpoint outside `0..n-1`, a number of edges other than n - 1, or edges that leave a node unreached (a cycle, a repeated edge or a loop, with the rest a forest) raise `ValueError` in Python, throw `std::invalid_argument` in C++, and return an error wrapping `ErrNotATree` in Go.
+- **`BinaryLiftingLCA`** (Go: `BinaryLifting`) has `lca`, `distance` and `kth_ancestor` (`kthAncestor`, `KthAncestor`).
+- **`EulerTourLCA`** (Go: `EulerTour`) has `lca` and `distance`; it has no k-th ancestor.
+
+A query node outside `0..n-1` raises `IndexError`, throws `std::out_of_range`, or panics in Go. Every walk is a loop with an explicit queue or stack, so a path of 100,000 nodes, which the tests build in all three languages, never touches the recursion limit. The Euler tour enters children in the order of the edges in the input, and the tests pin the same tour, `first`, sparse table and `up` table in every language.
+
+<TopicCode topic="Algorithms/Advanced_Algorithms/Specialized_Techniques/Lowest_Common_Ancestor" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'rooted_tree', time: 'O(n)', space: 'O(n)', when: 'One breadth-first walk and the checks.' },
+    { case: 'Binary lifting: build', time: 'O(n log n)', space: 'O(n log n)', when: 'n entries in each of floor(log2 n) + 1 rows.' },
+    { case: 'Binary lifting: lca, distance', time: 'O(log n)', when: 'At most one read per row to lift, then 2 per row, 2 more per jump and 1 at the end.' },
+    { case: 'kth_ancestor', time: 'O(log n)', when: 'One read per 1 bit of k.' },
+    { case: 'Euler tour: build', time: 'O(n log n)', space: 'O(n log n)', when: 'A tour of m = 2n - 1 entries and about m log2(m) table cells.' },
+    { case: 'Euler tour: lca, distance', time: 'O(1)', when: 'One bit count and two table reads.' },
+  ]}
+/>
+
+Counted with the Python code on a path, a star and a random tree of n = 10^5 nodes, with 301 queries on each: the lifting table holds 1,700,000 entries in 17 rows, and no query read more than 44 of them; the tour has 199,999 entries and its sparse table 3,337,857 cells, and every query read exactly 2. From n = 64 to 10^5 the lifting table stays between 1.02 and 1.17 times n log2 n entries, and the sparse table between 0.87 and 0.95 times m log2 m cells.
+
+<Equation label="Euler tour cells" expr="sum over k of (m - 2^k + 1), m = 2n - 1" result="about m log2(m)" />
+
+## Variants and design choices
+
+<DataTable
+  columns={['Choice', 'Options', 'Trade-off']}
+  rows={[
+    ['A missing ancestor', 'the root points to itself (used here), or -1', 'the self-loop needs no checks; -1 needs a check before every jump, and in Python up[k][-1] would silently read the last node'],
+    ['Breadth-first or depth-first walk', 'breadth-first for parent and depth (used here), depth-first for the tour', 'parents and depths are the same either way; the tour needs the depth-first order'],
+    ['What the sparse table stores', 'the node (used here), or its index in the tour', 'a node is what the query returns; an index needs one more lookup'],
+    ['Which occurrence of u and v', 'the first (used here), any other', 'any occurrences work, since the walk between them still passes through the LCA and stays in its subtree'],
+    ['Path aggregates', 'a second table, such as the minimum edge weight on each jump', 'the same doubling gives the minimum or sum on a path to an ancestor in O(log n); not in this code'],
+  ]}
+/>
+
+## LCA methods compared
+
+<DataTable
+  columns={['Method', 'Build', 'Query', 'Extra memory', 'Notes']}
+  highlight={1}
+  rows={[
+    ['Walk up the parents', 'O(n)', 'O(depth), O(n) worst', 'O(n)', 'fine for a few queries'],
+    ['Binary lifting', 'O(n log n)', 'O(log n)', 'O(n log n)', 'also the k-th ancestor'],
+    ['Euler tour + sparse table', 'O(n log n)', 'O(1)', 'O(n log n)', 'LCA and distance only'],
+    ['Heavy-light decomposition', 'O(n)', 'O(log n)', 'O(n)', 'also the path as O(log n) array ranges'],
+    ['Tarjan offline LCA', 'none', 'all queries together, nearly O(n + q)', 'O(n + q)', 'queries known in advance; not in this repository'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Many queries on a large tree: O(log n) or O(1) each after one build.',
+    'Binary lifting also answers the k-th ancestor and climbs by any computed amount.',
+    'The Euler tour query is two reads, whatever the shape of the tree.',
+    'The distance between any two nodes follows from the depths.',
+  ]}
+  cons={[
+    'O(n log n) memory, against O(n) for heavy-light decomposition.',
+    'The tree must not change; a new edge means a new build.',
+    'For one or two queries the tables cost more than a walk up the parents.',
+    'The Euler tour gives no k-th ancestor.',
+  ]}
+/>
+
+## Applications
+
+- **Distances in trees**: network latency in a tree topology, or the number of hops between two employees in an organisation chart.
+- **Kinship and version history**: the nearest common ancestor of two people in a family tree, or of two commits in a history without merges (with merges, the history is a graph, and git's merge base needs more than a tree LCA).
+- **Path queries**: counts or sums on root paths combined at the LCA (`cnt[u] + cnt[v] - 2 cnt[lca]`), as in the last practice problem.
+- **Range minimum queries**: through a Cartesian tree, the minimum of a range of an array is an LCA, the reverse of the Euler tour reduction.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Jumping when the ancestors are equal.** An equal ancestor may not be the lowest one. Jump only when they differ, and return the parent at the end.
+- **Skipping the lift.** The joint climb assumes both nodes are at the same depth.
+- **Too few rows.** With `levels` rows the longest climb is 2<sup>levels</sup> - 1 levels; it must reach the deepest node.
+- **Recursion on a deep tree.** A path of 10^5 nodes is far past Python's default recursion limit of 1000. Use a loop with an explicit stack, as the code here does.
+- **A tour without the returns.** In pre-order (each node once) the stretch between 9 and 4 above is `9 7 4`, whose shallowest node is 4, not the LCA 1. The returns to each parent are what put the LCA in the range.
+- **Floating-point log2** for the window. Use `bit_length()` or an integer loop.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which one should I write in a contest?">
+    Binary lifting, usually: it is shorter, gives the k-th ancestor too, and O(log n) per query is fast enough for 2 x 10^5 queries. Pick the Euler tour when there are many more queries than nodes, or when you already have a sparse table.
+  </FaqItem>
+  <FaqItem question="Does the root matter?">
+    The LCA does: with the same edges, `lca(9, 8)` is 0 when the tree is rooted at 0 and 1 when it is rooted at 4. The distance does not, since it counts the edges of the one path between the two nodes.
+  </FaqItem>
+  <FaqItem question="What if the input is a forest or has a cycle?">
+    The constructors refuse it. They require exactly n - 1 edges, and a breadth-first walk from the root must reach all n nodes. With n - 1 edges, an unreached node means a cycle somewhere and a forest around it. Answer a forest by giving each tree its own structure, or by joining the roots under one extra node.
+  </FaqItem>
+  <FaqItem question="Why is the Euler tour 2n - 1 entries long?">
+    Each node is written once when the walk enters it, n entries, and its parent is written once more every time the walk comes back up an edge, n - 1 entries.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Lowest Common Ancestor of a Binary Tree', site: 'LeetCode 236', url: 'https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/', idea: 'One query on a binary tree: the definition itself, where walking up or one recursive pass is enough.' },
+    { name: 'Company Queries I', site: 'CSES 1687', url: 'https://cses.fi/problemset/task/1687', idea: 'The boss k levels above an employee, for 2 x 10^5 queries: `kth_ancestor` with one jump per 1 bit of k.' },
+    { name: 'Company Queries II', site: 'CSES 1688', url: 'https://cses.fi/problemset/task/1688', idea: 'The lowest common boss of two employees, 2 x 10^5 times: either table, with the depth lift first.' },
+    { name: 'Distance Queries', site: 'CSES 1135', url: 'https://cses.fi/problemset/task/1135', idea: 'Distances in an unrooted tree: root it anywhere and use `depth[u] + depth[v] - 2 * depth[lca]`.' },
+    { name: 'Minimum Edge Weight Equilibrium Queries in a Tree', site: 'LeetCode 2846', url: 'https://leetcode.com/problems/minimum-edge-weight-equilibrium-queries-in-a-tree/', idea: 'Count each weight on every root path; the counts on a path are `cnt[u] + cnt[v] - 2 * cnt[lca]`, and its length is the distance.' },
+  ]}
+/>
