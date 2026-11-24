@@ -1,9 +1,12 @@
 ---
 category: Algorithms/Dynamic_Programming/Advanced_DP
 title: Advanced Dynamic Programming
-lead: Advanced DP keeps the same state, transition and order, but the state follows a structure instead of an index. It is a tree node, a node of a DAG, a subset stored in an integer or a digit position, and the cost depends on how many such states exist.
-updated: 2026-11-15
+lead: Advanced DP keeps the same state, transition and order, but the state follows a structure instead of an index. It is a range of a row, a tree node, a node of a DAG, a subset stored in an integer or a digit position, and the cost depends on how many such states exist.
+updated: 2026-11-24
 facts:
+  - label: Interval DP
+    value: O(n^3)
+    hint: about n^2 / 2 ranges, up to n - 1 splits each
   - label: DP on Trees
     value: O(n)
     hint: one post-order pass
@@ -17,13 +20,12 @@ facts:
   - label: Digit DP
     value: O(d*S*10)
     hint: d digits, S running states
-  - label: Tree DP state
-    value: 1 or 2 values per node
-    hint: for example include and exclude
   - label: Implementations
     value: Python, C++, Go
     hint: the same results in all three; Python is the reference
 contents:
+  - folder: Interval_DP
+    note: Answer every range i..j from a split or a last action inside it, shortest ranges first. Merging piles, bursting balloons and palindrome cuts in O(n^3).
   - folder: DP_on_Trees
     note: Solve every subtree from the leaves up. Independent set and maximum path sum in one O(n) pass.
   - folder: DP_on_Graphs
@@ -36,6 +38,7 @@ prerequisites:
   - Algorithms/Dynamic_Programming/Basic_DP
   - Algorithms/Dynamic_Programming/Linear_DP
   - Algorithms/Dynamic_Programming/2D_DP
+  - Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication
 related:
   - Algorithms/Dynamic_Programming/DP_Optimizations
   - Problem_Patterns/DP_Problem_Patterns
@@ -45,11 +48,12 @@ related:
 
 ## The problem
 
-In earlier areas the state is one or two numbers. Here it is a shape: a node with all of its subtree, a node with all of its successors, a set of chosen items, or a prefix of a number. The recurrence is the same kind of statement, "the answer for this state is built from smaller states", and the order follows the structure.
+In earlier areas the state is one or two numbers. Here it is a shape: a contiguous range of a row, a node with all of its subtree, a node with all of its successors, a set of chosen items, or a prefix of a number. The recurrence is the same kind of statement, "the answer for this state is built from smaller states", and the order follows the structure.
 
 <DataTable
   columns={['Topic', 'State', 'Smaller states', 'Order']}
   rows={[
+    ['Interval DP', '`dp[i][j]`: the best for the range `i..j` alone', 'the two ranges on each side of a split', 'increasing length'],
     ['DP on Trees', 'a node, as a pair such as (include, exclude)', 'its children', 'children before parent'],
     ['DP on Graphs', 'a node: nodes on the longest path that starts there', 'its successors', 'successors first, so the graph must be acyclic'],
     ['Bitmask DP', '`dp[mask][last]`: cheapest way to visit the cities in `mask`, ending at `last`', 'the mask without `last`', 'increasing mask value'],
@@ -62,6 +66,7 @@ In earlier areas the state is one or two numbers. Here it is a shape: a node wit
 <DataTable
   columns={['Topic', 'Key property', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Limit']}
   rows={[
+    ['Interval DP', 'every split of every range; the two sides are independent', 'O(n^3)', 'O(n^2)', 'a few hundred items in Python, about a thousand in C++ and Go'],
     ['DP on Trees', 'a rooted tree gives an order for free', 'O(n)', 'O(h) recursion stack, up to O(n)', 'Python recursion depth on a long path'],
     ['DP on Graphs', 'a memoized DFS; raises `ValueError` on a reachable cycle', 'O(V + E)', 'O(V)', 'needs a DAG; the code has no edge weights'],
     ['Bitmask DP', 'exact answer over every subset', 'O(n^2 * 2^n)', 'O(n * 2^n)', 'about 20 items'],
@@ -73,15 +78,17 @@ Digit DP is cheap in the size of the bound: `count_numbers_with_digit_sum(10**18
 
 ## See them side by side
 
-One tab per topic, in reading order, each following the repository's Python function step by step: the state is a tree node, a DAG node, a set of visited cities and a digit position.
+One tab per topic, in reading order, each following the repository's Python function step by step: the state is a range of piles, a tree node, a DAG node, a set of visited cities and a digit position.
 
-<ArticleViz ids={['tree-dp-independent-set', 'dag-longest-path', 'bitmask-dp-tsp', 'digit-dp']} />
+<ArticleViz ids={['interval-dp', 'tree-dp-independent-set', 'dag-longest-path', 'bitmask-dp-tsp', 'digit-dp']} />
 
 ## Small runs of the repository code
 
 <DataTable
   columns={['Call', 'Input', 'Result']}
   rows={[
+    ['`merge_piles`', 'piles `3, 2, 4, 1`, a merge costs the size of the pile it makes', '20 (3 + 2 and 4 + 1 for 5 each, then 10)'],
+    ['`burst_balloons`', 'balloons `3, 1, 5, 8`', '167'],
     ['`tree_dp_max_independent_set`', 'root 1 with children 2 and 3; node 2 has children 4 and 5', '12 (nodes 3, 4 and 5)'],
     ['`tree_dp_max_path_sum`', 'the same tree', '11'],
     ['`dag_longest_path`', '`a -> b, a -> c, b -> d, c -> d`, start `a`', '2 edges'],
@@ -97,6 +104,7 @@ One tab per topic, in reading order, each following the repository's Python func
 <DataTable
   columns={['Situation', 'Use', 'Why']}
   rows={[
+    ['Best way to combine a row whose neighbours merge, or to split it', 'Interval DP', 'each range is answered from a split inside it, shortest ranges first'],
     ['Best choice per node of a rooted tree', 'DP on Trees', 'each subtree is solved once from its children'],
     ['Longest path or path count in a DAG', 'DP on Graphs', 'a memoized DFS visits each node and edge once'],
     ['A graph may have cycles, or edges have weights', 'a shortest-path algorithm', 'the DAG code assumes no cycles and counts edges'],
@@ -108,6 +116,7 @@ One tab per topic, in reading order, each following the repository's Python func
 
 ## Applications
 
+- **Merging and splitting a row.** The cheapest order to merge neighbouring files or piles, the best way to cut a string, the order of a chain of products.
 - **Hierarchies.** Choosing non-adjacent nodes, for example employees for a task with no manager and report together.
 - **Dependency graphs.** Longest chain of build steps in a DAG.
 - **Routing and scheduling.** Exact Traveling Salesman tours for about 20 stops at most.
@@ -116,6 +125,7 @@ One tab per topic, in reading order, each following the repository's Python func
 ## Common mistakes
 
 <Callout tone="warning" title="Watch out for these">
+- **Filling an interval table row by row from the top.** A split reads `dp[k+1][j]`, a cell lower in the same column, before it is computed: on piles `3, 2, 4, 1` that order returns 10 instead of 20. Fill by length.
 - **Recursing twice per child in tree DP.** Calling the recursion again for each child makes the algorithm exponential. Compute each child once and reuse the result.
 - **Running graph DP on a cycle.** There is no order in which the successors are solved first. The code detects this and raises `ValueError`.
 - **Using bitmask DP past about 20 items.** The table has `n * 2^n` cells, and in Python the cell objects make the practical limit lower.
@@ -127,7 +137,7 @@ One tab per topic, in reading order, each following the repository's Python func
 
 <Faq>
   <FaqItem question="Which one should I read first?">
-    DP on Trees. Its state is the easiest to picture, and DP on Graphs generalizes it from trees to DAGs. Bitmask DP and Digit DP use a different kind of state and can be read in either order.
+    Interval DP, right after Matrix Chain Multiplication: its table is still two indices, a range. Then DP on Trees, whose state is the easiest structure to picture; DP on Graphs generalizes it from trees to DAGs. Bitmask DP and Digit DP use a different kind of state and can be read in either order.
   </FaqItem>
   <FaqItem question="How is DP on Graphs different from DP on Trees?">
     A tree has one parent per node and no cycles, so a post-order pass is enough. A DAG can reach one node by several paths, so a memo is needed to avoid repeated work, and cycles must be ruled out.

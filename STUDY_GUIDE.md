@@ -260,6 +260,7 @@ Bit manipulation first, because bitmask DP stores a subset in an integer.
 
 - [Bit Manipulation](Problem_Patterns/Bit_Manipulation/) (Intermediate)
 - [Matrix Chain Multiplication](Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication/) (Advanced)
+- [Interval DP](Algorithms/Dynamic_Programming/Advanced_DP/Interval_DP/) (Advanced)
 - [DP on Trees](Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees/) (Advanced)
 - [DP on Graphs](Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs/) (Advanced)
 - [Bitmask DP](Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP/) (Advanced)

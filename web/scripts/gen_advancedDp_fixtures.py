@@ -1,9 +1,9 @@
 """Generate golden fixtures for the advanced dynamic-programming visualizations.
 
-The web visualizer re-implements five topics in TypeScript (web/src/viz/algorithms/):
+The web visualizer re-implements six topics in TypeScript (web/src/viz/algorithms/):
 bitmaskDp.ts (traveling_salesman_dp), digitDp.ts (count_numbers_with_digit_sum), treeDp.ts
-(tree_dp_max_independent_set, tree_dp_max_path_sum), graphDp.ts (dag_longest_path) and
-convexHullTrick.ts (MonotonicCHT). These fixtures pin each port to the repository's Python
+(tree_dp_max_independent_set, tree_dp_max_path_sum), graphDp.ts (dag_longest_path),
+convexHullTrick.ts (MonotonicCHT) and intervalDp.ts (merge_piles_plan). These fixtures pin each port to the repository's Python
 code in Algorithms/Dynamic_Programming/Advanced_DP and DP_Optimizations/Convex_Hull_Trick.
 
 The functions keep their tables in local variables, so the generator watches them with
@@ -16,7 +16,10 @@ sys.settrace instead of changing them:
   (post-order), with best1, best2 and max_sum after each call of the path version;
 - dag: every call of dfs(node) and every return value in order, then the result or the
   ValueError message;
-- cht: the deque of lines after every add_line and query, and every query's answer or error.
+- cht: the deque of lines after every add_line and query, and every query's answer or error;
+- intervalDp: every _try_split call of merge_piles_plan in order, as (i, k, j, dp[i][j] before,
+  cost), by wrapping that module-level helper, then the final dp and split tables, the cost and
+  the merges read back. This section has its own random generator, so the others keep their values.
 
 Run from anywhere:
 
@@ -38,6 +41,7 @@ for folder in (
     "Advanced_DP/Digit_DP",
     "Advanced_DP/DP_on_Trees",
     "Advanced_DP/DP_on_Graphs",
+    "Advanced_DP/Interval_DP",
     "DP_Optimizations/Convex_Hull_Trick",
 ):
     sys.path.insert(0, str(DP / folder / "Python"))
@@ -46,6 +50,7 @@ from bitmask_dp import traveling_salesman_dp  # noqa: E402
 from cht import MonotonicCHT  # noqa: E402
 from digit_dp import count_numbers_with_digit_sum  # noqa: E402
 from graph_dp import dag_longest_path  # noqa: E402
+import interval_dp  # noqa: E402
 from tree_dp import TreeNode, tree_dp_max_independent_set, tree_dp_max_path_sum  # noqa: E402
 
 OUT = ROOT / "web" / "src" / "viz" / "algorithms" / "__fixtures__" / "advancedDp.json"
@@ -368,6 +373,52 @@ def cht_cases(rng, count):
     return cases
 
 
+# ---------- interval DP (merging piles) ----------
+
+INTERVAL_FIXED = [
+    [3, 2, 4, 1],
+    [7],
+    [4, 9],
+    [1, 1, 1],
+    [1, 1, 1, 1],
+    [2, 2, 2, 2, 2],
+    [0, 0, 0, 0],
+    [3, 2, 2, 3],
+    [1, 2, 3],
+    [3, 2, 1],
+    [5, 1, 4, 2, 8, 3, 7, 6],
+    [99, 99, 99, 99, 99, 99, 99, 99],
+]
+
+
+def interval_case(piles):
+    calls = []
+    real = interval_dp._try_split
+
+    def spy(dp, split, prefix, i, k, j):
+        calls.append([i, k, j, num(dp[i][j]), dp[i][k] + dp[k + 1][j] + prefix[j + 1] - prefix[i]])
+        real(dp, split, prefix, i, k, j)
+
+    interval_dp._try_split = spy
+    try:
+        cost, merges = interval_dp.merge_piles_plan(piles)
+    finally:
+        interval_dp._try_split = real
+    dp, split, _ = interval_dp._fill_merge(piles)
+    assert cost == interval_dp.merge_piles(piles) == interval_dp.merge_piles_memo(piles)
+    return {"piles": piles, "calls": calls, "dp": dp, "split": split, "cost": cost, "merges": [list(m) for m in merges]}
+
+
+def interval_cases(count):
+    # Its own generator: adding this section does not change the ones above. The random rows stay
+    # inside the visualization's limits (1 to 8 piles of 0 to 99), with small sizes for ties.
+    rng = random.Random(20261124)
+    cases = [interval_case(p) for p in INTERVAL_FIXED]
+    while len(cases) < count:
+        cases.append(interval_case([rng.randint(0, rng.choice([2, 9, 99])) for _ in range(rng.randint(1, 8))]))
+    return cases
+
+
 def main():
     rng = random.Random(20261115)
     sections = {
@@ -377,10 +428,11 @@ def main():
         "treePath": tree_cases(rng, "path", 50),
         "dag": dag_cases(rng, 60),
         "cht": cht_cases(rng, 60),
+        "intervalDp": interval_cases(60),
     }
     header = {
         "generator": "web/scripts/gen_advancedDp_fixtures.py",
-        "reference": "Algorithms/Dynamic_Programming/Advanced_DP (bitmask_dp.py, digit_dp.py, tree_dp.py, graph_dp.py); Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick (cht.py)",
+        "reference": "Algorithms/Dynamic_Programming/Advanced_DP (bitmask_dp.py, digit_dp.py, tree_dp.py, graph_dp.py, interval_dp.py); Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick (cht.py)",
     }
     parts = []
     for key, cases in sections.items():

@@ -90,6 +90,13 @@ export const entries: VizInfo[] = [
     topics: ['Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication', 'Algorithms/Dynamic_Programming/2D_DP'],
   },
   {
+    id: 'interval-dp',
+    title: 'Interval DP: merging piles',
+    group: 'Dynamic Programming',
+    blurb: 'Fill dp[i][j] one diagonal at a time, trying every split of every range; then read the merge tree back from the splits kept.',
+    topics: [`${ADV}/Interval_DP`, ADV],
+  },
+  {
     id: 'tree-dp-independent-set',
     title: 'Tree DP: maximum independent set',
     group: 'Dynamic Programming',
@@ -146,6 +153,7 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   kadane: () => import('../specs/dpLinear').then((m) => m.kadane),
   'edit-distance': () => import('../specs/dpGrid').then((m) => m.editDistance),
   'matrix-chain': () => import('../specs/dpGrid').then((m) => m.matrixChain),
+  'interval-dp': () => import('../specs/intervalDp').then((m) => m.intervalDpSpec),
   'tree-dp-independent-set': () => import('../specs/advancedDp').then((m) => m.treeMisSpec),
   'tree-dp-max-path-sum': () => import('../specs/advancedDp').then((m) => m.treePathSpec),
   'dag-longest-path': () => import('../specs/advancedDp').then((m) => m.dagLongestPathSpec),

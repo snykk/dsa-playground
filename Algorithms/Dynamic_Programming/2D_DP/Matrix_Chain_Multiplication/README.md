@@ -103,4 +103,5 @@ All three implement the same bottom-up function and return only the minimum cost
 - [Longest Common Subsequence](../Longest_Common_Subsequence/) - another 2D table over prefixes
 - [Edit Distance](../Edit_Distance/) - a 2D DP with three transitions
 - [0/1 Knapsack](../0_1_Knapsack/) - a 2D DP over items and capacity
+- [Interval DP](../../Advanced_DP/Interval_DP/) - the general pattern this table follows, with more problems
 - [Dynamic Programming overview](../../README.md)
