@@ -29,17 +29,24 @@ interface Props {
   buttonRef?: Ref<HTMLButtonElement>;
 }
 
-/** Square button with an SVG icon; the label is for screen readers. */
+/**
+ * Square button with an SVG icon; the label is for screen readers.
+ *
+ * A disabled button stays focusable (aria-disabled, and a click does nothing) instead of taking
+ * the `disabled` attribute: the transport buttons disable themselves while they have focus (Next
+ * on reaching the last step), and a disabled element drops focus to the page, so a keyboard user
+ * would lose their place in the player.
+ */
 export function IconButton({ icon, label, onClick, disabled, primary, hasPopup, buttonRef }: Props) {
   return (
     <button
       ref={buttonRef}
       type="button"
       className={`viz-icon${primary ? ' play' : ''}`}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       aria-label={label}
       aria-haspopup={hasPopup}
-      disabled={disabled}
+      aria-disabled={disabled ? true : undefined}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d={PATHS[icon]} fillRule="evenodd" />
