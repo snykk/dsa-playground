@@ -1,0 +1,93 @@
+/* ShellSortBars organism: ArrayBars' bars plus the gap chips, the index and group rows and the comb. */
+.sb-scroll {
+  overflow-x: auto;
+}
+.shell-bars {
+  display: block;
+  margin: 0 auto;
+}
+.shell-bars text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- gap chips ---------- */
+
+.shell-bars .sb-head {
+  text-anchor: start;
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.shell-bars .sb-chip rect {
+  fill: var(--surface-3);
+  transition: fill 0.2s ease;
+}
+.shell-bars .sb-chip text {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.shell-bars .sb-chip.is-current rect {
+  fill: var(--role);
+}
+.shell-bars .sb-chip.is-current text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+
+/* ---------- bars (the ArrayBars look) ---------- */
+
+.shell-bars .sb-baseline {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+.shell-bars .sb-bar {
+  transition: transform 0.35s ease;
+}
+.shell-bars .sb-bar path {
+  fill: var(--role);
+  transition:
+    fill 0.2s ease,
+    opacity 0.2s ease;
+}
+/* Outside the current group: the bar fades, its value stays readable. */
+.shell-bars .sb-bar.out path {
+  opacity: 0.3;
+}
+.shell-bars .sb-value {
+  fill: var(--text-2);
+  font-size: 12px;
+}
+.shell-bars .sb-bar.role-compare .sb-value,
+.shell-bars .sb-bar.role-active .sb-value {
+  fill: var(--text);
+  font-weight: 700;
+}
+
+/* ---------- index row, group letters, comb, pointers ---------- */
+
+.shell-bars .sb-index {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.shell-bars .sb-group {
+  fill: var(--text-3);
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+.shell-bars .sb-group.is-current {
+  fill: var(--text);
+  font-weight: 700;
+}
+.shell-bars .sb-comb line {
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.shell-bars .sb-pointer {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}

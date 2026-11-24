@@ -60,6 +60,7 @@ Binary search is the one to master.
 
 - [Bubble Sort](Algorithms/Sorting/Bubble_Sort/) (Beginner)
 - [Insertion Sort](Algorithms/Sorting/Insertion_Sort/) (Beginner)
+- [Shell Sort](Algorithms/Sorting/Shell_Sort/) (Intermediate)
 - [Selection Sort](Algorithms/Sorting/Selection_Sort/) (Beginner)
 - [Merge Sort](Algorithms/Sorting/Merge_Sort/) (Intermediate)
 - [Quick Sort](Algorithms/Sorting/Quick_Sort/) (Intermediate)

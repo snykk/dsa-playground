@@ -18,6 +18,13 @@ export const entries: VizInfo[] = [
     topics: ['Algorithms/Sorting/Insertion_Sort', 'Algorithms/Sorting'],
   },
   {
+    id: 'shell-sort',
+    title: 'Shell Sort',
+    group: 'Sorting',
+    blurb: 'Insertion sort over shrinking gaps: each pass sorts the interleaved groups of every gap-th element, and gap 1 finishes.',
+    topics: ['Algorithms/Sorting/Shell_Sort', 'Algorithms/Sorting'],
+  },
+  {
     id: 'selection-sort',
     title: 'Selection Sort',
     group: 'Sorting',
@@ -71,6 +78,7 @@ export const entries: VizInfo[] = [
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'bubble-sort': () => import('../specs/sorting').then((m) => m.bubbleSort),
   'insertion-sort': () => import('../specs/sorting').then((m) => m.insertionSort),
+  'shell-sort': () => import('../specs/shellSort').then((m) => m.shellSort),
   'selection-sort': () => import('../specs/sorting').then((m) => m.selectionSort),
   'merge-sort': () => import('../specs/sorting').then((m) => m.mergeSort),
   'quick-sort': () => import('../specs/sorting').then((m) => m.quickSort),

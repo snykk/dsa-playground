@@ -100,3 +100,4 @@ Binary insertion is not implemented.
 - [Selection Sort](../Selection_Sort/README.md)
 - [Merge Sort](../Merge_Sort/README.md)
 - [Quick Sort](../Quick_Sort/README.md)
+- [Shell Sort](../Shell_Sort/README.md) - insertion sort over shrinking gaps
