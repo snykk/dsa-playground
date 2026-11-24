@@ -293,13 +293,13 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
-[v0.8.1]: https://github.com/snykk/dsa-playground/releases/tag/v0.8.1
-[v0.8.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.8.0
-[v0.7.1]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.1
-[v0.7.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.7.0
-[v0.6.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.6.0
-[v0.5.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.5.0
-[v0.4.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.4.0
-[v0.3.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.3.0
-[v0.2.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.2.0
+[v0.8.1]: https://github.com/snykk/dsa-playground/compare/v0.8.0...v0.8.1
+[v0.8.0]: https://github.com/snykk/dsa-playground/compare/v0.7.1...v0.8.0
+[v0.7.1]: https://github.com/snykk/dsa-playground/compare/v0.7.0...v0.7.1
+[v0.7.0]: https://github.com/snykk/dsa-playground/compare/v0.6.0...v0.7.0
+[v0.6.0]: https://github.com/snykk/dsa-playground/compare/v0.5.0...v0.6.0
+[v0.5.0]: https://github.com/snykk/dsa-playground/compare/v0.4.0...v0.5.0
+[v0.4.0]: https://github.com/snykk/dsa-playground/compare/v0.3.0...v0.4.0
+[v0.3.0]: https://github.com/snykk/dsa-playground/compare/v0.2.0...v0.3.0
+[v0.2.0]: https://github.com/snykk/dsa-playground/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/snykk/dsa-playground/releases/tag/v0.1.0

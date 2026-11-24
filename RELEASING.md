@@ -21,7 +21,7 @@ Every change reaches `master` through a release branch and a pull request that t
 
 3. Close the release on its branch:
    - if the release changes something README.md states, update README.md;
-   - add the commit `docs: record vX.Y.Z in the changelog`. It adds a section `## [vX.Y.Z] - YYYY-MM-DD` under `## Unreleased` in CHANGELOG.md, moving into it anything listed under Unreleased, and the footer link `[vX.Y.Z]: https://github.com/snykk/dsa-playground/releases/tag/vX.Y.Z`. The section follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/):
+   - add the commit `docs: record vX.Y.Z in the changelog`. It adds a section `## [vX.Y.Z] - YYYY-MM-DD` under `## Unreleased` in CHANGELOG.md, moving into it anything listed under Unreleased, and the footer link `[vX.Y.Z]: https://github.com/snykk/dsa-playground/compare/vW...vX.Y.Z`, the compare view from the previous version's tag `vW` (it works once the tag is pushed). The section follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/):
 
      ```text
      ## [vX.Y.Z] - YYYY-MM-DD
@@ -29,14 +29,14 @@ Every change reaches `master` through a release branch and a pull request that t
      One sentence: what the release is about.
 
      ### Added
-     - **What is new**: one line a reader can act on, then the detail.
+     - **What is new**: one line a reader can act on, then the detail. ([abc1234](https://github.com/snykk/dsa-playground/commit/<full hash>))
 
      ### Changed
      ### Removed
      ### Fixed
      ```
 
-     Use only the headings the release needs, in Keep a Changelog's order: Added, Changed, Deprecated, Removed, Fixed, Security. Write each entry for someone using the repository or the site, not as a list of commits.
+     Use only the headings the release needs, in Keep a Changelog's order: Added, Changed, Deprecated, Removed, Fixed, Security. Write each entry for someone using the repository or the site, not as a list of commits, and end it with a link to each commit that made it, shown by its short hash. Write the whole URL: GitHub does not turn a bare hash into a link inside a Markdown file. The branches are merged with merge commits, so the hashes stay valid on `master`. Sections before v0.9.0 have no commit links; their footer links still show every commit of the version.
 
 4. Check everything locally:
 
