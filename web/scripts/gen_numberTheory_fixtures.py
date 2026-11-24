@@ -2,8 +2,9 @@
 
 The web visualizer re-implements the number theory topics in TypeScript
 (web/src/viz/algorithms/euclideanAlgorithm.ts, modularArithmetic.ts, modularExponentiation.ts,
-millerRabin.ts with randomizedDraws.ts, chineseRemainder.ts and sieveOfEratosthenes.ts). These
-fixtures pin each port to its reference in Algorithms/Mathematical_Algorithms/Number_Theory:
+millerRabin.ts with randomizedDraws.ts, chineseRemainder.ts, sieveOfEratosthenes.ts and
+eulersTotient.ts). These fixtures pin each port to its reference in
+Algorithms/Mathematical_Algorithms/Number_Theory:
 
 - euclid: every call of the recursive gcd, every iteration of gcd_iterative, lcm, and every
   call of _extended_gcd_nonneg with the (g, x, y) it returned, then extended_gcd's answer;
@@ -19,7 +20,13 @@ fixtures pin each port to its reference in Algorithms/Mathematical_Algorithms/Nu
   for miller_rabin_deterministic every pow(...) call; then the verdicts;
 - crt: every _merge and extended_gcd call with its result, and the answer;
 - sieve: each outer index with its flag, every write is_prime[j] = False as (i, j), the
-  primes, the flags and the answers of is_prime_sieve for queries inside and outside the list.
+  primes, the flags and the answers of is_prime_sieve for queries inside and outside the list;
+- totientSieve: every crossing of linear_sieve as (i, p, phi[i * p]), in order (its _cross_out
+  replaced by a recording wrapper), and the phi, spf and primes tables with the crossings count;
+- totientFactor: every candidate prime_factors tries, as (p, times it divided) (its _divide_out
+  wrapped the same way), the factors, phi(n), and mod_inverse_euler(a, n) for a few a, or
+  "ValueError". The two totient sections draw their inputs from their own random generator,
+  so the other sections stay as they were.
 
 The loop states come from sys.settrace (a line of the function, recorded each time it runs),
 the calls from wrappers installed as module globals; the topic code itself is not edited.
@@ -48,11 +55,13 @@ for folder in (
     "Miller_Rabin_Primality_Test/Python",
     "Chinese_Remainder_Theorem/Python",
     "Sieve_of_Eratosthenes/Python",
+    "Eulers_Totient/Python",
 ):
     sys.path.insert(0, str(NT / folder))
 
 import chinese_remainder_theorem as crt_module  # noqa: E402
 import euclidean_algorithm as euclid_module  # noqa: E402
+import eulers_totient as totient_module  # noqa: E402
 import miller_rabin as mr_module  # noqa: E402
 import modular_arithmetic as ma_module  # noqa: E402
 import modular_exponentiation as me_module  # noqa: E402
@@ -429,6 +438,78 @@ def sieve_cases(count):
     return cases
 
 
+# ---------- Euler's totient ----------
+
+TOTIENT_RNG = random.Random(20261124)
+
+
+def totient_sieve_case(n):
+    log = []
+    real = totient_module._cross_out
+
+    def recorded(phi_table, spf, i, p):
+        real(phi_table, spf, i, p)
+        log.append([i, p, phi_table[i * p]])
+
+    totient_module._cross_out = recorded
+    try:
+        t = totient_module.linear_sieve(n)
+    finally:
+        totient_module._cross_out = real
+    return {"n": n, "crossings": log, "phi": t.phi, "spf": t.spf, "primes": t.primes, "count": t.crossings}
+
+
+def totient_sieve_cases(count):
+    fixed = [0, 1, 2, 3, 4, 5, 10, 20, 30, 50, 64, 100]
+    cases = [totient_sieve_case(n) for n in fixed]
+    while len(cases) < count:
+        cases.append(totient_sieve_case(TOTIENT_RNG.randint(0, 100)))
+    return cases
+
+
+def totient_factor_case(n, inverses):
+    tried = []
+    real = totient_module._divide_out
+
+    def recorded(m, p):
+        left, k = real(m, p)
+        tried.append([p, k])
+        return left, k
+
+    def inverse(a):
+        try:
+            return totient_module.mod_inverse_euler(a, n)
+        except ValueError:
+            return "ValueError"
+
+    totient_module._divide_out = recorded
+    try:
+        factors = [list(f) for f in totient_module.prime_factors(n)]
+    except ValueError:
+        factors = "ValueError"
+    finally:
+        totient_module._divide_out = real
+    try:
+        value = totient_module.phi(n)
+    except ValueError:
+        value = "ValueError"
+    answers = [[a, inverse(a)] for a in inverses]
+    return {"n": n, "tried": tried, "factors": factors, "phi": value, "inverses": answers}
+
+
+def totient_factor_cases(count):
+    fixed = [
+        (360, [7, 6, -7]), (1, [0, 5]), (2, [1]), (97, [3, 96]), (1001, [10, 7]), (1024, [3, 2]), (65536, [3]),
+        (99991, [12345]), (30030, [17, 13]), (99999, [2, 3]), (0, [3]), (-5, []), (12, [5, 4, 11, -1]), (49, [7, 48]),
+    ]
+    cases = [totient_factor_case(n, a) for n, a in fixed]
+    while len(cases) < count:
+        n = TOTIENT_RNG.choice([TOTIENT_RNG.randint(1, 100), TOTIENT_RNG.randint(1, 99999)])
+        inverses = [TOTIENT_RNG.randint(-n, 2 * n) for _ in range(TOTIENT_RNG.randint(0, 3))]
+        cases.append(totient_factor_case(n, inverses))
+    return cases
+
+
 def main():
     mr_random, mr_det = mr_cases(30)
     sections = {
@@ -440,10 +521,12 @@ def main():
         "millerRabinDeterministic": mr_det,
         "crt": crt_cases(80),
         "sieve": sieve_cases(40),
+        "totientSieve": totient_sieve_cases(30),
+        "totientFactor": totient_factor_cases(50),
     }
     header = {
         "generator": "web/scripts/gen_numberTheory_fixtures.py",
-        "reference": "Algorithms/Mathematical_Algorithms/Number_Theory (euclidean_algorithm.py, modular_arithmetic.py, modular_exponentiation.py, miller_rabin.py, chinese_remainder_theorem.py, sieve_of_eratosthenes.py)",
+        "reference": "Algorithms/Mathematical_Algorithms/Number_Theory (euclidean_algorithm.py, modular_arithmetic.py, modular_exponentiation.py, miller_rabin.py, chinese_remainder_theorem.py, sieve_of_eratosthenes.py, eulers_totient.py)",
     }
     parts = []
     for key, cases in sections.items():

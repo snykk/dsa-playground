@@ -4,12 +4,25 @@ import { parsePow, POW_CODE, POW_REC_CODE, powRecTrace, powTrace, type PowInput,
 import { MR_CODE, MR_DET_CODE, mrDetTrace, mrTrace, parseMillerRabin, type MrInput, type MrState } from '../algorithms/millerRabin';
 import { CRT_CODE, crtTrace, parseCrt, type CrtInput, type CrtState } from '../algorithms/chineseRemainder';
 import { parseSieve, SIEVE_CODE, sieveTrace, type SieveInput, type SieveState } from '../algorithms/sieveOfEratosthenes';
+import {
+  parseTotientFactor,
+  parseTotientSieve,
+  TOTIENT_FACTOR_CODE,
+  TOTIENT_SIEVE_CODE,
+  totientFactorTrace,
+  totientSieveTrace,
+  type TotientFactorInput,
+  type TotientFactorState,
+  type TotientSieveInput,
+  type TotientSieveState,
+} from '../algorithms/eulersTotient';
 import type { VizSpec } from '../core/types';
 import { CongruenceCombs, stabilizeCombs } from '../renderers/CongruenceCombs';
 import { EuclidTiling, stabilizeEuclid } from '../renderers/EuclidTiling';
 import { PowerLadder, stabilizePower } from '../renderers/PowerLadder';
 import { ResidueClock, stabilizeClock } from '../renderers/ResidueClock';
 import { SieveGrid, stabilizeSieve } from '../renderers/SieveGrid';
+import { TotientFactorView, TotientSieveGrid } from '../renderers/TotientView';
 import { stabilizeWitness, WitnessChains } from '../renderers/WitnessChains';
 import { SYM } from '../ui/symbols';
 
@@ -292,4 +305,69 @@ export const sieveSpec: VizSpec<SieveInput, SieveState> = {
     { role: 'bad', label: `lookup: False (${SYM.cross})` },
   ],
   complexity: { time: 'O(n log log n) to sieve, O(1) per lookup', space: 'O(n) flags' },
+};
+
+/* ---------- Euler's totient ---------- */
+
+export const totientSieveSpec: VizSpec<TotientSieveInput, TotientSieveState> = {
+  id: 'eulers-totient-sieve',
+  title: 'Linear sieve: phi of every number',
+  inputKind: 'totient-sieve',
+  inputLabel: 'Limit',
+  inputHelp:
+    'The limit n ("n 30", from 0 to 100; the grid shows 0 to n). Each composite is crossed out once, as i ' + SYM.times + ' p with p its smallest prime factor, ' +
+    'and phi fills in as it goes. From i = n/2 + 1 on nothing is crossed out any more, so those numbers are checked in one step.',
+  examples: [
+    { label: 'Up to 30: 19 crossings', value: 'n 30' },
+    { label: 'Small: up to 12', value: 'n 12' },
+    { label: 'Powers of 2 up to 64', value: 'n 64' },
+    { label: 'Up to 100: 74 crossings', value: 'n 100' },
+    { label: 'n below 4: nothing to cross', value: 'n 3' },
+  ],
+  randomInput: () => `n ${pick([20, 30, 40, 50, 60, 80, 100])}`,
+  parse: parseTotientSieve,
+  trace: (input) => totientSieveTrace(input).frames,
+  render: (state) => <TotientSieveGrid state={state} />,
+  pseudocode: TOTIENT_SIEVE_CODE,
+  legend: [
+    { role: 'active', label: 'i being checked; the number crossed out in this step' },
+    { role: 'compare', label: 'i, the number doing the crossing out' },
+    { role: 'done', label: 'primes, at the end' },
+    { role: 'idle', label: 'shaded: crossed out earlier (the small text says by which i ' + SYM.times + ' p)' },
+  ],
+  complexity: { time: 'O(n): one crossing per composite', space: 'O(n): phi, spf and the primes' },
+};
+
+export const totientFactorSpec: VizSpec<TotientFactorInput, TotientFactorState> = {
+  id: 'eulers-totient-factor',
+  title: 'phi(n) by trial division',
+  inputKind: 'totient-factor',
+  inputLabel: 'n and inverses',
+  inputHelp:
+    'n ("phi 360", from 1 to 99999; 0 or a negative n shows the ValueError), then numbers to invert modulo n with Euler\'s theorem: "inverse 7, inverse 6" (up to 4, from -99999 to 99999). ' +
+    'Candidates that divide nothing in a row are tried in one step.',
+  examples: [
+    { label: '360, with inverses', value: 'phi 360; inverse 7, inverse 6' },
+    { label: 'A prime: every candidate fails', value: 'phi 97; inverse 3' },
+    { label: 'A power of 2: one candidate', value: 'phi 65536; inverse 3' },
+    { label: 'Six primes: 30030', value: 'phi 30030; inverse 17' },
+    { label: 'n = 1: every inverse is 0', value: 'phi 1; inverse 5' },
+    { label: 'phi(0) is undefined', value: 'phi 0' },
+  ],
+  randomInput: () => {
+    const n = pick([rint(2, 99), rint(100, 9999), rint(10000, 99999), pick([360, 1001, 30030, 4096, 99991])]);
+    return `phi ${n}; inverse ${rint(2, Math.max(2, n - 1))}`;
+  },
+  parse: parseTotientFactor,
+  trace: (input) => totientFactorTrace(input).frames,
+  render: (state) => <TotientFactorView state={state} />,
+  pseudocode: TOTIENT_FACTOR_CODE,
+  legend: [
+    { role: 'active', label: 'a prime that divides n; the new rung of what is left' },
+    { role: 'compare', label: 'candidates that divide nothing; the one that stops the loop' },
+    { role: 'done', label: 'primes divided out earlier' },
+    { role: 'good', label: `phi(n), the divisor-sum check and inverses (${SYM.check})` },
+    { role: 'bad', label: `ValueError: n < 1, or no inverse (${SYM.cross})` },
+  ],
+  complexity: { time: 'O(sqrt n) candidates; O(log n) more for an inverse', space: 'O(log n) for the factors' },
 };

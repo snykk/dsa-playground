@@ -66,7 +66,7 @@ Why `n log log n`: prime `p` does about `n / p` crossings, and the sum of `1 / p
 |--------|------|-------|
 | Trial division per number | O(n sqrt n) | no memory, far slower |
 | Sieve of Eratosthenes | O(n log log n) | simple, cache friendly, this code |
-| Linear sieve | O(n) | each composite crossed out exactly once; also gives smallest prime factors; not implemented here |
+| Linear sieve | O(n) | each composite crossed out exactly once; also gives smallest prime factors; implemented in [Euler's Totient](../Eulers_Totient/README.md) |
 | Segmented sieve | O(n log log n) | O(sqrt n) memory per block |
 | Miller-Rabin | O(log n) per number | one number at a time |
 
@@ -101,3 +101,4 @@ Why `n log log n`: prime `p` does about `n / p` crossings, and the sum of `1 / p
 - [Miller-Rabin Primality Test](../Miller_Rabin_Primality_Test/README.md)
 - [Euclidean Algorithm](../Euclidean_Algorithm/README.md)
 - [Modular Arithmetic](../Modular_Arithmetic/README.md)
+- [Euler's Totient](../Eulers_Totient/README.md) - the linear sieve, which also computes phi

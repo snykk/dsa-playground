@@ -285,13 +285,14 @@ Array side first (square root, Mo), then the tree side (lowest common ancestor, 
 
 ### Number theory and matrices
 
-CRT builds on extended Euclid, Miller-Rabin on modular exponentiation, and matrix exponentiation reuses square and multiply.
+CRT builds on extended Euclid, Euler's totient on the sieve, Miller-Rabin on modular exponentiation, and matrix exponentiation reuses square and multiply.
 
 - [Euclidean Algorithm](Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm/) (Beginner)
 - [Modular Arithmetic](Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic/) (Beginner)
 - [Modular Exponentiation](Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation/) (Beginner)
 - [Chinese Remainder Theorem](Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem/) (Intermediate)
 - [Sieve of Eratosthenes](Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes/) (Beginner)
+- [Euler's Totient](Algorithms/Mathematical_Algorithms/Number_Theory/Eulers_Totient/) (Intermediate)
 - [Miller-Rabin Primality Test](Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test/) (Advanced)
 - [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation/) (Intermediate)
 - [Fast Fourier Transform](Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/) (Advanced)
