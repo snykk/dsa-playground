@@ -203,6 +203,7 @@ SCC, bridges and 2-SAT reuse DFS; network flow is self-contained.
 - [2-SAT](Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT/) (Advanced)
 - [Ford-Fulkerson Method](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson/) (Advanced)
 - [Edmonds-Karp Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp/) (Advanced)
+- [Bipartite Matching](Algorithms/Graph_Algorithms/Advanced_Graph/Bipartite_Matching/) (Advanced)
 
 ### String algorithms
 

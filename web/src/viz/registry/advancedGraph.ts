@@ -1,4 +1,4 @@
-/** Visualization registry: Advanced graph algorithms (network flow, 2-SAT). */
+/** Visualization registry: Advanced graph algorithms (network flow, 2-SAT, bipartite matching). */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
@@ -21,6 +21,20 @@ export const entries: VizInfo[] = [
     topics: [`${FLOW}/Edmonds_Karp`, FLOW],
   },
   {
+    id: 'kuhn-matching',
+    title: "Kuhn's algorithm (bipartite matching)",
+    group: 'Graphs',
+    blurb: 'One DFS from each left vertex looks for an augmenting path, asking matched partners to move along, and flipping the path grows the matching by one.',
+    topics: [`${ADV}/Bipartite_Matching`],
+  },
+  {
+    id: 'hopcroft-karp',
+    title: 'Hopcroft-Karp (bipartite matching)',
+    group: 'Graphs',
+    blurb: 'A BFS sorts the left vertices into layers, DFS takes vertex-disjoint shortest augmenting paths through them, and the final matching yields a minimum vertex cover.',
+    topics: [`${ADV}/Bipartite_Matching`],
+  },
+  {
     id: 'two-sat',
     title: '2-SAT (implication graph + Tarjan)',
     group: 'Graphs',
@@ -32,5 +46,7 @@ export const entries: VizInfo[] = [
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'ford-fulkerson': () => import('../specs/advancedGraph').then((m) => m.fordFulkersonSpec),
   'edmonds-karp': () => import('../specs/advancedGraph').then((m) => m.edmondsKarpSpec),
+  'kuhn-matching': () => import('../specs/advancedGraph').then((m) => m.kuhnSpec),
+  'hopcroft-karp': () => import('../specs/advancedGraph').then((m) => m.hopcroftKarpSpec),
   'two-sat': () => import('../specs/advancedGraph').then((m) => m.twoSatSpec),
 };

@@ -1,8 +1,8 @@
 ---
 category: Algorithms/Graph_Algorithms/Advanced_Graph
 title: Advanced Graph Algorithms
-lead: These algorithms look for structure inside a graph instead of paths through it. A valid task order, groups of mutually reachable vertices, single points of failure, a yes-or-no answer to a logic formula, and the most flow a network can carry. Most of them are one DFS or BFS with extra bookkeeping.
-updated: 2026-11-15
+lead: These algorithms look for structure inside a graph instead of paths through it. A valid task order, groups of mutually reachable vertices, single points of failure, a yes-or-no answer to a logic formula, the most flow a network can carry, and the most pairs a bipartite graph can match. Most of them are one DFS or BFS with extra bookkeeping.
+updated: 2026-11-24
 facts:
   - label: Order, SCC, bridges
     value: O(V + E)
@@ -17,6 +17,9 @@ facts:
     value: O(E f)
     hint: f is the maximum flow, integer capacities
     tone: warn
+  - label: Hopcroft-Karp
+    value: O(E sqrt(V))
+    hint: maximum bipartite matching
 contents:
   - folder: Topological_Sort
     note: Order a DAG so every edge points forward, with Kahn's algorithm or DFS. The simplest topic here, and it detects cycles.
@@ -28,6 +31,8 @@ contents:
     note: Decide a formula of two-literal clauses by building an implication graph and running an SCC algorithm on it.
   - folder: Network_Flow
     note: Maximum flow from a source to a sink with augmenting paths. Ford-Fulkerson finds any path, Edmonds-Karp the shortest.
+  - folder: Bipartite_Matching
+    note: "The most pairs between two sides, along augmenting paths: Kuhn's DFS per vertex, or Hopcroft-Karp's shortest paths in phases. Konig's theorem gives a minimum vertex cover."
 prerequisites:
   - Algorithms/Graph_Algorithms/Traversal
 related:
@@ -46,8 +51,9 @@ Traversal, shortest paths and spanning trees ask about reachability and cost. Th
 - **Weak spots.** Which edges or vertices, if removed, split an undirected graph? Those are bridges and articulation points.
 - **Satisfiability.** Can a formula of clauses of two literals be satisfied? 2-SAT turns that into a component question.
 - **Capacity.** How much can flow from a source to a sink through edges with limits? That is maximum flow.
+- **Pairs.** How many disjoint pairs can a bipartite graph's edges form? That is maximum matching, the case of maximum flow where every capacity is 1.
 
-The first four sit close together. Topological sort, strongly connected components and bridges are built on DFS, and 2-SAT is a thin layer over an SCC algorithm. Network flow stands apart. It is built on BFS or DFS, but it repeatedly changes a residual graph instead of walking the graph once.
+The first four sit close together. Topological sort, strongly connected components and bridges are built on DFS, and 2-SAT is a thin layer over an SCC algorithm. Network flow stands apart. It is built on BFS or DFS, but it repeatedly changes a residual graph instead of walking the graph once. Bipartite matching is its unit-capacity case, with faster algorithms of its own.
 
 ## At a glance
 
@@ -59,12 +65,13 @@ The first four sit close together. Topological sort, strongly connected componen
     ['Bridges and articulation points', 'undirected multigraph', 'the bridges and the cut vertices', 'one DFS with disc and low values', 'O(V + E)', 'Advanced'],
     ['2-SAT', 'clauses with two literals each', 'satisfiable or not, plus an assignment', 'implication graph and Tarjan', 'O(n + m)', 'Advanced'],
     ['Network flow', 'directed graph with capacities', 'the maximum flow value', 'augmenting paths in a residual graph', 'O(E f) or O(V E^2)', 'Advanced'],
+    ['Bipartite matching', 'bipartite graph, no weights', 'a maximum matching, and a minimum vertex cover', 'augmenting paths, by DFS or by BFS layers and DFS', 'O(V E) or O(E sqrt(V))', 'Advanced'],
   ]}
 />
 
 ## See them side by side
 
-The tabs cover every topic here except network flow, whose two algorithms sit side by side on its own page. Topological sort and the two SCC algorithms take a directed graph, 2-SAT builds one from its clauses and runs Tarjan on it, and the bridge finder takes an undirected graph. Load **Cycle with a tail** in the topological sort tab to see a cycle block the order, **Two cycles joined** in the SCC tabs, **Unsatisfiable** in the 2-SAT tab to see x0 and ~x0 land in one component, and **Triangle with a tail** in the bridges tab.
+The tabs cover every topic here except network flow and bipartite matching, whose two algorithms each sit side by side on their own page. Topological sort and the two SCC algorithms take a directed graph, 2-SAT builds one from its clauses and runs Tarjan on it, and the bridge finder takes an undirected graph. Load **Cycle with a tail** in the topological sort tab to see a cycle block the order, **Two cycles joined** in the SCC tabs, **Unsatisfiable** in the 2-SAT tab to see x0 and ~x0 land in one component, and **Triangle with a tail** in the bridges tab.
 
 <ArticleViz ids={['topological-sort', 'kosaraju', 'tarjan-scc', 'two-sat', 'bridges-articulation']} />
 
@@ -86,6 +93,9 @@ The tabs cover every topic here except network flow, whose two algorithms sit si
   <Step title="Network flow">
     It is independent of the rest. Read Ford-Fulkerson for the residual graph, then Edmonds-Karp for the one change that makes it polynomial.
   </Step>
+  <Step title="Bipartite matching">
+    Augmenting paths again, on a graph whose capacities are all 1. Kuhn's algorithm is Ford-Fulkerson's search in this setting, and Hopcroft-Karp adds Edmonds-Karp's shortest paths, many at once.
+  </Step>
 </Steps>
 
 ## Choosing one
@@ -99,6 +109,7 @@ The tabs cover every topic here except network flow, whose two algorithms sit si
     ['Find the weak links of a network', 'Tarjan_Bridges_Articulation', 'one DFS lists every bridge and articulation point'],
     ['Decide pairwise either-or constraints', '2_SAT', 'a conflict is exactly a variable in the same SCC as its negation'],
     ['Carry as much as possible from a source to a sink', 'Network_Flow', 'augmenting paths reach the maximum, and a minimum cut proves it'],
+    ['Pair items of two kinds, each pair allowed or not', 'Bipartite_Matching', 'Hopcroft-Karp has a better bound than Ford-Fulkerson or Edmonds-Karp on the flow reduction, and a minimum vertex cover proves the answer'],
   ]}
 />
 
@@ -109,6 +120,7 @@ The tabs cover every topic here except network flow, whose two algorithms sit si
 - **Network reliability.** Bridges and articulation points mark single points of failure.
 - **Constraint solving.** 2-SAT for pairwise constraints such as seating or choice problems.
 - **Capacity planning.** Maximum flow for traffic, pipelines, matching and assignment.
+- **Pairing.** Bipartite matching for jobs to workers, students to projects, and dominoes on a grid.
 
 ## Common mistakes
 
@@ -118,6 +130,7 @@ The tabs cover every topic here except network flow, whose two algorithms sit si
 - **Using the bridge algorithm on a directed graph.** It is defined for undirected graphs only, and its vertices must be numbered from 0 to n - 1.
 - **Using 3 literals in 2-SAT.** With three literals per clause the problem is NP-complete, and the implication graph no longer works.
 - **Using Ford-Fulkerson with large or irrational capacities.** Its running time depends on the flow value, and with irrational capacities it may never stop. Use Edmonds-Karp.
+- **Matching on a graph that is not bipartite, or with weights.** An odd cycle breaks the alternating search and Konig's theorem, and weights turn the task into an assignment problem.
 </Callout>
 
 ## Frequently asked questions

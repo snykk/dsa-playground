@@ -1,3 +1,11 @@
+import {
+  HOPCROFT_KARP_CODE,
+  hopcroftKarpTrace,
+  KUHN_CODE,
+  kuhnTrace,
+  parseMatching,
+  type MatchingInput,
+} from '../algorithms/bipartiteMatching';
 import { EDMONDS_KARP_CODE, edmondsKarpTrace, parseEdmondsKarp } from '../algorithms/edmondsKarp';
 import type { FlowInput } from '../algorithms/flowNetwork';
 import { FORD_FULKERSON_CODE, fordFulkersonTrace, parseFordFulkerson } from '../algorithms/fordFulkerson';
@@ -5,6 +13,7 @@ import { parseTwoSat, TWO_SAT_CODE, twoSatTrace, type TwoSatInput } from '../alg
 import type { Example, VizSpec } from '../core/types';
 import { stabilizeStrips } from '../renderers/advancedGraphShared';
 import { FlowNetworkView, type FlowNetworkState } from '../renderers/FlowNetworkView';
+import { GraphView, type GraphState } from '../renderers/GraphView';
 import { ImplicationGraphView, type ImplicationState } from '../renderers/ImplicationGraphView';
 import { SYM } from '../ui/symbols';
 
@@ -141,4 +150,83 @@ export const twoSatSpec: VizSpec<TwoSatInput, ImplicationState> = {
     { role: 'muted', label: 'false literal; edge that changed nothing' },
   ],
   complexity: { time: 'O(n + m)', space: 'O(n + m)' },
+};
+
+// ---------------------------------------------------------------- bipartite matching
+
+const MATCHING_EXAMPLES: Example[] = [
+  { label: 'Worked example', value: '0-1, 0-2, 0-3, 1-0, 1-1, 2-0, 3-1' },
+  { label: 'One long augmenting path', value: '0-0, 0-1, 1-1, 1-2, 2-2, 2-3, 3-0' },
+  { label: 'Two paths in one phase', value: '0-1, 0-2, 1-0, 1-3, 2-0, 3-1' },
+  { label: 'Complete K3,3', value: '0-0, 0-1, 0-2, 1-0, 1-1, 1-2, 2-0, 2-1, 2-2' },
+  { label: 'A vertex with no edge', value: '0-0, 1-0, 2-0, 2-1; left 4, right 3' },
+];
+
+/** 3 to 6 vertices a side, each left vertex with 1 to 3 distinct neighbours, the edges in random order. */
+function randomBipartite(): string {
+  const nLeft = rint(3, 6);
+  const nRight = rint(3, 6);
+  const edges: string[] = [];
+  for (let u = 0; u < nLeft; u++) {
+    const picks = new Set<number>();
+    for (let k = rint(1, 3); k > 0; k--) picks.add(rint(0, nRight - 1));
+    for (const v of picks) edges.push(`${u}-${v}`);
+  }
+  for (let i = edges.length - 1; i > 0; i--) {
+    const j = rint(0, i);
+    [edges[i], edges[j]] = [edges[j], edges[i]];
+  }
+  return `${edges.slice(0, 18).join(', ')}; left ${nLeft}, right ${nRight}`;
+}
+
+const MATCHING_HELP =
+  'Edges "left-right" separated by commas, like "0-1" or "L0-R1": left vertex first, then right vertex, each numbered from 0. ' +
+  'Add "left 4, right 3" for vertices without an edge. adj[u] keeps the edges in the order you write them, and every search tries them in that order. ' +
+  'Up to 7 vertices a side and 20 edges.';
+
+const renderMatching = (state: GraphState) => <GraphView state={state} />;
+
+export const kuhnSpec: VizSpec<MatchingInput, GraphState> = {
+  id: 'kuhn-matching',
+  title: "Kuhn's algorithm (DFS)",
+  inputKind: 'bipartite-graph',
+  inputLabel: 'Bipartite graph',
+  inputHelp: MATCHING_HELP,
+  examples: MATCHING_EXAMPLES,
+  randomInput: randomBipartite,
+  parse: parseMatching,
+  trace: (input) => kuhnTrace(input).frames,
+  render: renderMatching,
+  pseudocode: KUHN_CODE,
+  legend: [
+    { role: 'active', label: 'current left vertex; an augmenting path, and the edges that enter the matching' },
+    { role: 'compare', label: 'on the search path: left vertices on the stack, right vertices tried, edges walked' },
+    { role: 'done', label: 'matched vertex; matching edge' },
+    { role: 'muted', label: 'given up in this search' },
+    { role: 'idle', label: 'free vertex; edge outside the matching' },
+  ],
+  complexity: { time: 'O(V E)', space: 'O(V + E)' },
+};
+
+export const hopcroftKarpSpec: VizSpec<MatchingInput, GraphState> = {
+  id: 'hopcroft-karp',
+  title: 'Hopcroft-Karp (BFS layers + DFS)',
+  inputKind: 'bipartite-graph',
+  inputLabel: 'Bipartite graph',
+  inputHelp: MATCHING_HELP,
+  examples: MATCHING_EXAMPLES,
+  randomInput: randomBipartite,
+  parse: parseMatching,
+  trace: (input) => hopcroftKarpTrace(input).frames,
+  render: renderMatching,
+  pseudocode: HOPCROFT_KARP_CODE,
+  legend: [
+    { role: 'active', label: 'vertex being dequeued or searched from; an augmenting path' },
+    { role: 'compare', label: 'waiting in the queue, or on the search path (badge d = layer); the set Z' },
+    { role: 'done', label: 'matched vertex; matching edge' },
+    { role: 'muted', label: 'dead end: dist -1 for the rest of the phase' },
+    { role: 'good', label: `in the minimum vertex cover (${SYM.check})` },
+    { role: 'idle', label: 'free vertex; edge outside the matching' },
+  ],
+  complexity: { time: 'O(E sqrt(V))', space: 'O(V + E)' },
 };
