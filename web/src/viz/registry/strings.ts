@@ -41,6 +41,13 @@ export const entries: VizInfo[] = [
     topics: [`${ADV}/Z_Algorithm`, ADV],
   },
   {
+    id: 'string-hashing',
+    title: 'String Hashing',
+    group: 'Strings',
+    blurb: 'Build the prefix hashes and the powers of the base, then hash any substring in O(1) and find the common prefix of two suffixes by binary search on the length.',
+    topics: [`${ADV}/String_Hashing`, ADV],
+  },
+  {
     id: 'aho-corasick',
     title: 'Aho-Corasick',
     group: 'Strings',
@@ -76,6 +83,7 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'rabin-karp': () => import('../specs/stringSearch').then((m) => m.rabinKarp),
   'boyer-moore': () => import('../specs/stringSearch').then((m) => m.boyerMoore),
   'z-algorithm': () => import('../specs/stringSearch').then((m) => m.zAlgorithm),
+  'string-hashing': () => import('../specs/advancedStrings').then((m) => m.stringHashingSpec),
   'aho-corasick': () => import('../specs/advancedStrings').then((m) => m.ahoCorasickSpec),
   'suffix-array': () => import('../specs/advancedStrings').then((m) => m.suffixArraySpec),
   manacher: () => import('../specs/advancedStrings').then((m) => m.manacherSpec),

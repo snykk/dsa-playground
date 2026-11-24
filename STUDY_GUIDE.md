@@ -213,6 +213,7 @@ KMP's border table is the idea most later algorithms borrow.
 - [Knuth-Morris-Pratt (KMP) Algorithm](Algorithms/String_Algorithms/Pattern_Matching/KMP_Algorithm/) (Intermediate)
 - [Boyer-Moore Algorithm](Algorithms/String_Algorithms/Pattern_Matching/Boyer_Moore_Algorithm/) (Intermediate)
 - [Z-Algorithm](Algorithms/String_Algorithms/Advanced_String/Z_Algorithm/) (Intermediate)
+- [String Hashing](Algorithms/String_Algorithms/Advanced_String/String_Hashing/) (Intermediate)
 - [Aho-Corasick](Algorithms/String_Algorithms/Advanced_String/Aho_Corasick/) (Advanced)
 - [Suffix Array](Algorithms/String_Algorithms/Advanced_String/Suffix_Array/) (Advanced)
 - [Manacher's Algorithm](Algorithms/String_Algorithms/Advanced_String/Longest_Palindromic_Substring_Manachers/) (Advanced)
