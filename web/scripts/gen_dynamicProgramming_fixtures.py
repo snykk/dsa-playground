@@ -1,7 +1,7 @@
 """Generate golden fixtures for the dynamic-programming visualizations.
 
 The web visualizer re-implements Fibonacci, Climbing Stairs, Coin Change, LIS, Kadane,
-Edit Distance, Matrix Chain Multiplication and the LCS traceback in TypeScript. These fixtures pin each port
+Edit Distance, Matrix Chain Multiplication, the LCS traceback and the Unbounded Knapsack in TypeScript. These fixtures pin each port
 to the repository's Python implementation (tie-breaking included). Run from anywhere:
 
     python3 web/scripts/gen_dynamicProgramming_fixtures.py
@@ -21,6 +21,7 @@ for folder in (
     "Basic_DP/Fibonacci_Numbers",
     "Basic_DP/Climbing_Stairs",
     "Linear_DP/Coin_Change",
+    "Linear_DP/Unbounded_Knapsack",
     "Linear_DP/Longest_Increasing_Subsequence",
     "Linear_DP/Maximum_Subarray_Kadanes_Algorithm",
     "2D_DP/Edit_Distance",
@@ -37,8 +38,62 @@ from kadane import kadane_with_indices  # noqa: E402
 from lcs import lcs_sequence  # noqa: E402
 from lis import lis_binary_search, lis_with_sequence  # noqa: E402
 from matrix_chain import matrix_chain_multiplication  # noqa: E402
+import unbounded_knapsack  # noqa: E402
 
 OUT = ROOT / "web" / "src" / "viz" / "algorithms" / "__fixtures__" / "dynamicProgramming.json"
+
+
+def unbounded_case(weights, values, capacity):
+    """Every _relax call, going up and going down, by wrapping the module-level helper."""
+    case = {"weights": weights, "values": values, "capacity": capacity}
+    real = unbounded_knapsack._relax
+    for name, upward in (("up", True), ("down", False)):
+        calls = []
+
+        def spy(dp, choice, item, w, rest, value):
+            calls.append([item, w, dp[w], dp[rest] + value])
+            real(dp, choice, item, w, rest, value)
+
+        unbounded_knapsack._relax = spy
+        try:
+            dp, choice = unbounded_knapsack._fill_row(weights, values, capacity, upward)
+        finally:
+            unbounded_knapsack._relax = real
+        case[name] = {"relaxations": calls, "dp": dp, "choice": choice}
+    value, counts = unbounded_knapsack.unbounded_knapsack_items(weights, values, capacity)
+    assert value == case["up"]["dp"][capacity] == unbounded_knapsack.unbounded_knapsack(weights, values, capacity)
+    assert case["down"]["dp"][capacity] == unbounded_knapsack.zero_one_knapsack(weights, values, capacity)
+    case["value"], case["counts"], case["once"] = value, counts, case["down"]["dp"][capacity]
+    return case
+
+
+def unbounded_cases():
+    # Its own generator, so the other sections keep their values. The fixed cases are the
+    # visualization's examples; the random ones stay inside its limits (capacity <= 12, at most
+    # 5 items, weights 1..12, values 0..99), with repeated items for the tie rule.
+    rng = random.Random(20261124)
+    fixed = [
+        ([1, 3, 4, 5], [1, 4, 5, 7], 10),
+        ([1, 3, 4, 5], [1, 4, 5, 7], 7),
+        ([2], [3], 4),
+        ([2, 4], [3, 6], 4),
+        ([3, 3], [4, 4], 9),
+        ([4, 5], [10, 12], 3),
+        ([], [], 6),
+        ([1, 3, 4, 5], [1, 4, 5, 7], 0),
+        ([3], [5], 7),
+        ([1, 2], [0, 3], 5),
+    ]
+    for _ in range(60):
+        n = rng.randint(0, 5)
+        weights = [rng.randint(1, rng.choice([4, 8, 12])) for _ in range(n)]
+        values = [rng.randint(0, rng.choice([9, 30, 99])) for _ in range(n)]
+        if n and rng.random() < 0.2:
+            weights.append(weights[0])
+            values.append(values[0])
+            weights, values = weights[:5], values[:5]
+        fixed.append((weights, values, rng.randint(0, 12)))
+    return [unbounded_case(*c) for c in fixed]
 
 
 def make_sections():
@@ -99,6 +154,7 @@ def make_sections():
         ("edit", edit),
         ("mcm", mcm),
         ("lcs", lcs),
+        ("unboundedKnapsack", unbounded_cases()),
     ]
 
 
@@ -106,7 +162,7 @@ def main():
     sections = make_sections()
     header = {
         "generator": "web/scripts/gen_dynamicProgramming_fixtures.py",
-        "reference": "Algorithms/Dynamic_Programming (fibonacci, climbing_stairs, coin_change, lis, kadane, edit_distance, matrix_chain, lcs)",
+        "reference": "Algorithms/Dynamic_Programming (fibonacci, climbing_stairs, coin_change, lis, kadane, edit_distance, matrix_chain, lcs, unbounded_knapsack)",
     }
     parts = [json.dumps(header)[:-1]]
     for name, cases in sections:

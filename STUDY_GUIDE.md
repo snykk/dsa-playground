@@ -172,6 +172,7 @@ Coin Change is the first problem where greedy fails; LCS opens 2D tables; the re
 - [Longest Common Subsequence](Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence/) (Intermediate)
 - [Edit Distance](Algorithms/Dynamic_Programming/2D_DP/Edit_Distance/) (Intermediate)
 - [0/1 Knapsack](Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack/) (Intermediate)
+- [Unbounded Knapsack](Algorithms/Dynamic_Programming/Linear_DP/Unbounded_Knapsack/) (Intermediate)
 - [DP Problem Patterns](Problem_Patterns/DP_Problem_Patterns/) (Intermediate)
 
 **Milestone:** you can solve LeetCode Medium problems with patterns and DP consistently.
