@@ -187,6 +187,7 @@ Coin Change is the first problem where greedy fails; LCS opens 2D tables; the re
 Dijkstra first; the others each change one assumption.
 
 - [Dijkstra's Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm/) (Intermediate)
+- [0-1 BFS](Algorithms/Graph_Algorithms/Shortest_Path/0_1_BFS/) (Intermediate)
 - [Bellman-Ford Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm/) (Intermediate)
 - [Floyd-Warshall Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm/) (Intermediate)
 - [A* Search](Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm/) (Intermediate)
@@ -195,14 +196,17 @@ Dijkstra first; the others each change one assumption.
 
 ### Advanced graphs
 
-SCC, bridges and 2-SAT reuse DFS; network flow is self-contained.
+Eulerian paths need only degrees and connectivity; SCC, bridges and 2-SAT reuse DFS; network flow is self-contained.
 
+- [Eulerian Path and Circuit](Algorithms/Graph_Algorithms/Advanced_Graph/Eulerian_Path/) (Intermediate)
 - [Kosaraju's Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Kosarajus_Algorithm/) (Advanced)
 - [Tarjan's SCC Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components/Tarjans_Algorithm/) (Advanced)
 - [Bridges and Articulation Points](Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation/) (Advanced)
 - [2-SAT](Algorithms/Graph_Algorithms/Advanced_Graph/2_SAT/) (Advanced)
 - [Ford-Fulkerson Method](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson/) (Advanced)
 - [Edmonds-Karp Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp/) (Advanced)
+- [Dinic's Algorithm](Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Dinic/) (Advanced)
+- [Bipartite Matching](Algorithms/Graph_Algorithms/Advanced_Graph/Bipartite_Matching/) (Advanced)
 
 ### String algorithms
 

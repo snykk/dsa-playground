@@ -1,0 +1,248 @@
+---
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Bipartite_Matching
+title: Bipartite Matching
+lead: A maximum matching pairs as many left vertices with right vertices as the edges allow, with no vertex in two pairs. Kuhn's algorithm and Hopcroft-Karp both grow the matching along augmenting paths, and Konig's theorem turns the result into a minimum vertex cover.
+level: Advanced
+updated: 2026-11-24
+facts:
+  - label: Kuhn
+    value: O(V E)
+    hint: one DFS per left vertex
+  - label: Hopcroft-Karp
+    value: O(E sqrt(V))
+    hint: about 2 sqrt(V) phases of one BFS and many DFSs
+  - label: Extra space
+    value: O(V + E)
+    hint: adjacency lists, partners, layers
+  - label: Konig's theorem
+    value: Cover = matching
+    hint: in a bipartite graph only
+properties:
+  - { label: Returns the pairs, value: true }
+  - { label: Handles edge weights, value: false }
+  - { label: Works on non-bipartite graphs, value: false }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp
+  - Algorithms/Advanced_Algorithms/Backtracking/Graph_Coloring
+---
+
+## How bipartite matching works
+
+A bipartite graph has two sides, left vertices `L0, L1, ...` and right vertices `R0, R1, ...`, and every edge joins a left vertex to a right one. A **matching** is a set of edges with no vertex in common. The task is a **maximum matching**: as many pairs as the edges allow, such as workers to jobs or students to projects.
+
+Both algorithms here grow the matching one pair at a time along an **augmenting path**: a path from a free left vertex to a free right vertex whose edges alternate between outside and inside the matching. It has one more edge outside than inside, so flipping it (the outside edges enter the matching, the inside edges leave) adds one pair and keeps every matched vertex matched.
+
+<Callout title="Berge's theorem">
+A matching is maximum exactly when no augmenting path exists. So an algorithm that keeps finding and flipping augmenting paths, and stops when there is none, ends with a maximum matching.
+</Callout>
+
+<Steps>
+  <Step title="Kuhn: one search per left vertex">
+    For each left vertex in order, run a DFS. Standing on `u`, try its next neighbour `v` that this search has not tried. If `v` is free, the path found is augmenting: flip it. If `v` is matched to `w`, go on from `w`, which must move to another right vertex for `u` to take `v`.
+  </Step>
+  <Step title="Kuhn: one pass is enough">
+    If a left vertex finds no augmenting path, it stays free for good: a vertex with no augmenting path keeps having none as the matching grows. So every left vertex is searched from once.
+  </Step>
+  <Step title="Hopcroft-Karp: BFS layers">
+    Each phase starts with one BFS from every free left vertex at once (layer 0). An edge from layer `d` to a matched right vertex puts its partner in layer `d + 1`. The BFS stops at the first free right vertex: shortest augmenting paths end in that layer, called `last`, and later layers are cleared.
+  </Step>
+  <Step title="Hopcroft-Karp: disjoint shortest paths">
+    From each free left vertex, a DFS steps only from layer `d` to layer `d + 1`, so every path it finds is a shortest one. A vertex whose search fails is marked dead for the rest of the phase, so the paths of a phase share no vertex. Repeat until the BFS finds no free right vertex.
+  </Step>
+</Steps>
+
+<Callout title="Konig's theorem and the reduction to flow">
+In a bipartite graph, a minimum vertex cover (fewest vertices touching every edge) has as many vertices as a maximum matching has edges. And matching is a special case of maximum flow: an edge of capacity 1 from a source to each left vertex, from left to right along each edge, and from each right vertex to a sink. The maximum flow is the size of the matching.
+</Callout>
+
+## See it in action
+
+Load **Worked example** in both tabs. Kuhn's third search pushes two matched vertices along before it finds R2, and its fourth fails. Hopcroft-Karp's badges give each left vertex its layer; its second phase finds L2 a dead end and flips one path of three edges, and the last two steps read the minimum vertex cover off the matching. **One long augmenting path** makes both algorithms walk through every vertex, **Two paths in one phase** shows two disjoint paths flipped in one phase, and on **Complete K3,3** Kuhn moves every earlier vertex while Hopcroft-Karp's first BFS and DFSs match all three at once.
+
+<ArticleViz ids={['kuhn-matching', 'hopcroft-karp']} />
+
+## A worked example
+
+Four vertices on each side and seven edges, given in the order `(0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (2, 0), (3, 1)`. L0 reaches R1, R2 and R3; L1, L2 and L3 reach only R0 and R1, so one of those three stays free and the maximum matching has 3 edges.
+
+<GraphDiagram
+  edges="L0-R1, L0-R2, L0-R3, L1-R0, L1-R1, L2-R0, L3-R1"
+  positions={{ L0: [20, 0], L1: [20, 33], L2: [20, 67], L3: [20, 100], R0: [80, 0], R1: [80, 33], R2: [80, 67], R3: [80, 100] }}
+  tones={{ L0: 'p', R0: 'p', R1: 'p' }}
+  edgeTones={{ 'L0-R2': 'f', 'L1-R1': 'f', 'L2-R0': 'f' }}
+  legend={{ f: "the matching Kuhn's algorithm returns", p: 'a minimum vertex cover: every edge has an end here' }}
+  caption="Kuhn's matching has three edges and the cover three vertices, so both are optimal. Each matching edge has exactly one end in the cover."
+  label="Bipartite graph with a maximum matching and a minimum vertex cover"
+/>
+
+Kuhn searches from L0, L1, L2 and L3 in turn. These are the searches the Python code makes:
+
+<DataTable
+  columns={['Root', 'Search', 'Augmenting path', 'Matching after']}
+  rows={[
+    ['L0', 'R1 is free', 'L0 - R1', 'L0-R1'],
+    ['L1', 'R0 is free', 'L1 - R0', 'L0-R1, L1-R0'],
+    ['L2', 'R0 is taken by L1; L1 tries R1, taken by L0; L0 tries R2, free', 'L2 - R0 - L1 - R1 - L0 - R2', 'L0-R2, L1-R1, L2-R0'],
+    ['L3', 'R1 is taken by L1; L1 tries R0, taken by L2; neither L2 nor L1 has another neighbour', 'none', 'unchanged'],
+  ]}
+/>
+
+Hopcroft-Karp needs two phases that flip paths, and a third BFS that finds none:
+
+<DataTable
+  columns={['Phase', 'Layers of L0..L3', 'last', 'Searches', 'Matching after']}
+  rows={[
+    ['1', '0, 0, 0, 0', '0', 'L0 - R1 and L1 - R0 are flipped; L2 and L3 are dead ends (their only neighbours lead to layer 0)', 'L0-R1, L1-R0'],
+    ['2', '1, 1, 0, 0', '1', 'L2 - R0 - L1 stops, since L1 has no partner in layer 2; L3 - R1 - L0 - R2 is flipped', 'L0-R2, L1-R0, L3-R1'],
+    ['3', '-1, 1, 0, 2', '-1', 'the BFS from L2 reaches L1 and L3 but no free right vertex', 'unchanged'],
+  ]}
+/>
+
+Both end with 3 pairs, but not the same ones: Kuhn returns `match_left = [2, 1, 0, -1]` and Hopcroft-Karp `[2, 0, -1, 1]`. For the cover, start from the free left vertex L2 of the Hopcroft-Karp matching and follow alternating paths: they reach R0, L1, R1 and L3, the set `Z`. The cover is the left vertices outside `Z` and the right vertices inside it, `L0`, `R0` and `R1`.
+
+## Pseudocode
+
+```text
+kuhn(n_left, n_right, edges):
+    adj[u] = right neighbours of u, in edge order
+    match_left = [-1] * n_left; match_right = [-1] * n_right
+    for root in 0 .. n_left - 1:
+        if augment(root): size += 1          # one DFS, seen marks cleared per root
+    return size, match_left
+
+augment(u):                                  # recursive form; the code keeps a stack
+    for v in adj[u] not seen in this search:
+        mark v seen
+        if match_right[v] == -1 or augment(match_right[v]):
+            match_left[u] = v; match_right[v] = u
+            return True
+    return False
+
+hopcroft_karp(n_left, n_right, edges):
+    while (last := bfs_layers()) != -1:      # layer 0 = free left vertices
+        for root in free left vertices, in order:
+            if dfs(root): size += 1          # only from layer d to a partner in layer d + 1
+    return size, match_left                  # dfs sets dist[u] = -1 on a dead end
+```
+
+## Implementation
+
+Each language takes the two side sizes and a list of edges `(u, v)`, left vertex first, both sides numbered from 0, and returns the size of the matching and `match_left`, the partner of each left vertex or -1. A third function returns Konig's minimum vertex cover, built from the Hopcroft-Karp matching, as two increasing lists. The names are `kuhn`, `hopcroft_karp` and `min_vertex_cover` in Python, `kuhn`, `hopcroftKarp` and `minVertexCover` in C++ (a `Matching` and a `VertexCover` struct), and `Kuhn`, `HopcroftKarp` and `MinVertexCover` in Go.
+
+**Which matching comes back.** `adj[u]` keeps the edges in the order given, a repeated edge included, and every search tries them in that order; the roots go from 0 up. So the result is fixed by the input, and Python, C++ and Go return the same matching and the same cover: the C++ and Go tests check 40 graphs against outputs of the Python code. The two algorithms often return different maximum matchings: on the edges `(0, 0), (0, 1), (1, 0), (1, 1)` Kuhn gives `[1, 0]` and Hopcroft-Karp `[0, 1]`.
+
+**Bad input and long paths.** A negative side size or an edge endpoint out of range raises `ValueError` in Python, throws `std::invalid_argument` in C++ and returns an error wrapping `ErrInvalidGraph` in Go. No edges, or an empty side, gives a matching of size 0. Both searches keep their path in an explicit stack in all three languages, since an augmenting path can pass every left vertex: a recursive Python version fails at about 1000.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Bipartite_Matching" />
+
+## Complexity analysis
+
+Let `V` be the number of vertices and `E` the number of edges. In one search of either algorithm each left vertex is entered at most once (Kuhn tries each right vertex once per search; Hopcroft-Karp marks failed vertices dead and never reaches a flipped path again), so each adjacency list is scanned at most once: one search costs <BigO of="E" />.
+
+<ComplexityTable
+  rows={[
+    { case: 'Kuhn', time: 'O(V E)', space: 'O(V + E)', when: 'One search of O(E) per left vertex.' },
+    { case: 'Hopcroft-Karp, one phase', time: 'O(V + E)', space: 'O(V + E)', when: 'One BFS, then DFSs that enter each vertex at most once.' },
+    { case: 'Hopcroft-Karp, total', time: 'O(E sqrt(V))', space: 'O(V + E)', when: 'At most about 2 sqrt(V) phases.' },
+    { case: 'Konig cover', time: 'O(V + E)', space: 'O(V + E)', when: 'One walk over alternating paths after the matching.' },
+  ]}
+/>
+
+<Equation label="Hopcroft-Karp" expr="O(sqrt(V)) phases x O(V + E) per phase" result="O(E sqrt(V))" />
+
+Why so few phases: every phase makes the shortest augmenting path longer. After sqrt(V) phases each remaining augmenting path has more than sqrt(V) left vertices, and the paths that separate the current matching from a maximum one are vertex-disjoint, so fewer than sqrt(V) of them are left; each later phase flips at least one.
+
+Counting how often the Python code looks at an entry of `adj` shows how differently the two behave:
+
+<DataTable
+  columns={['Graph', { label: 'Kuhn', kind: 'mono' }, { label: 'Hopcroft-Karp', kind: 'mono' }]}
+  rows={[
+    ['complete K200,200 (E = 40000)', '1,353,400', '20,101 (2 phases)'],
+    ['random, 8000 a side, E = 32000', '4,232,716', '553,173 (16 phases)'],
+    ['80 components, the k-th needing a path of 2k + 1 edges (V = 6480, E = 6400)', '9,560', '344,679 (81 phases)'],
+  ]}
+/>
+
+The phases count every BFS, including the last one, which finds no path: on the complete graph Hopcroft-Karp's first phase matches every vertex and the second only confirms it. Kuhn's new roots there each ask for R0 first and push every earlier vertex one place along, n(n + 1)(n + 2)/6 looks in all. The last family is close to Hopcroft-Karp's worst case, about sqrt(V) phases, while Kuhn finds each long path in a single search. Hopcroft-Karp has the better bound, not a win on every graph.
+
+## Kuhn vs Hopcroft-Karp and others
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Notes']}
+  highlight={1}
+  rows={[
+    ['Kuhn', 'O(V E)', 'the shortest code; often fast enough'],
+    ['Hopcroft-Karp', 'O(E sqrt(V))', 'the best bound for unweighted bipartite matching here'],
+    ['Max flow on the reduction', 'O(V E)', 'Ford-Fulkerson or Edmonds-Karp; the flow is at most V'],
+    ['Hungarian algorithm', 'O(V^3)', 'weighted assignment; not in this repository'],
+    ["Edmonds' blossom algorithm", 'O(V^3) as usually implemented', 'matching in general graphs; not in this repository'],
+  ]}
+/>
+
+Kuhn is the reduction's Ford-Fulkerson in disguise: each search looks for an augmenting path in the residual graph from one free left vertex, and the backward residual edges are the matching edges, walked from right to left. Hopcroft-Karp is what Dinic's blocking flows become on the same unit-capacity network.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Exact and simple: a maximum matching in polynomial time, with a proof of optimality (the vertex cover) for free.',
+    'Kuhn fits in a few lines and is often fast on sparse graphs.',
+    'Hopcroft-Karp has the O(E sqrt(V)) bound, safe for graphs with hundreds of thousands of edges.',
+  ]}
+  cons={[
+    'Unweighted only: costs or preferences need the Hungarian algorithm or min-cost flow.',
+    'Bipartite only: an odd cycle breaks the alternating search, and Konig\'s theorem fails (a triangle has a matching of 1 and a cover of 2).',
+    'Kuhn can make about n^3/6 looks on dense graphs such as the complete one.',
+  ]}
+/>
+
+## Applications
+
+- **Assignment.** Workers to jobs, students to projects, gophers to holes: each allowed pair is an edge.
+- **Tiling a grid.** Colour the cells like a checkerboard; a domino covers one cell of each colour, so the most dominoes is a maximum matching.
+- **Vertex cover and independent set.** By Konig's theorem the minimum vertex cover of a bipartite graph has the size of the matching, and the maximum independent set is the other vertices: V minus the matching.
+- **Path cover of a DAG.** Give each vertex a left and a right copy and an edge `u -> v` the pair `(u, v)`. The fewest vertex-disjoint paths covering every vertex is V minus the maximum matching.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Two numberings for one vertex.** Both sides start at 0 here, so `(1, 1)` joins L1 and R1. Code that numbers the right side after the left must do so everywhere.
+- **Not resetting `seen` between Kuhn's roots.** A later search would skip right vertices it never tried. The code here stamps each mark with the root instead of clearing.
+- **Recursion depth.** An augmenting path can pass every left vertex; a recursive DFS in Python fails at about 1000 of them.
+- **Expecting one particular matching.** Only the size is unique; another algorithm or another edge order can give other pairs.
+- **Dropping the layer rule in Hopcroft-Karp.** A DFS that takes any augmenting path is still correct, but it loses the O(E sqrt(V)) bound.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does Kuhn search from each left vertex only once?">
+    A left vertex that finds no augmenting path never finds one later: flipping other augmenting paths cannot create one from it. So once its search fails, it can stay free, and one pass over the left vertices gives a maximum matching.
+  </FaqItem>
+  <FaqItem question="Why do Kuhn and Hopcroft-Karp return different pairs?">
+    A graph can have many maximum matchings, and the two algorithms look for augmenting paths in a different order. Hopcroft-Karp's first phase gives every left vertex its first free neighbour, while Kuhn may move earlier vertices to make room. The size is always the same.
+  </FaqItem>
+  <FaqItem question="How do I get a maximum independent set?">
+    Take the complement of a minimum vertex cover: every vertex not in the cover. No edge has both ends outside the cover, and its size is V minus the matching. The code returns the cover, so the independent set is one set difference away.
+  </FaqItem>
+  <FaqItem question="Should I use max flow instead?">
+    Flow code handles more (capacities other than 1, extra constraints), but for plain matching it is longer and no faster: Ford-Fulkerson on the reduction is Kuhn's algorithm with more bookkeeping.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'School Dance', site: 'CSES 1696', url: 'https://cses.fi/problemset/task/1696', idea: 'Plain maximum matching between boys and girls; print the pairs from match_left.' },
+    { name: 'Gopher II', site: 'Kattis gopher2', url: 'https://open.kattis.com/problems/gopher2', idea: 'An edge joins a gopher to each hole it reaches in time; the gophers left unmatched are the ones caught.' },
+    { name: 'Maxflow', site: 'AtCoder Library Practice D', url: 'https://atcoder.jp/contests/practice2/tasks/practice2_d', idea: 'Dominoes on a grid: a checkerboard colouring makes the free cells a bipartite graph, and each matching edge is a domino to print.' },
+    { name: 'Guardian of Decency', site: 'Kattis guardianofdecency', url: 'https://open.kattis.com/problems/guardianofdecency', idea: 'Conflicts only join a boy and a girl, so the largest conflict-free group is a maximum independent set: N minus the matching.' },
+    { name: 'Bilateral Projects', site: 'Kattis bilateral', url: 'https://open.kattis.com/problems/bilateral', idea: 'Print a minimum vertex cover, built from the matching by walking alternating paths as in Konig\'s proof; the twist is to include employee 1009 whenever some minimum cover can.' },
+  ]}
+/>

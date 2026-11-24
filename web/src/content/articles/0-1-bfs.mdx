@@ -1,0 +1,269 @@
+---
+topic: Algorithms/Graph_Algorithms/Shortest_Path/0_1_BFS
+title: 0-1 BFS
+lead: 0-1 BFS finds shortest distances from one source when every edge weighs 0 or 1. It is Dijkstra's algorithm with the heap replaced by a deque, pushing to the front for a weight-0 edge and to the back for a weight-1 edge, so it runs in O(V + E) time.
+level: Intermediate
+updated: 2026-11-24
+facts:
+  - label: Time
+    value: O(V + E)
+    hint: each vertex processed once, pushed at most twice
+  - label: Extra space
+    value: O(V + E)
+    hint: adjacency lists, dist, parent, the deque
+  - label: Queue
+    value: Deque
+    hint: weight 0 to the front, weight 1 to the back
+  - label: Edge weights
+    value: 0 or 1 only
+    hint: any other weight is rejected with an error
+    tone: warn
+properties:
+  - { label: Single source, value: true }
+  - { label: Returns the path, value: true }
+  - { label: Works on directed graphs, value: true }
+  - { label: Weights other than 0 and 1, value: false }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Data_Structures/Linear/Queue/Deque
+  - Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm
+related:
+  - Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm
+  - Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm
+  - Problem_Patterns/Graph_Traversal_Problems
+---
+
+## How 0-1 BFS works
+
+Many shortest-path problems have only two kinds of move: a free one and one that costs 1. Walking along a road is free and breaking through a wall costs 1; following a cell's arrow is free and changing it costs 1. Dijkstra's algorithm solves them, but its heap costs O(log V) per operation. With weights 0 and 1 a **deque** keeps the same order in O(1).
+
+<Steps>
+  <Step title="Start">
+    Set `dist[start] = 0`, every other distance to -1 (not reached) and every parent to -1. The deque holds one entry, `(0, start)`.
+  </Step>
+  <Step title="Pop the front">
+    Take the entry `(d, u)` at the front. If `d > dist[u]`, it is stale: `u` was reached more cheaply after this entry was pushed. Skip it.
+  </Step>
+  <Step title="Relax the edges, pushing to either end">
+    For each edge `(u, v, w)` in input order, if `v` is not reached or `d + w < dist[v]`, set `dist[v] = d + w` and `parent[v] = u`. An edge of weight 0 pushes `(d, v)` to the **front**, an edge of weight 1 pushes `(d + 1, v)` to the **back**.
+  </Step>
+  <Step title="Repeat until the deque is empty">
+    Vertices that were never reached keep distance -1 and parent -1. The path to any vertex is read back along `parent`.
+  </Step>
+</Steps>
+
+<Callout title="Why the front is always the closest">
+The deque only ever holds two distances, `d` and `d + 1`, in that order. When the front entry has distance `d`, everything behind it is `d` or `d + 1`. A weight-0 edge gives `d`, which belongs before all of them, and a weight-1 edge gives `d + 1`, which belongs after all of them. So the order never breaks, entries come out by distance exactly as from Dijkstra's heap, and the first time a vertex comes out its distance is final.
+</Callout>
+
+A vertex can be pushed twice: at `d + 1` through a weight-1 edge, then at `d` when a free path reaches it. The cheaper entry goes to the front and is processed first. When the older entry comes out later, its distance is above `dist[v]`, and the stale check skips it. Since a distance can drop only once in this way, each vertex is pushed at most twice.
+
+## See it in action
+
+Load **Worked example** and watch B: it is pushed to the back at distance 1, then to the front at 0 through C, and its old entry is popped and skipped as stale. The deque under the graph lists its entries front first; the newest entry is highlighted, and an entry that is already known to be stale says so. **Every vertex pushed twice** is the worst case for pushes, **Zero-weight cycle** shows that a strict `<` lets a cycle of free edges end, and **All weights 1 (BFS)** never pushes to the front.
+
+<ArticleViz ids={['zero-one-bfs']} />
+
+## A worked example
+
+Seven vertices and nine directed edges, given in the order `A->B 1, A->C 0, C->B 0, B->D 1, C->E 1, E->D 0, E->F 1, D->F 1, G->A 1`, source A. In the code A to G are vertices 0 to 6.
+
+<GraphDiagram
+  edges="A->B 1, A->C 0, C->B 0, B->D 1, C->E 1, E->D 0, E->F 1, D->F 1, G->A 1"
+  positions={{ G: [6, 0], A: [6, 45], B: [38, 45], D: [70, 45], F: [96, 45], C: [22, 100], E: [70, 100] }}
+  tones={{ A: 'p', B: 'f', C: 'f', D: 'f', E: 'f', F: 'f', G: 'm' }}
+  badges={{ A: '0', B: '0', C: '0', D: '1', E: '1', F: '2', G: '-1' }}
+  edgeTones={{ 'A->C': 'f', 'C->B': 'f', 'B->D': 'f', 'C->E': 'f', 'E->F': 'f' }}
+  legend={{ p: 'source', f: 'final distance above the vertex; the highlighted edges are the parent edges', m: 'unreachable: distance -1' }}
+  caption="B costs 1 straight from A but 0 through C. Nothing leads into G."
+  label="Directed graph with weights 0 and 1 and its shortest-path tree from A"
+/>
+
+The deque as the Python code runs it, front first:
+
+<DataTable
+  columns={['Pop', 'What happens', 'Pushes', 'Deque after']}
+  rows={[
+    ['(0, A)', 'process A', 'B = 1 to the back, C = 0 to the front', '(0, C) (1, B)'],
+    ['(0, C)', 'process C', 'B = 0 to the front (0 < 1), E = 1 to the back', '(0, B) (1, B) (1, E)'],
+    ['(0, B)', 'process B', 'D = 1 to the back', '(1, B) (1, E) (1, D)'],
+    ['(1, B)', 'stale: `dist[B]` is already 0, skip it', 'none', '(1, E) (1, D)'],
+    ['(1, E)', 'process E; E->D gives 1, not below 1', 'F = 2 to the back', '(1, D) (2, F)'],
+    ['(1, D)', 'process D; D->F gives 2, not below 2', 'none', '(2, F)'],
+    ['(2, F)', 'process F; it has no edges', 'none', 'empty'],
+  ]}
+/>
+
+`zero_one_bfs(edges, 7, 0)` returns `dist = [0, 0, 0, 1, 1, 2, -1]` and `parent = [-1, 2, 0, 1, 2, 4, -1]`, and `zero_one_bfs_with_path(edges, 7, 0, 5)` returns `(2, [0, 2, 4, 5])`, the path A, C, E, F. D is a tie: E offers 1, the distance it already has through B, so its parent stays B. There are seven pops, one of them stale, and eight edge reads: every edge except G->A, whose tail is never reached.
+
+### A grid: break as few walls as possible
+
+`min_wall_breaks` turns a grid into such a graph. Each cell is a vertex; moving onto a road `.` costs 0 and breaking into a wall `#` costs 1. Below, each cell shows the fewest walls broken to reach it from the top-left corner; column 5 is a wall from top to bottom.
+
+<GridDiagram
+  corner="row \ col"
+  rowLabels={[0, 1, 2, 3, 4]}
+  colLabels={[0, 1, 2, 3, 4, 5, 6]}
+  rows={[
+    [0, 0, 0, 1, 0, 1, 1],
+    [1, 1, 0, 1, 0, 1, 1],
+    [0, 0, 0, 1, 0, 1, 1],
+    [0, 1, 1, 1, 0, 1, 1],
+    [0, 0, 0, 0, 0, 1, 1],
+  ]}
+  tones={['fffr.r.', 'rrfr.r.', 'fffr.r.', 'frrr.r.', 'fffffpf']}
+  legend={{ r: 'a wall', f: 'the path the code returns, from (0, 0) to (4, 6)', p: 'the one wall it breaks' }}
+  caption="The straight route along the top row breaks two walls. The roads wind down to row 4 for free, and the path breaks only (4, 5)."
+  label="Grid of roads and walls with the fewest walls broken to reach each cell"
+/>
+
+`min_wall_breaks(["...#.#.", "##.#.#.", "...#.#.", ".###.#.", ".....#."], (0, 0), (4, 6))` returns 1. Every cell the roads reach from the start without a break shows 0.
+
+## Pseudocode
+
+```text
+zero_one_bfs(edges, n, start):
+    adj[u] = (v, w) for each edge (u, v, w), in input order
+    dist = [-1] * n; parent = [-1] * n
+    dist[start] = 0
+    deque = [(0, start)]
+    while deque is not empty:
+        d, u = deque.popFront()
+        if d > dist[u]: continue            # stale entry
+        for (v, w) in adj[u]:
+            if dist[v] == -1 or d + w < dist[v]:
+                dist[v] = d + w
+                parent[v] = u
+                if w == 0: deque.pushFront((d, v))
+                else:      deque.pushBack((d + 1, v))
+    return dist, parent
+```
+
+`path_to(parent, start, target)` follows `parent` from the target back to the start and reverses the list: `[start]` for the start itself, `[]` when the target was never reached.
+
+## Implementation
+
+Each language takes the edges as `(u, v, w)` triples, the number of vertices and the start, and returns `dist` and `parent`. An undirected edge is given in both directions; self-loops and parallel edges are allowed. A path function reads one path back from `parent`, and the grid example builds the edges of a grid (entering a wall costs 1, a road 0) and runs the search on them.
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['Search', '`zero_one_bfs` returns `(dist, parent)`', '`zeroOneBfs` returns a `ShortestPaths` struct', '`ZeroOneBFS` returns `dist, parent, err`'],
+    ['Path', '`path_to`, `zero_one_bfs_with_path`', '`pathTo`, `zeroOneBfsWithPath`', '`PathTo`, `ZeroOneBFSWithPath`'],
+    ['Grid', '`grid_edges`, `min_wall_breaks`', '`gridEdges`, `minWallBreaks`', '`GridEdges`, `MinWallBreaks`'],
+    ['Deque', '`collections.deque`', '`std::deque`', 'two slices: a stack for the front, a list for the back'],
+    ['Bad input', '`ValueError`', '`std::invalid_argument`', 'an error wrapping `ErrInvalidGraph` or `ErrInvalidGrid`'],
+  ]}
+/>
+
+**Unreachable vertices.** All three report them the same way: distance -1, parent -1, and an empty path. For an unreachable target the path functions return `(-1, [])` in Python, `{-1, {}}` in C++ and `-1, []int{}, nil` in Go.
+
+**Bad input.** A weight other than 0 or 1 is an error, checked for every edge before the search starts, even on a part of the graph the source cannot reach. So are an endpoint out of range, a negative vertex count and a start that is not a vertex: a graph with no vertices has no valid start.
+
+**Which shortest path.** A parent changes only when a distance strictly drops. Entries pushed to the back come out in push order, entries pushed to the front in reverse, and the edges of a vertex are relaxed in input order. Python, C++ and Go follow the same rules and return the same `parent`: the C++ and Go tests check 40 graphs against outputs of the Python code.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Shortest_Path/0_1_BFS" />
+
+## Complexity analysis
+
+Let `V` be the number of vertices and `E` the number of edges. Each vertex is processed once, at its first pop, so each adjacency list is read once: at most `E` edge reads. Each vertex is pushed at most twice and the source once, so there are at most `2V - 1` pushes and pops, each O(1).
+
+<ComplexityTable
+  rows={[
+    { case: 'Every graph', time: 'O(V + E)', space: 'O(V + E)', when: 'At most 2V - 1 deque operations of each kind and at most E edge reads.' },
+    { case: 'Every vertex pushed twice', time: 'O(V + E)', space: 'O(V + E)', when: 'The worst case for pushes: exactly 2V - 1 pops, V - 1 of them stale.' },
+  ]}
+/>
+
+<Equation label="0-1 BFS" expr="(2V - 1) deque operations x O(1) + E edge reads" result="O(V + E)" />
+
+Counted on the Python code, against the number of entries the repository's `dijkstra.py` puts in its heap on the same graphs:
+
+<DataTable
+  columns={['Graph', { label: 'V', kind: 'mono' }, { label: 'E', kind: 'mono' }, { label: 'Deque pops', kind: 'mono' }, { label: 'Edge reads', kind: 'mono' }, { label: 'Dijkstra heap entries', kind: 'mono' }]}
+  rows={[
+    ['random, weights 0 or 1', '1,000', '4,000', '1,280', '3,904', '1,318'],
+    ['random, weights 0 or 1', '4,000', '16,000', '5,229', '15,692', '5,268'],
+    ['random, weights 0 or 1', '16,000', '64,000', '20,876', '62,847', '20,867'],
+    ['every vertex pushed twice', '10,000', '19,998', '19,999', '19,998', ''],
+  ]}
+/>
+
+The pops include the stale ones. Both algorithms handle about the same number of entries; the difference is that each deque operation is O(1) and each heap operation O(log V). A shortest distance is at most V - 1, so even a 32-bit integer cannot overflow.
+
+## 0-1 BFS vs Dijkstra and BFS
+
+<DataTable
+  columns={['Algorithm', { label: 'Time', kind: 'mono' }, 'Weights', 'Queue']}
+  highlight={0}
+  rows={[
+    ['0-1 BFS', 'O(V + E)', '0 or 1', 'deque, pushes at both ends'],
+    ['BFS', 'O(V + E)', 'all 1', 'queue, pushes at the back'],
+    ['Dijkstra (binary heap)', 'O((V + E) log V)', 'any non-negative', 'priority queue'],
+    ['Bellman-Ford', 'O(V * E)', 'any, detects negative cycles', 'none'],
+  ]}
+/>
+
+**Against BFS.** When every weight is 1, every push goes to the back and 0-1 BFS is plain BFS: the tests check that its distances equal BFS hop counts on random graphs. BFS alone cannot handle a free edge, since it would put the vertex behind others that are farther away.
+
+**Against Dijkstra.** On weights 0 and 1 both give the same distances (the tests compare them on more than 2000 random graphs), and both skip stale entries in the same way. 0-1 BFS saves the log factor; Dijkstra handles any non-negative weight.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time, O(V + E), with no heap.',
+    'A few lines on top of BFS: a deque and a second kind of push.',
+    'Gives the parent of every vertex, so any shortest path can be read back.',
+  ]}
+  cons={[
+    'Weights 0 and 1 only; anything else needs Dijkstra or Bellman-Ford.',
+    'A vertex can be pushed twice, so a run makes up to 2V - 1 pushes, where plain BFS makes at most V.',
+    'One source at a time, like Dijkstra.',
+  ]}
+/>
+
+## Applications
+
+- **Grids with walls or obstacles.** Fewest walls to break, fewest obstacles to remove, fewest unsafe cells on a walk.
+- **Grids with arrows or currents.** Following the given direction is free and any other move costs 1: fewest arrows to change, least energy against a current.
+- **Fewest uses of a resource.** Any problem where most moves are free and some use a coupon, a punch or a change of direction.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Marking a vertex done when it is pushed.** A vertex reached at `d + 1` can be reached again at `d`; compare with `dist[v]` and allow the improvement.
+- **Skipping the stale check.** Without `if d > dist[u]: continue`, a stale entry processes its vertex again. The distances stay right, but the work is no longer bounded by E edge reads.
+- **Pushing both kinds to the back.** The deque is no longer in order, the first pop of a vertex is no longer final, and a vertex can be pushed again and again.
+- **Relaxing on `<=`.** On a cycle of weight 0 every vertex keeps offering the same distance to the next, and the loop never ends.
+- **Feeding it other weights.** A weight of 2 breaks the two-distance order. The code rejects it rather than return a wrong answer.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why can't I use a plain queue?">
+    A plain queue puts every newly reached vertex at the back. A vertex reached over a free edge has the same distance as the one being processed, so it must come out before the vertices at the next distance. Only a deque can put it there.
+  </FaqItem>
+  <FaqItem question="Can a vertex be in the deque twice?">
+    Yes, once at `d + 1` and once at `d`, when a free path reaches it after a paid edge did. The entry at `d` is processed first; the other is stale and skipped. A third push cannot happen, because the distance has no lower value left to drop to.
+  </FaqItem>
+  <FaqItem question="What about weights 0, 1 and 2, or other small integers?">
+    The deque trick needs the two-distance order, so it works for 0 and 1 only. For small integer weights use Dijkstra, or split an edge of weight k into k edges of weight 1 through new vertices, which pays off only for very small k.
+  </FaqItem>
+  <FaqItem question="How are unreachable vertices reported?">
+    With distance -1 and parent -1, and an empty path, in Python, C++ and Go alike.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Find a Safe Walk Through a Grid', site: 'LeetCode 3286', url: 'https://leetcode.com/problems/find-a-safe-walk-through-a-grid/', idea: 'Entering an unsafe cell costs 1 health and a safe one 0; the walk is safe when the cheapest cost, start cell included, stays below the health.' },
+    { name: 'Minimum Obstacle Removal to Reach Corner', site: 'LeetCode 2290', url: 'https://leetcode.com/problems/minimum-obstacle-removal-to-reach-corner/', idea: 'Exactly min_wall_breaks: moving onto an obstacle costs 1, onto an empty cell 0.' },
+    { name: 'Minimum Cost to Make at Least One Valid Path in a Grid', site: 'LeetCode 1368', url: 'https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/', idea: 'Following the arrow of a cell costs 0 and moving any other way costs 1, the price of changing that arrow.' },
+    { name: 'Ocean Currents', site: 'Kattis oceancurrents', url: 'https://open.kattis.com/problems/oceancurrents', idea: 'Drifting with the current is free and any other of the eight moves costs 1, on a grid up to 1000 by 1000 with up to 50 trips: O(V + E) per trip matters.' },
+    { name: 'Stronger Takahashi', site: 'AtCoder ABC 213 E', url: 'https://atcoder.jp/contests/abc213/tasks/abc213_e', idea: 'Walking is free; a punch clears a 2 x 2 square, so for a cost of 1 you can reach any cell of the 5 x 5 square around you except its four corners.' },
+  ]}
+/>

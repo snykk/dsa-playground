@@ -1,0 +1,243 @@
+---
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Eulerian_Path
+title: Eulerian Path and Circuit
+lead: An Eulerian path uses every edge of a graph exactly once, and an Eulerian circuit also ends where it started. The degrees and the connectivity of the edges decide whether one exists, and Hierholzer's algorithm finds it in O(V + E) by splicing closed detours into one walk.
+level: Intermediate
+updated: 2026-11-24
+facts:
+  - label: Time
+    value: O(V + E)
+    hint: each adjacency entry is read once
+  - label: Extra space
+    value: O(V + E)
+    hint: adjacency lists, stack, result
+  - label: Undirected test
+    value: 0 or 2 odd
+    hint: vertices of odd degree, all edges connected
+  - label: Directed test
+    value: out = in
+    hint: or one start at +1 and one end at -1
+properties:
+  - { label: Directed and undirected graphs, value: true }
+  - { label: Self-loops and parallel edges, value: true }
+  - { label: Uses recursion, value: false }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Data_Structures/Non_Linear/Graph/Directed_and_Undirected
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Strongly_Connected_Components
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Tarjan_Bridges_Articulation
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Topological_Sort
+---
+
+## How Eulerian paths work
+
+An **Eulerian path** is a walk that uses every edge of a graph exactly once. An **Eulerian circuit** is one that ends where it started. Vertices may be visited any number of times; it is the edges that must each be used once.
+
+Every time a walk passes through a vertex, it arrives along one edge and leaves along another. So in the middle of a walk the edges at a vertex are used in pairs, and only the two ends of the walk can have one left over. That gives the whole test:
+
+<DataTable
+  columns={['Graph', 'Circuit', 'Path (open)', 'And']}
+  rows={[
+    ['Undirected', 'every degree even', 'exactly 2 vertices of odd degree; the walk runs from one to the other', 'every edge in one connected component'],
+    ['Directed', 'out-degree = in-degree everywhere', 'one vertex with out = in + 1 (the start), one with in = out + 1 (the end), the rest balanced', 'every edge in one weakly connected component'],
+  ]}
+/>
+
+A self-loop adds 2 to its vertex's degree (1 out and 1 in when directed), and a vertex with no edge does not matter. **Weakly connected** means connected once the directions are ignored: `0 -> 1` has a path even though 1 cannot get back to 0.
+
+<Callout title="The bridges of Konigsberg">
+In 1736 Euler asked whether a walk could cross each of Konigsberg's seven bridges exactly once. The four land masses had 5, 3, 3 and 3 bridges: four odd degrees, so no. His argument is the test above, and it is also enough: when the degrees and the connectivity pass, a walk exists.
+</Callout>
+
+<Steps>
+  <Step title="Build the adjacency lists">
+    `adj[v]` lists the edges at `v` as (neighbour, edge index) pairs in the order the edges are given. An undirected edge sits in the lists of both its ends, so a self-loop sits twice in its vertex's list.
+  </Step>
+  <Step title="Test the degrees, pick the start">
+    Count odd degrees (undirected) or out-degree minus in-degree (directed). That decides circuit, path or nothing, and where the walk must start.
+  </Step>
+  <Step title="Walk until stuck">
+    Keep the walk on a stack. From the top vertex `v`, move `ptr[v]` past edges already used and take the first unused one, pushing its other end. When the degrees pass, the walk can only get stuck at the end of the path, or back at the start of a circuit.
+  </Step>
+  <Step title="Back up and splice">
+    A stuck vertex is finished: pop it onto `result`. The vertex below may still have unused edges; a detour from it can only get stuck where it started, so its vertices are popped as a closed circuit, spliced into the result right there.
+  </Step>
+  <Step title="Check and reverse">
+    If `result` holds fewer than E + 1 vertices, the walk missed edges in another component: there is no walk. Otherwise `result`, reversed, is the walk.
+  </Step>
+</Steps>
+
+## See it in action
+
+**Splice at the start** gets stuck at 3 after one triangle, then backs up to 0, whose triangle is spliced in front. **Directed detour** splices a cycle in at vertex 1. **House in one stroke** never needs a detour, **Weakly connected only** is a directed graph in which nothing leaves vertex 3, **Four odd vertices** fails the degree test, and **Two components** passes it but leaves half the edges unused, while vertex 6, with no edge at all, plays no part. Each vertex's badge shows its degree (or out - in) during the test, then how many unused edges it has left.
+
+<ArticleViz ids={['hierholzer']} />
+
+## A worked example
+
+Two triangles joined by the edge 0-3, with the edges given in the order `(0, 3), (0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)`. Vertices 0 and 3 have degree 3 and the others degree 2, so there is a path from 0 to 3, and it starts at 0, the smaller of the two.
+
+<GraphDiagram
+  edges="0-3, 0-1, 1-2, 2-0, 3-4, 4-5, 5-3"
+  positions={{ 2: [0, 100], 1: [17, 0], 0: [34, 100], 3: [66, 100], 4: [83, 0], 5: [100, 100] }}
+  tones={{ 0: 'p', 3: 'p' }}
+  edgeTones={{ '0-3': 'f', '3-4': 'f', '4-5': 'f', '5-3': 'f', '0-1': 'l', '1-2': 'l', '2-0': 'l' }}
+  legend={{ p: 'odd degree: the two ends of the path', f: 'the first walk, until it is stuck at 3', l: 'the detour from 0, spliced in' }}
+  caption="The walk takes 0-3 first, because it is the first edge in adj[0], and is stuck at 3 after the right triangle. The left triangle is the detour."
+  label="Two triangles joined by an edge, with the first walk and the detour marked"
+/>
+
+These are the steps the Python code takes. `adj[0]` is `(3, e0), (1, e1), (2, e3)`; `result` holds the vertices in the order they are popped.
+
+<DataTable
+  columns={['Step', 'Top', 'Action', { label: 'Stack after', kind: 'mono' }, { label: 'result after', kind: 'mono' }]}
+  rows={[
+    ['1-4', '0, 3, 4, 5', 'take e0, e4, e5, e6 in turn, skipping the entry of the edge just used', '0 3 4 5 3', ''],
+    ['5', '3', 'all of adj[3] used: stuck at the end of the path, pop', '0 3 4 5', '3'],
+    ['6-8', '5, 4, 3', 'nothing left: pop', '0', '3 5 4 3'],
+    ['9-11', '0, 1, 2', 'ptr[0] is past e0: take e1, e2, e3, a detour from 0', '0 1 2 0', '3 5 4 3'],
+    ['12', '0', 'stuck back at 0: the detour 0 -> 1 -> 2 -> 0 is closed, pop', '0 1 2', '3 5 4 3 0'],
+    ['13-15', '2, 1, 0', 'nothing left: pop', '', '3 5 4 3 0 2 1 0'],
+  ]}
+/>
+
+Reversed, `result` is the path `0 1 2 0 3 4 5 3`, along edges `1, 2, 3, 0, 4, 5, 6`: seven pushes, eight pops, and each of the 14 adjacency entries read once. The triangle walked last stands first in the path, spliced in at 0.
+
+## Pseudocode
+
+```text
+eulerian_path(n, edges, directed):
+    adj[v] = (neighbour, edge) pairs in edge order   # undirected: in both ends' lists
+    kind, start = degree_check()                      # None if the degrees fail
+    if kind is none: return None
+    if there are no edges: return the empty walk
+    stack = [start]; ptr = [0] * n; used = [False] * E; result = []
+    while stack:
+        v = top of stack
+        advance ptr[v] past used entries of adj[v]
+        if an unused edge e to w is found:
+            used[e] = True; push w                    # walk on
+        else:
+            result.append(pop())                      # v is finished
+    if len(result) < E + 1: return None               # edges in another component
+    return reversed(result)
+```
+
+## Implementation
+
+Each language takes `n`, the vertices `0 .. n - 1`, a list of edges `(u, v)` and whether they are directed. One function says which walk exists: `eulerian_kind` in Python returns `"circuit"`, `"path"` or `"none"`, `eulerianKind` in C++ an `EulerKind`, `EulerianKind` in Go a `Kind`. The other returns the walk as two lists, the E + 1 vertices and the E edge indices in order: `eulerian_path` (an `EulerWalk` named tuple), `eulerianPath` (a `std::optional<EulerWalk>`) and `EulerianPath` (a `Walk`, an `ok` flag and an error).
+
+**No walk, and nothing to walk.** When no walk exists, the answer is `None` in Python, `std::nullopt` in C++ and `ok == false` in Go. A graph with no edges is different: its kind is "circuit" and its walk is two empty lists. A negative `n` or an edge end out of range raises `ValueError`, throws `std::invalid_argument` or returns an error wrapping `ErrInvalidGraph`.
+
+**Which walk comes back.** The start is the smaller of the two odd vertices (undirected path), the vertex with out = in + 1 (directed path), or the smallest vertex with an edge (circuit). From each vertex the walk takes the first unused edge in input order, and the result is the pop order reversed. So the input decides the walk, and Python, C++ and Go return the same one: the C++ and Go tests check 40 graphs against outputs of the Python code. The bowtie `(0, 1), (1, 2), (2, 0), (0, 3), (3, 4), (4, 0)` gives `0 1 2 0 3 4 0`; the same edges in reverse order give `0 4 3 0 2 1 0`.
+
+**Loops, parallel edges, isolated vertices.** A loop is walked as `v -> v`; undirected, its second entry in `adj[v]` is skipped as used. Parallel edges are separate edges with their own indices, so the edge list says which one was taken. Isolated vertices are ignored, which is why the start is the smallest vertex that has an edge.
+
+**No recursion.** All three keep the walk on an explicit stack. A recursive Hierholzer nests one call per edge on a long cycle: in Python a cycle of 997 edges already exceeded the default recursion limit of 1000, and a C++ version built with `-O2` crashed on 10^5 edges with an 8 MB stack. The tests here walk 10^5 edges in Python and 10^6 in C++ and Go.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Eulerian_Path" />
+
+## Complexity analysis
+
+Building `adj` and testing the degrees is one pass over the edges and one over the vertices. In the walk every edge is pushed once and popped once, and `ptr[v]` only moves forward, so every adjacency entry is read once: E entries for a directed graph, 2E for an undirected one. The connectivity check is the length of the result and costs nothing more.
+
+<ComplexityTable
+  rows={[
+    { case: 'Degree test', time: 'O(V + E)', space: 'O(V)', when: 'One pass over the edges, one over the vertices.' },
+    { case: "Hierholzer's walk", time: 'O(V + E)', space: 'O(V + E)', when: 'Each edge pushed and popped once; each adjacency entry read once.' },
+    { case: 'Whole call', time: 'O(V + E)', space: 'O(V + E)', when: 'Adjacency lists, ptr, used, the stack and the result.' },
+  ]}
+/>
+
+The pointer is what keeps the walk linear. Counting how often the Python code reads an adjacency entry, on a "flower" of k triangles that all share vertex 0 (undirected, E = 3k), against a version that scans `adj[v]` from the front every time:
+
+<DataTable
+  columns={[{ label: 'k', kind: 'mono' }, { label: 'E', kind: 'mono' }, { label: 'With ptr', kind: 'mono' }, { label: 'Scanning from the front', kind: 'mono' }]}
+  rows={[
+    ['100', '300', '600', '31,000'],
+    ['200', '600', '1,200', '122,000'],
+    ['400', '1,200', '2,400', '484,000'],
+    ['800', '2,400', '4,800', '1,928,000'],
+  ]}
+/>
+
+With the pointer the count is exactly 2E. Without it, each of the k returns to vertex 0 reads the used entries of `adj[0]` again, 3k^2 + 10k reads in all: about four times as many each time k doubles.
+
+## Hierholzer vs Fleury and others
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ["Hierholzer with a stack", 'O(V + E)', 'the version here; splices the detours while backing up'],
+    ["Hierholzer, recursive", 'O(V + E)', 'returns the same walk; recursion depth up to E'],
+    ["Fleury's algorithm", 'O(E (V + E))', 'at each step takes an edge that is not a bridge of the unused edges if it can, checked with a DFS; not in this repository'],
+    ['Hamiltonian path', 'exponential', 'every vertex once instead of every edge: NP-complete; not in this repository'],
+  ]}
+/>
+
+The recursive form calls itself on each edge it takes and appends `v` when it returns; on 3000 random small graphs it returned exactly the walk of the stack version. Fleury's algorithm never needs a splice, because it avoids burning a bridge too early, but each step pays for a bridge test.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Linear time: each edge pushed and popped once, each adjacency entry read once.',
+    'One function answers both questions: whether a walk exists (the degrees, then the length of the walk) and what it is.',
+    'Handles directed and undirected graphs, loops and parallel edges with the same loop.',
+  ]}
+  cons={[
+    'Covers edges, not vertices: visiting every vertex once is the Hamiltonian path, a much harder problem.',
+    'Says nothing useful when the degrees fail; covering every edge at least once at the least cost needs the Chinese postman construction.',
+    'The walk returned depends on the edge order, so tests must pin the order or check the walk, not compare it with a fixed answer.',
+  ]}
+/>
+
+## Applications
+
+- **Routes over every edge.** Mail delivery, street sweeping or inspecting every pipe, when the network's degrees pass the test.
+- **Chaining pieces.** Dominoes, words whose last letter starts the next, pairs `[a, b]` arranged so each `b` is the next `a`, an itinerary that uses every ticket.
+- **De Bruijn sequences.** The shortest string that contains every string of length n over an alphabet is an Eulerian circuit of the graph on strings of length n - 1.
+- **Sequence assembly.** Rebuilding a DNA sequence from its overlapping k-mers is an Eulerian path in a de Bruijn graph.
+- **The lexicographically smallest walk.** Sort the edges by their ends first (undirected: smaller end, then larger end), which orders every adjacency list; the walk returned is then the smallest one. On 3000 random small graphs it matched a brute-force search.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Testing degrees without connectivity.** Two separate triangles have only even degrees and no single walk. Check that the walk used all E edges.
+- **Checking connectivity over every vertex.** An isolated vertex does not block a walk; only the vertices with edges must be connected.
+- **Asking for strong connectivity in a directed graph.** Weak connectivity is enough, together with the degree test.
+- **Losing the pointer.** Rescanning `adj[v]` from the front on every return to `v` turns the walk quadratic, as the flower shows.
+- **Marking list entries instead of edges.** An undirected edge sits in two lists; mark it used by its index, or it is walked twice.
+- **Forgetting to reverse.** The pops come out from the end of the walk; for a directed graph the unreversed list walks every edge backwards.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why can the walk only get stuck at the end?">
+    Entering a vertex uses one of its edges. At a vertex that is not an end, the edges used so far come in pairs (in and out) plus the one just used to enter, an odd number, while its degree is even; so an unused edge is left to leave by. Only the end vertex, with its odd degree (or extra in-edge), can run out, and in a circuit only the start.
+  </FaqItem>
+  <FaqItem question="Why is a detour always a closed circuit?">
+    After the first walk, every vertex has an even number of unused edges (or as many unused edges out as in), because the walk used its edges in pairs apart from its two ends, which were the odd ones. By the argument above, a walk on the unused edges can only get stuck where it started.
+  </FaqItem>
+  <FaqItem question="How does the code check connectivity?">
+    It does not run a separate search. A walk only ever reaches edges in the start's component, so if the result holds all E edges they were connected, and if it holds fewer they were not.
+  </FaqItem>
+  <FaqItem question="What does a graph with no edges return?">
+    The empty walk, two empty lists, and the kind "circuit". It is not the same as "no walk", which is None, std::nullopt or ok == false.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Mail Delivery', site: 'CSES 1691', url: 'https://cses.fi/problemset/task/1691', idea: 'An undirected circuit that must start and end at crossing 1, or IMPOSSIBLE when the degrees or the connectivity fail.' },
+    { name: 'Teleporters Path', site: 'CSES 1693', url: 'https://cses.fi/problemset/task/1693', idea: 'A directed path from level 1 to level n: check that 1 has out = in + 1 and n has in = out + 1, then walk from 1.' },
+    { name: 'Eulerian Path', site: 'Kattis eulerianpath', url: 'https://open.kattis.com/problems/eulerianpath', idea: 'A directed graph per test case: the degrees give the start, and the walk also checks the connectivity.' },
+    { name: 'De Bruijn Sequence', site: 'CSES 1692', url: 'https://cses.fi/problemset/task/1692', idea: 'Every n-bit string as a window: an Eulerian circuit of the graph whose vertices are the (n - 1)-bit strings.' },
+  ]}
+/>

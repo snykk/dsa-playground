@@ -1,4 +1,4 @@
-/** Visualization registry: Advanced graph algorithms (network flow, 2-SAT). */
+/** Visualization registry: Advanced graph algorithms (network flow, 2-SAT, bipartite matching, Eulerian paths). */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
@@ -21,16 +21,48 @@ export const entries: VizInfo[] = [
     topics: [`${FLOW}/Edmonds_Karp`, FLOW],
   },
   {
+    id: 'dinic',
+    title: "Dinic's algorithm (blocking flows)",
+    group: 'Graphs',
+    blurb: 'Each phase sorts the vertices into BFS levels, then DFS pushes shortest paths until none is left, and a current-arc pointer per vertex keeps it from passing the same entries twice.',
+    topics: [`${FLOW}/Dinic`, FLOW],
+  },
+  {
+    id: 'kuhn-matching',
+    title: "Kuhn's algorithm (bipartite matching)",
+    group: 'Graphs',
+    blurb: 'One DFS from each left vertex looks for an augmenting path, asking matched partners to move along, and flipping the path grows the matching by one.',
+    topics: [`${ADV}/Bipartite_Matching`],
+  },
+  {
+    id: 'hopcroft-karp',
+    title: 'Hopcroft-Karp (bipartite matching)',
+    group: 'Graphs',
+    blurb: 'A BFS sorts the left vertices into layers, DFS takes vertex-disjoint shortest augmenting paths through them, and the final matching yields a minimum vertex cover.',
+    topics: [`${ADV}/Bipartite_Matching`],
+  },
+  {
     id: 'two-sat',
     title: '2-SAT (implication graph + Tarjan)',
     group: 'Graphs',
     blurb: 'Every clause becomes two implications; Tarjan splits the graph into components, and x shares one with ~x exactly when the formula is unsatisfiable.',
     topics: [`${ADV}/2_SAT`, ADV],
   },
+  {
+    id: 'hierholzer',
+    title: "Hierholzer's algorithm (Eulerian path)",
+    group: 'Graphs',
+    blurb: 'Degrees decide whether a walk through every edge exists; a stack walks until it is stuck, and each detour found while backing up is spliced in as a closed circuit.',
+    topics: [`${ADV}/Eulerian_Path`, ADV],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'ford-fulkerson': () => import('../specs/advancedGraph').then((m) => m.fordFulkersonSpec),
   'edmonds-karp': () => import('../specs/advancedGraph').then((m) => m.edmondsKarpSpec),
+  dinic: () => import('../specs/advancedGraph').then((m) => m.dinicSpec),
+  'kuhn-matching': () => import('../specs/advancedGraph').then((m) => m.kuhnSpec),
+  'hopcroft-karp': () => import('../specs/advancedGraph').then((m) => m.hopcroftKarpSpec),
   'two-sat': () => import('../specs/advancedGraph').then((m) => m.twoSatSpec),
+  hierholzer: () => import('../specs/advancedGraph').then((m) => m.hierholzerSpec),
 };

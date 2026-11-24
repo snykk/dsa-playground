@@ -1,0 +1,243 @@
+---
+topic: Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Dinic
+title: Dinic's Algorithm
+lead: Dinic's algorithm computes a maximum flow in phases. Each phase sorts the vertices into levels with one BFS, then pushes flow along shortest paths until none is left, with a pointer per vertex that skips every useless edge for good. The last BFS also gives a minimum cut.
+level: Advanced
+updated: 2026-11-24
+facts:
+  - label: Time
+    value: O(V^2 E)
+    hint: at most V phases of O(V E) each
+  - label: Unit networks
+    value: O(E sqrt(V))
+    hint: such as the network built for bipartite matching
+  - label: Extra space
+    value: O(V + E)
+    hint: residual graph, levels and one pointer per vertex
+  - label: Phases
+    value: At most V
+    hint: the sink's level grows every phase
+properties:
+  - { label: Polynomial bound, value: true }
+  - { label: Returns per-edge flow, value: true }
+  - { label: Returns a minimum cut, value: true }
+prerequisites:
+  - Algorithms/Graph_Algorithms/Traversal/BFS
+  - Algorithms/Graph_Algorithms/Traversal/DFS
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp
+related:
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Edmonds_Karp
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Ford_Fulkerson
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow
+  - Algorithms/Graph_Algorithms/Advanced_Graph/Bipartite_Matching
+---
+
+## How Dinic's algorithm works
+
+A flow network is a directed graph with a capacity on every edge, a source `s` and a sink `t`. Like Ford-Fulkerson and Edmonds-Karp, Dinic keeps a **residual graph**: an edge `u -> v` with capacity `c` and flow `f` leaves an entry `u -> v` with `c - f` of room, and a reverse entry `v -> u` with `f`, through which later flow can cancel it.
+
+Edmonds-Karp runs a whole BFS for every augmenting path. Dinic runs one BFS per **phase** and then pushes flow along as many shortest paths as it can before the next one.
+
+<Steps>
+  <Step title="Build the residual graph">
+    Copy every capacity and add a reverse entry of 0 for each edge, as Edmonds-Karp does. Sort the entries of every vertex by neighbour: every search tries them in that order.
+  </Step>
+  <Step title="BFS: the levels">
+    A BFS from `s` over the entries with room gives every vertex it reaches a **level**, its distance in residual edges. If `t` has no level, stop.
+  </Step>
+  <Step title="The level graph">
+    Keep only the entries with room that go exactly one level deeper. Every path from `s` to `t` in this level graph is a shortest augmenting path.
+  </Step>
+  <Step title="DFS with current arcs: a blocking flow">
+    Search from `s`, stepping only one level deeper. Each vertex keeps a pointer, its **current arc**, to the first entry not yet found useless; a vertex with no entry left is a dead end, and the vertex before it moves its pointer on. When a search reaches `t`, push the bottleneck along the path and search again from `s`, with every pointer where it was.
+  </Step>
+  <Step title="Repeat">
+    When the search backs out of `s`, every path of the level graph has a full entry: the flow of the phase is **blocking**. Run the next BFS, which finds `t` at a deeper level or not at all.
+  </Step>
+</Steps>
+
+<Callout title="Why a pointer never has to move back">
+Inside a phase the levels are fixed. Pushing flow along a level-graph entry only empties it, and the reverse entry it fills points one level back, which the searches never take. So an entry that is full, goes to the wrong level or leads to a dead end stays useless until the phase ends, and the pointers only move forward. When the last BFS misses the sink, the vertices it reached form the source side of a minimum cut.
+</Callout>
+
+## See it in action
+
+Load **Classic (CLRS)**. The badges give each vertex's level, the level graph is drawn with marching dashes before the searches start, and entries outside it or passed by a pointer fade out. The **Current arcs** strip shows where each vertex's pointer stands. **Dead ends passed once** is the clearest picture of the current arc: the first search walks into the dead ends 2 and 3 and moves vertex 1's pointer past them, and the second search starts vertex 1 at 4 directly. **Matching as flow** is a unit network whose second phase pushes one long path that cancels flow through two reverse entries.
+
+<ArticleViz ids={['dinic']} />
+
+## A worked example
+
+The classic network with source 0 and sink 5, run by the Python implementation. A search "passes" an entry when it has no room or does not go one level deeper, and moves the pointer past it.
+
+<GraphDiagram
+  edges="0->1 16, 0->2 13, 1->2 10, 1->3 12, 2->1 4, 2->4 14, 3->2 9, 3->5 20, 4->3 7, 4->5 4"
+  positions={{ 0: [4, 50], 1: [32, 12], 2: [32, 88], 3: [68, 12], 4: [68, 88], 5: [96, 50] }}
+  tones={{ 0: 'l', 1: 'l', 2: 'l', 4: 'l', 3: 'f', 5: 'f' }}
+  edgeTones={{ '1->3': 'p', '4->3': 'p', '4->5': 'p' }}
+  legend={{ l: 'S: the vertices the last BFS reaches', f: 'the other side of the cut', p: 'edges crossing the cut, all full' }}
+  caption="Phase 1 gives levels 0, 1, 1, 2, 2, 3 to vertices 0 to 5; phase 2 gives 0, 1, 1, 3, 2, 4. The third BFS reaches only 0, 1, 2 and 4, and the edges leaving that set, 1 -> 3 (12), 4 -> 3 (7) and 4 -> 5 (4), add up to 23, the maximum flow."
+  label="The classic flow network with the minimum cut Dinic's last BFS finds"
+/>
+
+<DataTable
+  columns={['Phase', 'Search', 'What it does', 'Path', 'Pushed', 'Entries looked at']}
+  rows={[
+    ['1', '1', '0 takes 1; 1 passes 0 and 2 and takes 3; 3 passes 1, 2 and 4 and takes 5', '0 -> 1 -> 3 -> 5', '12', '8'],
+    ['1', '2', '1 resumes at 3, now full: a dead end; 0 moves on to 2; 2 passes 0, 1 and 3 and takes 4; 4 passes 2 and 3 and takes 5', '0 -> 2 -> 4 -> 5', '4', '10'],
+    ['1', '3', '0 resumes at 2, 2 at 4, 4 at 5, now full: 4, 2 and 0 are dead ends', 'none', '-', '3'],
+    ['2', '1', '0 takes 1, which passes 0, 2 and 3 (full) and is a dead end; 0 moves on to 2, which passes 0, 1 and 3 and takes 4; 4 passes 2 and takes 3; 3 passes 1, 2 and 4 and takes 5', '0 -> 2 -> 4 -> 3 -> 5', '7', '15'],
+    ['2', '2', '0 resumes at 2, 2 at 4; 4 passes 3 and 5, both full', 'none', '-', '4'],
+    ['3', '-', 'the BFS reaches 0, 1, 2 and 4, not the sink', '-', '-', '0'],
+  ]}
+/>
+
+The maximum flow is 12 + 4 + 7 = 23, after 3 phases (the last BFS included) and 40 entry visits. In search 2 of phase 1, vertex 1 does not look at its entries to 0 and 2 again: search 1 already moved its pointer past them. Edmonds-Karp takes the same three paths on this network, with one BFS for each and a fourth to stop; Dinic runs three BFS in all.
+
+## Pseudocode
+
+```text
+dinic(graph, s, t):
+    if s == t: return 0
+    residual = copy of graph, plus a reverse entry of 0 for every edge
+    adj[u] = residual entries of u, sorted by neighbour
+    maxFlow = 0
+    loop:                                        # one phase
+        level = BFS from s over entries with residual > 0
+        if t has no level: return maxFlow        # the vertices with a level: a minimum cut
+        current[u] = 0 for every u
+        while (path = findPath()) is not None:
+            maxFlow += push the bottleneck along path
+
+findPath():                                      # recursive form; the code keeps a list
+    dfs(u):
+        if u == t: return [t]
+        while current[u] < len(adj[u]):
+            v = adj[u][current[u]]
+            if residual[u][v] > 0 and level[v] == level[u] + 1:
+                rest = dfs(v)
+                if rest is not None: return [u] + rest    # the pointer stays on v
+            current[u] += 1                              # useless for the rest of the phase
+        return None                                      # u is a dead end
+    return dfs(s)
+```
+
+## Implementation
+
+Each language takes the same input as Edmonds-Karp, a map `u -> {v: capacity}`, and has two functions. `dinic` returns the flow value. `dinic_flow` in Python, `dinicFlow` in C++ and Go, returns the value, the flow on every edge of the input, `source_side` (the vertices the last BFS reached, increasing), the number of phases (every BFS, the last one included) and the number of entries the searches looked at. The C++ and Go results are a `DinicResult` struct.
+
+**Which flow comes back.** A network can have many maximum flows. Every search tries the entries of a vertex in increasing order of the neighbour, so Python, C++ and Go return the same flow on every edge and the same counts: the C++ and Go tests check 40 networks against outputs of the Python code. Only the value and the source side of the cut are the same for every order.
+
+**Edge cases, as in Edmonds-Karp.** `source == sink` returns 0, with every flow 0, no phase and the source alone on its side. An unreachable sink returns 0 after one BFS. A map holds one capacity per edge, so parallel edges are given as one edge with their summed capacity. Anti-parallel edges share their residual entries, and only their net flow is defined: it goes to the edge it runs along, and the other edge reports 0. Zero capacities and self-loops never carry flow. Nothing raises an error.
+
+**Numbers and depth.** Python integers never overflow and Go's `int` is 64-bit; in C++ the capacities are `int`, but the residual graph, the flows and the total are `long long`, so two paths of `INT_MAX` give 4294967294. The search keeps its path in a list in all three languages, so a chain of 5000 vertices works in Python, where a recursive search fails at about 1000.
+
+<TopicCode topic="Algorithms/Graph_Algorithms/Advanced_Graph/Network_Flow/Dinic" />
+
+## Complexity analysis
+
+Let `V` be the number of vertices and `E` the number of edges. A blocking flow leaves no augmenting path of the current length, so the sink's level grows by at least one every phase. It is at most V - 1, so at most V - 1 phases push flow.
+
+<ComplexityTable
+  rows={[
+    { case: 'One BFS', time: 'O(V + E)', space: 'O(V + E)', when: 'Each residual entry is read once.' },
+    { case: 'One blocking flow', time: 'O(V E)', space: 'O(V)', when: 'A pointer passes each entry, or backs out of a dead end through it, at most once per phase. Each path has at most V - 1 entries and fills at least one, so there are at most E paths.' },
+    { case: 'Total', time: 'O(V^2 E)', space: 'O(V + E)', when: 'At most V phases of O(V E).' },
+    { case: 'Unit networks', time: 'O(E sqrt(V))', space: 'O(V + E)', when: 'Each path fills every entry it uses, so a phase costs O(E), and there are at most 2 sqrt(V) phases that push flow.' },
+  ]}
+/>
+
+<Equation label="Dinic" expr="O(V) phases x O(V E) per blocking flow" result="O(V^2 E)" />
+
+A **unit network** has capacity 1 everywhere, and every vertex other than the source and the sink has a single entering or a single leaving edge, like the network built for bipartite matching. After sqrt(V) phases every augmenting path is longer than sqrt(V). The flow still missing splits into paths that share no vertex, so at most sqrt(V) units are missing, and every later phase adds at least one.
+
+Counted on the Python code, with phases including the last BFS:
+
+<DataTable
+  columns={['Network', { label: 'V', kind: 'mono' }, { label: 'E', kind: 'mono' }, { label: 'Phases', kind: 'mono' }, { label: 'Entry visits', kind: 'mono' }]}
+  rows={[
+    ['comb, k = 320 (k dead ends, then k paths through one vertex)', '643', '961', '2', '2,241'],
+    ['matching network, 8000 vertices a side, 32,000 random edges', '16,002', '47,994', '16', '1,045,875'],
+    ['matching network, 80 components, the k-th needing a path of 2k + 1 edges', '6,482', '12,880', '81', '824,054'],
+    ['matching network, complete, 200 vertices a side', '402', '40,400', '2', '60,899'],
+  ]}
+/>
+
+The comb has an edge `0 -> 1` of capacity k, k edges from 1 to dead ends, and k paths of capacity 1 from 1 to the sink through other vertices, which vertex 1 meets after the dead ends. With the current arc the k searches pass the dead ends once: 7k + 1 visits. A search that started every vertex at its first entry again would walk past them in every search, about 2.5 k^2 visits: 257,441 for k = 320. The 80-component network is close to the worst case for unit networks, one phase per path length.
+
+## Dinic vs Edmonds-Karp and others
+
+<DataTable
+  columns={['Algorithm', 'Augmenting step', { label: 'Time', kind: 'mono' }, 'Notes']}
+  highlight={2}
+  rows={[
+    ['Ford-Fulkerson', 'any path, DFS here', 'O(E f)', 'f is the maximum flow, integer capacities'],
+    ['Edmonds-Karp', 'one shortest path per BFS', 'O(V E^2)', 'returns the value only here'],
+    ['Dinic', 'a blocking flow per BFS', 'O(V^2 E)', 'O(E sqrt(V)) on unit networks; flows and cut returned'],
+    ['Hopcroft-Karp', 'vertex-disjoint shortest paths per BFS', 'O(E sqrt(V))', 'the same kind of phases, on the bipartite graph directly'],
+    ['Push-relabel', 'local pushes, no paths', 'O(V^3) for FIFO', 'not in this repository'],
+  ]}
+/>
+
+On the random matching networks with 250 to 2000 vertices a side, Edmonds-Karp ran 247 to 1959 BFS, one per unit of flow and one more, while Dinic needed 8 to 14 phases.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'O(V^2 E) in general and O(E sqrt(V)) on unit networks, with one BFS per phase instead of one per path.',
+    'The same residual graph as Edmonds-Karp; the extra state is a sorted entry list, a level and one pointer per vertex.',
+    'The flow on every edge and a minimum cut come out of the run with no extra search.',
+  ]}
+  cons={[
+    'More code than Edmonds-Karp: the levels, the pointers and the dead-end bookkeeping.',
+    'A search that forgets to keep or to reset the pointers is still plausible-looking code, but loses the bound or never stops.',
+    'For plain bipartite matching, Hopcroft-Karp reaches the same bound without building a flow network.',
+  ]}
+/>
+
+## Applications
+
+- **Maximum flow and minimum cut** on networks too large for one BFS per path: traffic, pipelines, data transfer.
+- **Matching and disjoint paths.** Bipartite matching and vertex-disjoint paths, with every vertex split in two, are unit networks, where Dinic runs in O(E sqrt(V)). Edge-disjoint paths have capacity 1 everywhere, so each phase costs O(E).
+- **Minimum vertex cuts.** Split every vertex into an in copy and an out copy joined by an edge of the vertex's cost; the cut then picks vertices.
+- **Project selection.** Profits from the source, costs to the sink; the minimum cut separates the chosen projects from the rest.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **No current arc.** Every search walks past the same full entries and dead ends again; the comb above goes from 7k + 1 to about 2.5 k^2 visits. The value stays right, the bound is lost.
+- **Not resetting the pointers each phase.** The levels change, so the BFS keeps finding the sink while every search fails at once, and the loop never ends; on the classic network it stalls at a flow of 16.
+- **Moving the pointers after a push.** An entry on the path may still have room; the phase then ends before its flow is blocking, and the next BFS can find the sink at the same level again.
+- **Recursion depth.** A path can be as long as the graph; keep it in a list, or raise the recursion limit.
+- **Overflow in C++.** Keep the residual graph, the flows and the total in `long long`.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What does the current arc save?">
+    Within a phase, an entry that is full, goes to the wrong level or leads to a dead end stays useless. Without a pointer, every search would look at it again; with it, each vertex starts where its last search stopped, so a phase passes each entry at most once.
+  </FaqItem>
+  <FaqItem question="Why does the sink's level grow every phase?">
+    At the BFS, every entry with room climbs at most one level, and the reverse entries the pushes open point one level back. A path to the sink as short as before would have to climb one level at every step, so it would use only level-graph entries, and the blocking flow left a full entry on every such path. So the next BFS finds the sink deeper, and since its level is at most V - 1, at most V - 1 phases push flow.
+  </FaqItem>
+  <FaqItem question="How is it related to Hopcroft-Karp?">
+    On the flow network of a bipartite matching, a Dinic phase is a BFS for the levels and then shortest augmenting paths that share no vertex, since every left vertex has one entering edge and every right vertex one leaving edge, each of capacity 1. A Hopcroft-Karp phase does the same on the bipartite graph itself. The two codes do not always pick the same paths, so their numbers of phases can differ, but both stay within O(sqrt(V)).
+  </FaqItem>
+  <FaqItem question="Is the returned flow the only maximum flow?">
+    Usually not. Only the value is unique, and so is the set of vertices the source still reaches at the end. The flow on each edge depends on the order the searches try the edges, which is why the code fixes it.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Download Speed', site: 'CSES 1694', url: 'https://cses.fi/problemset/task/1694', idea: 'Plain maximum flow with capacities up to 10^9; a warm-up for the phases.' },
+    { name: 'Maximum Flow', site: 'Kattis maxflow', url: 'https://open.kattis.com/problems/maxflow', idea: 'Print the flow on every edge as well as the total: read it off the residual graph, as dinic_flow does.' },
+    { name: 'Minimum Cut', site: 'Kattis mincut', url: 'https://open.kattis.com/problems/mincut', idea: 'Print the source side of a minimum cut: the vertices the last BFS reaches.' },
+    { name: 'Distinct Routes', site: 'CSES 1711', url: 'https://cses.fi/problemset/task/1711', idea: 'Edge-disjoint routes: capacity 1 on every teleporter, then print each route by following edges that carry flow.' },
+    { name: 'Builder Takahashi', site: 'AtCoder abc239_g', url: 'https://atcoder.jp/contests/abc239/tasks/abc239_g', idea: 'A minimum vertex cut: split each vertex into two copies joined by an edge of its cost, then print the vertices whose split edge crosses the cut.' },
+  ]}
+/>

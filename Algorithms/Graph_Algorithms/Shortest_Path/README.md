@@ -1,6 +1,6 @@
 # Shortest Path Algorithms
 
-Shortest-path algorithms find the cheapest route through a weighted graph. The four here differ in what they assume and what they return, which is non-negative weights and one source for Dijkstra, negative weights for Bellman-Ford, every pair for Floyd-Warshall, and one goal with a hint for A*.
+Shortest-path algorithms find the cheapest route through a weighted graph. The five here differ in what they assume and what they return, which is non-negative weights and one source for Dijkstra, weights of only 0 and 1 for 0-1 BFS, negative weights for Bellman-Ford, every pair for Floyd-Warshall, and one goal with a hint for A*.
 
 ## Topics
 
@@ -9,9 +9,10 @@ Read them in this order.
 | # | Topic | What it adds | Level |
 |---|-------|--------------|-------|
 | 1 | [Dijkstra's Algorithm](Dijkstras_Algorithm/) | The baseline. Settle the closest unsettled vertex with a priority queue. Fast, but wrong if any edge is negative. | Intermediate |
-| 2 | [Bellman-Ford Algorithm](Bellman_Ford_Algorithm/) | Relax every edge V - 1 times. Slower, but it handles negative edges and detects a reachable negative cycle. | Intermediate |
-| 3 | [Floyd-Warshall Algorithm](Floyd_Warshall_Algorithm/) | Fill a V by V table, allowing one more intermediate vertex per round. Distances between every pair at once. | Intermediate |
-| 4 | [A* Search](A_Star_Search_Algorithm/) | Dijkstra guided by a heuristic. It expands the vertex with the smallest g + h, so it can skip parts of the graph. | Intermediate |
+| 2 | [0-1 BFS](0_1_BFS/) | Dijkstra for weights 0 and 1 only: a deque replaces the heap, a weight-0 edge pushes to the front and a weight-1 edge to the back. O(V + E). | Intermediate |
+| 3 | [Bellman-Ford Algorithm](Bellman_Ford_Algorithm/) | Relax every edge V - 1 times. Slower, but it handles negative edges and detects a reachable negative cycle. | Intermediate |
+| 4 | [Floyd-Warshall Algorithm](Floyd_Warshall_Algorithm/) | Fill a V by V table, allowing one more intermediate vertex per round. Distances between every pair at once. | Intermediate |
+| 5 | [A* Search](A_Star_Search_Algorithm/) | Dijkstra guided by a heuristic. It expands the vertex with the smallest g + h, so it can skip parts of the graph. | Intermediate |
 
 Each one keeps a distance estimate per vertex and lowers it by relaxing an edge: if `dist[u] + w < dist[v]`, then `dist[v]` becomes `dist[u] + w`. They differ in which edges they relax and in what order.
 
@@ -20,6 +21,7 @@ Each one keeps a distance estimate per vertex and lowers it by relaxing an edge:
 | Algorithm | Answers | Idea | Negative edges | Time | Extra space |
 |-----------|---------|------|----------------|------|-------------|
 | Dijkstra | one source to all | settle the closest unsettled vertex, then relax its edges | no | O((V + E) log V) | O(V + E) |
+| 0-1 BFS | one source to all | Dijkstra's order kept by a deque: weight 0 to the front, weight 1 to the back | no; weights 0 and 1 only | O(V + E) | O(V + E) |
 | Bellman-Ford | one source to all | relax every edge, V - 1 rounds, then one check round | yes, and detects negative cycles | O(V * E) | O(V) |
 | Floyd-Warshall | all pairs | allow vertex k as an intermediate, for k from 0 to V - 1 | yes, and detects negative cycles | O(V^3) | O(V^2) |
 | A* | one source to one goal | Dijkstra ordered by g + h, with h an estimate of the cost left | no | O(b^d) worst case | depends on the open set |
@@ -31,6 +33,7 @@ A negative cycle, one whose weights sum below zero, makes the cheapest path unde
 | Situation | Use | Why |
 |-----------|-----|-----|
 | One source, non-negative weights | Dijkstra | the fastest of the general methods here |
+| One source, every edge costs 0 or 1 | 0-1 BFS | a deque instead of a heap, so no log factor |
 | Negative edges, or you must detect a negative cycle | Bellman-Ford | it does not assume that settled vertices are final |
 | Distances between all pairs on a small graph | Floyd-Warshall | three short loops, handles negative edges, one table |
 | One goal and a good distance estimate, such as a map or a grid | A* | the heuristic prunes vertices that point away from the goal |

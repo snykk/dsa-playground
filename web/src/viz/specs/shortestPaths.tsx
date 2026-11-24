@@ -1,5 +1,6 @@
 import { parseGraph, type Graph } from '../algorithms/graph';
 import { astar as astarTrace, bellmanFord as bellmanFordTrace, floydWarshall as floydWarshallTrace, parseMap, type AStarMap } from '../algorithms/shortestPaths';
+import { parseZeroOneGraph, zeroOneBfs as zeroOneBfsTrace } from '../algorithms/zeroOneBfs';
 import type { VizSpec } from '../core/types';
 import { GraphView, type GraphState } from '../renderers/GraphView';
 import { Grid, type GridState } from '../renderers/Grid';
@@ -130,4 +131,43 @@ export const aStar: VizSpec<AStarMap, GridMapState> = {
     { role: 'bad', label: 'neighbor not improved' },
   ],
   complexity: { time: 'O(b^d) worst case; far fewer expansions with a good heuristic', space: 'O(b^d)' },
+};
+
+export const zeroOneBfs: VizSpec<Graph, GraphState> = {
+  id: 'zero-one-bfs',
+  title: '0-1 BFS',
+  inputKind: 'zero-one-graph',
+  inputLabel: 'Graph edges with weights 0 or 1',
+  inputHelp:
+    'Edges like "A->B 0" or "A-B 1", separated by commas (an edge without a weight weighs 1); finish with "; start A". Weights must be 0 or 1. Up to 10 nodes and 20 edges. An undirected edge "A-B" is relaxed as A->B and then B->A, at its place in the list.',
+  examples: [
+    { label: 'Worked example', value: 'A->B 1, A->C 0, C->B 0, B->D 1, C->E 1, E->D 0, E->F 1, D->F 1, G->A 1; start A' },
+    { label: 'Every vertex pushed twice', value: 'A->B 1, A->C 1, A->D 1, A->B 0, B->C 0, C->D 0; start A' },
+    { label: 'Zero-weight cycle', value: 'A->B 0, B->C 0, C->A 0, C->D 1; start A' },
+    { label: 'Undirected roads', value: 'A-B 0, B-C 1, A-D 1, D-C 0, C-E 0, B-E 1, E-F 1; start A' },
+    { label: 'All weights 1 (BFS)', value: 'A-B, A-C, B-D, C-D, D-E; start A' },
+  ],
+  randomInput: () => randomDirected(0, 1, 5 + Math.floor(Math.random() * 3), 4),
+  parse: (text) => parseZeroOneGraph(text),
+  trace: zeroOneBfsTrace,
+  render: (state) => <GraphView state={state} />,
+  pseudocode: [
+    'dist[*] = -1; parent[*] = -1; dist[s] = 0; deque = [(0, s)]',
+    'while deque is not empty:',
+    '  (d, u) = deque.popFront()',
+    '  if d > dist[u]: continue           // stale entry',
+    '  for each edge (u, v, w), in input order:',
+    '    if dist[v] == -1 or d + w < dist[v]:',
+    '      dist[v] = d + w; parent[v] = u',
+    '      if w == 0: deque.pushFront((d, v))',
+    '      else: deque.pushBack((d + 1, v))',
+  ],
+  legend: [
+    { role: 'active', label: 'vertex being processed; edge being relaxed; new deque entry' },
+    { role: 'compare', label: 'reached, waiting in the deque; tentative parent edge' },
+    { role: 'done', label: 'final distance; shortest-path tree' },
+    { role: 'muted', label: 'stale entry, skipped' },
+    { role: 'idle', label: 'not reached yet' },
+  ],
+  complexity: { time: 'O(V + E)', space: 'O(V + E)' },
 };
