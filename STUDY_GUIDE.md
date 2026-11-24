@@ -187,6 +187,7 @@ Coin Change is the first problem where greedy fails; LCS opens 2D tables; the re
 Dijkstra first; the others each change one assumption.
 
 - [Dijkstra's Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Dijkstras_Algorithm/) (Intermediate)
+- [0-1 BFS](Algorithms/Graph_Algorithms/Shortest_Path/0_1_BFS/) (Intermediate)
 - [Bellman-Ford Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Bellman_Ford_Algorithm/) (Intermediate)
 - [Floyd-Warshall Algorithm](Algorithms/Graph_Algorithms/Shortest_Path/Floyd_Warshall_Algorithm/) (Intermediate)
 - [A* Search](Algorithms/Graph_Algorithms/Shortest_Path/A_Star_Search_Algorithm/) (Intermediate)
