@@ -30,7 +30,7 @@ contents:
   - folder: 2_SAT
     note: Decide a formula of two-literal clauses by building an implication graph and running an SCC algorithm on it.
   - folder: Network_Flow
-    note: Maximum flow from a source to a sink with augmenting paths. Ford-Fulkerson finds any path, Edmonds-Karp the shortest.
+    note: Maximum flow from a source to a sink with augmenting paths. Ford-Fulkerson finds any path, Edmonds-Karp the shortest, Dinic many shortest ones per BFS.
   - folder: Bipartite_Matching
     note: "The most pairs between two sides, along augmenting paths: Kuhn's DFS per vertex, or Hopcroft-Karp's shortest paths in phases. Konig's theorem gives a minimum vertex cover."
 prerequisites:
@@ -64,14 +64,14 @@ The first four sit close together. Topological sort, strongly connected componen
     ['Strongly connected components', 'directed graph', 'the components, in a topological order of the condensation or its reverse', 'DFS, twice or once', 'O(V + E)', 'Advanced'],
     ['Bridges and articulation points', 'undirected multigraph', 'the bridges and the cut vertices', 'one DFS with disc and low values', 'O(V + E)', 'Advanced'],
     ['2-SAT', 'clauses with two literals each', 'satisfiable or not, plus an assignment', 'implication graph and Tarjan', 'O(n + m)', 'Advanced'],
-    ['Network flow', 'directed graph with capacities', 'the maximum flow value', 'augmenting paths in a residual graph', 'O(E f) or O(V E^2)', 'Advanced'],
+    ['Network flow', 'directed graph with capacities', 'the maximum flow value, and with Dinic the flow on every edge and a minimum cut', 'augmenting paths in a residual graph', 'O(E f), O(V E^2) or O(V^2 E)', 'Advanced'],
     ['Bipartite matching', 'bipartite graph, no weights', 'a maximum matching, and a minimum vertex cover', 'augmenting paths, by DFS or by BFS layers and DFS', 'O(V E) or O(E sqrt(V))', 'Advanced'],
   ]}
 />
 
 ## See them side by side
 
-The tabs cover every topic here except network flow and bipartite matching, whose two algorithms each sit side by side on their own page. Topological sort and the two SCC algorithms take a directed graph, 2-SAT builds one from its clauses and runs Tarjan on it, and the bridge finder takes an undirected graph. Load **Cycle with a tail** in the topological sort tab to see a cycle block the order, **Two cycles joined** in the SCC tabs, **Unsatisfiable** in the 2-SAT tab to see x0 and ~x0 land in one component, and **Triangle with a tail** in the bridges tab.
+The tabs cover every topic here except network flow and bipartite matching, whose algorithms sit side by side on their own pages. Topological sort and the two SCC algorithms take a directed graph, 2-SAT builds one from its clauses and runs Tarjan on it, and the bridge finder takes an undirected graph. Load **Cycle with a tail** in the topological sort tab to see a cycle block the order, **Two cycles joined** in the SCC tabs, **Unsatisfiable** in the 2-SAT tab to see x0 and ~x0 land in one component, and **Triangle with a tail** in the bridges tab.
 
 <ArticleViz ids={['topological-sort', 'kosaraju', 'tarjan-scc', 'two-sat', 'bridges-articulation']} />
 
@@ -91,7 +91,7 @@ The tabs cover every topic here except network flow and bipartite matching, whos
     It uses the SCC algorithm as a tool, so read it after Tarjan.
   </Step>
   <Step title="Network flow">
-    It is independent of the rest. Read Ford-Fulkerson for the residual graph, then Edmonds-Karp for the one change that makes it polynomial.
+    It is independent of the rest. Read Ford-Fulkerson for the residual graph, then Edmonds-Karp for the one change that makes it polynomial, then Dinic, which pushes many shortest paths per BFS.
   </Step>
   <Step title="Bipartite matching">
     Augmenting paths again, on a graph whose capacities are all 1. Kuhn's algorithm is Ford-Fulkerson's search in this setting, and Hopcroft-Karp adds Edmonds-Karp's shortest paths, many at once.
@@ -129,7 +129,7 @@ The tabs cover every topic here except network flow and bipartite matching, whos
 - **Mixing up the two SCC output orders.** Kosaraju lists the source component first and Tarjan the sink component first, so the orders are reverse of each other.
 - **Using the bridge algorithm on a directed graph.** It is defined for undirected graphs only, and its vertices must be numbered from 0 to n - 1.
 - **Using 3 literals in 2-SAT.** With three literals per clause the problem is NP-complete, and the implication graph no longer works.
-- **Using Ford-Fulkerson with large or irrational capacities.** Its running time depends on the flow value, and with irrational capacities it may never stop. Use Edmonds-Karp.
+- **Using Ford-Fulkerson with large or irrational capacities.** Its running time depends on the flow value, and with irrational capacities it may never stop. Use Edmonds-Karp or Dinic.
 - **Matching on a graph that is not bipartite, or with weights.** An odd cycle breaks the alternating search and Konig's theorem, and weights turn the task into an assignment problem.
 </Callout>
 

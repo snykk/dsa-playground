@@ -1,8 +1,8 @@
 """Generate golden fixtures for the network-flow, 2-SAT and matching visualizations from the repository's Python code.
 
 The web visualizer re-implements Ford-Fulkerson, Edmonds-Karp, the 2-SAT solver, Kuhn's
-algorithm and Hopcroft-Karp in TypeScript (web/src/viz/algorithms/fordFulkerson.ts,
-edmondsKarp.ts, twoSat.ts and bipartiteMatching.ts). These fixtures pin each port to its
+algorithm, Hopcroft-Karp and Dinic's algorithm in TypeScript (web/src/viz/algorithms/fordFulkerson.ts,
+edmondsKarp.ts, twoSat.ts, bipartiteMatching.ts and dinic.ts). These fixtures pin each port to its
 reference in Algorithms/Graph_Algorithms/Advanced_Graph:
 
 - flow: for every network (edges in dict order, source, sink), Ford-Fulkerson's augmenting
@@ -18,10 +18,15 @@ reference in Algorithms/Graph_Algorithms/Advanced_Graph:
   in turn) or null, and the right vertices its search marked seen; hopcroft_karp's size and
   match_left, and for each phase the last layer and the dist list _bfs_layers left, then each
   root's path or null and dist after its search; min_vertex_cover's two lists.
+- dinic: for every network (edges in dict order, source, sink), each phase's level dict in
+  BFS order and, for each _find_path call, the path or null, the entries it looked at and
+  what _push returned; the final residual dict, and dinic_flow's value, flows (rows and
+  entries in graph order), source side, phases and edge visits.
 
 The values that the functions keep to themselves (a DFS's parent dict, edmonds_karp's
 residual dict and the BFS parents, solve()'s comp list, the matching searches' stack, path
-and dist lists) are read with sys.setprofile when the inner function returns. Run from anywhere:
+and dist lists, dinic's levels, searches and residual dict) are read with sys.setprofile when
+the inner function returns. Run from anywhere:
 
     python3 web/scripts/gen_advancedGraph_fixtures.py
 
@@ -36,10 +41,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ADV = ROOT / "Algorithms" / "Graph_Algorithms" / "Advanced_Graph"
-for folder in ("Network_Flow/Ford_Fulkerson/Python", "Network_Flow/Edmonds_Karp/Python", "2_SAT/Python", "Bipartite_Matching/Python"):
+for folder in ("Network_Flow/Ford_Fulkerson/Python", "Network_Flow/Edmonds_Karp/Python", "2_SAT/Python", "Bipartite_Matching/Python",
+               "Network_Flow/Dinic/Python"):
     sys.path.insert(0, str(ADV / folder))
 
 import bipartite_matching as bm_module  # noqa: E402
+import dinic as dinic_module  # noqa: E402
 import edmonds_karp as ek_module  # noqa: E402
 import ford_fulkerson as ff_module  # noqa: E402
 from two_sat import TwoSAT  # noqa: E402
@@ -156,6 +163,68 @@ def random_flow(rng):
     source = used[0] if rng.random() < 0.6 else rng.choice(used)
     sink = rng.choice([x for x in used if x != source])
     return edges, source, sink
+
+
+def dinic_case(edges, source, sink):
+    """Run dinic_flow; record every phase's levels and every search, and the final residual dict."""
+    graph = {}
+    for u, v, c in edges:
+        graph.setdefault(u, {})[v] = c
+    phases = []
+    residual = []
+
+    def profile(frame, event, arg):
+        if event != "return":
+            return
+        name = frame.f_code.co_name
+        if name == "_bfs_levels":
+            phases.append({"level": [[v, d] for v, d in arg.items()], "searches": []})
+        elif name == "_find_path":
+            path, visits = arg
+            phases[-1]["searches"].append({"path": path, "visits": visits, "pushed": None})
+        elif name == "_push":
+            phases[-1]["searches"][-1]["pushed"] = arg
+        elif name == "_run":
+            residual.extend(rows(arg[1]))
+
+    sys.setprofile(profile)
+    try:
+        result = dinic_module.dinic_flow(graph, source, sink)
+    finally:
+        sys.setprofile(None)
+    assert result.max_flow == dinic_module.dinic(graph, source, sink)
+    return {
+        "edges": [list(e) for e in edges],
+        "source": source,
+        "sink": sink,
+        "max_flow": result.max_flow,
+        "phases": phases,
+        "residual": residual,
+        "flows": rows(result.flows),
+        "source_side": result.source_side,
+        "phase_count": result.phases,
+        "edge_visits": result.edge_visits,
+    }
+
+
+HAND_DINIC = [
+    # The visualization's examples, in the same edge order.
+    ("0->1 16, 0->2 13, 1->2 10, 1->3 12, 2->1 4, 2->4 14, 3->2 9, 3->5 20, 4->3 7, 4->5 4", 0, 5),
+    ("0->1 2, 1->2 1, 1->3 1, 1->4 1, 1->5 1, 4->6 1, 5->6 1", 0, 6),
+    ("0->1 1, 0->2 1, 0->3 1, 1->4 1, 1->5 1, 2->4 1, 3->5 1, 3->6 1, 4->7 1, 5->7 1, 6->7 1", 0, 7),
+    ("0->1 10, 0->2 10, 1->2 1, 1->3 10, 2->3 10", 0, 3),
+    ("0->1 4, 1->0 6, 1->2 5", 0, 2),
+    ("0->1 5, 2->3 5", 0, 3),
+    # The repository tests: flow through both anti-parallel edges, a zero capacity, a sink and a
+    # source without a key, the 1000/1 diamond (99 here). The second example is the comb, k = 2.
+    ("0->1 2, 0->2 3, 1->2 2, 1->3 3, 2->1 2, 2->3 1", 0, 3),
+    ("0->1 0, 0->2 3, 1->3 9, 2->3 9", 0, 3),
+    ("0->1 7, 1->2 3", 0, 2),
+    ("1->0 5, 1->2 4", 0, 2),
+    ("0->1 99, 0->2 99, 1->2 1, 1->3 99, 2->3 99", 0, 3),
+    # source == sink.
+    ("0->1 5, 1->2 5", 1, 1),
+]
 
 
 def sat_case(n, clauses):
@@ -323,10 +392,14 @@ def main():
     matching_rng = random.Random(20261122)
     matching = [matching_case(*case) for case in HAND_MATCHING]
     matching += [matching_case(*random_matching(matching_rng)) for _ in range(160)]
-    sections = {"flow": flow, "twosat": sat, "matching": matching}
+    # Dinic: a generator of its own as well.
+    dinic_rng = random.Random(20261124)
+    dinic = [dinic_case(parse_edges(text), s, t) for text, s, t in HAND_DINIC]
+    dinic += [dinic_case(*random_flow(dinic_rng)) for _ in range(140)]
+    sections = {"flow": flow, "twosat": sat, "matching": matching, "dinic": dinic}
     header = {
         "generator": "web/scripts/gen_advancedGraph_fixtures.py",
-        "reference": "Algorithms/Graph_Algorithms/Advanced_Graph (Network_Flow/Ford_Fulkerson/Python/ford_fulkerson.py, Network_Flow/Edmonds_Karp/Python/edmonds_karp.py, 2_SAT/Python/two_sat.py, Bipartite_Matching/Python/bipartite_matching.py)",
+        "reference": "Algorithms/Graph_Algorithms/Advanced_Graph (Network_Flow/Ford_Fulkerson/Python/ford_fulkerson.py, Network_Flow/Edmonds_Karp/Python/edmonds_karp.py, 2_SAT/Python/two_sat.py, Bipartite_Matching/Python/bipartite_matching.py, Network_Flow/Dinic/Python/dinic.py)",
     }
     parts = []
     for key, cases in sections.items():

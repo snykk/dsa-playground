@@ -21,6 +21,13 @@ export const entries: VizInfo[] = [
     topics: [`${FLOW}/Edmonds_Karp`, FLOW],
   },
   {
+    id: 'dinic',
+    title: "Dinic's algorithm (blocking flows)",
+    group: 'Graphs',
+    blurb: 'Each phase sorts the vertices into BFS levels, then DFS pushes shortest paths until none is left, and a current-arc pointer per vertex keeps it from passing the same entries twice.',
+    topics: [`${FLOW}/Dinic`, FLOW],
+  },
+  {
     id: 'kuhn-matching',
     title: "Kuhn's algorithm (bipartite matching)",
     group: 'Graphs',
@@ -46,6 +53,7 @@ export const entries: VizInfo[] = [
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'ford-fulkerson': () => import('../specs/advancedGraph').then((m) => m.fordFulkersonSpec),
   'edmonds-karp': () => import('../specs/advancedGraph').then((m) => m.edmondsKarpSpec),
+  dinic: () => import('../specs/advancedGraph').then((m) => m.dinicSpec),
   'kuhn-matching': () => import('../specs/advancedGraph').then((m) => m.kuhnSpec),
   'hopcroft-karp': () => import('../specs/advancedGraph').then((m) => m.hopcroftKarpSpec),
   'two-sat': () => import('../specs/advancedGraph').then((m) => m.twoSatSpec),

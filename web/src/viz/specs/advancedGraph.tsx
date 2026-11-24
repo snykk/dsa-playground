@@ -6,6 +6,7 @@ import {
   parseMatching,
   type MatchingInput,
 } from '../algorithms/bipartiteMatching';
+import { DINIC_CODE, dinicTrace, parseDinic } from '../algorithms/dinic';
 import { EDMONDS_KARP_CODE, edmondsKarpTrace, parseEdmondsKarp } from '../algorithms/edmondsKarp';
 import type { FlowInput } from '../algorithms/flowNetwork';
 import { FORD_FULKERSON_CODE, fordFulkersonTrace, parseFordFulkerson } from '../algorithms/fordFulkerson';
@@ -109,6 +110,46 @@ export const edmondsKarpSpec: VizSpec<FlowInput, FlowNetworkState> = {
     { role: 'idle', label: 'not reached in this BFS (badge d = layer); dashed: residual reverse edge' },
   ],
   complexity: { time: 'O(V E^2)', space: 'O(V + E)' },
+};
+
+const DINIC_EXAMPLES: Example[] = [
+  FLOW_EXAMPLES[0],
+  { label: 'Dead ends passed once', value: '0->1 2, 1->2 1, 1->3 1, 1->4 1, 1->5 1, 4->6 1, 5->6 1; source 0, sink 6' },
+  {
+    label: 'Matching as flow',
+    value: '0->1 1, 0->2 1, 0->3 1, 1->4 1, 1->5 1, 2->4 1, 3->5 1, 3->6 1, 4->7 1, 5->7 1, 6->7 1; source 0, sink 7',
+  },
+  { label: 'Cross edge left out', value: '0->1 10, 0->2 10, 1->2 1, 1->3 10, 2->3 10; source 0, sink 3' },
+  { label: 'Anti-parallel edges', value: '0->1 4, 1->0 6, 1->2 5; source 0, sink 2' },
+  { label: 'Unreachable sink', value: '0->1 5, 2->3 5; source 0, sink 3' },
+];
+
+const DINIC_HELP =
+  'Directed edges "u->v capacity", separated by commas (capacities 0 to 99; 1 if left out), then "source 0, sink 5" ' +
+  '(without them, the first and the last vertex named). Every search tries the residual entries of a vertex in increasing order of the ' +
+  'neighbour, as sorted() orders the dict keys: by value when every name is a number, otherwise by character code (digits, then capitals, ' +
+  'then small letters). Up to 8 vertices and 16 edges.';
+
+export const dinicSpec: VizSpec<FlowInput, FlowNetworkState> = {
+  id: 'dinic',
+  title: "Dinic's algorithm (blocking flows)",
+  inputKind: 'flow-network',
+  inputLabel: 'Flow network',
+  inputHelp: DINIC_HELP,
+  examples: DINIC_EXAMPLES,
+  randomInput: () => valid(randomNetwork, parseDinic),
+  parse: parseDinic,
+  trace: (input) => stabilizeStrips(dinicTrace(input).frames),
+  render: renderFlow,
+  pseudocode: DINIC_CODE,
+  legend: [
+    { role: 'active', label: 'vertex being dequeued or searched from; the DFS path' },
+    { role: 'compare', label: 'waiting in the BFS queue; on the DFS path; the level graph of a new phase' },
+    { role: 'done', label: 'dequeued; flow filling a pipe; edge just pushed; source side S' },
+    { role: 'muted', label: 'dead end for the phase; entry outside the level graph or behind a current arc' },
+    { role: 'idle', label: 'badge lv = level; dashed: residual reverse edge' },
+  ],
+  complexity: { time: 'O(V^2 E); O(E sqrt(V)) on unit networks', space: 'O(V + E)' },
 };
 
 // ---------------------------------------------------------------- 2-SAT

@@ -73,8 +73,8 @@ Use it when:
 
 Do not use it when:
 
-- the graph is large and speed matters: Dinic's algorithm or push-relabel are much faster in practice (neither is implemented here);
-- you need the flow on each edge or the cut itself: the functions here return only the flow value.
+- the graph is large and speed matters: [Dinic's algorithm](../Dinic/) runs one BFS per phase instead of one per augmenting path (14 phases against 1959 BFS runs on a random matching network with 2000 vertices a side); push-relabel is not implemented here;
+- you need the flow on each edge or the cut itself: the functions here return only the flow value, while Dinic's `dinic_flow` returns both.
 
 ## Edmonds-Karp vs. Alternatives
 
@@ -82,7 +82,7 @@ Do not use it when:
 |-----------|-----------------|------|-------|
 | Edmonds-Karp | shortest, BFS | O(V E^2) | independent of capacity values |
 | Ford-Fulkerson | any (DFS here) | O(E f), integer capacities | f is the max-flow value |
-| Dinic | blocking flow on BFS levels | O(V^2 E) | faster in practice; not in this repository |
+| Dinic | shortest paths of a BFS level graph until each has a full edge (a blocking flow) | O(V^2 E) | one BFS per phase, not per path; O(E sqrt(V)) on unit networks; see [Dinic](../Dinic/) |
 | Push-relabel | none | O(V^3) for the FIFO variant | not in this repository |
 
 On the "diamond" `0->1 1000, 0->2 1000, 1->3 1000, 2->3 1000, 1->2 1`, Edmonds-Karp needs 2 augmentations. A DFS that keeps choosing the cross edge 1->2 may need up to 2000.
@@ -113,5 +113,6 @@ On the "diamond" `0->1 1000, 0->2 1000, 1->3 1000, 2->3 1000, 1->2 1`, Edmonds-K
 ## Related
 
 - [Ford-Fulkerson](../Ford_Fulkerson/README.md): the same method with any augmenting path
+- [Dinic](../Dinic/README.md): one BFS per phase, then shortest augmenting paths until none of that length is left
 - [Network Flow](../README.md): the category overview
 - [BFS](../../../Traversal/BFS/README.md): finds the augmenting path
