@@ -9,7 +9,7 @@ Read them in this order.
 | # | Section | What it covers | Level |
 |---|---------|----------------|-------|
 | 1 | [Backtracking Algorithms](Backtracking/) | Choose, check, recurse, undo. Maze, N-Queens, Graph Coloring and Sudoku, with pruning that removes dead branches. | 4 topics |
-| 2 | [Specialized Techniques](Specialized_Techniques/) | Square root blocks, Mo's offline queries, heavy-light chains and centroid levels, for range and tree queries. | 4 topics |
+| 2 | [Specialized Techniques](Specialized_Techniques/) | Square root blocks, Mo's offline queries, lowest common ancestors, heavy-light chains and centroid levels, for range and tree queries. | 5 topics |
 
 The two sub-areas are independent and have almost nothing in common in code. The only shared background is a depth-first search and some recursion.
 

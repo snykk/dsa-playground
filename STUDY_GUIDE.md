@@ -178,7 +178,7 @@ Coin Change is the first problem where greedy fails; LCS opens 2D tables; the re
 
 ## Phase 4: Advanced Algorithms and Structures (Weeks 11-15)
 
-**Goal:** Learn the topics that separate passing interviews from solving contest problems. (47 topics)
+**Goal:** Learn the topics that separate passing interviews from solving contest problems. (52 topics)
 
 **Why this order:** Graph algorithms reuse the Phase 2 structures, strings reuse the trie, range structures come before the specialist trees, and bitmask DP needs bit manipulation.
 
@@ -269,7 +269,7 @@ Bit manipulation first, because bitmask DP stores a subset in an integer.
 
 ## Phase 5: Competitive Programming (Week 16 onward)
 
-**Goal:** Pick up the techniques that win contests, plus the utilities around them. (31 topics)
+**Goal:** Pick up the techniques that win contests, plus the utilities around them. (32 topics)
 
 **Why this order:** Decompositions need segment trees and DFS, number theory comes before matrix exponentiation and FFT, and the utilities are used together with all of it.
 

@@ -13,7 +13,7 @@ Read them in this order.
 | 3 | [Strongly Connected Components](Strongly_Connected_Components/) | Split a directed graph into maximal groups of mutually reachable vertices. Kosaraju uses two DFS passes, Tarjan one. | 2 topics |
 | 4 | [Bridges and Articulation Points](Tarjan_Bridges_Articulation/) | Find the edges and vertices whose removal disconnects an undirected graph, with discovery times and low-links in one DFS. | Advanced |
 | 5 | [2-SAT](2_SAT/) | Decide a formula of two-literal clauses by building an implication graph and running an SCC algorithm on it. | Advanced |
-| 6 | [Network Flow](Network_Flow/) | Maximum flow from a source to a sink with augmenting paths. Ford-Fulkerson finds any path, Edmonds-Karp the shortest, Dinic many shortest ones per BFS. | 2 topics |
+| 6 | [Network Flow](Network_Flow/) | Maximum flow from a source to a sink with augmenting paths. Ford-Fulkerson finds any path, Edmonds-Karp the shortest, Dinic many shortest ones per BFS. | 3 topics |
 | 7 | [Bipartite Matching](Bipartite_Matching/) | The most pairs between two sides, along augmenting paths: Kuhn's DFS per vertex, or Hopcroft-Karp's shortest paths in phases. Konig's theorem gives a minimum vertex cover. | Advanced |
 
 Topological sort, strongly connected components and bridges are built on DFS, and 2-SAT is a thin layer over an SCC algorithm. An Eulerian path needs only degrees and connectivity, and its walk is a DFS over edges instead of vertices. Network flow stands apart: it changes a residual graph again and again instead of walking the graph once. Bipartite matching is its unit-capacity case, with faster algorithms of its own.

@@ -11,10 +11,10 @@ Twelve areas that group the repository's algorithms by the problem they solve or
 | 3 | [Divide and Conquer Algorithms](Divide_and_Conquer/) | Split, solve, combine. Holds Strassen's matrix multiplication. Merge sort, quick sort and binary search live in Sorting and Searching. | 1 topic |
 | 4 | [Greedy Algorithms](Greedy/) | Make the best local choice and never revisit it. Activity selection, Huffman coding, fractional knapsack and job scheduling. | 4 topics |
 | 5 | [Dynamic Programming Algorithms](Dynamic_Programming/) | Solve each subproblem once. Basic, linear, 2D and advanced DP, and the Convex Hull Trick for DP optimization. | 14 topics |
-| 6 | [Graph Algorithms](Graph_Algorithms/) | Traversal with BFS and DFS, shortest paths, minimum spanning trees, and advanced topics such as flow and strongly connected components. | 15 topics |
-| 7 | [String Algorithms](String_Algorithms/) | Pattern matching with naive, Rabin-Karp, KMP and Boyer-Moore, then Z, Aho-Corasick, suffix arrays and palindromes. | 9 topics |
+| 6 | [Graph Algorithms](Graph_Algorithms/) | Traversal with BFS and DFS, shortest paths, minimum spanning trees, and advanced topics such as flow, matching, Eulerian paths and strongly connected components. | 19 topics |
+| 7 | [String Algorithms](String_Algorithms/) | Pattern matching with naive, Rabin-Karp, KMP and Boyer-Moore, then Z, string hashing, Aho-Corasick, suffix arrays and palindromes. | 10 topics |
 | 8 | [Mathematical Algorithms](Mathematical_Algorithms/) | Number theory, such as gcd, sieves and modular power, and advanced math, namely FFT and matrix exponentiation. | 8 topics |
-| 9 | [Advanced Algorithms](Advanced_Algorithms/) | Backtracking (N-Queens, Sudoku, graph coloring, rat in a maze) and specialized techniques such as HLD, Mo's algorithm and decompositions. | 8 topics |
+| 9 | [Advanced Algorithms](Advanced_Algorithms/) | Backtracking (N-Queens, Sudoku, graph coloring, rat in a maze) and specialized techniques such as LCA, HLD, Mo's algorithm and decompositions. | 9 topics |
 | 10 | [Computational Geometry](Computational_Geometry/) | Points, lines and circles first, then convex hull, closest pair of points and rotating calipers. | 5 topics |
 | 11 | [Randomized Algorithms](Randomized_Algorithms/) | Randomness for speed or for streams. Randomized quickselect and reservoir sampling. | 2 topics |
 | 12 | [Coding Theory](Coding_Theory/) | Error-correcting codes. Arithmetic in the Galois field GF(2^8), then Reed-Solomon codes built on it. | 2 topics |
