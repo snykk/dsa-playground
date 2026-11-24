@@ -23,7 +23,7 @@ export const entries: VizInfo[] = [
     id: 'fibonacci-heap',
     title: 'Fibonacci Heap',
     group: 'Heaps',
-    blurb: 'Insert splices a node into the root list; extract_min promotes the children and links trees of equal degree.',
+    blurb: 'Insert and merge splice root lists; extract_min links trees of equal degree; decrease_key cuts a node loose, with cascading cuts up its marked ancestors.',
     topics: [`${H}/Fibonacci_Heap`, H],
   },
 ];

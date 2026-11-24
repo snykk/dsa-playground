@@ -1,8 +1,9 @@
-import { useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import type { Frame, Role } from '../core/types';
 import { NodeGlyph } from '../ui/atoms/NodeGlyph';
 import { useTween, type Pt } from '../ui/hooks/useTween';
 import { Strips, type StripData } from '../ui/molecules/Strip';
+import { syncScrollStop } from '../ui/scrollStop';
 import { SYM } from '../ui/symbols';
 import '../ui/roles.css';
 import './FibonacciHeapView.css';
@@ -14,6 +15,8 @@ export interface FibNodeView {
   role?: Role;
   /** Small text at the node's corner, e.g. a root's degree "d2". */
   badge?: string;
+  /** A marked node (it lost a child since it was linked): drawn with a dashed outline and a "*" badge. */
+  marked?: boolean;
   /** Children in the order of the child ring, starting at node.child. */
   children: FibNodeView[];
 }
@@ -39,13 +42,14 @@ export interface FibExtent {
   depth: number;
   lines: number;
   table: number;
-  floating: boolean;
+  /** How many nodes float after the row. */
+  floating: number;
 }
 
 export interface FibHeapState {
   /** The root list in drawing order: a circular doubly linked list, drawn as a row with a wrap-around link. */
   roots: FibNodeView[];
-  /** Nodes outside the heap (the extracted minimum), drawn after the row with a tag. */
+  /** Nodes outside the heap (the extracted minimum, the other heap of a merge), drawn after the row with a tag. */
   floating?: Array<{ node: FibNodeView; tag: string }>;
   /** Named references above the nodes they point at. */
   pointers?: FibPointerView[];
@@ -85,7 +89,7 @@ function extentOf(state: FibHeapState): FibExtent {
     depth: Math.max(1, ...state.roots.map(depthOf)),
     lines: Math.max(0, ...stacked.values()),
     table: state.table?.length ?? 0,
-    floating: (state.floating?.length ?? 0) > 0,
+    floating: state.floating?.length ?? 0,
   };
 }
 
@@ -96,7 +100,7 @@ function union(a: FibExtent, b: FibExtent | undefined): FibExtent {
     depth: Math.max(a.depth, b.depth),
     lines: Math.max(a.lines, b.lines),
     table: Math.max(a.table, b.table),
-    floating: a.floating || b.floating,
+    floating: Math.max(a.floating, b.floating),
   };
 }
 
@@ -114,7 +118,7 @@ export function fibGeometry(ext: FibExtent) {
   const rootY = PAD + LANE + 12 + Math.max(1, ext.lines) * LINE + 8 + R;
   const left = PAD + 14;
   const rowW = ext.units * UNIT;
-  const floatW = ext.floating ? UNIT * 1.6 : 0;
+  const floatW = ext.floating ? UNIT * (0.6 + ext.floating) : 0;
   const tableW = ext.table ? TABLE_LABEL + ext.table * (CELL_W + 4) : 0;
   const width = Math.max(left + rowW + floatW + 14 + PAD, PAD + tableW + PAD);
   const treeBottom = rootY + (ext.depth - 1) * DY + R;
@@ -139,7 +143,8 @@ interface Placed {
 }
 
 function describe(state: FibHeapState): string {
-  const tree = (n: FibNodeView): string => (n.children.length ? `${n.label}(${n.children.map(tree).join(' ')})` : String(n.label));
+  const key = (n: FibNodeView) => `${n.label}${n.marked ? ' marked' : ''}`;
+  const tree = (n: FibNodeView): string => (n.children.length ? `${key(n)}(${n.children.map(tree).join(' ')})` : key(n));
   return state.roots.length ? `Root list: ${state.roots.map(tree).join(', ')}` : 'Empty heap';
 }
 
@@ -147,10 +152,24 @@ function describe(state: FibHeapState): string {
  * Organism: a Fibonacci heap as its root list, a row of heap-ordered trees joined by left /
  * right links with a wrap-around link back to the first root, plus named references (min_node)
  * and, while consolidating, the degree table. Nodes keep their ids, so a link glides a whole
- * tree under its new parent and a promoted child glides up into the row.
+ * tree under its new parent, and a promoted or cut node glides up into the row. A marked node
+ * has a dashed outline and a "*" at its corner, so the mark does not rely on colour.
  */
 export function FibonacciHeapView({ state }: { state: FibHeapState }) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // On a phone the picture is wider than the stage and scrolls sideways; while it hides
+  // content, the box takes a tab stop so a keyboard can scroll it (see scrollStop).
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap || typeof ResizeObserver !== 'function') return undefined;
+    const observer = new ResizeObserver(() => syncScrollStop(wrap));
+    observer.observe(wrap);
+    if (wrap.firstElementChild) observer.observe(wrap.firstElementChild);
+    syncScrollStop(wrap);
+    return () => observer.disconnect();
+  }, []);
   const { roots, floating = [], pointers = [], table, note, strips } = state;
   const ext = union(extentOf(state), state.extent);
   const g = fibGeometry(ext);
@@ -182,7 +201,7 @@ export function FibonacciHeapView({ state }: { state: FibHeapState }) {
   const stacked = new Map<number, number>();
 
   return (
-    <div className="fib-wrap">
+    <div className="fib-wrap" ref={wrapRef}>
       <svg className="fib-view" viewBox={`0 0 ${g.width} ${g.height}`} style={{ width: g.width, maxWidth: '100%', minWidth: Math.min(g.width, 480) }} role="img" aria-label={describe(state)}>
         <defs>
           {ROLES.map((role) => (
@@ -243,9 +262,22 @@ export function FibonacciHeapView({ state }: { state: FibHeapState }) {
           })}
         {placed.map((p) => {
           const q = at(p.node.id);
-          return <NodeGlyph key={`n${p.node.id}`} x={q.x} y={q.y} r={R} label={p.node.label} role={p.node.role ?? 'idle'} badge={p.node.badge} badgePlacement="corner" />;
+          return (
+            <NodeGlyph
+              key={`n${p.node.id}`}
+              x={q.x}
+              y={q.y}
+              r={R}
+              label={p.node.label}
+              role={p.node.role ?? 'idle'}
+              badge={p.node.badge ?? (p.node.marked ? '*' : undefined)}
+              badgePlacement="corner"
+              outlined={p.node.marked}
+            />
+          );
         })}
         {floating.map((f, k) => {
+          if (!f.tag) return null;
           const q = at(f.node.id);
           return (
             <text key={`tag${k}`} className="fh-tag" x={q.x} y={q.y - R - 10}>

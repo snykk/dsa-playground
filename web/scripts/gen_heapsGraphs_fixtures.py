@@ -10,7 +10,9 @@ Data_Structures/Non_Linear/Heaps and Data_Structures/Non_Linear/Graph:
   operation, and every return value or exception, so the sift order and the tie rules count;
 - Fibonacci heap: after every operation, every tree (key, degree, marked, children in
   child-ring order) in root-list order starting at min_node, the count and the return value,
-  so the splice position, the consolidation order and the choice of min_node count;
+  so the splice position, the consolidation order, the choice of min_node, the cuts, the
+  cascading cuts and the marks count. decrease_key and delete name their handle by its index
+  in insert order (the keys of a merge included), so a stale handle can be pinned too;
 - graph representations: after every operation, the stored form as Python prints it (the
   dict of lists, the matrix and its presence table, the list of edge tuples) and the repr of
   the return value or the exception name, so int / float weights, list order and the
@@ -158,6 +160,30 @@ FIB_FIXED = [
     [["insert", k] for k in (9, 8, 7, 6, 5, 4, 3, 2, 1)] + [["extract"], ["insert", 0], ["extract"], ["extract"]],
 ]
 
+# decrease_key, delete and merge: the cases of the topic README, the article and the
+# visualizer's examples, then the edge cases. Handles are numbered in insert order.
+FIB_HANDLE_FIXED = [
+    # the cascading cut of the README trace
+    [["insert", k] for k in range(9)] + [["extract"], ["decrease_key", 8, 0], ["decrease_key", 6, 3], ["decrease_key", 7, 1], ["extract"], ["extract"]],
+    # delete: a cascade, then a leaf whose parent is marked
+    [["insert", k] for k in range(9)] + [["extract"], ["decrease_key", 6, 0], ["delete", 7], ["delete", 4], ["extract"]],
+    # merge into a heap, into an empty heap, an empty other, a tie
+    [["insert", 5], ["insert", 3], ["insert", 7], ["merge", [4, 1, 6]], ["extract"], ["merge", []], ["merge", [1]], ["extract"], ["extract"]],
+    [["merge", [8, 2, 5]], ["merge", []], ["extract"], ["delete", 0]],
+    # errors: build, empty heap, a stale handle, a larger key, deleting twice, a cleared handle
+    [["build", [3, 1, 2]], ["extract"], ["insert", 4], ["insert", 9], ["extract"], ["decrease_key", 0, 1], ["decrease_key", 1, 12],
+     ["delete", 1], ["delete", 1], ["insert", 6], ["clear"], ["decrease_key", 2, 0], ["is_empty"]],
+    # equal keys: decrease to the same key, a tie with min_node, delete among duplicates
+    [["insert", 4], ["insert", 4], ["insert", 4], ["decrease_key", 1, 4], ["delete", 1], ["extract"], ["decrease_key", 2, 4], ["extract"]],
+    # a cascade that climbs two levels in a tree of 16 nodes
+    [["insert", k] for k in range(15)] + [["extract"], ["decrease_key", 14, 0], ["decrease_key", 12, 0], ["decrease_key", 8, 0], ["decrease_key", 13, 0], ["extract"]],
+    # the script that the C++ and Go tests pin as well
+    [["insert", k] for k in (5, 3, 7, 1, 9, 2, 8, 6, 4, 0)]
+    + [["extract"], ["decrease_key", 4, 0], ["decrease_key", 6, 2], ["decrease_key", 0, 5], ["decrease_key", 1, 4], ["delete", 2],
+       ["merge", [4, 1, 10]], ["extract"], ["delete", 11], ["decrease_key", 12, -1], ["extract"], ["decrease_key", 7, -2],
+       ["delete", 8], ["extract"], ["delete", 9], ["peek"]],
+]
+
 
 def fib_ops(count):
     ops = []
@@ -182,6 +208,7 @@ def fib_ops(count):
 
 def fib_case(ops):
     heap = FibonacciHeap()
+    handles = []
     steps = []
     for op in ops:
         result = error = None
@@ -189,7 +216,16 @@ def fib_case(ops):
             if op[0] == "build":
                 FibonacciHeap(op[1])
             elif op[0] == "insert":
-                result = repr(heap.insert(op[1]))
+                handles.append(heap.insert(op[1]))
+                result = repr(handles[-1])
+            elif op[0] == "decrease_key":
+                result = repr(heap.decrease_key(handles[op[1]], op[2]))
+            elif op[0] == "delete":
+                result = repr(heap.delete(handles[op[1]]))
+            elif op[0] == "merge":
+                other = FibonacciHeap()
+                handles.extend(other.insert(k) for k in op[1])
+                result = repr(heap.merge(other))
             elif op[0] == "extract":
                 result = repr(heap.extract_min())
             elif op[0] == "peek":
@@ -204,14 +240,68 @@ def fib_case(ops):
             error = "IndexError"
         except TypeError:
             error = "TypeError"
+        except ValueError:
+            error = "ValueError"
         steps.append({"result": result, "error": error, "roots": [dump(n) for n in ring(heap.min_node)], "count": heap.count})
     return {"ops": ops, "steps": steps}
+
+
+def fib_handle_ops(rng, count):
+    """A random script with handles, run on a real heap so that it stays within 15 keys."""
+    heap = FibonacciHeap()
+    handles = []
+    ops = []
+    while len(ops) < count:
+        r = rng.random()
+        if (r < 0.4 and heap.count < 15) or heap.count == 0 and r < 0.8:
+            op = ["insert", rng.randint(-3, 12)]
+        elif r < 0.6 and handles:
+            h = rng.randrange(len(handles))
+            # Mostly a real decrease; sometimes a larger key, which raises ValueError.
+            op = ["decrease_key", h, handles[h].key + (1 if rng.random() < 0.1 else -rng.randint(0, 6))]
+        elif r < 0.7 and handles:
+            op = ["delete", rng.randrange(len(handles))]
+        elif r < 0.78 and heap.count < 12:
+            op = ["merge", [rng.randint(-3, 12) for _ in range(rng.randint(0, 3))]]
+        elif r < 0.95:
+            op = ["extract"]
+        elif r < 0.98:
+            op = ["peek"]
+        else:
+            op = ["clear"]
+        try:
+            if op[0] == "insert":
+                handles.append(heap.insert(op[1]))
+            elif op[0] == "decrease_key":
+                heap.decrease_key(handles[op[1]], op[2])
+            elif op[0] == "delete":
+                heap.delete(handles[op[1]])
+            elif op[0] == "merge":
+                other = FibonacciHeap()
+                handles.extend(other.insert(k) for k in op[1])
+                heap.merge(other)
+            elif op[0] == "extract":
+                heap.extract_min()
+            elif op[0] == "peek":
+                heap.peek()
+            else:
+                heap.clear()
+        except (IndexError, ValueError):
+            pass
+        ops.append(op)
+    return ops
 
 
 def fib_cases(count):
     cases = [fib_case(ops) for ops in FIB_FIXED]
     while len(cases) < count:
         cases.append(fib_case(fib_ops(RNG.randint(1, 30))))
+    # The handle cases draw from their own generator, so the cases above and the graph
+    # cases below keep the random numbers they always had.
+    rng = random.Random(20261122)
+    cases += [fib_case(ops) for ops in FIB_HANDLE_FIXED]
+    for _ in range(80):
+        cases.append(fib_case(fib_handle_ops(rng, rng.randint(1, 30))))
     return cases
 
 
