@@ -39,6 +39,13 @@ export const entries: VizInfo[] = [
     topics: ['Algorithms/Sorting/Merge_Sort', 'Algorithms/Sorting'],
   },
   {
+    id: 'timsort',
+    title: 'Timsort',
+    group: 'Sorting',
+    blurb: 'Find the natural runs, extend short ones by binary insertion, and merge neighbouring runs from a stack kept O(log n) runs deep; long winning streaks gallop.',
+    topics: ['Algorithms/Sorting/Timsort', 'Algorithms/Sorting'],
+  },
+  {
     id: 'quick-sort',
     title: 'Quick Sort',
     group: 'Sorting',
@@ -81,6 +88,7 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'shell-sort': () => import('../specs/shellSort').then((m) => m.shellSort),
   'selection-sort': () => import('../specs/sorting').then((m) => m.selectionSort),
   'merge-sort': () => import('../specs/sorting').then((m) => m.mergeSort),
+  'timsort': () => import('../specs/timsort').then((m) => m.timsort),
   'quick-sort': () => import('../specs/sorting').then((m) => m.quickSort),
   'heap-sort': () => import('../specs/sorting').then((m) => m.heapSort),
   'counting-sort': () => import('../specs/sortingLinear').then((m) => m.countingSort),

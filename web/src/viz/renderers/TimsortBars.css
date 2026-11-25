@@ -1,0 +1,138 @@
+/* TimsortBars organism: ArrayBars' bars plus the stack strip, the status row and the run brackets. */
+.tb-scroll {
+  overflow-x: auto;
+}
+.timsort-bars {
+  display: block;
+  margin: 0 auto;
+}
+.timsort-bars text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- stack strip and status row ---------- */
+
+.timsort-bars .tb-head,
+.timsort-bars .tb-status,
+.timsort-bars .tb-check,
+.timsort-bars .tb-empty,
+.timsort-bars .tb-note {
+  text-anchor: start;
+  font-size: 12px;
+}
+.timsort-bars .tb-head {
+  fill: var(--text-2);
+  font-weight: 600;
+}
+.timsort-bars .tb-empty,
+.timsort-bars .tb-note {
+  fill: var(--text-2);
+}
+.timsort-bars .tb-status {
+  fill: var(--text-2);
+}
+.timsort-bars .tb-check {
+  fill: var(--text);
+  font-weight: 600;
+}
+.timsort-bars .tb-chip rect {
+  fill: var(--surface-3);
+  transition: fill 0.2s ease;
+}
+.timsort-bars .tb-chip text {
+  fill: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.timsort-bars .tb-chip.is-merging rect {
+  fill: var(--role);
+}
+.timsort-bars .tb-chip.is-merging text:not(.tb-chip-name) {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+.timsort-bars .tb-chip .tb-chip-name {
+  fill: var(--text-2);
+  font-size: 11px;
+  font-weight: 400;
+}
+.timsort-bars .tb-chip .tb-chip-name.is-letter {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.timsort-bars .tb-gallop rect {
+  fill: var(--role);
+}
+.timsort-bars .tb-gallop text {
+  fill: var(--viz-ink-on-fill);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ---------- bars (the ArrayBars look) ---------- */
+
+.timsort-bars .tb-baseline {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+.timsort-bars .tb-bar {
+  transition: transform 0.35s ease;
+}
+.timsort-bars .tb-bar path {
+  fill: var(--role);
+  transition: fill 0.2s ease;
+}
+/* A value that sits in the temporary copy during a merge. */
+.timsort-bars .tb-bar.in-tmp path {
+  stroke: var(--text);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.timsort-bars .tb-value {
+  fill: var(--text-2);
+  font-size: 12px;
+}
+.timsort-bars .tb-bar.role-compare .tb-value,
+.timsort-bars .tb-bar.role-active .tb-value {
+  fill: var(--text);
+  font-weight: 700;
+}
+
+/* ---------- index row, pointers, run brackets ---------- */
+
+.timsort-bars .tb-index {
+  fill: var(--text-3);
+  font-size: 10px;
+}
+.timsort-bars .tb-pointer {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+.timsort-bars .tb-mark path {
+  fill: none;
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.timsort-bars .tb-mark text {
+  fill: var(--text-2);
+  font-size: 12px;
+}
+.timsort-bars .tb-mark.is-new path,
+.timsort-bars .tb-mark.is-tmp path {
+  stroke-dasharray: 4 3;
+}
+.timsort-bars .tb-mark.is-merge path {
+  stroke: var(--text);
+  stroke-width: 2.5;
+}
+.timsort-bars .tb-mark.is-merge text,
+.timsort-bars .tb-mark.is-new text {
+  fill: var(--text);
+  font-weight: 700;
+}

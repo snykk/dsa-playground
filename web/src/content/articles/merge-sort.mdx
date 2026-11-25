@@ -29,6 +29,7 @@ related:
   - Algorithms/Sorting/Heap_Sort
   - Algorithms/Sorting/Insertion_Sort
   - Algorithms/Sorting/Counting_Sort
+  - Algorithms/Sorting/Timsort
 ---
 
 ## How Merge Sort works
@@ -153,8 +154,8 @@ Merging in place is possible but complicated and slower. The versions here are t
     ['Top-down (all languages)', 'split recursively, merge on the way back', 'depth log2(n); the textbook version'],
     ['Bottom-up (`merge_sort_iterative`, Python only)', 'merge runs of size 1, 2, 4, ... in passes', 'no recursion; same O(n log n)'],
     ['Linked-list Merge Sort', 'split with slow/fast pointers, merge by relinking nodes', 'O(1) extra space for the merge; not implemented here'],
-    ['Natural Merge Sort', 'start from the existing sorted runs', 'adaptive: O(n) on sorted input; not implemented here'],
-    ['Hybrid with Insertion Sort', 'sort small ranges directly', 'fewer calls; not implemented here'],
+    ['Natural Merge Sort', 'start from the existing sorted runs', 'adaptive: O(n) on sorted input; the Timsort topic'],
+    ['Hybrid with Insertion Sort', 'sort small ranges directly', 'fewer calls; Timsort extends short runs by binary insertion'],
   ]}
 />
 
