@@ -67,7 +67,7 @@ Each line is pushed once and popped at most once, so n operations on the deque c
 ## When to Use
 
 - A DP whose transition is `min` or `max` of terms linear in an index-dependent value, such as setup costs or squared distances expanded as `(x_i - x_j)^2`.
-- Not when the cost is not linear in the query variable (try divide and conquer DP or Knuth's optimization), or when n is small enough for a plain scan.
+- Not when the cost is not linear in the query variable (try [Divide and Conquer Optimization](../Divide_and_Conquer_Optimization/) or [Knuth Optimization](../Knuth_Optimization/)), or when n is small enough for a plain scan.
 
 ## CHT vs. Alternatives
 

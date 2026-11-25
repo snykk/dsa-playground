@@ -145,6 +145,13 @@ export const entries: VizInfo[] = [
     blurb: 'One layer of a DP: the middle cell tries its range of j first, and each half then searches only on its side of that best j.',
     topics: ['Algorithms/Dynamic_Programming/DP_Optimizations/Divide_and_Conquer_Optimization'],
   },
+  {
+    id: 'knuth-optimization',
+    title: "Knuth's optimization: merging piles",
+    group: 'Dynamic Programming',
+    blurb: 'The interval DP of merging piles, each cell trying only the splits between the best splits of its two neighbours, with the splits counted against trying them all.',
+    topics: ['Algorithms/Dynamic_Programming/DP_Optimizations/Knuth_Optimization'],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -168,4 +175,5 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'digit-dp': () => import('../specs/advancedDp').then((m) => m.digitDpSpec),
   'convex-hull-trick': () => import('../specs/advancedDp').then((m) => m.convexHullTrickSpec),
   'dnc-optimization': () => import('../specs/dncOptimization').then((m) => m.dncOptimizationSpec),
+  'knuth-optimization': () => import('../specs/knuthOptimization').then((m) => m.knuthOptimizationSpec),
 };

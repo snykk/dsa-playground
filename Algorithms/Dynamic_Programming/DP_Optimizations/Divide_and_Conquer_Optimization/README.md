@@ -128,7 +128,7 @@ Do not use it when:
 | Plain DP | O(k n^2) | nothing |
 | Divide and Conquer Optimization | O(k n log n) | opt monotone in `i` (the quadrangle inequality on C) |
 | [Convex Hull Trick](../Convex_Hull_Trick/) | O(k n) with sorted slopes and queries | `C(j, i)` splits into lines: a slope from `j` times a value of `i`, plus terms of one index each |
-| Knuth's optimization | O(n^2) for an interval DP instead of O(n^3) | the quadrangle inequality, and C monotone on nested intervals |
+| [Knuth Optimization](../Knuth_Optimization/) | O(n^2) for an interval DP instead of O(n^3) | the quadrangle inequality, and C monotone on nested intervals |
 
 For this particular cost the Convex Hull Trick applies too: `(P[i] - P[j])^2 = P[i]^2 - 2 P[j] P[i] + P[j]^2`, a line in `P[i]` for each `j`. Divide and conquer needs only the monotone `opt`, so it also covers costs that are not lines in anything.
 

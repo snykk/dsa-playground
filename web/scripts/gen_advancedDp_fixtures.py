@@ -3,8 +3,9 @@
 The web visualizer re-implements six topics in TypeScript (web/src/viz/algorithms/):
 bitmaskDp.ts (traveling_salesman_dp), digitDp.ts (count_numbers_with_digit_sum), treeDp.ts
 (tree_dp_max_independent_set, tree_dp_max_path_sum), graphDp.ts (dag_longest_path),
-convexHullTrick.ts (MonotonicCHT) and intervalDp.ts (merge_piles_plan). These fixtures pin each port to the repository's Python
-code in Algorithms/Dynamic_Programming/Advanced_DP and DP_Optimizations/Convex_Hull_Trick.
+convexHullTrick.ts (MonotonicCHT), intervalDp.ts (merge_piles_plan) and knuthOptimization.ts (knuth_optimization.py's
+merge_piles_plan). These fixtures pin each port to the repository's Python code in
+Algorithms/Dynamic_Programming/Advanced_DP and DP_Optimizations/Convex_Hull_Trick and Knuth_Optimization.
 
 The functions keep their tables in local variables, so the generator watches them with
 sys.settrace instead of changing them:
@@ -20,6 +21,10 @@ sys.settrace instead of changing them:
 - intervalDp: every _try_split call of merge_piles_plan in order, as (i, k, j, dp[i][j] before,
   cost), by wrapping that module-level helper, then the final dp and split tables, the cost and
   the merges read back. This section has its own random generator, so the others keep their values.
+- knuth: the same row of piles through Knuth's optimization: every _window call as (i, j, lo, hi)
+  and every _try_split call as (i, k, j, dp[i][j] before, cost), by wrapping those module-level
+  helpers, then the final dp and split tables, the cost, the merges and the number of splits
+  tried. Its own random generator too.
 
 Run from anywhere:
 
@@ -43,6 +48,7 @@ for folder in (
     "Advanced_DP/DP_on_Graphs",
     "Advanced_DP/Interval_DP",
     "DP_Optimizations/Convex_Hull_Trick",
+    "DP_Optimizations/Knuth_Optimization",
 ):
     sys.path.insert(0, str(DP / folder / "Python"))
 
@@ -51,6 +57,7 @@ from cht import MonotonicCHT  # noqa: E402
 from digit_dp import count_numbers_with_digit_sum  # noqa: E402
 from graph_dp import dag_longest_path  # noqa: E402
 import interval_dp  # noqa: E402
+import knuth_optimization  # noqa: E402
 from tree_dp import TreeNode, tree_dp_max_independent_set, tree_dp_max_path_sum  # noqa: E402
 
 OUT = ROOT / "web" / "src" / "viz" / "algorithms" / "__fixtures__" / "advancedDp.json"
@@ -419,6 +426,50 @@ def interval_cases(count):
     return cases
 
 
+# ---------- Knuth's optimization (merging piles in O(n^2)) ----------
+
+KNUTH_FIXED = INTERVAL_FIXED + [
+    [99, 1, 1, 1, 1, 1, 1, 99],
+    [1, 1, 2, 1, 6],
+    [0, 5],
+]
+
+
+def knuth_case(piles):
+    windows, calls = [], []
+    real_window, real_try = knuth_optimization._window, knuth_optimization._try_split
+
+    def window(split, i, j):
+        lo, hi = real_window(split, i, j)
+        windows.append([i, j, lo, hi])
+        return lo, hi
+
+    def try_split(dp, split, join, i, k, j):
+        calls.append([i, k, j, num(dp[i][j]), dp[i][k] + dp[k + 1][j] + join])
+        real_try(dp, split, join, i, k, j)
+
+    knuth_optimization._window, knuth_optimization._try_split = window, try_split
+    try:
+        cost, merges = knuth_optimization.merge_piles_plan(piles)
+    finally:
+        knuth_optimization._window, knuth_optimization._try_split = real_window, real_try
+    dp, split = knuth_optimization._fill_merge(piles)
+    # The same answer, tables and merges as the plain interval DP.
+    assert (dp, split) == interval_dp._fill_merge(piles)[:2] and (cost, merges) == interval_dp.merge_piles_plan(piles)
+    return {"piles": piles, "windows": windows, "calls": calls, "dp": dp, "split": split, "cost": cost,
+            "merges": [list(m) for m in merges], "tries": len(calls)}
+
+
+def knuth_cases(count):
+    # Its own generator, so adding this section does not change the ones above. The rows stay
+    # inside the visualization's limits (1 to 8 piles of 0 to 99), with small sizes for ties.
+    rng = random.Random(20261125)
+    cases = [knuth_case(p) for p in KNUTH_FIXED]
+    while len(cases) < count:
+        cases.append(knuth_case([rng.randint(0, rng.choice([2, 9, 99])) for _ in range(rng.randint(1, 8))]))
+    return cases
+
+
 def main():
     rng = random.Random(20261115)
     sections = {
@@ -429,10 +480,11 @@ def main():
         "dag": dag_cases(rng, 60),
         "cht": cht_cases(rng, 60),
         "intervalDp": interval_cases(60),
+        "knuth": knuth_cases(60),
     }
     header = {
         "generator": "web/scripts/gen_advancedDp_fixtures.py",
-        "reference": "Algorithms/Dynamic_Programming/Advanced_DP (bitmask_dp.py, digit_dp.py, tree_dp.py, graph_dp.py, interval_dp.py); Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick (cht.py)",
+        "reference": "Algorithms/Dynamic_Programming/Advanced_DP (bitmask_dp.py, digit_dp.py, tree_dp.py, graph_dp.py, interval_dp.py); Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick (cht.py) and Knuth_Optimization (knuth_optimization.py)",
     }
     parts = []
     for key, cases in sections.items():

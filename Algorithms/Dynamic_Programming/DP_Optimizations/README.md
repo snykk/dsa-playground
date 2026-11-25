@@ -1,6 +1,6 @@
 # DP Optimizations
 
-A DP optimization keeps the recurrence and speeds up the transition by using structure in its cost. The Convex Hull Trick, with its Li Chao tree variant, answers a minimum over lines in amortized O(1) or in O(log V) per query. Divide and Conquer Optimization computes a layer of `dp[g][i] = min over j < i of dp[g-1][j] + C(j, i)` in O(n log n) when the best `j` never moves left as `i` grows.
+A DP optimization keeps the recurrence and speeds up the transition by using structure in its cost. The Convex Hull Trick, with its Li Chao tree variant, answers a minimum over lines in amortized O(1) or in O(log V) per query. Divide and Conquer Optimization computes a layer of `dp[g][i] = min over j < i of dp[g-1][j] + C(j, i)` in O(n log n) when the best `j` never moves left as `i` grows. Knuth's optimization fills an interval DP, `dp[i][j] = min over k of dp[i][k] + dp[k+1][j] + C(i, j)`, in O(n^2) instead of O(n^3) when the best split `k` never moves left as a range gains an item on the right or loses one on the left.
 
 ## Topics
 
@@ -10,8 +10,9 @@ Read them in this order.
 |---|-------|--------------|-------|
 | 1 | [Convex Hull Trick and Li Chao Tree](Convex_Hull_Trick/) | Turn `dp[i] = min over j of m_j*x_i + b_j` from O(n) per step into amortized O(1), or O(log V) in any order. | Advanced |
 | 2 | [Divide and Conquer Optimization](Divide_and_Conquer_Optimization/) | Solve the middle cell of a layer first, then each half only on its side of that cell's best `j`: O(n log n) per layer when the cost satisfies the quadrangle inequality. | Advanced |
+| 3 | [Knuth Optimization](Knuth_Optimization/) | Try only the splits between the best splits of two neighbouring cells: an interval DP in O(n^2) instead of O(n^3), shown on Interval DP's pile merging and the optimal binary search tree. | Advanced |
 
-Both topics speed up a minimum over earlier states `j`, and they use different structure. The Convex Hull Trick needs the cost to be a line: `dp[i] = min over j < i of (m_j * x_i + b_j)`, where each earlier state is a line `y = m*x + b` and only the lines on the lower envelope can win. Divide and Conquer Optimization needs no formula, only that the best `j` is monotone in `i`, which the quadrangle inequality `C(a, c) + C(b, d) <= C(a, d) + C(b, c)` guarantees. Knuth's optimization, for interval DPs, rests on the same inequality.
+The first two topics speed up a minimum over earlier states `j`, and they use different structure. The Convex Hull Trick needs the cost to be a line: `dp[i] = min over j < i of (m_j * x_i + b_j)`, where each earlier state is a line `y = m*x + b` and only the lines on the lower envelope can win. Divide and Conquer Optimization needs no formula, only that the best `j` is monotone in `i`, which the quadrangle inequality `C(a, c) + C(b, d) <= C(a, d) + C(b, c)` guarantees. [Knuth Optimization](Knuth_Optimization/), for interval DPs, rests on the same inequality, with a cost that is also monotone on intervals (`C(b, c) <= C(a, d)` when `b..c` lies inside `a..d`).
 
 ## How They Compare
 
@@ -27,6 +28,7 @@ Used in a DP, the monotonic version turns O(n^2) into O(n) when slopes and queri
 |-----------|----------|----------------------|-------|
 | Convex Hull Trick | the cost is a line in a value of `i` | O(n) sorted, O(n log V) with a Li Chao tree | a structure of lines, queried once per cell |
 | Divide and Conquer Optimization | the best `j` is monotone in `i` (the quadrangle inequality) | O(n log n) | no structure: the cost is evaluated directly, O(1) each |
+| Knuth Optimization | an interval DP whose cost satisfies the quadrangle inequality and is monotone on intervals | O(n) per diagonal of the interval table | O(n^2) for the whole table, where trying every split is O(n^3) |
 | Try every `j` | nothing | O(n^2) | the baseline that both replace |
 
 The two can meet: splitting an array into `k` groups with cost `(sum of the group)^2` expands into a line in the prefix sum, so both apply there. A cost that is not a line, such as the number of equal pairs in a group, leaves only divide and conquer.
@@ -40,7 +42,8 @@ The two can meet: splitting an array into `k` groups with cost `(sum of the grou
 | Few lines | a plain scan | the setup is not worth it |
 | The transition is not a minimum of lines, but the best `j` is monotone | Divide and Conquer Optimization | O(n log n) per layer from the order of the best `j` alone |
 | Split a sequence into exactly `k` groups | Divide and Conquer Optimization | one layer per group, O(k n log n) in all |
-| Neither structure holds | the plain DP | both techniques give wrong answers without their requirement |
+| An interval DP `dp[i][k] + dp[k+1][j] + C(i, j)` with a range sum as the cost (merging piles, an optimal binary search tree) | Knuth Optimization | O(n^2) instead of O(n^3) |
+| No structure holds | the plain DP | each technique gives wrong answers without its requirement |
 
 ## Common Pitfalls
 
@@ -50,6 +53,7 @@ The two can meet: splitting an array into `k` groups with cost `(sum of the grou
 - Querying an empty `MonotonicCHT`: Python raises `ValueError`, C++ has undefined behavior and Go panics.
 - Both structures answer minimum queries, not maximum.
 - Trusting divide and conquer without the quadrangle inequality: with a negative value, `(sum of the group)^2` breaks it, and the recursion returns 10 instead of 2 for `[1, 2, 4, -5]` in two groups, with no error. Compare with the plain DP on small inputs.
+- Trusting Knuth's window without the inequality: with a merge that costs the square root of its size, the narrowed DP returns 8 instead of 7 on the piles `1, 1, 2, 1, 6`, with no error.
 
 ## Related
 

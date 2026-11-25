@@ -108,7 +108,7 @@ Counted on the Python code (`_try_split` calls of `merge_piles`):
 
 Doubling `n` multiplies the work by about 8. In Python, 200 piles take about 0.4 s and 400 piles about 3 s; in C++ and Go, 1000 piles take under a second and 2000 piles several seconds.
 
-For pile merging the cubic loop is not the end. The best split of `i..j` lies between the best splits of `i..j-1` and `i+1..j` (with the smallest-`k` rule, `split[i][j-1] <= split[i][j] <= split[i+1][j]` held on 3000 random rows), so Knuth's optimization tries only the splits in that window and brings the time down to O(n^2).
+For pile merging the cubic loop is not the end. The best split of `i..j` lies between the best splits of `i..j-1` and `i+1..j` (with the smallest-`k` rule, `split[i][j-1] <= split[i][j] <= split[i+1][j]` held on 3000 random rows), so [Knuth Optimization](../../DP_Optimizations/Knuth_Optimization/) tries only the splits in that window and brings the time down to O(n^2).
 
 **Overflow.** Python's integers do not overflow. C++ and Go keep costs and coins in signed 64-bit integers and report a result above 2^63 - 1 instead of wrapping: `std::overflow_error` in C++, an error wrapping `ErrOverflow` in Go.
 
@@ -139,7 +139,7 @@ A range with only one or two choices, as in a game where each player takes from 
 | Every merge order or burst order | (n - 1)! merge orders, n! burst orders | exact, only for tiny inputs |
 | Greedy: merge the cheapest neighbouring pair | O(n^2) | not optimal: on 3, 2, 2, 3 it pays 21 against 20 |
 | Huffman coding (any two piles may merge) | O(n log n) | optimal, but for a different problem |
-| Knuth's optimization (pile merging) | O(n^2) | exact, for costs such as `sum(i..j)` |
+| [Knuth Optimization](../../DP_Optimizations/Knuth_Optimization/) (pile merging) | O(n^2) | exact, for costs such as `sum(i..j)` |
 | Palindrome cuts over prefixes | O(n^2) | exact: `best[e] = min over b with s[b..e-1] a palindrome of best[b] + 1` |
 
 The prefix form shows that palindrome cutting does not need the full interval DP: only the first piece's end matters, not both. The tests check that it agrees with `min_palindrome_cuts` and with brute force on 500 random strings.
@@ -177,4 +177,5 @@ All three fill the tables in the same order with the same tie rule and return th
 - [Longest Common Subsequence](../../2D_DP/Longest_Common_Subsequence/): a 2D table over two prefixes rather than one range
 - [Bitmask DP](../Bitmask_DP/): another state that is not a single index, a set instead of a range
 - [Huffman Coding](../../../Greedy/Huffman_Coding/): merging any two piles, not only neighbours, is greedy
+- [Knuth Optimization](../../DP_Optimizations/Knuth_Optimization/): the same pile merging in O(n^2), trying only the splits between the best splits of two neighbouring cells
 - [Advanced DP overview](../README.md)
