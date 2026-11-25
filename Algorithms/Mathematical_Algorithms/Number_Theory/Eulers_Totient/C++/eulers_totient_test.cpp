@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <initializer_list>
 #include <iostream>
 #include <numeric>
 #include <stdexcept>
@@ -183,7 +184,7 @@ void testDivisorSum() {
         assert(sum == n);
     }
     // At 64 bits the partial sums stay below n, so they cannot overflow.
-    for (uint64_t n : {9223372036854775808ULL, 1000000000000000000ULL, 9223372036854775807ULL, UINT64_MAX}) {
+    for (uint64_t n : std::initializer_list<uint64_t>{9223372036854775808ULL, 1000000000000000000ULL, 9223372036854775807ULL, UINT64_MAX}) {
         uint64_t sum = 0;
         for (uint64_t d : divisorsFromFactors(primeFactors(n))) sum += phi(d);
         assert(sum == n);
@@ -288,9 +289,9 @@ void testEulersTheorem() {
             }
         }
     }
-    for (uint64_t n : {UINT64_MAX, 9223372036854775808ULL, 1000000000000000000ULL, 4294967291ULL}) {
+    for (uint64_t n : std::initializer_list<uint64_t>{UINT64_MAX, 9223372036854775808ULL, 1000000000000000000ULL, 4294967291ULL}) {
         uint64_t f = phi(n);
-        for (uint64_t a : {2ULL, 3ULL, 7ULL, 1000000007ULL, UINT64_MAX - 2}) {
+        for (uint64_t a : std::initializer_list<uint64_t>{2ULL, 3ULL, 7ULL, 1000000007ULL, UINT64_MAX - 2}) {
             if (std::gcd(a, n) == 1) assert(powMod(a, f, n) == 1);
         }
     }
@@ -314,7 +315,7 @@ void testInverseAgainstExtendedEuclid() {
         assert(inverseByExtendedGcd(row[0], row[1], want) && want == row[2]);
     }
     const uint64_t p = 4294967291ULL;
-    for (uint64_t a : {2ULL, 3ULL, 12345ULL, p - 1}) assert(modInverseEuler(a, p) == powMod(a, p - 2, p));
+    for (uint64_t a : std::initializer_list<uint64_t>{2ULL, 3ULL, 12345ULL, p - 1}) assert(modInverseEuler(a, p) == powMod(a, p - 2, p));
 }
 
 void testInverseErrors() {
