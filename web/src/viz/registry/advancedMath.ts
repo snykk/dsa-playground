@@ -1,4 +1,4 @@
-/** Visualization registry: Advanced math (matrix exponentiation, the fast Fourier transform, the number theoretic transform, combinatorics). */
+/** Visualization registry: Advanced math (matrix exponentiation, Gaussian elimination, the fast Fourier transform, the number theoretic transform, combinatorics). */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
@@ -18,6 +18,20 @@ export const entries: VizInfo[] = [
     group: 'Math',
     blurb: 'A^k = (A^(k/2))^2 for even k and A x A^(k-1) for odd k: calls halve k on the way down, products come back up. Fibonacci too.',
     topics: [`${M}/Matrix_Exponentiation`, M],
+  },
+  {
+    id: 'gaussian-elimination',
+    title: 'Gaussian elimination',
+    group: 'Math',
+    blurb: 'Reduce [A | b] to row echelon form with partial pivoting, then substitute back: no solution, one, or infinitely many, with the rank and the determinant.',
+    topics: [`${M}/Gaussian_Elimination`, M],
+  },
+  {
+    id: 'gaussian-elimination-mod',
+    title: 'Gaussian elimination modulo a prime',
+    group: 'Math',
+    blurb: 'The same elimination with exact arithmetic modulo p: the first nonzero entry is the pivot, and dividing multiplies by its inverse a^(p - 2).',
+    topics: [`${M}/Gaussian_Elimination`],
   },
   {
     id: 'fft',
@@ -59,6 +73,8 @@ export const entries: VizInfo[] = [
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'matrix-power': () => import('../specs/advancedMath').then((m) => m.matrixPowerSpec),
   'matrix-power-recursive': () => import('../specs/advancedMath').then((m) => m.matrixPowerRecursiveSpec),
+  'gaussian-elimination': () => import('../specs/advancedMath').then((m) => m.gaussSpec),
+  'gaussian-elimination-mod': () => import('../specs/advancedMath').then((m) => m.gaussModSpec),
   fft: () => import('../specs/advancedMath').then((m) => m.fftSpec),
   'fft-polynomial-multiplication': () => import('../specs/advancedMath').then((m) => m.fftMultiplySpec),
   ntt: () => import('../specs/advancedMath').then((m) => m.nttSpec),

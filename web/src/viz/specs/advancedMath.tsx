@@ -1,10 +1,12 @@
 import { BINOMIAL_CODE, binomialTrace, parseBinomial, type BinomialInput, type CombinatoricsState } from '../algorithms/combinatorics';
 import { FFT_CODE, fftTrace, parseFftMultiply, parseFftSignal, stabilizeFft, type FftInput } from '../algorithms/fft';
+import { GAUSS_CODE, gaussTrace, parseGaussFloat, parseGaussMod, type GaussFloatInput, type GaussModInput } from '../algorithms/gaussianElimination';
 import { MATPOW_CODE, matPowTrace, parseMatPow, stabilizeMatPow, type MatPowInput, type MatPowMode } from '../algorithms/matrixPower';
 import { NTT_CODE, nttTrace, parseNttMultiply, parseNttSequence, stabilizeNtt, type NttInput } from '../algorithms/ntt';
 import type { Example, VizSpec } from '../core/types';
 import { CombinatoricsView } from '../renderers/CombinatoricsView';
 import { FftView, type FftState } from '../renderers/FftView';
+import { GaussView, type GaussState } from '../renderers/GaussView';
 import { MatrixPowerView, type MatPowState } from '../renderers/MatrixPowerView';
 import { NttView } from '../renderers/NttView';
 import { withStripGhosts } from '../renderers/StableStrips';
@@ -98,6 +100,85 @@ function matPowSpec(mode: MatPowMode): VizSpec<MatPowInput, MatPowState> {
 
 export const matrixPowerSpec = matPowSpec('iterative');
 export const matrixPowerRecursiveSpec = matPowSpec('recursive');
+
+/* ---------- Gaussian elimination ---------- */
+
+function randomSystem(mode: 'float' | 'mod'): string {
+  const n = rint(1, 4);
+  const m = Math.random() < 0.6 ? n : rint(1, 4);
+  const entry = () => (mode === 'float' && Math.random() < 0.15 ? String(rint(-9, 9) / 2) : String(rint(-5, 9)));
+  const A = Array.from({ length: n }, () => Array.from({ length: m }, entry));
+  if (n > 1 && Math.random() < 0.3) A[n - 1] = A[0].map((v) => String(Number(v) * 2));
+  const b = Array.from({ length: n }, () => String(rint(-9, 9)));
+  const tail = mode === 'mod' ? `; p = ${pick([2, 3, 5, 7, 11, 13, 97, 1000000007])}` : Math.random() < 0.15 ? '; no pivoting' : '';
+  return `A = [${A.map((r) => `[${r.join(', ')}]`).join(', ')}]; b = [${b.join(', ')}]${tail}`;
+}
+
+const GAUSS_SHAPE =
+  'Up to 5 equations in up to 5 unknowns: "A = [[2, 1], [1, 3]]; b = [3, 5]", or augmented rows "2 1 | 3 / 1 3 | 5". Rows are labelled E0, E1, ... by the equation they started as, so a swap shows. ';
+
+export const gaussSpec: VizSpec<GaussFloatInput, GaussState> = {
+  id: 'gaussian-elimination',
+  title: 'Gaussian elimination',
+  inputKind: 'linear-system-float',
+  inputLabel: 'System A x = b',
+  inputHelp:
+    GAUSS_SHAPE +
+    'Entries are numbers from -10^6 to 10^6 (2, -0.5, 1e-8). Add "; no pivoting" to run solve_without_pivoting, or "; eps 1e-12" for another tolerance. ' +
+    'Cells show 4 significant digits; the strips and the variables give the full values.',
+  examples: [
+    { label: 'The README system, 3 x 3', value: 'A = [[2, 1, -1], [-3, -1, 2], [-2, 1, 2]]; b = [8, -11, -3]' },
+    { label: 'Small pivots, no pivoting: x1 = 4.47', value: 'A = [[1e-8, 0, 1], [1, 1e-8, 0], [0, 1, 0]]; b = [1, 2, 3]; no pivoting' },
+    { label: 'The same with partial pivoting: x1 = 3', value: 'A = [[1e-8, 0, 1], [1, 1e-8, 0], [0, 1, 0]]; b = [1, 2, 3]' },
+    { label: '2 equations, 4 unknowns: infinitely many', value: 'A = [[1, 2, 3, 4], [2, 4, 7, 9]]; b = [5, 11]' },
+    { label: '3 equations, 2 unknowns: no solution', value: 'A = [[1, 1], [1, 2], [2, 3]]; b = [3, 5, 9]' },
+    { label: '1e-10 counts as zero', value: 'A = [[1e-10]]; b = [1]' },
+  ],
+  randomInput: () => randomSystem('float'),
+  parse: parseGaussFloat,
+  trace: (input) => gaussTrace(input).frames,
+  render: (state) => <GaussView state={state} />,
+  pseudocode: GAUSS_CODE.float,
+  legend: [
+    { role: 'compare', label: 'the column searched for a pivot, the pivot row being subtracted, the row being solved' },
+    { role: 'active', label: 'the pivot just chosen, the entries a row operation changed, the unknown just found' },
+    { role: 'done', label: 'pivots already placed' },
+    { role: 'good', label: `a solution (${SYM.check})` },
+    { role: 'bad', label: `a row that reads 0 = c: no solution (${SYM.cross})` },
+  ],
+  complexity: { time: 'O(min(n, m) * n * m): a pivot per column, the rows below it, the entries to its right; O(n^3) for a square system', space: 'O(n * m): a copy of [A | b]' },
+};
+
+export const gaussModSpec: VizSpec<GaussModInput, GaussState> = {
+  id: 'gaussian-elimination-mod',
+  title: 'Gaussian elimination modulo a prime',
+  inputKind: 'linear-system-mod',
+  inputLabel: 'System A x = b and the prime p',
+  inputHelp:
+    GAUSS_SHAPE +
+    'Entries are whole numbers from -10^12 to 10^12, reduced modulo p first; then "; p = 7", up to 2147483647. ' +
+    'p is not tested for primality, as in the code: a composite p raises ValueError when a pivot has no inverse.',
+  examples: [
+    { label: 'The README system modulo 7', value: 'A = [[2, 1, -1], [-3, -1, 2], [-2, 1, 2]]; b = [8, -11, -3]; p = 7' },
+    { label: 'The same modulo 10^9 + 7', value: 'A = [[2, 1, -1], [-3, -1, 2], [-2, 1, 2]]; b = [8, -11, -3]; p = 1000000007' },
+    { label: 'Column x0 has no pivot', value: 'A = [[0, 1, 2], [0, 2, 5], [0, 3, 7]]; b = [1, 2, 3]; p = 13' },
+    { label: 'No solution modulo 7', value: 'A = [[2, 4, 6], [1, 2, 3], [3, 6, 9]]; b = [2, 1, 4]; p = 7' },
+    { label: 'p = 4 is not prime: ValueError', value: 'A = [[2, 1], [1, 1]]; b = [1, 1]; p = 4' },
+  ],
+  randomInput: () => randomSystem('mod'),
+  parse: parseGaussMod,
+  trace: (input) => gaussTrace(input).frames,
+  render: (state) => <GaussView state={state} />,
+  pseudocode: GAUSS_CODE.mod,
+  legend: [
+    { role: 'compare', label: 'the column searched for a pivot, the pivot row being subtracted, the row being solved' },
+    { role: 'active', label: 'the pivot just chosen, the entries a row operation changed, the unknown just found' },
+    { role: 'done', label: 'pivots already placed' },
+    { role: 'good', label: `a solution (${SYM.check})` },
+    { role: 'bad', label: `a row that reads 0 = c, or a pivot without an inverse (${SYM.cross})` },
+  ],
+  complexity: { time: 'O(min(n, m) * n * m) operations modulo p, plus O(log p) per pivot for its inverse', space: 'O(n * m)' },
+};
 
 /* ---------- Fast Fourier Transform ---------- */
 

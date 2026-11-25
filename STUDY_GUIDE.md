@@ -285,7 +285,7 @@ Array side first (square root, Mo), then the tree side (lowest common ancestor, 
 
 ### Number theory and matrices
 
-CRT builds on extended Euclid, Euler's totient on the sieve, Miller-Rabin on modular exponentiation, combinatorics takes its one modular inverse from Euler's theorem, and matrix exponentiation reuses square and multiply.
+CRT builds on extended Euclid, Euler's totient on the sieve, Miller-Rabin on modular exponentiation, combinatorics takes its one modular inverse from Euler's theorem, matrix exponentiation reuses square and multiply, and Gaussian elimination divides modulo a prime with the same inverse.
 
 - [Euclidean Algorithm](Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm/) (Beginner)
 - [Modular Arithmetic](Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic/) (Beginner)
@@ -296,6 +296,7 @@ CRT builds on extended Euclid, Euler's totient on the sieve, Miller-Rabin on mod
 - [Miller-Rabin Primality Test](Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test/) (Advanced)
 - [Combinatorics](Algorithms/Mathematical_Algorithms/Advanced_Math/Combinatorics/) (Intermediate)
 - [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation/) (Intermediate)
+- [Gaussian Elimination](Algorithms/Mathematical_Algorithms/Advanced_Math/Gaussian_Elimination/) (Intermediate)
 - [Fast Fourier Transform](Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/) (Advanced)
 - [Number Theoretic Transform](Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Transform/) (Advanced)
 - [Strassen's Matrix Multiplication](Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication/) (Advanced)

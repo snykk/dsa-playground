@@ -1,6 +1,6 @@
 """Generate golden fixtures for the advanced math and problem type visualizations.
 
-The web visualizer re-implements seven topics in TypeScript. These fixtures pin each port to the
+The web visualizer re-implements eight topics in TypeScript. These fixtures pin each port to the
 repository's Python code, which this script imports by path and runs on fixed inputs:
 
 - matrixPower (web/src/viz/algorithms/matrixPower.ts), from
@@ -20,6 +20,14 @@ repository's Python code, which this script imports by path and runs on fixed in
   the butterfly count it returns), and the result of ntt / intt and multiply_polynomials. All are
   integers modulo 998244353, pinned exactly. The two sections draw their inputs from their own
   random generator, so adding them changed no other section.
+- gaussian and gaussianMod (gaussianElimination.ts), from .../Gaussian_Elimination/Python: for
+  solve and solve_without_pivoting every _choose_pivot call (row, col, the row it chose), every
+  _subtract_row call (target, source, col, factor and the target row after it), the Solution
+  and, after solve, determinant(A) for a square A; for solve_mod every _inverse call and every
+  _subtract_row_mod call, the Solution or "ValueError", and determinant_mod(A, p). Floats are
+  written as Python's repr, which JSON.parse reads back to the same double, so they are pinned
+  exactly. The two sections draw their inputs from their own random generator, so the other
+  sections stay as they were.
 
 - permutation, havelHakimi and northwestCorner (constructive.ts), from
   Utilities/Problem_Types/Constructive_Algorithms/Python: the result of construct_permutation for
@@ -46,8 +54,8 @@ repository's Python code, which this script imports by path and runs on fixed in
   stream past it, and raises EOFError on a read after that. Every line of every transcript, the
   return value and the error are pinned.
 
-The functions are observed, never edited: matrix_multiply, matrix_power, _fft_recursive and fft
-are replaced in their module's namespace by wrappers that record each call and then run the
+The functions are observed, never edited: matrix_multiply, matrix_power, _fft_recursive, fft and
+the Gaussian elimination helpers above are replaced in their module's namespace by wrappers that record each call and then run the
 original, so the code's own recursion goes through them, and the FFT module's cmath is replaced by
 a namespace whose exp records each root and returns cmath.exp's own value.
 
@@ -84,6 +92,7 @@ def load(rel, name):
 MP = load("Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation/Python/matrix_exponentiation.py", "matrix_exponentiation")
 FT = load("Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/Python/fast_fourier_transform.py", "fast_fourier_transform")
 NT = load("Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Transform/Python/number_theoretic_transform.py", "number_theoretic_transform")
+GE = load("Algorithms/Mathematical_Algorithms/Advanced_Math/Gaussian_Elimination/Python/gaussian_elimination.py", "gaussian_elimination")
 CA = load("Utilities/Problem_Types/Constructive_Algorithms/Python/constructive.py", "constructive")
 GT = load("Utilities/Problem_Types/Game_Theory/Python/game_theory.py", "game_theory")
 IP = load("Utilities/Problem_Types/Interactive_Problems/Python/interactive.py", "interactive")
@@ -489,6 +498,137 @@ def combinatorics_cases(count):
     return cases
 
 
+# ---------- Gaussian elimination ----------
+
+GAUSS_RNG = random.Random(20261125)
+
+
+def solution(s):
+    return {"kind": s.kind.value, "x": s.x, "rank": s.rank, "pivotCols": s.pivot_cols, "swaps": s.swaps, "updates": s.updates}
+
+
+def gauss_case(A, b, eps=GE.EPS, pivoting=True):
+    log = {"choices": [], "ops": []}
+    real_choose, real_sub = GE._choose_pivot, GE._subtract_row
+
+    def choose(M, row, col, e, partial):
+        r = real_choose(M, row, col, e, partial)
+        log["choices"].append([row, col, r])
+        return r
+
+    def sub(M, target, source, col, factor):
+        done = real_sub(M, target, source, col, factor)
+        log["ops"].append([target, source, col, factor, list(M[target])])
+        return done
+
+    GE._choose_pivot, GE._subtract_row = choose, sub
+    try:
+        s = (GE.solve if pivoting else GE.solve_without_pivoting)(A, b, eps)
+    finally:
+        GE._choose_pivot, GE._subtract_row = real_choose, real_sub
+    det = GE.determinant(A, eps) if pivoting and len(A) == len(A[0]) else None  # determinant always pivots
+    return {"A": A, "b": b, "eps": eps, "pivoting": pivoting, **log, "result": solution(s), "det": det}
+
+
+def gauss_mod_case(A, b, p):
+    log = {"inverses": [], "ops": []}
+    real_inv, real_sub = GE._inverse, GE._subtract_row_mod
+
+    def inverse(a, q):
+        inv = pow(a, q - 2, q)  # what _inverse computes before its check
+        log["inverses"].append([str(a), str(inv)])
+        return real_inv(a, q)
+
+    def sub(M, target, source, col, factor, q):
+        done = real_sub(M, target, source, col, factor, q)
+        log["ops"].append([target, source, col, str(factor), [str(v) for v in M[target]]])
+        return done
+
+    GE._inverse, GE._subtract_row_mod = inverse, sub
+    try:
+        s = GE.solve_mod(A, b, p)
+        result, error = solution(s), None
+        result["x"] = None if s.x is None else [str(v) for v in s.x]
+    except ValueError as e:
+        result, error = None, "ValueError: " + str(e)
+    finally:
+        GE._inverse, GE._subtract_row_mod = real_inv, real_sub
+    det = None
+    if len(A) == len(A[0]):
+        try:
+            det = str(GE.determinant_mod(A, p))
+        except ValueError:
+            det = "ValueError"
+    return {"A": [[str(v) for v in row] for row in A], "b": [str(v) for v in b], "p": str(p), **log, "result": result, "error": error, "det": det}
+
+
+WORKED_A = [[2, 1, -1], [-3, -1, 2], [-2, 1, 2]]
+WORKED_B = [8, -11, -3]
+PIVOT_A = [[1e-08, 0, 1], [1, 1e-08, 0], [0, 1, 0]]
+
+
+def gauss_cases(count):
+    cases = [
+        gauss_case(WORKED_A, WORKED_B),
+        gauss_case(PIVOT_A, [1, 2, 3]),
+        gauss_case(PIVOT_A, [1, 2, 3], pivoting=False),
+        gauss_case([[1, 2, 3, 4], [2, 4, 7, 9]], [5, 11]),
+        gauss_case([[1, 1], [1, 2], [2, 3]], [3, 5, 9]),
+        gauss_case([[1, 1], [1, 2], [2, 3], [3, 5]], [3, 5, 8, 13]),
+        gauss_case([[1e-10]], [1]),
+        gauss_case([[1e-10]], [1], eps=1e-12),
+        gauss_case([[1e-10]], [1e-10]),
+        gauss_case([[1, 2], [2, 4]], [3, 6]),
+        gauss_case([[1, 1], [-1, 1]], [2, 0]),
+        gauss_case([[0, 1], [1, 0]], [2, 3], pivoting=False),
+        gauss_case([[0, 0, 0], [0, 0, 0]], [0, 0]),
+        gauss_case([[0, 0], [0, 0]], [0, 1]),
+        gauss_case([[4]], [2]),
+        gauss_case([[0.5, -1.25, 2], [3, 0.75, -1], [-2, 4, 0.125]], [1, -2, 3]),
+        gauss_case([[0, 1, 2], [0, 2, 5], [0, 3, 7]], [1, 2, 3]),
+        gauss_case([[1, 2, 3], [2, 4, 6], [1, 0, 1]], [0, 0, 0]),
+        gauss_case([[1e-20, 1], [1, 1]], [1, 2], pivoting=False),
+        gauss_case([[2, -1, 0, 3, 1], [1, 4, -2, 0, 2], [0, 5, 1, -1, 3], [3, 0, 2, 2, -1], [1, 1, 1, 1, 1]], [1, 2, 3, 4, 5]),
+    ]
+    while len(cases) < count:
+        n, m = GAUSS_RNG.randint(1, 5), GAUSS_RNG.randint(1, 5)
+        A = [[GAUSS_RNG.choice([GAUSS_RNG.randint(-9, 9), GAUSS_RNG.randint(-9, 9) / 4, 0]) for _ in range(m)] for _ in range(n)]
+        if n > 1 and GAUSS_RNG.random() < 0.3:
+            A[-1] = [2 * v for v in A[0]]
+        b = [GAUSS_RNG.randint(-9, 9) for _ in range(n)]
+        cases.append(gauss_case(A, b, GAUSS_RNG.choice([GE.EPS, GE.EPS, 1e-12, 0.5]), GAUSS_RNG.random() < 0.8))
+    return cases
+
+
+def gauss_mod_cases(count):
+    cases = [
+        gauss_mod_case(WORKED_A, WORKED_B, 7),
+        gauss_mod_case(WORKED_A, WORKED_B, 10**9 + 7),
+        gauss_mod_case([[0, 1, 2], [0, 2, 5], [0, 3, 7]], [1, 2, 3], 13),
+        gauss_mod_case([[2, 4, 6], [1, 2, 3], [3, 6, 9]], [2, 1, 4], 7),
+        gauss_mod_case([[2, 4, 6], [1, 2, 3], [3, 6, 9]], [2, 1, 3], 7),
+        gauss_mod_case([[2, 1], [1, 1]], [1, 1], 4),
+        gauss_mod_case([[1]], [1], 1),
+        gauss_mod_case([[1]], [1], -3),
+        gauss_mod_case([[7]], [3], 7),
+        gauss_mod_case([[0, 1], [1, 0]], [2, 3], 5),
+        gauss_mod_case([[3, 1], [6, 2]], [1, 2], 3),
+        gauss_mod_case([[1, 2, 3, 4], [5, 6, 7, 8]], [1, 2], 1009),
+        gauss_mod_case([[-1, -2], [-3, -4]], [-5, -6], 2147483647),
+        gauss_mod_case([[10**12, -(10**12)], [3, 5]], [10**12, 1], 1000000007),
+        gauss_mod_case([[1, 1, 0], [0, 1, 1], [1, 0, 1]], [1, 0, 1], 2),
+    ]
+    while len(cases) < count:
+        n, m = GAUSS_RNG.randint(1, 5), GAUSS_RNG.randint(1, 5)
+        p = GAUSS_RNG.choice([2, 3, 5, 7, 11, 13, 97, 1009, 10**9 + 7, 2147483647, 4, 9, 15])
+        A = [[GAUSS_RNG.randint(-20, 20) if GAUSS_RNG.random() < 0.8 else 0 for _ in range(m)] for _ in range(n)]
+        if n > 1 and GAUSS_RNG.random() < 0.3:
+            A[-1] = [3 * v for v in A[0]]
+        b = [GAUSS_RNG.randint(-20, 20) for _ in range(n)]
+        cases.append(gauss_mod_case(A, b, p))
+    return cases
+
+
 # ---------- constructive algorithms ----------
 
 
@@ -735,6 +875,8 @@ def main():
         "ntt": ntt_cases(30),
         "nttMultiply": ntt_multiply_cases(30),
         "combinatorics": combinatorics_cases(60),
+        "gaussian": gauss_cases(50),
+        "gaussianMod": gauss_mod_cases(50),
         "permutation": permutation_cases(),
         "havelHakimi": graph_cases(60),
         "northwestCorner": matrix_sum_cases(40),
@@ -745,7 +887,7 @@ def main():
     }
     header = {
         "generator": "web/scripts/gen_mathAndProblemTypes_fixtures.py",
-        "reference": "Algorithms/Mathematical_Algorithms/Advanced_Math (matrix_exponentiation.py, fast_fourier_transform.py, number_theoretic_transform.py, combinatorics.py); Utilities/Problem_Types (constructive.py, game_theory.py, interactive.py)",
+        "reference": "Algorithms/Mathematical_Algorithms/Advanced_Math (matrix_exponentiation.py, fast_fourier_transform.py, number_theoretic_transform.py, combinatorics.py, gaussian_elimination.py); Utilities/Problem_Types (constructive.py, game_theory.py, interactive.py)",
     }
     parts = []
     for key, cases in sections.items():

@@ -1,0 +1,50 @@
+/* GaussView: a Grid of [A | b] in a sideways scroller, with a bar before the b column. */
+.gauss-view {
+  min-width: 0;
+}
+.gauss-scroll {
+  overflow-x: auto;
+}
+/* The scroller takes over from Grid's own box, so a wide matrix gets one tab stop. Grid's root
+ * grows with its table, so the scroller's ResizeObserver (useScrollStop) sees every change. */
+.gauss-scroll > div {
+  width: max-content;
+  min-width: 100%;
+}
+.gauss-view .dp-wrap {
+  overflow-x: visible;
+}
+.gauss-view .dp-table {
+  margin: 0 auto;
+}
+/* The augmented bar: the last column is b. */
+.gauss-view .dp-table td:last-child,
+.gauss-view .dp-table thead th:last-child {
+  position: relative;
+}
+.gauss-view .dp-table td:last-child::before,
+.gauss-view .dp-table thead th:last-child::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--text-2);
+}
+/* Grid fills active and done; here good and bad fill too (the inconsistent row, the answer). */
+.gauss-view .dp-table td.role-good,
+.gauss-view .dp-table td.role-bad {
+  background: var(--role);
+  border-color: var(--role);
+  color: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
+/* The result token: green with a check for a solution, red with a cross for none, as in the legend. */
+.gauss-view .viz-token.role-good,
+.gauss-view .viz-token.role-bad {
+  background: var(--role);
+  border-color: var(--role);
+  color: var(--viz-ink-on-fill);
+  font-weight: 700;
+}
