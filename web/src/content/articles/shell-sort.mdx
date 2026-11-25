@@ -1,0 +1,296 @@
+---
+topic: Algorithms/Sorting/Shell_Sort
+title: Shell Sort
+lead: Shell Sort runs Insertion Sort over shrinking gaps. Each pass sorts the interleaved groups of every gap-th element, so far-apart values move in long jumps, and the last pass, with gap 1, finishes a nearly sorted array. It sorts in place, and its speed depends on the gap sequence.
+level: Intermediate
+updated: 2026-11-24
+facts:
+  - label: Best time
+    value: O(n log n)
+    hint: sorted input, one comparison per element per pass
+  - label: Worst, Shell's gaps
+    value: Theta(n^2)
+    hint: n/2, n/4, ..., 1 on n a power of 2
+    tone: warn
+  - label: Worst, Knuth's gaps
+    value: O(n^(3/2))
+    hint: 1, 4, 13, 40, ...
+  - label: Ciura's gaps (default)
+    value: no proven bound
+    hint: the fewest comparisons in practice
+  - label: Extra space
+    value: O(1)
+    hint: plus the list of O(log n) gaps
+properties:
+  - { label: In-place, value: true }
+  - { label: Stable, value: false }
+  - { label: Recursive, value: false }
+  - { label: Comparison sort, value: true }
+prerequisites:
+  - Algorithms/Sorting/Insertion_Sort
+  - Complexity_Analysis/Time_Complexity/Big_O_Notation
+related:
+  - Algorithms/Sorting/Heap_Sort
+  - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Selection_Sort
+---
+
+## How Shell Sort works
+
+Insertion Sort is slow on random input because every shift moves an element one place: a small value near the end needs about `n` shifts to reach the front. Shell Sort first compares elements that are far apart. With a gap of `h`, one shift moves an element `h` places, so a few long jumps bring it close to where it belongs, and the later passes with smaller gaps only fix short distances.
+
+<Steps>
+  <Step title="Choose the gaps">
+    Take the terms of a gap sequence that are below `n`, largest first. The default here is Ciura's: for 12 values, the gaps 10, 4 and 1.
+  </Step>
+  <Step title="Insertion-sort with a stride">
+    For a gap `h`, the indices with the same remainder modulo `h` form a group: `arr[r], arr[r + h], arr[r + 2h], ...`. One pass inserts every element among the earlier members of its own group, exactly as Insertion Sort does, but stepping `h` places at a time.
+  </Step>
+  <Step title="Shrink the gap">
+    After the pass the array is **h-sorted**: `arr[i] <= arr[i + h]` for every `i`. Move on to the next, smaller gap.
+  </Step>
+  <Step title="Finish with gap 1">
+    The last gap is always 1. That pass is plain Insertion Sort, and it leaves the array sorted, however the earlier passes went.
+  </Step>
+</Steps>
+
+<Callout title="Why the passes add up">
+Any sequence that ends with 1 sorts correctly, because the last pass is Insertion Sort. The earlier passes are there for speed, and they help because a later pass never undoes an earlier one: an h-sorted array stays h-sorted after a pass with a smaller gap. The tests in all three languages check that after every pass, for every earlier gap.
+</Callout>
+
+## See it in action
+
+Press play, or step through one comparison at a time. The chips at the top show the gaps; the current one is filled and finished ones carry a tick. The letter under each bar names its group (its index modulo the gap), and while an element is being inserted, a comb under the letters joins the members of its group and the other bars fade. The orange bar is the key, the blue bar is the element it is compared with, and every bar turns aqua when the gap-1 pass ends.
+
+Pick an example to change the gaps: start the input with `knuth:` or `shell:`, or leave it plain for Ciura's gaps. **Bad case for Shell's gaps** shows the passes with even gaps doing nothing useful.
+
+<ArticleViz ids={['shell-sort']} />
+
+## Worked example
+
+Sorting `[98, 69, 74, 79, 60, 91, 41, 99, 18, 63, 93, 38]` with Ciura's gaps 10, 4 and 1. The letters under the cells are the groups of the pass.
+
+<ArrayDiagram
+  legend={{ p: 'moved in this pass', l: 'group A of gap 4', f: 'sorted' }}
+  rows={[
+    { label: 'input', values: [98, 69, 74, 79, 60, 91, 41, 99, 18, 63, 93, 38], note: "12 values. Ciura's gaps below 12 are 10, 4 and 1." },
+    { label: 'gap 10', values: [93, 38, 74, 79, 60, 91, 41, 99, 18, 63, 98, 69], tones: 'pp........pp', marks: { 0: 'A', 1: 'B', 10: 'A', 11: 'B' }, note: 'Only two of the ten groups have two members: 98 and 93 swap, then 69 and 38. 2 comparisons, 2 shifts.' },
+    { label: 'gap 4: the groups', values: [93, 38, 74, 79, 60, 91, 41, 99, 18, 63, 98, 69], tones: 'l...l...l...', marks: { 0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'A', 5: 'B', 6: 'C', 7: 'D', 8: 'A', 9: 'B', 10: 'C', 11: 'D' }, note: 'Every 4th element forms a group: A is 93, 60, 18; B is 38, 91, 63; C is 74, 41, 98; D is 79, 99, 69.' },
+    { label: 'gap 4', values: [18, 38, 41, 69, 60, 63, 74, 79, 93, 91, 98, 99], tones: 'p.pp.ppppp.p', marks: { 0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'A', 5: 'B', 6: 'C', 7: 'D', 8: 'A', 9: 'B', 10: 'C', 11: 'D' }, note: 'Each group is sorted, so the array is 4-sorted. 18 jumped from index 8 to 0 in two shifts. 11 comparisons, 7 shifts.' },
+    { label: 'gap 1', values: [18, 38, 41, 60, 63, 69, 74, 79, 91, 93, 98, 99], tones: 'ffffffffffff', note: 'Plain insertion sort. Only 3 inversions are left (69 > 60, 69 > 63, 93 > 91): 14 comparisons, 3 shifts.' },
+  ]}
+/>
+
+The code visits the indices in order, so consecutive insertions belong to different groups. Each insertion only looks at its own group, so this gives the same result, comparisons and shifts as sorting the groups one after another, which is how the diagram draws it.
+
+The same input with other gaps, counted on the Python code:
+
+<DataTable
+  columns={['Gaps', { label: 'Comparisons', kind: 'mono' }, { label: 'Shifts', kind: 'mono' }]}
+  highlight={0}
+  rows={[
+    ["Ciura's: 10, 4, 1", '27', '12'],
+    ["Knuth's: 4, 1", '28', '14'],
+    ["Shell's: 6, 3, 1", '38', '18'],
+    ['Insertion Sort (gap 1 only)', '47', '40'],
+  ]}
+/>
+
+Insertion Sort shifts once per inversion, and this input has 40. Ciura's gaps remove most of them in long jumps and leave 3 for the last pass.
+
+## Pseudocode
+
+```text
+shellSort(arr, sequence):
+    for gap in gaps(length(arr), sequence):      # largest first, the last is 1
+        hSort(arr, gap)
+    return arr
+
+hSort(arr, gap):
+    for i = gap to length(arr) - 1:              # arr[i] is in group i mod gap
+        key = arr[i]
+        j = i
+        while j >= gap and arr[j - gap] > key:
+            arr[j] = arr[j - gap]                # shift right by gap
+            j = j - gap
+        arr[j] = key
+
+ciuraGaps(n):                                    # the default
+    take 1, 4, 10, 23, 57, 132, 301, 701 while below n
+    h = 701
+    while the next gap 2h + floor(h / 4) is below n:
+        h = 2h + floor(h / 4)                    # floor(2.25 h), in integers
+        take h
+    return the gaps, largest first
+```
+
+The comparison `arr[j - gap] > key` is strict, so an equal element stops the shifting, as in Insertion Sort. That keeps the gap-1 pass stable on its own, but the earlier passes still reorder equal keys.
+
+## Implementation
+
+All three languages provide the three sequences, use every term below `n`, and make the same comparison, so they make the same comparisons and shifts: the C++ and Go tests pin the counts of 40 arrays to the Python outputs.
+
+<DataTable
+  columns={['Language', 'Sort', 'One pass', 'Choosing the gaps', 'Errors']}
+  rows={[
+    ['Python', '`shell_sort(arr, sequence="ciura")` returns the same list', '`h_sort(arr, gap)`', '`"shell"`, `"knuth"`, `"ciura"`; `gap_sequence(n, sequence)`', '`ValueError`'],
+    ['C++', '`shellSort(arr, Sequence::Ciura)`, a template over `std::vector<T>`', '`hSort(arr, gap)`', '`enum class Sequence`; `gapSequence(n, seq)`', '`std::invalid_argument`'],
+    ['Go', '`ShellSort(arr, Ciura)`, and `ShellSortGeneric` with a `less` function', '`HSort`, `HSortGeneric`', '`Sequence` with `Ciura` as the zero value; `GapSequence(n, seq)`', 'panic'],
+  ]}
+/>
+
+The errors are an unknown sequence and a gap below 1. A gap of at least `n` changes nothing, and fewer than 2 elements need no pass. The gap functions never compute a number above `n`, so the C++ and Go versions cannot overflow, which their tests check for `n` up to the largest `size_t` and `int`.
+
+<TopicCode topic="Algorithms/Sorting/Shell_Sort" />
+
+## Complexity analysis
+
+The running time depends on the gaps. Every sequence here has O(log n) terms below `n` (19, 13 and 16 of them for Shell's, Knuth's and Ciura's at `n = 10^6`), and a pass makes at least `n - h` comparisons.
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n log n)', space: 'O(1)', when: 'Sorted input: each pass makes n - h comparisons and no shift.' },
+    { case: "Worst, Shell's gaps", time: 'Theta(n^2)', space: 'O(1)', when: 'n a power of 2, the smaller half of the values at the even indices.' },
+    { case: "Worst, Knuth's gaps", time: 'O(n^(3/2))', space: 'O(1)', when: 'A proven bound.' },
+    { case: "Ciura's gaps", time: 'no proven bound', space: 'O(1)', when: 'Found by experiment; the fewest comparisons in the counts below.' },
+  ]}
+/>
+
+The extra space is the key, two indices and the list of gaps. Nothing is copied and nothing recurses.
+
+**Why Shell's gaps are quadratic.** Take `n` a power of 2 and place `1, 2, ..., n/2` at the even indices and the larger half at the odd ones: `1, 9, 2, 10, 3, 11, ...` for `n = 16`. Every gap but the last is even, so no pass before the last ever compares an even index with an odd one, and both halves are already in order. The gap-1 pass is left with all `n(n - 2)/8` inversions. Counted on the Python code, the comparisons are exactly:
+
+<Equation label="Shell's gaps, bad input" expr="C(n) = n(n - 2)/8 + (log2(n) - 1) n + 1" result="Theta(n^2)" />
+
+<DataTable
+  columns={['n', { label: "Shell's gaps", kind: 'mono' }, { label: "Knuth's gaps", kind: 'mono' }, { label: "Ciura's gaps", kind: 'mono' }]}
+  rows={[
+    ['1,024', '140,033', '9,447', '10,621'],
+    ['4,096', '2,141,185', '45,532', '50,577'],
+    ['16,384', '33,763,329', '217,302', '238,967'],
+  ]}
+/>
+
+Quadrupling `n` multiplies Shell's count by about 16. Knuth's and Ciura's sequences contain odd gaps, which mix the two halves early.
+
+**Random input.** Comparisons counted on the Python code, averaged over 5 random permutations of `0..n-1` per size:
+
+<DataTable
+  columns={['n', { label: "Shell's gaps", kind: 'mono' }, { label: "Knuth's gaps", kind: 'mono' }, { label: "Ciura's gaps", kind: 'mono' }]}
+  rows={[
+    ['1,000', '14,923', '13,695', '12,960'],
+    ['4,000', '84,376', '78,620', '66,687'],
+    ['16,000', '479,865', '425,098', '327,855'],
+    ['64,000', '2,881,383', '2,302,020', '1,555,831'],
+    ['256,000', '17,825,610', '11,937,427', '7,201,566'],
+  ]}
+/>
+
+What these counts show, and no more:
+
+- All three grow far more slowly than `n^2` here. Doubling `n` multiplied the comparisons by 2.34 to 2.53 with Shell's gaps, 2.23 to 2.43 with Knuth's and 2.14 to 2.30 with Ciura's.
+- Ciura's gaps made the fewest comparisons and the fewest shifts at every size: 60% fewer comparisons than Shell's at `n = 256,000`.
+- With Ciura's gaps, comparisons divided by `n log2(n)` rose from 1.30 at `n = 1,000` to 1.57 at 256,000. That is close to `n log n` but still rising, so the counts do not settle the growth rate.
+- Even so, an O(n log n) sort pulls ahead: Shell Sort with Ciura's gaps made 1.61 times as many comparisons as the repository's Merge Sort at `n = 16,000`, and 1.68 times as many at 256,000.
+
+## Gap sequences
+
+The three sequences in the code, and three well-known ones that are not implemented here:
+
+<DataTable
+  columns={['Sequence', 'Gaps', { label: 'Worst case', kind: 'mono' }, 'In the code']}
+  rows={[
+    ['Shell (1959)', 'n/2, n/4, ..., 1', 'Theta(n^2)', 'Yes: `shell`'],
+    ['Knuth', '1, 4, 13, 40, 121, ... = (3^k - 1)/2', 'O(n^(3/2))', 'Yes: `knuth`'],
+    ['Ciura (2001)', '1, 4, 10, 23, 57, 132, 301, 701, then floor(2.25 h)', 'no proven bound', 'Yes: `ciura`, the default'],
+    ['Hibbard (1963)', '1, 3, 7, 15, 31, ... = 2^k - 1', 'Theta(n^(3/2))', 'No'],
+    ['Pratt (1971)', '1, 2, 3, 4, 6, 8, 9, 12, ... = 2^p 3^q', 'Theta(n log^2 n)', 'No: it needs Theta(log^2 n) passes'],
+    ['Sedgewick (1986)', '1, 5, 19, 41, 109, ...', 'O(n^(4/3))', 'No'],
+  ]}
+/>
+
+**Ciura's extension.** Ciura found the gaps up to 701 by experiment. Past 701 the code multiplies by 2.25 and rounds down, computed in integers as `2h + floor(h / 4)` in all three languages: 1577, 3548, 7983, 17961, 40412, 90927, and so on. The rounding matters: rounding to the nearest gives 17962 instead of 17961, and rounding up gives 1578 instead of 1577.
+
+**Why Ciura's is the default.** It made the fewest comparisons and shifts of the three on every random input measured above, and it is the best sequence known in practice. Its weakness is theory: nobody has proved a bound for it, so when a guarantee matters, Knuth's gaps (or Heap Sort) are the safer choice.
+
+**Knuth's starting gap.** The usual statement of Knuth's sequence has no gap above about `n/3`. The code uses every term below `n` for all three sequences, which adds at most one pass with a gap above `n/3`, and such a pass makes at most 2 comparisons per element.
+
+## Shell Sort vs other sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ["Shell Sort (Ciura's gaps)", 'O(n log n)', 'no proven bound', 'O(1)', 'No', 'in place, no recursion, fast in practice for medium n'],
+    ['Insertion Sort', 'O(n)', 'O(n^2)', 'O(1)', 'Yes', "Shell Sort's last pass; better on nearly sorted input"],
+    ['Heap Sort', 'O(n log n)', 'O(n log n)', 'O(log n) here', 'No', 'a guaranteed bound, in place'],
+    ['Quick Sort', 'O(n log n)', 'O(n^2)', 'O(log n)', 'No', 'usually the fastest in memory'],
+    ['Merge Sort', 'O(n log n)', 'O(n log n)', 'O(n)', 'Yes', 'stable and guaranteed, needs a buffer'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'In place with O(1) extra space, and no recursion: no stack to overflow.',
+    'A few lines on top of Insertion Sort.',
+    "Far faster than the quadratic sorts on random input: with Ciura's gaps, 7.2 million comparisons at n = 256,000.",
+    'Fast on sorted input too: one comparison per element per pass.',
+  ]}
+  cons={[
+    'Not stable: a long jump can carry a value past an equal one.',
+    "The speed depends on the gaps, and the best gaps in practice (Ciura's) have no proven bound.",
+    "Shell's own gaps are quadratic on some inputs.",
+    'Slower than the O(n log n) sorts on large arrays.',
+  ]}
+/>
+
+## Applications
+
+- **Small and medium arrays without recursion.** Where a stack is small or recursion is unwelcome, a short in-place sort helps, and sorted or reversed input does not hurt it: at `n = 100,000`, Ciura's gaps make 1,236,363 comparisons on sorted input and 1,729,428 on reversed input, against 2,552,922 on random input (the average of 5 permutations).
+- **Teaching gap sequences and h-sorting.** Changing only the gap list moves the cost from quadratic to near `n log n`, which the counts above show.
+- **Sorting interleaved groups.** The idea of one pass, sorting every `k`-th element on its own, is what problems like sorting the even and odd indices independently, or sorting with swaps `k` apart, ask for.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **A sequence that does not end with 1.** The array is then only h-sorted for the last gap, not sorted. Halving `n` and stopping at 2 is the usual way to get this wrong.
+- **Powers of 2 as gaps.** With Shell's gaps on `n` a power of 2, even and odd positions never meet until the last pass, which then costs Theta(n^2).
+- **Unsigned indices in C++.** Test `j >= gap` before reading `arr[j - gap]`: with `size_t`, `j - gap` wraps around instead of going negative.
+- **Expecting stability.** `[2a, 2b, 2c, 2d, 1e]` becomes `[1e, 2b, 2c, 2d, 2a]` with Ciura's or Knuth's gaps: the gap-4 pass swaps `2a` with `1e` and carries it past its three twins. Shell's gaps give `[1e, 2b, 2a, 2d, 2c]`.
+- **Using `>=` in the inner loop.** Equal keys then shift past each other for nothing: on 500 equal values, Ciura's gaps make 176,042 comparisons with `>=` and 2,972 with `>`.
+- **Gaps in floating point.** `round(2.25 h)` and `floor(2.25 h)` part ways at 17962 and 17961. Compute `2h + floor(h / 4)` in integers.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does Shell Sort sort correctly whatever the gaps are?">
+    Because the last gap is 1, and a pass with gap 1 is plain Insertion Sort, which sorts any array. The earlier passes only change how much work that last pass has left.
+  </FaqItem>
+  <FaqItem question="Why is it faster than Insertion Sort?">
+    Insertion Sort removes one inversion per shift. A shift with gap `h` moves an element `h` places and can remove many inversions at once. On the worked example, Insertion Sort needs 40 shifts and Shell Sort 12.
+  </FaqItem>
+  <FaqItem question="Why is Shell Sort not stable?">
+    A pass with a large gap swaps elements that are far apart, and an equal key in between does not stop it. In `[2a, 2b, 2c, 2d, 1e]` the gap-4 pass swaps `2a` and `1e`, so `2a` ends up behind its three twins.
+  </FaqItem>
+  <FaqItem question="Which gap sequence should I use?">
+    Ciura's, the default here: it made the fewest comparisons on every random input counted above. If you need a proven worst case, Knuth's gaps give O(n^(3/2)). Avoid Shell's own halving gaps: they are quadratic when `n` is a power of 2 and the input is unlucky.
+  </FaqItem>
+  <FaqItem question="Is Shell Sort O(n log n)?">
+    Not with these sequences. Its best case, sorted input, is O(n log n). On random input, Ciura's gaps came close to `n log n` in the counts above, but the ratio was still rising, and no bound is proven for them.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Sort Even and Odd Indices Independently', site: 'LeetCode 2164', url: 'https://leetcode.com/problems/sort-even-and-odd-indices-independently/', idea: 'The two interleaved groups of a gap-2 pass, each sorted on its own (the odd one in decreasing order).' },
+    { name: 'K Swap', site: 'AtCoder ABC 254 C', url: 'https://atcoder.jp/contests/abc254/tasks/abc254_c', idea: 'Swaps K apart never leave a group of indices with the same remainder mod K: sort each group, as one h-sort pass with h = K does, then check whether the whole array is sorted.' },
+    { name: 'Sort the Matrix Diagonally', site: 'LeetCode 1329', url: 'https://leetcode.com/problems/sort-the-matrix-diagonally/', idea: 'Independent groups sorted in place: in a matrix stored row by row, a diagonal is a run of stride n + 1.' },
+    { name: 'Sort an Array', site: 'LeetCode 912', url: 'https://leetcode.com/problems/sort-an-array/', idea: "Write Shell Sort with Ciura's gaps. The statement asks for O(n log n), which Shell Sort does not guarantee, so compare it with Merge Sort or Heap Sort." },
+  ]}
+/>

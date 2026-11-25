@@ -1,4 +1,4 @@
-/** Visualization registry: Advanced math (matrix exponentiation, the fast Fourier transform). */
+/** Visualization registry: Advanced math (matrix exponentiation, Gaussian elimination, the fast Fourier transform, the number theoretic transform, combinatorics). */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
@@ -20,6 +20,20 @@ export const entries: VizInfo[] = [
     topics: [`${M}/Matrix_Exponentiation`, M],
   },
   {
+    id: 'gaussian-elimination',
+    title: 'Gaussian elimination',
+    group: 'Math',
+    blurb: 'Reduce [A | b] to row echelon form with partial pivoting, then substitute back: no solution, one, or infinitely many, with the rank and the determinant.',
+    topics: [`${M}/Gaussian_Elimination`, M],
+  },
+  {
+    id: 'gaussian-elimination-mod',
+    title: 'Gaussian elimination modulo a prime',
+    group: 'Math',
+    blurb: 'The same elimination with exact arithmetic modulo p: the first nonzero entry is the pivot, and dividing multiplies by its inverse a^(p - 2).',
+    topics: [`${M}/Gaussian_Elimination`],
+  },
+  {
     id: 'fft',
     title: 'Fast Fourier Transform',
     group: 'Math',
@@ -33,11 +47,37 @@ export const entries: VizInfo[] = [
     blurb: 'Transform both coefficient lists, multiply point by point, transform back and round: a product in O(n log n).',
     topics: [`${M}/Fast_Fourier_Transform`, M],
   },
+  {
+    id: 'ntt',
+    title: 'Number Theoretic Transform',
+    group: 'Math',
+    blurb: 'The FFT modulo 998244353: reorder by bit reversal, then stages of butterflies with powers of 3 as the roots of unity, all exact.',
+    topics: [`${M}/Number_Theoretic_Transform`],
+  },
+  {
+    id: 'ntt-polynomial-multiplication',
+    title: 'Polynomial multiplication (NTT)',
+    group: 'Math',
+    blurb: 'Two transforms modulo 998244353, a pointwise product and the inverse: the coefficients modulo the prime, with no rounding.',
+    topics: [`${M}/Number_Theoretic_Transform`, M],
+  },
+  {
+    id: 'binomial-coefficients',
+    title: "Pascal's triangle and C(n, k) mod p",
+    group: 'Math',
+    blurb: 'Each cell is the sum of the two above it; then fact and inv_fact modulo a prime, from one inverse, answer C(n, k) mod p in O(1).',
+    topics: [`${M}/Combinatorics`, M],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'matrix-power': () => import('../specs/advancedMath').then((m) => m.matrixPowerSpec),
   'matrix-power-recursive': () => import('../specs/advancedMath').then((m) => m.matrixPowerRecursiveSpec),
+  'gaussian-elimination': () => import('../specs/advancedMath').then((m) => m.gaussSpec),
+  'gaussian-elimination-mod': () => import('../specs/advancedMath').then((m) => m.gaussModSpec),
   fft: () => import('../specs/advancedMath').then((m) => m.fftSpec),
   'fft-polynomial-multiplication': () => import('../specs/advancedMath').then((m) => m.fftMultiplySpec),
+  ntt: () => import('../specs/advancedMath').then((m) => m.nttSpec),
+  'ntt-polynomial-multiplication': () => import('../specs/advancedMath').then((m) => m.nttMultiplySpec),
+  'binomial-coefficients': () => import('../specs/advancedMath').then((m) => m.binomialSpec),
 };

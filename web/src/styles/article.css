@@ -7,18 +7,12 @@
   line-height: 1.7;
   overflow-wrap: break-word;
 }
-/* Running text keeps a book's measure, and blocks of text (callouts, steps, questions) a
-   little more; visualizations, tables, diagrams and code use the column's full width. */
-.article-body > * {
-  max-width: 760px;
-}
+/* Everything uses the column's width; running text stops at --text-measure (about 90
+   characters), which only shortens it on the widest screens. */
 .article-body > p,
 .article-body > ul,
 .article-body > ol {
-  max-width: 68ch;
-}
-.article-body > :is(.article-viz, .topic-code, figure, pre, .equation) {
-  max-width: none;
+  max-width: var(--text-measure);
 }
 .article-body > h2 {
   font-size: 24px;

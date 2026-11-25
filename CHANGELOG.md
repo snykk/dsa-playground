@@ -15,6 +15,32 @@ Before v1.0.0:
 
 Changes on `master` that are not in a release yet.
 
+## [v0.10.0] - 2026-11-25
+
+Ten new topics on number theory, algebra, sorting and dynamic programming, and article text that fills the column.
+
+### Added
+
+- **Ten new topics, bringing the repository to 169.** Each has Python, C++ and Go code with tests (the C++ and Go tests pin outputs computed by the Python code), READMEs, an article with checked practice problems, and a visualization whose tracer is pinned to the Python code by golden fixtures (fourteen new visualizations, 213 in all):
+  - **Euler's Totient**: phi(n) by factorization in O(sqrt n), phi of every number up to n with the linear sieve, which crosses out each composite once, and the modular inverse by Euler's theorem. ([8897bcc](https://github.com/snykk/dsa-playground/commit/8897bcc0d44d3abc36c977c681e3670b55be3827), [2d80f45](https://github.com/snykk/dsa-playground/commit/2d80f457052b8f90e63cac09fa31a0574fbbc8d1))
+  - **Combinatorics**: binomial coefficients by Pascal's triangle, by the multiplicative formula and modulo a prime from factorial tables with one inverse; Catalan numbers, stars and bars, and derangements, with the 64-bit limits of each. ([c2099b6](https://github.com/snykk/dsa-playground/commit/c2099b6f0954c1499e11fc79bc462cae4ace3d54))
+  - **Number Theoretic Transform**: the FFT's butterflies modulo 998244353, iterative and in place, with polynomial products exact modulo the prime, and measurements of where the floating-point FFT starts to round wrongly. ([c25a081](https://github.com/snykk/dsa-playground/commit/c25a0816641d967e5fb9814eb362292c05206be0))
+  - **Gaussian Elimination**: solving `A x = b` with partial pivoting in floating point and exactly modulo a prime, telling apart no solution, one and infinitely many, with the rank and the determinant. ([cba694a](https://github.com/snykk/dsa-playground/commit/cba694a160eb4128c60cab8514bcf683414047a1))
+  - **Shell Sort**: insertion sort over shrinking gaps with Shell's, Knuth's and Ciura's sequences, and the comparisons each one makes. ([a61f8ee](https://github.com/snykk/dsa-playground/commit/a61f8eef01258f77cf21f2d731e4348b89ce2e93))
+  - **Timsort**: natural runs, minrun, binary insertion, the merge stack with the 2015 four-run check, and galloping, following CPython's `list.sort()`; its comparison counts equal CPython 3.9's on the inputs tested. ([75ca527](https://github.com/snykk/dsa-playground/commit/75ca527e0b10b9d62495094560bf809a28063202))
+  - **Unbounded Knapsack**: one row filled upward, the only difference from the 0/1 knapsack, with an optimal multiset read back and the two counts that show how the loop order decides what Coin Change counts. ([be2fe8f](https://github.com/snykk/dsa-playground/commit/be2fe8fbdcafdd2b4462acc06e4e388af5f4243a))
+  - **Interval DP**: tables over ranges filled by length, on merging piles, bursting balloons and the fewest palindrome cuts. ([9ae9865](https://github.com/snykk/dsa-playground/commit/9ae986532d7f19bfc87778ad26c709d6dbb2a1f0))
+  - **Knuth Optimization**: interval DP in O(n^2) instead of O(n^3) when the best split moves one way, on merging piles and the optimal binary search tree, with the splits tried counted. ([62590d9](https://github.com/snykk/dsa-playground/commit/62590d9c910dd02dc26b51259a50327fd1b3d7c1))
+  - **Divide and Conquer Optimization**: a layered DP in O(k n log n) instead of O(k n^2) when the best split is monotone, on splitting an array into k groups, with a cost that breaks the condition. ([26f2494](https://github.com/snykk/dsa-playground/commit/26f2494691e814e70c18dd470c93dfef087d7be6))
+
+### Changed
+
+- **The topic lists, overviews and the study guide include the new topics.** Pages that called a new topic missing or not implemented now link to it: the Sieve of Eratosthenes (the linear sieve), Insertion Sort and Merge Sort (binary insertion and natural runs), and the Fast Fourier Transform (the NTT). Matrix Chain Multiplication, 0/1 Knapsack, Coin Change, the Convex Hull Trick, Matrix Exponentiation and Strassen's Matrix Multiplication link to their new neighbours. ([72e770e](https://github.com/snykk/dsa-playground/commit/72e770e428c7a2d26f438bab246252c4e3aafa80), [8897bcc](https://github.com/snykk/dsa-playground/commit/8897bcc0d44d3abc36c977c681e3670b55be3827), [a61f8ee](https://github.com/snykk/dsa-playground/commit/a61f8eef01258f77cf21f2d731e4348b89ce2e93), [75ca527](https://github.com/snykk/dsa-playground/commit/75ca527e0b10b9d62495094560bf809a28063202), [c25a081](https://github.com/snykk/dsa-playground/commit/c25a0816641d967e5fb9814eb362292c05206be0), [be2fe8f](https://github.com/snykk/dsa-playground/commit/be2fe8fbdcafdd2b4462acc06e4e388af5f4243a), [9ae9865](https://github.com/snykk/dsa-playground/commit/9ae986532d7f19bfc87778ad26c709d6dbb2a1f0), [26f2494](https://github.com/snykk/dsa-playground/commit/26f2494691e814e70c18dd470c93dfef087d7be6), [62590d9](https://github.com/snykk/dsa-playground/commit/62590d9c910dd02dc26b51259a50327fd1b3d7c1), [cba694a](https://github.com/snykk/dsa-playground/commit/cba694a160eb4128c60cab8514bcf683414047a1))
+
+### Fixed
+
+- **Article text stopped at about 70% of the column on wide screens**, while tables and visualizations took all of it. Running text now has the column's width, up to about 90 characters a line; phone widths are unchanged. ([0f3946a](https://github.com/snykk/dsa-playground/commit/0f3946a10d5ce1caf63e7dccca68df890a242322))
+
 ## [v0.9.0] - 2026-11-24
 
 Six new topics on graphs, trees and strings, a complete Fibonacci heap, and a player that keeps keyboard focus.
@@ -319,6 +345,7 @@ Data structures and algorithms implemented in Python, C++ and Go.
 - **`make test`** runs the Python, C++ and Go suites, and GitHub Actions CI runs them on every push.
 - **STUDY_GUIDE.md**: a structured learning path.
 
+[v0.10.0]: https://github.com/snykk/dsa-playground/compare/v0.9.0...v0.10.0
 [v0.9.0]: https://github.com/snykk/dsa-playground/compare/v0.8.1...v0.9.0
 [v0.8.1]: https://github.com/snykk/dsa-playground/compare/v0.8.0...v0.8.1
 [v0.8.0]: https://github.com/snykk/dsa-playground/compare/v0.7.1...v0.8.0

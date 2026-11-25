@@ -18,6 +18,13 @@ export const entries: VizInfo[] = [
     topics: ['Algorithms/Sorting/Insertion_Sort', 'Algorithms/Sorting'],
   },
   {
+    id: 'shell-sort',
+    title: 'Shell Sort',
+    group: 'Sorting',
+    blurb: 'Insertion sort over shrinking gaps: each pass sorts the interleaved groups of every gap-th element, and gap 1 finishes.',
+    topics: ['Algorithms/Sorting/Shell_Sort', 'Algorithms/Sorting'],
+  },
+  {
     id: 'selection-sort',
     title: 'Selection Sort',
     group: 'Sorting',
@@ -30,6 +37,13 @@ export const entries: VizInfo[] = [
     group: 'Sorting',
     blurb: 'Split in half, sort each half, then merge two sorted runs by repeatedly taking the smaller head.',
     topics: ['Algorithms/Sorting/Merge_Sort', 'Algorithms/Sorting'],
+  },
+  {
+    id: 'timsort',
+    title: 'Timsort',
+    group: 'Sorting',
+    blurb: 'Find the natural runs, extend short ones by binary insertion, and merge neighbouring runs from a stack kept O(log n) runs deep; long winning streaks gallop.',
+    topics: ['Algorithms/Sorting/Timsort', 'Algorithms/Sorting'],
   },
   {
     id: 'quick-sort',
@@ -71,8 +85,10 @@ export const entries: VizInfo[] = [
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'bubble-sort': () => import('../specs/sorting').then((m) => m.bubbleSort),
   'insertion-sort': () => import('../specs/sorting').then((m) => m.insertionSort),
+  'shell-sort': () => import('../specs/shellSort').then((m) => m.shellSort),
   'selection-sort': () => import('../specs/sorting').then((m) => m.selectionSort),
   'merge-sort': () => import('../specs/sorting').then((m) => m.mergeSort),
+  'timsort': () => import('../specs/timsort').then((m) => m.timsort),
   'quick-sort': () => import('../specs/sorting').then((m) => m.quickSort),
   'heap-sort': () => import('../specs/sorting').then((m) => m.heapSort),
   'counting-sort': () => import('../specs/sortingLinear').then((m) => m.countingSort),

@@ -1,0 +1,256 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Advanced_Math/Gaussian_Elimination
+title: Gaussian Elimination
+lead: Gaussian elimination solves a system of linear equations by subtracting multiples of rows until the augmented matrix is a staircase, then reading the unknowns from the bottom up. It tells no solution, one, or infinitely many apart, and gives the rank and the determinant. In floating point it needs partial pivoting; modulo a prime it is exact.
+level: Intermediate
+updated: 2026-11-24
+facts:
+  - label: Square system
+    value: O(n^3)
+    hint: about n^3 / 3 row updates
+  - label: n equations, m unknowns
+    value: O(min(n, m) n m)
+    hint: a pivot per column, the rows below it, the entries to its right
+  - label: Zero tolerance
+    value: '1e-9'
+    hint: an entry with |v| <= eps counts as zero
+  - label: No pivoting
+    value: wrong answer
+    hint: pivots of 1e-8 turn x1 = 3 into 4.47
+    tone: warn
+properties:
+  - { label: Partial pivoting in floating point, value: true }
+  - { label: Exact modulo a prime, value: true }
+  - { label: Same results in Python, C++ and Go, value: true }
+  - { label: Tests that p is prime, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Eulers_Totient
+related:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+  - Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication
+  - Algorithms/Coding_Theory/Galois_Field
+---
+
+## How it works
+
+A system of `n` linear equations in `m` unknowns is written `A x = b`. Subtracting a multiple of one equation from another keeps every solution, and so does swapping two equations. Gaussian elimination uses only these two moves on the **augmented matrix** `[A | b]`, the coefficients with the right-hand side as an extra column, to clear everything below a staircase of **pivots**. Then each equation, from the last up, has one unknown left to find.
+
+<Steps>
+  <Step title="Choose a pivot for the column">
+    In column `col`, look at the rows from the current one down. With **partial pivoting** the pivot is the entry of largest absolute value; on a tie the upper row wins. If even that one is at most `eps` (1e-9 by default), the column gets no pivot, its unknown is **free**, and the next column is tried with the same row.
+  </Step>
+  <Step title="Swap it up">
+    Swap the pivot's row into the current row. A swap does not change the solutions; it flips the sign of the determinant.
+  </Step>
+  <Step title="Clear the column below it">
+    For every row below whose entry is not already 0, subtract `factor = entry / pivot` times the pivot row. Only the entries right of the pivot column change. Then move to the next row and column.
+  </Step>
+  <Step title="Check the zero rows">
+    The rank is the number of pivots. The rows below it are zero in `A`; if one of them has a right-hand side above `eps`, it reads `0 = c`, and there is **no solution**.
+  </Step>
+  <Step title="Substitute back">
+    From the last pivot row up, `x[c] = (right-hand side - the known terms to its right) / pivot`. Free unknowns stay 0. The answer is **unique** when every column has a pivot and **infinite** otherwise; then `x` is one particular solution.
+  </Step>
+</Steps>
+
+<Callout title="Modulo a prime">
+`solve_mod` runs the same steps on integers modulo a prime `p`. Nothing rounds, so the pivot is simply the first nonzero entry. Dividing by a pivot `a` multiplies by its inverse `a^(p - 2) mod p`: Fermat's little theorem, the prime case of Euler's theorem, since `phi(p) = p - 1`. The inverse is computed once per pivot and reused for every row below it and in back substitution. The code checks each inverse (`a * inverse mod p == 1`), so a composite `p` raises `ValueError` as soon as a pivot has none.
+</Callout>
+
+The same forward pass gives the **determinant** of a square matrix: subtracting a multiple of a row does not change it and each swap negates it, so it is the product of the pivots times -1 per swap, and 0 when a column has no pivot.
+
+## See it in action
+
+The first tab runs `solve` with partial pivoting; add `; no pivoting` to run `solve_without_pivoting` instead. Rows are labelled E0, E1, ... by the equation they started as, so you can follow a swap, and the strips under the matrix collect the pivots, `x` and the result. Compare **Small pivots, no pivoting** with **The same with partial pivoting**. The second tab works modulo a prime; try **p = 4 is not prime** to see the check of the inverse fail.
+
+<ArticleViz ids={['gaussian-elimination', 'gaussian-elimination-mod']} />
+
+## Worked example
+
+`solve(A, b)` for `2x0 + x1 - x2 = 8`, `-3x0 - x1 + 2x2 = -11`, `-2x0 + x1 + 2x2 = -3`, values from the Python code rounded to 4 digits:
+
+<DataTable
+  columns={['Step', 'Pivot', 'Action', 'Rows changed']}
+  rows={[
+    ['column 0, pivot', '-3, in row 1: the largest of 2, 3, 2 in size', 'swap rows 0 and 1', 'row 0 = `[-3, -1, 2 | -11]`'],
+    ['column 0, row 1', 'the same', 'row 1 -= -0.6667 x row 0', 'row 1 = `[0, 0.3333, 0.3333 | 0.6667]`'],
+    ['column 0, row 2', 'the same', 'row 2 -= 0.6667 x row 0', 'row 2 = `[0, 1.667, 0.6667 | 4.333]`'],
+    ['column 1, pivot', '1.667, in row 2: larger than 0.3333', 'swap rows 1 and 2', 'rows 1 and 2 trade places'],
+    ['column 1, row 2', 'the same', 'row 2 -= 0.2 x row 1', 'row 2 = `[0, 0, 0.2 | -0.2]`'],
+    ['column 2, pivot', '0.2, in row 2', 'nothing below it', 'none'],
+    ['back substitution', 'all three', '`x2 = -0.2 / 0.2`, then `x1`, then `x0`', '`x = [2.0, 3.0000000000000004, -0.9999999999999999]`'],
+  ]}
+/>
+
+<GridDiagram
+  label="The row echelon form"
+  corner="eq"
+  colLabels={['x0', 'x1', 'x2', 'b']}
+  rowLabels={['E1', 'E2', 'E0']}
+  rows={[
+    ['-3', '-1', '2', '-11'],
+    ['0', '1.667', '0.6667', '4.333'],
+    ['0', '0', '0.2', '-0.2'],
+  ]}
+  tones={['p...', '.p..', '..p.']}
+  legend={{ p: 'pivot' }}
+  caption="After the forward pass: E1 is on top, then E2, then E0, each cleared below its pivot."
+/>
+
+Rank 3, two swaps and 8 updates (three entries in each of two rows for column 0, two for column 1). The determinant is `(+1)(-3)(1.667)(0.2)`, which the code returns as `-0.9999999999999993`: the exact answer is -1, and the last digits show the rounding.
+
+Modulo 7 the same system has `A = [[2, 1, 6], [4, 6, 2], [5, 1, 2]]` and `b = [1, 3, 4]` after reduction. The pivots are 2, 4 and 6, the first nonzero entries, with the inverses 4, 2 and 6 (2 x 4 = 8 = 1 modulo 7). No swap is needed, and `x = [2, 3, 6]`: 6 is -1 modulo 7. `determinant_mod(A, 7) = 2 x 4 x 6 mod 7 = 6`.
+
+<Callout tone="warning" title="Why pivoting matters">
+Take `A = [[1e-8, 0, 1], [1, 1e-8, 0], [0, 1, 0]]` and `b = [1, 2, 3]`. The last equation says `x1 = 3`. Without pivoting the pivots are 1e-8, 1e-8 and 1e16, all above the tolerance, and the multipliers are 10<sup>8</sup> twice. The last row becomes `[0, 0, 1e16 | 9999999800000003]`, but doubles near 10<sup>16</sup> are 2 apart, so the code stores `9999999800000004`. That error of 1 in the last place, times 10<sup>16</sup> on the way back, gives `x1 = 4.470348358154297`. With partial pivoting the multipliers are 1e-8 and -1e-16, and `x = [1.99999997, 3.0, 0.9999999800000003]`, within 1e-15 of the exact answer.
+</Callout>
+
+## Pseudocode
+
+```text
+solve(A, b, eps = 1e-9):                       # ValueError for an empty or ragged A, a wrong b
+    M = [A | b]; row = 0; pivot_cols = []
+    for col in 0 .. m-1:
+        if row == n: break
+        r = the r >= row with the largest |M[r][col]|      # the upper row on a tie
+        if |M[r][col]| <= eps: continue                    # no pivot: x[col] is free
+        swap rows r and row
+        for target in row+1 .. n-1:
+            if M[target][col] == 0: continue
+            factor = M[target][col] / M[row][col]
+            M[target][c] -= factor * M[row][c] for c in col+1 .. m
+        pivot_cols.append(col); row += 1
+    rank = row
+    if some r >= rank has |M[r][m]| > eps: return NO_SOLUTION
+    x = [0] * m
+    for i in rank-1 down to 0:
+        c = pivot_cols[i]
+        x[c] = (M[i][m] - sum(M[i][j] * x[j] for j in c+1 .. m-1)) / M[i][c]
+    return UNIQUE if rank == m else INFINITE, x, rank
+
+solve_mod(A, b, p):                            # ValueError if p < 2
+    the same, with entries reduced into [0, p), the first nonzero entry as the pivot,
+    inv = pow(pivot, p - 2, p) checked once per pivot, factor = entry * inv % p,
+    every update taken % p, and x[c] = (...) * inv % p
+
+determinant(A): the same forward pass on a square A;
+    (-1)^swaps * product of the pivots, or 0 when a column has no pivot
+```
+
+## Implementation
+
+Every language provides the same operations with the same results:
+
+- **`solve`** (`solve`, `Solve`) and **`solve_without_pivoting`** (`solveWithoutPivoting`, `SolveWithoutPivoting`): floating point, with the tolerance `eps` (`EPS = 1e-9`; Go has no default arguments, so `Solve` takes `Eps` explicitly).
+- **`determinant`** (`determinant`, `Determinant`): the product of the pivots with the sign of the swaps.
+- **`solve_mod`** and **`determinant_mod`** (`solveMod`, `determinantMod`; `SolveMod`, `DeterminantMod`): exact modulo a prime up to 2<sup>64</sup> - 1 in C++ and Go, any size in Python.
+- **The result** holds the kind (`no solution`, `unique` or `infinite`; `Kind.NO_SOLUTION`, `Kind::NoSolution`, `NoSolution` and so on), `x` (with every free unknown 0), the rank, the pivot columns, the number of swaps and `updates`, the number of entries the forward pass computed.
+
+**The same digits in three languages.** `M[t][c] -= factor * M[r][c]` is a multiplication and a subtraction, each rounded. A compiler may fuse them into one FMA instruction with a single rounding: Apple clang does on arm64, and Go may. Then the last bits change, and the wrong answer of the example above becomes 4.546 instead of 4.470. The C++ file turns contraction off with a pragma, and the Go code writes `float64(factor * M[row][c])`, which rounds the product on its own. CPython never fuses, so all three return the same doubles.
+
+**Errors.** An empty or ragged `A`, a `b` of the wrong length, or a determinant of a matrix that is not square raises `ValueError` in Python, throws `std::invalid_argument` in C++ and returns an error wrapping `ErrShape` in Go. `p < 2` raises `ValueError`, throws `std::invalid_argument`, or wraps `ErrModulus`; a pivot without an inverse (a composite `p`) raises `ValueError`, throws `std::invalid_argument`, or wraps `ErrNoInverse`.
+
+**64-bit moduli.** Two residues below a 64-bit `p` multiply to 128 bits: `unsigned __int128` in C++, `bits.Mul64` with `bits.Rem64` in Go. The tests use 18,446,744,073,709,551,557, the largest prime below 2<sup>64</sup>, with entries from `INT64_MIN` to `INT64_MAX`.
+
+**The same answers.** The C++ and Go tests pin 33 results of `solve_mod` and 10 of `determinant_mod` exactly, and 12 results of `solve` and 5 of `determinant` within a tolerance, all computed by the Python code. Every language also checks random systems with a known solution, singular and inconsistent systems built on purpose, rank and determinant against cofactor expansion, non-square systems and the pivoting example.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Gaussian_Elimination" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'solve, n x n, every column a pivot', time: 'O(n^3)', space: 'O(n^2)', when: 'Exactly (n - 1) n (n + 1) / 3 updates when no entry below a pivot is already 0.' },
+    { case: 'solve, n equations, m unknowns', time: 'O(min(n, m) n m)', space: 'O(n m)', when: 'Pivot k costs (n - 1 - k) rows times (m - k) entries.' },
+    { case: 'solve_mod', time: 'O(min(n, m) n m + rank log p)', space: 'O(n m)', when: 'The same updates modulo p, plus one inverse per pivot.' },
+    { case: 'An identity or upper triangular A', time: 'O(n^2)', space: 'O(n^2)', when: 'Every entry below a pivot is already 0, so no row operation runs.' },
+  ]}
+/>
+
+Three nested loops make the cubic term: one pivot per column, every row below it, and every entry to its right. Counted with the Python code on random dense matrices, the updates are 330 for n = 10, 2,660 for 20, 21,320 for 40 and 170,640 for 80, each exactly `(n - 1) n (n + 1) / 3`; their ratio to `n^3 / 3` goes from 0.99 to 0.9998. In Python, `solve` took 0.19 s for n = 200 and 1.59 s for n = 400, 8.4 times as long for twice the size; in C++ a 500 x 500 system took 16 ms in doubles and 0.37 s modulo 10<sup>9</sup> + 7.
+
+## Variants and comparisons
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Partial pivoting', 'O(n^3)', 'this code; the largest entry of the column; multipliers at most 1'],
+    ['No pivoting', 'O(n^3)', '`solve_without_pivoting`; wrong when a pivot is small, fine for diagonally dominant matrices'],
+    ['Complete pivoting', 'O(n^3)', 'the largest entry of the whole remaining block; safer, rarely needed'],
+    ['Gauss-Jordan', 'O(n^3)', 'clears above each pivot too, about n^3 / 2 updates; gives the inverse matrix'],
+    ['LU decomposition', 'O(n^3) + O(n^2) per b', 'the same elimination with the multipliers kept; for many right-hand sides'],
+    ['Bareiss', 'O(n^3)', 'fraction-free elimination over the integers'],
+    ['Over GF(2)', 'O(n^3 / 64)', 'the XOR basis: rows are bit masks and subtraction is XOR; not here'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'One pass gives the solution, the rank and the determinant.',
+    'Tells no solution, one and infinitely many apart, and returns a particular solution.',
+    'Works for any shape: more equations than unknowns or fewer.',
+    'Modulo a prime it is exact, which counting problems need.',
+  ]}
+  cons={[
+    'O(n^3) time and O(n^2) memory: too slow past a few thousand unknowns.',
+    'Floating point needs pivoting and a tolerance, and an absolute tolerance needs well-scaled input.',
+    'Destroys sparsity: zeros fill in as rows are combined.',
+    'The modular version needs a prime; the code does not test primality.',
+  ]}
+/>
+
+## Applications
+
+- **Linear systems** in physics, geometry and circuits: currents in a resistor network, the point where planes meet.
+- **Counting modulo a prime.** A consistent system modulo `p` with rank `r` in `m` unknowns has `p^(m - r)` solutions.
+- **Expected values** of random walks and games, where each state's value is a linear combination of its neighbours'.
+- **Polynomial interpolation.** The coefficients of a polynomial through `d + 1` points solve a Vandermonde system.
+- **Determinants and ranks**: whether vectors are independent, or the number of spanning trees of a graph by the matrix-tree theorem.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **No pivoting in floating point.** Pivots of 1e-8 pass the tolerance and still turn `x1 = 3` into 4.47. Take the largest entry of the column.
+- **Comparing with 0.0 exactly.** Rounding leaves values like 1e-17 where a 0 should be; without a tolerance they become pivots.
+- **Skipping the `0 = c` check.** The rows below the rank must have a zero right-hand side, or the returned `x` solves nothing.
+- **Reading `rank < n` as no solution.** Some equations were combinations of others; the system may still be consistent.
+- **Losing the sign of the swaps** in the determinant.
+- **Fermat's inverse modulo a composite.** `a^(p - 2)` is an inverse only when `p` is prime.
+- **Overflow in modular products.** Residues of a 64-bit modulus need a 128-bit product.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which solution does the code return when there are infinitely many?">
+    The one with every free unknown set to 0. The pivot columns, returned with it, tell which unknowns are free: every column that is not a pivot column. Adding any combination of the null space of `A` to `x` gives another solution.
+  </FaqItem>
+  <FaqItem question="Why is the tolerance 1e-9, and why absolute?">
+    It is the usual contest choice for entries of moderate size: far above the rounding noise of a double near 1, about 1e-16, and far below any value a well-scaled input means. An absolute tolerance is wrong for entries near 1e-12 or 1e12; scale the equations first, or pass another `eps`.
+  </FaqItem>
+  <FaqItem question="Why does the modular version not need pivoting?">
+    Pivoting exists to keep rounding errors small. Modulo a prime every operation is exact, so any nonzero pivot gives the same answer, and the code takes the first one.
+  </FaqItem>
+  <FaqItem question="Is the determinant exact?">
+    `determinant_mod` is. `determinant` rounds like everything else in floating point: for the worked example it returns -0.9999999999999993 instead of -1. For an exact determinant of an integer matrix, compute it modulo a few large primes, or use the fraction-free Bareiss algorithm.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+From easy to harder.
+
+<PracticeProblems
+  problems={[
+    { name: 'Linear Equation Solver', site: 'Kattis equationsolver', url: 'https://open.kattis.com/problems/equationsolver', idea: 'Solve n <= 100 equations in floating point and print x, multiple or inconsistent: the three kinds.' },
+    { name: 'Partial Linear Equation Solver', site: 'Kattis equationsolverplus', url: 'https://open.kattis.com/problems/equationsolverplus', idea: 'The same, but print each unknown the system still determines and ? for the others.' },
+    { name: 'System of Linear Equations', site: 'CSES 3154', url: 'https://cses.fi/problemset/task/3154', idea: 'Up to 500 equations in 500 unknowns modulo 10^9 + 7; any solution, or -1.' },
+    { name: 'Guess the Root', site: 'Codeforces 1155E', url: 'https://codeforces.com/problemset/problem/1155/E', idea: 'Ask for 11 values of a degree-10 polynomial, then solve the Vandermonde system modulo the prime 10^6 + 3.' },
+    { name: 'Vasya and Shifts', site: 'Codeforces 832E', url: 'https://codeforces.com/problemset/problem/832/E', idea: 'A system modulo 5; when it is consistent the number of ways is 5^(n - rank).' },
+  ]}
+/>

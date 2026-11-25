@@ -20,7 +20,7 @@ A week-by-week path through every topic in this repository, from basic programmi
 
 ## Phase 1: Foundations (Weeks 1-3)
 
-**Goal:** Measure the cost of code, then learn the sequences and the first sorts and searches. (24 topics)
+**Goal:** Measure the cost of code, then learn the sequences and the first sorts and searches. (26 topics)
 
 **Why this order:** Everything later is judged by its cost, and every other structure is built from arrays, nodes, stacks and queues.
 
@@ -60,8 +60,10 @@ Binary search is the one to master.
 
 - [Bubble Sort](Algorithms/Sorting/Bubble_Sort/) (Beginner)
 - [Insertion Sort](Algorithms/Sorting/Insertion_Sort/) (Beginner)
+- [Shell Sort](Algorithms/Sorting/Shell_Sort/) (Intermediate)
 - [Selection Sort](Algorithms/Sorting/Selection_Sort/) (Beginner)
 - [Merge Sort](Algorithms/Sorting/Merge_Sort/) (Intermediate)
+- [Timsort](Algorithms/Sorting/Timsort/) (Advanced)
 - [Quick Sort](Algorithms/Sorting/Quick_Sort/) (Intermediate)
 - [Linear Search](Algorithms/Searching/Linear_Search/) (Beginner)
 - [Binary Search](Algorithms/Searching/Binary_Search/) (Beginner)
@@ -118,7 +120,7 @@ Binary tree and BST first; the AVL tree shows how balancing keeps O(log n).
 
 ## Phase 3: Problem Patterns (Weeks 7-10)
 
-**Goal:** Recognize the shape of a problem and pick the technique, including greedy, backtracking and your first dynamic programming. (28 topics)
+**Goal:** Recognize the shape of a problem and pick the technique, including greedy, backtracking and your first dynamic programming. (29 topics)
 
 **Why this order:** The scan patterns come first because they need only arrays; groups, greedy and backtracking follow; DP comes last because it builds on all of them.
 
@@ -172,13 +174,14 @@ Coin Change is the first problem where greedy fails; LCS opens 2D tables; the re
 - [Longest Common Subsequence](Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence/) (Intermediate)
 - [Edit Distance](Algorithms/Dynamic_Programming/2D_DP/Edit_Distance/) (Intermediate)
 - [0/1 Knapsack](Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack/) (Intermediate)
+- [Unbounded Knapsack](Algorithms/Dynamic_Programming/Linear_DP/Unbounded_Knapsack/) (Intermediate)
 - [DP Problem Patterns](Problem_Patterns/DP_Problem_Patterns/) (Intermediate)
 
 **Milestone:** you can solve LeetCode Medium problems with patterns and DP consistently.
 
 ## Phase 4: Advanced Algorithms and Structures (Weeks 11-15)
 
-**Goal:** Learn the topics that separate passing interviews from solving contest problems. (52 topics)
+**Goal:** Learn the topics that separate passing interviews from solving contest problems. (55 topics)
 
 **Why this order:** Graph algorithms reuse the Phase 2 structures, strings reuse the trie, range structures come before the specialist trees, and bitmask DP needs bit manipulation.
 
@@ -259,17 +262,20 @@ Bit manipulation first, because bitmask DP stores a subset in an integer.
 
 - [Bit Manipulation](Problem_Patterns/Bit_Manipulation/) (Intermediate)
 - [Matrix Chain Multiplication](Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication/) (Advanced)
+- [Interval DP](Algorithms/Dynamic_Programming/Advanced_DP/Interval_DP/) (Advanced)
 - [DP on Trees](Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees/) (Advanced)
 - [DP on Graphs](Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs/) (Advanced)
 - [Bitmask DP](Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP/) (Advanced)
 - [Digit DP](Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP/) (Advanced)
 - [Convex Hull Trick and Li Chao Tree](Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick/) (Advanced)
+- [Divide and Conquer Optimization](Algorithms/Dynamic_Programming/DP_Optimizations/Divide_and_Conquer_Optimization/) (Advanced)
+- [Knuth Optimization](Algorithms/Dynamic_Programming/DP_Optimizations/Knuth_Optimization/) (Advanced)
 
 **Milestone:** you can solve LeetCode Hard problems and are interview-ready for senior roles.
 
 ## Phase 5: Competitive Programming (Week 16 onward)
 
-**Goal:** Pick up the techniques that win contests, plus the utilities around them. (32 topics)
+**Goal:** Pick up the techniques that win contests, plus the utilities around them. (36 topics)
 
 **Why this order:** Decompositions need segment trees and DFS, number theory comes before matrix exponentiation and FFT, and the utilities are used together with all of it.
 
@@ -285,16 +291,20 @@ Array side first (square root, Mo), then the tree side (lowest common ancestor, 
 
 ### Number theory and matrices
 
-CRT builds on extended Euclid, Miller-Rabin on modular exponentiation, and matrix exponentiation reuses square and multiply.
+CRT builds on extended Euclid, Euler's totient on the sieve, Miller-Rabin on modular exponentiation, combinatorics takes its one modular inverse from Euler's theorem, matrix exponentiation reuses square and multiply, and Gaussian elimination divides modulo a prime with the same inverse.
 
 - [Euclidean Algorithm](Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm/) (Beginner)
 - [Modular Arithmetic](Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic/) (Beginner)
 - [Modular Exponentiation](Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation/) (Beginner)
 - [Chinese Remainder Theorem](Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem/) (Intermediate)
 - [Sieve of Eratosthenes](Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes/) (Beginner)
+- [Euler's Totient](Algorithms/Mathematical_Algorithms/Number_Theory/Eulers_Totient/) (Intermediate)
 - [Miller-Rabin Primality Test](Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test/) (Advanced)
+- [Combinatorics](Algorithms/Mathematical_Algorithms/Advanced_Math/Combinatorics/) (Intermediate)
 - [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation/) (Intermediate)
+- [Gaussian Elimination](Algorithms/Mathematical_Algorithms/Advanced_Math/Gaussian_Elimination/) (Intermediate)
 - [Fast Fourier Transform](Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/) (Advanced)
+- [Number Theoretic Transform](Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Transform/) (Advanced)
 - [Strassen's Matrix Multiplication](Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication/) (Advanced)
 
 ### Counting and search tricks

@@ -105,3 +105,4 @@ Use it for linear recurrences with constant coefficients and a huge index, count
 - [Fast Fourier Transform](../Fast_Fourier_Transform/README.md)
 - [Modular Exponentiation](../../Number_Theory/Modular_Exponentiation/README.md): the scalar version of the same idea.
 - [Fibonacci Numbers](../../../Dynamic_Programming/Basic_DP/Fibonacci_Numbers/README.md)
+- [Gaussian Elimination](../Gaussian_Elimination/README.md): the other matrix topic here, for solving `A x = b`, the rank and the determinant.

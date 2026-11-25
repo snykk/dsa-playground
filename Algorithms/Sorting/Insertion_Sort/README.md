@@ -84,7 +84,7 @@ Use it for small arrays, for nearly sorted data, for streams where items arrive 
 | C++ | [C++](C++/) | `insertion_sort.cpp` | template over `std::vector<T>`, instantiated for `int` and `double`; in place |
 | Go | [Go](Go/) | `main.go` | `InsertionSort([]int)`; in place |
 
-Binary insertion is not implemented.
+Binary insertion is implemented in [Timsort](../Timsort/README.md) (`binary_insertion_sort`), which uses it to extend short runs.
 
 ## Practice Problems
 
@@ -100,3 +100,5 @@ Binary insertion is not implemented.
 - [Selection Sort](../Selection_Sort/README.md)
 - [Merge Sort](../Merge_Sort/README.md)
 - [Quick Sort](../Quick_Sort/README.md)
+- [Shell Sort](../Shell_Sort/README.md) - insertion sort over shrinking gaps
+- [Timsort](../Timsort/README.md) - extends short runs with binary insertion sort, then merges them

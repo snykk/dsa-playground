@@ -29,6 +29,8 @@ related:
   - Algorithms/Sorting/Selection_Sort
   - Algorithms/Sorting/Merge_Sort
   - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Sorting/Shell_Sort
+  - Algorithms/Sorting/Timsort
 ---
 
 ## How Insertion Sort works
@@ -124,9 +126,9 @@ The inner loop runs once per element that is larger than the key and sits to its
   columns={['Variant', 'Idea', 'Notes']}
   rows={[
     ['Linear insertion (this repository)', 'scan left, shifting as you go', 'O(n + I) time; fast on nearly sorted data'],
-    ['Binary insertion', 'binary-search the position, then shift', 'O(n log n) comparisons but still O(n^2) shifts; not implemented here'],
+    ['Binary insertion', 'binary-search the position, then shift', 'O(n log n) comparisons but still O(n^2) shifts; Timsort uses it for short runs'],
     ['Recursive (Python only)', 'sort `n - 1` elements, then insert the last', 'same work, O(n) stack'],
-    ['Shell sort', 'insertion sort over gapped subsequences', 'better than O(n^2) in practice; not implemented here'],
+    ['Shell sort', 'insertion sort over gapped subsequences', 'better than O(n^2) in practice; the Shell Sort topic'],
   ]}
 />
 

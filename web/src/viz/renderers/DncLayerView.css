@@ -1,0 +1,58 @@
+/* DncLayerView organism: one DP layer as rows of OptimizationKit boxes, brackets for the range of j
+ * and the groups, and the calls of the recursion as bars by depth. */
+.ok-svg .dnc-row-label {
+  text-anchor: end;
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.ok-svg .ok-box.dnc-prefix.role-idle rect {
+  fill: var(--surface-2);
+}
+
+/* A bracket in the role's colour, its label in the role's text colour. */
+.ok-svg .dnc-span path {
+  fill: none;
+  stroke: var(--role);
+  stroke-width: 2;
+}
+.ok-svg .dnc-span text {
+  fill: var(--role-text);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+/* A cut between two groups of values. */
+.ok-svg .dnc-cut {
+  stroke: var(--text);
+  stroke-width: 2.5;
+  stroke-dasharray: 4 2;
+}
+
+/* A call of the recursion: outlined while pending, filled while running and when its cell is solved. */
+.ok-svg .dnc-call rect {
+  fill: var(--viz-surface);
+  stroke: var(--viz-neutral);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 3;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.ok-svg .dnc-call text {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+.ok-svg .dnc-call.role-active rect,
+.ok-svg .dnc-call.role-done rect {
+  fill: var(--role);
+  stroke: var(--role);
+  stroke-dasharray: none;
+}
+.ok-svg .dnc-call.role-active text,
+.ok-svg .dnc-call.role-done text {
+  fill: var(--viz-ink-on-fill);
+  font-weight: 700;
+}

@@ -7,6 +7,9 @@
 
 :root {
   color-scheme: light;
+  /* The longest line of running text: about 90 characters, so text fills the article column
+     like its tables on most screens and stays readable on the widest. */
+  --text-measure: 90ch;
   --bg: #f4f6f9;
   --surface: #ffffff;
   --surface-2: #eef1f5;

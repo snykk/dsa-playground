@@ -25,6 +25,7 @@ prerequisites:
   - Algorithms/Divide_and_Conquer
   - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Transform
   - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
   - Algorithms/Coding_Theory/Galois_Field
   - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
@@ -172,7 +173,7 @@ Everything runs in double precision, which keeps about 15 to 16 significant digi
   ]}
 />
 
-For larger values, split each coefficient into smaller pieces (for example 15 bits each) and combine several smaller products, or use a number-theoretic transform when the answer is wanted modulo a prime. This repository does not implement the NTT.
+For larger values, split each coefficient into smaller pieces (for example 15 bits each) and combine several smaller products, or use the Number Theoretic Transform when the answer is wanted modulo a prime: the same butterflies modulo 998244353, with no rounding. Its page measures where this code first rounds wrong for each length (at a largest coefficient of about 1.4&times;10<sup>15</sup> for n = 128 and 8.1&times;10<sup>14</sup> for n = 8192, on random inputs) and traces the product below side by side with the NTT's.
 
 ## Variants and design choices
 
@@ -180,8 +181,8 @@ For larger values, split each coefficient into smaller pieces (for example 15 bi
   columns={['Variant', 'Idea', 'Trade-off']}
   rows={[
     ['Recursive (this repository)', 'split, recurse, combine', 'simple, allocates lists at every level'],
-    ['Iterative, in place', 'bit-reversal permutation, then loops over levels', 'less memory, faster, harder to read'],
-    ['Number-theoretic transform', 'roots of unity in a prime field instead of complex numbers', 'exact modulo the prime, no rounding'],
+    ['Iterative, in place', 'bit-reversal permutation, then loops over levels', 'less memory, faster, harder to read; the Number Theoretic Transform topic is written this way'],
+    ['Number-theoretic transform', 'roots of unity in a prime field instead of complex numbers', 'exact modulo the prime, no rounding; its own topic in this repository'],
     ['Bluestein / Rader', 'handle lengths that are not powers of two', 'more complex; not implemented here'],
   ]}
 />
@@ -243,7 +244,7 @@ For larger values, split each coefficient into smaller pieces (for example 15 bi
     Pad with zeros before a forward transform; the code does this automatically and returns the padded length. For polynomial multiplication this is exactly what you want. The inverse requires a power-of-two spectrum.
   </FaqItem>
   <FaqItem question="How do I get exact results modulo a prime?">
-    Use a number-theoretic transform, which replaces the complex roots of unity by roots of unity modulo a suitable prime. It is not implemented in this repository.
+    Use the Number Theoretic Transform, which replaces the complex roots of unity by powers of 3 modulo the prime 998244353. It has its own page in this repository, with functions named like these (`ntt`, `intt`, `multiply_polynomials`, `convolve`) and the same polynomial product traced in both.
   </FaqItem>
 </Faq>
 

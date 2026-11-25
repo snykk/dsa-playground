@@ -1,6 +1,6 @@
 # Number Theory Algorithms
 
-Number theory algorithms work on exact integers, using divisors, remainders, powers and primes. They build on each other. The Euclidean algorithm gives gcd and inverses, modular arithmetic and exponentiation use them, and the sieve and Miller-Rabin tell primes apart.
+Number theory algorithms work on exact integers, using divisors, remainders, powers and primes. They build on each other. The Euclidean algorithm gives gcd and inverses, modular arithmetic and exponentiation use them, the sieve and Miller-Rabin tell primes apart, and Euler's totient counts the numbers that share no factor with n.
 
 ## Topics
 
@@ -13,9 +13,10 @@ Read them in this order.
 | 3 | [Modular Exponentiation](Modular_Exponentiation/) | base^e mod m in O(log e) multiplications by squaring the base once per bit of the exponent. | Beginner |
 | 4 | [Chinese Remainder Theorem](Chinese_Remainder_Theorem/) | Combine congruences with different moduli into one, using an extended Euclid per congruence. | Intermediate |
 | 5 | [Sieve of Eratosthenes](Sieve_of_Eratosthenes/) | Cross out multiples of each prime to list every prime up to n and answer "is k prime?" in O(1). | Beginner |
-| 6 | [Miller-Rabin Primality Test](Miller_Rabin_Primality_Test/) | Decide whether one huge number is prime with a few modular exponentiations. | Advanced |
+| 6 | [Euler's Totient](Eulers_Totient/) | phi(n) by trial division, phi of every number up to n with the linear sieve, and inverses from Euler's theorem. | Intermediate |
+| 7 | [Miller-Rabin Primality Test](Miller_Rabin_Primality_Test/) | Decide whether one huge number is prime with a few modular exponentiations. | Advanced |
 
-All results are exact integer arithmetic. Modular arithmetic and modular exponentiation each lean on the topic before them, the Chinese Remainder Theorem needs the extended Euclid, and Miller-Rabin needs modular exponentiation.
+All results are exact integer arithmetic. Modular arithmetic and modular exponentiation each lean on the topic before them, the Chinese Remainder Theorem needs the extended Euclid, Euler's totient turns the sieve into a linear one and its inverse is a modular power, and Miller-Rabin needs modular exponentiation.
 
 ## How They Compare
 
@@ -26,6 +27,7 @@ All results are exact integer arithmetic. Modular arithmetic and modular exponen
 | Modular exponentiation | O(log e) | O(1) | the naive loop is O(e) |
 | Chinese Remainder Theorem | O(n log max m) | O(1) | the lcm must be below 2^63 in C++ and Go |
 | Sieve of Eratosthenes | O(n log log n) | O(n) | one flag per number |
+| Euler's totient | O(sqrt n) for one n; O(n) for all up to n | O(n) for the sieve | the linear sieve crosses out each composite once |
 | Miller-Rabin | O(k log n) multiplications for k witnesses | O(1) | a composite passes one random witness with probability at most 1/4 |
 
 ## Choosing One
@@ -37,6 +39,7 @@ All results are exact integer arithmetic. Modular arithmetic and modular exponen
 | A huge power modulo m | Modular exponentiation | about 2 log2(e) multiplications instead of e |
 | Remainders modulo several numbers | Chinese Remainder Theorem | one answer modulo the lcm, or a report that none exists |
 | All primes up to a limit | Sieve of Eratosthenes | the table also answers later queries in O(1) |
+| Numbers coprime to n, or phi of every number up to a limit | Euler's totient | one factorization, or one linear sieve that also gives smallest prime factors |
 | Is this one large number prime? | Miller-Rabin | a sieve would need memory proportional to the number |
 
 ## Common Pitfalls

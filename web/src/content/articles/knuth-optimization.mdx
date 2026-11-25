@@ -1,0 +1,281 @@
+---
+topic: Algorithms/Dynamic_Programming/DP_Optimizations/Knuth_Optimization
+title: Knuth Optimization
+lead: Knuth's optimization fills the interval DP dp[i][j] = min over k of dp[i][k] + dp[k+1][j] + C(i, j) in O(n^2) instead of O(n^3). When the cost satisfies the quadrangle inequality and is monotone, each cell only tries the splits between the best splits of its two neighbours, and along a diagonal those windows telescope.
+level: Advanced
+updated: 2026-11-25
+facts:
+  - label: Time
+    value: O(n^2)
+    hint: at most (3n^2 - 9n + 8) / 2 splits tried; the plain DP tries (n^3 - n) / 6
+  - label: Space
+    value: O(n^2)
+    hint: the dp and split tables
+  - label: Window
+    value: split[i][j-1] .. split[i+1][j]
+    hint: two cells of the previous diagonal
+  - label: Ties
+    value: smallest k
+    hint: the same split table and merges as Interval DP
+  - label: Wrong cost
+    value: silently too large
+    hint: a cost that breaks the quadrangle inequality makes the window miss the best split
+    tone: warn
+properties:
+  - { label: Same answer as the plain interval DP, value: true }
+  - { label: Returns the merges, value: true }
+  - { label: Checks its own condition, value: false }
+  - { label: Works for any cost, value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming/Advanced_DP/Interval_DP
+related:
+  - Algorithms/Dynamic_Programming/DP_Optimizations/Divide_and_Conquer_Optimization
+  - Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick
+  - Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication
+  - Data_Structures/Non_Linear/Trees/Binary_Search_Tree
+---
+
+## How Knuth's optimization works
+
+Interval DP merges a row of piles at the least total cost, where merging two neighbouring piles costs the size of the pile it makes. Its recurrence looks at the last merge of each range: `dp[i][j] = min over i <= k < j of dp[i][k] + dp[k+1][j] + C(i, j)`, with `C(i, j) = sum(i..j)`. It tries every `k` of every range: `(n^3 - n) / 6` candidates. Knuth's optimization keeps the same recurrence, the same tables and the same answer, and tries far fewer of them.
+
+<Steps>
+  <Step title="The best split moves with the range">
+    Let `split[i][j]` be the smallest best `k`. Add a pile on the right end of a range, or take the pile off its left end, and the best last merge never moves left: `split[i][j-1] <= split[i][j] <= split[i+1][j]`.
+  </Step>
+  <Step title="Try only the window">
+    So cell `(i, j)` only tries `k` from `split[i][j-1]` (the cell to its left) to `split[i+1][j]` (the cell below it). Both have length one less, so filling by length has them ready. A range of two piles has one split, `k = i`.
+  </Step>
+  <Step title="Keep the smallest best k">
+    The window holds the plain DP's smallest best `k`, and trying it in increasing order with a strict `<` finds it. So `split` is Interval DP's table cell for cell, and the merges read back are the same.
+  </Step>
+  <Step title="The windows telescope">
+    On one diagonal, the window of `(i, j)` ends at `split[i+1][j]`, where the window of `(i+1, j+1)` starts. The windows of a diagonal share only their ends, so a diagonal tries O(n) splits and the whole table O(n^2).
+  </Step>
+</Steps>
+
+<Callout title="When the window is safe">
+For every `a <= b <= c <= d`, the cost must satisfy the **quadrangle inequality** `C(a, c) + C(b, d) <= C(a, d) + C(b, c)` and be **monotone on intervals**, `C(b, c) <= C(a, d)`. A range sum of values that are 0 or more meets both: the inequality with equality, and monotonicity because nothing is negative. The tests check both on 400 random rows of piles, and the monotone `split` table on 800.
+</Callout>
+
+## See it in action
+
+The picture is Interval DP's: the piles as chips, the `dp` table and the `split` table, filled one diagonal at a time. Before each cell, the two cells of `split` that bound its window are outlined, and the strip under the tables lists the `k` of the window; the splits outside it are never tried. The second strip counts the splits tried so far against the splits the plain DP tries for the same cells. Try **Eight piles**, where the windows hold 48 of the 84 splits, and **Heavy ends**, where every window is as wide as it can be.
+
+<ArticleViz ids={['knuth-optimization']} />
+
+## Worked example
+
+Piles `3, 2, 4, 1`, prefix sums `0, 3, 5, 9, 10`. The `split` table as `_fill_merge` leaves it, the same as Interval DP's; the top cell's window is bounded by the two outlined cells:
+
+<GridDiagram
+  corner="i \ j"
+  colLabels={[0, 1, 2, 3]}
+  rowLabels={['0 (3)', '1 (2)', '2 (4)', '3 (1)']}
+  rows={[
+    ['', '0', '1', '1'],
+    ['', '', '1', '1'],
+    ['', '', '', '2'],
+    ['', '', '', ''],
+  ]}
+  tones={['..lc', '...l', '....', '....']}
+  legend={{ c: 'split[0][3], the cell being filled', l: 'split[0][2] = 1 and split[1][3] = 1, the ends of its window' }}
+  caption="The window of dp[0][3] is k = 1 alone: the plain DP also tries k = 0 (cost 22) and k = 2 (cost 24)."
+  label="Split table for piles 3, 2, 4, 1, with the window of the top cell"
+/>
+
+The eight candidates the code tries, in order, as `_try_split` sees them:
+
+<DataTable
+  columns={['Cell', 'Window', 'k', 'dp[i][k] + dp[k+1][j] + C', 'Cost', 'Kept']}
+  rows={[
+    ['`dp[0][1]`', '0 .. 0', '0', '0 + 0 + 5', '5', '5, `split = 0`'],
+    ['`dp[1][2]`', '1 .. 1', '1', '0 + 0 + 6', '6', '6, `split = 1`'],
+    ['`dp[2][3]`', '2 .. 2', '2', '0 + 0 + 5', '5', '5, `split = 2`'],
+    ['`dp[0][2]`', '0 .. 1', '0', '0 + 6 + 9', '15', '15, `split = 0`'],
+    ['`dp[0][2]`', '0 .. 1', '1', '5 + 0 + 9', '14', '14, `split = 1`'],
+    ['`dp[1][3]`', '1 .. 2', '1', '0 + 5 + 7', '12', '12, `split = 1`'],
+    ['`dp[1][3]`', '1 .. 2', '2', '6 + 0 + 7', '13', '12, no change'],
+    ['`dp[0][3]`', '1 .. 1', '1', '5 + 5 + 10', '20', '20, `split = 1`'],
+  ]}
+/>
+
+`merge_piles_plan([3, 2, 4, 1])` returns `(20, [(0, 0, 1), (2, 2, 3), (0, 1, 3)])`, exactly what Interval DP returns: merge 3 and 2 (cost 5), merge 4 and 1 (cost 5), then the two piles of 5 (cost 10).
+
+## Pseudocode
+
+```text
+merge_piles_plan(piles):
+    n = len(piles)
+    P = prefix sums: P[0] = 0, P[t + 1] = P[t] + piles[t]
+    dp[i][i] = 0 for every i
+    for length = 2 to n:                        # the windows read the previous diagonal
+        for i = 0 to n - length:
+            j = i + length - 1
+            if length == 2: lo, hi = i, i       # one split
+            else: lo, hi = split[i][j-1], split[i+1][j]
+            dp[i][j] = infinity
+            for k = lo to hi:                   # only the window
+                cost = dp[i][k] + dp[k+1][j] + P[j+1] - P[i]
+                if cost < dp[i][j]:             # strict: the smallest k wins a tie
+                    dp[i][j] = cost
+                    split[i][j] = k
+    merges = the split tree of 0..n-1 in post-order (as in Interval DP)
+    return dp[0][n - 1], merges
+```
+
+## Implementation
+
+All three languages have the same four functions, try the same windows in the same order, and return the same values and merges.
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['Any cost', '`split_dp(n, cost, knuth=True)`', '`splitDp(n, cost, knuth = true)`', '`SplitDP(n, cost, knuth)`'],
+    ['Minimum cost of the piles', '`merge_piles`', '`mergePiles`', '`MergePiles`'],
+    ['Cost and merges', '`merge_piles_plan` returns `(cost, [(i, k, j), ...])`', '`mergePilesPlan` returns a `MergePlan` of `Merge` structs', '`MergePilesPlan` returns `cost, []Merge, err`'],
+    ['Optimal binary search tree', '`optimal_bst`', '`optimalBst`', '`OptimalBST`'],
+    ['Numbers', 'unbounded integers', '`long long`', '`int64`'],
+    ['A value below 0', '`ValueError`', '`std::invalid_argument`', 'an error wrapping `ErrInvalidInput`'],
+    ['Overflow', 'none: the exact number', '`std::overflow_error`', 'an error wrapping `ErrOverflow`'],
+  ]}
+/>
+
+**Which merges.** The window is tried with `k` going up and a strict `<`, so `split[i][j]` is the smallest best `k`; on piles `1, 1, 1` the merges are `(1, 1, 2)` and then `(0, 0, 2)`, as in Interval DP. The tests compare the `dp` and `split` tables with an independent plain DP on 1500 random rows, and the C++ and Go tests check the costs, the merges and the number of splits tried on 40 rows against outputs of the Python code.
+
+**Edge cases.** No piles and one pile cost 0, with no merges and no split tried. Two piles cost their sum after one split. Equal piles tie often; the smallest `k` decides, and the windows hold exactly `(n - 1)^2` splits. A negative pile, frequency or cost is an error.
+
+**Overflow.** C++ and Go keep costs in 64-bit integers and report an answer that does not fit, as Interval DP does; Python returns the exact number. A cell whose cost does not fit keeps the first `k` of its window as its split, so the windows that read it stay inside the table. Piles 2<sup>61</sup>, 2<sup>61</sup>, 2<sup>61</sup>, 0 have a total that fits, but `dp[0][2]` = 5 x 2<sup>61</sup> does not, and the answer, which contains it, is reported as an overflow.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/DP_Optimizations/Knuth_Optimization" />
+
+## Complexity analysis
+
+For length 2 each cell tries its one split. For a length `L >= 3`, the cell `(i, j)` tries `split[i+1][j] - split[i][j-1] + 1` splits, and over the diagonal the inner ends cancel:
+
+<Equation label="Splits on diagonal L" expr="(n - L + 1) + split[n-L+1][n-1] - split[0][L-2]" result="at most (n - L + 1) + (n - 2)" />
+
+Summed over the diagonals, a fill tries at most `(3n^2 - 9n + 8) / 2` splits. The tests count the calls of `_try_split` and check that they equal the telescoped sum on 400 random rows; a fill that tries every `k` makes `(n^3 - n) / 6`, more than the bound once `n >= 5`, and fails.
+
+<ComplexityTable
+  rows={[
+    { case: 'Merging piles, the optimal binary search tree', time: 'O(n^2)', space: 'O(n^2)', when: 'At most (3n^2 - 9n + 8) / 2 splits; exactly (n - 1)^2 on equal piles.' },
+    { case: 'The plain interval DP (knuth=False)', time: 'O(n^3)', space: 'O(n^2)', when: 'Exactly (n^3 - n) / 6 splits.' },
+    { case: 'Reading the merges back', time: 'O(n)', space: 'O(n)', when: 'One stack entry per range on the tree: n - 1 merges.' },
+  ]}
+/>
+
+Counted on the Python code:
+
+<DataTable
+  columns={[{ label: 'Piles', kind: 'mono' }, { label: 'Equal piles', kind: 'mono' }, { label: 'Random piles', kind: 'mono' }, { label: 'Heavy ends', kind: 'mono' }, { label: 'Every split', kind: 'mono' }]}
+  rows={[
+    ['10', '81', '85', '109', '165'],
+    ['20', '361', '340', '514', '1,330'],
+    ['40', '1,521', '1,580', '2,224', '10,660'],
+    ['80', '6,241', '6,187', '9,244', '85,320'],
+    ['160', '25,281', '24,864', '37,684', '682,640'],
+  ]}
+/>
+
+With two heavy end piles every window is as wide as it can be, and the count is the bound. Doubling `n` multiplies the work by about 4, against 8 for the plain DP. In Python 2000 piles take about 2.5 seconds; in C++ and Go 5000 piles take under half a second.
+
+## The optimal binary search tree
+
+Keys searched `freq[t]` times each go into a binary search tree; a search costs the depth of its key, the root at depth 1. The least total `sum(freq[t] * depth(t))` is the problem Knuth's 1971 paper solved. Number the `n + 1` gaps around the keys and let `dp[i][j]` be the best tree of the keys between gaps `i` and `j`. A root `k` leaves the gaps `i..k` on its left and `k+1..j` on its right, and puts every key of the range one level deeper:
+
+<Equation label="Optimal BST" expr="dp[i][j] = min over i <= k < j of dp[i][k] + dp[k+1][j] + (F[j] - F[i])" result="F: prefix sums of freq" />
+
+That is the same recurrence over `n + 1` points with a range sum as the cost, so the same window applies. `optimal_bst([34, 8, 50])` returns 142: key 2 at the root (50 x 1), key 0 under it (34 x 2) and key 1 under key 0 (8 x 3). The tests check it against a brute force over every tree, itself checked against the trees built by every insertion order.
+
+## When the condition fails
+
+A merge that costs the square root of its size, rounded down, is monotone, but it grows more slowly for large piles, and that breaks the quadrangle inequality. On piles `1, 1, 2, 1, 6`, `C(0, 2) + C(1, 3)` = 2 + 2 is more than `C(0, 3) + C(1, 2)` = 2 + 1.
+
+<DataTable
+  columns={['', { label: 'Answer', kind: 'mono' }, 'Best last merge of the whole row']}
+  rows={[
+    ['`split_dp(5, cost, knuth=False)`, every split', '7', 'after pile 3: `split[0][4] = 3`'],
+    ['`split_dp(5, cost)`, the window', '8', 'the window is `split[0][3] = 1` to `split[1][4] = 2`, so k = 3 is never tried'],
+  ]}
+/>
+
+Nothing fails: the narrowed DP returns the cost of a real merge order, just not the cheapest. On 2000 random rows of up to 10 piles the window misses 55 times. Before using the window on a new cost, check the inequality, or compare with the plain DP on small random inputs as the tests do.
+
+## Knuth's optimization vs other approaches
+
+<DataTable
+  columns={['Approach', { label: 'Time', kind: 'mono' }, 'Needs']}
+  highlight={1}
+  rows={[
+    ['Plain interval DP', 'O(n^3)', 'nothing'],
+    ['Knuth optimization (this code)', 'O(n^2)', 'the quadrangle inequality, and C monotone on intervals'],
+    ['Divide and Conquer Optimization', 'O(k n log n) for k layers', 'a layered DP with a monotone best j'],
+    ['Convex Hull Trick', 'O(n) or O(n log V)', 'a cost that splits into lines'],
+    ['Huffman coding', 'O(n log n)', 'any two piles may merge: a different problem'],
+  ]}
+/>
+
+Divide and Conquer Optimization rests on the same inequality, used inside one layer instead of across the lengths of an interval table.
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'O(n^2) instead of O(n^3), with a few changed lines: the loop bounds of the split.',
+    'The same tables, answer and merges as the plain interval DP when the condition holds.',
+    'The cost is evaluated directly: no formula or structure beyond the inequality.',
+  ]}
+  cons={[
+    'Wrong without the condition, and silently so.',
+    'Still O(n^2) memory for the dp and split tables.',
+    'Only for the split form dp[i][k] + dp[k+1][j] + C(i, j); a cost that depends on k is out.',
+  ]}
+/>
+
+## Applications
+
+- **Merging neighbouring runs or files** when a merge costs the total size: thousands of piles instead of hundreds.
+- **Alphabetic code trees.** Merging piles builds a binary tree whose leaves stay in order, and its cost is each pile's size times its depth: the cheapest such tree for given leaf weights.
+- **Optimal binary search trees**, where the keys keep their order and the frequent ones go near the root.
+- **Cutting** a stick, a string or a file at given points, where a cut costs the length of the piece it splits.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **No check of the condition.** With the square root of the size as the cost, the window returns 8 instead of 7 on piles `1, 1, 2, 1, 6`, and nothing fails.
+- **The window of two points.** `split[i][i]` is not a split. Use `k = i` for a range of two, or set `split[i][i] = i` and cap the upper end at `j - 1`.
+- **The order of the fill.** The window reads two cells of the previous diagonal: fill by length. Row by row from the top reads `split[i+1][j]` before it exists.
+- **Swapping the ends.** The window runs from `split[i][j-1]` to `split[i+1][j]`; the other way round it is empty or wrong.
+- **Using `<=` for the update.** The largest best split is monotone too, so the cost stays right, but the merges differ from Interval DP's.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why is the window enough?">
+    Because the smallest best split is monotone when the cost satisfies the quadrangle inequality and is monotone on intervals: it cannot lie left of `split[i][j-1]` or right of `split[i+1][j]`. The tests check, on 500 random rows, that the plain DP's best split always lies inside the window built from its own table.
+  </FaqItem>
+  <FaqItem question="Why is it O(n^2) when one window can hold n splits?">
+    One window can, but the windows of a diagonal share only their ends: each starts where the one before it ends. So a whole diagonal tries at most about `2n` splits, and there are `n - 1` diagonals.
+  </FaqItem>
+  <FaqItem question="Does it work for Matrix Chain Multiplication?">
+    Not as is. Its cost, `dims[i-1] * dims[k] * dims[j]`, depends on the split `k`, so the recurrence does not have the form `dp[i][k] + dp[k+1][j] + C(i, j)` that the condition is about.
+  </FaqItem>
+  <FaqItem question="How is it different from divide and conquer optimization?">
+    Both need the quadrangle inequality. Divide and conquer works on layered DPs, `dp[g][i] = min over j of dp[g-1][j] + C(j, i)`, and bounds each cell by the best `j` of a cell solved before it in the same layer. Knuth works on interval DPs and bounds each cell by two cells of the previous diagonal.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+From the classic DP to one where only the window is fast enough.
+
+<PracticeProblems
+  problems={[
+    { name: 'Slimes', site: 'AtCoder DP N', url: 'https://atcoder.jp/contests/dp/tasks/dp_n', idea: 'Exactly merge_piles; with N up to 400 the cubic DP passes, so it is a safe place to write the window and compare the two.' },
+    { name: 'Minimum Cost to Cut a Stick', site: 'LeetCode 1547', url: 'https://leetcode.com/problems/minimum-cost-to-cut-a-stick/', idea: 'Add both ends to the sorted cuts; a cut costs the length of its piece, and the recurrence shares the cut point, dp[i][k] + dp[k][j].' },
+    { name: 'Knuth Division', site: 'CSES 2088', url: 'https://cses.fi/problemset/task/2088', idea: 'Merging piles played backwards, with n up to 5000: only the O(n^2) window fits the time limit.' },
+    { name: 'Breaking String', site: 'SPOJ BRKSTRNG', url: 'https://www.spoj.com/problems/BRKSTRNG/', idea: 'Up to 1000 breaks in a long string, each costing the length of the piece it splits, over many test cases.' },
+  ]}
+/>

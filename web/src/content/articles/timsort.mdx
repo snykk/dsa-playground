@@ -1,0 +1,324 @@
+---
+topic: Algorithms/Sorting/Timsort
+title: Timsort
+lead: Timsort is a stable merge sort that starts from the order already in the data. It finds the natural runs, extends short ones with binary insertion sort, merges neighbouring runs from a stack whose length rules keep it O(log n) runs deep, and gallops through long winning streaks. Sorted input costs n - 1 comparisons; the worst case is O(n log n).
+level: Advanced
+updated: 2026-11-24
+facts:
+  - label: Best time
+    value: O(n)
+    hint: sorted or strictly descending input, n - 1 comparisons
+  - label: Worst time
+    value: O(n log n)
+    hint: proven for this merge policy in 2018
+  - label: Extra space
+    value: O(n)
+    hint: a copy of the smaller run, at most n/2
+  - label: minrun
+    value: 32 to 64
+    hint: n itself below 64 values
+  - label: Galloping
+    value: after 7 wins
+    hint: MIN_GALLOP; min_gallop then adapts
+properties:
+  - { label: In-place, value: false }
+  - { label: Stable, value: true }
+  - { label: Adaptive, value: true }
+  - { label: Comparison sort, value: true }
+prerequisites:
+  - Algorithms/Sorting/Merge_Sort
+  - Algorithms/Sorting/Insertion_Sort
+  - Algorithms/Searching/Binary_Search
+related:
+  - Algorithms/Sorting/Quick_Sort
+  - Algorithms/Sorting/Heap_Sort
+  - Algorithms/Sorting/Shell_Sort
+  - Data_Structures/Linear/Stack
+---
+
+## How Timsort works
+
+Merge Sort splits the array in the middle whatever the data looks like, so sorted input costs it as much as random input. Timsort reads the array from left to right and takes the sorted stretches, the **runs**, as they come. It follows the design of CPython's `list.sort()`.
+
+<Steps>
+  <Step title="Choose minrun">
+    `compute_minrun(n)` keeps the six most significant bits of `n` and adds 1 if any other bit is set: `n` itself below 64, otherwise a value from 32 to 64 such that `n / minrun` is a power of 2 or a little below one. Random data then splits into equal runs whose merges stay balanced.
+  </Step>
+  <Step title="Find the next run">
+    `count_run` compares neighbours from the current position. A run is non-descending (no element smaller than the one before) or strictly descending. A descending run is reversed in place; it is strict, so it holds no equal neighbours and reversing it cannot reorder equal keys.
+  </Step>
+  <Step title="Extend a short run">
+    A run shorter than `minrun` grows to `minrun` elements (or to the end of the array) by **binary insertion sort**: each new element is placed by a binary search over the sorted part, to the right of any equal ones, and the larger elements shift one place right.
+  </Step>
+  <Step title="Push it and collapse the stack">
+    The run goes on a stack of pending runs. With C the top run and B, A and W below it, `merge_collapse` merges B with the smaller of A and C while `A <= B + C` or `W <= A + B`, then B and C while `B <= C`. Afterwards every three neighbouring lengths satisfy `X > Y + Z` and every two `Y > Z`.
+  </Step>
+  <Step title="Merge two neighbouring runs">
+    `merge_at` first trims what is already in place: the start of A that is not greater than `B[0]`, and the end of B that is not less than `A[-1]`. It copies the smaller of what is left to a temporary array and merges, left to right (`merge_lo`) or right to left (`merge_hi`).
+  </Step>
+  <Step title="Gallop through streaks">
+    When one run wins `min_gallop` times in a row (7 at the start), the merge switches to exponential search and moves whole blocks. Each galloping round lowers `min_gallop` by 1 and leaving raises it by 1, so it follows the data.
+  </Step>
+</Steps>
+
+<Callout title="Why the stack keeps it O(n log n)">
+Read from the top down, run lengths that satisfy `X > Y + Z` grow at least as fast as the Fibonacci numbers. So the stack holds O(log n) runs. On random data, where every run but the last has `minrun` elements, almost every merge joins two runs of the same length: all 63 merges for 2,112 values. Merging only neighbours (B with A or with C, never A with C) is what keeps the sort stable.
+</Callout>
+
+## See it in action
+
+Press play, or step one comparison at a time. The strip at the top is the stack of runs, bottom on the left; while the invariants are checked, the letters W, A, B and C sit under the runs being tested, and the test itself is written next to `min_gallop`. Under the bars, every run on the stack has a bracket with its name and length, the run being found has a dashed bracket, and during a merge the values in the temporary copy have a dashed outline and a "temporary copy" bracket. The tag **galloping** shows when the merge searches instead of comparing pair by pair.
+
+The player uses `minrun = 4`, so that a short list has several runs; for fewer than 64 values the function itself would use `minrun = n`, which is one binary insertion sort. Start the input with `minrun 8:` to try another value. **Galloping** shows a merge in which one run wins 7 times in a row and a single search then moves 10 values at once.
+
+<ArticleViz ids={['timsort']} />
+
+## Worked example
+
+Sorting `43 37 31 24 15 9 12 40 6 28 2 5 18 20 33 35 46 44 39 30 26 21 14 3` with `minrun = 4`. The labels under the cells name the runs on the stack, bottom first.
+
+<ArrayDiagram
+  legend={{ p: 'the run found in this step', l: 'merged in this step', f: 'sorted' }}
+  rows={[
+    { label: 'input', values: [43, 37, 31, 24, 15, 9, 12, 40, 6, 28, 2, 5, 18, 20, 33, 35, 46, 44, 39, 30, 26, 21, 14, 3], note: '24 values, minrun 4 (given).' },
+    { label: 'run 1', values: [9, 15, 24, 31, 37, 43, 12, 40, 6, 28, 2, 5, 18, 20, 33, 35, 46, 44, 39, 30, 26, 21, 14, 3], tones: 'pppppp..................', marks: { 0: 'R1' }, note: '43 down to 9 is strictly descending, and 12 >= 9 ends it: 6 comparisons. Reversed in place. Stack: 6.' },
+    { label: 'run 2', values: [9, 15, 24, 31, 37, 43, 6, 12, 28, 40, 2, 5, 18, 20, 33, 35, 46, 44, 39, 30, 26, 21, 14, 3], tones: '......pppp..............', marks: { 0: 'R1', 6: 'R2' }, note: '12 40 is a run of 2 (6 < 40 ends it), shorter than minrun: binary insertion adds 6 and 28 in 4 comparisons. Stack: 6, 4, and 6 > 4 holds.' },
+    { label: 'run 3, first merge', values: [6, 9, 12, 15, 24, 28, 31, 37, 40, 43, 2, 5, 18, 20, 33, 35, 46, 44, 39, 30, 26, 21, 14, 3], tones: 'llllllllllppppppp.......', marks: { 0: 'R1', 10: 'R2' }, note: '2 5 18 20 33 35 46 ascends (44 < 46 ends it): 7 comparisons. Stack 6, 4, 7: A = 6 <= B + C = 11 and A < C, so the first two runs merge. merge_hi copies the shorter run, 6 12 28 40, and fills from the right: 9 comparisons with the trimming. Stack: 10, 7.' },
+    { label: 'run 4, second merge', values: [6, 9, 12, 15, 24, 28, 31, 37, 40, 43, 2, 3, 5, 14, 18, 20, 21, 26, 30, 33, 35, 39, 44, 46], tones: '..........llllllllllllll', marks: { 0: 'R1', 10: 'R2' }, note: '44 down to 3 is strictly descending to the end (6 comparisons) and is reversed. Stack 10, 7, 7: A = 10 <= 14 and C <= A, so B and C merge. Trimming finds 2 in place; merge_lo copies 5 18 20 33 35 46 and fills from the left: 12 comparisons. Stack: 10, 14.' },
+    { label: 'third merge', values: [2, 3, 5, 6, 9, 12, 14, 15, 18, 20, 21, 24, 26, 28, 30, 31, 33, 35, 37, 39, 40, 43, 44, 46], tones: 'ffffffffffffffffffffffff', marks: { 0: 'R1' }, note: 'B = 10 <= C = 14: merge. Trimming finds 44 46 in place at the end; merge_lo merges 10 and 12 values: 24 comparisons. Stack: 24. In all, 70 comparisons.' },
+  ]}
+/>
+
+No merge here has a streak of 7, so nothing gallops. The stack after each push, and the rule that fired:
+
+<DataTable
+  columns={['Push', 'Stack before collapsing', 'Test', 'Stack after']}
+  rows={[
+    ['6', '6', 'one run', '6'],
+    ['4', '6, 4', '`B = 6 > C = 4`: stop', '6, 4'],
+    ['7', '6, 4, 7', '`A = 6 <= B + C = 11`, `A < C`: merge A and B; then `B = 10 > C = 7`', '10, 7'],
+    ['7', '10, 7, 7', '`A = 10 <= B + C = 14`, `C <= A`: merge B and C; then `B = 10 <= C = 14`: merge', '24'],
+  ]}
+/>
+
+## Pseudocode
+
+```text
+timsort(a):
+    if length(a) < 2: return
+    minrun = computeMinrun(length(a))         # top 6 bits of n, +1 if any other bit is set
+    lo = 0
+    while lo < length(a):
+        run, descending = countRun(a, lo)     # descending means strictly descending
+        if descending: reverse a[lo .. lo + run - 1]
+        if run < minrun:
+            force = min(minrun, length(a) - lo)
+            binaryInsertionSort(a, lo, lo + force, lo + run)
+            run = force
+        push (lo, run); mergeCollapse()
+        lo = lo + run
+    mergeForceCollapse()                       # merge the rest, top first
+
+mergeCollapse():                               # C on top, then B, A, W
+    while the stack has 2 or more runs:
+        if A <= B + C or W <= A + B:
+            merge B with A if A < C, else with C
+        else if B <= C: merge B and C
+        else: stop
+
+mergeAt(i):                                    # runs A = i, B = i + 1
+    skip the start of A that is <= B[0]        # gallopRight
+    skip the end of B that is >= A[last]       # gallopLeft
+    copy the smaller part to tmp; mergeLo (left to right) or mergeHi (right to left)
+    in both: after minGallop wins in a row, gallop and move whole blocks
+```
+
+Two details carry the stability. `count_run` treats only strictly descending stretches as descending, and on a tie `merge_lo` takes A's element while `merge_hi`, which fills from the right, takes B's.
+
+## Implementation
+
+All three languages compare only with `<` (Go's `less(a, b)`) and in the same order, so they make the same comparisons: the C++ and Go tests pin the counts of 40 arrays, with galloping on and off, to the Python outputs.
+
+<DataTable
+  columns={['Language', 'Sort', 'Options', 'Seeing the stack', 'Errors']}
+  rows={[
+    ['Python', '`timsort(arr, gallop=True, minrun=0)` returns the same list', '`gallop=False`; `minrun` 0 means computed', 'the helpers are module functions; the tests wrap `merge_collapse`', '`ValueError` for a negative `minrun`'],
+    ['C++', '`timsort(arr, gallop = true, minrun = 0, afterCollapse)` over `std::vector<T>`', 'the same, as default arguments', 'the `afterCollapse` hook', 'none of its own'],
+    ['Go', '`Timsort([]int)`, `TimsortFunc` with a `less` function, `TimsortWith`', '`Options{NoGallop, MinRun}`; the zero value is the default', '`Options.AfterCollapse`', 'panic for a negative `MinRun`'],
+  ]}
+/>
+
+Fewer than 2 elements cost no comparison. A positive `minrun` replaces the computed one, and a value of `n` or more sorts the whole array by binary insertion. If a comparison raises (or panics), this code can leave the array with elements lost and others duplicated, which CPython avoids by copying the temporary array back.
+
+<TopicCode topic="Algorithms/Sorting/Timsort" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'Best case', time: 'O(n)', space: 'O(1)', when: 'Sorted or strictly descending input: one run, n - 1 comparisons, no merge.' },
+    { case: 'r runs', time: 'O(n + n log r)', space: 'O(n)', when: 'Proven for this merge policy: fewer runs, less work.' },
+    { case: 'Worst case', time: 'O(n log n)', space: 'O(n)', when: 'For example random input.' },
+  ]}
+/>
+
+Every run but the last has at least `minrun` elements, and the stack invariants keep O(log n) runs pending. Auger, Jug&eacute;, Nicaud and Pivoteau proved in 2018 that this version runs in O(n log n), and in O(n + n log r) for `r` runs. The temporary copy holds the smaller of two runs, at most `n/2` elements; the stack holds O(log n) runs.
+
+**Random input.** Comparisons counted on the Python code, averaged over 5 random permutations per size:
+
+<DataTable
+  columns={['n', { label: 'Comparisons', kind: 'mono' }, { label: '/ (n log2 n)', kind: 'mono' }, { label: '/ log2(n!)', kind: 'mono' }]}
+  rows={[
+    ['1,000', '8,637', '0.867', '1.013'],
+    ['10,000', '119,897', '0.902', '1.012'],
+    ['100,000', '1,529,170', '0.921', '1.008'],
+  ]}
+/>
+
+`log2(n!)` is the fewest comparisons any comparison sort can need on average, and these counts stay within 1.3% of it.
+
+**By input shape,** at `n = 100,000` (`minrun = 49`), the mean of 5 inputs each. Merge Sort is the repository's top-down version.
+
+<DataTable
+  columns={['Input', { label: 'Runs', kind: 'mono' }, { label: 'Timsort', kind: 'mono' }, { label: 'Galloping off', kind: 'mono' }, { label: 'Merge Sort', kind: 'mono' }]}
+  rows={[
+    ['random permutation', '2,041', '1,529,193', '1,529,219', '1,536,427'],
+    ['sorted', '1', '99,999', '99,999', '815,024'],
+    ['reversed', '1', '99,999', '99,999', '853,904'],
+    ['four sorted quarters of a random permutation', '4', '299,996', '299,994', '915,015'],
+    ['sawtooth, i mod 100', '1,000', '595,504', '1,089,932', '1,356,948'],
+    ['organ pipe: up to n/2 - 1, then n/2 down to 1', '2', '199,999', '199,999', '884,462'],
+    ['long runs: 0 .. n - 1 in 20 blocks, shuffled', '9.6', '100,861', '335,642', '957,561'],
+  ]}
+/>
+
+What the counts show, and no more:
+
+- Sorted and reversed input cost exactly `n - 1` comparisons; the tests check this for many `n` in all three languages.
+- Galloping cut the comparisons by 70% on the long runs, whose blocks do not interleave, and by 45% on the sawtooth, whose merged runs hold long stretches of equal keys.
+- On the random, four-quarter and organ-pipe inputs, whose runs interleave finely, galloping changed the count by less than 0.01%.
+- Timsort's count was at most Merge Sort's on every shape, and far below it on the structured ones.
+
+## The merge stack and the 2015 fix
+
+Until 2015 the check looked only at A, B and C. Stijn de Gouw and others, trying to prove Java's TimSort correct with the KeY verifier, found that this does not keep the invariant for the whole stack. Runs of 240, 160, 50, 40 and 60 show it; the tests build this input (`n = 550`, `minrun = 35`):
+
+<DataTable
+  columns={['Step', 'Stack', 'What the rule sees']}
+  rows={[
+    ['push 60', '240, 160, 50, 40, 60', '`A = 50 <= B + C = 100` and `A < C`: merge A and B'],
+    ['after the merge', '240, 160, 90, 60', '`A = 160 > B + C = 150` and `B = 90 > C = 60`'],
+    ['three-run check', 'stops', 'yet `240 <= 160 + 90 = 250`: broken below the top'],
+    ['four-run check', 'merges on', '`W = 240 <= A + B = 250`: 240, 160, 150, then 240, 310, then 550'],
+  ]}
+/>
+
+Merging A and B lengthened the run third from the top, and the run under it was never tested again. Without the invariant the Fibonacci bound on the stack height fails, so a stack sized for that bound can overflow: Java's version could crash on crafted input. CPython's stack has 85 slots, and Tim Peters noted on the bug report that no existing machine has enough memory to overflow it; CPython took the four-run check in February 2015 anyway, and so does this code.
+
+## Galloping
+
+`gallop_left(key, ...)` finds where `key` goes in a sorted run, left of equal elements, and `gallop_right` right of them. Both probe offsets 1, 3, 7, 15, ... from a starting hint, then binary-search the last gap. A position `i >= 1` costs `2 floor(log2(i)) + 2` comparisons from hint 0, which the tests check for every `i` below 2048; a plain scan costs `i + 1`.
+
+<DataTable
+  columns={[{ label: 'Position i', kind: 'mono' }, { label: 'Scan', kind: 'mono' }, { label: 'Gallop', kind: 'mono' }]}
+  rows={[
+    ['0', '1', '1'],
+    ['1', '2', '2'],
+    ['2', '3', '4'],
+    ['4', '5', '6'],
+    ['6', '7', '6'],
+    ['100', '101', '14'],
+    ['1,000', '1,001', '20'],
+  ]}
+/>
+
+Galloping loses at positions 2 and 4 and wins from 6 on, so the merge only starts it after 7 wins in a row. `min_gallop` then drops by 1 each galloping round while either block holds at least 7 elements, and rises by 1 when galloping stops paying. Merging two runs whose blocks of 10 and 90 values take turns brought it down to 1 and took 437 comparisons, against 1,911 with galloping off. On two random sorted runs of 3,000 it ended above 7.
+
+## Timsort in CPython
+
+The same as CPython from the 2015 fix through 3.10 (the sources of 3.5, 3.9 and 3.10 have the same rules): the run detection, `compute_minrun`, the merge rules, the trimming, `merge_lo` and `merge_hi`, the two gallop searches, `MIN_GALLOP = 7` and the adaptive `min_gallop`. On Python 3.9.6, `list.sort()` made the same number of comparisons as this code and left equal keys in the same order on all 3,000 inputs tried. Newer versions differ: 3.11 replaced the merge rules by the powersort merge policy, 3.13 also takes non-strict descending runs (reversing their equal stretches to stay stable), and 3.15 computes `minrun` per run.
+
+Simplified here: no `key=` function, no key caching and no `reverse=`; no type-specialized comparisons; no copying back after a comparison raises; and two switches CPython does not have, `gallop` and `minrun`, for measuring and for the player.
+
+## Timsort vs other sorts
+
+<DataTable
+  columns={['Algorithm', { label: 'Best', kind: 'mono' }, { label: 'Worst', kind: 'mono' }, { label: 'Extra space', kind: 'mono' }, { label: 'Stable', kind: 'yesno' }, 'Notes']}
+  highlight={0}
+  rows={[
+    ['Timsort', 'O(n)', 'O(n log n)', 'O(n)', 'Yes', 'adapts to runs; gallops on clustered data'],
+    ['Merge Sort', 'O(n log n)', 'O(n log n)', 'O(n)', 'Yes', 'same work on sorted and random input'],
+    ['Insertion Sort', 'O(n)', 'O(n^2)', 'O(1)', 'Yes', 'with binary search, what Timsort uses for short runs'],
+    ['Quick Sort', 'O(n log n)', 'O(n^2)', 'O(log n)', 'No', 'in place and fast in memory'],
+    ['Heap Sort', 'O(n log n)', 'O(n log n)', 'O(log n) here', 'No', 'in place with a guaranteed bound'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Stable, with a guaranteed O(n log n).',
+    'n - 1 comparisons on sorted or strictly descending input, and few on input made of long runs.',
+    'Within 1.3% of log2(n!), the fewest comparisons any sort can need on average, on the random inputs counted above.',
+    'Galloping makes merges of clustered runs cost about a logarithm per block.',
+  ]}
+  cons={[
+    'Needs up to n/2 extra elements for the temporary copy.',
+    'Much more code than Merge Sort: run detection, binary insertion, the stack rules, two merges and two searches.',
+    'Easy to get subtly wrong: a flaw in the original stack rule was found only in 2015.',
+    'On random input the bookkeeping buys little over a plain Merge Sort.',
+  ]}
+/>
+
+## Applications
+
+- **The standard sort of a language.** Python's `sorted()` and `list.sort()` use it; Java sorts arrays of objects with a version of it.
+- **Data that arrives partly ordered.** Appending a few records to a sorted list, concatenating sorted files, or nearly time-ordered logs give long runs. 100,000 sorted values with 10 random ones appended took 100,293 comparisons, 196,985 with galloping off.
+- **Sorting by several keys.** Stability lets you sort by a secondary key first and then by the primary key.
+- **Expensive comparisons.** When comparing two items costs more than moving them, as for strings or user-defined orders, its low comparison count pays most.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Taking equal neighbours into a descending run.** Reversing `[3, 2a, 2b]` gives `[2b, 2a, 3]`. With a non-strict test instead of the strict one, 343 of 400 random test sorts came out unstable.
+- **Checking only the top three runs.** The invariant can then break further down the stack, as the 2015 example shows.
+- **Merging runs that are not neighbours.** Merging A with C before B can move an element of C ahead of an equal one in B.
+- **Ties on the wrong side.** `merge_lo` takes A's element on a tie and `merge_hi` takes B's. Giving ties to A in `merge_hi` made 349 of 400 random test sorts unstable, and swapping `gallop_right` and `gallop_left` in `merge_lo` 245 of 400.
+- **Rounding minrun down.** For `n = 2112`, 32 gives 66 runs and a last merge of 2,048 with 64 elements; the `+ 1` gives 33 and 64 balanced runs: 20,570 comparisons on average against 20,876 on 20 random permutations.
+- **Unsigned indices in C++.** In `merge_hi`, the index of A's last element steps below the start of A once A is empty; with `size_t` it wraps around, so a test such as `a >= baseA` stays true.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why not always gallop?">
+    Because galloping costs more comparisons than a plain scan when the answer is near: 4 against 3 at position 2, 6 against 5 at position 4. On random data streaks are short, so the merge compares pair by pair until one run has won 7 times in a row.
+  </FaqItem>
+  <FaqItem question="Why is a descending run reversed only when it is strictly descending?">
+    Reversing a stretch with equal neighbours would swap them, and the sort would stop being stable. A non-strict descending stretch such as `3 3 2` is split into runs instead: `3 3` ascends.
+  </FaqItem>
+  <FaqItem question="Why is minrun 32 to 64 and not a fixed 32?">
+    So that the number of runs on random data is a power of 2, or a little below one, and the merges stay balanced to the end. With 32, 2,112 values give 66 runs and a lopsided last merge; with 33 they give 64.
+  </FaqItem>
+  <FaqItem question="Is Timsort faster than Merge Sort?">
+    In comparisons, never slower on the inputs counted above, and far faster on sorted or run-structured input: 99,999 against 815,024 on 100,000 sorted values. On random input the two are within 1% of each other.
+  </FaqItem>
+  <FaqItem question="Does Python still use exactly this algorithm?">
+    Not exactly. This code follows CPython's rules from the 2015 fix through 3.10, and on Python 3.9.6 it made the same number of comparisons as `list.sort()`. CPython 3.11 changed the order in which runs are merged to powersort's, 3.13 changed how descending runs are found, and 3.15 how minrun is chosen.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+From finding runs to merging many of them in a balanced order.
+
+<PracticeProblems
+  problems={[
+    { name: 'Longest Continuous Increasing Subsequence', site: 'LeetCode 674', url: 'https://leetcode.com/problems/longest-continuous-increasing-subsequence/', idea: 'Scan for runs as count_run does, here strictly increasing ones, and keep the longest.' },
+    { name: 'Merge Sorted Array', site: 'LeetCode 88', url: 'https://leetcode.com/problems/merge-sorted-array/', idea: 'Merge from the right end, as merge_hi does, so that no value is overwritten before it is read.' },
+    { name: 'Sort an Array', site: 'LeetCode 912', url: 'https://leetcode.com/problems/sort-an-array/', idea: 'Write Timsort itself: runs, binary insertion up to minrun, the stack rules and the merges.' },
+    { name: 'Sort List', site: 'LeetCode 148', url: 'https://leetcode.com/problems/sort-list/', idea: 'Merge sort on a linked list: find the runs with a scan, then merge neighbouring runs until one is left.' },
+    { name: 'Merge k Sorted Lists', site: 'LeetCode 23', url: 'https://leetcode.com/problems/merge-k-sorted-lists/', idea: 'Merge k runs in a balanced order, pairs then pairs of pairs, for O(N log k), the concern behind the stack rules of Timsort.' },
+  ]}
+/>

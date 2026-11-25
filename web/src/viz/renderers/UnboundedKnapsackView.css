@@ -1,0 +1,8 @@
+/* UnboundedKnapsackView: the frame scrolls instead of PatternLanes' own wrapper, so the frame can take the tab stop. */
+.ukn-scroll {
+  overflow-x: auto;
+  min-width: 0;
+}
+.ukn-scroll .lanes-wrap {
+  overflow-x: visible;
+}

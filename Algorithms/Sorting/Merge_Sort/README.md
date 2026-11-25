@@ -105,4 +105,5 @@ Use it when you need a stable sort, a guaranteed O(n log n) bound, to sort linke
 - [Quick Sort](../Quick_Sort/README.md)
 - [Heap Sort](../Heap_Sort/README.md)
 - [Insertion Sort](../Insertion_Sort/README.md)
+- [Timsort](../Timsort/README.md) - a merge sort that starts from the runs already in the data
 - [Divide and Conquer](../../Divide_and_Conquer/README.md)

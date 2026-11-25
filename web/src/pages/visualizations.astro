@@ -64,7 +64,7 @@ const slug = (g: string) => g.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     margin: 0 0 12px;
   }
   .intro p {
-    max-width: 68ch;
+    max-width: var(--text-measure);
     font-size: 17px;
     color: var(--text-2);
     margin: 0;
@@ -120,7 +120,7 @@ const slug = (g: string) => g.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   }
   dd {
     margin: 0;
-    max-width: 68ch;
+    max-width: var(--text-measure);
     color: var(--text-2);
   }
   @media (max-width: 720px) {

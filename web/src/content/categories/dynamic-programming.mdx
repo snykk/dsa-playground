@@ -32,9 +32,9 @@ contents:
   - folder: 2D_DP
     note: Two-index states, such as two strings, items and capacity, or an interval of a chain. The table is the answer.
   - folder: Advanced_DP
-    note: States that are a subset, a digit position, a tree node or a graph node, so the table follows the structure.
+    note: States that are an interval, a subset, a digit position, a tree node or a graph node, so the table follows the structure.
   - folder: DP_Optimizations
-    note: Keep the recurrence and speed up the transition, here with the Convex Hull Trick.
+    note: Keep the recurrence and speed up the transition. The Convex Hull Trick, divide and conquer, and Knuth's optimization.
 prerequisites:
   - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
@@ -60,10 +60,10 @@ The five areas below are sorted by how the state looks, not by difficulty alone.
   columns={['Area', 'State', 'Topics', { label: 'Typical time', kind: 'mono' }]}
   rows={[
     ['Basic DP', 'one number per step', 'Fibonacci, Climbing Stairs', 'O(n)'],
-    ['Linear DP', 'an index into one sequence, or an amount', 'Coin Change, LIS, Kadane', 'O(n), O(n*A), O(n^2)'],
+    ['Linear DP', 'an index into one sequence, or an amount', 'Coin Change, Unbounded Knapsack, LIS, Kadane', 'O(n), O(n*A), O(n^2)'],
     ['2D DP', 'two indices: prefixes, items and capacity, or an interval', 'LCS, Edit Distance, 0/1 Knapsack, Matrix Chain', 'O(m*n), O(n*W), O(n^3)'],
-    ['Advanced DP', 'a subset, a digit position, a tree node or a graph node', 'Bitmask, Digit, Tree and Graph DP', 'O(n^2 * 2^n), O(d*S*10), O(n), O(V + E)'],
-    ['DP optimizations', 'the same state as before, a faster transition', 'Convex Hull Trick', 'O(n) or O(n log V)'],
+    ['Advanced DP', 'an interval, a subset, a digit position, a tree node or a graph node', 'Interval, Bitmask, Digit, Tree and Graph DP', 'O(n^3), O(n^2 * 2^n), O(d*S*10), O(n), O(V + E)'],
+    ['DP optimizations', 'the same state as before, a faster transition', 'Convex Hull Trick, divide and conquer, Knuth', 'O(n) or O(n log V), O(k n log n), O(n^2)'],
   ]}
 />
 
@@ -72,8 +72,8 @@ The five areas below are sorted by how the state looks, not by difficulty alone.
 1. **Basic DP.** Read Fibonacci first: it shows why the table exists, because naive recursion repeats work exponentially often. Climbing Stairs applies the same recurrence to counting.
 2. **Linear DP.** The state is still one index, but the transition now chooses among several earlier states. Coin Change is the first problem where greedy fails.
 3. **2D DP.** Two indices describe a state. LCS and Edit Distance share one table shape, 0/1 Knapsack uses it for items and capacity, and Matrix Chain fills intervals by length.
-4. **Advanced DP.** The state is no longer a pair of numbers. It is a subset stored in an integer, a digit position, a tree node or a node of a DAG.
-5. **DP optimizations.** Once a recurrence is right but too slow, exploit its structure. The Convex Hull Trick turns a minimum over all earlier lines into an amortized O(1) step.
+4. **Advanced DP.** Interval DP fills ranges `[i, j]` by length. Beyond it the state is no longer a pair of numbers: it is a subset stored in an integer, a digit position, a tree node or a node of a DAG.
+5. **DP optimizations.** Once a recurrence is right but too slow, exploit its structure. The Convex Hull Trick turns a minimum over all earlier lines into an amortized O(1) step; divide and conquer and Knuth's optimization use the order of the best split to try fewer of them.
 
 ## Choosing an area
 
@@ -87,7 +87,7 @@ The five areas below are sorted by how the state looks, not by difficulty alone.
     ['choose from a small set of items with a visiting history', 'Advanced DP (Bitmask)', 'the visited set is the state, which works up to about 20 items'],
     ['count numbers in a range by their digits', 'Advanced DP (Digit)', 'the state is the digit position, a tight flag and a small running value'],
     ['a rooted tree, or a graph without cycles', 'Advanced DP (Tree and Graph)', 'children or successors are solved before their parent'],
-    ['a correct DP that is too slow', 'DP optimizations', 'a transition of the form m*x + b can be answered without scanning'],
+    ['a correct DP that is too slow', 'DP optimizations', 'a transition of the form m*x + b, or a best split that moves in one direction, can be answered without scanning every candidate'],
   ]}
 />
 

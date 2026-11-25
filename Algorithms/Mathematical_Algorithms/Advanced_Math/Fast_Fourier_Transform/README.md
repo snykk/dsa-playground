@@ -57,7 +57,7 @@ The product is `4 + 13x + 22x^2 + 15x^3`.
 
 The recurrence is `T(n) = 2 T(n/2) + O(n)`, which gives `n log n`.
 
-**Precision.** Everything is double precision, so integer results are right only while the largest output coefficient is well below 2^53 (about 9e15). In the repository's check, `n = 512` with coefficients up to 1,000,000 (outputs near 1.3e14) was still exact, while `n = 4096` with coefficients up to 10^7 gave thousands of wrong coefficients. For bigger values, split the coefficients into smaller pieces, or use a number-theoretic transform (not implemented here).
+**Precision.** Everything is double precision, so integer results are right only while the largest output coefficient is well below 2^53 (about 9e15). In the repository's check, `n = 512` with coefficients up to 1,000,000 (outputs near 1.3e14) was still exact, while `n = 4096` with coefficients up to 10^7 gave thousands of wrong coefficients. For bigger values, split the coefficients into smaller pieces, or use the [Number Theoretic Transform](../Number_Theoretic_Transform/) when the answer modulo a prime is enough: the same butterflies modulo 998244353, with no rounding. Its README measures where this code's rounding first goes wrong for each length.
 
 ## When to Use
 
@@ -70,7 +70,7 @@ Use the FFT for multiplying long polynomials or big numbers, convolutions, corre
 | FFT multiplication | O(n log n) | No (rounding) | long inputs, moderate coefficients |
 | Schoolbook | O(n^2) | Yes | short inputs |
 | Karatsuba | O(n^1.585) | Yes | medium sizes |
-| NTT | O(n log n) | Yes, modulo a prime | counting modulo a prime |
+| [NTT](../Number_Theoretic_Transform/) | O(n log n) | Yes, modulo a prime | counting modulo a prime; iterative and in place in this repository |
 
 ## Common Pitfalls
 
@@ -97,10 +97,11 @@ Use the FFT for multiplying long polynomials or big numbers, convolutions, corre
 - [Convolution (AtCoder Library Practice F)](https://atcoder.jp/contests/practice2/tasks/practice2_f)
 - [Nikita and Order Statistics (Codeforces 993E)](https://codeforces.com/problemset/problem/993/E)
 - Write an iterative in-place FFT with bit-reversal and compare the speed.
-- Implement an NTT modulo 998244353 and compare with this version.
+- Compare this recursive version with the [Number Theoretic Transform](../Number_Theoretic_Transform/), which runs the same butterflies iteratively after a bit-reversal permutation.
 
 ## Related
 
 - [Matrix Exponentiation](../Matrix_Exponentiation/README.md)
+- [Number Theoretic Transform](../Number_Theoretic_Transform/README.md): the same transform modulo 998244353, exact and iterative.
 - [Modular Exponentiation](../../Number_Theory/Modular_Exponentiation/README.md)
 - [Galois Field GF(2^8)](../../../Coding_Theory/Galois_Field/README.md): polynomial arithmetic over a finite field.
