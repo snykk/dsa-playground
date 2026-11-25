@@ -296,6 +296,7 @@ CRT builds on extended Euclid, Euler's totient on the sieve, Miller-Rabin on mod
 - [Miller-Rabin Primality Test](Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test/) (Advanced)
 - [Matrix Exponentiation](Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation/) (Intermediate)
 - [Fast Fourier Transform](Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/) (Advanced)
+- [Number Theoretic Transform](Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Transform/) (Advanced)
 - [Strassen's Matrix Multiplication](Algorithms/Divide_and_Conquer/Strassens_Matrix_Multiplication/) (Advanced)
 
 ### Counting and search tricks

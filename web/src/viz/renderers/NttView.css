@@ -1,0 +1,8 @@
+/* NttView: FftView with residues modulo 998244353 (up to nine digits) in its 60-unit cells. */
+.ntt-view .fft-view .fv-cell > text {
+  font-size: 9.5px;
+}
+/* The powers of w modulo p have an order, not a direction: no "clockwise" title. */
+.ntt-view .fft-view .fv-circle-title {
+  display: none;
+}

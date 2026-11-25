@@ -1,8 +1,10 @@
 import { FFT_CODE, fftTrace, parseFftMultiply, parseFftSignal, stabilizeFft, type FftInput } from '../algorithms/fft';
 import { MATPOW_CODE, matPowTrace, parseMatPow, stabilizeMatPow, type MatPowInput, type MatPowMode } from '../algorithms/matrixPower';
+import { NTT_CODE, nttTrace, parseNttMultiply, parseNttSequence, stabilizeNtt, type NttInput } from '../algorithms/ntt';
 import type { Example, VizSpec } from '../core/types';
 import { FftView, type FftState } from '../renderers/FftView';
 import { MatrixPowerView, type MatPowState } from '../renderers/MatrixPowerView';
+import { NttView } from '../renderers/NttView';
 import { withStripGhosts } from '../renderers/StableStrips';
 import { SYM } from '../ui/symbols';
 
@@ -167,6 +169,86 @@ export const fftMultiplySpec: VizSpec<FftInput, FftState> = {
     { role: 'done', label: 'a finished transform or product' },
     { role: 'muted', label: 'halves already combined' },
     { role: 'good', label: `a transform's result, the integer coefficients (${SYM.check})` },
+  ],
+  complexity: { time: 'O(n log n): three transforms and n pointwise products', space: 'O(n)' },
+};
+
+/* ---------- Number Theoretic Transform ---------- */
+
+const NTT_P = 998244353;
+
+function randomSequence(): string {
+  const n = pick([1, 2, 4, 4, 8, 8, 3, 5, 6]);
+  const values = Array.from({ length: n }, () => (Math.random() < 0.15 ? String(pick([NTT_P - 1, NTT_P - 2, -1, -2])) : String(rint(-9, 20))));
+  return Math.random() < 0.25 && (n & (n - 1)) === 0 ? `inverse ${values.join(' ')}` : values.join(' ');
+}
+
+export const nttSpec: VizSpec<NttInput, FftState> = {
+  id: 'ntt',
+  title: 'Number Theoretic Transform',
+  inputKind: 'ntt-sequence',
+  inputLabel: 'Sequence',
+  inputHelp:
+    'Up to 8 whole numbers separated by spaces or commas, from -99999999 to 999999999 ("1 2 3 4"); they are reduced modulo p = 998244353. ' +
+    'A length that is not a power of two is padded with zeros. Start with "inverse" (or "intt") for the inverse transform, which needs a power-of-two length; "[]" is the empty list.',
+  examples: [
+    { label: 'ntt([1, 2, 3, 4])', value: '1 2 3 4' },
+    { label: 'Eight values, three stages', value: '1 1 1 1 0 0 0 0' },
+    { label: 'Inverse: back to 1, 2, 3, 4', value: 'inverse 10 173167434 998244351 825076915' },
+    { label: 'Three values: pad to 4', value: '1 2 3' },
+    { label: 'Negative values: -1 is p - 1', value: '-1 -2 3 998244352' },
+    { label: 'Inverse of length 3: ValueError', value: 'inverse 1 2 3' },
+  ],
+  randomInput: () => valid(randomSequence, parseNttSequence),
+  parse: parseNttSequence,
+  trace: (input) => withStripGhosts(stabilizeNtt(nttTrace(input, 'transform').frames)),
+  render: (state) => <NttView state={state} />,
+  pseudocode: NTT_CODE.transform,
+  legend: [
+    { role: 'compare', label: 'the two values a butterfly reads, an entry the reduction changed' },
+    { role: 'active', label: 'values just written or swapped, zero padding, the twiddle on the circle' },
+    { role: 'done', label: 'the last finished stage' },
+    { role: 'muted', label: 'outlines of stages already combined' },
+    { role: 'good', label: `the result (${SYM.check})` },
+    { role: 'bad', label: `ValueError: an inverse of a length that is not a power of two (${SYM.cross})` },
+  ],
+  complexity: { time: 'O(n log n): log2(n) stages of n/2 butterflies', space: 'O(n) for the copy; the stages run in place' },
+};
+
+function randomNttPolynomials(): string {
+  const lp = rint(1, 4);
+  const lq = rint(1, Math.min(4, 9 - lp));
+  const coefficient = () => (Math.random() < 0.15 ? pick([NTT_P - 1, 100000000, -1]) : rint(-9, 20));
+  const poly = (len: number) => Array.from({ length: len }, coefficient).join(' ');
+  return `p = ${poly(lp)}; q = ${poly(lq)}`;
+}
+
+export const nttMultiplySpec: VizSpec<NttInput, FftState> = {
+  id: 'ntt-polynomial-multiplication',
+  title: 'Polynomial multiplication (NTT)',
+  inputKind: 'ntt-polynomials',
+  inputLabel: 'Two polynomials',
+  inputHelp:
+    'The coefficients of p and q, constant term first: "p = 1 2 3; q = 4 5" is (1 + 2x + 3x^2)(4 + 5x). Also "[1, 2, 3] * [4, 5]". ' +
+    'Whole numbers from -99999999 to 999999999, at least one per polynomial, and len(p) + len(q) - 1 at most 8. The result is modulo p = 998244353.',
+  examples: [
+    { label: '(1 + 2x + 3x^2)(4 + 5x)', value: 'p = 1 2 3; q = 4 5' },
+    { label: '(1 - x)(1 + x): -1 is p - 1', value: 'p = 1 -1; q = 1 1' },
+    { label: 'Size 8: two cubics', value: 'p = 3 1 4 1; q = 5 9 2 6' },
+    { label: '(p - 2)^2, past 2^53: 4', value: 'p = 998244351; q = 998244351' },
+    { label: 'Two constants: n = 1', value: 'p = 7; q = 3' },
+  ],
+  randomInput: () => valid(randomNttPolynomials, parseNttMultiply),
+  parse: parseNttMultiply,
+  trace: (input) => withStripGhosts(stabilizeNtt(nttTrace(input, 'multiply').frames)),
+  render: (state) => <NttView state={state} />,
+  pseudocode: NTT_CODE.multiply,
+  legend: [
+    { role: 'compare', label: 'values a butterfly reads or a product multiplies, a reduced coefficient' },
+    { role: 'active', label: 'values just written or swapped, zero padding, the twiddle' },
+    { role: 'done', label: 'the last finished stage, the products so far' },
+    { role: 'muted', label: 'outlines of stages already combined' },
+    { role: 'good', label: `a transform's result, the coefficients modulo p (${SYM.check})` },
   ],
   complexity: { time: 'O(n log n): three transforms and n pointwise products', space: 'O(n)' },
 };

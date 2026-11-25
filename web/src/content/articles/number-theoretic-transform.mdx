@@ -1,0 +1,305 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Transform
+title: Number Theoretic Transform
+lead: The Number Theoretic Transform is the Fast Fourier Transform computed with the integers modulo the prime 998244353 instead of complex numbers. It multiplies two polynomials in O(n log n) like the FFT, but nothing is rounded, so every coefficient of the product comes out exact modulo the prime.
+level: Advanced
+updated: 2026-11-24
+facts:
+  - label: Time
+    value: O(n log n)
+    hint: (n/2) log2(n) butterflies per transform
+  - label: Modulus
+    value: '998244353'
+    hint: 119 x 2^23 + 1, with primitive root 3
+  - label: Longest transform
+    value: 2^23
+    hint: the largest power of two that divides p - 1
+    tone: warn
+  - label: Exact
+    value: modulo p
+    hint: a coefficient above p comes out reduced
+    tone: warn
+properties:
+  - { label: Needs a power-of-two length, value: true }
+  - { label: Exact modulo the prime, value: true }
+  - { label: Exact for integers of any size, value: false }
+  - { label: Recursive, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+related:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem
+  - Algorithms/Coding_Theory/Galois_Field
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
+---
+
+## Definition
+
+The number theoretic transform of a<sub>0</sub>, &hellip;, a<sub>n-1</sub> modulo a prime p evaluates the polynomial A(x) = a<sub>0</sub> + a<sub>1</sub>x + &hellip; + a<sub>n-1</sub>x<sup>n-1</sup> at the n powers of a primitive n-th root of unity w modulo p, an integer with w<sup>n</sup> = 1 and no smaller power equal to 1.
+
+<Equation label="NTT" expr="X[k] = sum_{j=0..n-1} a[j] * w^(j k)  mod p,  w = 3^((p - 1) / n)" />
+<Equation label="Inverse" expr="a[j] = n^(-1) * sum_{k=0..n-1} X[k] * w^(-j k)  mod p" />
+
+**The modulus used here.** p = 998244353 = 119 &times; 2<sup>23</sup> + 1, a prime, with the primitive root 3. The formula is the Fast Fourier Transform's with e<sup>-2&pi;i/n</sup> replaced by w, so `ntt([1, 2, 3, 4])` is `[10, 173167434, 998244351, 825076915]` where `fft([1, 2, 3, 4])` is `[10, -2+2j, -2, -2-2j]`: 998244351 is -2 modulo p, and 173167434 is -2 - 2w for w = 911660635, as -2 + 2i is -2 - 2w for the FFT's w = -i.
+
+## Intuition
+
+The FFT uses only four facts about its root w = e<sup>-2&pi;i/n</sup>: w<sup>n</sup> = 1, w<sup>n/2</sup> = -1, the powers w<sup>0</sup> to w<sup>n-1</sup> are all different, and w<sup>2</sup> is the same kind of root for n/2. Nothing in the even-odd split needs complex numbers, only those four facts.
+
+Modulo a prime p, the nonzero residues form a cyclic group of order p - 1: the powers of a primitive root run through all of them. For 998244353 the primitive root is 3, and p - 1 = 2<sup>23</sup> &times; 7 &times; 17. So for every power of two n up to 2<sup>23</sup>, w = 3<sup>(p-1)/n</sup> has order exactly n, and w<sup>n/2</sup> is a square root of 1 other than 1, which modulo a prime can only be -1, written p - 1. Every fact the FFT needs holds.
+
+<Callout title="The butterfly identity, modulo p">
+For k from 0 to n/2 - 1: `X[k] = E[k] + w^k O[k]` and `X[k + n/2] = E[k] - w^k O[k]`, all modulo p, because w<sup>k+n/2</sup> = -w<sup>k</sup>. These are the FFT's butterflies, and every operation in them is an exact integer sum, difference or product modulo p.
+</Callout>
+
+<DataTable
+  columns={['Aspect', 'FFT', 'NTT']}
+  rows={[
+    ['Numbers', 'complex doubles', 'integers 0 to p - 1'],
+    ['Root of unity for n = 4', '`w = -i`', '`w = 911660635`, and `w^2 = p - 1` is -1'],
+    ['Longest power-of-two length', 'any', '2^23 = 8,388,608'],
+    ['Inverse', '`w^-1`, then divide by n', '`w^-1`, then multiply by `n^(p - 2)`, the inverse of n'],
+    ['A product of integer polynomials', 'rounded; exact only while the coefficients are small enough', 'exact modulo p'],
+  ]}
+/>
+
+## How it works
+
+<Steps>
+  <Step title="Reduce and pad">
+    `ntt` copies the list and reduces every entry modulo p, so -1 becomes 998244352. A forward transform pads with zeros to the next power of two, as the FFT does. An empty list returns `[]`.
+  </Step>
+  <Step title="Reorder by bit reversal">
+    Swap `a[i]` and `a[rev(i)]`, where `rev(i)` reverses the log2(n) bits of i. For n = 8 the order becomes 0, 4, 2, 6, 1, 5, 3, 7: the order in which the FFT's recursion, splitting into even and odd positions, reaches its single values.
+  </Step>
+  <Step title="Combine, stage by stage">
+    For length = 2, 4, ..., n: take the root `w_length = 3^((p - 1) / length)`. In every block of `length` entries, run the butterflies on positions `start + k` and `start + k + length/2` with the twiddle `w_length^k`, for k from 0 to length/2 - 1.
+  </Step>
+  <Step title="Invert">
+    The inverse runs the same stages with the inverse roots, then multiplies every entry by n<sup>-1</sup> = n<sup>p-2</sup> mod p (Fermat's little theorem).
+  </Step>
+</Steps>
+
+<Callout title="How the stages map to the FFT's recursion">
+The Fast Fourier Transform topic's code is recursive. Its recursion bottoms out in single values, which are the input in bit-reversed order, so the bit reversal puts every value where the recursion would deliver it. The stage of length L then does the combining loop of every recursive call of size L: the block at `start` is one call, with `E[k]` at `a[start + k]` and `O[k]` at `a[start + k + L/2]`. Each butterfly reads two entries and writes the same two, so the whole transform runs in the list itself, with no recursion and no new lists.
+</Callout>
+
+<Callout tone="warning" title="Two limits the FFT does not have">
+The result is exact **modulo p**: a coefficient of 0 to p - 1 comes out as itself, a larger one reduced, and a negative one as p minus its size. And no transform is longer than 2<sup>23</sup>, the largest power of two dividing p - 1: `ntt` refuses more than 2<sup>23</sup> values and `multiply_polynomials` a product of more than 2<sup>23</sup> coefficients. Python raises `ValueError`, C++ throws `std::invalid_argument` and Go returns an error wrapping `ErrTooLong`. An inverse of a length that is not a power of two is refused as in the FFT (`ErrNotPowerOfTwo` in Go).
+</Callout>
+
+## See it in action
+
+The first tab runs `ntt` and, with `inverse`, `intt`: the bit reversal swaps pairs of entries, then each stage fills one row of the grid from the row below, butterfly by butterfly, with the residues modulo p in the cells and the twiddle marked among the powers of w on the circle. The rows are the FFT tab's rows, filled bottom-up: a block of the grid is one call of the recursive FFT. Try **ntt([1, 2, 3, 4])**, the worked example below, and **Inverse: back to 1, 2, 3, 4**. The second tab runs `multiply_polynomials`: two forward transforms, the pointwise products modulo p, and the inverse transform, with no rounding step at the end.
+
+<ArticleViz ids={['ntt', 'ntt-polynomial-multiplication']} />
+
+## Worked example: ntt([1, 2, 3, 4])
+
+With n = 4 the roots are w<sub>2</sub> = p - 1 for the stage of length 2 and w<sub>4</sub> = 3<sup>(p-1)/4</sup> = 911660635 for the stage of length 4. p - 2 is written for 998244351, that is -2.
+
+<ArrayDiagram
+  legend={{ l: 'swapped by the bit reversal', r: 'written by a butterfly', f: 'final transform' }}
+  rows={[
+    { label: 'input', values: [1, 2, 3, 4], note: 'n = 4 is a power of two, and every entry is already a residue.' },
+    { label: 'bit reversal', values: [1, 3, 2, 4], tones: '.ll.', note: 'rev(1) = 2 (01 reversed is 10), so a[1] and a[2] swap; 0 and 3 are their own reversals.' },
+    { label: 'stage of length 2', values: ['4', 'p-2', '6', 'p-2'], tones: 'rrrr', note: 'Blocks [1, 3] and [2, 4], twiddle w^0 = 1: `1 + 3 = 4`, `1 - 3 = -2`, `2 + 4 = 6`, `2 - 4 = -2`.' },
+    { label: 'stage of length 4', values: ['10', '173167434', '998244351', '825076915'], tones: 'ffff', note: 'k = 0: `4 + 6 = 10` and `4 - 6 = -2`. k = 1: `t = w * (p - 2) = 173167436`, then `(p - 2) + t = 173167434` and `(p - 2) - t = 825076915`, modulo p.' },
+  ]}
+/>
+
+Four butterflies, (4 / 2) &times; log2(4). The FFT's worked example ends in `[10, -2+2i, -2, -2-2i]`: the same 10 and -2, with -2 + 2i and -2 - 2i where the NTT has 173167434 and 825076915.
+
+### Multiplying polynomials
+
+To multiply (1 + 2x + 3x<sup>2</sup>) by (4 + 5x), pad both to length 4, transform, multiply point by point modulo p, and transform back. The FFT column is the Fast Fourier Transform topic's trace of the same product.
+
+<DataTable
+  columns={['Stage', 'NTT (mod p)', 'FFT']}
+  rows={[
+    ['Transform of `[1, 2, 3, 0]`', '`[6, 825076915, 2, 173167434]`', '`[6, -2-2i, 2, -2+2i]`'],
+    ['Transform of `[4, 5, 0, 0]`', '`[9, 565325767, 998244352, 432918594]`', '`[9, 4-5i, -1, 4+5i]`'],
+    ['Pointwise product', '`[54, 173167418, 998244351, 825076899]`', '`[54, -18+2i, -2, -18-2i]`'],
+    ['Inverse stages', '`[16, 52, 88, 60]`', ''],
+    ['Times n^-1 = 748683265', '`[4, 13, 22, 15]`', '`[4, 13, 22, 15]` after rounding'],
+  ]}
+  caption="The product is 4 + 13x + 22x^2 + 15x^3. Where the FFT has a real number, the NTT has the same number modulo p (998244352 is -1)."
+/>
+
+## Pseudocode
+
+```text
+ntt(a, inverse):
+    n = len(a)
+    if n == 0: return []
+    if n > 2^23: error
+    if inverse and n is not a power of two: error
+    values = [x mod p for x in a], padded with zeros to a power of two
+    ntt_in_place(values, inverse)
+    return values
+
+ntt_in_place(a, inverse):              # len(a) a power of two, at most 2^23
+    bit_reverse_permute(a)
+    for length = 2, 4, ..., n:
+        w_length = 3^((p - 1) / length) mod p     # its inverse if inverse
+        for start = 0, length, 2 * length, ...:
+            w = 1
+            for k = 0 to length/2 - 1:
+                u = a[start + k]
+                t = w * a[start + k + length/2] mod p
+                a[start + k]            = (u + t) mod p
+                a[start + k + length/2] = (u - t) mod p
+                w = w * w_length mod p
+    if inverse: multiply every entry by n^(p - 2) mod p
+    return (n/2) * log2(n)                       # the butterflies
+
+multiply(p, q):
+    need = len(p) + len(q) - 1               # error above 2^23
+    n = smallest power of two >= need
+    P = ntt_in_place(pad(p, n));  Q = ntt_in_place(pad(q, n))
+    R = ntt_in_place(P * Q pointwise mod p, inverse)
+    return the first need entries of R
+```
+
+## Implementation
+
+All three versions are iterative and run the stages in place. The public functions are `ntt`, `intt`, `ntt_in_place`, `multiply_polynomials`, `convolve`, `root_of_unity` and `bit_reverse_permute` (`ntt`, `intt`, `nttInPlace`, `multiplyPolynomials`, `convolve`, `rootOfUnity`, `bitReversePermute` in C++; `NTT`, `INTT`, `NTTInPlace`, `MultiplyPolynomials`, `Convolve`, `RootOfUnity`, `BitReversePermute` in Go). They take the same inputs as the FFT topic's functions and give the same residues in every language:
+
+- **Types.** Python takes lists of `int`, C++ `std::vector<long long>` and Go `[]int`; all reduce the entries modulo p first, so negative values work, and return residues from 0 to p - 1. A Python float raises `TypeError`.
+- **Products in 64 bits.** A residue is below 2<sup>30</sup>, so the product of two is below 2<sup>60</sup>: C++ multiplies in `uint64_t` and Go in `uint64`, and the largest product, (p - 1)<sup>2</sup> = 996,491,786,299,899,904, fits. No 128-bit arithmetic is needed for this modulus.
+- **The work count.** `ntt_in_place` returns its number of butterflies, (n/2) log2(n), in all three languages, and the Python tests also count the calls of its module-level `_butterfly`.
+- **Errors.** More than 2<sup>23</sup> values or product coefficients raise `ValueError` in Python, throw `std::invalid_argument` in C++ and return an error wrapping `ErrTooLong` in Go; an inverse of another length than a power of two gives `ValueError`, `std::invalid_argument` or `ErrNotPowerOfTwo`. Where the FFT topic's Go code panics, this one returns errors.
+- **Empty input.** `ntt([])` is `[]`. An empty polynomial is zero: the product has len(p) + len(q) - 1 zeros, the same lengths the FFT topic returns.
+
+The C++ and Go tests pin the 24 roots of unity, 12 transforms and 40 products computed by the Python code, and 12 products of the FFT topic's Python code. All three check every transform up to length 64 against the direct O(n<sup>2</sup>) sum and the products against schoolbook multiplication modulo p on 720 random pairs.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Transform" />
+
+## Complexity analysis
+
+<Equation label="Butterflies" expr="log2(n) stages * n/2 butterflies" result="(n/2) log2(n), O(n log n)" />
+
+<ComplexityTable
+  rows={[
+    { case: 'ntt or intt', time: 'O(n log n)', space: 'O(n)', when: 'Exactly (n/2) log2(n) butterflies, plus O(n) for the copy and the bit reversal; the stages themselves need O(1) extra space.' },
+    { case: 'Polynomial multiplication', time: 'O(n log n)', space: 'O(n)', when: 'Three transforms of size n, the smallest power of two that holds len(p) + len(q) - 1 coefficients, and n pointwise products.' },
+    { case: 'Direct sum or schoolbook product', time: 'O(n^2)', when: 'The baseline the NTT replaces. The schoolbook product was the faster one below about 100 coefficients per polynomial, in Python and in C++.' },
+  ]}
+/>
+
+Counted with the Python code: every transform of length 2<sup>k</sup> made exactly (n/2) k butterflies, for every k from 0 to 12, forward and inverse; 1024 values took 5,120 and 4096 took 24,576. `root_of_unity` ran once per stage, and a product made exactly three transforms. In the timings for this repository, Python multiplied two polynomials of 2<sup>17</sup> coefficients in about 4 seconds, and C++ and Go multiplied two of 2<sup>22</sup>, the longest product this prime allows, in about 1.7 and 1.8 seconds.
+
+### Exact where the FFT rounds
+
+The FFT topic rounds its result from doubles, so it is right only while the rounding errors stay below 1/2. Its Python code on two random polynomials of the same length, coefficients from 0 to c, five seeds for each c:
+
+<DataTable
+  columns={['Length of each (n)', 'First wrong at c', 'Largest true coefficient then']}
+  rows={[
+    ['2 (4)', 'about 1.34e8', '1.5e16, above 2^53 = 9.0e15'],
+    ['4 (8)', 'about 5.3e7', '3.4e15'],
+    ['64 (128)', 'about 8.7e6', '1.4e15'],
+    ['1024 (2048)', 'about 2.0e6', '1.0e15'],
+    ['4096 (8192)', 'about 8.8e5', '8.1e14'],
+  ]}
+/>
+
+So a product whose coefficients stay below p, about 10<sup>9</sup>, is exact in both, and the tests compare the two on such products. Between p and the FFT's limit, the FFT gives the integers and the NTT their residues, which is what a problem that asks for the answer modulo 998244353 wants. Beyond it the FFT is wrong, even modulo p, and the NTT is still exact modulo p:
+
+- `(p - 2)^2 = 996491784303411201` is odd and above 2<sup>53</sup>, so no double holds it. The FFT returns 996491784303411200, which is 3 modulo p; the NTT returns 4, the true value modulo p.
+- 4096 coefficients up to 2,000,000 on each side give true coefficients of at most 4.1&times;10<sup>15</sup>, under half of 2<sup>53</sup>. The FFT got 4,038 of the 8,191 wrong; the NTT got every one right modulo p.
+
+## Variants and design choices
+
+<DataTable
+  columns={['Variant', 'Idea', 'Trade-off']}
+  rows={[
+    ['Iterative, in place (this repository)', 'bit reversal, then one loop per stage', 'no recursion and no new lists'],
+    ['Recursive, like the FFT topic', 'split into even and odd positions, recurse, combine', 'simpler to read; allocates lists at every level'],
+    ['Other NTT primes', '167772161 = 5 x 2^25 + 1 and 469762049 = 7 x 2^26 + 1, also with primitive root 3', 'longer transforms (2^25, 2^26), other residues'],
+    ['Three primes and the CRT', 'transform modulo three primes, then combine each coefficient', 'exact below their product, about 2^86, or modulo any m such as 10^9 + 7; three times the work; not implemented here'],
+  ]}
+/>
+
+## NTT vs alternatives
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Exact?', 'Good for']}
+  highlight={0}
+  rows={[
+    ['NTT modulo 998244353', 'O(n log n)', 'Yes, modulo p', 'answers modulo 998244353; up to 2^23 coefficients'],
+    ['FFT multiplication', 'O(n log n)', 'No: rounding, wrong from about 10^15 at these lengths', 'real data, moderate integer coefficients'],
+    ['Three NTT primes + CRT', '3 x O(n log n)', 'Yes, below about 2^86', 'exact large coefficients, other moduli'],
+    ['Schoolbook multiplication', 'O(n^2)', 'Yes', 'short inputs'],
+    ['Karatsuba', 'O(n^1.585)', 'Yes', 'medium sizes, any ring'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Exact: no rounding error, so no bound on n or on the coefficients beyond the modulus.',
+    'Integer arithmetic only: the same results in every language and on every machine.',
+    'The answer comes out modulo 998244353, the modulus many counting problems ask for.',
+    'Iterative and in place: no recursion, no lists allocated per level.',
+  ]}
+  cons={[
+    'Only the residue modulo p: a coefficient above p, or a negative one, is not recovered.',
+    'At most 2^23 coefficients with this prime.',
+    'No meaning as a spectrum: the transform values are residues, not frequencies.',
+    'One prime fixes the modulus: an answer wanted modulo another number needs several primes and the Chinese Remainder Theorem.',
+  ]}
+/>
+
+## Applications
+
+- **Counting modulo a prime.** Multiplying generating functions, counting pairs or tuples by their sum, combinatorics answers modulo 998244353.
+- **Convolutions with small exact counts.** Counts of matching pairs in bit strings stay below p, so the residues are the counts themselves.
+- **Polynomial arithmetic.** Powers, inverses and division of power series modulo p are built from repeated NTT products (not in this repository).
+- **Big numbers and other moduli.** Several NTT primes and the Chinese Remainder Theorem give exact large coefficients, or a result modulo 10<sup>9</sup> + 7.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **A prime without enough powers of two.** 10<sup>9</sup> + 7 has p - 1 = 2 &times; 500000003, so it has no root of unity of order 4; that is why NTT problems use 998244353.
+- **Reading the residue as the integer.** Above p the coefficient is reduced, silently, and a negative one comes out as p minus its size: `(1 - x)(1 + x)` gives `[1, 0, 998244352]`.
+- **Forgetting n<sup>-1</sup>.** Without it the inverse is n times too large: `[16, 52, 88, 60]` instead of `[4, 13, 22, 15]`.
+- **The forward root in the inverse.** The output comes back reversed after its first entry: position j holds a[(n - j) mod n].
+- **Skipping the bit reversal.** The stages expect the bit-reversed order; without it the output is wrong, not merely reordered.
+- **Products in 32 bits.** Two residues multiply to almost 2<sup>60</sup>; use a 64-bit type.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why 998244353?">
+    It is a prime of the form 119 &times; 2<sup>23</sup> + 1, so it has roots of unity of every power-of-two order up to 2<sup>23</sup>, it is below 2<sup>30</sup>, so two residues multiply in 64 bits, and 3 is a primitive root. AtCoder's library practice problem Convolution, in the list below, asks for its answer modulo this prime.
+  </FaqItem>
+  <FaqItem question="Why does the NTT need no rounding?">
+    Every value in it is an integer from 0 to p - 1, and every step is an integer sum, difference or product reduced modulo p. Nothing is approximated, so nothing has to be rounded back. Most of the FFT's roots, such as e<sup>-2&pi;i/8</sup> = (1 - i)/&radic;2, have no exact double, so it works with approximations.
+  </FaqItem>
+  <FaqItem question="Can I get the exact integer coefficients?">
+    Only those from 0 to p - 1 come out as themselves. For larger ones, run the NTT modulo three primes such as 998244353, 167772161 and 469762049 and combine each coefficient with the Chinese Remainder Theorem, which recovers anything below their product, about 2<sup>86</sup>. This repository does not implement that; the FFT is exact up to about 10<sup>14</sup> at the lengths measured.
+  </FaqItem>
+  <FaqItem question="What if the problem asks for the answer modulo 10^9 + 7?">
+    That prime has no roots of unity of order 4 or more, so no NTT runs modulo it directly. Compute the product exactly with three NTT primes and the CRT, then reduce it modulo 10<sup>9</sup> + 7.
+  </FaqItem>
+  <FaqItem question="Why is this version iterative when the FFT topic's is recursive?">
+    To show the other standard form of the same algorithm. The bit reversal and the stages do exactly the work of the recursion, in place; the visualization draws both on the same grid, so the two can be compared row by row.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+From easy to harder.
+
+<PracticeProblems
+  problems={[
+    { name: 'Convolution', site: 'AtCoder Library Practice F', url: 'https://atcoder.jp/contests/practice2/tasks/practice2_f', idea: 'The product of two sequences of up to 524,288 values modulo 998244353: multiply_polynomials as it is.' },
+    { name: 'One Bit Positions', site: 'CSES 2112', url: 'https://cses.fi/problemset/task/2112', idea: 'Convolve the bit string with its reverse; every count stays below p, so the residues are the counts.' },
+    { name: 'Substring 2', site: 'AtCoder abc196_f', url: 'https://atcoder.jp/contests/abc196/tasks/abc196_f', idea: 'Count the mismatches of T at every offset of S with two convolutions of bits, all below p.' },
+    { name: 'Lucky Tickets', site: 'Codeforces 1096G', url: 'https://codeforces.com/problemset/problem/1096/G', idea: 'Transform the digit polynomial once, raise each value to the power n/2, transform back, and sum the squares, all modulo 998244353.' },
+  ]}
+/>

@@ -1,6 +1,6 @@
 """Generate golden fixtures for the advanced math and problem type visualizations.
 
-The web visualizer re-implements five topics in TypeScript. These fixtures pin each port to the
+The web visualizer re-implements six topics in TypeScript. These fixtures pin each port to the
 repository's Python code, which this script imports by path and runs on fixed inputs:
 
 - matrixPower (web/src/viz/algorithms/matrixPower.ts), from
@@ -14,6 +14,12 @@ repository's Python code, which this script imports by path and runs on fixed in
   may differ from JavaScript's in the last bit, so complex values are pinned rounded to 9
   significant digits (at most 9 decimals, half up on the exact binary value: the same rule as
   Number.prototype.toFixed); the integer coefficients of a product are pinned exactly.
+- ntt and nttMultiply (ntt.ts), from .../Number_Theoretic_Transform/Python: every _butterfly call
+  (the two positions, the twiddle, the values read and written), every root_of_unity call, every
+  bit_reverse_permute call (the list before and after), every ntt_in_place call (input, output and
+  the butterfly count it returns), and the result of ntt / intt and multiply_polynomials. All are
+  integers modulo 998244353, pinned exactly. The two sections draw their inputs from their own
+  random generator, so adding them changed no other section.
 
 - permutation, havelHakimi and northwestCorner (constructive.ts), from
   Utilities/Problem_Types/Constructive_Algorithms/Python: the result of construct_permutation for
@@ -70,6 +76,7 @@ def load(rel, name):
 
 MP = load("Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation/Python/matrix_exponentiation.py", "matrix_exponentiation")
 FT = load("Algorithms/Mathematical_Algorithms/Advanced_Math/Fast_Fourier_Transform/Python/fast_fourier_transform.py", "fast_fourier_transform")
+NT = load("Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Transform/Python/number_theoretic_transform.py", "number_theoretic_transform")
 CA = load("Utilities/Problem_Types/Constructive_Algorithms/Python/constructive.py", "constructive")
 GT = load("Utilities/Problem_Types/Game_Theory/Python/game_theory.py", "game_theory")
 IP = load("Utilities/Problem_Types/Interactive_Problems/Python/interactive.py", "interactive")
@@ -281,6 +288,115 @@ def multiply_cases(count):
         lp = RNG.randint(1, 5)
         lq = RNG.randint(1, 9 - lp)
         cases.append(multiply_case([RNG.randint(-99, 99) for _ in range(lp)], [RNG.randint(-99, 99) for _ in range(lq)]))
+    return cases
+
+
+# ---------- number theoretic transform ----------
+
+NTT_RNG = random.Random(998244353)
+
+
+def run_ntt(call):
+    """Run call() with _butterfly, root_of_unity, bit_reverse_permute and ntt_in_place recorded."""
+    log = {"butterflies": [], "roots": [], "permutations": [], "transforms": []}
+    names = ("_butterfly", "root_of_unity", "bit_reverse_permute", "ntt_in_place")
+    real = {name: getattr(NT, name) for name in names}
+
+    def butterfly(a, i, j, w):
+        u, v = a[i], a[j]
+        real["_butterfly"](a, i, j, w)
+        log["butterflies"].append([i, j, w, u, v, a[i], a[j]])
+
+    def root_of_unity(n, inverse=False):
+        w = real["root_of_unity"](n, inverse)
+        log["roots"].append([n, inverse, w])
+        return w
+
+    def bit_reverse_permute(a):
+        before = list(a)
+        real["bit_reverse_permute"](a)
+        log["permutations"].append([before, list(a)])
+
+    def ntt_in_place(a, inverse=False):
+        before = list(a)
+        count = real["ntt_in_place"](a, inverse)
+        log["transforms"].append({"input": before, "inverse": inverse, "output": list(a), "count": count})
+        return count
+
+    for name, wrapper in zip(names, (butterfly, root_of_unity, bit_reverse_permute, ntt_in_place)):
+        setattr(NT, name, wrapper)
+    try:
+        log["result"] = call()
+        log["error"] = None
+    except ValueError as e:
+        log["result"] = None
+        log["error"] = "ValueError: " + str(e)
+    finally:
+        for name in names:
+            setattr(NT, name, real[name])
+    return log
+
+
+def ntt_value():
+    """A value the visualization accepts (-99999999 to 999999999), often small, sometimes a large residue."""
+    r = NTT_RNG.random()
+    if r < 0.6:
+        return NTT_RNG.randint(-9, 20)
+    if r < 0.8:
+        return NTT_RNG.choice([NT.MOD - 1, NT.MOD - 2, NT.MOD, -1, -2])
+    return NTT_RNG.randint(-99999999, 999999999)
+
+
+def ntt_case(values, inverse):
+    return dict({"a": values, "inverse": inverse}, **run_ntt(lambda: NT.ntt(values, inverse)))
+
+
+def ntt_multiply_case(p, q):
+    return dict({"p": p, "q": q}, **run_ntt(lambda: NT.multiply_polynomials(p, q)))
+
+
+def ntt_cases(count):
+    m = NT.MOD
+    cases = [
+        ntt_case([1, 2, 3, 4], False),
+        ntt_case([1, 1, 1, 1, 0, 0, 0, 0], False),
+        ntt_case([10, 173167434, 998244351, 825076915], True),
+        ntt_case([1, 2, 3], False),
+        ntt_case([-1, -2, 3, m - 1], False),
+        ntt_case([1, 2, 3], True),
+        ntt_case([], False),
+        ntt_case([], True),
+        ntt_case([5], False),
+        ntt_case([-5], True),
+        ntt_case([m], False),
+        ntt_case([0] * 8, False),
+        ntt_case([3, 1, 4, 1, 5, 9, 2, 6], True),
+        ntt_case([999999999, -99999999], False),
+        ntt_case([1, 2, 3, 4, 5, 6, 7], False),
+    ]
+    while len(cases) < count:
+        n = NTT_RNG.choice([1, 2, 3, 4, 5, 6, 7, 8, 8])
+        inverse = NTT_RNG.random() < 0.3 and n in (1, 2, 4, 8)
+        cases.append(ntt_case([ntt_value() for _ in range(n)], inverse))
+    return cases
+
+
+def ntt_multiply_cases(count):
+    m = NT.MOD
+    cases = [
+        ntt_multiply_case([1, 2, 3], [4, 5]),
+        ntt_multiply_case([1, -1], [1, 1]),
+        ntt_multiply_case([3, 1, 4, 1], [5, 9, 2, 6]),
+        ntt_multiply_case([m - 2], [m - 2]),
+        ntt_multiply_case([7], [3]),
+        ntt_multiply_case([0], [5, 5]),
+        ntt_multiply_case([m - 1] * 3, [m - 1] * 3),
+        ntt_multiply_case([100000000, 1], [100000000, -1]),
+    ]
+    while len(cases) < count:
+        lp = NTT_RNG.randint(1, 5)
+        lq = NTT_RNG.randint(1, 9 - lp)
+        cases.append(ntt_multiply_case([ntt_value() for _ in range(lp)], [ntt_value() for _ in range(lq)]))
     return cases
 
 
@@ -527,6 +643,8 @@ def main():
         "matrixPower": matrix_cases(60),
         "fft": fft_cases(40),
         "fftMultiply": multiply_cases(30),
+        "ntt": ntt_cases(30),
+        "nttMultiply": ntt_multiply_cases(30),
         "permutation": permutation_cases(),
         "havelHakimi": graph_cases(60),
         "northwestCorner": matrix_sum_cases(40),
@@ -537,7 +655,7 @@ def main():
     }
     header = {
         "generator": "web/scripts/gen_mathAndProblemTypes_fixtures.py",
-        "reference": "Algorithms/Mathematical_Algorithms/Advanced_Math (matrix_exponentiation.py, fast_fourier_transform.py); Utilities/Problem_Types (constructive.py, game_theory.py, interactive.py)",
+        "reference": "Algorithms/Mathematical_Algorithms/Advanced_Math (matrix_exponentiation.py, fast_fourier_transform.py, number_theoretic_transform.py); Utilities/Problem_Types (constructive.py, game_theory.py, interactive.py)",
     }
     parts = []
     for key, cases in sections.items():

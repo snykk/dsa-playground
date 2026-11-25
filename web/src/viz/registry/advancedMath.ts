@@ -1,4 +1,4 @@
-/** Visualization registry: Advanced math (matrix exponentiation, the fast Fourier transform). */
+/** Visualization registry: Advanced math (matrix exponentiation, the fast Fourier transform, the number theoretic transform). */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
@@ -33,6 +33,20 @@ export const entries: VizInfo[] = [
     blurb: 'Transform both coefficient lists, multiply point by point, transform back and round: a product in O(n log n).',
     topics: [`${M}/Fast_Fourier_Transform`, M],
   },
+  {
+    id: 'ntt',
+    title: 'Number Theoretic Transform',
+    group: 'Math',
+    blurb: 'The FFT modulo 998244353: reorder by bit reversal, then stages of butterflies with powers of 3 as the roots of unity, all exact.',
+    topics: [`${M}/Number_Theoretic_Transform`],
+  },
+  {
+    id: 'ntt-polynomial-multiplication',
+    title: 'Polynomial multiplication (NTT)',
+    group: 'Math',
+    blurb: 'Two transforms modulo 998244353, a pointwise product and the inverse: the coefficients modulo the prime, with no rounding.',
+    topics: [`${M}/Number_Theoretic_Transform`, M],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -40,4 +54,6 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'matrix-power-recursive': () => import('../specs/advancedMath').then((m) => m.matrixPowerRecursiveSpec),
   fft: () => import('../specs/advancedMath').then((m) => m.fftSpec),
   'fft-polynomial-multiplication': () => import('../specs/advancedMath').then((m) => m.fftMultiplySpec),
+  ntt: () => import('../specs/advancedMath').then((m) => m.nttSpec),
+  'ntt-polynomial-multiplication': () => import('../specs/advancedMath').then((m) => m.nttMultiplySpec),
 };
