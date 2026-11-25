@@ -99,6 +99,7 @@ All three raise an error for a negative amount and return `-1` when the amount c
 ## Related
 
 - [0/1 Knapsack](../../2D_DP/0_1_Knapsack/) - the same idea with each item used once
+- [Unbounded Knapsack](../Unbounded_Knapsack/) - the general problem: values and weights, items reused
 - [Climbing Stairs](../../Basic_DP/Climbing_Stairs/) - counting with steps as coins
 - [Fibonacci Numbers](../../Basic_DP/Fibonacci_Numbers/) - the first one-dimensional DP
 - [Dynamic Programming overview](../../README.md)

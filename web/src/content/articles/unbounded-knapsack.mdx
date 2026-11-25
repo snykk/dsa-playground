@@ -1,0 +1,291 @@
+---
+topic: Algorithms/Dynamic_Programming/Linear_DP/Unbounded_Knapsack
+title: Unbounded Knapsack
+lead: The Unbounded Knapsack finds the best total value within a capacity when every item can be taken any number of times. It is the one-row 0/1 knapsack with the loop over capacities running up instead of down, in O(n W) time and O(W) space, and the same row counts the ways of Coin Change.
+level: Intermediate
+updated: 2026-11-24
+facts:
+  - label: Time
+    value: O(n W)
+    hint: n items, capacity W
+  - label: Space
+    value: O(W)
+    hint: one row and its choices; O(n W) for the 2D table
+  - label: Loop over capacities
+    value: Up
+    hint: going down gives the 0/1 knapsack instead
+  - label: Pseudo-polynomial
+    value: depends on the value of W
+    hint: one more bit in W doubles the work
+    tone: warn
+  - label: Weights
+    value: 1 or more
+    hint: weight 0 is rejected with an error
+properties:
+  - { label: Each item reusable, value: true }
+  - { label: Returns the items, value: true }
+  - { label: Greedy works, value: false }
+  - { label: Polynomial in input size, value: false }
+prerequisites:
+  - Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack
+  - Algorithms/Dynamic_Programming/Linear_DP/Coin_Change
+related:
+  - Algorithms/Greedy/Fractional_Knapsack
+  - Algorithms/Dynamic_Programming/Basic_DP/Climbing_Stairs
+  - Problem_Patterns/DP_Problem_Patterns
+---
+
+## How the Unbounded Knapsack works
+
+There are `n` kinds of items, each with a weight and a value, and a bag of capacity `W`. Unlike the 0/1 knapsack, the stock is unlimited: an item can go into the bag any number of times. One row `dp[0..W]` holds, for every capacity `w`, the best value of items that fit in `w`.
+
+<Steps>
+  <Step title="Start with an empty row">
+    `dp[w] = 0` for every `w` from 0 to `W`: with no items the bag is worth nothing. Beside it, `choice[w] = -1` records that no item has raised `dp[w]` yet.
+  </Step>
+  <Step title="Take the items one at a time, w going up">
+    For each item in input order and each `w` from its weight **up** to `W`, compare `dp[w]` with `dp[w - weight] + value`. If the second is strictly larger, it becomes `dp[w]` and the item becomes `choice[w]`.
+  </Step>
+  <Step title="Read the answer">
+    `dp[W]` is the best value. An item heavier than `W` is never tried, and an item worth 0 never raises anything.
+  </Step>
+  <Step title="Read the items back">
+    Start at `w = W`. While `choice[w]` is not -1, take one copy of item `choice[w]` and subtract its weight from `w`.
+  </Step>
+</Steps>
+
+<Callout title="The loop direction is the whole difference">
+When `w` goes up, the cells left of `w` have already been updated for the current item, so `dp[w - weight]` may contain the item already, and taking it again is allowed. When `w` goes down, the cells left of `w` are updated later, so `dp[w - weight]` still holds the value from before the item: each item is used at most once. That is the 0/1 knapsack's one-row loop, and `zero_one_knapsack` in this topic's code is exactly that loop.
+</Callout>
+
+## See it in action
+
+The first tab fills the row going up. Each step shows the capacity `w`, the cell `w - weight` it reads (an arrow labelled with the item's value) and, under the row, `choice[w]`. When the cell read already holds the item, the caption says how many copies; on **Reuse pays**, `dp[10]` reads `dp[5]`, which the 5 kg item raised a moment earlier, and so takes that item twice. After the fill the walk follows `choice` back from `W`. The second tab runs the same input with `w` going down and ends with the 0/1 knapsack's answer: 13 instead of 14. **A tie** and **Duplicates** show which of two equally good items the code takes.
+
+<ArticleViz ids={['unbounded-knapsack', 'unbounded-knapsack-downward']} />
+
+## Worked example
+
+The items of the 0/1 Knapsack topic, as (weight, value): (1, 1), (3, 4), (4, 5), (5, 7), now with unlimited stock and capacity `W = 10`. The rows below are the one row after each item, as `unbounded_knapsack_table` returns them; the last line is `choice`.
+
+<GridDiagram
+  corner="items \ w"
+  colLabels={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+  rowLabels={['none', '+ (1, 1)', '+ (3, 4)', '+ (4, 5)', '+ (5, 7)', 'choice[w]']}
+  rows={[
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13],
+    [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13],
+    [0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 14],
+    [-1, 0, 0, 1, 1, 3, 1, 1, 3, 1, 3],
+  ]}
+  tones={['...........', '...........', '...........', '...........', 'f....f....f', 'f....f....f']}
+  legend={{ f: 'the walk back from w = 10: item 3 twice, then choice[0] = -1' }}
+  caption="The item (4, 5) changes nothing: 3 + 1 kg is also worth 5."
+  label="One-row unbounded knapsack table after each item, with the choice row"
+/>
+
+The last item, (5, 7), going up. These are the numbers `_relax` sees when the code runs:
+
+<DataTable
+  columns={['w', 'Reads', 'Candidate', 'dp[w] before', 'dp[w] after']}
+  rows={[
+    ['5', '`dp[0] = 0`', '0 + 7 = 7', '6', '7, `choice[5] = 3`'],
+    ['6', '`dp[1] = 1`', '8', '8', '8 (a tie: no change)'],
+    ['7', '`dp[2] = 2`', '9', '9', '9 (a tie)'],
+    ['8', '`dp[3] = 4`', '11', '10', '11, `choice[8] = 3`'],
+    ['9', '`dp[4] = 5`', '12', '12', '12 (a tie)'],
+    ['10', '`dp[5] = 7`', '14', '13', '14, `choice[10] = 3`'],
+  ]}
+/>
+
+At `w = 10` the cell read, `dp[5] = 7`, already holds one copy of the 5 kg item, put there at `w = 5` in the same pass. So `dp[10] = 14` is two copies, and the walk confirms it: `choice[10] = 3` leads to `w = 5`, `choice[5] = 3` leads to `w = 0`, and `choice[0] = -1` stops. `unbounded_knapsack_items(weights, values, 10)` returns `(14, [0, 0, 0, 2])`.
+
+**The same input going down.** After the first three items the downward row is `0, 1, 1, 4, 5, 6, 6, 9, 10, 10, 10`. The last item starts at `w = 10` and reads `dp[5] = 6`, which it has not touched yet: 6 + 7 = 13. `zero_one_knapsack` returns 13, the same as `knapsack_01` in the 0/1 Knapsack topic. At `W = 7` both directions return 9, the 0/1 Knapsack article's answer: reuse does not always help.
+
+## Pseudocode
+
+```text
+unbounded_knapsack_items(weights, values, W):
+    dp = [0] * (W + 1)
+    choice = [-1] * (W + 1)
+    for i = 0 to n - 1:
+        for w = weights[i] to W:                  # up: the item may be in dp[w - weight]
+            if dp[w - weights[i]] + values[i] > dp[w]:
+                dp[w] = dp[w - weights[i]] + values[i]
+                choice[w] = i
+    counts = [0] * n
+    w = W
+    while choice[w] != -1:
+        counts[choice[w]] += 1
+        w = w - weights[choice[w]]
+    return dp[W], counts
+
+zero_one_knapsack(weights, values, W):            # the same loop going down
+    dp = [0] * (W + 1)
+    for i = 0 to n - 1:
+        for w = W down to weights[i]:             # dp[w - weight] is the old value
+            dp[w] = max(dp[w], dp[w - weights[i]] + values[i])
+    return dp[W]
+```
+
+## Implementation
+
+All three languages have the same six operations, take the weights, the values and the capacity in the same order, and try the items in input order.
+
+<DataTable
+  columns={['', 'Python', 'C++', 'Go']}
+  rows={[
+    ['Best value', '`unbounded_knapsack`', '`unboundedKnapsack`', '`UnboundedKnapsack`'],
+    ['Value and items', '`unbounded_knapsack_items` returns `(value, counts)`', '`unboundedKnapsackItems` returns a `KnapsackChoice`', '`UnboundedKnapsackItems` returns `value, counts, err`'],
+    ['2D table', '`unbounded_knapsack_table`', '`unboundedKnapsackTable`', '`UnboundedKnapsackTable`'],
+    ['Loop going down', '`zero_one_knapsack`', '`zeroOneKnapsack`', '`ZeroOneKnapsack`'],
+    ['Counts', '`count_combinations`, `count_permutations`', '`countCombinations`, `countPermutations`', '`CountCombinations`, `CountPermutations`'],
+    ['Numbers', 'unbounded integers', '`long long`', '`int64`'],
+    ['Bad input', '`ValueError`', '`std::invalid_argument`', 'an error wrapping `ErrInvalidInput`'],
+    ['Overflow', 'none: the exact number', '`std::overflow_error`', 'an error wrapping `ErrOverflow`'],
+  ]}
+/>
+
+**Which items.** `dp[w]` and `choice[w]` change only on a strict gain. After item `i`, `dp[w]` is the best value using items `0..i`, so `choice[w]` is the first item `i` such that items `0..i` alone already reach the best value for `w`. With items (2, 3) and (4, 6) and `W = 4`, both 2 + 2 and 4 are worth 6; the code returns two copies of item 0, and one copy of the 4 kg item when it is listed first. Of two identical items, the first is always the one taken. The C++ and Go tests check the values and the counts on 44 knapsack inputs, and both counts on 24 more, against outputs of the Python code.
+
+**Edge cases.** Capacity 0, no items, and items heavier than the capacity all give the value 0 and zero copies. An item worth 0 or less is never taken. The multiset can weigh less than `W`, because `dp[w]` is the best value within `w`: with one item (3, 5) and `W = 7` the code takes two copies, weight 6.
+
+**Weight 0 is an error.** An item of weight 0 and positive value could be taken without end, so the best value would be infinite, and the walk back from `choice` would never move. Every function rejects a weight below 1, as well as a negative capacity or target and lists of different lengths.
+
+<TopicCode topic="Algorithms/Dynamic_Programming/Linear_DP/Unbounded_Knapsack" />
+
+## Complexity analysis
+
+Item `i` costs `W - weight[i] + 1` updates, or none when it is heavier than `W`. Every weight is at least 1, so a fill makes at most `n W` of them, and the walk back at most `W` steps.
+
+<ComplexityTable
+  rows={[
+    { case: 'Best value, either direction', time: 'O(n W)', space: 'O(W)', when: 'One row of W + 1 entries, swept once per item.' },
+    { case: 'Value and items', time: 'O(n W)', space: 'O(W)', when: 'The same fill plus the choice row and a walk of at most W steps.' },
+    { case: '2D table', time: 'O(n W)', space: 'O(n W)', when: 'All (n + 1)(W + 1) cells are kept.' },
+    { case: 'Counts', time: 'O(n T)', space: 'O(T)', when: 'One addition per item and total, for a target T.' },
+  ]}
+/>
+
+Counted on the Python code, for the four items of the example:
+
+<DataTable
+  columns={[{ label: 'W', kind: 'mono' }, { label: 'Bits to write W', kind: 'mono' }, { label: 'Updates', kind: 'mono' }]}
+  rows={[
+    ['10', '4', '31'],
+    ['1,000', '10', '3,991'],
+    ['100,000', '17', '399,991'],
+    ['1,000,000', '20', '3,999,991'],
+  ]}
+/>
+
+<Callout tone="warning" title="Pseudo-polynomial, like the 0/1 knapsack">
+The work grows with the value of `W`, but the input grows only with its number of bits, log<sub>2</sub>(W). Each extra bit doubles `W` and doubles the work, which is exponential in the length of the input. A capacity of 10<sup>9</sup> makes the row unusable even for a handful of items.
+</Callout>
+
+In C++ and Go every sum is checked before it is formed. Two copies of an item worth 2<sup>62</sup> are worth 2<sup>63</sup>, one more than a signed 64-bit integer holds: C++ throws `std::overflow_error`, Go returns `ErrOverflow`, and Python returns 2<sup>63</sup> exactly.
+
+## The 2D table, and why one row is enough
+
+`unbounded_knapsack_table` keeps one row per prefix of the items: row `i` is the best value with only the first `i` items. Skipping item `i` reads the row above; taking it reads **the same row**, because after one copy the item is still there to take.
+
+<Equation label="Unbounded" expr="table[i][w] = max(table[i-1][w], table[i][w - weight] + value)" />
+<Equation label="0/1" expr="table[i][w] = max(table[i-1][w], table[i-1][w - weight] + value)" />
+
+In a single row swept upward, when the loop reaches `w`, the cells to its left already hold row `i` and `dp[w]` itself still holds row `i - 1`: exactly the two cells the unbounded recurrence reads. Swept downward, the cells to the left still hold row `i - 1`, which is what the 0/1 recurrence reads. So the row after item `i` is row `i + 1` of the table, and the tests check this row by row on random inputs. The table costs O(n W) memory and is not needed for the items: the `choice` row recovers them.
+
+## Counting: combinations or permutations
+
+Drop the values, fill the capacity exactly, and add instead of taking a maximum: the same loops count ways. Here the order of the two loops decides what is counted.
+
+<DataTable
+  columns={['Function', 'Outer loop', 'Counts', 'Weights 1, 2, 5 and total 5']}
+  rows={[
+    ['`count_combinations`', 'items', 'multisets: 1 + 2 and 2 + 1 are one way', '4: 5; 2+2+1; 2+1+1+1; 1+1+1+1+1'],
+    ['`count_permutations`', 'totals', 'sequences: every order is a different way', '9: 5; three orders of 2+2+1; four of 2+1+1+1; 1+1+1+1+1'],
+  ]}
+/>
+
+With the items outside, each multiset is built in item order, so it is counted once: after the items 1, 2 and 5 the row `ways[0..5]` is `1,1,1,1,1,1`, then `1,1,2,2,3,3`, then `1,1,2,2,3,4`. With the totals outside, `ways[t]` adds `ways[t - weight]` for every possible **last** item, so every order counts: the row is `1,1,2,3,5,9`. Items are told apart by position: two items of weight 2 give three combinations of total 4 and four sequences.
+
+This is Coin Change with the coins as weights: `count_combinations` is `coin_change_ways`, which also returns 4 here. The fewest coins is the minimum version: every value is 1, the total must be exact, and `dp[a] = min(dp[a], dp[a - c] + 1)` runs over the same upward loop; `coin_change_min_coins([1, 2, 5], 11)` returns 3.
+
+## Unbounded vs 0/1 knapsack and greedy
+
+Greedy by value per weight is not optimal when items are whole. With items (3, 5) and (4, 7) and `W = 6`, greedy takes the better ratio, one (4, 7), and nothing else fits: 7. Two copies of (3, 5) are worth 10, which `unbounded_knapsack([3, 4], [5, 7], 6)` returns.
+
+<DataTable
+  columns={['Problem', 'Items', 'Loop over capacities', { label: 'Time', kind: 'mono' }]}
+  highlight={0}
+  rows={[
+    ['Unbounded knapsack', 'any number of copies', 'up', 'O(n W)'],
+    ['0/1 knapsack', 'each at most once', 'down', 'O(n W)'],
+    ['Bounded knapsack', 'item i up to k[i] times', 'down, after splitting into 0/1 items', 'O(n W log k)'],
+    ['Fractional knapsack', 'can be cut', 'none: greedy by value per weight', 'O(n log n)'],
+    ['Coin Change, fewest coins', 'reusable, exact total, minimum count', 'up', 'O(n A)'],
+    ['Coin Change, number of ways', 'reusable, exact total, count', 'up; the loop order picks combinations or permutations', 'O(n A)'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Exact, where greedy by ratio is not.',
+    'One row of W + 1 entries, and one more row recovers the items.',
+    'The same loop answers the 0/1 knapsack (down), the counts and the minimum versions.',
+  ]}
+  cons={[
+    'Pseudo-polynomial: a large capacity makes the row too long.',
+    'Weights must be whole numbers of at least 1.',
+    'Counts grow exponentially and pass 64 bits quickly in C++ and Go.',
+  ]}
+/>
+
+## Applications
+
+- **Cutting stock.** Cut a rod or a ribbon into pieces of given lengths and prices, using each length as often as you like.
+- **Buying from unlimited stock.** Spend a budget on items that can be bought again, for the most value.
+- **Paying with coins.** The fewest coins, or the number of ways, for an amount: the Coin Change family.
+- **Counting compositions.** The number of ordered ways to climb stairs with given step sizes is `count_permutations`.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Copying the 0/1 loop.** Going down gives the 0/1 answer without any error: 13 instead of 14 in the example.
+- **The wrong loop order when counting.** Items outside count combinations, totals outside count permutations: 4 against 9.
+- **Allowing weight 0.** An item of weight 0 and positive value makes the answer infinite; the code rejects it.
+- **Exactly W or at most W.** Starting from a row of zeros gives the best within `W`. To fill `W` exactly, start every entry except `dp[0]` at minus infinity.
+- **Using `>=` for the update.** The value is the same, but the items returned change: a strict `>` keeps the first item that reaches the best value.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Why does the loop going up allow an item to be reused?">
+    Going up, `dp[w - weight]` is updated before `dp[w]` in the same pass, so it may already include the current item. Adding the item once more on top of it uses it again. Going down, `dp[w - weight]` is updated after `dp[w]`, so it never includes the current item.
+  </FaqItem>
+  <FaqItem question="Does the order of the two loops matter for the best value?">
+    No. Items outside (the code) and capacities outside give the same row, because both compute the best value within every `w`. The order matters for counting, where it decides between combinations and permutations.
+  </FaqItem>
+  <FaqItem question="Which items does the code return when several choices are equally good?">
+    The first item, in input order, with which `dp[w]` reaches its final value, at every step of the walk back. So a tie goes to the earlier item, and of two identical items the first is taken.
+  </FaqItem>
+  <FaqItem question="Why is weight 0 an error rather than a free item?">
+    An item of weight 0 and positive value could be added to any bag without end, so there would be no best value. Rejecting every weight below 1 keeps the rule simple and the same in Python, C++ and Go.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+<PracticeProblems
+  problems={[
+    { name: 'Knapsack', site: 'HackerRank unbounded-knapsack', url: 'https://www.hackerrank.com/challenges/unbounded-knapsack/problem', idea: 'Every value equals its weight: the best sum not above k, with each number usable again.' },
+    { name: 'Minimizing Coins', site: 'CSES 1634', url: 'https://cses.fi/problemset/task/1634', idea: 'The minimum version: the fewest coins for an exact sum, or -1, with sums up to 10^6.' },
+    { name: 'Coin Combinations I', site: 'CSES 1635', url: 'https://cses.fi/problemset/task/1635', idea: 'Ordered ways, so the sums go in the outer loop; count_permutations([2, 3, 5], 9) gives the example answer 8.' },
+    { name: 'Coin Combinations II', site: 'CSES 1636', url: 'https://cses.fi/problemset/task/1636', idea: 'Unordered ways, so the coins go in the outer loop; count_combinations([2, 3, 5], 9) gives the example answer 3.' },
+    { name: 'Form Largest Integer With Digits That Add up to Target', site: 'LeetCode 1449', url: 'https://leetcode.com/problems/form-largest-integer-with-digits-that-add-up-to-target/', idea: 'Fill the target cost exactly with as many digits as possible, then read the largest number back with a tie rule of your own.' },
+  ]}
+/>

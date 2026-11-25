@@ -1,0 +1,21 @@
+/* IntervalDpView: two DpTableViews that wrap onto two rows on a narrow screen, then a TreeDpView. */
+.idp-view {
+  overflow-x: auto;
+  min-width: 0;
+}
+.idp-tables {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* Side by side, the bottoms line up, so the rows of the two tables do (only dp has chips). */
+  align-items: flex-end;
+  gap: 0.25rem 1.5rem;
+}
+/* Let each table shrink with the stage: the SVG inside already scales down to 100% of its box. */
+.idp-tables > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.idp-view .td-wrap {
+  margin-top: 0.5rem;
+}

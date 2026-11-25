@@ -111,5 +111,6 @@ All three return the best value, not the chosen items.
 
 - [Fractional Knapsack](../../../Greedy/Fractional_Knapsack/) - the greedy, divisible-items variant
 - [Coin Change](../../Linear_DP/Coin_Change/) - unbounded knapsack in disguise
+- [Unbounded Knapsack](../../Linear_DP/Unbounded_Knapsack/) - the same table with unlimited copies, filled left to right
 - [Longest Common Subsequence](../Longest_Common_Subsequence/) - another 2D DP table
 - [Dynamic Programming overview](../../README.md)

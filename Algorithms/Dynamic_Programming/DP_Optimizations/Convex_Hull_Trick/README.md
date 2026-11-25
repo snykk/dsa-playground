@@ -67,7 +67,7 @@ Each line is pushed once and popped at most once, so n operations on the deque c
 ## When to Use
 
 - A DP whose transition is `min` or `max` of terms linear in an index-dependent value, such as setup costs or squared distances expanded as `(x_i - x_j)^2`.
-- Not when the cost is not linear in the query variable (try divide and conquer DP or Knuth's optimization), or when n is small enough for a plain scan.
+- Not when the cost is not linear in the query variable (try [Divide and Conquer Optimization](../Divide_and_Conquer_Optimization/) or [Knuth Optimization](../Knuth_Optimization/)), or when n is small enough for a plain scan.
 
 ## CHT vs. Alternatives
 
@@ -108,5 +108,6 @@ Each line is pushed once and popped at most once, so n operations on the deque c
 
 - [Dynamic Programming](../../README.md)
 - [DP on Trees](../../Advanced_DP/DP_on_Trees/)
+- [Divide and Conquer Optimization](../Divide_and_Conquer_Optimization/): the other speed-up for a minimum over earlier states, when the best `j` is monotone instead of the cost being a line
 - [Monotonic Queue](../../../../Problem_Patterns/Monotonic_Queue/)
 - [DP Problem Patterns](../../../../Problem_Patterns/DP_Problem_Patterns/)

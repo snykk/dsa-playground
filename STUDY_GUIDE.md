@@ -174,6 +174,7 @@ Coin Change is the first problem where greedy fails; LCS opens 2D tables; the re
 - [Longest Common Subsequence](Algorithms/Dynamic_Programming/2D_DP/Longest_Common_Subsequence/) (Intermediate)
 - [Edit Distance](Algorithms/Dynamic_Programming/2D_DP/Edit_Distance/) (Intermediate)
 - [0/1 Knapsack](Algorithms/Dynamic_Programming/2D_DP/0_1_Knapsack/) (Intermediate)
+- [Unbounded Knapsack](Algorithms/Dynamic_Programming/Linear_DP/Unbounded_Knapsack/) (Intermediate)
 - [DP Problem Patterns](Problem_Patterns/DP_Problem_Patterns/) (Intermediate)
 
 **Milestone:** you can solve LeetCode Medium problems with patterns and DP consistently.
@@ -261,11 +262,14 @@ Bit manipulation first, because bitmask DP stores a subset in an integer.
 
 - [Bit Manipulation](Problem_Patterns/Bit_Manipulation/) (Intermediate)
 - [Matrix Chain Multiplication](Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication/) (Advanced)
+- [Interval DP](Algorithms/Dynamic_Programming/Advanced_DP/Interval_DP/) (Advanced)
 - [DP on Trees](Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Trees/) (Advanced)
 - [DP on Graphs](Algorithms/Dynamic_Programming/Advanced_DP/DP_on_Graphs/) (Advanced)
 - [Bitmask DP](Algorithms/Dynamic_Programming/Advanced_DP/Bitmask_DP/) (Advanced)
 - [Digit DP](Algorithms/Dynamic_Programming/Advanced_DP/Digit_DP/) (Advanced)
 - [Convex Hull Trick and Li Chao Tree](Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick/) (Advanced)
+- [Divide and Conquer Optimization](Algorithms/Dynamic_Programming/DP_Optimizations/Divide_and_Conquer_Optimization/) (Advanced)
+- [Knuth Optimization](Algorithms/Dynamic_Programming/DP_Optimizations/Knuth_Optimization/) (Advanced)
 
 **Milestone:** you can solve LeetCode Hard problems and are interview-ready for senior roles.
 

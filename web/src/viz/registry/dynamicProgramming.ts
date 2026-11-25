@@ -41,6 +41,20 @@ export const entries: VizInfo[] = [
     topics: ['Algorithms/Dynamic_Programming/Linear_DP/Coin_Change', 'Algorithms/Dynamic_Programming/Linear_DP'],
   },
   {
+    id: 'unbounded-knapsack',
+    title: 'Unbounded Knapsack (w going up)',
+    group: 'Dynamic Programming',
+    blurb: 'One row filled item by item with w going up, so a cell can read a cell its own item has just raised; then the items are read back.',
+    topics: ['Algorithms/Dynamic_Programming/Linear_DP/Unbounded_Knapsack', 'Algorithms/Dynamic_Programming/Linear_DP'],
+  },
+  {
+    id: 'unbounded-knapsack-downward',
+    title: 'Unbounded Knapsack (w going down)',
+    group: 'Dynamic Programming',
+    blurb: 'The same row with w going down: every cell read still holds the value from before the item, so each item is used at most once.',
+    topics: ['Algorithms/Dynamic_Programming/Linear_DP/Unbounded_Knapsack'],
+  },
+  {
     id: 'lis',
     title: 'Longest Increasing Subsequence (O(n^2) table)',
     group: 'Dynamic Programming',
@@ -74,6 +88,13 @@ export const entries: VizInfo[] = [
     group: 'Dynamic Programming',
     blurb: "Fill the interval table by chain length, trying every split, then recover the best bracketing.",
     topics: ['Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication', 'Algorithms/Dynamic_Programming/2D_DP'],
+  },
+  {
+    id: 'interval-dp',
+    title: 'Interval DP: merging piles',
+    group: 'Dynamic Programming',
+    blurb: 'Fill dp[i][j] one diagonal at a time, trying every split of every range; then read the merge tree back from the splits kept.',
+    topics: [`${ADV}/Interval_DP`, ADV],
   },
   {
     id: 'tree-dp-independent-set',
@@ -117,6 +138,20 @@ export const entries: VizInfo[] = [
     blurb: 'Lines enter a deque by decreasing slope; the back pops lines the new one makes useless, queries pop the front.',
     topics: ['Algorithms/Dynamic_Programming/DP_Optimizations/Convex_Hull_Trick'],
   },
+  {
+    id: 'dnc-optimization',
+    title: 'Divide and Conquer Optimization',
+    group: 'Dynamic Programming',
+    blurb: 'One layer of a DP: the middle cell tries its range of j first, and each half then searches only on its side of that best j.',
+    topics: ['Algorithms/Dynamic_Programming/DP_Optimizations/Divide_and_Conquer_Optimization'],
+  },
+  {
+    id: 'knuth-optimization',
+    title: "Knuth's optimization: merging piles",
+    group: 'Dynamic Programming',
+    blurb: 'The interval DP of merging piles, each cell trying only the splits between the best splits of its two neighbours, with the splits counted against trying them all.',
+    topics: ['Algorithms/Dynamic_Programming/DP_Optimizations/Knuth_Optimization'],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -125,15 +160,20 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   fibonacci: () => import('../specs/dpLinear').then((m) => m.fibonacci),
   'climbing-stairs': () => import('../specs/dpLinear').then((m) => m.climbingStairs),
   'coin-change': () => import('../specs/dpLinear').then((m) => m.coinChange),
+  'unbounded-knapsack': () => import('../specs/unboundedKnapsack').then((m) => m.unboundedKnapsackSpec),
+  'unbounded-knapsack-downward': () => import('../specs/unboundedKnapsack').then((m) => m.unboundedKnapsackDownwardSpec),
   lis: () => import('../specs/dpLinear').then((m) => m.lis),
   'lis-tails': () => import('../specs/dpLinear').then((m) => m.lisTails),
   kadane: () => import('../specs/dpLinear').then((m) => m.kadane),
   'edit-distance': () => import('../specs/dpGrid').then((m) => m.editDistance),
   'matrix-chain': () => import('../specs/dpGrid').then((m) => m.matrixChain),
+  'interval-dp': () => import('../specs/intervalDp').then((m) => m.intervalDpSpec),
   'tree-dp-independent-set': () => import('../specs/advancedDp').then((m) => m.treeMisSpec),
   'tree-dp-max-path-sum': () => import('../specs/advancedDp').then((m) => m.treePathSpec),
   'dag-longest-path': () => import('../specs/advancedDp').then((m) => m.dagLongestPathSpec),
   'bitmask-dp-tsp': () => import('../specs/advancedDp').then((m) => m.bitmaskTspSpec),
   'digit-dp': () => import('../specs/advancedDp').then((m) => m.digitDpSpec),
   'convex-hull-trick': () => import('../specs/advancedDp').then((m) => m.convexHullTrickSpec),
+  'dnc-optimization': () => import('../specs/dncOptimization').then((m) => m.dncOptimizationSpec),
+  'knuth-optimization': () => import('../specs/knuthOptimization').then((m) => m.knuthOptimizationSpec),
 };
