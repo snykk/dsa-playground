@@ -1,0 +1,17 @@
+/* TotientView: the linear sieve's grid and the ladder of trial division, on OptimizationKit's boxes. */
+.ok-svg .tt-cell.tt-crossed.role-idle rect,
+.ok-svg .tt-cell.tt-crossed.role-muted rect {
+  fill: var(--surface-2);
+}
+.ok-svg .tt-cell .tt-phi {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+.ok-svg .tt-cell.role-active .tt-phi,
+.ok-svg .tt-cell.role-done .tt-phi,
+.ok-svg .tt-cell.role-good .tt-phi,
+.ok-svg .tt-cell.role-bad .tt-phi {
+  fill: var(--viz-ink-on-fill);
+}

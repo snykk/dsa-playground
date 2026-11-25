@@ -1,4 +1,4 @@
-/** Visualization registry: Number theory (Euclid, modular arithmetic and exponentiation, Miller-Rabin, the Chinese remainder theorem, the sieve). */
+/** Visualization registry: Number theory (Euclid, modular arithmetic and exponentiation, Miller-Rabin, the Chinese remainder theorem, the sieve, Euler's totient). */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
@@ -61,6 +61,20 @@ export const entries: VizInfo[] = [
     blurb: 'Each prime strikes its multiples from its square on, until i * i passes n and every number still standing is prime.',
     topics: [`${NT}/Sieve_of_Eratosthenes`, NT],
   },
+  {
+    id: 'eulers-totient-sieve',
+    title: 'Linear sieve (phi of every number)',
+    group: 'Math',
+    blurb: 'Each composite is crossed out once, by i times its smallest prime factor, and phi fills in from phi(i) as the grid goes.',
+    topics: [`${NT}/Eulers_Totient`, NT],
+  },
+  {
+    id: 'eulers-totient-factor',
+    title: "Euler's totient by trial division",
+    group: 'Math',
+    blurb: 'Divide out each prime while p * p fits in what is left, then take 1/p off the result per prime; Euler\'s theorem turns phi into inverses.',
+    topics: [`${NT}/Eulers_Totient`],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -72,4 +86,6 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'miller-rabin-deterministic': () => import('../specs/numberTheory').then((m) => m.millerRabinDeterministicSpec),
   'chinese-remainder-theorem': () => import('../specs/numberTheory').then((m) => m.chineseRemainderSpec),
   'sieve-of-eratosthenes': () => import('../specs/numberTheory').then((m) => m.sieveSpec),
+  'eulers-totient-sieve': () => import('../specs/numberTheory').then((m) => m.totientSieveSpec),
+  'eulers-totient-factor': () => import('../specs/numberTheory').then((m) => m.totientFactorSpec),
 };

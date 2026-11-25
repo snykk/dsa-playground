@@ -1,0 +1,245 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Advanced_Math/Combinatorics
+title: Combinatorics
+lead: The binomial coefficient C(n, k) counts the ways to choose k of n items. Compute it with Pascal's triangle, exactly with the multiplicative formula, or modulo a prime from factorial tables in O(1) per query; then count Catalan structures, distributions by stars and bars, and derangements.
+level: Intermediate
+updated: 2026-11-24
+facts:
+  - label: Pascal's triangle
+    value: O(n^2)
+    hint: additions only, any modulus or none
+  - label: Multiplicative formula
+    value: min(k, n - k) steps
+    hint: exact; overflows only with the answer
+  - label: C(n, k) mod p
+    value: O(1)
+    hint: after O(n + log p) for fact and inv_fact
+  - label: Needs
+    value: prime p > n
+    hint: from n = p on, Lucas's theorem takes over
+    tone: warn
+properties:
+  - { label: Exact without a modulus, value: true }
+  - { label: One modular inverse per table, value: true }
+  - { label: Same results in Python, C++ and Go, value: true }
+  - { label: Works modulo any number, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Eulers_Totient
+  - Utilities/Optimization_Techniques/Precomputation
+related:
+  - Utilities/Optimization_Techniques/Modular_Arithmetic_Tricks
+  - Problem_Patterns/Inclusion_Exclusion_Principle
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Matrix_Exponentiation
+  - Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Transform
+  - Algorithms/Dynamic_Programming/2D_DP/Matrix_Chain_Multiplication
+---
+
+## How it works
+
+**Combinatorics** counts arrangements without listing them. Its building block is the **binomial coefficient** `C(n, k)`, the number of `k`-element subsets of an `n`-element set: `C(5, 2) = 10` pairs can be chosen from five items. It is 0 when `k < 0` or `k > n`, and `C(n, 0) = C(n, n) = 1`, including `C(0, 0)`. The code computes it three ways, each for a different situation.
+
+<Steps>
+  <Step title="Pascal's triangle: additions only">
+    Fix one item. A `k`-subset either takes it, and then `k - 1` more from the other `n - 1`, or leaves it, and takes all `k` from the other `n - 1`. So each cell is the sum of the two above it, and the triangle up to row n costs `n(n - 1)/2` additions. No division, so it works modulo any number, or with none.
+  </Step>
+  <Step title="The multiplicative formula: exact, in min(k, n - k) steps">
+    Multiply `(n - k + i) / i` for `i = 1..k`. After step `i` the value is `C(n - k + i, i)`, an integer no larger than the answer. Each step divides `gcd(value, i)` out of the value before it multiplies, so the product is the next value exactly; in 64 bits nothing overflows unless the answer does.
+  </Step>
+  <Step title="Factorials modulo a prime: O(1) per query">
+    Fill `fact[i] = i! mod p` downwards. Invert `n!` once with `(n!)^(p - 2) mod p`, then fill `inv_fact[i - 1] = inv_fact[i] * i` upwards. A query is `fact[n] * inv_fact[k] * inv_fact[n - k] mod p`: three lookups and two products.
+  </Step>
+</Steps>
+
+<Equation label="Three forms of the same number" expr="C(n, k) = C(n - 1, k - 1) + C(n - 1, k) = prod (n - k + i) / i = n! / (k! (n - k)!)" />
+
+The one inverse is Euler's theorem for a prime: `phi(p) = p - 1`, so `a^(p - 1) = 1` and `a^(p - 2)` is the inverse of `a` modulo p. That needs `n < p`. From `n = p` on, `n!` contains the factor p, is 0 modulo p, and has no inverse; Lucas's theorem (in Modular Arithmetic Tricks) computes `C(n, k) mod p` there from the base-p digits of n and k.
+
+<Callout title="Three counts built on C(n, k)">
+- **Catalan numbers** `C_n` count balanced strings of n pairs of parentheses, binary tree shapes with n nodes, and triangulations of a polygon with `n + 2` corners. Each structure splits at its first piece into two smaller ones, so `C_n = sum of C_i * C_(n-1-i)`; in closed form `C_n = C(2n, n) / (n + 1)`.
+- **Stars and bars**: n identical items in k boxes are n stars and `k - 1` bars in a row, `C(n + k - 1, k - 1)` ways; with at least one item per box, `C(n - 1, k - 1)`.
+- **Derangements** `D(n)`, the permutations that leave no item in place: `D(n) = (n - 1)(D(n - 1) + D(n - 2))`, with `D(0) = 1` and `D(1) = 0`. `D(n) / n!` tends to `1/e`.
+</Callout>
+
+## See it in action
+
+The visualization follows the Python code. It fills Pascal's triangle row by row, each new cell lit with the two cells it is the sum of. Then `ModBinomial(n, p)` fills `fact` downwards, computes the one inverse, fills `inv_fact` upwards, and answers each query from three entries, checked against the exact value in the triangle. Try `C(9, 4) mod 7` to see the tables refused for `n >= p`, and `C(6, 3) mod 8` for a modulus that is not prime.
+
+<ArticleViz ids={['binomial-coefficients']} />
+
+## Worked example
+
+`ModBinomial(6, 13)` and the query `C(6, 2)`:
+
+<DataTable
+  columns={['i', 'fact[i] = fact[i-1] * i mod 13', 'inv_fact[i] = inv_fact[i+1] * (i+1) mod 13']}
+  rows={[
+    ['0', '1', '1 * 1 = 1'],
+    ['1', '1 * 1 = 1', '7 * 2 = 14 = 1'],
+    ['2', '1 * 2 = 2', '11 * 3 = 33 = 7'],
+    ['3', '2 * 3 = 6', '6 * 4 = 24 = 11'],
+    ['4', '6 * 4 = 24 = 11', '9 * 5 = 45 = 6'],
+    ['5', '11 * 5 = 55 = 3', '8 * 6 = 48 = 9'],
+    ['6', '3 * 6 = 18 = 5', 'the one inverse: 5^11 mod 13 = 8'],
+  ]}
+/>
+
+The inverse column reads from the bottom up: `inv_fact[6] = 8` because `5 * 8 = 40 = 1 (mod 13)`, and each row above it multiplies by i. The power `5^11` took 4 squarings and 3 products, so the build made `6 + 7 + 6 = 19` products. Then:
+
+<Equation label="C(6, 2) mod 13" expr="fact[6] * inv_fact[2] * inv_fact[4] = 5 * 7 * 6 = 210" result="2 (mod 13)" />
+
+and indeed `C(6, 2) = 15 = 13 + 2`. The multiplicative formula gets the exact value of `C(10, 3)` in three steps: `1 * 8 = 8 = C(8, 1)`, then `gcd(8, 2) = 2` and `4 * 9 = 36 = C(9, 2)`, then `gcd(36, 3) = 3` and `12 * 10 = 120 = C(10, 3)`.
+
+Derangements, from running the code: `D(n) / n!` is 0, 0.5, 0.333, 0.375, 0.3667 and 0.36806 for `n = 1..6`, and `D(10) / 10! = 0.367879464`, against `1/e = 0.367879441`. The error is below `1 / (n + 1)!` and changes sign at every step, so `D(n)` is `n! / e` rounded.
+
+## Pseudocode
+
+```text
+pascal_triangle(n):                       # ValueError for n < 0
+    rows = [[1]]
+    for r in 1 .. n:
+        row = [1] * (r + 1)               # C(r, 0) = C(r, r) = 1
+        for j in 1 .. r - 1: row[j] = rows[r-1][j-1] + rows[r-1][j]
+        rows.append(row)
+    return rows
+
+binomial(n, k):                           # the multiplicative formula
+    if k < 0 or k > n: return 0
+    k = min(k, n - k); result = 1
+    for i in 1 .. k:
+        g = gcd(result, i)
+        result = (result / g) * ((n - k + i) / (i / g))     # = C(n - k + i, i)
+    return result
+
+ModBinomial(n_max, p):                    # ValueError if n_max < 0, p < 2 or n_max >= p
+    fact[0] = 1; for i in 1 .. n_max: fact[i] = fact[i-1] * i % p
+    inv = power(fact[n_max], p - 2, p)
+    if fact[n_max] * inv % p != 1: raise ValueError   # p is not prime
+    inv_fact[n_max] = inv
+    for i in n_max .. 1: inv_fact[i-1] = inv_fact[i] * i % p
+
+ModBinomial.binomial(n, k):
+    if k < 0 or k > n: return 0
+    if n > n_max: raise ValueError        # past the table
+    return fact[n] * inv_fact[k] % p * inv_fact[n-k] % p
+
+catalan_numbers(n):  C[0] = 1; C[m] = sum(C[i] * C[m-1-i] for i in 0 .. m-1)
+catalan(n):          binomial(2n, n) / (n + 1)
+stars_and_bars(n, k):           1 if n == 0 else 0 when k == 0; else binomial(n + k - 1, k - 1)
+stars_and_bars_positive(n, k):  1 if n == 0 else 0 when k == 0; else binomial(n - 1, k - 1)
+derangement_numbers(n):         D[0] = 1, D[1] = 0, D[m] = (m - 1) * (D[m-1] + D[m-2])
+```
+
+## Implementation
+
+Every language provides the same operations with the same results:
+
+- **`pascal_triangle`** (`pascalTriangle`, `PascalTriangle`) and **`binomial_pascal`** (`binomialPascal`, `BinomialPascal`): the whole triangle, or one value on a single row of `min(k, n - k) + 1` cells.
+- **`binomial`** (`binomial`, `Binomial`): the multiplicative formula.
+- **`ModBinomial`** (class `ModBinomial`, `NewModBinomial`): the tables `fact` and `inv_fact`, the count of products the build made, and `binomial(n, k)` for `C(n, k) mod p`.
+- **`catalan_numbers`** and **`catalan`**, **`stars_and_bars`** and **`stars_and_bars_positive`**, **`derangement_numbers`**, named in each language's style. C++ and Go also export the modular product and power (`mulMod` and `powMod`, `MulMod` and `PowMod`).
+
+**64-bit limits.** C++ and Go return unsigned 64-bit counts, check every sum and product before making it, and throw `std::overflow_error` or return `ErrOverflow` instead of a wrapped number. Row 67 is the last row of Pascal's triangle that fits (its middle is `C(67, 33) = 14,226,520,737,620,288,370`); in signed 64 bits it is row 66. The recurrence reaches the Catalan number `C_36`, but the closed form stops at `n = 33`, because `C(68, 34)` overflows before the division by 35. The derangements fit up to `D(20)`. Modular products go through `unsigned __int128` in C++ and `bits.Mul64` with `bits.Rem64` in Go, so any 64-bit prime works as p. Python's integers have no limit.
+
+**Errors.** A negative size raises `ValueError` in Python, throws `std::invalid_argument` in C++ and wraps `ErrNegative` in Go. `n_max >= p` and a modulus that is not prime raise `ValueError`, throw `std::invalid_argument`, or wrap `ErrNotBelowP` and `ErrNotPrime`. A query past the table raises `ValueError`, throws `std::out_of_range` or wraps `ErrPastTable`; a query with `k < 0` or `k > n` returns 0 before it looks at the table.
+
+**The same answers.** The C++ and Go tests pin 30 binomials, 6 overflows, rows 10 and 67, 9 modular tables with 26 queries and their counts of products, `C_0` to `C_36`, `D(0)` to `D(20)` and 11 stars-and-bars pairs, all computed by the Python code. Every language checks the binomials against a count of subsets, the Catalan numbers against balanced parentheses, the derangements and stars and bars against enumeration, and the modular tables against Pascal's triangle taken modulo p.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Advanced_Math/Combinatorics" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'pascal_triangle(n)', time: 'O(n^2)', space: 'O(n^2)', when: 'n(n - 1)/2 additions, one per interior cell.' },
+    { case: 'binomial_pascal(n, k)', time: 'O(n * min(k, n - k))', space: 'O(min(k, n - k))', when: 'One row; 1,999 additions for C(1000, 998).' },
+    { case: 'binomial(n, k)', time: 'O(min(k, n - k))', space: 'O(1)', when: 'One gcd and one product per step; 3 steps for C(10^18, 10^18 - 3).' },
+    { case: 'ModBinomial(n, p)', time: 'O(n + log p)', space: 'O(n)', when: '2n products and one power of at most 2 log2(p) products.' },
+    { case: 'ModBinomial.binomial', time: 'O(1)', space: 'O(1)', when: 'Three lookups and two products.' },
+    { case: 'catalan_numbers(n)', time: 'O(n^2)', space: 'O(n)', when: 'The recurrence sums n products for C_n.' },
+  ]}
+/>
+
+Counted with the Python code through its module-level helpers: the triangle made exactly `n(n - 1)/2` additions, the one-row version `min(r, k)` additions for each row r, and the multiplicative formula `min(k, n - k)` steps, each of them a binomial no larger than the answer. Every `ModBinomial` called the modular power once; `ModBinomial(10^6, 10^9 + 7)` made 2,000,045 products and took about 0.3 seconds in Python.
+
+## Variants and comparisons
+
+<DataTable
+  columns={['Method', { label: 'Precompute', kind: 'mono' }, { label: 'Per query', kind: 'mono' }, 'Modulus', 'Use it when']}
+  highlight={3}
+  rows={[
+    ['Pascal\'s triangle', 'O(N^2)', 'O(1)', 'any, or none', 'all binomials up to a few thousand rows; a composite modulus'],
+    ['One row of the triangle', 'none', 'O(n * min(k, n - k))', 'any, or none', 'one value with additions only'],
+    ['Multiplicative formula', 'none', 'O(min(k, n - k))', 'none', 'one exact value, n as large as you like'],
+    ['Factorials and inverse factorials', 'O(N + log p)', 'O(1)', 'prime p > N', 'many queries modulo 10^9 + 7'],
+    ['Lucas\'s theorem', 'O(p)', 'O(log_p n)', 'prime p', 'n >= p, usually with a small p; in Modular Arithmetic Tricks'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'Pascal\'s triangle needs only additions, so it works modulo any number.',
+    'The multiplicative formula is exact and overflows only when the answer does.',
+    'With the tables, every C(n, k) mod p is O(1), from a single modular inverse.',
+    'Catalan numbers, stars and bars and derangements reduce to a binomial or a short recurrence.',
+  ]}
+  cons={[
+    'The triangle costs O(n^2) time and memory.',
+    'The factorial tables need a prime modulus larger than n.',
+    'In 64 bits the counts grow fast: row 67, C_36 and D(20) are the last that fit.',
+    'The Catalan closed form passes through C(2n, n), n + 1 times the answer.',
+  ]}
+/>
+
+## Applications
+
+- **Counting problems modulo 10<sup>9</sup> + 7.** Paths in a grid (`C(r + c, r)` monotone paths), subsets of a given size, distributions of identical items: one table, then O(1) per query.
+- **Probability.** The chance of exactly k heads in n fair tosses is `C(n, k) / 2^n`; the chance that a random permutation has no fixed point is `D(n) / n!`, about `1/e`.
+- **Catalan structures.** Balanced parentheses, binary search tree shapes, triangulations, mountain ranges, and the orders of a matrix chain product.
+- **Polynomials.** The binomial theorem expands `(x + y)^n` with row n of the triangle as coefficients.
+- **Inclusion-exclusion.** Alternating sums of binomials count what avoids every forbidden property; the derangement formula is one.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **Dividing modulo p.** `fact[n] / (fact[k] * fact[n - k]) % p` is wrong; multiply by the inverse factorials instead.
+- **Tables with n >= p.** `n!` is 0 modulo p, so `C(7, 7) mod 7` would come out 0 instead of 1. Use Lucas's theorem; the code refuses such a table.
+- **A composite modulus.** Fermat's inverse `a^(m - 2)` is wrong for most composite m; the code checks the inverse and refuses.
+- **An inverse per entry.** One power and the backward loop cost O(n + log p); a power per entry costs O(n log p).
+- **Multiplying before dividing.** `n! / (k! (n - k)!)` overflows 64 bits at `21!`, and `result * (n - k + i) / i` a step before the answer does; divide the gcd out first.
+- **Forgetting `min(k, n - k)`.** `C(10^18, 10^18 - 3)` takes 3 steps with it.
+- **The edge values.** `C(n, k) = 0` for `k < 0` or `k > n`, `C(0, 0) = 1`, `D(0) = 1`, and 0 items in 0 boxes is one way.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="Which of the three binomial methods should I use?">
+    Many queries modulo a prime larger than n: the factorial tables. One exact value: the multiplicative formula. A composite modulus, or every binomial up to a small n at once: Pascal's triangle, which only adds.
+  </FaqItem>
+  <FaqItem question="Why compute the inverse factorials backwards?">
+    `1/(i - 1)! = i * 1/i!`, so one product turns each inverse into the next. Only `(n!)^-1` needs a modular power. Going forwards would need a new inverse for every entry.
+  </FaqItem>
+  <FaqItem question="What happens when n is at least p?">
+    `n!` contains the factor p, so it is 0 modulo p and has no inverse: the tables cannot be built, and the code raises an error. `C(n, k) mod p` can still be nonzero, as `C(7, 7) mod 7 = 1` shows. Lucas's theorem writes n and k in base p and multiplies the binomials of their digits, each a binomial of numbers below p, where the tables work.
+  </FaqItem>
+  <FaqItem question="How large can the numbers get in C++ and Go?">
+    Up to 2<sup>64</sup> - 1. Row 67 of Pascal's triangle, the Catalan number `C_36` and the derangement number `D(20)` are the last that fit; the next one throws `std::overflow_error` in C++ and returns `ErrOverflow` in Go. Python's integers have no limit.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+From easy to harder.
+
+<PracticeProblems
+  problems={[
+    { name: 'Pascal\'s Triangle', site: 'LeetCode 118', url: 'https://leetcode.com/problems/pascals-triangle/', idea: 'Build the first rows with Pascal\'s rule: each cell the sum of the two above it, both ends 1.' },
+    { name: 'Binomial Coefficients', site: 'CSES 1079', url: 'https://cses.fi/problemset/task/1079', idea: 'Up to 10^5 queries C(a, b) mod 10^9 + 7 with a up to 10^6: one factorial table, O(1) per query.' },
+    { name: 'Distributing Apples', site: 'CSES 1716', url: 'https://cses.fi/problemset/task/1716', idea: 'm apples among n children is stars and bars, C(m + n - 1, n - 1) modulo a prime.' },
+    { name: 'Christmas Party', site: 'CSES 1717', url: 'https://cses.fi/problemset/task/1717', idea: 'Nobody may get their own gift: the derangement recurrence D(n) = (n - 1)(D(n - 1) + D(n - 2)) modulo a prime.' },
+    { name: 'Bracket Sequences I', site: 'CSES 2064', url: 'https://cses.fi/problemset/task/2064', idea: 'Valid bracket sequences of length n are the Catalan number C(n, n/2) / (n/2 + 1) modulo a prime, and 0 for odd n.' },
+  ]}
+/>

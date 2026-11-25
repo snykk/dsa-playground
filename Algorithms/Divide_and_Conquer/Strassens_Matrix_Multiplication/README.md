@@ -115,5 +115,6 @@ Do not use it for small matrices, sparse matrices, or floating-point work where 
 - [Closest Pair of Points](../../Computational_Geometry/Advanced_Geometry/Closest_Pair_of_Points/) - another divide and conquer algorithm with a non-trivial combine step.
 - [Merge Sort](../../Sorting/Merge_Sort/) - the standard T(n) = 2 T(n/2) + O(n) divide and conquer.
 - [Quick Sort](../../Sorting/Quick_Sort/) - divide and conquer with the work done before the recursion.
+- [Gaussian Elimination](../../Mathematical_Algorithms/Advanced_Math/Gaussian_Elimination/) - the O(n^3) elimination that the title of Strassen's paper refers to.
 
 References: V. Strassen, "Gaussian elimination is not optimal", Numerische Mathematik, 1969; CLRS, the chapter on divide and conquer.

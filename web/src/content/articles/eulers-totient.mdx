@@ -1,0 +1,264 @@
+---
+topic: Algorithms/Mathematical_Algorithms/Number_Theory/Eulers_Totient
+title: Euler's Totient
+lead: Euler's totient phi(n) counts the numbers from 1 to n that share no factor with n. Factor one n by trial division and apply n times the product of (1 - 1/p), or fill in phi for every number up to n with the linear sieve, which crosses out each composite exactly once. Euler's theorem then turns phi into modular inverses.
+level: Intermediate
+updated: 2026-11-24
+facts:
+  - label: One n
+    value: O(sqrt n)
+    hint: trial division, then the product formula
+  - label: Every n up to N
+    value: O(N)
+    hint: linear sieve, one crossing per composite
+  - label: Inverse
+    value: a^(phi(n) - 1)
+    hint: when gcd(a, n) = 1
+  - label: Largest n
+    value: 2^64 - 1
+    hint: in C++ and Go; a prime that size takes about 8 s
+    tone: warn
+properties:
+  - { label: Multiplicative on coprime numbers, value: true }
+  - { label: Needs the factorization of n, value: true }
+  - { label: Same results in Python, C++ and Go, value: true }
+  - { label: Defined for n = 0, value: false }
+prerequisites:
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Sieve_of_Eratosthenes
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
+related:
+  - Utilities/Optimization_Techniques/Precomputation
+  - Utilities/Optimization_Techniques/Modular_Arithmetic_Tricks
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Chinese_Remainder_Theorem
+  - Problem_Patterns/Inclusion_Exclusion_Principle
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test
+---
+
+## How it works
+
+**Euler's totient** `phi(n)` is the number of integers `k` with `1 <= k <= n` and `gcd(k, n) = 1`. Of the numbers 1 to 12, only 1, 5, 7 and 11 share no factor with 12, so `phi(12) = 4`. Counting them one by one costs n gcds. The prime factorization gives the same number at once:
+
+<Equation label="Product formula" expr="n = p1^k1 * ... * pr^kr  =>  phi(n) = n * (1 - 1/p1) * ... * (1 - 1/pr)" />
+
+A fraction `1/p` of the numbers up to n are multiples of a prime `p` that divides n, and the primes act independently, so the fraction `(1 - 1/p)` survives each one. For 12 that is `12 * 1/2 * 2/3 = 4`. It is inclusion-exclusion over the primes of n.
+
+<Steps>
+  <Step title="Factor n by trial division">
+    Try `p = 2, 3, 4, ...` while `p * p` is at most what is left of n, and divide each `p` out as often as it goes. A composite candidate never divides what is left, because its prime factors are already gone.
+  </Step>
+  <Step title="Keep the last prime">
+    When the loop stops, what is left is 1 or a single prime above the square root. It counts as a factor too.
+  </Step>
+  <Step title="Apply the formula">
+    Start with `result = n` and, for each distinct prime `p`, do `result -= result // p`. The division is exact, because `p` divides n and no earlier step removed it.
+  </Step>
+</Steps>
+
+## The properties the code relies on
+
+<DataTable
+  columns={['Property', 'Why it holds', 'Where the code uses it']}
+  rows={[
+    ['`phi(p^k) = p^k - p^(k-1)`', 'the numbers up to `p^k` that share a factor with it are the `p^(k-1)` multiples of p', 'the sieve: `phi(i * p) = phi(i) * p` when p already divides i'],
+    ['`phi(mn) = phi(m) * phi(n)` when `gcd(m, n) = 1`', 'by the Chinese Remainder Theorem a residue modulo mn is a pair of residues, and it is coprime to mn exactly when both are', 'the sieve: `phi(i * p) = phi(i) * (p - 1)` when p does not divide i; the product formula'],
+    ['the sum of `phi(d)` over the divisors d of n is n', 'group k = 1..n by `gcd(k, n)`: the k with `gcd(k, n) = n / d` are `(n / d) * j` with `gcd(j, d) = 1`, `phi(d)` of them', 'the tests check it up to 20,000 and at 64 bits; problems use it to turn gcds into sums'],
+    ['`a^phi(n) = 1 (mod n)` when `gcd(a, n) = 1`', 'multiplying the `phi(n)` units modulo n by a only reorders them', '`mod_inverse_euler` returns `a^(phi(n) - 1) mod n`'],
+  ]}
+/>
+
+<Callout title="Every n, in O(n): the linear sieve">
+Every composite m is `p * i` for exactly one pair in which p is its smallest prime factor, and then `p <= spf(i)`. So the sieve visits each `i` from 2 to n once, and crosses out `i * p` only for the primes `p` up to `spf(i)`. Each composite is crossed out exactly once, and `phi(i * p)` comes from `phi(i)` in O(1). The Sieve of Eratosthenes crosses 12 out twice, by 2 and by 3; the linear sieve crosses it out once, as 6 x 2. The same loop gives the smallest prime factor of every number, which the Precomputation topic uses to factorize any x up to n in O(log x).
+</Callout>
+
+## See it in action
+
+Two tabs follow the Python code. **Linear sieve** fills a grid up to n: each composite is crossed out by `i x p` with p its smallest prime factor, and phi appears under each number as soon as it is known. **phi(n) by trial division** factors one n, shows the ladder of what is left after each prime, applies the product formula, checks the divisor sum, and finds inverses with Euler's theorem.
+
+<ArticleViz ids={['eulers-totient-sieve', 'eulers-totient-factor']} />
+
+## Worked example
+
+`phi(360)` by trial division:
+
+<DataTable
+  columns={['Candidate p', 'Test p <= n // p', 'What is left of n', 'Factor', 'result']}
+  rows={[
+    ['start', '', '360', '', '360'],
+    ['2', '2 <= 180', '45', '(2, 3)', '360 - 180 = 180'],
+    ['3', '3 <= 15', '5', '(3, 2)', '180 - 60 = 120'],
+    ['4', '4 <= 1 fails', '5', '', ''],
+    ['left over', '', '1', '(5, 1)', '120 - 24 = 96'],
+  ]}
+/>
+
+<Equation label="phi(360)" expr="360 * (1 - 1/2) * (1 - 1/3) * (1 - 1/5)" result="96" />
+
+Two candidates are enough: after the 2s and 3s are divided out, 5 is left, and `4 * 4 > 5`. The 24 divisors of 360 have phi values that add up to 360, as the divisor sum says. With `phi(360) = 96`, the inverse of 7 modulo 360 is `7^95 mod 360 = 103`, and indeed `7 * 103 = 721 = 2 * 360 + 1`.
+
+The linear sieve up to 20 crosses out these numbers, one step each:
+
+<DataTable
+  columns={['i', 'spf[i]', 'phi[i]', 'Crosses out', 'phi of it', 'Why it stops']}
+  rows={[
+    ['2', '2 (prime)', '1', '4 = 2 x 2', '1 x 2 = 2', 'no more primes in the list'],
+    ['3', '3 (prime)', '2', '6 = 3 x 2, 9 = 3 x 3', '2 x 1 = 2, 2 x 3 = 6', 'no more primes in the list'],
+    ['4', '2', '2', '8 = 4 x 2', '2 x 2 = 4', '3 > spf[4]: 12 is left for 6 x 2'],
+    ['5', '5 (prime)', '4', '10 = 5 x 2, 15 = 5 x 3', '4 x 1 = 4, 4 x 2 = 8', '5 > 20 // 5 = 4'],
+    ['6', '2', '2', '12 = 6 x 2', '2 x 2 = 4', '3 > spf[6]'],
+    ['7', '7 (prime)', '6', '14 = 7 x 2', '6 x 1 = 6', '3 > 20 // 7 = 2'],
+    ['8', '2', '4', '16 = 8 x 2', '4 x 2 = 8', '3 > spf[8]'],
+    ['9', '3', '6', '18 = 9 x 2', '6 x 1 = 6', '3 > 20 // 9 = 2'],
+    ['10', '2', '4', '20 = 10 x 2', '4 x 2 = 8', '3 > spf[10]'],
+  ]}
+/>
+
+From `i = 11` on, `i * 2 > 20`, so nothing more is crossed out; 11, 13, 17 and 19 are prime because their `spf` is still 0. That is 11 crossings for the 11 composites up to 20, where the Sieve of Eratosthenes writes 13 times.
+
+## Pseudocode
+
+```text
+prime_factors(n):                         # ValueError for n < 1: phi(0) is undefined
+    factors = []; p = 2
+    while p <= n // p:                    # p * p <= n, without forming p * p
+        k = 0
+        while n % p == 0: n //= p; k += 1
+        if k: factors.append((p, k))
+        p += 1
+    if n > 1: factors.append((n, 1))      # the one prime left above the root
+    return factors
+
+phi(n):
+    result = n
+    for p, _ in prime_factors(n): result -= result // p
+    return result
+
+linear_sieve(n):                          # ValueError for n < 0
+    phi = [0] * (n + 1); spf = [0] * (n + 1); primes = []; crossings = 0
+    if n >= 1: phi[1] = 1
+    for i in 2 .. n:
+        if spf[i] == 0: spf[i] = i; phi[i] = i - 1; primes.append(i)
+        for p in primes:
+            if p > spf[i] or p > n // i: break        # i * p > n
+            spf[i * p] = p
+            phi[i * p] = phi[i] * p if p == spf[i] else phi[i] * (p - 1)
+            crossings += 1
+    return phi, spf, primes, crossings
+
+mod_inverse_euler(a, n):                  # ValueError if n < 1 or gcd(a, n) != 1
+    r = a % n
+    return pow(r, phi(n) - 1, n)          # 0 for n = 1
+```
+
+## Implementation
+
+Every language provides the same operations with the same results:
+
+- **`prime_factors`** (`primeFactors`, `PrimeFactors`) and **`phi`** (`phi`, `Phi`): trial division, primes in increasing order.
+- **`linear_sieve`** (`linearSieve`, `LinearSieve`): the tables `phi` and `spf` for 0 to n, the primes, and the number of crossings, which equals the number of composites.
+- **`mod_inverse_euler`** (`modInverseEuler`, `ModInverseEuler`): `a^(phi(n) - 1) mod n`. C++ and Go also export the modular product and power they need (`mulMod` and `powMod`, `MulMod` and `PowMod`); Python uses its built-in `pow`.
+
+**64-bit limits.** C++ and Go take n as an unsigned 64-bit integer, so the largest n is 2<sup>64</sup> - 1. The loop test is written `p <= n / p`: `p * p` would wrap around to 0 once p reaches 2<sup>32</sup>. `phi(n)` is at most n and `result -= result / p` never grows, so the result cannot overflow either. The inverse multiplies two residues below n, which needs 128 bits: `unsigned __int128` in C++, `bits.Mul64` with `bits.Rem64` in Go. Python's integers have no limit. In the sieve, `i * p` reaches 2n, so the bound is written `p > n // i` there too, which keeps a C++ `int` from overflowing when n is above about 2<sup>30</sup>.
+
+**Time at the limit.** A prime near 2<sup>64</sup> makes trial division try about 2<sup>32</sup> candidates: 8 seconds in C++ and in Go on the machine the numbers were measured on, and an estimated 15 to 25 minutes in Python. `phi(2^64 - 1) = 9,208,981,628,670,443,520` needs only 65,536 candidates, because 2<sup>64</sup> - 1 = 3 x 5 x 17 x 257 x 641 x 65537 x 6700417 has small factors.
+
+**Errors.** `phi(0)` is undefined: n = 0 raises `ValueError` in Python (as does a negative n), throws `std::invalid_argument` in C++, and returns an error wrapping `ErrZero` in Go. A negative sieve limit raises `ValueError`, throws `std::invalid_argument`, or wraps `ErrNegativeLimit`; an `a` with `gcd(a, n) != 1` raises `ValueError`, throws `std::invalid_argument`, or wraps `ErrNotCoprime`.
+
+**The same answers.** The C++ and Go tests pin 31 values of phi up to 2<sup>64</sup> - 1, 8 factorizations, 11 inverses and the tables of `linear_sieve(30)`, all computed by the Python code. Every language checks phi against a count of gcds up to 3000, the sieve against phi up to 5000, the divisor sum, Euler's theorem, and the inverse against an extended Euclid.
+
+<TopicCode topic="Algorithms/Mathematical_Algorithms/Number_Theory/Eulers_Totient" />
+
+## Complexity analysis
+
+<ComplexityTable
+  rows={[
+    { case: 'phi(n), n prime', time: 'O(sqrt n)', space: 'O(1)', when: 'Every candidate from 2 to isqrt(n) is tried.' },
+    { case: 'phi(n), n = 2^k', time: 'O(k)', space: 'O(1)', when: 'One candidate: once the 2s are out, 1 is left and the loop ends.' },
+    { case: 'linear_sieve(n)', time: 'O(n)', space: 'O(n)', when: 'One crossing per composite, plus one failed test per i.' },
+    { case: 'mod_inverse_euler(a, n)', time: 'O(sqrt n + log n)', space: 'O(log n)', when: 'phi(n) by trial division, then about 2 log2(n) multiplications.' },
+  ]}
+/>
+
+Counted with the Python code: trial division never tried more than `isqrt(n) - 1` candidates for any n up to 20,000, and `2^k` always tried one, because the bound shrinks with what is left. The linear sieve crossed out every composite exactly once for every limit tested up to 65,536. Up to 10<sup>6</sup> it made 921,501 crossings, one per composite, where the Sieve of Eratosthenes makes 2,122,048 writes. Python's `linear_sieve(10^7)` took 3.9 seconds.
+
+## Variants and comparisons
+
+<DataTable
+  columns={['Method', { label: 'Time', kind: 'mono' }, 'Gives', 'Notes']}
+  highlight={1}
+  rows={[
+    ['Count gcd(k, n) = 1', 'O(n log n)', 'one phi(n)', 'the definition; the tests use it'],
+    ['Trial division + product formula', 'O(sqrt n)', 'one phi(n) and the factorization', 'this code; fine up to about 10^12 in Python'],
+    ['Linear sieve', 'O(n)', 'phi, spf and the primes up to n', 'this code; each composite crossed out once'],
+    ['Eratosthenes-style totient sieve', 'O(n log log n)', 'phi up to n', '`phi[j] -= phi[j] / p` for every multiple j of every prime p; not here'],
+    ['Pollard rho + Miller-Rabin', 'about n^(1/4)', 'one phi(n) for huge n', 'needed for 64-bit numbers with two large factors; not here'],
+    ['Inverse by extended Euclid', 'O(log n)', 'the inverse only', 'no factoring; see the Euclidean algorithm'],
+  ]}
+/>
+
+## Advantages and disadvantages
+
+<ProsCons
+  pros={[
+    'One factorization gives phi, and the same loop gives every prime factor.',
+    'The linear sieve is O(n) and also yields the primes and every smallest prime factor.',
+    'Euler\'s theorem shrinks a huge exponent modulo phi(n) and gives inverses for any modulus.',
+    'Exact integer arithmetic; no floating point anywhere.',
+  ]}
+  cons={[
+    'Trial division is slow for a 64-bit n with two large prime factors: up to 2^32 candidates.',
+    'The sieve needs O(n) memory: two tables of n + 1 numbers.',
+    'The Euler inverse factors n, where the extended Euclid needs no factoring.',
+    'phi(0) is undefined, so the tables keep a placeholder at index 0.',
+  ]}
+/>
+
+## Applications
+
+- **Counting coprime numbers and reduced fractions.** The fractions `k / d` in lowest terms with `0 < k <= d` are `phi(d)` of them.
+- **Sums of gcds.** `gcd(a, b)` is the sum of `phi(d)` over the divisors d of the gcd, so a sum of gcds becomes a sum over d of `phi(d)` times a count of multiples.
+- **Huge exponents.** `a^e mod n` with `e` itself huge: reduce `e` modulo `phi(n)` when `gcd(a, n) = 1`, modulo `p - 1` for a prime p.
+- **RSA.** The private exponent is the inverse of the public one modulo `phi(pq) = (p - 1)(q - 1)`.
+- **Cyclic structures.** The number of generators of a cyclic group of order n, and of primitive n-th roots of unity, is `phi(n)`.
+
+## Common mistakes
+
+<Callout tone="warning" title="Watch out for these">
+- **`p * p <= n` at 64 bits.** It wraps around for n near 2<sup>64</sup>; write `p <= n / p`.
+- **`result * (p - 1) / p`.** The product overflows; take `result / p` first.
+- **Forgetting the prime left over.** Without it, `phi(202)` comes out as 101 instead of 100.
+- **The wrong factor in the sieve.** When p already divides i, `phi(i * p) = phi(i) * p`, not `phi(i) * (p - 1)`.
+- **Dropping the `p > spf[i]` break.** The tables can still come out right, but composites are crossed out several times and the sieve is no longer linear.
+- **Euler's theorem without the gcd.** `2^phi(4) = 4 = 0 (mod 4)`, not 1. Check `gcd(a, n) = 1` first.
+</Callout>
+
+## Frequently asked questions
+
+<Faq>
+  <FaqItem question="What is phi(1), and what is phi(0)?">
+    phi(1) is 1: the number 1 shares no factor with itself. phi(0) is undefined, so the code raises an error for it in every language; the sieve's table keeps 0 at index 0 only so that index i holds phi(i).
+  </FaqItem>
+  <FaqItem question="Why does the linear sieve stop at p = spf(i)?">
+    For a larger prime p, the smaller prime spf(i) divides `i * p`, so p is not the smallest prime factor of `i * p`. That number is crossed out later, by `(i * p) / spf(i)` with the prime spf(i). Stopping there is what makes every composite come up exactly once.
+  </FaqItem>
+  <FaqItem question="Should I use the Euler inverse or the extended Euclid?">
+    For one inverse modulo a composite n, the extended Euclid: O(log n), no factoring. The Euler form pays off when phi(n) is known anyway. For a prime p it is `a^(p - 2)`, the usual way to divide modulo 10<sup>9</sup> + 7.
+  </FaqItem>
+  <FaqItem question="How large an n can trial division handle?">
+    Any n up to 2<sup>64</sup> - 1 in C++ and Go, and any n in Python, but the time depends on the factors. A 64-bit prime needs about 2<sup>32</sup> candidates, 8 seconds in C++ or Go; Python takes about as long, 6.7 seconds, for the prime 999,999,999,999,989, just below 10<sup>15</sup>.
+  </FaqItem>
+</Faq>
+
+## Practice problems
+
+From easy to harder.
+
+<PracticeProblems
+  problems={[
+    { name: 'Euler Totient Function', site: 'SPOJ ETF', url: 'https://www.spoj.com/problems/ETF/', idea: 'phi(n) for many n up to 10^6, by trial division or from the linear sieve.' },
+    { name: 'Exponentiation II', site: 'CSES 1712', url: 'https://cses.fi/problemset/task/1712', idea: 'a^(b^c) modulo a prime p: Euler\'s theorem reduces b^c modulo phi(p) = p - 1.' },
+    { name: 'Same GCDs', site: 'Codeforces 1295D', url: 'https://codeforces.com/problemset/problem/1295/D', idea: 'The answer is phi(m / gcd(a, m)) for m up to 10^10, by trial division.' },
+    { name: 'Sum of gcd of Tuples (Hard)', site: 'AtCoder abc162_e', url: 'https://atcoder.jp/contests/abc162/tasks/abc162_e', idea: 'Write each gcd as the sum of phi(d) over its divisors, then count the tuples for each d with the sieve\'s table.' },
+    { name: 'The Holmes Children', site: 'Codeforces 776E', url: 'https://codeforces.com/problemset/problem/776/E', idea: 'f is phi and the divisor sum g(n) is n itself, so the answer is phi applied again and again to n up to 10^12.' },
+  ]}
+/>

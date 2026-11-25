@@ -27,6 +27,7 @@ related:
   - Algorithms/Mathematical_Algorithms/Number_Theory/Miller_Rabin_Primality_Test
   - Algorithms/Mathematical_Algorithms/Number_Theory/Euclidean_Algorithm
   - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Arithmetic
+  - Algorithms/Mathematical_Algorithms/Number_Theory/Eulers_Totient
 ---
 
 ## Definition
@@ -137,7 +138,7 @@ Memory differs by language: a Python list holds a pointer (8 bytes) per number, 
   rows={[
     ['Basic sieve', 'cross out multiples from p*p', 'O(n log log n)', 'yes'],
     ['Odd-only sieve', 'store only odd numbers: half the memory', 'O(n log log n)', 'no'],
-    ['Linear sieve', 'cross out each composite once, by its smallest prime factor', 'O(n)', 'no'],
+    ['Linear sieve', 'cross out each composite once, by its smallest prime factor', 'O(n)', 'yes, in Euler\'s Totient'],
     ['Segmented sieve', 'sieve blocks of a range using the primes up to sqrt(n)', 'O(n log log n)', 'no'],
   ]}
 />
