@@ -1,8 +1,8 @@
 ---
 category: Algorithms/Sorting
 title: Sorting Algorithms
-lead: Sorting puts a list in order. The nine algorithms here all return the same result and differ in speed, memory and stability. The simple ones take O(n^2) time, the divide-and-conquer and heap sorts take O(n log n) (Quick Sort on average), and the three that place keys by their value go below that bound on suitable data.
-updated: 2026-11-13
+lead: Sorting puts a list in order. The eleven algorithms here all return the same result and differ in speed, memory and stability. The simple ones take O(n^2) time, Shell Sort beats them in practice, the merging, partitioning and heap sorts take O(n log n) (Quick Sort on average), and the three that place keys by their value go below that bound on suitable data.
+updated: 2026-11-24
 facts:
   - label: Simple sorts
     value: O(n^2)
@@ -10,7 +10,7 @@ facts:
     tone: warn
   - label: Guaranteed
     value: O(n log n)
-    hint: Merge Sort and Heap Sort, on every input
+    hint: Merge Sort, Timsort and Heap Sort, on every input
   - label: Quick Sort worst case
     value: O(n^2)
     hint: sorted input with the last element as pivot
@@ -22,17 +22,21 @@ facts:
     value: n log n
     hint: the fewest comparisons any comparison sort can guarantee
   - label: Stable here
-    value: 5 of 9
+    value: 6 of 11
     hint: Bucket Sort depends on its inner sort
 contents:
   - folder: Bubble_Sort
     note: Swap neighbours that are out of order, so the largest value sinks to the end on every pass. Simple, and stable.
   - folder: Insertion_Sort
     note: Grow a sorted prefix by sliding each new value left into place. Linear on nearly sorted input.
+  - folder: Shell_Sort
+    note: Insertion sort over shrinking gaps, ending with gap 1. In place and far faster than quadratic in practice; the gap sequence decides how fast. Not stable.
   - folder: Selection_Sort
     note: Swap the minimum of the unsorted part to the front. Always n(n - 1)/2 comparisons, but at most n - 1 swaps.
   - folder: Merge_Sort
     note: Split in half, sort both halves, merge them. O(n log n) on every input and stable, at the cost of O(n) memory.
+  - folder: Timsort
+    note: Merge the runs already in the data, extending short ones by binary insertion, from a stack kept O(log n) runs deep. Stable, n - 1 comparisons on sorted input.
   - folder: Quick_Sort
     note: Partition around a pivot, then sort both sides. In place and fast in practice; quadratic on bad pivots.
   - folder: Heap_Sort
@@ -56,10 +60,11 @@ related:
 
 Given a list of `n` items that can be ordered, rearrange it so that every item is no larger than the next. Sorting is a building block: binary search, merging, deduplication and many greedy algorithms start with a sorted list.
 
-The nine algorithms in this section solve this one problem and split into three families:
+The eleven algorithms in this section solve this one problem. Ten of them split into three families, and Shell Sort sits between the first two:
 
 - **Quadratic sorts** (Bubble, Insertion, Selection) compare neighbours or scan for a minimum. They are short and need O(1) extra space.
-- **Comparison sorts that scale** (Merge, Quick, Heap) use a different structure to reach O(n log n): halving, partitioning or a heap.
+- **Shell Sort** runs Insertion Sort over shrinking gaps, so far-apart elements move in long jumps first. It is as short and as frugal as the quadratic sorts and much faster in practice, but how fast depends on the gap sequence, and the best one known has no proven bound.
+- **Comparison sorts that scale** (Merge, Timsort, Quick, Heap) use a different structure to reach O(n log n): halving, merging the runs already in the data, partitioning or a heap.
 - **Sorts that place keys by value** (Counting, Radix, Bucket) use the value of a key as an index or a bucket number; Bucket Sort compares keys only inside a bucket. They beat the `n log n` bound for comparison sorts, but only on integers or numbers in a known range.
 
 Three properties tell the algorithms apart besides speed:
@@ -75,8 +80,10 @@ Three properties tell the algorithms apart besides speed:
   rows={[
     ['Bubble', 'swap adjacent pairs that are out of order, pass after pass', 'stops early when a pass makes no swap', 'O(n^2)'],
     ['Insertion', 'insert each value into the sorted prefix', 'linear on nearly sorted input', 'O(n^2)'],
+    ['Shell', 'insertion sort over shrinking gaps, ending with gap 1', 'the gap sequence decides the speed', 'Ciura: unknown'],
     ['Selection', 'swap the minimum of the rest into position `i`', 'at most n - 1 swaps', 'O(n^2)'],
     ['Merge', 'sort both halves, then merge', 'same time on every input', 'O(n log n)'],
+    ['Timsort', 'find the runs in the data, merge them from a stack', 'n - 1 comparisons on sorted input', 'O(n log n)'],
     ['Quick', 'partition around a pivot, recurse on both sides', 'fast in practice, in place', 'O(n^2)'],
     ['Heap', 'max-heap in the array, then extract the maximum', 'guaranteed bound, no big buffer', 'O(n log n)'],
     ['Counting', 'count values, prefix-sum the counts, place', 'no comparisons, needs a small range', 'O(n + k)'],
@@ -89,21 +96,23 @@ Counting, Radix and Bucket Sort are not comparison sorts, so the `n log n` bound
 
 ## See them side by side
 
-Each tab animates one algorithm on the same kind of input. Paste one list into the comparison-sort tabs and compare the work. The **Nearly sorted** example shows Insertion Sort and Bubble Sort finishing in a few steps while Selection Sort still scans everything. **Reversed** is the worst case for most of them. The **Duplicates** example shows what stability means for the equal keys. Counting, Radix and Bucket Sort have their own examples: try **Negatives** for Counting and Radix Sort, and **Clustered (one crowded bucket)** for Bucket Sort.
+Each tab animates one algorithm on the same kind of input. Paste one list into the comparison-sort tabs and compare the work. The Shell Sort tab keeps an input of its own, because it can also name the gap sequence: its examples show Ciura's, Knuth's and Shell's gaps. The Timsort tab keeps one too, because it can set `minrun`; it uses 4 so that a short list has several runs to merge. The **Nearly sorted** example shows Insertion Sort and Bubble Sort finishing in a few steps while Selection Sort still scans everything. **Reversed** is the worst case for most of them. The **Duplicates** example shows what stability means for the equal keys. Counting, Radix and Bucket Sort have their own examples: try **Negatives** for Counting and Radix Sort, and **Clustered (one crowded bucket)** for Bucket Sort.
 
-<ArticleViz ids={['bubble-sort', 'insertion-sort', 'selection-sort', 'merge-sort', 'quick-sort', 'heap-sort', 'counting-sort', 'radix-sort', 'bucket-sort']} />
+<ArticleViz ids={['bubble-sort', 'insertion-sort', 'shell-sort', 'selection-sort', 'merge-sort', 'timsort', 'quick-sort', 'heap-sort', 'counting-sort', 'radix-sort', 'bucket-sort']} />
 
-## The same input through six sorts
+## The same input through eight sorts
 
-The six comparison sorts were run from the repository's Python code on four lists of eight numbers (`7 3 9 1 5 8 2 6`, the same sorted, the same reversed, and eight 4s), with the elements wrapped so that every `<`, `>` and `<=` is counted. Insertion Sort and Bubble Sort adapt to the input, Selection Sort does not look at it, and Quick Sort pays for sorted input.
+The eight comparison sorts were run from the repository's Python code on four lists of eight numbers (`7 3 9 1 5 8 2 6`, the same sorted, the same reversed, and eight 4s), with the elements wrapped so that every `<`, `>` and `<=` is counted. Insertion Sort and Bubble Sort adapt to the input, Selection Sort does not look at it, and Quick Sort pays for sorted input.
 
 <DataTable
   columns={['Algorithm', { label: 'Mixed', kind: 'mono' }, { label: 'Sorted', kind: 'mono' }, { label: 'Reversed', kind: 'mono' }, { label: 'All equal', kind: 'mono' }]}
   rows={[
     ['Bubble', '27', '7', '28', '7'],
     ['Insertion', '20', '7', '28', '7'],
+    ['Shell (Ciura)', '17', '11', '20', '11'],
     ['Selection', '28', '28', '28', '28'],
     ['Merge', '17', '12', '12', '12'],
+    ['Timsort', '16', '7', '7', '7'],
     ['Quick', '14', '28', '28', '28'],
     ['Heap', '27', '27', '24', '18'],
   ]}
@@ -112,7 +121,9 @@ The six comparison sorts were run from the repository's Python code on four list
 Read the columns:
 
 - **Sorted:** Bubble and Insertion Sort make `n - 1 = 7` comparisons. Quick Sort makes `n(n - 1)/2 = 28`, the same as Selection Sort, because the last element is always the largest and each partition removes only the pivot.
-- **Reversed:** Bubble, Insertion and Selection Sort all reach 28 comparisons, the n(n - 1)/2 of the quadratic family. Merge Sort stays at 12.
+- **Sorted and all equal:** Shell Sort uses the gaps 4 and 1 on eight values and makes one comparison per element per pass, `(8 - 4) + (8 - 1) = 11`, with no move.
+- **Timsort** computes `minrun = 8` for eight values, so the mixed list is one binary insertion sort after its first run (16 comparisons). The sorted, reversed and all-equal lists are each a single run: `n - 1 = 7` comparisons and no merge.
+- **Reversed:** Bubble, Insertion and Selection Sort all reach 28 comparisons, the n(n - 1)/2 of the quadratic family. Shell Sort's gap-4 pass first swaps four far-apart pairs, so it needs 20. Merge Sort stays at 12.
 - **All equal:** the strict comparisons mean that nothing moves, apart from Heap Sort swapping the root to the end in every round. Bubble and Insertion Sort finish in 7 comparisons, and Heap Sort needs only 18, but Quick Sort still makes 28 with this partition.
 
 Stability shows when keys repeat. Sort these six records by their number only: `3a 1b 3c 2d 1e 3f`.
@@ -120,14 +131,15 @@ Stability shows when keys repeat. Sort these six records by their number only: `
 <DataTable
   columns={['Algorithm', 'Result', { label: 'Stable here', kind: 'yesno' }]}
   rows={[
-    ['Bubble, Insertion, Merge', '`1b 1e 2d 3a 3c 3f`', 'Yes'],
+    ['Bubble, Insertion, Merge, Timsort', '`1b 1e 2d 3a 3c 3f`', 'Yes'],
+    ['Shell (Ciura)', '`1e 1b 2d 3c 3a 3f`', 'No'],
     ['Selection', '`1b 1e 2d 3c 3a 3f`', 'No'],
     ['Quick', '`1b 1e 2d 3c 3a 3f`', 'No'],
     ['Heap', '`1b 1e 2d 3c 3f 3a`', 'No'],
   ]}
 />
 
-The three stable sorts keep `3a 3c 3f` in input order. Selection Sort's long-distance swap and Quick Sort's partition swaps put `3c` before `3a`, and Heap Sort scrambles the three. Counting and Radix Sort are stable by construction, but they sort bare integers, so this check does not apply to them.
+The four stable sorts keep `3a 3c 3f` in input order. Selection Sort's long-distance swap and Quick Sort's partition swaps put `3c` before `3a`, and Heap Sort scrambles the three. Shell Sort's gap-4 pass swaps `3a` and `1e`, which puts `1e` before `1b` and `3a` after `3c`. Counting and Radix Sort are stable by construction, but they sort bare integers, so this check does not apply to them.
 
 ## Complexity
 
@@ -136,8 +148,10 @@ The three stable sorts keep `3a 3c 3f` in input order. Selection Sort's long-dis
   rows={[
     ['Bubble', 'O(n)', 'O(n^2)', 'O(n^2)', 'O(1)', 'Yes', 'Yes'],
     ['Insertion', 'O(n)', 'O(n^2)', 'O(n^2)', 'O(1)', 'Yes', 'Yes'],
+    ['Shell (Ciura)', 'O(n log n)', 'unknown', 'unknown', 'O(1)', 'No', 'Yes'],
     ['Selection', 'O(n^2)', 'O(n^2)', 'O(n^2)', 'O(1)', 'No', 'Yes'],
     ['Merge', 'O(n log n)', 'O(n log n)', 'O(n log n)', 'O(n)', 'Yes', 'No'],
+    ['Timsort', 'O(n)', 'O(n log n)', 'O(n log n)', 'O(n)', 'Yes', 'No'],
     ['Quick', 'O(n log n)', 'O(n log n)', 'O(n^2)', 'O(log n)', 'No', 'Yes'],
     ['Heap', 'O(n log n)', 'O(n log n)', 'O(n log n)', 'O(log n)', 'No', 'Yes'],
     ['Counting', 'O(n + k)', 'O(n + k)', 'O(n + k)', 'O(n + k)', 'Yes', 'No'],
@@ -148,7 +162,8 @@ The three stable sorts keep `3a 3c 3f` in input order. Selection Sort's long-dis
 
 Notes on the table:
 
-- Bubble and Insertion Sort reach O(n) only on sorted input. Heap Sort's best case is O(n) when all elements are equal, and otherwise O(n log n).
+- Bubble and Insertion Sort reach O(n) only on sorted input. Timsort reaches it on sorted and on strictly descending input, which are one run each. Heap Sort's best case is O(n) when all elements are equal, and otherwise O(n log n).
+- Shell Sort's bounds depend on the gaps: Theta(n^2) in the worst case with Shell's own n/2, n/4, ..., 1, O(n^(3/2)) with Knuth's, and no proven bound with Ciura's, the default, which made the fewest comparisons of the three on every random input measured. Its best case, sorted input, is one comparison per element per pass: O(n log n).
 - Quick Sort's O(log n) space holds in Python, which recurses into the smaller side and loops on the larger one. The C++ and Go versions make two recursive calls, so their stack reaches O(n) on sorted input.
 - Heap Sort keeps its heap in the array. The O(log n) is the stack of the recursive `heapify`, which a loop would reduce to O(1).
 - Bucket Sort's O(n^2) assumes Python's insertion-sorted buckets. Only the insertion-sort version here is stable. The C++ and Go versions use unstable library sorts.
@@ -160,7 +175,9 @@ Notes on the table:
   columns={['Situation', 'Use', 'Why']}
   rows={[
     ['A small array, or one that is nearly sorted', 'Insertion Sort', 'no setup, O(n) on nearly sorted input, stable and in place'],
+    ['A medium array, in place, with no recursion and little code', 'Shell Sort', 'insertion sort over shrinking gaps; fast in practice, but not stable and with no proven bound for the best gaps'],
     ['A hard O(n log n) bound, and records must keep their order', 'Merge Sort', 'stable and never worse than O(n log n), but it needs O(n) extra memory'],
+    ['Stable sorting of data that is often partly sorted', 'Timsort', 'n - 1 comparisons on sorted input and close to the fewest possible on random input; it needs O(n) extra memory'],
     ['General in-memory data and speed in practice', 'Quick Sort', 'in place and cache-friendly; accept the rare quadratic case, or choose the pivot with care'],
     ['A hard O(n log n) bound and almost no extra memory', 'Heap Sort', 'in place with no pivot to choose, but not stable and usually slower than Quick Sort'],
     ['Writing is expensive', 'Selection Sort', 'at most n - 1 swaps, far fewer than Bubble or Insertion Sort'],
@@ -186,7 +203,7 @@ Bubble Sort has no row of its own. It is a teaching tool: Insertion Sort does th
 
 <Callout tone="warning" title="Watch out for these">
 - **Using Quick Sort with the last element as pivot on sorted data.** Sorted, reversed and all-equal input all give O(n^2) here. Pick the pivot at random or take the median of three.
-- **Assuming Quick Sort or Heap Sort is stable.** Neither is, and Selection Sort is not either. Use Merge Sort or a stable library sort when equal keys must keep their order.
+- **Assuming Quick Sort or Heap Sort is stable.** Neither is, and Selection Sort and Shell Sort are not either. Use Merge Sort or a stable library sort when equal keys must keep their order.
 - **Calling Merge Sort in place.** Its temporary halves cost O(n) extra memory.
 - **Using Counting Sort on a huge range.** Time and memory grow with `k = max - min + 1`, so a few huge values make it unusable. Use Radix Sort or a comparison sort.
 - **Feeding Bucket Sort values outside the range.** The Python version here expects `0.0 <= x <= 1.0` and raises `ValueError` for anything else.
@@ -198,7 +215,7 @@ Bubble Sort has no row of its own. It is a teaching tool: Insertion Sort does th
 
 <Faq>
   <FaqItem question="In what order should I read these?">
-    Start with Bubble, Insertion and Selection Sort: they teach comparisons, swaps, invariants and stability. Then Merge Sort and Quick Sort, which add recursion and divide and conquer, and Heap Sort, which needs the heap. Last come Counting, Radix and Bucket Sort. Radix Sort uses Counting Sort as its digit sort, so read Counting Sort first.
+    Start with Bubble, Insertion and Selection Sort: they teach comparisons, swaps, invariants and stability. Shell Sort comes right after Insertion Sort, because every one of its passes is an insertion sort with a stride. Then Merge Sort and Quick Sort, which add recursion and divide and conquer, and Heap Sort, which needs the heap. Timsort comes after Merge Sort: it merges the runs already in the data and extends short ones with a binary insertion sort. Last come Counting, Radix and Bucket Sort. Radix Sort uses Counting Sort as its digit sort, so read Counting Sort first.
   </FaqItem>
   <FaqItem question="Why can a comparison sort not beat n log n?">
     A comparison sort learns about the order only through yes-or-no answers. There are `n!` possible orders, so it needs at least about `log2(n!)` answers, which is about `n log n`. Counting, Radix and Bucket Sort avoid the bound because they place each key by reading its value, not by comparing it with other keys; Bucket Sort compares keys only inside its small buckets.
@@ -207,7 +224,7 @@ Bubble Sort has no row of its own. It is a teaching tool: Insertion Sort does th
     A stable sort keeps equal keys in their input order. Sort people by city and then by last name, and a stable second sort keeps each last name's people in city order. It is also what lets Radix Sort chain one digit pass after another.
   </FaqItem>
   <FaqItem question="Which one do standard libraries use?">
-    Tuned hybrids rather than one textbook algorithm. Quick Sort variants are common, and they switch to Insertion Sort for tiny ranges and to Heap Sort when the recursion gets too deep. Python's `sorted` uses Timsort, which mixes Merge Sort and Insertion Sort and is stable.
+    Tuned hybrids rather than one textbook algorithm. Quick Sort variants are common, and they switch to Insertion Sort for tiny ranges and to Heap Sort when the recursion gets too deep. Python's `sorted` uses Timsort, which merges the runs already in the data, extends short ones with binary insertion sort, and is stable; the Timsort topic follows its design.
   </FaqItem>
   <FaqItem question="Which sort is fastest?">
     It depends on the input. Quick Sort is usually the fastest comparison sort in memory. Insertion Sort wins on tiny or nearly sorted arrays, and Counting or Radix Sort wins on integers when the range or the digit count is small. Merge Sort and Heap Sort are the ones with a guaranteed O(n log n).
