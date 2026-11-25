@@ -6,14 +6,14 @@ Twelve areas that group the repository's algorithms by the problem they solve or
 
 | # | Section | What it adds | Level |
 |---|---------|--------------|-------|
-| 1 | [Sorting Algorithms](Sorting/) | Nine sorts from O(n^2) bubble sort to O(n log n) merge, quick and heap sort, and counting, radix and bucket sort for bounded keys. | 9 topics |
+| 1 | [Sorting Algorithms](Sorting/) | Eleven sorts from O(n^2) bubble sort, through Shell sort, to O(n log n) merge, quick and heap sort and Timsort, and counting, radix and bucket sort for bounded keys. | 11 topics |
 | 2 | [Searching Algorithms](Searching/) | Linear, binary, ternary and interpolation search. Binary search is the one to master. | 4 topics |
 | 3 | [Divide and Conquer Algorithms](Divide_and_Conquer/) | Split, solve, combine. Holds Strassen's matrix multiplication. Merge sort, quick sort and binary search live in Sorting and Searching. | 1 topic |
 | 4 | [Greedy Algorithms](Greedy/) | Make the best local choice and never revisit it. Activity selection, Huffman coding, fractional knapsack and job scheduling. | 4 topics |
-| 5 | [Dynamic Programming Algorithms](Dynamic_Programming/) | Solve each subproblem once. Basic, linear, 2D and advanced DP, and the Convex Hull Trick for DP optimization. | 14 topics |
+| 5 | [Dynamic Programming Algorithms](Dynamic_Programming/) | Solve each subproblem once. Basic, linear, 2D, interval and advanced DP, and three DP optimizations, namely the Convex Hull Trick, divide and conquer, and Knuth's. | 18 topics |
 | 6 | [Graph Algorithms](Graph_Algorithms/) | Traversal with BFS and DFS, shortest paths, minimum spanning trees, and advanced topics such as flow, matching, Eulerian paths and strongly connected components. | 19 topics |
 | 7 | [String Algorithms](String_Algorithms/) | Pattern matching with naive, Rabin-Karp, KMP and Boyer-Moore, then Z, string hashing, Aho-Corasick, suffix arrays and palindromes. | 10 topics |
-| 8 | [Mathematical Algorithms](Mathematical_Algorithms/) | Number theory, such as gcd, sieves and modular power, and advanced math, namely FFT and matrix exponentiation. | 8 topics |
+| 8 | [Mathematical Algorithms](Mathematical_Algorithms/) | Number theory, such as gcd, sieves, modular power and Euler's totient, and advanced math, namely combinatorics, matrix exponentiation, Gaussian elimination, the FFT and the NTT. | 12 topics |
 | 9 | [Advanced Algorithms](Advanced_Algorithms/) | Backtracking (N-Queens, Sudoku, graph coloring, rat in a maze) and specialized techniques such as LCA, HLD, Mo's algorithm and decompositions. | 9 topics |
 | 10 | [Computational Geometry](Computational_Geometry/) | Points, lines and circles first, then convex hull, closest pair of points and rotating calipers. | 5 topics |
 | 11 | [Randomized Algorithms](Randomized_Algorithms/) | Randomness for speed or for streams. Randomized quickselect and reservoir sampling. | 2 topics |

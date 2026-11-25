@@ -4,7 +4,7 @@
 [![Latest release](https://img.shields.io/github/v/release/snykk/dsa-playground)](https://github.com/snykk/dsa-playground/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A study repository of data structures and algorithms: 159 topics, each with an explanation and an implementation with unit tests in Python, C++ and Go. A companion web site, [DSA Playground](https://snykk.github.io/dsa-playground/), shows every topic as an article with the code side by side and animates every one of them step by step.
+A study repository of data structures and algorithms: 169 topics, each with an explanation and an implementation with unit tests in Python, C++ and Go. A companion web site, [DSA Playground](https://snykk.github.io/dsa-playground/), shows every topic as an article with the code side by side and animates every one of them step by step.
 
 The explanations were checked against the code: for v0.7.1 an audit ran the code behind 3,654 claims in the READMEs and articles of all 153 topics, and corrected about 400 statements. The visualizations' TypeScript ports are checked against the Python code they animate.
 
@@ -22,7 +22,7 @@ The explanations were checked against the code: for v0.7.1 an audit ran the code
 | Area | Topics | What it covers |
 |------|--------|----------------|
 | [Data Structures](Data_Structures/) | 47 | arrays, lists, stacks and queues, strings, hashing, trees, heaps, graph representations, caches and disjoint sets |
-| [Algorithms](Algorithms/) | 87 | sorting, searching, divide and conquer, greedy, dynamic programming, graphs, strings, math, coding theory, geometry, randomized algorithms and backtracking |
+| [Algorithms](Algorithms/) | 97 | sorting, searching, divide and conquer, greedy, dynamic programming, graphs, strings, math, coding theory, geometry, randomized algorithms and backtracking |
 | [Problem Patterns](Problem_Patterns/) | 13 | two pointers, sliding window, prefix sums, monotonic stacks and queues, binary search on the answer and other recurring patterns |
 | [Complexity Analysis](Complexity_Analysis/) | 5 | Big-O, Big-Omega and Big-Theta, space complexity and amortized analysis |
 | [Utilities](Utilities/) | 7 | optimization techniques, problem types, and contest templates in all three languages |
@@ -34,7 +34,7 @@ Each area, and each group inside it, has a README that lists its topics in readi
 - **Follow a path.** The [Study Guide](STUDY_GUIDE.md) orders every topic into phases, from complexity analysis and linear structures to advanced graphs and competitive programming. On the site, tick the topics you have finished; the ticks stay in your browser.
 - **Browse an area.** Open an area above and read its topics in the order its README gives.
 - **Watch it run.** On the [web site](https://snykk.github.io/dsa-playground/), run a visualization on your own input and step through it.
-- **Practise.** 157 of the 159 articles end with three to five practice problems, from easy to harder, on LeetCode, CSES, Codeforces, AtCoder, Kattis or SPOJ, each checked on its judge.
+- **Practise.** 167 of the 169 articles end with three to five practice problems, from easy to harder, on LeetCode, CSES, Codeforces, AtCoder, Kattis or SPOJ, each checked on its judge.
 
 ## Inside a Topic
 

@@ -1,7 +1,7 @@
 ---
 category: Algorithms/Mathematical_Algorithms
 title: Mathematical Algorithms
-lead: Mathematical algorithms compute with exact integers and structured numbers. Number Theory covers divisors, remainders, powers and primes. Advanced Math covers matrix powers and the Fast Fourier Transform, which cut a slow computation down to O(log k) or O(n log n) steps.
+lead: Mathematical algorithms compute with exact integers and structured numbers. Number Theory covers divisors, remainders, powers, primes and Euler's totient. Advanced Math covers binomial coefficients, matrix powers, linear systems, and polynomial products by the Fast Fourier and Number Theoretic Transforms.
 updated: 2026-11-13
 facts:
   - label: gcd
@@ -18,9 +18,9 @@ facts:
     hint: Fast Fourier Transform, with rounding
 contents:
   - folder: Number_Theory
-    note: Euclid, modular arithmetic and exponentiation, the Chinese Remainder Theorem, the sieve and Miller-Rabin.
+    note: Euclid, modular arithmetic and exponentiation, the Chinese Remainder Theorem, the sieve, Euler's totient and Miller-Rabin.
   - folder: Advanced_Math
-    note: Matrix exponentiation for recurrences and the Fast Fourier Transform for polynomial products.
+    note: Combinatorics, matrix exponentiation for recurrences, Gaussian elimination for linear systems, and the Fast Fourier and Number Theoretic Transforms for polynomial products.
 prerequisites:
   - Complexity_Analysis/Time_Complexity/Big_O_Notation
 related:
@@ -33,18 +33,18 @@ related:
 
 This folder collects algorithms whose input is numbers and whose answer is a number, a list of numbers or a yes or no.
 
-- **Number Theory** works on whole numbers. It finds a gcd, computes powers and inverses modulo `m`, merges congruences and finds primes. Everything is exact.
-- **Advanced Math** applies the same halving idea to larger objects. Matrix exponentiation squares a matrix to reach the `k`-th term of a recurrence, and the FFT splits a sequence in two to multiply polynomials in O(n log n).
+- **Number Theory** works on whole numbers. It finds a gcd, computes powers and inverses modulo `m`, merges congruences, finds primes and counts the numbers coprime to `n`. Everything is exact.
+- **Advanced Math** counts with binomial coefficients, solves linear systems by Gaussian elimination, and applies the same halving idea to larger objects. Matrix exponentiation squares a matrix to reach the `k`-th term of a recurrence, and the FFT and the NTT split a sequence in two to multiply polynomials in O(n log n).
 
-The two meet in modular exponentiation. Square and multiply for numbers is the template for matrix exponentiation, which squares matrices in the same way.
+The two meet in modular exponentiation. Square and multiply for numbers is the template for matrix exponentiation, which squares matrices in the same way. The modular inverse of Number Theory is what combinatorics, Gaussian elimination and the NTT need to work modulo a prime.
 
 ## At a glance
 
 <DataTable
   columns={['Sub-area', 'Topics', 'Question it answers', { label: 'Typical cost', kind: 'mono' }]}
   rows={[
-    ['Number Theory', 'Euclid, Modular Arithmetic, Modular Exponentiation, CRT, Sieve, Miller-Rabin', 'divisors, remainders, big powers, primes', 'O(log n) to O(n log log n)'],
-    ['Advanced Math', 'Matrix Exponentiation, Fast Fourier Transform', 'the k-th term of a recurrence, products of long polynomials', 'O(n^3 log k), O(n log n)'],
+    ['Number Theory', "Euclid, Modular Arithmetic, Modular Exponentiation, CRT, Sieve, Euler's Totient, Miller-Rabin", 'divisors, remainders, big powers, primes, counts of coprimes', 'O(log n) to O(n log log n)'],
+    ['Advanced Math', 'Combinatorics, Matrix Exponentiation, Gaussian Elimination, FFT, NTT', 'counts, the k-th term of a recurrence, linear systems, products of long polynomials', 'O(1) per C(n, k) after O(n), O(n^3 log k), O(n^3), O(n log n)'],
   ]}
 />
 
@@ -57,11 +57,11 @@ The two meet in modular exponentiation. Square and multiply for numbers is the t
   <Step title="Modular exponentiation">
     Square and multiply is the idea you will meet again in matrix exponentiation.
   </Step>
-  <Step title="The Chinese Remainder Theorem, the sieve and Miller-Rabin">
-    CRT builds on the extended Euclid, and Miller-Rabin builds on modular exponentiation. The sieve needs only the basics.
+  <Step title="The Chinese Remainder Theorem, the sieve, Euler's totient and Miller-Rabin">
+    CRT builds on the extended Euclid, Euler's totient on the sieve, and Miller-Rabin on modular exponentiation. The sieve needs only the basics.
   </Step>
-  <Step title="Matrix exponentiation, then the Fast Fourier Transform">
-    Both are divide and conquer on a larger object. Matrix exponentiation comes first because it extends modular exponentiation.
+  <Step title="Combinatorics, matrices, then the two transforms">
+    Combinatorics needs one modular inverse. Matrix exponentiation extends modular exponentiation, and Gaussian elimination works on the same matrices. The Fast Fourier Transform and the Number Theoretic Transform come last: divide and conquer on polynomials.
   </Step>
 </Steps>
 
@@ -74,8 +74,12 @@ The two meet in modular exponentiation. Square and multiply for numbers is the t
     ['A huge power modulo m', 'Number Theory: Modular Exponentiation', 'O(log e) multiplications'],
     ['Is a large number prime?', 'Number Theory: Miller-Rabin', 'exact for n < 2^64 with 12 fixed bases'],
     ['All primes up to n', 'Number Theory: Sieve', 'O(n log log n), O(1) lookups afterwards'],
+    ['phi(n), or phi of every number up to n', "Number Theory: Euler's Totient", 'O(sqrt n) by factorization, O(n) with the linear sieve'],
+    ['Many C(n, k) modulo a prime', 'Advanced Math: Combinatorics', 'O(1) per query after O(n) factorial tables'],
     ['The k-th term of a linear recurrence', 'Advanced Math: Matrix Exponentiation', 'O(log k) small matrix products'],
+    ['Solving a system of linear equations, a rank or a determinant', 'Advanced Math: Gaussian Elimination', 'O(n^3), in floating point or exactly modulo a prime'],
     ['Multiplying long polynomials', 'Advanced Math: FFT', 'O(n log n) instead of O(n^2), with rounding error'],
+    ['A convolution wanted modulo 998244353', 'Advanced Math: NTT', 'O(n log n), exact modulo the prime'],
   ]}
 />
 
@@ -83,7 +87,8 @@ The two meet in modular exponentiation. Square and multiply for numbers is the t
 
 <Callout tone="warning" title="Watch out for these">
 - **Overflow in 64 bits.** Modular products need 128-bit intermediates once the modulus is above about 3.04e9. Matrix entries and Fibonacci numbers overflow without a modulus.
-- **Treating the FFT as exact.** It rounds from doubles, so it is exact only while coefficients stay below about 2^53.
+- **Treating the FFT as exact.** It rounds from doubles, so it is exact only while coefficients stay below about 2^53. The NTT is exact, but only modulo its prime.
+- **Eliminating without pivoting.** Gaussian elimination in floating point needs partial pivoting: a tiny pivot can make the answer visibly wrong.
 - **Dividing modulo `m` without an inverse.** The inverse exists only when `gcd(a, m) = 1`.
 - **Using a sieve for a single big number.** Use Miller-Rabin; the sieve needs O(n) memory.
 </Callout>
@@ -95,10 +100,10 @@ The two meet in modular exponentiation. Square and multiply for numbers is the t
     With the Euclidean algorithm in Number Theory. Modular arithmetic, the Chinese Remainder Theorem and Miller-Rabin all depend on it directly or indirectly.
   </FaqItem>
   <FaqItem question="How are the two sub-areas related?">
-    Advanced Math reuses the halving trick of Number Theory. Square and multiply gives `a^e mod m`, and the same repeated squaring gives `A^k` for a matrix `A`.
+    Advanced Math reuses the halving trick of Number Theory. Square and multiply gives `a^e mod m`, and the same repeated squaring gives `A^k` for a matrix `A`. Combinatorics, Gaussian elimination and the NTT use the modular inverse of Number Theory to compute modulo a prime.
   </FaqItem>
   <FaqItem question="Which results are exact?">
-    Everything in Number Theory is exact integer arithmetic, as is matrix exponentiation inside a 64-bit range or with a modulus. The FFT works with doubles and is exact only while coefficients stay below about 2^53.
+    Everything in Number Theory is exact integer arithmetic, as are combinatorics, matrix exponentiation inside a 64-bit range or with a modulus, and the NTT and Gaussian elimination modulo a prime. The FFT and floating-point Gaussian elimination work with doubles; the FFT is exact only while coefficients stay below about 2^53.
   </FaqItem>
   <FaqItem question="Does any of this connect to other folders?">
     Yes. Coding Theory builds a finite field on modular ideas, and Dynamic Programming uses matrix powers to speed up linear recurrences.
