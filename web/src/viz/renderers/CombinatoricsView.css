@@ -1,0 +1,10 @@
+/* CombinatoricsView: Pascal's triangle on OptimizationKit's boxes, over the FactorialTables organism. */
+.cb-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.ok-svg .cb-rowlabel {
+  text-anchor: end;
+}

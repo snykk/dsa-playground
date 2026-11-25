@@ -1,4 +1,4 @@
-/** Visualization registry: Advanced math (matrix exponentiation, the fast Fourier transform, the number theoretic transform). */
+/** Visualization registry: Advanced math (matrix exponentiation, the fast Fourier transform, the number theoretic transform, combinatorics). */
 import type { AnyVizSpec } from '../core/types';
 import type { VizInfo } from '../catalog';
 
@@ -47,6 +47,13 @@ export const entries: VizInfo[] = [
     blurb: 'Two transforms modulo 998244353, a pointwise product and the inverse: the coefficients modulo the prime, with no rounding.',
     topics: [`${M}/Number_Theoretic_Transform`, M],
   },
+  {
+    id: 'binomial-coefficients',
+    title: "Pascal's triangle and C(n, k) mod p",
+    group: 'Math',
+    blurb: 'Each cell is the sum of the two above it; then fact and inv_fact modulo a prime, from one inverse, answer C(n, k) mod p in O(1).',
+    topics: [`${M}/Combinatorics`, M],
+  },
 ];
 
 export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
@@ -56,4 +63,5 @@ export const loaders: Record<string, () => Promise<AnyVizSpec>> = {
   'fft-polynomial-multiplication': () => import('../specs/advancedMath').then((m) => m.fftMultiplySpec),
   ntt: () => import('../specs/advancedMath').then((m) => m.nttSpec),
   'ntt-polynomial-multiplication': () => import('../specs/advancedMath').then((m) => m.nttMultiplySpec),
+  'binomial-coefficients': () => import('../specs/advancedMath').then((m) => m.binomialSpec),
 };

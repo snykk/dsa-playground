@@ -1,6 +1,6 @@
 """Generate golden fixtures for the advanced math and problem type visualizations.
 
-The web visualizer re-implements six topics in TypeScript. These fixtures pin each port to the
+The web visualizer re-implements seven topics in TypeScript. These fixtures pin each port to the
 repository's Python code, which this script imports by path and runs on fixed inputs:
 
 - matrixPower (web/src/viz/algorithms/matrixPower.ts), from
@@ -31,6 +31,13 @@ repository's Python code, which this script imports by path and runs on fixed in
   each mex call (mex is wrapped) and combined_grundy; game_graph_outcomes with the order in which
   its queue settled the nodes (read from the function's own local `queue` by sys.settrace when it
   returns).
+
+- combinatorics (combinatorics.ts), from Algorithms/Mathematical_Algorithms/Advanced_Math/Combinatorics/
+  Python: every _pascal_cell call of pascal_triangle(n) as (r, j, the two cells above, the sum), in
+  order (the helper is wrapped); then ModBinomial(n, p) with its _power call (base, exp, value,
+  products), fact, inv_fact and the count of products, or its ValueError; and every answer of
+  binomial(n, k), or its ValueError. This section draws its inputs from its own random
+  generator, so the other sections stay as they were.
 
 - judge (interactive.ts), from Utilities/Problem_Types/Interactive_Problems/Python: guess_number,
   find_maximum, tournament and binary_subset_search played against a scripted judge, which is put
@@ -80,6 +87,7 @@ NT = load("Algorithms/Mathematical_Algorithms/Advanced_Math/Number_Theoretic_Tra
 CA = load("Utilities/Problem_Types/Constructive_Algorithms/Python/constructive.py", "constructive")
 GT = load("Utilities/Problem_Types/Game_Theory/Python/game_theory.py", "game_theory")
 IP = load("Utilities/Problem_Types/Interactive_Problems/Python/interactive.py", "interactive")
+CB = load("Algorithms/Mathematical_Algorithms/Advanced_Math/Combinatorics/Python/combinatorics.py", "combinatorics")
 
 
 # ---------- matrix exponentiation ----------
@@ -400,6 +408,87 @@ def ntt_multiply_cases(count):
     return cases
 
 
+# ---------- combinatorics ----------
+
+COMB_RNG = random.Random(20261125)
+
+
+def combinatorics_case(n, p, queries):
+    sums, powers = [], []
+    real_cell, real_power = CB._pascal_cell, CB._power
+
+    def cell(above, j):
+        value = real_cell(above, j)
+        sums.append([len(above), j, above[j - 1], above[j], value])
+        return value
+
+    def power(base, exp, m):
+        out = real_power(base, exp, m)
+        powers.append([base, exp, out[0], out[1]])
+        return out
+
+    CB._pascal_cell, CB._power = cell, power
+    try:
+        rows = CB.pascal_triangle(n)
+        try:
+            table, error = CB.ModBinomial(n, p), None
+        except ValueError as e:
+            table, error = None, "ValueError: " + str(e)
+    finally:
+        CB._pascal_cell, CB._power = real_cell, real_power
+    answers = []
+    if table is not None:
+        for qn, qk in queries:
+            try:
+                answers.append(table.binomial(qn, qk))
+            except ValueError as e:
+                answers.append("ValueError: " + str(e))
+    return {
+        "n": n,
+        "p": p,
+        "queries": [list(q) for q in queries],
+        "rows": rows,
+        "sums": sums,
+        "power": powers[0] if powers else None,
+        "fact": table.fact if table else None,
+        "invFact": table.inv_fact if table else None,
+        "multiplications": table.multiplications if table else None,
+        "answers": answers,
+        "error": error,
+    }
+
+
+def combinatorics_cases(count):
+    fixed = [
+        (6, 13, [(6, 2)]),
+        (6, 13, [(6, 2), (6, 3), (5, 2), (6, 7), (6, -1)]),
+        (10, 10**9 + 7, [(10, 5), (10, 3)]),
+        (5, 11, [(5, 7), (5, -1), (5, 2)]),
+        (9, 7, [(9, 4)]),
+        (6, 8, [(6, 3)]),
+        (4, 13, [(4, 2), (6, 2)]),
+        (0, 2, [(0, 0)]),
+        (1, 2, [(1, 1), (1, 0)]),
+        (2, 2, [(2, 1)]),
+        (1, 4, [(1, 1)]),
+        (3, 9, [(3, 1)]),
+        (10, 11, [(10, 5), (0, 0), (10, 10)]),
+        (4, 2147483647, [(4, 2)]),
+        (7, 1000003, [(7, 3), (99, 50), (-3, 1), (-3, -5)]),
+    ]
+    cases = [combinatorics_case(*c) for c in fixed]
+    primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 101, 65537, 1000003, 998244353, 10**9 + 7, 2147483647]
+    while len(cases) < count:
+        n = COMB_RNG.randint(0, 10)
+        p = COMB_RNG.choice(primes) if COMB_RNG.random() < 0.85 else COMB_RNG.randint(2, 60)
+        queries = []
+        for _ in range(COMB_RNG.randint(0, 4)):
+            qn = COMB_RNG.randint(-2, n + 2) if COMB_RNG.random() < 0.3 else COMB_RNG.randint(0, n)
+            queries.append((qn, COMB_RNG.randint(-2, max(qn, 0) + 2) if COMB_RNG.random() < 0.3 else COMB_RNG.randint(0, max(qn, 0))))
+        cases.append(combinatorics_case(n, p, queries))
+    return cases
+
+
 # ---------- constructive algorithms ----------
 
 
@@ -645,6 +734,7 @@ def main():
         "fftMultiply": multiply_cases(30),
         "ntt": ntt_cases(30),
         "nttMultiply": ntt_multiply_cases(30),
+        "combinatorics": combinatorics_cases(60),
         "permutation": permutation_cases(),
         "havelHakimi": graph_cases(60),
         "northwestCorner": matrix_sum_cases(40),
@@ -655,7 +745,7 @@ def main():
     }
     header = {
         "generator": "web/scripts/gen_mathAndProblemTypes_fixtures.py",
-        "reference": "Algorithms/Mathematical_Algorithms/Advanced_Math (matrix_exponentiation.py, fast_fourier_transform.py, number_theoretic_transform.py); Utilities/Problem_Types (constructive.py, game_theory.py, interactive.py)",
+        "reference": "Algorithms/Mathematical_Algorithms/Advanced_Math (matrix_exponentiation.py, fast_fourier_transform.py, number_theoretic_transform.py, combinatorics.py); Utilities/Problem_Types (constructive.py, game_theory.py, interactive.py)",
     }
     parts = []
     for key, cases in sections.items():

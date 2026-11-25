@@ -1,7 +1,9 @@
+import { BINOMIAL_CODE, binomialTrace, parseBinomial, type BinomialInput, type CombinatoricsState } from '../algorithms/combinatorics';
 import { FFT_CODE, fftTrace, parseFftMultiply, parseFftSignal, stabilizeFft, type FftInput } from '../algorithms/fft';
 import { MATPOW_CODE, matPowTrace, parseMatPow, stabilizeMatPow, type MatPowInput, type MatPowMode } from '../algorithms/matrixPower';
 import { NTT_CODE, nttTrace, parseNttMultiply, parseNttSequence, stabilizeNtt, type NttInput } from '../algorithms/ntt';
 import type { Example, VizSpec } from '../core/types';
+import { CombinatoricsView } from '../renderers/CombinatoricsView';
 import { FftView, type FftState } from '../renderers/FftView';
 import { MatrixPowerView, type MatPowState } from '../renderers/MatrixPowerView';
 import { NttView } from '../renderers/NttView';
@@ -251,4 +253,49 @@ export const nttMultiplySpec: VizSpec<NttInput, FftState> = {
     { role: 'good', label: `a transform's result, the coefficients modulo p (${SYM.check})` },
   ],
   complexity: { time: 'O(n log n): three transforms and n pointwise products', space: 'O(n)' },
+};
+
+/* ---------- Combinatorics ---------- */
+
+function randomBinomial(): string {
+  const n = rint(2, 10);
+  // Mostly a prime above n; now and then a small prime (n >= p) or a composite, which the code refuses.
+  const p = Math.random() < 0.8 ? pick([11, 13, 17, 101, 1000000007]) : pick([2, 3, 5, 7, 4, 9, 10]);
+  const queries = Array.from({ length: rint(1, 2) }, () => {
+    const qn = rint(Math.max(0, n - 3), n);
+    return `C(${qn}, ${rint(0, qn)})`;
+  });
+  return `n ${n}; ${queries.join(', ')} mod ${p}`;
+}
+
+export const binomialSpec: VizSpec<BinomialInput, CombinatoricsState> = {
+  id: 'binomial-coefficients',
+  title: "Pascal's triangle and C(n, k) mod p",
+  inputKind: 'binomial-mod-p',
+  inputLabel: 'Queries and a prime',
+  inputHelp:
+    'One to four queries and the modulus: "C(6, 2) mod 13" or "C(6, 2), C(6, 3) mod 13" (n and k from -99 to 99, p from 2 to 2147483647). ' +
+    'The triangle and the tables go up to the largest n asked about, at most 10; "n 8" sets that size, so a query past it shows the error. ' +
+    'A table with n >= p, or a modulus that is not prime, raises ValueError as the code does.',
+  examples: [
+    { label: 'C(6, 2) mod 13, the README trace', value: 'C(6, 2) mod 13' },
+    { label: 'Row 10 modulo 10^9 + 7', value: 'C(10, 5), C(10, 3) mod 1000000007' },
+    { label: 'k out of range: 0', value: 'C(5, 7), C(5, -1), C(5, 2) mod 11' },
+    { label: 'n >= p: Lucas takes over', value: 'C(9, 4) mod 7' },
+    { label: 'Not prime: 8', value: 'C(6, 3) mod 8' },
+    { label: 'Past the table', value: 'n 4; C(4, 2), C(6, 2) mod 13' },
+  ],
+  randomInput: randomBinomial,
+  parse: parseBinomial,
+  trace: (input) => binomialTrace(input).frames,
+  render: (state) => <CombinatoricsView state={state} />,
+  pseudocode: BINOMIAL_CODE,
+  legend: [
+    { role: 'compare', label: 'the two cells above, the entries a step reads' },
+    { role: 'active', label: 'the cell or entry just written' },
+    { role: 'idle', label: 'dashed: not written yet' },
+    { role: 'good', label: `an answer that matches the triangle (${SYM.check})` },
+    { role: 'bad', label: `ValueError: n >= p, p not prime, past the table (${SYM.cross})` },
+  ],
+  complexity: { time: 'O(n^2) additions for the triangle; O(n + log p) products for the tables, O(1) per query', space: 'O(n^2) for the triangle, O(n) for the tables' },
 };

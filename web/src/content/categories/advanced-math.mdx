@@ -1,9 +1,12 @@
 ---
 category: Algorithms/Mathematical_Algorithms/Advanced_Math
 title: Advanced Mathematical Algorithms
-lead: These topics cut a slow linear or quadratic computation down to O(log k) or O(n log n) steps by halving the problem. Matrix exponentiation squares a matrix to jump to the k-th term of a recurrence, and the Fast Fourier Transform and the Number Theoretic Transform multiply polynomials through their values.
-updated: 2026-11-13
+lead: Combinatorics counts choices and arrangements with binomial coefficients, exactly or modulo a prime. Matrix exponentiation and the two transforms cut a slow computation down to O(log k) or O(n log n) steps by halving the problem, to jump to the k-th term of a recurrence or to multiply polynomials, in floating point with the FFT or exactly modulo a prime with the NTT.
+updated: 2026-11-24
 facts:
+  - label: C(n, k) mod p
+    value: O(1)
+    hint: after O(n) factorial tables, for a prime p > n
   - label: Matrix power
     value: O(n^3 log k)
     hint: n x n matrix, exponent k
@@ -18,6 +21,8 @@ facts:
     hint: exact only while coefficients stay below about 2^53
     tone: warn
 contents:
+  - folder: Combinatorics
+    note: Binomial coefficients by Pascal's triangle, by the multiplicative formula, and modulo a prime in O(1) after O(n) tables; Catalan numbers, stars and bars, derangements.
   - folder: Matrix_Exponentiation
     note: A^k by repeated squaring, which turns a linear recurrence such as Fibonacci into O(log k) matrix products.
   - folder: Fast_Fourier_Transform
@@ -28,6 +33,7 @@ prerequisites:
   - Algorithms/Mathematical_Algorithms/Number_Theory/Modular_Exponentiation
 related:
   - Algorithms/Mathematical_Algorithms/Number_Theory
+  - Utilities/Optimization_Techniques/Modular_Arithmetic_Tricks
   - Algorithms/Dynamic_Programming/Basic_DP/Fibonacci_Numbers
   - Algorithms/Divide_and_Conquer
   - Algorithms/Coding_Theory/Galois_Field
@@ -35,19 +41,21 @@ related:
 
 ## The problem
 
-Some computations look like they need `k` steps or `n^2` multiplications. The topics here avoid that by splitting the work in half again and again.
+Some computations look like they need `k` steps or `n^2` multiplications, and some counts are far too large to list. The topics here avoid both.
 
+- **Combinatorics** counts choices with the binomial coefficient `C(n, k)`: Pascal's triangle with additions only, the multiplicative formula exactly, and factorial tables modulo a prime for `C(n, k) mod p` in O(1) after O(n) work. Catalan numbers, stars and bars and derangements build on it.
 - **Matrix exponentiation** computes `A^k` for a square matrix `A`. A linear recurrence such as Fibonacci becomes one matrix power, so the `k`-th term takes O(log k) multiplications of small matrices instead of `k` additions.
 - **The Fast Fourier Transform** computes the discrete Fourier transform of `n` values in O(n log n). Its best-known use in programming is multiplying two polynomials, or convolving two sequences, in O(n log n) instead of O(n^2).
 - **The Number Theoretic Transform** runs the same butterflies with the integers modulo the prime 998244353, whose powers of 3 give the roots of unity, so the product comes out exact modulo that prime.
 
-Matrix exponentiation and the NTT are exact integer arithmetic and the FFT is floating point, and that difference decides where each one fits.
+Combinatorics, matrix exponentiation and the NTT are exact integer arithmetic and the FFT is floating point, and that difference decides where each one fits.
 
 ## At a glance
 
 <DataTable
   columns={['Topic', 'Idea', 'Key property', { label: 'Time', kind: 'mono' }]}
   rows={[
+    ['Combinatorics', 'add the two cells above, or read three factorial-table entries', 'modulo p it needs a prime p > n', 'O(1) per query mod p'],
     ['Matrix exponentiation', 'square the matrix once per bit of the exponent', 'works modulo `m`; needs a square matrix', 'O(n^3 log k)'],
     ['Fast Fourier Transform', 'split into even and odd positions, then combine', 'pads to a power-of-two length; uses doubles', 'O(n log n)'],
     ['Number Theoretic Transform', 'bit reversal, then stages of butterflies modulo a prime', 'exact modulo 998244353; at most 2^23 coefficients', 'O(n log n)'],
@@ -56,9 +64,9 @@ Matrix exponentiation and the NTT are exact integer arithmetic and the FFT is fl
 
 ## See them side by side
 
-Each tab runs one function of the repository: matrix exponentiation iteratively and recursively (`fib 10` in the recursive tab runs `fibonacci_matrix`), the FFT of a signal, and a polynomial product through three transforms, with complex numbers and then modulo 998244353.
+Each tab runs one function of the repository: matrix exponentiation iteratively and recursively (`fib 10` in the recursive tab runs `fibonacci_matrix`), the FFT of a signal, a polynomial product through three transforms, with complex numbers and then modulo 998244353, and Pascal's triangle followed by `C(n, k) mod p` from the factorial tables.
 
-<ArticleViz ids={['matrix-power', 'matrix-power-recursive', 'fft', 'fft-polynomial-multiplication', 'ntt-polynomial-multiplication']} />
+<ArticleViz ids={['matrix-power', 'matrix-power-recursive', 'fft', 'fft-polynomial-multiplication', 'ntt-polynomial-multiplication', 'binomial-coefficients']} />
 
 ## One call each
 
@@ -67,6 +75,8 @@ Every value here comes from running the Python code in this repository.
 <DataTable
   columns={['Topic', 'Call', 'Result']}
   rows={[
+    ['Combinatorics', '`binomial(10, 3)`', '120, in three steps: 8, 36, 120'],
+    ['Combinatorics', '`ModBinomial(6, 13).binomial(6, 2)`', '2, and indeed `C(6, 2) = 15 = 2 (mod 13)`'],
     ['Matrix exponentiation', '`matrix_power([[1, 1], [1, 0]], 10)`', '`[[89, 55], [55, 34]]`, which holds F(11), F(10) and F(9)'],
     ['Matrix exponentiation', '`fibonacci_matrix(10)`', '55'],
     ['Fast Fourier Transform', '`multiply_polynomials([1, 2], [3, 4])`', '`[3, 10, 8]`, that is `(1 + 2x)(3 + 4x) = 3 + 10x + 8x^2`'],
@@ -80,6 +90,8 @@ Every value here comes from running the Python code in this repository.
 <DataTable
   columns={['Topic', { label: 'Time', kind: 'mono' }, { label: 'Space', kind: 'mono' }, 'Limit']}
   rows={[
+    ['Pascal\'s triangle', 'O(n^2)', 'O(n^2)', 'row 67 is the last that fits in 64 bits'],
+    ['C(n, k) mod p from factorial tables', 'O(n + log p), then O(1)', 'O(n)', 'needs a prime p > n; Lucas\'s theorem for n >= p'],
     ['Matrix exponentiation', 'O(n^3 log k)', 'O(n^2)', 'the recursive version adds an O(log k) stack; without a modulus the entries overflow'],
     ['Fibonacci by matrix', 'O(log k)', 'O(log k)', 'the recursive version uses O(log k) stack; F(93) is the first Fibonacci number that does not fit in a signed 64-bit integer'],
     ['Fast Fourier Transform', 'O(n log n)', 'O(n)', 'exact only while output coefficients stay below about 2^53'],
@@ -92,6 +104,8 @@ Every value here comes from running the Python code in this repository.
 <DataTable
   columns={['Situation', 'Use', 'Why']}
   rows={[
+    ['Many C(n, k) modulo a prime p > n', 'Combinatorics: factorial tables', 'O(1) per query after one O(n) build'],
+    ['C(n, k) with no modulus or a composite one', 'Combinatorics: Pascal\'s triangle or the multiplicative formula', 'no modular inverse needed'],
     ['The k-th term of a linear recurrence, with k very large', 'Matrix exponentiation', 'one matrix power, with a modulus to keep numbers small'],
     ['Multiplying two long polynomials', 'Fast Fourier Transform', 'O(n log n) instead of O(n^2)'],
     ['Convolving two sequences', 'Fast Fourier Transform', 'convolution is polynomial multiplication of the sequences'],
@@ -103,6 +117,7 @@ Every value here comes from running the Python code in this repository.
 
 ## Applications
 
+- **Counting modulo a prime.** Subsets, grid paths, distributions of identical items, Catalan structures and derangements, modulo 10<sup>9</sup> + 7.
 - **Fast recurrences.** Fibonacci modulo `m`, counting walks in a graph, and linear recurrences in contests.
 - **Big-number multiplication.** Large integers are polynomials in their digits.
 - **Signal processing.** The transform moves a signal between time and frequency.
@@ -116,6 +131,7 @@ Every value here comes from running the Python code in this repository.
 - **Trusting the FFT for exact big integers.** The result is rounded from doubles. Past coefficients of about 2^53 it is wrong.
 - **Expecting the NTT's integers above the prime.** It is exact only modulo 998244353: a larger coefficient comes out reduced.
 - **Inverting a length that is not a power of two.** The forward transform pads with zeros to the next power of two, so its result is longer than the input. The inverse refuses other lengths: Python raises `ValueError`.
+- **Building factorial tables with n >= p.** From n = p on, n! is 0 modulo p and has no inverse; Lucas's theorem takes over there.
 - **Reaching for either on a small input.** The plain loop or the direct product is faster and simpler there.
 </Callout>
 
@@ -123,7 +139,7 @@ Every value here comes from running the Python code in this repository.
 
 <Faq>
   <FaqItem question="Which one should I read first?">
-    Matrix exponentiation. It builds directly on modular exponentiation, which uses the same square and multiply idea. The FFT needs divide and conquer and an understanding of complex numbers, and the NTT comes after the FFT, whose butterflies it reuses.
+    Combinatorics, then matrix exponentiation. Combinatorics needs only modular arithmetic and one modular inverse; matrix exponentiation builds directly on modular exponentiation, which uses the same square and multiply idea. The FFT needs divide and conquer and an understanding of complex numbers, and the NTT comes after the FFT, whose butterflies it reuses.
   </FaqItem>
   <FaqItem question="Why is Fibonacci a matrix power?">
     The pair of consecutive terms is multiplied by the same 2 x 2 matrix at every step, so the k-th pair is that matrix to the power k applied to the first pair. Squaring computes that power in O(log k) multiplications.

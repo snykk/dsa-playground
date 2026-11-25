@@ -203,4 +203,5 @@ The three give the same residues on the same input. The C++ and Go tests pin the
 - [Modular Arithmetic](../../Number_Theory/Modular_Arithmetic/): inverses modulo a prime by Fermat's little theorem.
 - [Chinese Remainder Theorem](../../Number_Theory/Chinese_Remainder_Theorem/): combining several NTT primes for exact large coefficients.
 - [Galois Field GF(2^8)](../../../Coding_Theory/Galois_Field/): another finite field with arithmetic on polynomials.
+- [Combinatorics](../Combinatorics/): binomial coefficients modulo a prime from factorial tables, the counts that an NTT product often combines.
 - [Advanced Mathematical Algorithms](../)
